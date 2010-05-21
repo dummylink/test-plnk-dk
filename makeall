@@ -1,0 +1,39 @@
+#!/bin/bash
+###############################################################################
+# This script creates all applications and libraries of the CNDF
+###############################################################################
+
+ROOTDIR=`pwd`
+
+echo $ROOTDIR
+
+# echo creating Altera applications
+cd ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
+./create-this-app --rebuild --no-make
+cd ${ROOTDIR}
+
+cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DigitalIO
+./create-this-app --rebuild --no-make
+cd ${ROOTDIR}
+
+cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
+./create-this-app --rebuild --no-make
+cd ${ROOTDIR}
+
+cd ${ROOTDIR}/libCnApi/target/nios2_newlib
+make
+cd ${ROOTDIR}
+
+cd ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
+make
+cd ${ROOTDIR}
+
+cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
+make
+cd ${ROOTDIR}
+
+cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
+make
+cd ${ROOTDIR}
+
+exit 0
