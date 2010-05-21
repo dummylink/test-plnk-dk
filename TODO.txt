@@ -1,0 +1,42 @@
+===============================================================================
+ POWERLINK CN Development Framework (CNDF) - TODOs and Questions
+===============================================================================
+
+-------------------------------------------------------------------------------
+TODOs
+-------------------------------------------------------------------------------
+- prepare Digital I/O application on muliprocessor NIOS to be stored in flash
+  (at the moment only the PCP application could be stored on flash, how could
+  we store elf files for multiple NIOS processor on EPCS?)
+ - cleanup CnApiDebug.h (do we need it?, AP application and CnApi should be
+  independant of openPOWERLINK, therfore we couldn't use openPOWERLINK Debug.h,
+  On the other side, the PCP application has to use Debug.h because it includes
+  the openPOWERLINK files) 
+
+doc
+---
+- generate latex documentation?
+
+fpga
+----
+
+
+libCnApi
+--------
+- implement endian conversion if necessary (to be runned on little and big endian processors)
+- remove dependency to EBV_DBC3C40_DigitalIO bsp (needed for mutex implementation of tiple buffer)
+- cleanup for doxygen
+- prepare doxygen for internal and API reference manual documentation
+
+
+-------------------------------------------------------------------------------
+Questions
+-------------------------------------------------------------------------------
+Q: How do we configure the framework (path of openPOWERLINK,...)
+  -> shellscript to be included in create-this-app for altera
+  -> could it be done the same way for xilinx?
+  
+Q: powerlink application (PCP) must be compiled for specific application because
+  the object dictionary must be compiled in. Could we configure the application
+  for a specific object dictionary or do we need to setup separate applications
+  for each object dictionary?  

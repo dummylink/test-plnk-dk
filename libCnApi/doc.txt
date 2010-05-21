@@ -1,0 +1,35 @@
+/**
+********************************************************************************
+\file		doc.txt
+
+\brief		Main documentation file of CN API library
+
+\author		Josef Baumgartner
+
+\date		17.05.2010
+
+(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
+*******************************************************************************
+
+\mainpage
+The CN API is an API designed to interface an application processor (AP) to a POWERLINK communication Processor (PCP).
+
+
+\section reqs Requirements
+- C standard library functions: malloc(), free(), .....
+
+
+\section targets Targets
+The CN API is prepared to be compiled for miscellaneous processor targets. The following targets are supported
+- nios2_newlib: Altera NIOS II processor using new newlib C library
+
+\section objdict AP object dictionary
+The AP has to create an object dictionary where all objects which are controlled by the AP are listed.
+TODO: explain object dictionary implementation for AP (not POWERLINK object dictionary!!)
+
+
+\section problems Problems
+- SDO requests should be handled by state-machines instead of polling for answer
+- SDO commands must be handled depending on state machine (e.g. in INIT only InitPcpReq())
+
+*******************************************************************************/
