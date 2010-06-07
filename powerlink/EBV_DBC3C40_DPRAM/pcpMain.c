@@ -510,36 +510,36 @@ void Gi_init(void)
     wSize = 0;
 
     /* PDO Buffers */
-    pCtrlReg_g->m_wRxPdoBufAdrs = sizeof(tPcpCtrlReg);
-    pCtrlReg_g->m_wRxPdoBufSize = PDO_BUF_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxPdoBufAdrs, 0x00, 3 * PDO_BUF_SIZE);
-    wSize = sizeof(tPcpCtrlReg) + 3 * PDO_BUF_SIZE;
-
-    pCtrlReg_g->m_wTxPdoBufAdrs = wSize;
+    pCtrlReg_g->m_wTxPdoBufAdrs = sizeof(tPcpCtrlReg);
     pCtrlReg_g->m_wTxPdoBufSize = PDO_BUF_SIZE;
     memset((char *)DPRAM_BASE + pCtrlReg_g->m_wTxPdoBufAdrs, 0x00, 3 * PDO_BUF_SIZE);
+    wSize = sizeof(tPcpCtrlReg) + 3 * PDO_BUF_SIZE;
+
+    pCtrlReg_g->m_wRxPdoBufAdrs = wSize;
+    pCtrlReg_g->m_wRxPdoBufSize = PDO_BUF_SIZE;
+    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxPdoBufAdrs, 0x00, 3 * PDO_BUF_SIZE);
     wSize += (3 * PDO_BUF_SIZE);
 
     /* PDO Descriptor Buffers */
-    pCtrlReg_g->m_wRxPdoDescAdrs = wSize;
-    pCtrlReg_g->m_wRxPdoDescSize = PDO_DESC_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxPdoDescAdrs, 0x00, PDO_DESC_SIZE);
-    wSize += PDO_DESC_SIZE;
-
     pCtrlReg_g->m_wTxPdoDescAdrs = wSize;
     pCtrlReg_g->m_wTxPdoDescSize = PDO_DESC_SIZE;
     memset((char *)DPRAM_BASE + pCtrlReg_g->m_wTxPdoDescAdrs, 0x00, PDO_DESC_SIZE);
     wSize += PDO_DESC_SIZE;
 
-    /* Asynchronous Buffers */
-    pCtrlReg_g->m_wRxAsyncBufAdrs = wSize;
-    pCtrlReg_g->m_wRxAsyncBufSize = ASYNC_BUF_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
-    wSize += ASYNC_BUF_SIZE;
+    pCtrlReg_g->m_wRxPdoDescAdrs = wSize;
+    pCtrlReg_g->m_wRxPdoDescSize = PDO_DESC_SIZE;
+    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxPdoDescAdrs, 0x00, PDO_DESC_SIZE);
+    wSize += PDO_DESC_SIZE;
 
+    /* Asynchronous Buffers */
     pCtrlReg_g->m_wTxAsyncBufAdrs = wSize;
     pCtrlReg_g->m_wTxAsyncBufSize = ASYNC_BUF_SIZE;
     memset((char *)DPRAM_BASE + pCtrlReg_g->m_wTxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
+    wSize += ASYNC_BUF_SIZE;
+
+    pCtrlReg_g->m_wRxAsyncBufAdrs = wSize;
+    pCtrlReg_g->m_wRxAsyncBufSize = ASYNC_BUF_SIZE;
+    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
     wSize += ASYNC_BUF_SIZE;
 
     pCtrlReg_g->m_bState = 0xff;

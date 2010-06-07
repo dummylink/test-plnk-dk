@@ -150,6 +150,16 @@ void Gi_writePdo(void)
 /**
 ********************************************************************************
 \brief	setup PDO descriptor
+
+Gi_setupPdoDesc() reads the object mapping from the object dictionary and stores
+the information in the PDO descriptor buffer so that the AP could read it.
+
+Additionally a copy table will be created. This table is used by the PCP for
+copying all objects contained in the mapping.
+
+\param	bDirection_p		direction of PDO transfer to setup the descriptor
+
+\return Ok, or ERROR if an error occured.
 *******************************************************************************/
 int Gi_setupPdoDesc(BYTE bDirection_p)
 {
@@ -196,7 +206,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p)
 		pCopyTblSize = &wTxPdoCopyTblSize;
 	}
 
-#define	MAX_PDO		10
+#define	MAX_PDO		10		/* TODO: cleanup!  */
 
 	uiRxPdoChannelCount = 0;
 	for (uiCommParamIndex = uiCommObj; uiCommParamIndex < uiCommObj + MAX_PDO; uiCommParamIndex++)
