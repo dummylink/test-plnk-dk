@@ -382,7 +382,6 @@ int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 				wReqObjs += wCurObjs;
 				wCurObjs = (wNumObjs_p - wReqObjs);
 				wCurObjs = (wCurObjs > wMaxObjs) ? wMaxObjs : wCurObjs;
-				return OK;
 			}
 			else
 			{
@@ -489,7 +488,6 @@ int CnApi_doWriteObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 				wReqObjs += wCurObjs;
 				wCurObjs = (wNumObjs_p - wReqObjs);
 				wCurObjs = (wCurObjs > wMaxObjs) ? wMaxObjs : wCurObjs;
-				return OK;
 			}
 			else
 			{

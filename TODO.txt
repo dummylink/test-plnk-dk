@@ -12,10 +12,13 @@ TODOs
   independant of openPOWERLINK, therfore we couldn't use openPOWERLINK Debug.h,
   On the other side, the PCP application has to use Debug.h because it includes
   the openPOWERLINK files) 
+- change conecpt of RX PDO Descriptors to be able to use more than one RX PDO
+  (e.g. a RX PDO Desc Buffer for each RX PDO or a SetupPDODescReq message)
+
 
 doc
 ---
-- generate latex documentation?
+- generate latex documentation???? -> no word is used
 
 fpga
 ----
@@ -27,6 +30,13 @@ libCnApi
 - remove dependency to EBV_DBC3C40_DigitalIO bsp (needed for mutex implementation of tiple buffer)
 - cleanup for doxygen
 - prepare doxygen for internal and API reference manual documentation
+- remove Buffer Size defines in CnApi.h and replace with values from FPGA configuration
+- implement CnApi_doReadObjReq in cnApiAsync.c
+- calls to CnApi_doXXXReq are blocking until answer is received. Check if this is sufficient or if a non-blocking
+  mode (e.g. with state machine) must be implemented
+- implement a way for the user to register callback functions (e.g. to write/read objects asynchronously in operating mode)
+- move definitions only used by libCnApi itself from cnApi.h to cnApiIntern.h
+ 
 
 
 -------------------------------------------------------------------------------

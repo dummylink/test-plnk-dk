@@ -106,6 +106,8 @@ typedef struct sCnApiObjId {
 	BYTE		m_bNumEntries;
 } tCnApiObjId;
 
+
+// TODO: not used, do we need it?
 typedef struct sCnApiReadQueue{
 	int					m_iNumElements;
 	tCnApiObjId 		*pObjectId;
