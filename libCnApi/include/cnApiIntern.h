@@ -58,16 +58,10 @@ extern int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p);
 
 /* functions for PDO transfers */
 extern void CnApi_initPdo(char *pTxPdoAdrs_p, WORD wTxPdoSize_p,
-				   char *pRxPdoAdrs_p, WORD wRxPdoSize_p,
-				   tPdoDescHeader *pTxDescAdrs_p, WORD wTxDescSize_p,
-				   tPdoDescHeader *pRxDescAdrs_p, WORD wRxDescSize_p);
+						  char *pRxPdoAdrs_p, WORD wRxPdoSize_p,
+						  WORD* pTxPdoAckAdrsAp_p, WORD* pRxPdoAckAdrsAp_p,
+						  tPdoDescHeader *pTxDescAdrs_p, WORD wTxDescSize_p,
+						  tPdoDescHeader *pRxDescAdrs_p, WORD wRxDescSize_p);
 extern void CnApi_readPdoDesc(void);
-
-/* functions for periodic buffer synchronization */
-extern int CnApi_initPdoSync(tPdoSync *pPdoWriteSync_p, tPdoSync *pPdoReadSync_p);
-extern char CnApi_getPdoWriteIndex(void);
-extern void CnApi_releasePdoWriteIndex(void);
-extern char CnApi_getPdoReadIndex(void);
-extern void CnApi_releasePdoReadIndex(void);
 
 #endif /* CNAPIINTERN_H_ */

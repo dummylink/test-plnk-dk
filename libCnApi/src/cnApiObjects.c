@@ -78,6 +78,21 @@ void CnApi_cleanupObjects(void)
 /**
 ********************************************************************************
 \brief	add object
+
+CnApi_linkObject() indirectly connects local variables to object numbers by writing
+the linking information into a table. The table is subsequently read by the PCP
+which links its PDOs to DPRAM by using a pointer.
+The data type of linked local variable must match with data type of POWERLINK object !!!
+Number of linked objects must match NUM_OBJECTS !!!
+
+\param		wIndex_p			index of object in the object dictionary
+\param		bSubIndex_p			subindex of object in the object dictionary
+\param		wSize_p				data size of linked object
+\param		pAdrs_p				pointer to object data
+
+
+\return		status of write operation
+    CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
 *******************************************************************************/
 int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p)
 {
@@ -103,6 +118,10 @@ int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_
 /**
 ********************************************************************************
 \brief	get object data
+
+The function CnApi_getObjectData() compares the local linking table and the
+descriptor table. If the entries line up equally, take the data pointer and
+the respective size out of the linking table.
 *******************************************************************************/
 BOOL CnApi_getObjectData(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p)
 {
@@ -159,8 +178,10 @@ int CnApi_getNextObject(tCnApiObjId *pObjId)
 ********************************************************************************
 \brief	create an object
 
-CnApi_createObjects() creates the object in the openPOWERLINK stack. The objects
-must exist in the object dictionary to be created.
+CnApi_createObjects() creates the object in the openPOWERLINK stack. Precisely
+it commands the PCP to link objects to the heap by creating an object link table.
+This table has to be send in a buffer message to the PCP. The objects
+must exist in the PCPs object dictionary to be created.
 *******************************************************************************/
 void CnApi_createObjects(void)
 {

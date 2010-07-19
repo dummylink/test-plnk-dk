@@ -31,6 +31,8 @@
 
 /******************************************************************************/
 /* defines */
+#define PCP_API_DPRAM_BASE 		DPRAM_BASE 	//defined in system.h
+
 #define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
 #define CYCLE_LEN   1000 // [us]
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
@@ -117,14 +119,17 @@ int main (void)
 
     initStateMachine();
     Gi_init();
-    Gi_initAsync((tAsyncMsg *)(DPRAM_BASE + pCtrlReg_g->m_wTxAsyncBufAdrs),
-    		     (tAsyncMsg *)(DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs));
-    Gi_initPdo((char *)(DPRAM_BASE + pCtrlReg_g->m_wTxPdoBufAdrs),
-		       (char *)(DPRAM_BASE + pCtrlReg_g->m_wRxPdoBufAdrs),
-		       (tPdoDescHeader *)(DPRAM_BASE + pCtrlReg_g->m_wTxPdoDescAdrs),
-		       (tPdoDescHeader *)(DPRAM_BASE + pCtrlReg_g->m_wRxPdoDescAdrs));
+    Gi_initAsync((tAsyncMsg *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_wTxAsyncBufAdrs),
+    		     (tAsyncMsg *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs));
+    Gi_initPdo((char *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoBufAdrs[0]),
+		       (char *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoBufAdrs[0]),
+	//TODO: Use this instead of following Ap Version	       //(WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoAckAdrsPcp[0],
+		       //(WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoAckAdrsPcp[0],
+		       (WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoAckAdrsAp[0],
+		       (WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoAckAdrsAp[0],
+		       (tPdoDescHeader *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoDescAdrs[0]),
+		       (tPdoDescHeader *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoDescAdrs[0]));
 
-    CnApi_initPdoSync((tPdoSync *)&(pCtrlReg_g->m_rxPdoSync), (tPdoSync *)&(pCtrlReg_g->m_txPdoSync));
     Gi_initSyncInt();
 
     DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
@@ -502,49 +507,76 @@ BYTE getPcpState(void)
 
 void Gi_init(void)
 {
-	WORD		wSize;
 
-    pCtrlReg_g = (tPcpCtrlReg *)DPRAM_BASE;
+#ifdef SETUP_DPRAM_IN_SW  //delete all as soon as Tripple Buffer in HW is stable
+	WORD		wSize; 									///< byte offset counter
+
+	/* Incremental DPRAM Memory Map Setup and Initialization of Control Registers */
+
+    pCtrlReg_g = (tPcpCtrlReg *)PCP_API_DPRAM_BASE;		///< set address of control register - equals DPRAM base address
     memset(pCtrlReg_g, 0, sizeof(tPcpCtrlReg));
 
     wSize = 0;
 
-    /* PDO Buffers */
-    pCtrlReg_g->m_wTxPdoBufAdrs = sizeof(tPcpCtrlReg);
-    pCtrlReg_g->m_wTxPdoBufSize = PDO_BUF_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wTxPdoBufAdrs, 0x00, 3 * PDO_BUF_SIZE);
+    /* PDO Buffers Initialization and Referencing */
+    pCtrlReg_g->m_awTxPdoBufAdrs[0] = sizeof(tPcpCtrlReg); 	///< set TPDO buffer address offset
+    pCtrlReg_g->m_awTxPdoBufSize[0] = PDO_BUF_SIZE;			///< and span
+    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoBufAdrs[0], 0x00, 3 * PDO_BUF_SIZE);
     wSize = sizeof(tPcpCtrlReg) + 3 * PDO_BUF_SIZE;
 
-    pCtrlReg_g->m_wRxPdoBufAdrs = wSize;
-    pCtrlReg_g->m_wRxPdoBufSize = PDO_BUF_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxPdoBufAdrs, 0x00, 3 * PDO_BUF_SIZE);
+    pCtrlReg_g->m_awRxPdoBufAdrs[0] = wSize;			///< set RPDO buffer address offset
+    pCtrlReg_g->m_awRxPdoBufSize[0] = PDO_BUF_SIZE;		///< and span
+    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoBufAdrs[0], 0x00, 3 * PDO_BUF_SIZE);
     wSize += (3 * PDO_BUF_SIZE);
 
-    /* PDO Descriptor Buffers */
-    pCtrlReg_g->m_wTxPdoDescAdrs = wSize;
-    pCtrlReg_g->m_wTxPdoDescSize = PDO_DESC_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wTxPdoDescAdrs, 0x00, PDO_DESC_SIZE);
+    /* PDO Descriptor Buffers Initialization and Referencing */
+    pCtrlReg_g->m_awTxPdoDescAdrs[0] = wSize;			///< set TPDO descriptor buffer address offset and size
+    pCtrlReg_g->m_wTxPdoDescSize = PDO_DESC_SIZE;		///< and span
+    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoDescAdrs[0], 0x00, PDO_DESC_SIZE);
     wSize += PDO_DESC_SIZE;
 
-    pCtrlReg_g->m_wRxPdoDescAdrs = wSize;
-    pCtrlReg_g->m_wRxPdoDescSize = PDO_DESC_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxPdoDescAdrs, 0x00, PDO_DESC_SIZE);
+    pCtrlReg_g->m_awRxPdoDescAdrs[0] = wSize;			///< set RPDO descriptor buffer address offset and size
+    pCtrlReg_g->m_wRxPdoDescSize = PDO_DESC_SIZE;		///< and span
+    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoDescAdrs[0], 0x00, PDO_DESC_SIZE);
     wSize += PDO_DESC_SIZE;
 
-    /* Asynchronous Buffers */
-    pCtrlReg_g->m_wTxAsyncBufAdrs = wSize;
-    pCtrlReg_g->m_wTxAsyncBufSize = ASYNC_BUF_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wTxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
+    /* Asynchronous Buffer Initialization and Referencing */
+    pCtrlReg_g->m_wTxAsyncBufAdrs = wSize;				///< set tx async. buffer address offset
+    pCtrlReg_g->m_wTxAsyncBufSize = ASYNC_BUF_SIZE;		///< and span
+    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_wTxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
     wSize += ASYNC_BUF_SIZE;
 
-    pCtrlReg_g->m_wRxAsyncBufAdrs = wSize;
-    pCtrlReg_g->m_wRxAsyncBufSize = ASYNC_BUF_SIZE;
-    memset((char *)DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
+    pCtrlReg_g->m_wRxAsyncBufAdrs = wSize;				///< set rx async. buffer address offset
+    pCtrlReg_g->m_wRxAsyncBufSize = ASYNC_BUF_SIZE;		///< and span
+    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
     wSize += ASYNC_BUF_SIZE;
 
     pCtrlReg_g->m_bState = 0xff;
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;
+
+#else //SETUP DPRAM already in HW -> already accessible in consistent control register structure
+
+    pCtrlReg_g = (tPcpCtrlReg *)PCP_API_DPRAM_BASE;		///< set address of control register - equals DPRAM base address
+    memset(pCtrlReg_g + 4, 0, 12); 						///< initialize remaining writeable registers
+
+    pCtrlReg_g->m_bState = 0xff;
+
+    /* Done already in VHDL */
+    ///< set TPDO buffer address offset and span
+    ///< set RPDO buffer address offset span
+    ///< set TPDO descriptor buffer address offset and span
+    ///< set RPDO descriptor buffer address offset and span
+    ///< set tx async. buffer address offset and span
+    ///< set rx async. buffer address offset and span
+    ///< set TPDO buffer PCP ack address offset
+    ///< set RPDO buffer PCP ack address offset
+    ///< set TPDO buffer AP ack address offset
+    ///< set RPDO buffer AP ack address offset
+    ///< set PCP MAGIC ID
+    /* Done already in VHDL */
+
+#endif
 }
 
 /**

@@ -40,15 +40,18 @@ typedef struct sPdoCopyTbl {
 
 /******************************************************************************/
 /* global variables */
-static	char *				pTxPdoBuf;
-static	char *				pRxPdoBuf;
-static	tPdoDescHeader *	pTxDescBuf;
-static	tPdoDescHeader *	pRxDescBuf;
+static	char*				pTxPdoBuf_l;
+static	char*				pRxPdoBuf_l;
+static  WORD*				pTxPdoAckAdrsPcp_l;
+static  WORD*				pRxPdoAckAdrsPcp_l;
 
-static	tPdoCopyTbl			pTxPdoCopyTbl[PDO_COPY_TBL_SIZE];
-static	WORD				wTxPdoCopyTblSize;
-static	tPdoCopyTbl			pRxPdoCopyTbl[PDO_COPY_TBL_SIZE];
-static	WORD				wRxPdoCopyTblSize;
+static	tPdoDescHeader*		pTxDescBuf_l;
+static	tPdoDescHeader*		pRxDescBuf_l;
+
+static	tPdoCopyTbl			pTxPdoCopyTbl_l[PDO_COPY_TBL_SIZE];
+static	WORD				wTxPdoCopyTblSize_l;
+static	tPdoCopyTbl			pRxPdoCopyTbl_l[PDO_COPY_TBL_SIZE];
+static	WORD				wRxPdoCopyTblSize_l;
 
 /******************************************************************************/
 /* function declarations */
@@ -77,21 +80,38 @@ static void DecodeObjectMapping(QWORD qwObjectMapping_p, unsigned int* puiIndex_
 ********************************************************************************
 \brief	initialize asynchronous functions
 *******************************************************************************/
-int Gi_initPdo(char *pTxPdoBuf_p, char *pRxPdoBuf_p, tPdoDescHeader *pTxDescBuf_p, tPdoDescHeader *pRxDescBuf_p)
+int Gi_initPdo(char *pTxPdoBuf_p, char *pRxPdoBuf_p,
+		WORD *pTxPdoAckAdrsPcp_p, WORD *pRxPdoAckAdrsPcp_p,
+		tPdoDescHeader *pTxDescBuf_p, tPdoDescHeader *pRxDescBuf_p)
 {
-	pRxPdoBuf = pRxPdoBuf_p;
-	pTxPdoBuf = pTxPdoBuf_p;
+	/* initialize buffers */
+	pTxPdoBuf_l = pTxPdoBuf_p;			/* TXPDO buffer address offset */
+	pRxPdoBuf_l = pRxPdoBuf_p;			/* RXPDO buffer address offset */
 
-	pRxDescBuf = pRxDescBuf_p;
-	pTxDescBuf = pTxDescBuf_p;
+	pTxPdoAckAdrsPcp_l = pTxPdoAckAdrsPcp_p; /* TXPDO buffer acknowledge address offset */
+	pRxPdoAckAdrsPcp_l = pRxPdoAckAdrsPcp_p; /* RXPDO buffer acknowledge address offset */
 
-	pRxDescBuf->m_wPdoDescSize = 0;
-	pRxDescBuf->m_wPdoDescVers = 0;
+	pTxDescBuf_l = pTxDescBuf_p;			/* TXPDO descriptor address offset */
+	pRxDescBuf_l = pRxDescBuf_p;			/* RXPDO descriptor address offset */
 
-	pTxDescBuf->m_wPdoDescSize = 0;
-	pTxDescBuf->m_wPdoDescVers = 0;
+	pTxDescBuf_l->m_wPdoDescSize = 0;
+	pTxDescBuf_l->m_wPdoDescVers = 0;
+	pRxDescBuf_l->m_wPdoDescSize = 0;
+	pRxDescBuf_l->m_wPdoDescVers = 0;
 
 	return 0;
+}
+
+/**
+********************************************************************************
+\brief	write to DPRAM Buffer acknowledge register
+
+CnApi_ackPdoBuffer() writes a random 32bit value
+to a defined buffer control register.
+*******************************************************************************/
+inline void CnApi_ackPdoBuffer(WORD* pAckReg_p)
+{
+    *pAckReg_p = (DWORD) 0xdeadbeef; //TODO: delete casting as soon as Ack Ctrl. Reg. is set to WORD
 }
 
 /**
@@ -102,23 +122,20 @@ void Gi_readPdo(void)
 {
 	BYTE				*pPdoData;
 	tPdoCopyTbl			*pCopyTbl;
-	int					i;
-	char				bReadIndex;
+	register int		i;
 
-	if ((bReadIndex = CnApi_getPdoReadIndex()) < 0)
-		return;
+	pCopyTbl = pTxPdoCopyTbl_l;
+	pPdoData = pTxPdoBuf_l;
 
-	pCopyTbl = pTxPdoCopyTbl;
-	pPdoData = pTxPdoBuf + (pCtrlReg_g->m_wTxPdoBufSize * bReadIndex);
+	/* prepare PDO buffer for read access */
+	CnApi_ackPdoBuffer(pTxPdoAckAdrsPcp_l);
 
-	for (i = 0; i < wTxPdoCopyTblSize; i++)
+	for (i = 0; i < wTxPdoCopyTblSize_l; i++)
 	{
 		memcpy (pCopyTbl->m_adrs, pPdoData, pCopyTbl->m_size);
 		pPdoData += pCopyTbl->m_size;
 		pCopyTbl ++;
 	}
-
-	CnApi_releasePdoReadIndex();
 }
 
 /**
@@ -129,22 +146,20 @@ void Gi_writePdo(void)
 {
 	BYTE				*pPdoData;
 	tPdoCopyTbl			*pCopyTbl;
-	int					i;
-	BYTE				bWriteIndex;
+	register int		i;
 
-	bWriteIndex = CnApi_getPdoWriteIndex();
+	pPdoData = pRxPdoBuf_l;
+	pCopyTbl = pRxPdoCopyTbl_l;
 
-	pPdoData = pRxPdoBuf + (pCtrlReg_g->m_wRxPdoBufSize * bWriteIndex);
-	pCopyTbl = pRxPdoCopyTbl;
-
-	for (i = 0; i < wRxPdoCopyTblSize; i++)
+	for (i = 0; i < wRxPdoCopyTblSize_l; i++)
 	{
 		memcpy (pPdoData, pCopyTbl->m_adrs, pCopyTbl->m_size);
 		pPdoData += pCopyTbl->m_size;
 		pCopyTbl ++;
 	}
 
-	CnApi_releasePdoWriteIndex();
+	/* prepare PDO buffer for next write access */
+	CnApi_ackPdoBuffer(pRxPdoAckAdrsPcp_l);
 }
 
 /**
@@ -166,7 +181,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p)
 	tEplKernel          Ret = kEplSuccessful;
 	unsigned int        uiCommParamIndex;
 	unsigned int        uiMappParamIndex;
-	unsigned int		uiRxPdoChannelCount;
+	unsigned int		uiPdoChannelCount;
 
 	unsigned int		uiIndex;
 	unsigned int		pdoDescSize;
@@ -174,6 +189,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p)
 	unsigned int		uiMapSubIndex;
 	unsigned int		uiMapObj;
 	unsigned int		uiCommObj;
+	unsigned int		uiMaxPdoChannels;
 
 	tEplObdSize         ObdSize;
 	BYTE                bNodeId;
@@ -189,27 +205,28 @@ int Gi_setupPdoDesc(BYTE bDirection_p)
 
 	if (bDirection_p == kCnApiDirReceive)
 	{
-		pPdoDescHeader = pRxDescBuf;
-		pPdoDesc = (tPdoDesc *)(pRxDescBuf + 1);
+		pPdoDescHeader = pRxDescBuf_l;
+		pPdoDesc = (tPdoDesc *)(pRxDescBuf_l + 1);
 		uiCommObj = EPL_PDOU_OBD_IDX_RX_COMM_PARAM;
 		uiMapObj = EPL_PDOU_OBD_IDX_RX_MAPP_PARAM;
-		pCopyTbl = pRxPdoCopyTbl;
-		pCopyTblSize = &wRxPdoCopyTblSize;
+		pCopyTbl = pRxPdoCopyTbl_l;
+		pCopyTblSize = &wRxPdoCopyTblSize_l;
+		uiMaxPdoChannels = RPDO_CHANNELS_MAX;
 	}
 	else
 	{
-		pPdoDescHeader = pTxDescBuf;
-		pPdoDesc = (tPdoDesc *)(pTxDescBuf + 1);
+		pPdoDescHeader = pTxDescBuf_l;
+		pPdoDesc = (tPdoDesc *)(pTxDescBuf_l + 1);
 		uiCommObj = EPL_PDOU_OBD_IDX_TX_COMM_PARAM;
 		uiMapObj = EPL_PDOU_OBD_IDX_TX_MAPP_PARAM;
-		pCopyTbl = pTxPdoCopyTbl;
-		pCopyTblSize = &wTxPdoCopyTblSize;
+		pCopyTbl = pTxPdoCopyTbl_l;
+		pCopyTblSize = &wTxPdoCopyTblSize_l;
+		uiMaxPdoChannels = TPDO_CHANNELS_MAX;
 	}
 
-#define	MAX_PDO		10		/* TODO: cleanup!  */
 
-	uiRxPdoChannelCount = 0;
-	for (uiCommParamIndex = uiCommObj; uiCommParamIndex < uiCommObj + MAX_PDO; uiCommParamIndex++)
+	uiPdoChannelCount = 0;
+	for (uiCommParamIndex = uiCommObj; uiCommParamIndex < uiCommObj + uiMaxPdoChannels; uiCommParamIndex++)
 	{
 		ObdSize = sizeof (bNodeId);
 		// read node ID from OD
@@ -224,13 +241,13 @@ int Gi_setupPdoDesc(BYTE bDirection_p)
 		{   // other fatal error occured
 			goto Exit;
 		}
-		uiRxPdoChannelCount++;
+		uiPdoChannelCount++;
 	}
 
 	pdoDescSize = 0;
 	*pCopyTblSize = 0;
 
-	for (uiIndex = 0; uiIndex < uiRxPdoChannelCount; uiIndex++)
+	for (uiIndex = 0; uiIndex < uiPdoChannelCount; uiIndex++)
 	{
 		uiMappParamIndex = uiMapObj + uiIndex;
 

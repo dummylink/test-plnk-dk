@@ -95,13 +95,11 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 					(tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAdrs), pCtrlReg_g->m_wRxAsyncBufSize);
 
 	/* initialize PDO transfer functions */
-	CnApi_initPdo((char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxPdoBufAdrs), pCtrlReg_g->m_wTxPdoBufSize,
-			      (char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdoBufAdrs), pCtrlReg_g->m_wRxPdoBufSize,
-				  (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxPdoDescAdrs), pCtrlReg_g->m_wTxPdoDescSize,
-			      (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdoDescAdrs), pCtrlReg_g->m_wRxPdoDescSize);
-
-	/* initialize PDO synchronization functions */
-	CnApi_initPdoSync((tPdoSync *)&(pCtrlReg_g->m_txPdoSync), (tPdoSync *)&(pCtrlReg_g->m_rxPdoSync));
+	CnApi_initPdo((char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoBufAdrs[0]), pCtrlReg_g->m_awTxPdoBufSize[0],
+			      (char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoBufAdrs[0]), pCtrlReg_g->m_awRxPdoBufSize[0],
+			      (WORD *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoAckAdrsAp[0]), (WORD *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
+				  (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoDescAdrs[0]), pCtrlReg_g->m_wTxPdoDescSize,
+			      (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoDescAdrs[0]), pCtrlReg_g->m_wRxPdoDescSize);
 
 	iStatus = CnApi_doInitPcpReq();
 	DEBUG_TRACE2(DEBUG_LVL_10, "%s: status:%d\n", __func__, iStatus);

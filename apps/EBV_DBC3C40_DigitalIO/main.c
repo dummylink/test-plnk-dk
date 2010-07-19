@@ -39,6 +39,8 @@ a dual ported RAM (DPRAM) area.
 /******************************************************************************/
 /* defines */
 
+#define CN_API_DPRAM_BASE DPRAM_BASE
+
 
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
 #define IP_ADDR     0xc0a86401  								///< 192.168.100.1 // don't care the last byte!
@@ -104,7 +106,7 @@ int main (void)
     printf("Initialize CN API functions...\n");
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				// initialize POWERLINK parameters
 
-    if ((status = CnApi_init((BYTE *)DPRAM_BASE, &initParm)) < 0)		// initialize and start the CN API
+    if ((status = CnApi_init((BYTE *)CN_API_DPRAM_BASE, &initParm)) < 0)		// initialize and start the CN API
     {
     	printf ("CN API library could not be initialized (%d)\n", status);
 		return -1;
@@ -187,7 +189,7 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
 	pInitParm_p->m_dwPresMaxLatency = 2000;
 	pInitParm_p->m_dwAsendMaxLatency= 2000;
 
-	pInitParm_p->m_dwDpramBase = DPRAM_BASE;		//address of DPRAM area
+	pInitParm_p->m_dwDpramBase = CN_API_DPRAM_BASE;		//address of DPRAM area
 }
 
 /**

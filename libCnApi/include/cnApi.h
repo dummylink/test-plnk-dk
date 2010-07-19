@@ -43,16 +43,19 @@ This header file contains definitions for the CN API.
 #define	DEBUG_LVL_CNAPI_INFO_TRACE2		DEBUG_LVL_11_TRACE2
 #define	DEBUG_LVL_CNAPI_INFO_TRACE3		DEBUG_LVL_11_TRACE3
 
-
 #define	DEBUG_LVL_CNAPI_INFO			DEBUG_LVL_11
-
 
 #define	DEBUG_FUNC		DEBUG_TRACE1(DEBUG_LVL_09, "%s:\n", __func__)
 
+ // Defines only used for initialize the control register. HW solution already sets up the registers itself. TODO: Delete those defines
+#ifdef SETUP_DPRAM_IN_SW //delete all as soon as Tripple Buffer in HW is stable
+	#define	ASYNC_BUF_SIZE			0x1500				///< default size of asynchronous buffer
+	#define	PDO_BUF_SIZE			0x100				///< default size of PDO buffer
+	#define	PDO_DESC_SIZE			0x100				///< default size of PDO descriptor buffer
+#endif
 
-#define	ASYNC_BUF_SIZE			0x200				///< default size of asynchronous buffer
-#define	PDO_BUF_SIZE			0x100				///< default size of PDO buffer
-#define	PDO_DESC_SIZE			0x100				///< default size of PDO descriptor buffer
+#define RPDO_CHANNELS_MAX		1					///< Max Number of RxPDO's received and mapped by this CN
+#define TPDO_CHANNELS_MAX		1					///< Max Number of TxPDO's transmitted and mapped by this CN
 
 #define	PCP_MAGIC				0x50435000			///< magic number identifies valid PCP memory
 
@@ -313,11 +316,6 @@ typedef struct sPdoDesc {
 	BYTE	m_reserved;
 } tPdoDesc;
 
-typedef struct sPdoSync {
-	BYTE	m_bPdoWriteIndex;
-	BYTE	m_bPdoReadIndex;
-} tPdoSync;
-
 #define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
 #define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
 #define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
@@ -422,20 +420,25 @@ typedef struct sPcpControlReg {
 	volatile BYTE			m_bMaxCylceNum;
 	volatile BYTE			m_bCycleError;
 	volatile WORD			m_wCycleCorrect;
-	volatile WORD			m_wTxPdoDescAdrs;
+	volatile WORD			m_awTxPdoDescAdrs[TPDO_CHANNELS_MAX];
 	volatile WORD			m_wTxPdoDescSize;
-	volatile WORD			m_wRxPdoDescAdrs;
+	volatile WORD			m_awRxPdoDescAdrs[RPDO_CHANNELS_MAX];
 	volatile WORD			m_wRxPdoDescSize;
-	volatile WORD			m_wTxPdoBufAdrs;
-	volatile WORD			m_wTxPdoBufSize;
-	volatile WORD			m_wRxPdoBufAdrs;
-	volatile WORD			m_wRxPdoBufSize;
+	volatile WORD			m_awTxPdoBufAdrs[TPDO_CHANNELS_MAX];
+	volatile WORD			m_awTxPdoBufSize[TPDO_CHANNELS_MAX];
+	volatile WORD			m_awRxPdoBufAdrs[RPDO_CHANNELS_MAX];
+	volatile WORD			m_awRxPdoBufSize[RPDO_CHANNELS_MAX]; //TODO: adapt functions to array capability
 	volatile WORD			m_wTxAsyncBufAdrs;
 	volatile WORD			m_wTxAsyncBufSize;
 	volatile WORD			m_wRxAsyncBufAdrs;
 	volatile WORD			m_wRxAsyncBufSize;
-	volatile tPdoSync		m_txPdoSync;
-	volatile tPdoSync		m_rxPdoSync;
+	volatile DWORD			m_awTxPdoAckAdrsAp[TPDO_CHANNELS_MAX]; 		///< adress array of Tx PDO buffer acknowledge registers for PCP side
+	volatile DWORD			m_awRxPdoAckAdrsAp[RPDO_CHANNELS_MAX]; 		///< adress array of Rx PDO buffer acknowledge registers for AP side
+	/*TODO: Use the following instead*/
+	/*volatile WORD			m_awTxPdoAckAdrsPcp[TPDO_CHANNELS_MAX]; 	///< adress array of Tx PDO buffer acknowledge registers for PCP side
+	volatile WORD			m_awTxPdoAckAdrsAp[TPDO_CHANNELS_MAX]; 		///< adress array of Tx PDO buffer acknowledge registers for PCP side
+	volatile WORD			m_awRxPdoAckAdrsPcp[RPDO_CHANNELS_MAX]; 	///< adress array of Rx PDO buffer acknowledge registers for AP side
+	volatile WORD			m_awRxPdoAckAdrsAp[RPDO_CHANNELS_MAX]; 		///< adress array of Rx PDO buffer acknowledge registers for AP side*/
 } tPcpCtrlReg;
 
 /******************************************************************************/
