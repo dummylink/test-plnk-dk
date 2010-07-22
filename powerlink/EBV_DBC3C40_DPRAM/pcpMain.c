@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 /* defines */
-#define PCP_API_DPRAM_BASE 		DPRAM_BASE 	//defined in system.h
+#define PCP_API_DPRAM_BASE 		0x00020000 	//defined in system.h
 
 #define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
 #define CYCLE_LEN   1000 // [us]
@@ -123,10 +123,10 @@ int main (void)
     		     (tAsyncMsg *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs));
     Gi_initPdo((char *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoBufAdrs[0]),
 		       (char *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoBufAdrs[0]),
-	//TODO: Use this instead of following Ap Version	       //(WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoAckAdrsPcp[0],
-		       //(WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoAckAdrsPcp[0],
-		       (WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoAckAdrsAp[0],
-		       (WORD*) PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoAckAdrsAp[0],
+	//TODO: Use this instead of following Ap Version	       //&(pCtrlReg_g->m_awTxPdoAckAdrsPcp[0]),
+		       //&(pCtrlReg_g->m_awRxPdoAckAdrsPcp[0]),
+		       (WORD *)(&pCtrlReg_g->m_awTxPdoAckAdrsAp[0]),
+		       (WORD *)(&pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
 		       (tPdoDescHeader *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoDescAdrs[0]),
 		       (tPdoDescHeader *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoDescAdrs[0]));
 
@@ -683,8 +683,5 @@ static void setLed(BYTE bType_p, BOOL fOn_p)
 #endif
 }
 
-
-
-
-
-
+/* EOF */
+/*********************************************************************************/

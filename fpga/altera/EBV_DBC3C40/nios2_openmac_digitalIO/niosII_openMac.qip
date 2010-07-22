@@ -1,15 +1,15 @@
-set_global_assignment -name VHDL_FILE EPL/OpenMAC_DPR_Altera.vhd
-set_global_assignment -name VHDL_FILE EPL/OpenMAC_AvalonIF.vhd
-set_global_assignment -name VHDL_FILE EPL/OpenHUB.vhd
-set_global_assignment -name VHDL_FILE EPL/OpenFILTER.vhd
-set_global_assignment -name SDC_FILE cpu_0.sdc
-set_global_assignment -name TCL_FILE EPL/DBC3C40_SRAM_hw.tcl
-set_global_assignment -name TCL_FILE EPL/OpenMAC_AvalonIF_hw.tcl
-set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
 set_global_assignment -name VHDL_FILE EPL/OpenMAC_PHYMI.vhd
+set_global_assignment -name SDC_FILE cpu_0.sdc
+set_global_assignment -name VHDL_FILE EPL/OpenMAC_AvalonIF.vhd
 set_global_assignment -name SOURCE_FILE cpu_0.ocp
+set_global_assignment -name VHDL_FILE EPL/OpenMAC_DPR_Altera.vhd
 set_global_assignment -name VHDL_FILE OpenMAC_0.vhd
 set_global_assignment -name VHDL_FILE EPL/OpenMAC.vhd
+set_global_assignment -name VHDL_FILE EPL/OpenHUB.vhd
+set_global_assignment -name TCL_FILE EPL/OpenMAC_AvalonIF_hw.tcl
+set_global_assignment -name TCL_FILE EPL/DBC3C40_SRAM_hw.tcl
+set_global_assignment -name VHDL_FILE EPL/OpenFILTER.vhd
+set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
 set_global_assignment -name VHDL_FILE EPL/OpenMAC_DMAFifo.vhd
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 00005A111A9F00000127DD09817C 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0010C6DE556E00000129A6FEA383 
  

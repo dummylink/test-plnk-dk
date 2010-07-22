@@ -225,7 +225,7 @@ VCCIO6                       : E19       : power  :                   : 3.3V    
 GND                          : E20       : gnd    :                   :         :           :                
 io24_o[13]                   : E21       : output : 3.3-V LVTTL       :         : 6         : Y              
 io24_o[14]                   : E22       : output : 3.3-V LVTTL       :         : 6         : Y              
-auto_stp_trigger_in_0        : F1        : input  : 3.3-V LVTTL       :         : 1         : N              
+RESERVED_INPUT               : F1        :        :                   :         : 1         :                
 RESERVED_INPUT               : F2        :        :                   :         : 1         :                
 GND                          : F3        : gnd    :                   :         :           :                
 VCCIO1                       : F4        : power  :                   : 3.3V    : 1         :                

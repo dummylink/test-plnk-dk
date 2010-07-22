@@ -406,40 +406,43 @@ typedef enum {
 *
 * tPcpCtrlReg defines the PCP control registers.
 */
-typedef struct sPcpControlReg {
+struct sPcpControlReg {
 	volatile DWORD			m_dwMagic;
 	volatile BYTE			m_bState;
 	volatile BYTE			m_bCommand;
 	volatile BYTE			m_bError;
-	volatile BYTE			m_bReserved1;
+//	volatile BYTE			m_bReserved1;
 	volatile BYTE			m_bIntCtrl;
-	volatile BYTE			m_bIntAck;
-	volatile WORD			m_wReserved2;
+//
+//	volatile WORD			m_wReserved2;
 	volatile WORD			m_wMinCycleTime;
 	volatile WORD			m_wMaxCycleTime;
 	volatile BYTE			m_bMaxCylceNum;
 	volatile BYTE			m_bCycleError;
 	volatile WORD			m_wCycleCorrect;
-	volatile WORD			m_awTxPdoDescAdrs[TPDO_CHANNELS_MAX];
-	volatile WORD			m_wTxPdoDescSize;
-	volatile WORD			m_awRxPdoDescAdrs[RPDO_CHANNELS_MAX];
-	volatile WORD			m_wRxPdoDescSize;
-	volatile WORD			m_awTxPdoBufAdrs[TPDO_CHANNELS_MAX];
 	volatile WORD			m_awTxPdoBufSize[TPDO_CHANNELS_MAX];
-	volatile WORD			m_awRxPdoBufAdrs[RPDO_CHANNELS_MAX];
+	volatile WORD			m_awTxPdoBufAdrs[TPDO_CHANNELS_MAX];
 	volatile WORD			m_awRxPdoBufSize[RPDO_CHANNELS_MAX]; //TODO: adapt functions to array capability
-	volatile WORD			m_wTxAsyncBufAdrs;
+	volatile WORD			m_awRxPdoBufAdrs[RPDO_CHANNELS_MAX];
+	volatile WORD			m_wTxPdoDescSize;
+	volatile WORD			m_awTxPdoDescAdrs[TPDO_CHANNELS_MAX];
+	volatile WORD			m_wRxPdoDescSize;
+	volatile WORD			m_awRxPdoDescAdrs[RPDO_CHANNELS_MAX];
 	volatile WORD			m_wTxAsyncBufSize;
-	volatile WORD			m_wRxAsyncBufAdrs;
+	volatile WORD			m_wTxAsyncBufAdrs;
 	volatile WORD			m_wRxAsyncBufSize;
+	volatile WORD			m_wRxAsyncBufAdrs;
 	volatile DWORD			m_awTxPdoAckAdrsAp[TPDO_CHANNELS_MAX]; 		///< adress array of Tx PDO buffer acknowledge registers for PCP side
 	volatile DWORD			m_awRxPdoAckAdrsAp[RPDO_CHANNELS_MAX]; 		///< adress array of Rx PDO buffer acknowledge registers for AP side
+	volatile BYTE			m_bIntAck;
 	/*TODO: Use the following instead*/
 	/*volatile WORD			m_awTxPdoAckAdrsPcp[TPDO_CHANNELS_MAX]; 	///< adress array of Tx PDO buffer acknowledge registers for PCP side
 	volatile WORD			m_awTxPdoAckAdrsAp[TPDO_CHANNELS_MAX]; 		///< adress array of Tx PDO buffer acknowledge registers for PCP side
 	volatile WORD			m_awRxPdoAckAdrsPcp[RPDO_CHANNELS_MAX]; 	///< adress array of Rx PDO buffer acknowledge registers for AP side
 	volatile WORD			m_awRxPdoAckAdrsAp[RPDO_CHANNELS_MAX]; 		///< adress array of Rx PDO buffer acknowledge registers for AP side*/
-} tPcpCtrlReg;
+}__attribute__((__packed__));
+
+typedef struct sPcpControlReg tPcpCtrlReg;
 
 /******************************************************************************/
 /* global variables */

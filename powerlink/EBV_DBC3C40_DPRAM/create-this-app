@@ -49,7 +49,6 @@ pcpPdo.c \
 pcpStateMachine.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
-${LIBAPIDIR}/src/cnApiPdoSync.c \
 ${POWERLINKDIR}/Edrv/openmac/source/EdrvOpenMac.c \
 ${POWERLINKDIR}/Edrv/openmac/source/TimerHighReskOpenMac.c \
 ${POWERLINKDIR}/Edrv/openmac/source/EplTimerSynck_OpenMac.c \

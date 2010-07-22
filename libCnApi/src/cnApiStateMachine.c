@@ -97,7 +97,7 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 	/* initialize PDO transfer functions */
 	CnApi_initPdo((char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoBufAdrs[0]), pCtrlReg_g->m_awTxPdoBufSize[0],
 			      (char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoBufAdrs[0]), pCtrlReg_g->m_awRxPdoBufSize[0],
-			      (WORD *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoAckAdrsAp[0]), (WORD *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
+			      (WORD *)(&pCtrlReg_g->m_awTxPdoAckAdrsAp[0]), (WORD *)(&pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
 				  (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoDescAdrs[0]), pCtrlReg_g->m_wTxPdoDescSize,
 			      (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoDescAdrs[0]), pCtrlReg_g->m_wRxPdoDescSize);
 

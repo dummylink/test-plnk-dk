@@ -60,11 +60,19 @@
          type = "long";
       }
    }
+   element cnApi_Av2Av_0.ap
+   {
+      datum baseAddress
+      {
+         value = "262144";
+         type = "long";
+      }
+   }
    element ap_cpu
    {
       datum _sortIndex
       {
-         value = "19";
+         value = "18";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -187,7 +195,7 @@
    {
       datum _sortIndex
       {
-         value = "22";
+         value = "21";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -196,8 +204,21 @@
          type = "String";
       }
    }
+   element cnApi_Av2Av_0
+   {
+      datum _sortIndex
+      {
+         value = "16";
+         type = "int";
+      }
+   }
    element sysid.control_slave
    {
+      datum _tags
+      {
+         value = "";
+         type = "String";
+      }
       datum baseAddress
       {
          value = "35698760";
@@ -216,33 +237,7 @@
    {
       datum _sortIndex
       {
-         value = "24";
-         type = "int";
-      }
-      datum megawizard_uipreferences
-      {
-         value = "{}";
-         type = "String";
-      }
-   }
-   element dpram
-   {
-      datum _sortIndex
-      {
-         value = "16";
-         type = "int";
-      }
-      datum megawizard_uipreferences
-      {
-         value = "{}";
-         type = "String";
-      }
-   }
-   element dpram_mutex
-   {
-      datum _sortIndex
-      {
-         value = "17";
+         value = "23";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -285,6 +280,14 @@
          type = "String";
       }
    }
+   element ap_cpu.instruction_master
+   {
+      datum _tags
+      {
+         value = "";
+         type = "String";
+      }
+   }
    element irq_gen
    {
       datum _sortIndex
@@ -298,14 +301,6 @@
          type = "String";
       }
    }
-   element ap_cpu.jtag_debug_module
-   {
-      datum baseAddress
-      {
-         value = "4096";
-         type = "long";
-      }
-   }
    element pcp_cpu.jtag_debug_module
    {
       datum _lockedAddress
@@ -316,6 +311,14 @@
       datum baseAddress
       {
          value = "35692544";
+         type = "long";
+      }
+   }
+   element ap_cpu.jtag_debug_module
+   {
+      datum baseAddress
+      {
+         value = "4096";
          type = "long";
       }
    }
@@ -336,7 +339,7 @@
    {
       datum _sortIndex
       {
-         value = "21";
+         value = "20";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -352,7 +355,7 @@
    {
       datum _sortIndex
       {
-         value = "25";
+         value = "24";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -374,6 +377,14 @@
          type = "String";
       }
    }
+   element cnApi_Av2Av_0.pcp
+   {
+      datum baseAddress
+      {
+         value = "131072";
+         type = "long";
+      }
+   }
    element pcp_cpu
    {
       datum _sortIndex
@@ -391,7 +402,7 @@
    {
       datum _sortIndex
       {
-         value = "23";
+         value = "22";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -400,64 +411,11 @@
          type = "String";
       }
    }
-   element button_pio.s1
+   element portconf_pio.s1
    {
       datum baseAddress
       {
-         value = "35698736";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "64";
-         type = "long";
-      }
-   }
-   element sync_irq.s1
-   {
-      datum baseAddress
-      {
-         value = "80";
-         type = "long";
-      }
-   }
-   element cfi_flash_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "25165824";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
-   element irq_gen.s1
-   {
-      datum baseAddress
-      {
-         value = "64";
-         type = "long";
-      }
-   }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "35698688";
+         value = "32";
          type = "long";
       }
    }
@@ -482,19 +440,32 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element onchip_memory_0.s1
    {
-      datum baseAddress
+      datum _lockedAddress
       {
          value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "35697664";
          type = "long";
       }
    }
-   element portconf_pio.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "32";
+         value = "67108864";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "64";
          type = "long";
       }
    }
@@ -511,27 +482,40 @@
          type = "long";
       }
    }
-   element dpram_mutex.s1
+   element button_pio.s1
    {
       datum baseAddress
       {
-         value = "88";
+         value = "35698736";
          type = "long";
       }
    }
-   element sdram_0.s1
+   element system_timer_ap.s1
    {
       datum baseAddress
       {
-         value = "67108864";
+         value = "0";
          type = "long";
       }
    }
-   element dpram.s1
+   element cfi_flash_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "25165824";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
    {
       datum baseAddress
       {
-         value = "35651584";
+         value = "0";
          type = "long";
       }
    }
@@ -543,24 +527,27 @@
          type = "long";
       }
    }
-   element onchip_memory_0.s1
+   element status_led_pio.s1
    {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
       datum baseAddress
       {
-         value = "35697664";
+         value = "35698688";
          type = "long";
       }
    }
-   element dpram.s2
+   element sync_irq.s1
    {
       datum baseAddress
       {
-         value = "35651584";
+         value = "80";
+         type = "long";
+      }
+   }
+   element irq_gen.s1
+   {
+      datum baseAddress
+      {
+         value = "64";
          type = "long";
       }
    }
@@ -568,7 +555,7 @@
    {
       datum _sortIndex
       {
-         value = "20";
+         value = "19";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -599,7 +586,7 @@
    {
       datum _sortIndex
       {
-         value = "27";
+         value = "26";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -612,7 +599,7 @@
    {
       datum _sortIndex
       {
-         value = "18";
+         value = "17";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -638,7 +625,7 @@
    {
       datum _sortIndex
       {
-         value = "26";
+         value = "25";
          type = "int";
       }
       datum megawizard_uipreferences
@@ -667,8 +654,8 @@
  <parameter name="hardcopyCompatible" value="false" />
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
- <parameter name="systemHash" value="10478598254" />
- <parameter name="timeStamp" value="1273228508978" />
+ <parameter name="systemHash" value="17369256162" />
+ <parameter name="timeStamp" value="1279537106870" />
  <module name="clk_0" kind="clock_source" version="9.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1042,27 +1029,6 @@
   <parameter name="rowWidth" value="12" />
  </module>
  <module
-   name="dpram"
-   kind="altera_avalon_onchip_memory2"
-   version="9.1"
-   enabled="1">
-  <parameter name="allowInSystemMemoryContentEditor" value="false" />
-  <parameter name="blockType" value="AUTO" />
-  <parameter name="dataWidth" value="32" />
-  <parameter name="dualPort" value="true" />
-  <parameter name="initMemContent" value="true" />
-  <parameter name="initializationFileName" value="dpram" />
-  <parameter name="instanceID" value="NONE" />
-  <parameter name="memorySize" value="32768" />
-  <parameter name="readDuringWriteMode" value="DONT_CARE" />
-  <parameter name="simAllowMRAMContentsFile" value="false" />
-  <parameter name="slave1Latency" value="1" />
-  <parameter name="slave2Latency" value="1" />
-  <parameter name="useNonDefaultInitFile" value="false" />
-  <parameter name="useShallowMemBlocks" value="false" />
-  <parameter name="writable" value="true" />
- </module>
- <module
    name="jtag_uart_1"
    kind="altera_avalon_jtag_uart"
    version="9.1"
@@ -1107,14 +1073,6 @@
   <parameter name="simDrivenValue" value="0" />
   <parameter name="width" value="8" />
  </module>
- <module
-   name="dpram_mutex"
-   kind="altera_avalon_mutex"
-   version="9.1"
-   enabled="1">
-  <parameter name="initialOwner" value="0" />
-  <parameter name="initialValue" value="0" />
- </module>
  <module name="sysid" kind="altera_avalon_sysid" version="9.1" enabled="1" />
  <module
    name="clock_crossing_1"
@@ -1156,6 +1114,15 @@
   <parameter name="simDoTestBenchWiring" value="false" />
   <parameter name="simDrivenValue" value="0" />
   <parameter name="width" value="1" />
+ </module>
+ <module name="cnApi_Av2Av_0" kind="cnApi_Av2Av" version="1.0" enabled="1">
+  <parameter name="bUseTripleBuffer" value="true" />
+  <parameter name="iTpdoBufSize_g" value="100" />
+  <parameter name="iRpdoBufSize_g" value="100" />
+  <parameter name="iTpdoObjNumber_g" value="10" />
+  <parameter name="iRpdoObjNumber_g" value="10" />
+  <parameter name="iAsyTxBufSize_g" value="1500" />
+  <parameter name="iAsyRxBufSize_g" value="1500" />
  </module>
  <connection
    kind="avalon"
@@ -1430,20 +1397,6 @@
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x04000000" />
  </connection>
- <connection kind="clock" version="9.1" start="clk_0.clk" end="dpram.clk1" />
- <connection
-   kind="avalon"
-   version="6.1"
-   start="pcp_cpu.data_master"
-   end="dpram.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x02200000" />
- </connection>
- <connection kind="clock" version="9.1" start="clk_0.clk" end="dpram.clk2" />
- <connection kind="avalon" version="6.1" start="ap_cpu.data_master" end="dpram.s2">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x02200000" />
- </connection>
  <connection kind="clock" version="9.1" start="clk_0.clk" end="portconf_pio.clk" />
  <connection kind="clock" version="9.1" start="clk_0.clk" end="digio_pio.clk" />
  <connection
@@ -1486,23 +1439,6 @@
    end="button_pio.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0220b830" />
- </connection>
- <connection kind="clock" version="9.1" start="clk_0.clk" end="dpram_mutex.clk" />
- <connection
-   kind="avalon"
-   version="6.1"
-   start="ap_cpu.data_master"
-   end="dpram_mutex.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0058" />
- </connection>
- <connection
-   kind="avalon"
-   version="6.1"
-   start="clock_crossing_0.m1"
-   end="dpram_mutex.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0058" />
  </connection>
  <connection
    kind="avalon"
@@ -1614,5 +1550,31 @@
    end="sync_irq.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0050" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="6.1"
+   start="ap_cpu.data_master"
+   end="cnApi_Av2Av_0.ap">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x00040000" />
+ </connection>
+ <connection
+   kind="clock"
+   version="9.1"
+   start="clk_0.clk"
+   end="cnApi_Av2Av_0.pcp_clk" />
+ <connection
+   kind="clock"
+   version="9.1"
+   start="clk_0.clk"
+   end="cnApi_Av2Av_0.ap_clk" />
+ <connection
+   kind="avalon"
+   version="6.1"
+   start="pcp_cpu.data_master"
+   end="cnApi_Av2Av_0.pcp">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x00020000" />
  </connection>
 </system>

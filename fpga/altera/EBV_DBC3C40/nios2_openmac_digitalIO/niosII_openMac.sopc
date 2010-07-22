@@ -272,48 +272,19 @@
          type = "String";
       }
    }
+   element digio_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "35665968";
+         type = "long";
+      }
+   }
    element portconf_pio.s1
    {
       datum baseAddress
       {
          value = "35665984";
-         type = "long";
-      }
-   }
-   element cfi_flash_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "25165824";
-         type = "long";
-      }
-   }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "35665920";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "35666000";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "0";
          type = "long";
       }
    }
@@ -330,11 +301,24 @@
          type = "long";
       }
    }
-   element digio_pio.s1
+   element node_switch_pio.s1
    {
       datum baseAddress
       {
-         value = "35665968";
+         value = "35666000";
+         type = "long";
+      }
+   }
+   element cfi_flash_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "25165824";
          type = "long";
       }
    }
@@ -351,6 +335,14 @@
          type = "long";
       }
    }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "0";
+         type = "long";
+      }
+   }
    element edrv_timer.s1
    {
       datum _lockedAddress
@@ -361,6 +353,14 @@
       datum baseAddress
       {
          value = "64";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "35665920";
          type = "long";
       }
    }
@@ -411,7 +411,7 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="systemHash" value="-6963579494" />
- <parameter name="timeStamp" value="1270723734754" />
+ <parameter name="timeStamp" value="1278406978641" />
  <module name="clk_0" kind="clock_source" version="9.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
