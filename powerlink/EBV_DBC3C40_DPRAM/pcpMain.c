@@ -112,7 +112,7 @@ int main (void)
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
-    DEBUG_TRACE0(DEBUG_LVL_09, "Generic POWERLINK CN interface\n");
+    DEBUG_TRACE0(DEBUG_LVL_09, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
 
     /***** initializations *****/
     DEBUG_TRACE0(DEBUG_LVL_09, "Initializing...\n");
