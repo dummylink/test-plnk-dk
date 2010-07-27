@@ -39,7 +39,7 @@ a dual ported RAM (DPRAM) area.
 /******************************************************************************/
 /* defines */
 
-#define CN_API_DPRAM_BASE 0x00040000
+#define CN_API_DPRAM_BASE 0x3000000
 
 
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
