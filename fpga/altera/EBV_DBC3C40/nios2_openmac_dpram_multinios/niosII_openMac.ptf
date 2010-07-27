@@ -22,14 +22,85 @@ SYSTEM niosII_openMac
             pipeline = "0";
             clock_module_connection_point_for_c2h = "clk_0.clk";
          }
-         CLOCK clk_1
+         CLOCK altpll_0_c0
+         {
+            frequency = "50000000";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c0 from altpll_0";
+            pipeline = "0";
+            clock_module_connection_point_for_c2h = "altpll_0.c0";
+         }
+         CLOCK clk50Meg
+         {
+            frequency = "50000000";
+            source = "altpll_0_c0";
+            Is_Clock_Source = "0";
+            display_name = "clk50Meg";
+         }
+         CLOCK altpll_0_c1
          {
             frequency = "90000000";
-            source = "External";
-            Is_Clock_Source = "0";
-            display_name = "clk_1";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c1 from altpll_0";
             pipeline = "0";
-            clock_module_connection_point_for_c2h = "clk_1.clk";
+            clock_module_connection_point_for_c2h = "altpll_0.c1";
+         }
+         CLOCK clk90Meg
+         {
+            frequency = "90000000";
+            source = "altpll_0_c1";
+            Is_Clock_Source = "0";
+            display_name = "clk90Meg";
+         }
+         CLOCK altpll_0_c2
+         {
+            frequency = "100000000";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c2 from altpll_0";
+            pipeline = "0";
+            clock_module_connection_point_for_c2h = "altpll_0.c2";
+         }
+         CLOCK clk100Meg180
+         {
+            frequency = "100000000";
+            source = "altpll_0_c2";
+            Is_Clock_Source = "0";
+            display_name = "clk100Meg180";
+         }
+         CLOCK altpll_0_c3
+         {
+            frequency = "90000000";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c3 from altpll_0";
+            pipeline = "0";
+            clock_module_connection_point_for_c2h = "altpll_0.c3";
+         }
+         CLOCK clk90MegSDRAM
+         {
+            frequency = "90000000";
+            source = "altpll_0_c3";
+            Is_Clock_Source = "0";
+            display_name = "clk90MegSDRAM";
+         }
+         CLOCK altpll_0_c4
+         {
+            frequency = "25000000";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c4 from altpll_0";
+            pipeline = "0";
+            clock_module_connection_point_for_c2h = "altpll_0.c4";
+         }
+         CLOCK clk25Meg
+         {
+            frequency = "25000000";
+            source = "altpll_0_c4";
+            Is_Clock_Source = "0";
+            display_name = "clk25Meg";
          }
       }
       clock_freq = "50000000";
@@ -145,31 +216,31 @@ SYSTEM niosII_openMac
          {
             Entry pcp_cpu/jtag_debug_module
             {
-               address = "0x0220a000";
+               address = "0x00001800";
                span = "0x00000800";
                is_bridge = "0";
             }
             Entry onchip_memory_0/s1
             {
-               address = "0x0220b400";
+               address = "0x00004000";
                span = "0x00000400";
                is_bridge = "0";
             }
             Entry DBC3C40_SRAM_0/avalon_tristate_slave
             {
-               address = "0x02100000";
+               address = "0x00200000";
                span = "0x00100000";
                is_bridge = "0";
             }
             Entry cfi_flash_0/s1
             {
-               address = "0x01800000";
+               address = "0x02000000";
                span = "0x00800000";
                is_bridge = "0";
             }
             Entry epcs_flash_controller_0/epcs_control_port
             {
-               address = "0x0220a800";
+               address = "0x00000000";
                span = "0x00000800";
                is_bridge = "0";
             }
@@ -313,14 +384,14 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/instruction_master
             {
                priority = "1";
-               Offset_Address = "0x0220a000";
+               Offset_Address = "0x00001800";
             }
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x0220a000";
+               Offset_Address = "0x00001800";
             }
-            Base_Address = "0x0220a000";
+            Base_Address = "0x00001800";
             Is_Readable = "1";
             Is_Writeable = "1";
             Uses_Tri_State_Data_Bus = "0";
@@ -521,110 +592,110 @@ SYSTEM niosII_openMac
          {
             Entry pcp_cpu/jtag_debug_module
             {
-               address = "0x0220a000";
+               address = "0x00001800";
                span = "0x00000800";
                is_bridge = "0";
             }
             Entry onchip_memory_0/s1
             {
-               address = "0x0220b400";
+               address = "0x00004000";
                span = "0x00000400";
                is_bridge = "0";
             }
             Entry DBC3C40_SRAM_0/avalon_tristate_slave
             {
-               address = "0x02100000";
+               address = "0x00200000";
                span = "0x00100000";
                is_bridge = "0";
             }
             Entry cfi_flash_0/s1
             {
-               address = "0x01800000";
+               address = "0x02000000";
                span = "0x00800000";
                is_bridge = "0";
             }
             Entry OpenMAC_0/REG
             {
-               address = "0x02208000";
-               span = "0x00001000";
-               is_bridge = "0";
-            }
-            Entry OpenMAC_0/TimerCmp
-            {
-               address = "0x0220b840";
-               span = "0x00000008";
-               is_bridge = "0";
-            }
-            Entry OpenMAC_0/Mii
-            {
-               address = "0x0220b820";
-               span = "0x00000010";
+               address = "0x00002000";
+               span = "0x00002000";
                is_bridge = "0";
             }
             Entry clock_crossing_0/s1
             {
-               address = "0x00000000";
+               address = "0x01000000";
                span = "0x00000080";
                is_bridge = "1";
             }
             Entry system_timer/s1
             {
-               address = "0x00000000";
+               address = "0x01000000";
                span = "0x00000020";
-               is_bridge = "0";
-            }
-            Entry edrv_timer/s1
-            {
-               address = "0x00000020";
-               span = "0x00000020";
-               is_bridge = "0";
-            }
-            Entry jtag_uart_0/avalon_jtag_slave
-            {
-               address = "0x00000050";
-               span = "0x00000008";
-               is_bridge = "0";
-            }
-            Entry OpenMAC_0/RX
-            {
-               address = "0x00000060";
-               span = "0x00000004";
                is_bridge = "0";
             }
             Entry irq_gen/s1
             {
-               address = "0x00000040";
+               address = "0x01000040";
                span = "0x00000010";
-               is_bridge = "0";
-            }
-            Entry epcs_flash_controller_0/epcs_control_port
-            {
-               address = "0x0220a800";
-               span = "0x00000800";
                is_bridge = "0";
             }
             Entry status_led_pio/s1
             {
-               address = "0x0220b800";
+               address = "0x01000020";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry button_pio/s1
             {
-               address = "0x0220b830";
+               address = "0x01000050";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry sysid/control_slave
             {
-               address = "0x0220b848";
+               address = "0x01000060";
                span = "0x00000008";
+               is_bridge = "0";
+            }
+            Entry altpll_0/pll_slave
+            {
+               address = "0x00000900";
+               span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry OpenMAC_0/CMP
+            {
+               address = "0x00000910";
+               span = "0x00000008";
+               is_bridge = "0";
+            }
+            Entry OpenMAC_0/iBuf
+            {
+               address = "0x00008000";
+               span = "0x00008000";
+               is_bridge = "0";
+            }
+            Entry epcs_flash_controller_0/epcs_control_port
+            {
+               address = "0x00000000";
+               span = "0x00000800";
+               is_bridge = "0";
+            }
+            Entry remote_update_cycloneiii_0/s1
+            {
+               address = "0x00000800";
+               span = "0x00000100";
                is_bridge = "0";
             }
             Entry cnApi_Av2Av_0/pcp
             {
                address = "0x00020000";
                span = "0x00020000";
+               is_bridge = "0";
+            }
+            Entry jtag_uart_0/avalon_jtag_slave
+            {
+               address = "0x00000918";
+               span = "0x00000008";
                is_bridge = "0";
             }
          }
@@ -844,7 +915,7 @@ SYSTEM niosII_openMac
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          Has_Clock = "1";
          Parameters_Signature = "";
          Is_CPU = "1";
@@ -1499,12 +1570,6 @@ SYSTEM niosII_openMac
                Offset_Address = "N/A";
                Base_Address = "N/A";
             }
-            MASTERED_BY OpenMAC_0/DMA
-            {
-               priority = "2";
-               Offset_Address = "N/A";
-               Base_Address = "N/A";
-            }
             Bridges_To = "tristate_master";
             Base_Address = "N/A";
             Has_IRQ = "0";
@@ -1542,13 +1607,13 @@ SYSTEM niosII_openMac
          {
             Entry DBC3C40_SRAM_0/avalon_tristate_slave
             {
-               address = "0x02100000";
+               address = "0x00200000";
                span = "0x00100000";
                is_bridge = "0";
             }
             Entry cfi_flash_0/s1
             {
-               address = "0x01800000";
+               address = "0x02000000";
                span = "0x00800000";
                is_bridge = "0";
             }
@@ -1562,7 +1627,7 @@ SYSTEM niosII_openMac
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          Has_Clock = "1";
          Instantiate_In_System_Module = "1";
          Is_Bridge = "1";
@@ -1613,9 +1678,9 @@ SYSTEM niosII_openMac
             MASTERED_BY tri_state_bridge_0/tristate_master
             {
                priority = "1";
-               Offset_Address = "0x02100000";
+               Offset_Address = "0x00200000";
             }
-            Base_Address = "0x02100000";
+            Base_Address = "0x00200000";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
             {
@@ -1684,7 +1749,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "0";
          Is_Bridge = "0";
          Is_Enabled = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          View 
          {
             MESSAGES 
@@ -1793,14 +1858,14 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x0220b400";
+               Offset_Address = "0x00004000";
             }
             MASTERED_BY pcp_cpu/instruction_master
             {
                priority = "1";
-               Offset_Address = "0x0220b400";
+               Offset_Address = "0x00004000";
             }
-            Base_Address = "0x0220b400";
+            Base_Address = "0x00004000";
             Address_Group = "0";
             Has_IRQ = "0";
             Is_Channel = "1";
@@ -1845,7 +1910,7 @@ SYSTEM niosII_openMac
                onchip_memory_0 
                {
                   Command1 = "@echo Post-processing to create $(notdir $@)";
-                  Command2 = "elf2hex $(ELF) 0x0220b400 0x220B7FF --width=32 $(QUARTUS_PROJECT_DIR)/onchip_memory_0.hex --create-lanes=0 ";
+                  Command2 = "elf2hex $(ELF) 0x00004000 0x43FF --width=32 $(QUARTUS_PROJECT_DIR)/onchip_memory_0.hex --create-lanes=0 ";
                   Dependency = "$(ELF)";
                   Target_File = "$(QUARTUS_PROJECT_DIR)/onchip_memory_0.hex";
                }
@@ -1909,7 +1974,7 @@ SYSTEM niosII_openMac
          Is_Enabled = "1";
          Default_Module_Name = "onchip_memory";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          Has_Clock = "1";
          View 
          {
@@ -2080,14 +2145,14 @@ SYSTEM niosII_openMac
             Connection_Limit = "1";
             IRQ_MASTER pcp_cpu/data_master
             {
-               IRQ_Number = "5";
+               IRQ_Number = "3";
             }
-            MASTERED_BY clock_crossing_0/m1
+            MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000050";
+               Offset_Address = "0x00000918";
             }
-            Base_Address = "0x00000050";
+            Base_Address = "0x00000918";
             Address_Group = "0";
          }
       }
@@ -2178,7 +2243,7 @@ SYSTEM niosII_openMac
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Instantiate_In_System_Module = "1";
          Iss_Launch_Telnet = "0";
@@ -2284,9 +2349,9 @@ SYSTEM niosII_openMac
             MASTERED_BY tri_state_bridge_0/tristate_master
             {
                priority = "1";
-               Offset_Address = "0x01800000";
+               Offset_Address = "0x02000000";
             }
-            Base_Address = "0x01800000";
+            Base_Address = "0x02000000";
             Has_IRQ = "0";
             Simulation_Num_Lanes = "1";
             Convert_Xs_To_0 = "1";
@@ -2324,7 +2389,7 @@ SYSTEM niosII_openMac
                {
                   BOOT_COPIER = "boot_loader_cfi.srec";
                   CPU_CLASS = "altera_nios2";
-                  CPU_RESET_ADDRESS = "0x220A800";
+                  CPU_RESET_ADDRESS = "0x0";
                }
             }
             TARGET delete_placeholder_warning
@@ -2341,7 +2406,7 @@ SYSTEM niosII_openMac
                cfi_flash_0 
                {
                   Command1 = "@echo Post-processing to create $(notdir $@)";
-                  Command2 = "elf2flash --input=$(ELF) --flash= --boot=$(DBL_QUOTE)$(shell $(DBL_QUOTE)$(QUARTUS_ROOTDIR)/sopc_builder/bin/find_sopc_component_dir$(DBL_QUOTE) $(CPU_CLASS) $(QUARTUS_PROJECT_DIR))/$(BOOT_COPIER)$(DBL_QUOTE) --outfile=$(CFI_FLASH_0_FLASHTARGET_ALT_SIM_PREFIX)cfi_flash_0.flash --sim_optimize=$(ALT_SIM_OPTIMIZE) --base=0x1800000 --end=0x1FFFFFF --reset=$(CPU_RESET_ADDRESS) ";
+                  Command2 = "elf2flash --input=$(ELF) --flash= --boot=$(DBL_QUOTE)$(shell $(DBL_QUOTE)$(QUARTUS_ROOTDIR)/sopc_builder/bin/find_sopc_component_dir$(DBL_QUOTE) $(CPU_CLASS) $(QUARTUS_PROJECT_DIR))/$(BOOT_COPIER)$(DBL_QUOTE) --outfile=$(CFI_FLASH_0_FLASHTARGET_ALT_SIM_PREFIX)cfi_flash_0.flash --sim_optimize=$(ALT_SIM_OPTIMIZE) --base=0x2000000 --end=0x27FFFFF --reset=$(CPU_RESET_ADDRESS) ";
                   Dependency = "$(ELF)";
                   Target_File = "$(CFI_FLASH_0_FLASHTARGET_ALT_SIM_PREFIX)cfi_flash_0.flash";
                }
@@ -2363,7 +2428,7 @@ SYSTEM niosII_openMac
       {
          Simulation_Num_Lanes = "2";
          Is_Enabled = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          Has_Clock = "1";
          Make_Memory_Model = "1";
          Instantiate_In_System_Module = "0";
@@ -2384,11 +2449,11 @@ SYSTEM niosII_openMac
    }
    MODULE OpenMAC_0
    {
-      SLAVE Mii
+      SLAVE CMP
       {
          PORT_WIRING 
          {
-            PORT Clk
+            PORT Clk50
             {
                type = "clk";
                width = "1";
@@ -2402,61 +2467,77 @@ SYSTEM niosII_openMac
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT mii_Addr
+            PORT t_IRQ
             {
-               type = "address";
-               width = "3";
-               direction = "input";
+               type = "irq";
+               width = "1";
+               direction = "output";
                Is_Enabled = "1";
             }
-            PORT mii_Sel
+            PORT t_read_n
             {
-               type = "chipselect";
+               type = "read_n";
                width = "1";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT mii_nBe
-            {
-               type = "byteenable_n";
-               width = "2";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT mii_nWr
+            PORT t_write_n
             {
                type = "write_n";
                width = "1";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT mii_Data_In
+            PORT t_byteenable_n
             {
-               type = "writedata";
-               width = "16";
+               type = "byteenable_n";
+               width = "4";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT mii_Data_Out
+            PORT t_address
+            {
+               type = "address";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+               declare_one_bit_as_std_logic_vector = "1";
+            }
+            PORT t_writedata
+            {
+               type = "writedata";
+               width = "32";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT t_readdata
             {
                type = "readdata";
-               width = "16";
+               width = "32";
                direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT t_chipselect
+            {
+               type = "chipselect";
+               width = "1";
+               direction = "input";
                Is_Enabled = "1";
             }
          }
          SYSTEM_BUILDER_INFO 
          {
+            Has_IRQ = "1";
             Bus_Type = "avalon";
-            Write_Wait_States = "1cycles";
-            Read_Wait_States = "0cycles";
+            Write_Wait_States = "0cycles";
+            Read_Wait_States = "1cycles";
             Hold_Time = "0cycles";
             Setup_Time = "0cycles";
             Is_Printable_Device = "0";
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
             Is_Nonvolatile_Storage = "0";
-            Address_Span = "16";
+            Address_Span = "8";
             Read_Latency = "0";
             Is_Memory_Device = "0";
             Maximum_Pending_Read_Transactions = "0";
@@ -2464,8 +2545,8 @@ SYSTEM niosII_openMac
             Accepts_Internal_Connections = "1";
             Write_Latency = "0";
             Is_Flash = "0";
-            Data_Width = "16";
-            Address_Width = "3";
+            Data_Width = "32";
+            Address_Width = "1";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -2478,10 +2559,118 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x0220b820";
+               Offset_Address = "0x00000910";
             }
-            Base_Address = "0x0220b820";
+            IRQ_MASTER pcp_cpu/data_master
+            {
+               IRQ_Number = "0";
+            }
+            Clock_Source = "clk50Meg";
+            Has_Clock = "1";
+            Base_Address = "0x00000910";
             Address_Group = "0";
+         }
+      }
+      SLAVE iBuf
+      {
+         PORT_WIRING 
+         {
+            PORT ClkFaster
+            {
+               type = "clk";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT iBuf_chipselect
+            {
+               type = "chipselect";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT iBuf_read_n
+            {
+               type = "read_n";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT iBuf_write_n
+            {
+               type = "write_n";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT iBuf_byteenable
+            {
+               type = "byteenable";
+               width = "4";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT iBuf_address
+            {
+               type = "address";
+               width = "13";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT iBuf_writedata
+            {
+               type = "writedata";
+               width = "32";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT iBuf_readdata
+            {
+               type = "readdata";
+               width = "32";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+         }
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Write_Wait_States = "0cycles";
+            Read_Wait_States = "2cycles";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
+            Is_Printable_Device = "0";
+            Address_Alignment = "dynamic";
+            Well_Behaved_Waitrequest = "0";
+            Is_Nonvolatile_Storage = "0";
+            Address_Span = "32768";
+            Read_Latency = "0";
+            Is_Memory_Device = "0";
+            Maximum_Pending_Read_Transactions = "0";
+            Minimum_Uninterrupted_Run_Length = "1";
+            Accepts_Internal_Connections = "1";
+            Write_Latency = "0";
+            Is_Flash = "0";
+            Data_Width = "32";
+            Address_Width = "13";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            MASTERED_BY pcp_cpu/data_master
+            {
+               priority = "1";
+               Offset_Address = "0x00008000";
+            }
+            Clock_Source = "clk90Meg";
+            Has_Clock = "1";
+            Base_Address = "0x00008000";
+            Address_Group = "1";
             IRQ_MASTER pcp_cpu/data_master
             {
                IRQ_Number = "NC";
@@ -2490,62 +2679,6 @@ SYSTEM niosII_openMac
       }
       PORT_WIRING 
       {
-         PORT rCrs_Dv_1
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT rTx_Dat_1
-         {
-            type = "export";
-            width = "2";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT rTx_En_1
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT rRx_Dat_1
-         {
-            type = "export";
-            width = "2";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT rCrs_Dv_0
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT rTx_Dat_0
-         {
-            type = "export";
-            width = "2";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT rTx_En_0
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT rRx_Dat_0
-         {
-            type = "export";
-            width = "2";
-            direction = "input";
-            Is_Enabled = "1";
-         }
          PORT mii_Clk
          {
             type = "export";
@@ -2581,111 +2714,61 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
-      }
-      SLAVE TimerCmp
-      {
-         SYSTEM_BUILDER_INFO 
+         PORT rRx_Dat_1
          {
-            Has_IRQ = "1";
-            Bus_Type = "avalon";
-            Write_Wait_States = "0cycles";
-            Read_Wait_States = "1cycles";
-            Hold_Time = "0cycles";
-            Setup_Time = "0cycles";
-            Is_Printable_Device = "0";
-            Address_Alignment = "dynamic";
-            Well_Behaved_Waitrequest = "0";
-            Is_Nonvolatile_Storage = "0";
-            Address_Span = "8";
-            Read_Latency = "0";
-            Is_Memory_Device = "0";
-            Maximum_Pending_Read_Transactions = "0";
-            Minimum_Uninterrupted_Run_Length = "1";
-            Accepts_Internal_Connections = "1";
-            Write_Latency = "0";
-            Is_Flash = "0";
-            Data_Width = "32";
-            Address_Width = "1";
-            Maximum_Burst_Size = "1";
-            Register_Incoming_Signals = "0";
-            Register_Outgoing_Signals = "0";
-            Interleave_Bursts = "0";
-            Linewrap_Bursts = "0";
-            Burst_On_Burst_Boundaries_Only = "0";
-            Always_Burst_Max_Burst = "0";
-            Is_Big_Endian = "0";
+            type = "export";
+            width = "2";
+            direction = "input";
             Is_Enabled = "1";
-            MASTERED_BY pcp_cpu/data_master
-            {
-               priority = "1";
-               Offset_Address = "0x0220b840";
-            }
-            IRQ_MASTER pcp_cpu/data_master
-            {
-               IRQ_Number = "2";
-            }
-            Base_Address = "0x0220b840";
-            Address_Group = "1";
          }
-         PORT_WIRING 
+         PORT rCrs_Dv_1
          {
-            PORT nCmp_Int
-            {
-               type = "irq_n";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT t_chipselect
-            {
-               type = "chipselect";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT t_read_n
-            {
-               type = "read_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT t_write_n
-            {
-               type = "write_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT t_byteenable
-            {
-               type = "byteenable";
-               width = "4";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT t_address
-            {
-               type = "address";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-               declare_one_bit_as_std_logic_vector = "1";
-            }
-            PORT t_writedata
-            {
-               type = "writedata";
-               width = "32";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT t_readdata
-            {
-               type = "readdata";
-               width = "32";
-               direction = "output";
-               Is_Enabled = "1";
-            }
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT rTx_Dat_1
+         {
+            type = "export";
+            width = "2";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT rTx_En_1
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT rRx_Dat_0
+         {
+            type = "export";
+            width = "2";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT rCrs_Dv_0
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT rTx_Dat_0
+         {
+            type = "export";
+            width = "2";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT rTx_En_0
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
          }
       }
       SLAVE REG
@@ -2702,7 +2785,7 @@ SYSTEM niosII_openMac
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
             Is_Nonvolatile_Storage = "0";
-            Address_Span = "4096";
+            Address_Span = "8192";
             Read_Latency = "0";
             Is_Memory_Device = "0";
             Maximum_Pending_Read_Transactions = "0";
@@ -2711,7 +2794,7 @@ SYSTEM niosII_openMac
             Write_Latency = "0";
             Is_Flash = "0";
             Data_Width = "16";
-            Address_Width = "11";
+            Address_Width = "12";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -2724,283 +2807,81 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x02208000";
+               Offset_Address = "0x00002000";
             }
             IRQ_MASTER pcp_cpu/data_master
             {
                IRQ_Number = "1";
             }
-            Base_Address = "0x02208000";
+            Clock_Source = "clk50Meg";
+            Has_Clock = "1";
+            Base_Address = "0x00002000";
             Address_Group = "2";
          }
          PORT_WIRING 
          {
-            PORT nTx_Int
+            PORT s_IRQ
             {
-               type = "irq_n";
+               type = "irq";
                width = "1";
                direction = "output";
                Is_Enabled = "1";
             }
-            PORT chipselect
+            PORT s_chipselect
             {
                type = "chipselect";
                width = "1";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT read_n
+            PORT s_read_n
             {
                type = "read_n";
                width = "1";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT write_n
+            PORT s_write_n
             {
                type = "write_n";
                width = "1";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT byteenable
+            PORT s_byteenable_n
             {
                type = "byteenable_n";
                width = "2";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT address
+            PORT s_address
             {
                type = "address";
-               width = "11";
+               width = "12";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT writedata
+            PORT s_writedata
             {
                type = "writedata";
                width = "16";
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT readdata
+            PORT s_readdata
             {
                type = "readdata";
                width = "16";
                direction = "output";
                Is_Enabled = "1";
-            }
-         }
-      }
-      SLAVE RX
-      {
-         SYSTEM_BUILDER_INFO 
-         {
-            Has_IRQ = "1";
-            Bus_Type = "avalon";
-            Write_Wait_States = "1cycles";
-            Read_Wait_States = "1cycles";
-            Hold_Time = "0cycles";
-            Setup_Time = "0cycles";
-            Is_Printable_Device = "0";
-            Address_Alignment = "dynamic";
-            Well_Behaved_Waitrequest = "0";
-            Is_Nonvolatile_Storage = "0";
-            Address_Span = "4";
-            Read_Latency = "0";
-            Is_Memory_Device = "0";
-            Maximum_Pending_Read_Transactions = "0";
-            Minimum_Uninterrupted_Run_Length = "1";
-            Accepts_Internal_Connections = "1";
-            Write_Latency = "0";
-            Is_Flash = "0";
-            Data_Width = "16";
-            Address_Width = "1";
-            Maximum_Burst_Size = "1";
-            Register_Incoming_Signals = "0";
-            Register_Outgoing_Signals = "0";
-            Interleave_Bursts = "0";
-            Linewrap_Bursts = "0";
-            Burst_On_Burst_Boundaries_Only = "0";
-            Always_Burst_Max_Burst = "0";
-            Is_Big_Endian = "0";
-            Is_Enabled = "1";
-            IRQ_MASTER pcp_cpu/data_master
-            {
-               IRQ_Number = "0";
-            }
-            MASTERED_BY clock_crossing_0/m1
-            {
-               priority = "1";
-               Offset_Address = "0x00000060";
-            }
-            Base_Address = "0x00000060";
-            Address_Group = "3";
-         }
-         PORT_WIRING 
-         {
-            PORT nRx_Int
-            {
-               type = "irq_n";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT d_chipselect
-            {
-               type = "chipselect";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT d_read_n
-            {
-               type = "read_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT d_write_n
-            {
-               type = "write_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT d_byteenable
-            {
-               type = "byteenable";
-               width = "2";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT d_address
-            {
-               type = "address";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-               declare_one_bit_as_std_logic_vector = "1";
-            }
-            PORT d_writedata
-            {
-               type = "writedata";
-               width = "16";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT d_readdata
-            {
-               type = "readdata";
-               width = "16";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-         }
-      }
-      MASTER DMA
-      {
-         SYSTEM_BUILDER_INFO 
-         {
-            Bus_Type = "avalon";
-            Is_Asynchronous = "0";
-            DBS_Big_Endian = "0";
-            Adapts_To = "";
-            Do_Stream_Reads = "0";
-            Do_Stream_Writes = "0";
-            Max_Address_Width = "32";
-            Data_Width = "16";
-            Address_Width = "32";
-            Maximum_Burst_Size = "1";
-            Register_Incoming_Signals = "0";
-            Register_Outgoing_Signals = "0";
-            Interleave_Bursts = "0";
-            Linewrap_Bursts = "0";
-            Burst_On_Burst_Boundaries_Only = "0";
-            Always_Burst_Max_Burst = "0";
-            Is_Big_Endian = "0";
-            Is_Enabled = "1";
-         }
-         PORT_WIRING 
-         {
-            PORT m_read_n
-            {
-               type = "read_n";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT m_write_n
-            {
-               type = "write_n";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT m_byteenable_n
-            {
-               type = "byteenable_n";
-               width = "2";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT m_address
-            {
-               type = "address";
-               width = "32";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT m_writedata
-            {
-               type = "writedata";
-               width = "16";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT m_readdata
-            {
-               type = "readdata";
-               width = "16";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT m_waitrequest
-            {
-               type = "waitrequest";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT m_arbiterlock
-            {
-               type = "arbiterlock";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-         }
-         MEMORY_MAP 
-         {
-            Entry DBC3C40_SRAM_0/avalon_tristate_slave
-            {
-               address = "0x02100000";
-               span = "0x00100000";
-               is_bridge = "0";
-            }
-            Entry cfi_flash_0/s1
-            {
-               address = "0x01800000";
-               span = "0x00800000";
-               is_bridge = "0";
             }
          }
       }
       class = "no_legacy_module";
       class_version = "7.080912";
       gtf_class_name = "OpenMAC";
-      gtf_class_version = "1.0";
+      gtf_class_version = "1.1";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -3008,7 +2889,6 @@ SYSTEM niosII_openMac
          Is_Bridge = "0";
          Is_Enabled = "1";
          Clock_Source = "clk_0";
-         Has_Clock = "1";
          View 
          {
             MESSAGES 
@@ -3018,7 +2898,7 @@ SYSTEM niosII_openMac
       }
       HDL_INFO 
       {
-         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/OpenMAC_0.vhd";
+         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/EPL/OpenFILTER.vhd,__PROJECT_DIRECTORY__/EPL/OpenHUB.vhd,__PROJECT_DIRECTORY__/EPL/OpenMAC.vhd,__PROJECT_DIRECTORY__/EPL/OpenMAC_AvalonIF.vhd,__PROJECT_DIRECTORY__/EPL/OpenMAC_DPR_Altera.vhd,__PROJECT_DIRECTORY__/EPL/OpenMAC_PHYMI.vhd,__PROJECT_DIRECTORY__/OpenMAC_0.vhd";
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -3119,14 +2999,14 @@ SYSTEM niosII_openMac
             Is_Enabled = "1";
             IRQ_MASTER pcp_cpu/data_master
             {
-               IRQ_Number = "3";
+               IRQ_Number = "2";
             }
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
                Offset_Address = "0x00000000";
             }
-            Base_Address = "0x00000000";
+            Base_Address = "0x01000000";
             Address_Group = "0";
          }
       }
@@ -3146,7 +3026,7 @@ SYSTEM niosII_openMac
             {
             }
          }
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
       }
       WIZARD_SCRIPT_ARGUMENTS 
@@ -3168,156 +3048,6 @@ SYSTEM niosII_openMac
          Precompiled_Simulation_Library_Files = "";
          Simulation_HDL_Files = "";
          Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/system_timer.vhd";
-         Synthesis_Only_Files = "";
-      }
-      PORT_WIRING 
-      {
-      }
-   }
-   MODULE edrv_timer
-   {
-      SLAVE s1
-      {
-         PORT_WIRING 
-         {
-            PORT clk
-            {
-               type = "clk";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT reset_n
-            {
-               type = "reset_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT irq
-            {
-               type = "irq";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT address
-            {
-               type = "address";
-               width = "3";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT writedata
-            {
-               type = "writedata";
-               width = "16";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT readdata
-            {
-               type = "readdata";
-               width = "16";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT chipselect
-            {
-               type = "chipselect";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT write_n
-            {
-               type = "write_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-         }
-         SYSTEM_BUILDER_INFO 
-         {
-            Has_IRQ = "1";
-            Bus_Type = "avalon";
-            Write_Wait_States = "0cycles";
-            Read_Wait_States = "1cycles";
-            Hold_Time = "0cycles";
-            Setup_Time = "0cycles";
-            Is_Printable_Device = "0";
-            Address_Alignment = "native";
-            Well_Behaved_Waitrequest = "0";
-            Is_Nonvolatile_Storage = "0";
-            Read_Latency = "0";
-            Is_Memory_Device = "0";
-            Maximum_Pending_Read_Transactions = "0";
-            Minimum_Uninterrupted_Run_Length = "1";
-            Accepts_Internal_Connections = "1";
-            Write_Latency = "0";
-            Is_Flash = "0";
-            Data_Width = "16";
-            Address_Width = "3";
-            Maximum_Burst_Size = "1";
-            Register_Incoming_Signals = "0";
-            Register_Outgoing_Signals = "0";
-            Interleave_Bursts = "0";
-            Linewrap_Bursts = "0";
-            Burst_On_Burst_Boundaries_Only = "0";
-            Always_Burst_Max_Burst = "0";
-            Is_Big_Endian = "0";
-            Is_Enabled = "1";
-            IRQ_MASTER pcp_cpu/data_master
-            {
-               IRQ_Number = "4";
-            }
-            MASTERED_BY clock_crossing_0/m1
-            {
-               priority = "1";
-               Offset_Address = "0x00000020";
-            }
-            Base_Address = "0x00000020";
-            Address_Group = "0";
-         }
-      }
-      class = "altera_avalon_timer";
-      class_version = "7.080912";
-      iss_model_name = "altera_avalon_timer";
-      SYSTEM_BUILDER_INFO 
-      {
-         Instantiate_In_System_Module = "1";
-         Is_Enabled = "1";
-         Top_Level_Ports_Are_Enumerated = "1";
-         View 
-         {
-            Settings_Summary = "Timer with 5.2 ms timeout period.";
-            Is_Collapsed = "1";
-            MESSAGES 
-            {
-            }
-         }
-         Clock_Source = "clk_0";
-         Has_Clock = "1";
-      }
-      WIZARD_SCRIPT_ARGUMENTS 
-      {
-         always_run = "1";
-         fixed_period = "1";
-         snapshot = "0";
-         period = "5.2";
-         period_units = "ms";
-         reset_output = "0";
-         timeout_pulse_output = "0";
-         load_value = "259999";
-         counter_size = "32";
-         mult = "0.0010";
-         ticks_per_sec = "193";
-      }
-      HDL_INFO 
-      {
-         Precompiled_Simulation_Library_Files = "";
-         Simulation_HDL_Files = "";
-         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/edrv_timer.vhd";
          Synthesis_Only_Files = "";
       }
       PORT_WIRING 
@@ -3449,11 +3179,11 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000000";
+               Offset_Address = "0x01000000";
             }
-            Clock_Source = "clk_1";
+            Clock_Source = "clk90Meg";
             Has_Clock = "1";
-            Base_Address = "0x00000000";
+            Base_Address = "0x01000000";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
             {
@@ -3571,7 +3301,7 @@ SYSTEM niosII_openMac
             Always_Burst_Max_Burst = "0";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
-            Clock_Source = "clk_0";
+            Clock_Source = "clk50Meg";
             Has_Clock = "1";
          }
          MEMORY_MAP 
@@ -3582,28 +3312,28 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry edrv_timer/s1
+            Entry irq_gen/s1
+            {
+               address = "0x00000040";
+               span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry status_led_pio/s1
             {
                address = "0x00000020";
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry jtag_uart_0/avalon_jtag_slave
+            Entry button_pio/s1
             {
                address = "0x00000050";
-               span = "0x00000008";
+               span = "0x00000010";
                is_bridge = "0";
             }
-            Entry OpenMAC_0/RX
+            Entry sysid/control_slave
             {
                address = "0x00000060";
-               span = "0x00000004";
-               is_bridge = "0";
-            }
-            Entry irq_gen/s1
-            {
-               address = "0x00000040";
-               span = "0x00000010";
+               span = "0x00000008";
                is_bridge = "0";
             }
          }
@@ -3649,332 +3379,6 @@ SYSTEM niosII_openMac
       }
       PORT_WIRING 
       {
-      }
-   }
-   MODULE epcs_flash_controller_0
-   {
-      SLAVE epcs_control_port
-      {
-         PORT_WIRING 
-         {
-            PORT clk
-            {
-               type = "clk";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT reset_n
-            {
-               type = "reset_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT irq
-            {
-               type = "irq";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT address
-            {
-               type = "address";
-               width = "9";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT chipselect
-            {
-               type = "chipselect";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT dataavailable
-            {
-               type = "dataavailable";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT endofpacket
-            {
-               type = "endofpacket";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT read_n
-            {
-               type = "read_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT readdata
-            {
-               type = "readdata";
-               width = "32";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT readyfordata
-            {
-               type = "readyfordata";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT write_n
-            {
-               type = "write_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT writedata
-            {
-               type = "writedata";
-               width = "32";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT data_from_cpu
-            {
-               Is_Enabled = "0";
-               direction = "input";
-               type = "writedata";
-               width = "16";
-            }
-            PORT data_to_cpu
-            {
-               Is_Enabled = "0";
-               direction = "output";
-               type = "readdata";
-               width = "16";
-            }
-            PORT epcs_select
-            {
-               Is_Enabled = "0";
-               direction = "input";
-               type = "chipselect";
-               width = "1";
-            }
-            PORT mem_addr
-            {
-               Is_Enabled = "0";
-               direction = "input";
-               type = "address";
-               width = "3";
-            }
-         }
-         SYSTEM_BUILDER_INFO 
-         {
-            Has_IRQ = "1";
-            Bus_Type = "avalon";
-            Write_Wait_States = "1cycles";
-            Read_Wait_States = "1cycles";
-            Hold_Time = "0cycles";
-            Setup_Time = "0cycles";
-            Is_Printable_Device = "0";
-            Address_Alignment = "dynamic";
-            Well_Behaved_Waitrequest = "0";
-            Is_Nonvolatile_Storage = "1";
-            Address_Span = "2048";
-            Read_Latency = "0";
-            Is_Memory_Device = "1";
-            Maximum_Pending_Read_Transactions = "0";
-            Minimum_Uninterrupted_Run_Length = "1";
-            Accepts_Internal_Connections = "1";
-            Write_Latency = "0";
-            Is_Flash = "1";
-            Data_Width = "32";
-            Address_Width = "9";
-            Maximum_Burst_Size = "1";
-            Register_Incoming_Signals = "0";
-            Register_Outgoing_Signals = "0";
-            Interleave_Bursts = "0";
-            Linewrap_Bursts = "0";
-            Burst_On_Burst_Boundaries_Only = "0";
-            Always_Burst_Max_Burst = "0";
-            Is_Big_Endian = "0";
-            Is_Enabled = "1";
-            MASTERED_BY pcp_cpu/instruction_master
-            {
-               priority = "1";
-               Offset_Address = "0x0220a800";
-            }
-            MASTERED_BY pcp_cpu/data_master
-            {
-               priority = "1";
-               Offset_Address = "0x0220a800";
-            }
-            IRQ_MASTER pcp_cpu/data_master
-            {
-               IRQ_Number = "6";
-            }
-            MASTERED_BY ap_cpu/data_master
-            {
-               priority = "1";
-               Offset_Address = "0x0220a800";
-            }
-            MASTERED_BY ap_cpu/instruction_master
-            {
-               priority = "1";
-               Offset_Address = "0x0220a800";
-            }
-            Base_Address = "0x0220a800";
-            Address_Group = "0";
-            IRQ_MASTER ap_cpu/data_master
-            {
-               IRQ_Number = "NC";
-            }
-         }
-         WIZARD_SCRIPT_ARGUMENTS 
-         {
-            class = "altera_avalon_epcs_flash_controller";
-            flash_reference_designator = "";
-         }
-      }
-      PORT_WIRING 
-      {
-         PORT dclk
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT sce
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT sdo
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT data0
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-      }
-      WIZARD_SCRIPT_ARGUMENTS 
-      {
-         databits = "8";
-         targetclock = "20";
-         clockunits = "MHz";
-         clockmult = "1000000";
-         numslaves = "1";
-         ismaster = "1";
-         clockpolarity = "0";
-         clockphase = "0";
-         lsbfirst = "0";
-         extradelay = "0";
-         targetssdelay = "100";
-         delayunits = "us";
-         delaymult = "1e-006";
-         prefix = "epcs_";
-         register_offset = "0x400";
-         ignore_legacy_check = "1";
-         use_asmi_atom = "0";
-         MAKE 
-         {
-            MACRO 
-            {
-               EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_ALT_SIM_PREFIX = "$(EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_TMP1:0=)";
-               EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_TMP1 = "$(ALT_SIM_OPTIMIZE:1=RUN_ON_HDL_SIMULATOR_ONLY_)";
-            }
-            MASTER ap_cpu
-            {
-               MACRO 
-               {
-                  BOOTS_FROM_EPCS = "0";
-                  BOOT_COPIER_EPCS = "boot_loader_epcs.srec";
-                  CPU_CLASS = "altera_nios2";
-                  CPU_RESET_ADDRESS = "0x4000000";
-               }
-            }
-            MASTER pcp_cpu
-            {
-               MACRO 
-               {
-                  BOOTS_FROM_EPCS = "1";
-                  BOOT_COPIER_EPCS = "boot_loader_epcs.srec";
-                  CPU_CLASS = "altera_nios2";
-                  CPU_RESET_ADDRESS = "0x220A800";
-               }
-            }
-            TARGET delete_placeholder_warning
-            {
-               epcs_flash_controller_0 
-               {
-                  Command1 = "rm -f $(SIMDIR)/contents_file_warning.txt";
-                  Is_Phony = "1";
-                  Target_File = "do_delete_placeholder_warning";
-               }
-            }
-            TARGET flashfiles
-            {
-               epcs_flash_controller_0 
-               {
-                  Command1 = "@if [ $(BOOTS_FROM_EPCS) -eq 1 ]; then echo Post-processing to create $(notdir $@) ; elf2flash --input=$(ELF) --flash= --boot=$(DBL_QUOTE)$(shell $(DBL_QUOTE)$(QUARTUS_ROOTDIR)/sopc_builder/bin/find_sopc_component_dir$(DBL_QUOTE) $(CPU_CLASS) $(QUARTUS_PROJECT_DIR))/$(BOOT_COPIER_EPCS)$(DBL_QUOTE) --outfile=$(EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_ALT_SIM_PREFIX)epcs_flash_controller_0_boot_rom.flash --sim_optimize=$(ALT_SIM_OPTIMIZE) --epcs --base=0x0 --end=0x7FFFFFFF  ; fi";
-                  Dependency = "$(ELF)";
-                  Target_File = "$(EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_ALT_SIM_PREFIX)epcs_flash_controller_0_boot_rom.flash";
-               }
-            }
-            TARGET sim
-            {
-               epcs_flash_controller_0 
-               {
-                  Command1 = "if [ ! -d $(SIMDIR) ]; then mkdir $(SIMDIR) ; fi";
-                  Command2 = "@echo Hardware simulation is not enabled for the target SOPC Builder system. Skipping creation of hardware simulation model contents and simulation symbol files. \\(Note: This does not affect the instruction set simulator.\\)";
-                  Command3 = "touch $(SIMDIR)/dummy_file";
-                  Dependency = "$(ELF)";
-                  Target_File = "$(SIMDIR)/dummy_file";
-               }
-            }
-         }
-         clockunit = "kHz";
-         delayunit = "us";
-         disableAvalonFlowControl = "0";
-         insert_sync = "0";
-         sync_reg_depth = "2";
-      }
-      class = "altera_avalon_epcs_flash_controller";
-      class_version = "7.080912";
-      SYSTEM_BUILDER_INFO 
-      {
-         Is_Enabled = "1";
-         Clock_Source = "clk_1";
-         Has_Clock = "1";
-         Instantiate_In_System_Module = "1";
-         Required_Device_Family = "STRATIX,CYCLONE,CYCLONEII,CYCLONEIII,STRATIXIII,STRATIXII,STRATIXIIGX,ARRIAGX,STRATIXIIGXLITE,STRATIXIV,ARRIAII,TARPON,STINGRAY,CYCLONEIVE";
-         Fixed_Module_Name = "epcs_controller";
-         Top_Level_Ports_Are_Enumerated = "1";
-         View 
-         {
-            MESSAGES 
-            {
-            }
-         }
-      }
-      HDL_INFO 
-      {
-         Precompiled_Simulation_Library_Files = "";
-         Simulation_HDL_Files = "";
-         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/epcs_flash_controller_0.vhd";
-         Synthesis_Only_Files = "";
       }
    }
    MODULE digio_pio
@@ -4065,9 +3469,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_1/m1
             {
                priority = "1";
-               Offset_Address = "0x00000030";
+               Offset_Address = "0x000000a0";
             }
-            Base_Address = "0x03000030";
+            Base_Address = "0x010000a0";
             Has_IRQ = "0";
             Address_Group = "0";
             Is_Readable = "1";
@@ -4104,7 +3508,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 
@@ -4229,9 +3633,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_1/m1
             {
                priority = "1";
-               Offset_Address = "0x00000020";
+               Offset_Address = "0x00000070";
             }
-            Base_Address = "0x03000020";
+            Base_Address = "0x01000070";
             Has_IRQ = "0";
             Address_Group = "0";
             Is_Readable = "1";
@@ -4269,7 +3673,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 
@@ -4391,18 +3795,14 @@ SYSTEM niosII_openMac
             Always_Burst_Max_Burst = "0";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
-            MASTERED_BY pcp_cpu/data_master
+            MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x0220b800";
+               Offset_Address = "0x00000020";
             }
-            Base_Address = "0x0220b800";
+            Base_Address = "0x01000020";
             Has_IRQ = "0";
             Address_Group = "0";
-            IRQ_MASTER pcp_cpu/data_master
-            {
-               IRQ_Number = "NC";
-            }
             Is_Readable = "0";
             Is_Writable = "1";
          }
@@ -4437,7 +3837,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 
@@ -4541,9 +3941,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_1/m1
             {
                priority = "1";
-               Offset_Address = "0x00000040";
+               Offset_Address = "0x000000b0";
             }
-            Base_Address = "0x03000040";
+            Base_Address = "0x010000b0";
             Has_IRQ = "0";
             Address_Group = "0";
             Is_Readable = "1";
@@ -4580,7 +3980,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 
@@ -4640,7 +4040,7 @@ SYSTEM niosII_openMac
             PORT i_address
             {
                type = "address";
-               width = "27";
+               width = "26";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -4672,13 +4072,6 @@ SYSTEM niosII_openMac
                direction = "input";
                Is_Enabled = "1";
             }
-            PORT i_burstcount
-            {
-               type = "burstcount";
-               width = "4";
-               direction = "output";
-               Is_Enabled = "1";
-            }
          }
          SYSTEM_BUILDER_INFO 
          {
@@ -4690,14 +4083,14 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "32";
-            Address_Width = "27";
-            Maximum_Burst_Size = "8";
+            Address_Width = "26";
+            Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
-            Interleave_Bursts = "0";
-            Linewrap_Bursts = "1";
-            Burst_On_Burst_Boundaries_Only = "0";
-            Always_Burst_Max_Burst = "1";
+            Interleave_Bursts = "";
+            Linewrap_Bursts = "";
+            Burst_On_Burst_Boundaries_Only = "";
+            Always_Burst_Max_Burst = "";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
             Is_Instruction_Master = "1";
@@ -4712,20 +4105,14 @@ SYSTEM niosII_openMac
          {
             Entry ap_cpu/jtag_debug_module
             {
-               address = "0x00001000";
+               address = "0x03020800";
                span = "0x00000800";
                is_bridge = "0";
             }
             Entry sdram_0/s1
             {
-               address = "0x04000000";
+               address = "0x02000000";
                span = "0x01000000";
-               is_bridge = "0";
-            }
-            Entry epcs_flash_controller_0/epcs_control_port
-            {
-               address = "0x0220a800";
-               span = "0x00000800";
                is_bridge = "0";
             }
          }
@@ -4868,14 +4255,14 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/instruction_master
             {
                priority = "1";
-               Offset_Address = "0x00001000";
+               Offset_Address = "0x03020800";
             }
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00001000";
+               Offset_Address = "0x03020800";
             }
-            Base_Address = "0x00001000";
+            Base_Address = "0x03020800";
             Is_Readable = "1";
             Is_Writeable = "1";
             Uses_Tri_State_Data_Bus = "0";
@@ -4983,7 +4370,7 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "32";
-            Address_Width = "27";
+            Address_Width = "26";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "1";
             Register_Outgoing_Signals = "0";
@@ -5011,7 +4398,7 @@ SYSTEM niosII_openMac
             PORT d_address
             {
                type = "address";
-               width = "27";
+               width = "26";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -5076,74 +4463,68 @@ SYSTEM niosII_openMac
          {
             Entry ap_cpu/jtag_debug_module
             {
-               address = "0x00001000";
+               address = "0x03020800";
                span = "0x00000800";
                is_bridge = "0";
             }
             Entry sdram_0/s1
             {
-               address = "0x04000000";
+               address = "0x02000000";
                span = "0x01000000";
-               is_bridge = "0";
-            }
-            Entry jtag_uart_1/avalon_jtag_slave
-            {
-               address = "0x00000068";
-               span = "0x00000008";
-               is_bridge = "0";
-            }
-            Entry epcs_flash_controller_0/epcs_control_port
-            {
-               address = "0x0220a800";
-               span = "0x00000800";
-               is_bridge = "0";
-            }
-            Entry sysid/control_slave
-            {
-               address = "0x0220b848";
-               span = "0x00000008";
                is_bridge = "0";
             }
             Entry clock_crossing_1/s1
             {
-               address = "0x03000000";
-               span = "0x00000080";
+               address = "0x01000000";
+               span = "0x00000100";
                is_bridge = "1";
             }
             Entry portconf_pio/s1
             {
-               address = "0x03000020";
+               address = "0x01000070";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry digio_pio/s1
             {
-               address = "0x03000030";
+               address = "0x010000a0";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry node_switch_pio/s1
             {
-               address = "0x03000040";
+               address = "0x010000b0";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry system_timer_ap/s1
             {
-               address = "0x03000000";
+               address = "0x01000080";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry sync_irq/s1
             {
-               address = "0x03000050";
+               address = "0x010000c0";
                span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry sysid/control_slave
+            {
+               address = "0x01000060";
+               span = "0x00000008";
                is_bridge = "0";
             }
             Entry cnApi_Av2Av_0/ap
             {
-               address = "0x00040000";
+               address = "0x03000000";
                span = "0x00020000";
+               is_bridge = "0";
+            }
+            Entry jtag_uart_1/avalon_jtag_slave
+            {
+               address = "0x03021000";
+               span = "0x00000008";
                is_bridge = "0";
             }
          }
@@ -5163,7 +4544,7 @@ SYSTEM niosII_openMac
          cache_icache_size = "4096";
          cache_icache_line_size = "32";
          cache_icache_ram_block_type = "AUTO";
-         cache_icache_bursts = "1";
+         cache_icache_bursts = "0";
          num_tightly_coupled_instruction_masters = "0";
          gui_num_tightly_coupled_instruction_masters = "0";
          gui_include_tightly_coupled_instruction_masters = "0";
@@ -5252,10 +4633,10 @@ SYSTEM niosII_openMac
          dont_overwrite_cpuid = "1";
          allow_legacy_sdk = "1";
          legacy_sdk_support = "1";
-         inst_addr_width = "27";
-         data_addr_width = "27";
+         inst_addr_width = "26";
+         data_addr_width = "26";
          CPU_Architecture = "nios2";
-         cache_icache_burst_type = "sequential";
+         cache_icache_burst_type = "none";
          oci_sync_depth = "2";
          hardware_divide_impl = "variable_latency";
          hardware_multiply_omits_msw = "1";
@@ -5363,7 +4744,7 @@ SYSTEM niosII_openMac
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          Has_Clock = "1";
          Parameters_Signature = "";
          Is_CPU = "1";
@@ -5659,316 +5040,310 @@ SYSTEM niosII_openMac
             SIGNAL aaf
             {
                format = "Logic";
-               name = "i_burstcount";
+               name = "clk";
                radix = "hexadecimal";
             }
             SIGNAL aag
             {
                format = "Logic";
-               name = "clk";
+               name = "reset_n";
                radix = "hexadecimal";
             }
             SIGNAL aah
             {
                format = "Logic";
-               name = "reset_n";
+               name = "d_readdata";
                radix = "hexadecimal";
             }
             SIGNAL aai
             {
                format = "Logic";
-               name = "d_readdata";
+               name = "d_waitrequest";
                radix = "hexadecimal";
             }
             SIGNAL aaj
             {
                format = "Logic";
-               name = "d_waitrequest";
+               name = "d_irq";
                radix = "hexadecimal";
             }
             SIGNAL aak
             {
                format = "Logic";
-               name = "d_irq";
+               name = "d_address";
                radix = "hexadecimal";
             }
             SIGNAL aal
             {
                format = "Logic";
-               name = "d_address";
+               name = "d_byteenable";
                radix = "hexadecimal";
             }
             SIGNAL aam
             {
                format = "Logic";
-               name = "d_byteenable";
+               name = "d_read";
                radix = "hexadecimal";
             }
             SIGNAL aan
             {
                format = "Logic";
-               name = "d_read";
+               name = "d_write";
                radix = "hexadecimal";
             }
             SIGNAL aao
             {
                format = "Logic";
-               name = "d_write";
-               radix = "hexadecimal";
-            }
-            SIGNAL aap
-            {
-               format = "Logic";
                name = "d_writedata";
                radix = "hexadecimal";
             }
-            SIGNAL aaq
+            SIGNAL aap
             {
                format = "Divider";
                name = "base pipeline";
                radix = "";
             }
-            SIGNAL aar
+            SIGNAL aaq
             {
                format = "Logic";
                name = "clk";
                radix = "hexadecimal";
             }
-            SIGNAL aas
+            SIGNAL aar
             {
                format = "Logic";
                name = "reset_n";
                radix = "hexadecimal";
             }
-            SIGNAL aat
+            SIGNAL aas
             {
                format = "Logic";
                name = "M_stall";
                radix = "hexadecimal";
             }
-            SIGNAL aau
+            SIGNAL aat
             {
                format = "Logic";
                name = "F_pcb_nxt";
                radix = "hexadecimal";
             }
-            SIGNAL aav
+            SIGNAL aau
             {
                format = "Logic";
                name = "F_pcb";
                radix = "hexadecimal";
             }
-            SIGNAL aaw
+            SIGNAL aav
             {
                format = "Logic";
                name = "D_pcb";
                radix = "hexadecimal";
             }
-            SIGNAL aax
+            SIGNAL aaw
             {
                format = "Logic";
                name = "E_pcb";
                radix = "hexadecimal";
             }
-            SIGNAL aay
+            SIGNAL aax
             {
                format = "Logic";
                name = "M_pcb";
                radix = "hexadecimal";
             }
-            SIGNAL aaz
+            SIGNAL aay
             {
                format = "Logic";
                name = "W_pcb";
                radix = "hexadecimal";
             }
-            SIGNAL aba
+            SIGNAL aaz
             {
                format = "Logic";
                name = "F_vinst";
                radix = "ascii";
             }
-            SIGNAL abb
+            SIGNAL aba
             {
                format = "Logic";
                name = "D_vinst";
                radix = "ascii";
             }
-            SIGNAL abc
+            SIGNAL abb
             {
                format = "Logic";
                name = "E_vinst";
                radix = "ascii";
             }
-            SIGNAL abd
+            SIGNAL abc
             {
                format = "Logic";
                name = "M_vinst";
                radix = "ascii";
             }
-            SIGNAL abe
+            SIGNAL abd
             {
                format = "Logic";
                name = "W_vinst";
                radix = "ascii";
             }
-            SIGNAL abf
+            SIGNAL abe
             {
                format = "Logic";
                name = "F_inst_ram_hit";
                radix = "hexadecimal";
             }
-            SIGNAL abg
+            SIGNAL abf
             {
                format = "Logic";
                name = "F_iw_valid";
                radix = "hexadecimal";
             }
-            SIGNAL abh
+            SIGNAL abg
             {
                format = "Logic";
                name = "F_issue";
                radix = "hexadecimal";
             }
-            SIGNAL abi
+            SIGNAL abh
             {
                format = "Logic";
                name = "F_kill";
                radix = "hexadecimal";
             }
-            SIGNAL abj
+            SIGNAL abi
             {
                format = "Logic";
                name = "D_kill";
                radix = "hexadecimal";
             }
-            SIGNAL abk
+            SIGNAL abj
             {
                format = "Logic";
                name = "D_refetch";
                radix = "hexadecimal";
             }
-            SIGNAL abl
+            SIGNAL abk
             {
                format = "Logic";
                name = "D_issue";
                radix = "hexadecimal";
             }
-            SIGNAL abm
+            SIGNAL abl
             {
                format = "Logic";
                name = "D_valid";
                radix = "hexadecimal";
             }
-            SIGNAL abn
+            SIGNAL abm
             {
                format = "Logic";
                name = "E_valid";
                radix = "hexadecimal";
             }
-            SIGNAL abo
+            SIGNAL abn
             {
                format = "Logic";
                name = "M_valid";
                radix = "hexadecimal";
             }
-            SIGNAL abp
+            SIGNAL abo
             {
                format = "Logic";
                name = "W_valid";
                radix = "hexadecimal";
             }
-            SIGNAL abq
+            SIGNAL abp
             {
                format = "Logic";
                name = "W_wr_dst_reg";
                radix = "hexadecimal";
             }
-            SIGNAL abr
+            SIGNAL abq
             {
                format = "Logic";
                name = "W_dst_regnum";
                radix = "hexadecimal";
             }
-            SIGNAL abs
+            SIGNAL abr
             {
                format = "Logic";
                name = "W_wr_data";
                radix = "hexadecimal";
             }
-            SIGNAL abt
+            SIGNAL abs
             {
                format = "Logic";
                name = "F_en";
                radix = "hexadecimal";
             }
-            SIGNAL abu
+            SIGNAL abt
             {
                format = "Logic";
                name = "D_en";
                radix = "hexadecimal";
             }
-            SIGNAL abv
+            SIGNAL abu
             {
                format = "Logic";
                name = "E_en";
                radix = "hexadecimal";
             }
-            SIGNAL abw
+            SIGNAL abv
             {
                format = "Logic";
                name = "M_en";
                radix = "hexadecimal";
             }
-            SIGNAL abx
+            SIGNAL abw
             {
                format = "Logic";
                name = "F_iw";
                radix = "hexadecimal";
             }
-            SIGNAL aby
+            SIGNAL abx
             {
                format = "Logic";
                name = "D_iw";
                radix = "hexadecimal";
             }
-            SIGNAL abz
+            SIGNAL aby
             {
                format = "Logic";
                name = "E_iw";
                radix = "hexadecimal";
             }
-            SIGNAL aca
+            SIGNAL abz
             {
                format = "Logic";
                name = "E_valid_prior_to_hbreak";
                radix = "hexadecimal";
             }
-            SIGNAL acb
+            SIGNAL aca
             {
                format = "Logic";
                name = "M_pipe_flush_nxt";
                radix = "hexadecimal";
             }
-            SIGNAL acc
+            SIGNAL acb
             {
                format = "Logic";
                name = "M_pipe_flush_baddr_nxt";
                radix = "hexadecimal";
             }
-            SIGNAL acd
+            SIGNAL acc
             {
                format = "Logic";
                name = "M_status_reg_pie";
                radix = "hexadecimal";
             }
-            SIGNAL ace
+            SIGNAL acd
             {
                format = "Logic";
                name = "M_ienable_reg";
                radix = "hexadecimal";
             }
-            SIGNAL acf
+            SIGNAL ace
             {
                format = "Logic";
                name = "intr_req";
@@ -6148,14 +5523,14 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/instruction_master
             {
                priority = "1";
-               Offset_Address = "0x04000000";
+               Offset_Address = "0x02000000";
             }
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x04000000";
+               Offset_Address = "0x02000000";
             }
-            Base_Address = "0x04000000";
+            Base_Address = "0x02000000";
             Has_IRQ = "0";
             Simulation_Num_Lanes = "1";
             Address_Group = "0";
@@ -6533,7 +5908,7 @@ SYSTEM niosII_openMac
          Is_Enabled = "1";
          Default_Module_Name = "sdram";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          Has_Clock = "1";
          Disable_Simulation_Port_Wiring = "0";
          View 
@@ -6683,14 +6058,14 @@ SYSTEM niosII_openMac
             Connection_Limit = "1";
             IRQ_MASTER ap_cpu/data_master
             {
-               IRQ_Number = "7";
+               IRQ_Number = "18";
             }
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000068";
+               Offset_Address = "0x03021000";
             }
-            Base_Address = "0x00000068";
+            Base_Address = "0x03021000";
             Address_Group = "0";
          }
       }
@@ -6781,7 +6156,7 @@ SYSTEM niosII_openMac
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk90Meg";
          Has_Clock = "1";
          Instantiate_In_System_Module = "1";
          Iss_Launch_Telnet = "0";
@@ -6901,14 +6276,14 @@ SYSTEM niosII_openMac
             Is_Enabled = "1";
             IRQ_MASTER ap_cpu/data_master
             {
-               IRQ_Number = "8";
+               IRQ_Number = "17";
             }
             MASTERED_BY clock_crossing_1/m1
             {
                priority = "1";
-               Offset_Address = "0x00000000";
+               Offset_Address = "0x00000080";
             }
-            Base_Address = "0x03000000";
+            Base_Address = "0x01000080";
             Address_Group = "0";
          }
       }
@@ -6928,7 +6303,7 @@ SYSTEM niosII_openMac
             {
             }
          }
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
       }
       WIZARD_SCRIPT_ARGUMENTS 
@@ -7020,18 +6395,14 @@ SYSTEM niosII_openMac
             Always_Burst_Max_Burst = "0";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
-            MASTERED_BY pcp_cpu/data_master
+            MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x0220b830";
+               Offset_Address = "0x00000050";
             }
-            Base_Address = "0x0220b830";
+            Base_Address = "0x01000050";
             Has_IRQ = "0";
             Address_Group = "0";
-            IRQ_MASTER pcp_cpu/data_master
-            {
-               IRQ_Number = "NC";
-            }
             Is_Readable = "1";
             Is_Writable = "0";
          }
@@ -7066,7 +6437,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 
@@ -7167,27 +6538,19 @@ SYSTEM niosII_openMac
             Always_Burst_Max_Burst = "0";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
-            MASTERED_BY pcp_cpu/data_master
+            MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x0220b848";
+               Offset_Address = "0x00000060";
             }
-            MASTERED_BY ap_cpu/data_master
+            MASTERED_BY clock_crossing_1/m1
             {
                priority = "1";
-               Offset_Address = "0x0220b848";
+               Offset_Address = "0x00000060";
             }
-            Base_Address = "0x0220b848";
+            Base_Address = "0x01000060";
             Has_IRQ = "0";
             Address_Group = "0";
-            IRQ_MASTER pcp_cpu/data_master
-            {
-               IRQ_Number = "NC";
-            }
-            IRQ_MASTER ap_cpu/data_master
-            {
-               IRQ_Number = "NC";
-            }
          }
       }
       class = "altera_avalon_sysid";
@@ -7199,11 +6562,11 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Fixed_Module_Name = "sysid";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_1";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>0B49D0EA</b>    (unique ID tag) <br> <b>4C442FD3</b> (timestamp: Mon Jul 19, 2010 @12:58 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>4E514FEB</b>    (unique ID tag) <br> <b>4C49CD9C</b> (timestamp: Fri Jul 23, 2010 @7:13 PM)";
             MESSAGES 
             {
             }
@@ -7211,8 +6574,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "189386986u";
-         timestamp = "1279537107u";
+         id = "1313951723u";
+         timestamp = "1279905180u";
          regenerate_values = "0";
          MAKE 
          {
@@ -7221,7 +6584,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x0220b848 --id=189386986 --timestamp=1279537107";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01000060 --id=1313951723 --timestamp=1279905180";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -7262,14 +6625,14 @@ SYSTEM niosII_openMac
             PORT slave_address
             {
                type = "address";
-               width = "5";
+               width = "6";
                direction = "input";
                Is_Enabled = "1";
             }
             PORT slave_nativeaddress
             {
                type = "nativeaddress";
-               width = "5";
+               width = "6";
                direction = "input";
                Is_Enabled = "1";
             }
@@ -7341,7 +6704,7 @@ SYSTEM niosII_openMac
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
             Is_Nonvolatile_Storage = "0";
-            Address_Span = "128";
+            Address_Span = "256";
             Read_Latency = "0";
             Is_Memory_Device = "0";
             Maximum_Pending_Read_Transactions = "16";
@@ -7350,7 +6713,7 @@ SYSTEM niosII_openMac
             Write_Latency = "0";
             Is_Flash = "0";
             Data_Width = "32";
-            Address_Width = "5";
+            Address_Width = "6";
             Opaque_Bridges_To = "m1";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
@@ -7364,11 +6727,11 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x03000000";
+               Offset_Address = "0x01000000";
             }
-            Clock_Source = "clk_1";
+            Clock_Source = "clk90Meg";
             Has_Clock = "1";
-            Base_Address = "0x03000000";
+            Base_Address = "0x01000000";
             Address_Group = "0";
             IRQ_MASTER ap_cpu/data_master
             {
@@ -7397,14 +6760,14 @@ SYSTEM niosII_openMac
             PORT master_address
             {
                type = "address";
-               width = "7";
+               width = "8";
                direction = "output";
                Is_Enabled = "1";
             }
             PORT master_nativeaddress
             {
                type = "nativeaddress";
-               width = "5";
+               width = "6";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -7475,7 +6838,7 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "32";
-            Address_Width = "7";
+            Address_Width = "8";
             Opaque_Bridges_To = "s1";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
@@ -7486,39 +6849,45 @@ SYSTEM niosII_openMac
             Always_Burst_Max_Burst = "0";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
-            Clock_Source = "clk_0";
+            Clock_Source = "clk50Meg";
             Has_Clock = "1";
          }
          MEMORY_MAP 
          {
             Entry portconf_pio/s1
             {
-               address = "0x00000020";
+               address = "0x00000070";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry digio_pio/s1
             {
-               address = "0x00000030";
+               address = "0x000000a0";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry node_switch_pio/s1
             {
-               address = "0x00000040";
+               address = "0x000000b0";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry system_timer_ap/s1
             {
-               address = "0x00000000";
+               address = "0x00000080";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry sync_irq/s1
             {
-               address = "0x00000050";
+               address = "0x000000c0";
                span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry sysid/control_slave
+            {
+               address = "0x00000060";
+               span = "0x00000008";
                is_bridge = "0";
             }
          }
@@ -7531,7 +6900,7 @@ SYSTEM niosII_openMac
          Upstream_FIFO_Depth = "8";
          Downstream_FIFO_Depth = "8";
          Data_Width = "32";
-         Native_Address_Width = "5";
+         Native_Address_Width = "6";
          Use_Byte_Enable = "1";
          Use_Burst_Count = "0";
          Maximum_Burst_Size = "8";
@@ -7656,7 +7025,7 @@ SYSTEM niosII_openMac
                priority = "1";
                Offset_Address = "0x00000040";
             }
-            Base_Address = "0x00000040";
+            Base_Address = "0x01000040";
             Has_IRQ = "0";
             Address_Group = "0";
             Is_Readable = "0";
@@ -7693,7 +7062,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 
@@ -7825,14 +7194,14 @@ SYSTEM niosII_openMac
             Is_Enabled = "1";
             IRQ_MASTER ap_cpu/data_master
             {
-               IRQ_Number = "9";
+               IRQ_Number = "16";
             }
             MASTERED_BY clock_crossing_1/m1
             {
                priority = "1";
-               Offset_Address = "0x00000050";
+               Offset_Address = "0x000000c0";
             }
-            Base_Address = "0x03000050";
+            Base_Address = "0x010000c0";
             Address_Group = "0";
             Is_Readable = "1";
             Is_Writable = "1";
@@ -7868,7 +7237,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 
@@ -7903,6 +7272,626 @@ SYSTEM niosII_openMac
          Simulation_HDL_Files = "";
          Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/sync_irq.vhd";
          Synthesis_Only_Files = "";
+      }
+   }
+   MODULE altpll_0
+   {
+      SLAVE pll_slave
+      {
+         PORT_WIRING 
+         {
+            PORT clk
+            {
+               type = "clk";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT reset
+            {
+               type = "reset";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT read
+            {
+               type = "read";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT write
+            {
+               type = "write";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT address
+            {
+               type = "address";
+               width = "2";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT readdata
+            {
+               type = "readdata";
+               width = "32";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT writedata
+            {
+               type = "writedata";
+               width = "32";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+         }
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Write_Wait_States = "0cycles";
+            Read_Wait_States = "0cycles";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
+            Is_Printable_Device = "0";
+            Address_Alignment = "dynamic";
+            Well_Behaved_Waitrequest = "0";
+            Is_Nonvolatile_Storage = "0";
+            Address_Span = "16";
+            Read_Latency = "0";
+            Is_Memory_Device = "0";
+            Maximum_Pending_Read_Transactions = "0";
+            Minimum_Uninterrupted_Run_Length = "1";
+            Accepts_Internal_Connections = "1";
+            Write_Latency = "0";
+            Is_Flash = "0";
+            Data_Width = "32";
+            Address_Width = "2";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            Clock_Source = "clk_0";
+            Has_Clock = "1";
+            MASTERED_BY pcp_cpu/data_master
+            {
+               priority = "1";
+               Offset_Address = "0x00000900";
+            }
+            Base_Address = "0x00000900";
+            Address_Group = "0";
+            IRQ_MASTER pcp_cpu/data_master
+            {
+               IRQ_Number = "NC";
+            }
+         }
+      }
+      PORT_WIRING 
+      {
+         PORT c0
+         {
+            type = "out_clk";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT c1
+         {
+            type = "out_clk";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT c2
+         {
+            type = "out_clk";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT c3
+         {
+            type = "out_clk";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT c4
+         {
+            type = "out_clk";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phasedone
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT locked
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+      }
+      class = "no_legacy_module";
+      class_version = "7.080912";
+      gtf_class_name = "altpll";
+      gtf_class_version = "9.1";
+      SYSTEM_BUILDER_INFO 
+      {
+         Do_Not_Generate = "1";
+         Instantiate_In_System_Module = "1";
+         Is_Bridge = "0";
+         Is_Enabled = "1";
+         Clock_Source = "clk_0";
+         View 
+         {
+            MESSAGES 
+            {
+            }
+         }
+      }
+      HDL_INFO 
+      {
+         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/altpll_0.vhd";
+      }
+      WIZARD_SCRIPT_ARGUMENTS 
+      {
+      }
+   }
+   MODULE epcs_flash_controller_0
+   {
+      SLAVE epcs_control_port
+      {
+         PORT_WIRING 
+         {
+            PORT clk
+            {
+               type = "clk";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT reset_n
+            {
+               type = "reset_n";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT irq
+            {
+               type = "irq";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT address
+            {
+               type = "address";
+               width = "9";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT chipselect
+            {
+               type = "chipselect";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT dataavailable
+            {
+               type = "dataavailable";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT endofpacket
+            {
+               type = "endofpacket";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT read_n
+            {
+               type = "read_n";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT readdata
+            {
+               type = "readdata";
+               width = "32";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT readyfordata
+            {
+               type = "readyfordata";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT write_n
+            {
+               type = "write_n";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT writedata
+            {
+               type = "writedata";
+               width = "32";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT data_from_cpu
+            {
+               Is_Enabled = "0";
+               direction = "input";
+               type = "writedata";
+               width = "16";
+            }
+            PORT data_to_cpu
+            {
+               Is_Enabled = "0";
+               direction = "output";
+               type = "readdata";
+               width = "16";
+            }
+            PORT epcs_select
+            {
+               Is_Enabled = "0";
+               direction = "input";
+               type = "chipselect";
+               width = "1";
+            }
+            PORT mem_addr
+            {
+               Is_Enabled = "0";
+               direction = "input";
+               type = "address";
+               width = "3";
+            }
+         }
+         SYSTEM_BUILDER_INFO 
+         {
+            Has_IRQ = "1";
+            Bus_Type = "avalon";
+            Write_Wait_States = "1cycles";
+            Read_Wait_States = "1cycles";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
+            Is_Printable_Device = "0";
+            Address_Alignment = "dynamic";
+            Well_Behaved_Waitrequest = "0";
+            Is_Nonvolatile_Storage = "1";
+            Address_Span = "2048";
+            Read_Latency = "0";
+            Is_Memory_Device = "1";
+            Maximum_Pending_Read_Transactions = "0";
+            Minimum_Uninterrupted_Run_Length = "1";
+            Accepts_Internal_Connections = "1";
+            Write_Latency = "0";
+            Is_Flash = "1";
+            Data_Width = "32";
+            Address_Width = "9";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            MASTERED_BY pcp_cpu/instruction_master
+            {
+               priority = "1";
+               Offset_Address = "0x00000000";
+            }
+            MASTERED_BY pcp_cpu/data_master
+            {
+               priority = "1";
+               Offset_Address = "0x00000000";
+            }
+            IRQ_MASTER pcp_cpu/data_master
+            {
+               IRQ_Number = "4";
+            }
+            Base_Address = "0x00000000";
+            Address_Group = "0";
+         }
+         WIZARD_SCRIPT_ARGUMENTS 
+         {
+            class = "altera_avalon_epcs_flash_controller";
+            flash_reference_designator = "";
+         }
+      }
+      PORT_WIRING 
+      {
+         PORT dclk
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT sce
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT sdo
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT data0
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+      }
+      WIZARD_SCRIPT_ARGUMENTS 
+      {
+         databits = "8";
+         targetclock = "20";
+         clockunits = "MHz";
+         clockmult = "1000000";
+         numslaves = "1";
+         ismaster = "1";
+         clockpolarity = "0";
+         clockphase = "0";
+         lsbfirst = "0";
+         extradelay = "0";
+         targetssdelay = "100";
+         delayunits = "us";
+         delaymult = "1e-006";
+         prefix = "epcs_";
+         register_offset = "0x400";
+         ignore_legacy_check = "1";
+         use_asmi_atom = "0";
+         MAKE 
+         {
+            MACRO 
+            {
+               EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_ALT_SIM_PREFIX = "$(EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_TMP1:0=)";
+               EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_TMP1 = "$(ALT_SIM_OPTIMIZE:1=RUN_ON_HDL_SIMULATOR_ONLY_)";
+            }
+            MASTER pcp_cpu
+            {
+               MACRO 
+               {
+                  BOOTS_FROM_EPCS = "1";
+                  BOOT_COPIER_EPCS = "boot_loader_epcs.srec";
+                  CPU_CLASS = "altera_nios2";
+                  CPU_RESET_ADDRESS = "0x0";
+               }
+            }
+            TARGET delete_placeholder_warning
+            {
+               epcs_flash_controller_0 
+               {
+                  Command1 = "rm -f $(SIMDIR)/contents_file_warning.txt";
+                  Is_Phony = "1";
+                  Target_File = "do_delete_placeholder_warning";
+               }
+            }
+            TARGET flashfiles
+            {
+               epcs_flash_controller_0 
+               {
+                  Command1 = "@if [ $(BOOTS_FROM_EPCS) -eq 1 ]; then echo Post-processing to create $(notdir $@) ; elf2flash --input=$(ELF) --flash= --boot=$(DBL_QUOTE)$(shell $(DBL_QUOTE)$(QUARTUS_ROOTDIR)/sopc_builder/bin/find_sopc_component_dir$(DBL_QUOTE) $(CPU_CLASS) $(QUARTUS_PROJECT_DIR))/$(BOOT_COPIER_EPCS)$(DBL_QUOTE) --outfile=$(EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_ALT_SIM_PREFIX)epcs_flash_controller_0_boot_rom.flash --sim_optimize=$(ALT_SIM_OPTIMIZE) --epcs --base=0x0 --end=0x7FFFFFFF  ; fi";
+                  Dependency = "$(ELF)";
+                  Target_File = "$(EPCS_FLASH_CONTROLLER_0_BOOT_ROM_FLASHTARGET_ALT_SIM_PREFIX)epcs_flash_controller_0_boot_rom.flash";
+               }
+            }
+            TARGET sim
+            {
+               epcs_flash_controller_0 
+               {
+                  Command1 = "if [ ! -d $(SIMDIR) ]; then mkdir $(SIMDIR) ; fi";
+                  Command2 = "@echo Hardware simulation is not enabled for the target SOPC Builder system. Skipping creation of hardware simulation model contents and simulation symbol files. \\(Note: This does not affect the instruction set simulator.\\)";
+                  Command3 = "touch $(SIMDIR)/dummy_file";
+                  Dependency = "$(ELF)";
+                  Target_File = "$(SIMDIR)/dummy_file";
+               }
+            }
+         }
+         clockunit = "kHz";
+         delayunit = "us";
+         disableAvalonFlowControl = "0";
+         insert_sync = "0";
+         sync_reg_depth = "2";
+      }
+      class = "altera_avalon_epcs_flash_controller";
+      class_version = "7.080912";
+      SYSTEM_BUILDER_INFO 
+      {
+         Is_Enabled = "1";
+         Clock_Source = "clk90Meg";
+         Has_Clock = "1";
+         Instantiate_In_System_Module = "1";
+         Required_Device_Family = "STRATIX,CYCLONE,CYCLONEII,CYCLONEIII,STRATIXIII,STRATIXII,STRATIXIIGX,ARRIAGX,STRATIXIIGXLITE,STRATIXIV,ARRIAII,TARPON,STINGRAY,CYCLONEIVE";
+         Fixed_Module_Name = "epcs_controller";
+         Top_Level_Ports_Are_Enumerated = "1";
+         View 
+         {
+            MESSAGES 
+            {
+            }
+         }
+      }
+      HDL_INFO 
+      {
+         Precompiled_Simulation_Library_Files = "";
+         Simulation_HDL_Files = "";
+         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/epcs_flash_controller_0.vhd";
+         Synthesis_Only_Files = "";
+      }
+   }
+   MODULE remote_update_cycloneiii_0
+   {
+      SLAVE s1
+      {
+         PORT_WIRING 
+         {
+            PORT clk
+            {
+               type = "clk";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT reset
+            {
+               type = "reset";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT writedata
+            {
+               type = "writedata";
+               width = "32";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT readdata
+            {
+               type = "readdata";
+               width = "32";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT address
+            {
+               type = "address";
+               width = "6";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT chipselect
+            {
+               type = "chipselect";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT write
+            {
+               type = "write";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT read
+            {
+               type = "read";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT waitrequest
+            {
+               type = "waitrequest";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+         }
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Read_Wait_States = "peripheral_controlled";
+            Write_Wait_States = "peripheral_controlled";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
+            Is_Printable_Device = "0";
+            Address_Alignment = "native";
+            Well_Behaved_Waitrequest = "0";
+            Is_Nonvolatile_Storage = "0";
+            Read_Latency = "2";
+            Is_Memory_Device = "0";
+            Maximum_Pending_Read_Transactions = "0";
+            Minimum_Uninterrupted_Run_Length = "1";
+            Accepts_Internal_Connections = "1";
+            Write_Latency = "0";
+            Is_Flash = "0";
+            Data_Width = "32";
+            Address_Width = "6";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            MASTERED_BY pcp_cpu/data_master
+            {
+               priority = "1";
+               Offset_Address = "0x00000800";
+            }
+            Base_Address = "0x00000800";
+            Address_Group = "0";
+            IRQ_MASTER pcp_cpu/data_master
+            {
+               IRQ_Number = "NC";
+            }
+         }
+      }
+      class = "no_legacy_module";
+      class_version = "7.080912";
+      gtf_class_name = "altera_avalon_remote_update_cycloneiii";
+      gtf_class_version = "9.1";
+      SYSTEM_BUILDER_INFO 
+      {
+         Do_Not_Generate = "1";
+         Instantiate_In_System_Module = "1";
+         Is_Bridge = "0";
+         Is_Enabled = "1";
+         Clock_Source = "clk25Meg";
+         Has_Clock = "1";
+         View 
+         {
+            MESSAGES 
+            {
+            }
+         }
+      }
+      HDL_INFO 
+      {
+         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/remote_update_cycloneiii_0.vho";
+      }
+      WIZARD_SCRIPT_ARGUMENTS 
+      {
       }
    }
    MODULE cnApi_Av2Av_0
@@ -8005,13 +7994,13 @@ SYSTEM niosII_openMac
             Always_Burst_Max_Burst = "0";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
-            Clock_Source = "clk_0";
-            Has_Clock = "1";
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
                Offset_Address = "0x00020000";
             }
+            Clock_Source = "clk90Meg";
+            Has_Clock = "1";
             Base_Address = "0x00020000";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
@@ -8121,11 +8110,11 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00040000";
+               Offset_Address = "0x03000000";
             }
-            Clock_Source = "clk_0";
+            Clock_Source = "clk90Meg";
             Has_Clock = "1";
-            Base_Address = "0x00040000";
+            Base_Address = "0x03000000";
             Address_Group = "1";
             IRQ_MASTER ap_cpu/data_master
             {

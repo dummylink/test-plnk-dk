@@ -42,7 +42,6 @@
 --	           V0.00-0.30   First generation.
 -- 2009-08-07  V0.31        Converted to official version.
 -- 2010-04-12  V0.40		Added Auto-Response Delay functionality (TxDel)
--- 2010-06-28  V0.41		Bug Fix: exit sDel if Tx_Off, set Tx_Del_Run without Ipg consideration
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -474,9 +473,9 @@ BEGIN
 							ELSIF Tx_Del = '1'  THEN	Tx_Dsm_Next <= sDel;
 							ELSIF Sm_Tx = R_Pre THEN	Tx_Dsm_Next <= sTimH; 
 							END IF;
-			WHEN sDel	 =>	IF Tx_On = '0'  	THEN	Tx_Dsm_Next <= sIdle; --avoid FSM hang
-							ELSIF Tx_Del_End = '1' THEN Tx_Dsm_Next <= sTimH;
-							END IF;
+			WHEN sDel	 =>	if	  Tx_Del_End = '1'	then	
+														Tx_Dsm_Next <= sTimH;
+							end if;
 			WHEN sAdrH	 =>								Tx_Dsm_Next <= sAdrL;
 			WHEN sAdrL	 =>	IF    Tx_On  = '0'	THEN	Tx_Dsm_Next <= sIdle;
 							ELSIF Tx_Del = '1'	THEN	Tx_Dsm_Next <= sBegH;
@@ -562,7 +561,7 @@ BEGIN
 			elsif	Dsm = sDel and Tx_Del_Run = '1'	then	Tx_Del_Cnt <= Tx_Del_Cnt - 1;
 			end if;
 
-			if		Tx_Del_Run = '0' and  Dsm = sDel				then	Tx_Del_Run <= '1'; --don't consider Ipg
+			if		Tx_Del_Run = '0' and  Dsm = sDel and Ipg = '0'	then	Tx_Del_Run <= '1';
 			elsif	Tx_Del_End = '1'								then	Tx_Del_Run <= '0';
 			end if;
 

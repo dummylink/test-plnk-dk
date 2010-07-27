@@ -1,4 +1,5 @@
 set_global_assignment -name TCL_FILE EPL/cnApi_Av2Av_hw.tcl
+set_global_assignment -name VHDL_FILE altpll_0.vhd
 set_global_assignment -name SOURCE_FILE pcp_cpu.ocp
 set_global_assignment -name VHDL_FILE EPL/OpenMAC_AvalonIF.vhd
 set_global_assignment -name VHDL_FILE EPL/cnApi_Av2Av.vhd
@@ -6,16 +7,19 @@ set_global_assignment -name VHDL_FILE EPL/OpenMAC_PHYMI.vhd
 set_global_assignment -name VHDL_FILE cnApi_Av2Av_0.vhd
 set_global_assignment -name VHDL_FILE OpenMAC_0.vhd
 set_global_assignment -name SDC_FILE pcp_cpu.sdc
+set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_altpll/altera_avalon_altpll_hw.tcl]
 set_global_assignment -name TCL_FILE EPL/DBC3C40_SRAM_hw.tcl
 set_global_assignment -name VHDL_FILE EPL/OpenMAC_DPR_Altera.vhd
 set_global_assignment -name TCL_FILE EPL/OpenMAC_AvalonIF_hw.tcl
 set_global_assignment -name VHDL_FILE EPL/OpenMAC.vhd
 set_global_assignment -name VHDL_FILE EPL/OpenFILTER.vhd
-set_global_assignment -name VHDL_FILE EPL/cnApi_Av2Av_DPR.vhd
+set_global_assignment -name VERILOG_FILE remote_update_cycloneiii_0.v
+ set_global_assignment -name VHDL_FILE EPL/cnApi_Av2Av_DPR.vhd
+set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_remote_update_cycloneiii/altera_avalon_remote_update_cycloneiii_hw.tcl]
 set_global_assignment -name VHDL_FILE EPL/OpenHUB.vhd
-set_global_assignment -name VHDL_FILE EPL/OpenMAC_DMAFifo.vhd
 set_global_assignment -name SOURCE_FILE ap_cpu.ocp
 set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
-set_global_assignment -name SDC_FILE ap_cpu.sdc
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0010C6DE556E00000129EA5CF878 
+set_global_assignment -name VERILOG_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_remote_update_cycloneiii/altera_avalon_remote_update_cycloneiii.v]
+ set_global_assignment -name SDC_FILE ap_cpu.sdc
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0010C6DE556E0000012A004B6506 
  

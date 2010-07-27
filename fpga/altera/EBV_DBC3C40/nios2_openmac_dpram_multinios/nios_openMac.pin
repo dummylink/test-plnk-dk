@@ -111,7 +111,7 @@ RESERVED_INPUT               : AA15      :        :                   :         
 phy1_smi_clk                 : AA16      : output : 3.3-V LVTTL       :         : 4         : Y              
 phy1_rst_n                   : AA17      : output : 3.3-V LVTTL       :         : 4         : Y              
 phy0_tx_d[0]                 : AA18      : output : 3.3-V LVTTL       :         : 4         : Y              
-io3_3V_o[8]                  : AA19      : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : AA19      :        :                   :         : 4         :                
 phy0_smi_clk                 : AA20      : output : 3.3-V LVTTL       :         : 4         : Y              
 adr[17]                      : AA21      : output : 3.3-V LVTTL       :         : 5         : Y              
 adr[1]                       : AA22      : output : 3.3-V LVTTL       :         : 5         : Y              
@@ -481,7 +481,7 @@ io24_i[14]                   : U11       : input  : 3.3-V LVTTL       :         
 RESERVED_INPUT               : U12       :        :                   :         : 4         :                
 RESERVED_INPUT               : U13       :        :                   :         : 4         :                
 phy0_smi_io                  : U14       : bidir  : 3.3-V LVTTL       :         : 4         : Y              
-io3_3V_o[9]                  : U15       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : U15       :        :                   :         : 4         :                
 io24_o[7]                    : U16       : output : 3.3-V LVTTL       :         : 4         : Y              
 io24_o[2]                    : U17       : output : 3.3-V LVTTL       :         : 4         : Y              
 VCCA4                        : U18       : power  :                   : 2.5V    :           :                
