@@ -199,6 +199,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
+	EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 
 	/* initialize POWERLINK stack */
     printf("init POWERLINK stack:\n");

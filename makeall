@@ -8,32 +8,31 @@ ROOTDIR=`pwd`
 echo $ROOTDIR
 
 # echo creating Altera applications
-cd ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
-./create-this-app --rebuild --no-make
-cd ${ROOTDIR}
 
-cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DigitalIO
-./create-this-app --rebuild --no-make
-cd ${ROOTDIR}
+# Create single NIOS designs
+#----------------------------
+./create-this-app --rebuild --no-make -C ${ROOTDIR}/powerlink/EBV_DBC3C40_DigitalIO
 
-cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
-./create-this-app --rebuild --no-make
-cd ${ROOTDIR}
 
-cd ${ROOTDIR}/libCnApi/target/nios2_newlib
-make
-cd ${ROOTDIR}
+# Create dual NIOS designs:
+#--------------------------
+# PCP Applications:
+./create-this-app --rebuild --no-make -C ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
 
-cd ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
-make
-cd ${ROOTDIR}
+./create-this-app --rebuild --no-make -C ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM_PresChain
 
-cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
-make
-cd ${ROOTDIR}
+# AP Applications:
+./create-this-app --rebuild --no-make -C ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
 
-cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
-make
-cd ${ROOTDIR}
+
+# Make all
+-----------
+make -C ${ROOTDIR}/libCnApi/target/nios2_newlib
+
+make -C ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
+
+make -C ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
+
+make -C ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM_PresChain
 
 exit 0

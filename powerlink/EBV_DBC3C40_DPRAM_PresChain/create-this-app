@@ -1,6 +1,7 @@
 #!/bin/bash
 ###############################################################################
-# This script creates the digital I/O application in this directory.
+# This script creates the openPOWERLINK DPRAM Interface PCP application
+# in this directory.
 ###############################################################################
 
 ###############################################################################
@@ -14,32 +15,61 @@ fi
 
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
+#
+# replace this path to the object dictionary you wish to include
+OBJDICTDIR=../../objDicts/digitalIO
 
 ###############################################################################
 # Include directories
 INCLUDES="\
+. \
+${POWERLINKDIR}/Edrv/openmac/include \
+${POWERLINKDIR}/Include \
+${POWERLINKDIR}/SharedBuff \
+${POWERLINKDIR}/ObjDicts \
+${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
+${OBJDICTDIR} \
 ${LIBAPIDIR}/include \
 ${LIBAPIDIR}/utils"
 
-###############################################################################
-# Custom libraries
-LIBDIRS="${LIBAPIDIR}/target/nios2_newlib"
-LIBNAMES="CnApi"
-
-###############################################################################
-# Select here between debug and release settings
+#           Select here between debug and release settings
 #DBG_MODE=NDEBUG
 DBG_MODE=_DEBUG
-#MODFLAGS=-D$(DBG_MODE)
 
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=0xEC00FF00L -DALTERA_MUTEX_SYNC"
+#MODFLAGS=-D$(DBG_MODE)
+#MODFLAGS=-D${DBG_MODE} -D_DBG_TRACE_POINTS_ -DDEF_DEBUG_LVL=0xEC000040L
+#CFLAGS="-D${DBG_MODE} -D_DBG_TRACE_POINTS_ -DDEF_DEBUG_LVL=0xEC000000L"
+CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=0xEC00FF00L"
+
 #EXTRA_CFLAGS = -Wa,-alhs $(INCLUDES) $(MODFLAGS)
 
-###############################################################################
-SRCFILES="main.c"
+SRCFILES="pcpMain.c \
+pcpAsync.c \
+pcpPdo.c \
+pcpStateMachine.c \
+${OBJDICTDIR}/Objdict.c \
+${LIBAPIDIR}/utils/stateMachine.c \
+${POWERLINKDIR}/Edrv/openmac/source/EdrvOpenMac.c \
+${POWERLINKDIR}/Edrv/openmac/source/EplTimerSynck_OpenMac.c \
+${POWERLINKDIR}/Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
+${POWERLINKDIR}/Edrv/openmac/source/omethlib.c ${POWERLINKDIR}/Edrv/openmac/source/omethlibint.c \
+${POWERLINKDIR}/EplStack/EplDllk.c ${POWERLINKDIR}/EplStack/EplDllkCal.c \
+${POWERLINKDIR}/EplStack/EplDlluCal.c \
+${POWERLINKDIR}/EplStack/EplLedu.c \
+${POWERLINKDIR}/EplStack/EplEventk.c ${POWERLINKDIR}/EplStack/EplEventu.c \
+${POWERLINKDIR}/EplStack/EplNmtk.c \
+${POWERLINKDIR}/EplStack/EplNmtu.c ${POWERLINKDIR}/EplStack/EplNmtCnu.c \
+${POWERLINKDIR}/EplStack/EplPdok.c ${POWERLINKDIR}/EplStack/EplPdokCal.c \
+${POWERLINKDIR}/EplStack/EplPdou.c ${POWERLINKDIR}/EplStack/EplPdouCal.c \
+${POWERLINKDIR}/EplStack/EplObd.c \
+${POWERLINKDIR}/EplStack/EplSdoComu.c ${POWERLINKDIR}/EplStack/EplSdoAsySequ.c ${POWERLINKDIR}/EplStack/EplSdoAsndu.c \
+${POWERLINKDIR}/EplStack/EplTimeruGeneric.c \
+${POWERLINKDIR}/EplStack/EplErrorHandlerk.c \
+${POWERLINKDIR}/EplStack/EplApiGeneric.c \
+${POWERLINKDIR}/EplStack/amiarm.c \
+${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/generic/ShbTarget_Nios2.c \
+${POWERLINKDIR}/SharedBuff/SharedBuff.c ${POWERLINKDIR}/SharedBuff/ShbIpc-NoOS.c"
 
-
-###############################################################################
 # work-around for bug in Nios2 EDS V9.0
 cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --version"
 $cmd | grep "9.0"
@@ -50,12 +80,8 @@ fi
 
 NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
---set CFLAGS=\"${CFLAGS}\" \
---set APP_LIBRARY_DIRS=\"${LIBDIRS}\" \
---set APP_LIBRARY_NAMES=\"${LIBNAMES}\" \
---set APP_INCLUDE_DIRS=\"${INCLUDES}\" \
---src-files $SRCFILES"
-#--set APP_CFLAGS_DEBUG_LEVEL \
+--set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
+#--set APP_CFLAGS_DEBUG_LEVEL -g \
 
 #echo "${NIOS2_APP_GEN_ARGS}"
 
@@ -69,7 +95,6 @@ fi
 
 # save arguments for passing to create-this-bsp
 SAVE_ARGS=$@
-
 
 # process arguments
 SKIP_MAKE=
@@ -116,7 +141,7 @@ if [ -n "$REBUILD" -o ! -f $BSP_DIR/public.mk ]; then
     # Since BSP doesn't exist, create the BSP
     # Pass any command line arguments passed to this script to the BSP.
     pushd $BSP_DIR >> /dev/null
-    ./create-this-bsp --cpu-name ap_cpu $SAVE_ARGS || {
+    ./create-this-bsp --cpu-name pcp_cpu $SAVE_ARGS || {
     	echo "create-this-bsp failed"
     	exit 1
     }

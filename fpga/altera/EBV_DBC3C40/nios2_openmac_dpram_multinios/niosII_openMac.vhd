@@ -13355,7 +13355,8 @@ entity sysid_control_slave_arbitrator is
                  signal clock_crossing_1_m1_requests_sysid_control_slave : OUT STD_LOGIC;
                  signal d1_sysid_control_slave_end_xfer : OUT STD_LOGIC;
                  signal sysid_control_slave_address : OUT STD_LOGIC;
-                 signal sysid_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+                 signal sysid_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal sysid_control_slave_reset_n : OUT STD_LOGIC
               );
 end entity sysid_control_slave_arbitrator;
 
@@ -13564,6 +13565,8 @@ begin
 
   end process;
 
+  --sysid_control_slave_reset_n assignment, which is an e_assign
+  sysid_control_slave_reset_n <= reset_n;
   --sysid_control_slave_firsttransfer first transaction, which is an e_assign
   sysid_control_slave_firsttransfer <= A_WE_StdLogic((std_logic'(sysid_control_slave_begins_xfer) = '1'), sysid_control_slave_unreg_firsttransfer, sysid_control_slave_reg_firsttransfer);
   --sysid_control_slave_unreg_firsttransfer first transaction, which is an e_assign
@@ -17394,7 +17397,8 @@ component sysid_control_slave_arbitrator is
                     signal clock_crossing_1_m1_requests_sysid_control_slave : OUT STD_LOGIC;
                     signal d1_sysid_control_slave_end_xfer : OUT STD_LOGIC;
                     signal sysid_control_slave_address : OUT STD_LOGIC;
-                    signal sysid_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+                    signal sysid_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal sysid_control_slave_reset_n : OUT STD_LOGIC
                  );
 end component sysid_control_slave_arbitrator;
 
@@ -17402,6 +17406,8 @@ component sysid is
            port (
                  -- inputs:
                     signal address : IN STD_LOGIC;
+                    signal clock : IN STD_LOGIC;
+                    signal reset_n : IN STD_LOGIC;
 
                  -- outputs:
                     signal readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
@@ -18283,8 +18289,10 @@ end component niosII_openMac_reset_clk25Meg_domain_synch_module;
                 signal sync_irq_s1_write_n :  STD_LOGIC;
                 signal sync_irq_s1_writedata :  STD_LOGIC;
                 signal sysid_control_slave_address :  STD_LOGIC;
+                signal sysid_control_slave_clock :  STD_LOGIC;
                 signal sysid_control_slave_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal sysid_control_slave_readdata_from_sa :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal sysid_control_slave_reset_n :  STD_LOGIC;
                 signal system_timer_ap_s1_address :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal system_timer_ap_s1_chipselect :  STD_LOGIC;
                 signal system_timer_ap_s1_irq :  STD_LOGIC;
@@ -20227,6 +20235,7 @@ begin
       d1_sysid_control_slave_end_xfer => d1_sysid_control_slave_end_xfer,
       sysid_control_slave_address => sysid_control_slave_address,
       sysid_control_slave_readdata_from_sa => sysid_control_slave_readdata_from_sa,
+      sysid_control_slave_reset_n => sysid_control_slave_reset_n,
       clk => internal_clk50Meg,
       clock_crossing_0_m1_address_to_slave => clock_crossing_0_m1_address_to_slave,
       clock_crossing_0_m1_latency_counter => clock_crossing_0_m1_latency_counter,
@@ -20247,7 +20256,9 @@ begin
   the_sysid : sysid
     port map(
       readdata => sysid_control_slave_readdata,
-      address => sysid_control_slave_address
+      address => sysid_control_slave_address,
+      clock => sysid_control_slave_clock,
+      reset_n => sysid_control_slave_reset_n
     );
 
 
@@ -20447,6 +20458,8 @@ begin
   niosII_openMac_clock_3_out_endofpacket <= std_logic'('0');
   --niosII_openMac_clock_4_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
   niosII_openMac_clock_4_out_endofpacket <= std_logic'('0');
+  --sysid_control_slave_clock of type clock does not connect to anything so wire it to default (0)
+  sysid_control_slave_clock <= std_logic'('0');
   --vhdl renameroo for output signals
   ben_to_the_DBC3C40_SRAM_0 <= internal_ben_to_the_DBC3C40_SRAM_0;
   --vhdl renameroo for output signals
@@ -21463,6 +21476,7 @@ end component sdram_0_test_component;
                 signal sce_from_the_epcs_flash_controller_0 :  STD_LOGIC;
                 signal sdo_from_the_epcs_flash_controller_0 :  STD_LOGIC;
                 signal select_n_to_the_cfi_flash_0 :  STD_LOGIC;
+                signal sysid_control_slave_clock :  STD_LOGIC;
                 signal tri_state_bridge_0_address :  STD_LOGIC_VECTOR (22 DOWNTO 0);
                 signal tri_state_bridge_0_data :  STD_LOGIC_VECTOR (15 DOWNTO 0);
                 signal tri_state_bridge_0_readn :  STD_LOGIC;

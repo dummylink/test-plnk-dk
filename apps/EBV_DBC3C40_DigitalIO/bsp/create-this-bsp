@@ -36,7 +36,7 @@ do
 done
 
 if [ -z "$NO_OPT" ]; then
-    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O1"
+    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2"
 fi
 
 # Run nios2-bsp utility to create a hal BSP in this directory

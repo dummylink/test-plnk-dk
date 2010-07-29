@@ -1,7 +1,7 @@
 SYSTEM niosII_openMac
 {
-   System_Wizard_Version = "9.12";
-   System_Wizard_Build = "350";
+   System_Wizard_Version = "10.00";
+   System_Wizard_Build = "218";
    Builder_Application = "sopc_builder_ca";
    WIZARD_SCRIPT_ARGUMENTS 
    {
@@ -904,14 +904,14 @@ SYSTEM niosII_openMac
                comment = "Log2 size in bytes of each dcache line";
             }
          }
-         license_status = "encrypted";
+         license_status = "ocp";
          mainmem_slave = "epcs_flash_controller_0/epcs_control_port";
          datamem_slave = "epcs_flash_controller_0/epcs_control_port";
          maincomm_slave = "";
          germs_monitor_id = "";
       }
       class = "altera_nios2";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -920,7 +920,7 @@ SYSTEM niosII_openMac
          Parameters_Signature = "";
          Is_CPU = "1";
          Instantiate_In_System_Module = "1";
-         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,TARPON,HARDCOPYIV,STINGRAY";
+         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,STRATIXV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,TARPON,HARDCOPYIV,STINGRAY";
          Default_Module_Name = "cpu";
          Top_Level_Ports_Are_Enumerated = "1";
          View 
@@ -1623,7 +1623,7 @@ SYSTEM niosII_openMac
       {
       }
       class = "altera_avalon_tri_state_bridge";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -1740,7 +1740,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.080912";
+      class_version = "7.08100";
       gtf_class_name = "DBC3C40_SRAM";
       gtf_class_version = "1.0";
       SYSTEM_BUILDER_INFO 
@@ -1927,7 +1927,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1280243915 ";
       }
       SIMULATION 
       {
@@ -1984,7 +1984,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_onchip_memory2";
-      class_version = "7.080912";
+      class_version = "7.08100";
       HDL_INFO 
       {
          Precompiled_Simulation_Library_Files = "";
@@ -2157,7 +2157,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_jtag_uart";
-      class_version = "7.080912";
+      class_version = "7.08100";
       iss_model_name = "altera_avalon_jtag_uart";
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -2441,7 +2441,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_cfi_flash";
-      class_version = "7.080912";
+      class_version = "7.08100";
       iss_model_name = "altera_avalon_flash";
       HDL_INFO 
       {
@@ -2879,7 +2879,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.080912";
+      class_version = "7.08100";
       gtf_class_name = "OpenMAC";
       gtf_class_version = "1.1";
       SYSTEM_BUILDER_INFO 
@@ -3011,7 +3011,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_timer";
-      class_version = "7.080912";
+      class_version = "7.08100";
       iss_model_name = "altera_avalon_timer";
       SYSTEM_BUILDER_INFO 
       {
@@ -3339,7 +3339,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_clock_crossing";
-      class_version = "7.080912";
+      class_version = "7.08100";
       iss_model_name = "altera_avalon_clock_crossing";
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -3501,7 +3501,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -3666,7 +3666,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -3760,10 +3760,10 @@ SYSTEM niosII_openMac
             }
             PORT readdata
             {
-               Is_Enabled = "1";
-               direction = "output";
                type = "readdata";
                width = "8";
+               direction = "output";
+               Is_Enabled = "1";
             }
          }
          SYSTEM_BUILDER_INFO 
@@ -3830,7 +3830,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -3973,7 +3973,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -4733,14 +4733,14 @@ SYSTEM niosII_openMac
                comment = "Log2 size in bytes of each dcache line";
             }
          }
-         license_status = "encrypted";
+         license_status = "ocp";
          mainmem_slave = "sdram_0/s1";
          datamem_slave = "sdram_0/s1";
          maincomm_slave = "";
          germs_monitor_id = "";
       }
       class = "altera_nios2";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -4749,7 +4749,7 @@ SYSTEM niosII_openMac
          Parameters_Signature = "";
          Is_CPU = "1";
          Instantiate_In_System_Module = "1";
-         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,TARPON,HARDCOPYIV,STINGRAY";
+         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,STRATIXV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,TARPON,HARDCOPYIV,STINGRAY";
          Default_Module_Name = "cpu";
          Top_Level_Ports_Are_Enumerated = "1";
          View 
@@ -5581,7 +5581,7 @@ SYSTEM niosII_openMac
          {
             type = "export";
             width = "32";
-            direction = "output";
+            direction = "inout";
             Is_Enabled = "0";
          }
          PORT zs_dqm
@@ -5923,7 +5923,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_new_sdram_controller";
-      class_version = "7.080912";
+      class_version = "7.08100";
       HDL_INFO 
       {
          Precompiled_Simulation_Library_Files = "";
@@ -6070,7 +6070,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_jtag_uart";
-      class_version = "7.080912";
+      class_version = "7.08100";
       iss_model_name = "altera_avalon_jtag_uart";
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -6288,7 +6288,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_timer";
-      class_version = "7.080912";
+      class_version = "7.08100";
       iss_model_name = "altera_avalon_timer";
       SYSTEM_BUILDER_INFO 
       {
@@ -6430,7 +6430,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -6482,17 +6482,17 @@ SYSTEM niosII_openMac
          {
             PORT clock
             {
-               type = "clk";
+               type = "clock";
                width = "1";
                direction = "input";
-               Is_Enabled = "0";
+               Is_Enabled = "1";
             }
             PORT reset_n
             {
                type = "reset_n";
                width = "1";
                direction = "input";
-               Is_Enabled = "0";
+               Is_Enabled = "1";
             }
             PORT address
             {
@@ -6554,7 +6554,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_sysid";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Date_Modified = "";
@@ -6566,7 +6566,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>4E514FEB</b>    (unique ID tag) <br> <b>4C49CD9C</b> (timestamp: Fri Jul 23, 2010 @7:13 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>28AB0E46</b>    (unique ID tag) <br> <b>4C4EF867</b> (timestamp: Tue Jul 27, 2010 @5:16 PM)";
             MESSAGES 
             {
             }
@@ -6574,8 +6574,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "1313951723u";
-         timestamp = "1279905180u";
+         id = "682298950u";
+         timestamp = "1280243815u";
          regenerate_values = "0";
          MAKE 
          {
@@ -6584,7 +6584,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01000060 --id=1313951723 --timestamp=1279905180";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01000060 --id=682298950 --timestamp=1280243815";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6893,7 +6893,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_clock_crossing";
-      class_version = "7.080912";
+      class_version = "7.08100";
       iss_model_name = "altera_avalon_clock_crossing";
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -6985,10 +6985,10 @@ SYSTEM niosII_openMac
             }
             PORT readdata
             {
-               Is_Enabled = "1";
-               direction = "output";
                type = "readdata";
                width = "1";
+               direction = "output";
+               Is_Enabled = "1";
             }
          }
          SYSTEM_BUILDER_INFO 
@@ -7055,7 +7055,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -7230,7 +7230,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -7428,9 +7428,9 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.080912";
+      class_version = "7.08100";
       gtf_class_name = "altpll";
-      gtf_class_version = "9.1";
+      gtf_class_version = "10.0";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -7730,14 +7730,14 @@ SYSTEM niosII_openMac
          sync_reg_depth = "2";
       }
       class = "altera_avalon_epcs_flash_controller";
-      class_version = "7.080912";
+      class_version = "7.08100";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
          Clock_Source = "clk90Meg";
          Has_Clock = "1";
          Instantiate_In_System_Module = "1";
-         Required_Device_Family = "STRATIX,CYCLONE,CYCLONEII,CYCLONEIII,STRATIXIII,STRATIXII,STRATIXIIGX,ARRIAGX,STRATIXIIGXLITE,STRATIXIV,ARRIAII,TARPON,STINGRAY,CYCLONEIVE";
+         Required_Device_Family = "STRATIX,CYCLONE,CYCLONEII,CYCLONEIII,STRATIXIII,STRATIXII,STRATIXIIGX,ARRIAGX,STRATIXIIGXLITE,STRATIXIV,STRATIXV,ARRIAII,TARPON,STINGRAY,CYCLONEIVE";
          Fixed_Module_Name = "epcs_controller";
          Top_Level_Ports_Are_Enumerated = "1";
          View 
@@ -7868,9 +7868,9 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.080912";
+      class_version = "7.08100";
       gtf_class_name = "altera_avalon_remote_update_cycloneiii";
-      gtf_class_version = "9.1";
+      gtf_class_version = "10.0";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -8123,7 +8123,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.080912";
+      class_version = "7.08100";
       gtf_class_name = "cnApi_Av2Av";
       gtf_class_version = "1.0";
       SYSTEM_BUILDER_INFO 

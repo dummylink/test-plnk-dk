@@ -33,13 +33,13 @@ ${LIBAPIDIR}/include \
 ${LIBAPIDIR}/utils"
 
 #           Select here between debug and release settings
-#DBG_MODE=NDEBUG
-DBG_MODE=_DEBUG
+DBG_MODE=NDEBUG
+#DBG_MODE=_DEBUG
 
 #MODFLAGS=-D$(DBG_MODE)
 #MODFLAGS=-D${DBG_MODE} -D_DBG_TRACE_POINTS_ -DDEF_DEBUG_LVL=0xEC000040L
 #CFLAGS="-D${DBG_MODE} -D_DBG_TRACE_POINTS_ -DDEF_DEBUG_LVL=0xEC000000L"
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=0xEC00FF00L -DALTERA_MUTEX_SYNC"
+CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=0xEC00FF00L"
 
 #EXTRA_CFLAGS = -Wa,-alhs $(INCLUDES) $(MODFLAGS)
 
@@ -50,7 +50,6 @@ pcpStateMachine.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
 ${POWERLINKDIR}/Edrv/openmac/source/EdrvOpenMac.c \
-${POWERLINKDIR}/Edrv/openmac/source/TimerHighResk_OpenMac.c \
 ${POWERLINKDIR}/Edrv/openmac/source/EplTimerSynck_OpenMac.c \
 ${POWERLINKDIR}/Edrv/openmac/source/omethlib.c ${POWERLINKDIR}/Edrv/openmac/source/omethlibint.c \
 ${POWERLINKDIR}/EplStack/EplDllk.c ${POWERLINKDIR}/EplStack/EplDllkCal.c \
@@ -81,7 +80,7 @@ fi
 NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
 --set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
-#--set APP_CFLAGS_DEBUG_LEVEL \
+#--set APP_CFLAGS_DEBUG_LEVEL -g \
 
 #echo "${NIOS2_APP_GEN_ARGS}"
 
@@ -119,7 +118,7 @@ do
 done
 
 if [ -z "$NO_OPT" ]; then
-    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O1"
+    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O2"
 fi
 
 # Also make sure that the APP has not been created already.  Check for
