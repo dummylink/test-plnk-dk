@@ -51,9 +51,9 @@
 
                 $RCSfile: EplCfg.h,v $
 
-                $Author: D.Krueger $
+                $Author: Michael.Ulbricht $
 
-                $Revision: 1.2 $  $Date: 2009/09/28 14:38:37 $
+                $Revision: 1.4 $  $Date: 2010/06/21 08:27:34 $
 
                 $State: Exp $
 
@@ -64,7 +64,7 @@
 
   Revision History:
 
-  2006/06/06    k.t.: Start of Implementation
+  2010-03-23    m.u.: Start of Implementation
 
 ****************************************************************************/
 
@@ -101,7 +101,8 @@
 #define EPL_EVENT_USE_KERNEL_QUEUE      FALSE
 
 #ifndef BENCHMARK_MODULES
-#define BENCHMARK_MODULES       0
+//#define BENCHMARK_MODULES       0 //0xEE800042L
+#define BENCHMARK_MODULES       0xEE800043L
 #endif
 
 // Default defug level:
@@ -113,7 +114,6 @@
 // * EPL_DBGLVL_ASSERT      =   0x20000000L
 // * EPL_DBGLVL_ERROR       =   0x40000000L
 // * EPL_DBGLVL_ALWAYS      =   0x80000000L
-
 
 // EPL_MODULE_INTEGRATION defines all modules which are included in
 // EPL application. Please add or delete modules for your application.
@@ -171,6 +171,9 @@
 // + SoC + SoA + MN PRes + NmtCmd + ASnd + IdentRes + StatusRes.
 //#define EDRV_MAX_TX_BUFFERS             5
 
+// openMAC supports auto-response delay
+#define EDRV_AUTO_RESPONSE_DELAY        TRUE
+
 
 // =========================================================================
 // Data Link Layer (DLL) specific defines
@@ -195,14 +198,15 @@
 // negative time shift of isochronous task in relation to SoC
 #define EPL_DLL_SOC_SYNC_SHIFT_US       150
 
+// CN supports PRes Chaining
+#define EPL_DLL_PRES_CHAINING_CN        TRUE
+
 
 // =========================================================================
 // OBD specific defines
 // =========================================================================
 
 #define EPL_OBD_USE_KERNEL				TRUE
-
-//#define	EPL_OBD_USER_OD					TRUE	// jba for test!!
 
 // switch this define to TRUE if Epl should compare object range
 // automaticly

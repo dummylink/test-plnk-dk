@@ -33,8 +33,8 @@ ${LIBAPIDIR}/include \
 ${LIBAPIDIR}/utils"
 
 #           Select here between debug and release settings
-DBG_MODE=NDEBUG
-#DBG_MODE=_DEBUG
+#DBG_MODE=NDEBUG
+DBG_MODE=_DEBUG
 
 #MODFLAGS=-D$(DBG_MODE)
 #MODFLAGS=-D${DBG_MODE} -D_DBG_TRACE_POINTS_ -DDEF_DEBUG_LVL=0xEC000040L
@@ -51,6 +51,7 @@ ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
 ${POWERLINKDIR}/Edrv/openmac/source/EdrvOpenMac.c \
 ${POWERLINKDIR}/Edrv/openmac/source/EplTimerSynck_OpenMac.c \
+${POWERLINKDIR}/Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
 ${POWERLINKDIR}/Edrv/openmac/source/omethlib.c ${POWERLINKDIR}/Edrv/openmac/source/omethlibint.c \
 ${POWERLINKDIR}/EplStack/EplDllk.c ${POWERLINKDIR}/EplStack/EplDllkCal.c \
 ${POWERLINKDIR}/EplStack/EplDlluCal.c \
