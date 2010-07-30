@@ -18,10 +18,13 @@ TODOs
 
 doc
 ---
-- generate latex documentation???? -> no word is used
+- generate doxygen documentation
+- create user manual
 
 fpga
 ----
+
+- update Simple I/O design to openMAC 1.1
 
 
 libCnApi

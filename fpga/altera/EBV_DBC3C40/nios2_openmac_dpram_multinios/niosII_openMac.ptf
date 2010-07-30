@@ -904,7 +904,7 @@ SYSTEM niosII_openMac
                comment = "Log2 size in bytes of each dcache line";
             }
          }
-         license_status = "ocp";
+         license_status = "encrypted";
          mainmem_slave = "epcs_flash_controller_0/epcs_control_port";
          datamem_slave = "epcs_flash_controller_0/epcs_control_port";
          maincomm_slave = "";
@@ -1927,7 +1927,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1280243915 ";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1280480487 ";
       }
       SIMULATION 
       {
@@ -4733,7 +4733,7 @@ SYSTEM niosII_openMac
                comment = "Log2 size in bytes of each dcache line";
             }
          }
-         license_status = "ocp";
+         license_status = "encrypted";
          mainmem_slave = "sdram_0/s1";
          datamem_slave = "sdram_0/s1";
          maincomm_slave = "";
@@ -6566,7 +6566,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>28AB0E46</b>    (unique ID tag) <br> <b>4C4EF867</b> (timestamp: Tue Jul 27, 2010 @5:16 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>28AB0E46</b>    (unique ID tag) <br> <b>4C529480</b> (timestamp: Fri Jul 30, 2010 @10:59 AM)";
             MESSAGES 
             {
             }
@@ -6575,7 +6575,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "682298950u";
-         timestamp = "1280243815u";
+         timestamp = "1280480384u";
          regenerate_values = "0";
          MAKE 
          {
@@ -6584,7 +6584,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01000060 --id=682298950 --timestamp=1280243815";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01000060 --id=682298950 --timestamp=1280480384";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

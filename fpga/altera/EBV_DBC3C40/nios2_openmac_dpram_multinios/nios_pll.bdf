@@ -1239,7 +1239,7 @@ applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 288 232 752 1128)
+	(rect 288 224 752 1120)
 	(text "niosII_openMac" (rect 4 0 110 16)(font "Arial" (font_size 10)))
 	(text "inst1" (rect 4 880 27 892)(font "Arial" ))
 	(port
@@ -1979,14 +1979,6 @@ applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 912 408)
-	(pt 912 392)
-)
-(connector
-	(pt 912 360)
-	(pt 912 344)
-)
-(connector
 	(pt 912 344)
 	(pt 928 344)
 )
@@ -2048,68 +2040,6 @@ applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1512 744)
-	(pt 1512 584)
-	(bus)
-)
-(connector
-	(pt 200 280)
-	(pt 288 280)
-)
-(connector
-	(text "miiDi" (rect 242 344 266 356)(font "Arial" ))
-	(pt 232 360)
-	(pt 288 360)
-)
-(connector
-	(text "mac0_crs" (rect 74 368 122 380)(font "Arial" ))
-	(pt 144 376)
-	(pt 288 376)
-)
-(connector
-	(text "mac1_crs" (rect 74 384 122 396)(font "Arial" ))
-	(pt 144 392)
-	(pt 288 392)
-)
-(connector
-	(text "mac0_rxd[1..0]" (rect 74 400 148 412)(font "Arial" ))
-	(pt 144 408)
-	(pt 288 408)
-	(bus)
-)
-(connector
-	(text "mac1_rxd[1..0]" (rect 74 416 148 428)(font "Arial" ))
-	(pt 144 424)
-	(pt 288 424)
-	(bus)
-)
-(connector
-	(text "but[7..0]" (rect 242 536 283 548)(font "Arial" ))
-	(pt 232 552)
-	(pt 288 552)
-	(bus)
-)
-(connector
-	(pt 120 616)
-	(pt 288 616)
-	(bus)
-)
-(connector
-	(pt 120 712)
-	(pt 288 712)
-	(bus)
-)
-(connector
-	(pt 120 744)
-	(pt 288 744)
-	(bus)
-)
-(connector
-	(text "sync_irq" (rect 146 952 188 964)(font "Arial" ))
-	(pt 136 968)
-	(pt 288 968)
-)
-(connector
 	(pt 912 360)
 	(pt 928 360)
 )
@@ -2118,139 +2048,8 @@ applicable agreement for further details.
 	(pt 928 408)
 )
 (connector
-	(pt 752 360)
-	(pt 912 360)
-)
-(connector
-	(text "miiDo" (rect 794 360 822 372)(font "Arial" ))
-	(pt 752 376)
-	(pt 824 376)
-)
-(connector
-	(text "miiDoe" (rect 794 376 828 388)(font "Arial" ))
-	(pt 752 392)
-	(pt 824 392)
-)
-(connector
-	(pt 752 408)
-	(pt 912 408)
-)
-(connector
-	(text "mac0_txd[1..0]" (rect 890 416 964 428)(font "Arial" ))
-	(pt 752 424)
-	(pt 880 424)
-	(bus)
-)
-(connector
-	(text "mac1_txd[1..0]" (rect 890 432 964 444)(font "Arial" ))
-	(pt 752 440)
-	(pt 880 440)
-	(bus)
-)
-(connector
-	(text "mac0_txen" (rect 890 448 944 460)(font "Arial" ))
-	(pt 752 456)
-	(pt 880 456)
-)
-(connector
-	(text "mac1_txen" (rect 890 464 944 476)(font "Arial" ))
-	(pt 752 472)
-	(pt 880 472)
-)
-(connector
-	(pt 752 616)
-	(pt 928 616)
-)
-(connector
-	(pt 752 632)
-	(pt 928 632)
-)
-(connector
-	(pt 752 648)
-	(pt 928 648)
-)
-(connector
-	(text "sync_irq" (rect 882 664 924 676)(font "Arial" ))
-	(pt 752 680)
-	(pt 928 680)
-)
-(connector
-	(pt 752 744)
-	(pt 1248 744)
-	(bus)
-)
-(connector
-	(pt 752 936)
-	(pt 928 936)
-	(bus)
-)
-(connector
-	(pt 752 1000)
-	(pt 928 1000)
-	(bus)
-)
-(connector
-	(pt 752 1016)
-	(pt 928 1016)
-)
-(connector
-	(pt 752 1032)
-	(pt 928 1032)
-)
-(connector
-	(text "adr[22..0]" (rect 802 1032 849 1044)(font "Arial" ))
-	(pt 752 1048)
-	(pt 864 1048)
-	(bus)
-)
-(connector
-	(pt 752 1080)
-	(pt 928 1080)
-)
-(connector
-	(pt 752 1096)
-	(pt 928 1096)
-)
-(connector
-	(pt 752 584)
-	(pt 1512 584)
-	(bus)
-)
-(connector
-	(pt 752 1064)
-	(pt 928 1064)
-	(bus)
-)
-(connector
-	(pt 752 312)
-	(pt 928 312)
-)
-(connector
-	(text "100meg180" (rect 762 248 818 260)(font "Arial" ))
-	(pt 752 264)
-	(pt 816 264)
-)
-(connector
-	(text "50meg0" (rect 762 280 800 292)(font "Arial" ))
-	(pt 752 296)
-	(pt 816 296)
-)
-(connector
 	(pt 120 240)
 	(pt 240 240)
-)
-(connector
-	(pt 288 264)
-	(pt 240 264)
-)
-(connector
-	(pt 240 264)
-	(pt 240 240)
-)
-(connector
-	(text "lockedPll" (rect 762 488 805 500)(font "Arial" ))
-	(pt 752 504)
-	(pt 824 504)
 )
 (connector
 	(text "lockedPll" (rect 74 256 117 268)(font "Arial" ))
@@ -2314,13 +2113,484 @@ applicable agreement for further details.
 	(pt 1320 376)
 	(pt 1320 408)
 )
+(connector
+	(pt 208 280)
+	(pt 208 272)
+)
+(connector
+	(pt 200 280)
+	(pt 208 280)
+)
+(connector
+	(pt 208 272)
+	(pt 288 272)
+)
+(connector
+	(pt 744 776)
+	(pt 744 768)
+	(bus)
+)
+(connector
+	(pt 752 776)
+	(pt 744 776)
+	(bus)
+)
+(connector
+	(pt 744 768)
+	(pt 752 768)
+	(bus)
+)
+(connector
+	(pt 744 792)
+	(pt 744 784)
+	(bus)
+)
+(connector
+	(pt 752 792)
+	(pt 744 792)
+	(bus)
+)
+(connector
+	(pt 744 784)
+	(pt 752 784)
+	(bus)
+)
+(connector
+	(pt 744 808)
+	(pt 744 800)
+)
+(connector
+	(pt 752 808)
+	(pt 744 808)
+)
+(connector
+	(pt 744 800)
+	(pt 752 800)
+)
+(connector
+	(pt 744 824)
+	(pt 744 816)
+)
+(connector
+	(pt 752 824)
+	(pt 744 824)
+)
+(connector
+	(pt 744 816)
+	(pt 752 816)
+)
+(connector
+	(pt 744 840)
+	(pt 744 832)
+)
+(connector
+	(pt 752 840)
+	(pt 744 840)
+)
+(connector
+	(pt 744 832)
+	(pt 752 832)
+)
+(connector
+	(pt 744 856)
+	(pt 744 848)
+	(bus)
+)
+(connector
+	(pt 752 856)
+	(pt 744 856)
+	(bus)
+)
+(connector
+	(pt 744 848)
+	(pt 752 848)
+	(bus)
+)
+(connector
+	(pt 744 872)
+	(pt 744 864)
+	(bus)
+)
+(connector
+	(pt 752 872)
+	(pt 744 872)
+	(bus)
+)
+(connector
+	(pt 744 864)
+	(pt 752 864)
+	(bus)
+)
+(connector
+	(pt 744 888)
+	(pt 744 880)
+)
+(connector
+	(pt 752 888)
+	(pt 744 888)
+)
+(connector
+	(pt 744 880)
+	(pt 752 880)
+)
+(connector
+	(pt 744 904)
+	(pt 744 896)
+)
+(connector
+	(pt 752 904)
+	(pt 744 904)
+)
+(connector
+	(pt 744 896)
+	(pt 752 896)
+)
+(connector
+	(pt 1512 744)
+	(pt 1512 576)
+	(bus)
+)
+(connector
+	(text "miiDi" (rect 242 336 266 348)(font "Arial" ))
+	(pt 232 352)
+	(pt 288 352)
+)
+(connector
+	(text "mac0_crs" (rect 74 360 122 372)(font "Arial" ))
+	(pt 144 368)
+	(pt 288 368)
+)
+(connector
+	(text "mac1_crs" (rect 74 376 122 388)(font "Arial" ))
+	(pt 144 384)
+	(pt 288 384)
+)
+(connector
+	(text "mac0_rxd[1..0]" (rect 74 392 148 404)(font "Arial" ))
+	(pt 144 400)
+	(pt 288 400)
+	(bus)
+)
+(connector
+	(text "mac1_rxd[1..0]" (rect 74 408 148 420)(font "Arial" ))
+	(pt 144 416)
+	(pt 288 416)
+	(bus)
+)
+(connector
+	(text "but[7..0]" (rect 242 528 283 540)(font "Arial" ))
+	(pt 232 544)
+	(pt 288 544)
+	(bus)
+)
+(connector
+	(pt 912 400)
+	(pt 752 400)
+)
+(connector
+	(pt 128 616)
+	(pt 128 608)
+	(bus)
+)
+(connector
+	(pt 120 616)
+	(pt 128 616)
+	(bus)
+)
+(connector
+	(pt 128 608)
+	(pt 288 608)
+	(bus)
+)
+(connector
+	(pt 136 712)
+	(pt 136 704)
+	(bus)
+)
+(connector
+	(pt 120 712)
+	(pt 136 712)
+	(bus)
+)
+(connector
+	(pt 136 704)
+	(pt 288 704)
+	(bus)
+)
+(connector
+	(pt 144 744)
+	(pt 144 736)
+	(bus)
+)
+(connector
+	(pt 120 744)
+	(pt 144 744)
+	(bus)
+)
+(connector
+	(pt 144 736)
+	(pt 288 736)
+	(bus)
+)
+(connector
+	(text "sync_irq" (rect 146 944 188 956)(font "Arial" ))
+	(pt 136 960)
+	(pt 288 960)
+)
+(connector
+	(pt 912 352)
+	(pt 752 352)
+)
+(connector
+	(text "miiDo" (rect 794 352 822 364)(font "Arial" ))
+	(pt 752 368)
+	(pt 824 368)
+)
+(connector
+	(text "miiDoe" (rect 794 368 828 380)(font "Arial" ))
+	(pt 752 384)
+	(pt 824 384)
+)
+(connector
+	(text "mac0_txd[1..0]" (rect 890 408 964 420)(font "Arial" ))
+	(pt 752 416)
+	(pt 880 416)
+	(bus)
+)
+(connector
+	(text "mac1_txd[1..0]" (rect 890 424 964 436)(font "Arial" ))
+	(pt 752 432)
+	(pt 880 432)
+	(bus)
+)
+(connector
+	(text "mac0_txen" (rect 890 440 944 452)(font "Arial" ))
+	(pt 752 448)
+	(pt 880 448)
+)
+(connector
+	(text "mac1_txen" (rect 890 456 944 468)(font "Arial" ))
+	(pt 752 464)
+	(pt 880 464)
+)
+(connector
+	(pt 920 616)
+	(pt 920 608)
+)
+(connector
+	(pt 928 616)
+	(pt 920 616)
+)
+(connector
+	(pt 920 608)
+	(pt 752 608)
+)
+(connector
+	(pt 912 632)
+	(pt 912 624)
+)
+(connector
+	(pt 928 632)
+	(pt 912 632)
+)
+(connector
+	(pt 912 624)
+	(pt 752 624)
+)
+(connector
+	(pt 904 648)
+	(pt 904 640)
+)
+(connector
+	(pt 928 648)
+	(pt 904 648)
+)
+(connector
+	(pt 904 640)
+	(pt 752 640)
+)
+(connector
+	(text "sync_irq" (rect 882 656 924 668)(font "Arial" ))
+	(pt 752 672)
+	(pt 928 672)
+)
+(connector
+	(pt 896 312)
+	(pt 896 304)
+)
+(connector
+	(pt 928 312)
+	(pt 896 312)
+)
+(connector
+	(pt 896 304)
+	(pt 752 304)
+)
+(connector
+	(pt 1240 744)
+	(pt 1240 736)
+	(bus)
+)
+(connector
+	(pt 1248 744)
+	(pt 1240 744)
+	(bus)
+)
+(connector
+	(pt 1240 736)
+	(pt 752 736)
+	(bus)
+)
+(connector
+	(pt 888 936)
+	(pt 888 928)
+	(bus)
+)
+(connector
+	(pt 928 936)
+	(pt 888 936)
+	(bus)
+)
+(connector
+	(pt 888 928)
+	(pt 752 928)
+	(bus)
+)
+(connector
+	(pt 880 1000)
+	(pt 880 992)
+	(bus)
+)
+(connector
+	(pt 928 1000)
+	(pt 880 1000)
+	(bus)
+)
+(connector
+	(pt 880 992)
+	(pt 752 992)
+	(bus)
+)
+(connector
+	(pt 872 1016)
+	(pt 872 1008)
+)
+(connector
+	(pt 928 1016)
+	(pt 872 1016)
+)
+(connector
+	(pt 872 1008)
+	(pt 752 1008)
+)
+(connector
+	(pt 864 1032)
+	(pt 864 1024)
+)
+(connector
+	(pt 928 1032)
+	(pt 864 1032)
+)
+(connector
+	(pt 864 1024)
+	(pt 752 1024)
+)
+(connector
+	(text "adr[22..0]" (rect 802 1024 849 1036)(font "Arial" ))
+	(pt 752 1040)
+	(pt 864 1040)
+	(bus)
+)
+(connector
+	(pt 856 1064)
+	(pt 856 1056)
+	(bus)
+)
+(connector
+	(pt 928 1064)
+	(pt 856 1064)
+	(bus)
+)
+(connector
+	(pt 856 1056)
+	(pt 752 1056)
+	(bus)
+)
+(connector
+	(pt 848 1080)
+	(pt 848 1072)
+)
+(connector
+	(pt 928 1080)
+	(pt 848 1080)
+)
+(connector
+	(pt 848 1072)
+	(pt 752 1072)
+)
+(connector
+	(pt 840 1096)
+	(pt 840 1088)
+)
+(connector
+	(pt 928 1096)
+	(pt 840 1096)
+)
+(connector
+	(pt 840 1088)
+	(pt 752 1088)
+)
+(connector
+	(pt 1512 576)
+	(pt 752 576)
+	(bus)
+)
+(connector
+	(text "100meg180" (rect 762 240 818 252)(font "Arial" ))
+	(pt 752 256)
+	(pt 816 256)
+)
+(connector
+	(text "50meg0" (rect 762 272 800 284)(font "Arial" ))
+	(pt 752 288)
+	(pt 816 288)
+)
+(connector
+	(pt 240 256)
+	(pt 288 256)
+)
+(connector
+	(pt 240 240)
+	(pt 240 256)
+)
+(connector
+	(text "lockedPll" (rect 762 480 805 492)(font "Arial" ))
+	(pt 752 496)
+	(pt 824 496)
+)
+(connector
+	(pt 912 392)
+	(pt 912 400)
+)
+(connector
+	(pt 912 400)
+	(pt 912 408)
+)
+(connector
+	(pt 912 344)
+	(pt 912 352)
+)
+(connector
+	(pt 912 352)
+	(pt 912 360)
+)
 (junction (pt 144 1200))
 (junction (pt 144 1272))
 (junction (pt 144 1360))
 (junction (pt 696 1216))
 (junction (pt 696 1288))
 (junction (pt 696 1376))
-(junction (pt 912 360))
-(junction (pt 912 408))
 (junction (pt 1152 792))
 (junction (pt 1168 776))
+(junction (pt 912 400))
+(junction (pt 912 352))
