@@ -191,7 +191,8 @@ USE altera_mf.all;
 ENTITY OpenMAC_DPRpackets IS
 	GENERIC
 	(
-		memSizeLOG2_g : integer := 14
+		memSizeLOG2_g : integer := 10;
+		memSize_g : integer := 1024
 	);
 	PORT
 	(
@@ -284,8 +285,8 @@ BEGIN
 		indata_reg_b => "CLOCK1",
 		intended_device_family => "Cyclone III",
 		lpm_type => "altsyncram",
-		numwords_a => 2**memSizeLOG2_g/2,
-		numwords_b => 2**memSizeLOG2_g/4,
+		numwords_a => memSize_g/2,
+		numwords_b => memSize_g/4,
 		operation_mode => "BIDIR_DUAL_PORT",
 		outdata_aclr_a => "NONE",
 		outdata_aclr_b => "NONE",

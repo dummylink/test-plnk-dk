@@ -42,6 +42,8 @@
 --	           V0.00-0.30   First generation.
 -- 2009-08-07  V0.31        Converted to official version.
 -- 2010-04-12  V0.40		Added Auto-Response Delay functionality (TxDel)
+-- 2010-06-28  V0.41		Bug Fix: exit sDel if Tx_Off, set Tx_Del_Run without Ipg consideration
+-- 2010-08-02  V0.42		Added Timer triggered TX functionality (TxSyncOn)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -51,8 +53,9 @@ USE ieee.std_logic_unsigned.ALL;
 
 ENTITY OpenMAC IS
 	GENERIC( HighAdr                : IN    integer := 16;
-			 Timer                  : IN    boolean := true;
-			 TxDel					: IN	boolean := true;
+			 Timer                  : IN    boolean := false;
+			 TxSyncOn				: IN	boolean := false;
+			 TxDel					: IN	boolean := false;
              Simulate               : IN    boolean := false
            );
 	PORT ( nRes, Clk                : IN    std_logic;
@@ -392,9 +395,11 @@ bTxDesc:	BLOCK
 	SIGNAL	Tx_SoftInt							: std_logic;
 	SIGNAL	Sel_TxH, Sel_TxL, H_Byte			: std_logic;
 	SIGNAL	Tx_Buf								: std_logic_vector( 7 DOWNTO 0);
-	SIGNAL	Tx_Idle, TxInt						: std_logic;
+	SIGNAL	Tx_Idle, TxInt, Tx_Beg, Tx_Sync		: std_logic;
 	SIGNAL	Tx_Ident							: std_logic_vector( 1 DOWNTO 0);
+	SIGNAL	Tx_Cmp_High							: std_logic_vector(15 downto 0);
 	SIGNAL	Start_TxS							: std_logic;
+	SIGNAL	Tx_Dma_Out							: std_logic;
 	SIGNAL	Tx_Del_Cnt							: std_logic_vector(32 downto 0);
 	 ALIAS	Tx_Del_End							: std_logic is Tx_Del_Cnt(Tx_Del_Cnt'high);
 	SIGNAL	Tx_Del_Run							: std_logic;
@@ -434,12 +439,12 @@ gTxTime:	IF Timer GENERATE
 	DescRam_In <= Zeit(31 DOWNTO 16)		WHEN	Dsm  = sTimH	ELSE
 				  ZeitL						WHEN	Dsm  = sTimL	ELSE
 				  x"000" & "01" & Tx_Ident	WHEN	Dsm  = sBegL	ELSE
-				  "0" & "0" & "00" & "0100" & "00" & "0" & "0" & Col_Cnt;
+				  Tx_Dma_Out & Tx_Sync & "00" & "0100" & "00" & "0" & "0" & Col_Cnt;
 END GENERATE;
 
 gnTxTime:	IF NOT Timer GENERATE
 	DescRam_In <= x"000" & "01" & Tx_Ident	WHEN	Dsm  = sBegL	ELSE
-				  "0" & "0" & "00" & "0100" & "00" & "0" & "0" & Col_Cnt;
+				  Tx_Dma_Out & Tx_Sync & "00" & "0100" & "00" & "0" & "0" & Col_Cnt;
 END GENERATE;
 
 
@@ -454,9 +459,13 @@ RamH:	ENTITY	work.Dpr_16_16
 				DOA		=> Tx_Ram_Dat,			DOB		=> DescRam_Out
 			);
 
+	ASSERT NOT( TxSyncOn AND NOT Timer )
+		REPORT "TxSyncOn needs Timer!" 
+			severity failure;
+			
 pTxSm: PROCESS( nRes, Clk, Dsm, 
 				Tx_On, TX_OWN, Retry_Cnt, Ext_Tx, Tx_Wait,
-				Sm_Tx, F_End, Tx_Col, Ext_Ack )
+				Tx_Sync, Sm_Tx, F_End, Tx_Col, Ext_Ack, Tx_Del, Tx_Beg )
 BEGIN
 
 		
@@ -467,19 +476,26 @@ BEGIN
 														Tx_Dsm_Next <= sLen;
 								END IF;
 							END IF;
-			WHEN sLen	 =>								Tx_Dsm_Next <= sAdrH; 
+			WHEN sLen	 =>	IF	Tx_Sync = '0'	THEN	Tx_Dsm_Next <= sAdrH; 
+							ELSE						Tx_Dsm_Next <= sBegH;
+							END IF;
 			WHEN sBegH	 =>								Tx_Dsm_Next <= sBegL;
 			WHEN sBegL	 =>	IF	   Tx_On  = '0'	THEN	Tx_Dsm_Next <= sIdle;
-							ELSIF Tx_Del = '1'  THEN	Tx_Dsm_Next <= sDel;
-							ELSIF Sm_Tx = R_Pre THEN	Tx_Dsm_Next <= sTimH; 
+							ELSIF Tx_Sync = '0'	THEN
+								if	  Tx_Del = '1' then	Tx_Dsm_Next <= sDel; 
+								elsIF Sm_Tx = R_Pre	THEN 
+														Tx_Dsm_Next <= sTimH; 
+								END IF;
+							ELSIF Tx_Beg = '1'	THEN	Tx_Dsm_Next <= sAdrH; 
 							END IF;
-			WHEN sDel	 =>	if	  Tx_Del_End = '1'	then	
-														Tx_Dsm_Next <= sTimH;
-							end if;
+			WHEN sDel	 =>	IF Tx_On = '0'  	THEN	Tx_Dsm_Next <= sIdle; --avoid FSM hang
+							ELSIF Tx_Del_End = '1' THEN Tx_Dsm_Next <= sTimH;
+							END IF;
 			WHEN sAdrH	 =>								Tx_Dsm_Next <= sAdrL;
 			WHEN sAdrL	 =>	IF    Tx_On  = '0'	THEN	Tx_Dsm_Next <= sIdle;
-							ELSIF Tx_Del = '1'	THEN	Tx_Dsm_Next <= sBegH;
-							ELSE						Tx_Dsm_Next <= sBegL;	
+							elsif Tx_Del = '1'	then	Tx_Dsm_Next <= sBegH;
+							ELSIF Tx_Sync = '0'	THEN	Tx_Dsm_Next <= sBegL;
+							ELSIF Sm_Tx = R_Bop	THEN	Tx_Dsm_Next <= sTimH;
 							END IF;
 			WHEN sTimH	 =>								Tx_Dsm_Next <= sTimL;
 			WHEN sTimL	 =>								Tx_Dsm_Next <= sData;			
@@ -487,8 +503,11 @@ BEGIN
 							ELSIF Tx_Col = '1'	THEN	Tx_Dsm_Next <= sColl;	
 							END IF;
 			WHEN sStat	 =>								Tx_Dsm_Next <= sIdle;	
-			WHEN sColl	 =>	IF	sm_tx = r_idl THEN		Tx_Dsm_Next <= sIdle;	
-							END IF;
+			WHEN sColl	 =>	if	sm_tx = r_idl then	
+								if	Tx_Sync = '1' then	Tx_Dsm_Next <= sStat;
+								else					Tx_Dsm_Next <= sIdle;	
+								end if;
+							end if;
 			WHEN OTHERS	 =>
 		END CASE;
 
@@ -502,12 +521,20 @@ BEGIN
 
 	IF	nRes = '0'	THEN
 		Last_Desc <= '0'; Start_TxS <= '0'; Tx_Dma_Req  <= '0'; H_Byte <= '0'; 
-		Tx_BegSet <= '0'; Tx_Early <= '0'; Auto_Coll <= '0'; 
-		Ext_Tx <= '0'; Ext_Ack <= '0'; ClrCol <= '0'; Ext_Desc <= (OTHERS => '0'); Max_Retry <= (OTHERS => '0');
+		Tx_Beg <= '0'; Tx_BegSet <= '0'; Tx_Early <= '0'; Auto_Coll <= '0'; Tx_Dma_Out <= '0';
+		Ext_Tx <= '0'; Ext_Ack <= '0'; ClrCol <= '0'; Ext_Desc <= (OTHERS => '0'); Tx_Sync <= '0'; Max_Retry <= (others => '0');
 		ZeitL <= (OTHERS => '0'); Tx_Count <= (OTHERS => '0'); Tx_Ident <= "00"; 
-		Dma_Tx_Addr <= (OTHERS => '0'); Tx_Del <= '0'; Tx_Del_Run <= '0'; Tx_Del_Cnt <= (others => '0');
+		Dma_Tx_Addr <= (OTHERS => '0'); Tx_Cmp_High <= (others => '0');
+		Tx_Del_Run <= '0';
+		Tx_Del <= '0'; Tx_Del_Cnt <= (others => '0');
 	ELSIF	rising_edge( Clk ) 	THEN
-
+		
+		IF	TxSyncOn  = true	THEN 
+			IF		Tx_Sync = '1' AND Dsm = sBegL AND (Tx_Cmp_High & DescRam_Out) = Zeit	THEN	Tx_Beg <= '1';
+			ELSE																					Tx_Beg <= '0';	
+			END IF;
+		END IF;
+		
 		IF	Dsm = sStat AND Desc_We = '1'	THEN	ClrCol  <= '1';	
 		ELSE										ClrCol  <= '0';
 		END IF;
@@ -541,11 +568,18 @@ BEGIN
 		IF		Dsm = sLen		THEN	Tx_Count  <= TX_LEN;
 		ELSIF   F_Val = '1'		THEN	Tx_Count  <= Tx_Count - 1; 
 		END IF;
-
+		
+		IF		Dsm = sBegH		THEN	Tx_Cmp_High <= DescRam_Out;
+		END IF;
+		
 		IF	Dsm = sIdle AND Tx_On = '1' AND TX_OWN = '1' AND Retry_Cnt = 0	THEN
 			IF	Ext_Tx = '1' OR Tx_Wait  = '0' 	 THEN	
+				IF	TxSyncOn THEN					Tx_Sync <= TX_TIME;
+				ELSE								Tx_Sync <= '0';
+				END IF;
 													Max_Retry <= TX_RETRY;
 													Tx_Early  <= TX_BEGON;
+													
 				IF	TxDel = true			THEN	Tx_Del	  <= TX_BEGDEL;
 				END IF;
 			END IF;
@@ -561,7 +595,7 @@ BEGIN
 			elsif	Dsm = sDel and Tx_Del_Run = '1'	then	Tx_Del_Cnt <= Tx_Del_Cnt - 1;
 			end if;
 
-			if		Tx_Del_Run = '0' and  Dsm = sDel and Ipg = '0'	then	Tx_Del_Run <= '1';
+			if		Tx_Del_Run = '0' and  Dsm = sDel				then	Tx_Del_Run <= '1'; --don't consider Ipg
 			elsif	Tx_Del_End = '1'								then	Tx_Del_Run <= '0';
 			end if;
 
@@ -589,13 +623,17 @@ BEGIN
 
 		IF	F_Val = '1'			THEN	Tx_Buf <= Tx_LatchL;	
 		END IF;
+		
+		if		H_Byte = '0' and F_Val = '1' and Tx_Dma_Req = '1'	then	Tx_Dma_Out <= '1';
+		elsif	Sm_Tx = R_Bop										then	Tx_Dma_Out <= '0';
+		end if;
 
 	END IF;	
 
 END PROCESS pTxControl;
 
-	Start_Tx <= '1'	WHEN	Start_TxS = '1' AND Block_Col = '0'		ELSE
-				'1'	WHEN	not TxDel and R_Req = '1'				ELSE	
+	Start_Tx <= '1'	WHEN	Start_TxS = '1' AND Block_Col = '0'		    ELSE
+				'1'	WHEN	not TxDel and not TxSyncOn and R_Req = '1'    ELSE	
 				'0';	
 	F_TxB <=	Tx_LatchH	WHEN	H_Byte = '0'	ELSE
 				Tx_Buf;

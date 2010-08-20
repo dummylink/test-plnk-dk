@@ -1,7 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------------
--- Process Data Interface (PDI) DPR for
---	POWERLINK Communication Processor (PCP): Avalon
---	Application Processor (AP): Avalon
+-- Process Data Interface (PDI) DPR
 --
 -- 	  Copyright (C) 2009 B&R
 --
@@ -37,7 +35,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2009-06-28  V0.01        First version
+-- 2010-06-28  	V0.01	zelenkaj	First version
+-- 2010-08-16	V0.02	zelenkaj	changed header
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -46,7 +45,7 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.all;
 
-ENTITY cnApi_Av2Av_DPR IS
+ENTITY pdi_dpr IS
 	GENERIC
 	(
 		NUM_WORDS		: INTEGER := 1024;
@@ -67,10 +66,10 @@ ENTITY cnApi_Av2Av_DPR IS
 		q_a		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		q_b		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
-END cnApi_Av2Av_DPR;
+END pdi_dpr;
 
 
-ARCHITECTURE SYN OF cnapi_av2av_dpr IS
+ARCHITECTURE SYN OF pdi_dpr IS
 
 	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (31 DOWNTO 0);
 	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (31 DOWNTO 0);

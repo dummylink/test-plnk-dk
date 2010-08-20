@@ -2,14 +2,6 @@
 
 <pin_planner>
 	<pin_info>
-		<pin name="lvdsin" source="Assignments" diff_pair_node="lvdsin(n)" >
-		</pin>
-		<pin name="lvdsout" source="Assignments" diff_pair_node="lvdsout(n)" >
-		</pin>
-		<pin name="lvdsin(n)" source="Assignments" diff_pair_node="lvdsin" >
-		</pin>
-		<pin name="lvdsout(n)" source="Assignments" diff_pair_node="lvdsout" >
-		</pin>
 	</pin_info>
 	<buses>
 	</buses>
