@@ -96,8 +96,6 @@ set_location_assignment PIN_G1 -to rstn
 # ==========================
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
-set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
-set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER OFF
 
 # Analysis & Synthesis Assignments
 # ================================
@@ -110,7 +108,6 @@ set_global_assignment -name TOP_LEVEL_ENTITY nios_pll
 # Fitter Assignments
 # ==================
 set_global_assignment -name DEVICE EP3C40F484C7
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "IO PATHS AND MINIMUM TPD PATHS"
 set_global_assignment -name ENABLE_INIT_DONE_OUTPUT OFF
 set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.0-V LVTTL"
@@ -125,7 +122,6 @@ set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 # =====================
 set_global_assignment -name GENERATE_RBF_FILE OFF
 set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE AUTO
-set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 
 # Power Estimation Assignments
 # ============================
@@ -174,7 +170,7 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 # --------------------
 
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT -section_id Top
-set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name USE_SIGNALTAP_FILE stp1.stp
 set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE AREA
 set_global_assignment -name MISC_FILE nios_openMac.dpf
@@ -298,13 +294,6 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to 7seg2[3]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to 7seg2[2]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to 7seg2[1]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to 7seg2[0]
-set_global_assignment -name BDF_FILE digital_io.bdf
-set_global_assignment -name VHDL_FILE sevsegEncode.vhd
-set_global_assignment -name BDF_FILE nios_pll.bdf
-set_global_assignment -name QIP_FILE altpll0.qip
-set_global_assignment -name QIP_FILE niosII_openMac.qip
-set_global_assignment -name QIP_FILE lpm_ff0.qip
-set_global_assignment -name QIP_FILE niosII_openMac_orig.qip
 set_location_assignment PIN_T16 -to io3_3V[31]
 set_location_assignment PIN_R16 -to io3_3V[30]
 set_location_assignment PIN_R15 -to io3_3V[29]
@@ -361,14 +350,10 @@ set_location_assignment PIN_P7 -to io24_i[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io24_i[2]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io24_i[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io24_i[0]
-set_global_assignment -name QIP_FILE lpm_bustri0.qip
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io3_3V[19]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io3_3V[20]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io3_3V[21]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io3_3V[23]
-set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name QIP_FILE lpm_constant0.qip
-set_global_assignment -name QIP_FILE lpm_inv0.qip
 set_location_assignment PIN_G17 -to pconfi[3]
 set_location_assignment PIN_G15 -to pconfi[2]
 set_location_assignment PIN_G14 -to pconfi[1]
@@ -381,4 +366,15 @@ set_location_assignment PIN_G10 -to node_switch[3]
 set_location_assignment PIN_G9 -to node_switch[2]
 set_location_assignment PIN_H8 -to node_switch[1]
 set_location_assignment PIN_J8 -to node_switch[0]
+set_global_assignment -name SDC_FILE nios_openMac.sdc
+set_global_assignment -name BDF_FILE digital_io.bdf
+set_global_assignment -name VHDL_FILE sevsegEncode.vhd
+set_global_assignment -name BDF_FILE nios_pll.bdf
+set_global_assignment -name QIP_FILE niosII_openMac.qip
+set_global_assignment -name QIP_FILE niosII_openMac_orig.qip
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN "1 ns"
+set_global_assignment -name SYNCHRONIZER_IDENTIFICATION AUTO
+set_global_assignment -name STRATIXIII_UPDATE_MODE REMOTE
+set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
+set_global_assignment -name SMART_RECOMPILE ON
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

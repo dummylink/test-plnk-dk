@@ -35,7 +35,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------      
---  2009-08-07  V0.01        Converted to official version.
+--  2009-08-07  V0.01		Converted to official version.
+--	2010-05-03	V0.02		added packet buffer dpr
 ------------------------------------------------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
@@ -177,90 +178,148 @@ Ram: COMPONENT altsyncram
 
 end struct;
 
-------------------------------------------------------------------------------------------------------------------------
--- ShadowRam for OpenMAC
---
 LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-LIBRARY altera_mf;
-USE altera_mf.altera_mf_components.ALL;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_arith.all;
+USE ieee.std_logic_unsigned.all;
+USE ieee.math_real.log2;
+USE ieee.math_real.ceil;
 
-ENTITY Shadow_Ram IS
+LIBRARY altera_mf;
+USE altera_mf.all;
+
+ENTITY OpenMAC_DPRpackets IS
+	GENERIC
+	(
+		memSizeLOG2_g : integer := 10;
+		memSize_g : integer := 1024
+	);
 	PORT
 	(
-		address		: IN STD_LOGIC_VECTOR (8 DOWNTO 0);
-		byteena		: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-		clock		: IN STD_LOGIC;
-		clken		: IN STD_LOGIC;
-		data		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-		wren		: IN STD_LOGIC;
-		q           : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+		address_a		: IN STD_LOGIC_VECTOR (memSizeLOG2_g-2 DOWNTO 0);
+		address_b		: IN STD_LOGIC_VECTOR (memSizeLOG2_g-3 DOWNTO 0);
+		byteena_a		: IN STD_LOGIC_VECTOR (1 DOWNTO 0) :=  (OTHERS => '1');
+		byteena_b		: IN STD_LOGIC_VECTOR (3 DOWNTO 0) :=  (OTHERS => '1');
+		clock_a		: IN STD_LOGIC  := '1';
+		clock_b		: IN STD_LOGIC ;
+		data_a		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+		data_b		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+		rden_a		: IN STD_LOGIC  := '1';
+		rden_b		: IN STD_LOGIC  := '1';
+		wren_a		: IN STD_LOGIC  := '0';
+		wren_b		: IN STD_LOGIC  := '0';
+		q_a		: OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+		q_b		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
-END Shadow_Ram;
+END OpenMAC_DPRpackets;
 
 
-ARCHITECTURE SYN OF shadow_ram IS
+ARCHITECTURE SYN OF openmac_dprpackets IS
 
 	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (15 DOWNTO 0);
+	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+
 
 	COMPONENT altsyncram
 	GENERIC (
-		intended_device_family		: STRING;
-		width_a		: NATURAL;
-		widthad_a		: NATURAL;
-		numwords_a		: NATURAL;
-		operation_mode		: STRING;
-		outdata_reg_a		: STRING;
-		indata_aclr_a		: STRING;
-		wrcontrol_aclr_a		: STRING;
-		address_aclr_a		: STRING;
-		outdata_aclr_a		: STRING;
-		width_byteena_a		: NATURAL;
+		address_reg_b		: STRING;
+		byteena_reg_b		: STRING;
 		byte_size		: NATURAL;
-		byteena_aclr_a		: STRING;
-		lpm_hint		: STRING;
-		lpm_type		: STRING
+		clock_enable_input_a		: STRING;
+		clock_enable_input_b		: STRING;
+		clock_enable_output_a		: STRING;
+		clock_enable_output_b		: STRING;
+		indata_reg_b		: STRING;
+		intended_device_family		: STRING;
+		lpm_type		: STRING;
+		numwords_a		: NATURAL;
+		numwords_b		: NATURAL;
+		operation_mode		: STRING;
+		outdata_aclr_a		: STRING;
+		outdata_aclr_b		: STRING;
+		outdata_reg_a		: STRING;
+		outdata_reg_b		: STRING;
+		power_up_uninitialized		: STRING;
+		read_during_write_mode_port_a		: STRING;
+		read_during_write_mode_port_b		: STRING;
+		widthad_a		: NATURAL;
+		widthad_b		: NATURAL;
+		width_a		: NATURAL;
+		width_b		: NATURAL;
+		width_byteena_a		: NATURAL;
+		width_byteena_b		: NATURAL;
+		wrcontrol_wraddress_reg_b		: STRING
 	);
 	PORT (
-			clocken0	: IN STD_LOGIC ;
 			wren_a	: IN STD_LOGIC ;
 			clock0	: IN STD_LOGIC ;
+			wren_b	: IN STD_LOGIC ;
+			clock1	: IN STD_LOGIC ;
 			byteena_a	: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-			address_a	: IN STD_LOGIC_VECTOR (8 DOWNTO 0);
+			byteena_b	: IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+			address_a	: IN STD_LOGIC_VECTOR (memSizeLOG2_g-2 DOWNTO 0);
+			address_b	: IN STD_LOGIC_VECTOR (memSizeLOG2_g-3 DOWNTO 0);
+			rden_a	: IN STD_LOGIC ;
 			q_a	: OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-			data_a	: IN STD_LOGIC_VECTOR (15 DOWNTO 0)
+			rden_b	: IN STD_LOGIC ;
+			q_b	: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+			data_a	: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+			data_b	: IN STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	q    <= sub_wire0(15 DOWNTO 0);
+	q_a    <= sub_wire0(15 DOWNTO 0);
+	q_b    <= sub_wire1(31 DOWNTO 0);
 
 	altsyncram_component : altsyncram
 	GENERIC MAP (
-		intended_device_family => "Cyclone",
-		width_a => 16,
-		widthad_a => 9,
-		numwords_a => 512,
-		operation_mode => "SINGLE_PORT",
-		outdata_reg_a => "UNREGISTERED",
-		indata_aclr_a => "NONE",
-		wrcontrol_aclr_a => "NONE",
-		address_aclr_a => "NONE",
-		outdata_aclr_a => "NONE",
-		width_byteena_a => 2,
+		address_reg_b => "CLOCK1",
+		byteena_reg_b => "CLOCK1",
 		byte_size => 8,
-		byteena_aclr_a => "NONE",
-		lpm_hint => "ENABLE_RUNTIME_MOD=NO",
-		lpm_type => "altsyncram"
+		clock_enable_input_a => "BYPASS",
+		clock_enable_input_b => "BYPASS",
+		clock_enable_output_a => "BYPASS",
+		clock_enable_output_b => "BYPASS",
+		indata_reg_b => "CLOCK1",
+		intended_device_family => "Cyclone III",
+		lpm_type => "altsyncram",
+		numwords_a => memSize_g/2,
+		numwords_b => memSize_g/4,
+		operation_mode => "BIDIR_DUAL_PORT",
+		outdata_aclr_a => "NONE",
+		outdata_aclr_b => "NONE",
+		outdata_reg_a => "CLOCK0",
+		outdata_reg_b => "CLOCK1",
+		power_up_uninitialized => "FALSE",
+		read_during_write_mode_port_a => "NEW_DATA_NO_NBE_READ",
+		read_during_write_mode_port_b => "NEW_DATA_NO_NBE_READ",
+		widthad_a => memSizeLOG2_g-1,
+		widthad_b => memSizeLOG2_g-2,
+		width_a => 16,
+		width_b => 32,
+		width_byteena_a => 2,
+		width_byteena_b => 4,
+		wrcontrol_wraddress_reg_b => "CLOCK1"
 	)
 	PORT MAP (
-		clocken0 => clken,
-		wren_a => wren,
-		clock0 => clock,
-		byteena_a => byteena,
-		address_a => address,
-		data_a => data,
-		q_a => sub_wire0
+		wren_a => wren_a,
+		clock0 => clock_a,
+		wren_b => wren_b,
+		clock1 => clock_b,
+		byteena_a => byteena_a,
+		byteena_b => byteena_b,
+		address_a => address_a,
+		address_b => address_b,
+		rden_a => rden_a,
+		rden_b => rden_b,
+		data_a => data_a,
+		data_b => data_b,
+		q_a => sub_wire0,
+		q_b => sub_wire1
 	);
+
+
 
 END SYN;
