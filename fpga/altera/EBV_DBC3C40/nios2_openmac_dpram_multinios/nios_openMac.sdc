@@ -12,11 +12,12 @@ derive_pll_clocks -create_base_clocks
 derive_clock_uncertainty
 
 # generated clocks (out of pll in SOPC) stored as variable
-set pcp_clk 	inst1|the_altpll_0|sd1|pll7|clk[1]
-set clk50 		inst1|the_altpll_0|sd1|pll7|clk[0]
-set sdram_clk 	inst1|the_altpll_0|sd1|pll7|clk[3]
-set remote_clk	inst1|the_altpll_0|sd1|pll7|clk[4]
-set clk100		inst1|the_altpll_0|sd1|pll7|clk[2]
+set pcp_clk 	inst|the_altpll_0|sd1|pll7|clk[1]
+set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
+set sdram_clk 	inst|the_altpll_0|sd1|pll7|clk[3]
+set remote_clk	inst|the_altpll_0|sd1|pll7|clk[4]
+set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
+
 
 # set clock groups (is equal to false_path command)
 set_clock_groups -asynchronous 	-group [get_clocks $remote_clk] \

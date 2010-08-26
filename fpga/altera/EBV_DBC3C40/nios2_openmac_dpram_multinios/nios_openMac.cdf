@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP3C40F484) Path("C:/svn/openPOWERLINK_CNDK/trunk/fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios/") File("nios_openMac.sof") MfrSpec(OpMask(1));
+		Device PartName(EP3C40F484) Path("C:/svn/nios2_openmac_dpram_multinios/") File("nios_openMac.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

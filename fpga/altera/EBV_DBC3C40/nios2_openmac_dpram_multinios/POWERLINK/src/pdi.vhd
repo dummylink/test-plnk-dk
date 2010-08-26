@@ -39,6 +39,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- 2010-06-28  V0.01	zelenkaj    First version
 -- 2010-08-16  V0.10	zelenkaj	Added the possibility for more RPDOs
+-- 2010-08-23  V0.11	zelenkaj	Added IRQ generation
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -79,6 +80,7 @@ entity pdi is
             pcp_address                 : in    std_logic_vector(14 DOWNTO 0);
             pcp_writedata               : in    std_logic_vector(31 DOWNTO 0);
             pcp_readdata                : out   std_logic_vector(31 DOWNTO 0);
+			pcp_irq						: in	std_logic; --should be connected to the Time Cmp Irq of openMAC!
 		-- Avalon Slave Interface for AP
             ap_chipselect               : in    std_logic;
             ap_read						: in    std_logic;
@@ -86,7 +88,8 @@ entity pdi is
             ap_byteenable             	: in    std_logic_vector(3 DOWNTO 0);
             ap_address                  : in    std_logic_vector(14 DOWNTO 0);
             ap_writedata                : in    std_logic_vector(31 DOWNTO 0);
-            ap_readdata                 : out   std_logic_vector(31 DOWNTO 0)
+            ap_readdata                 : out   std_logic_vector(31 DOWNTO 0);
+			ap_irq						: out	std_logic --Irq to the AP
 	);
 end entity pdi;
 
@@ -116,7 +119,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#34#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#3C#);
 ----asynchronous buffers
 constant	extTAsynBuf_c				: memoryMapping_t := (16#0800#, iAsyTxBufSize_g + 4);
 constant	extRAsynBuf_c				: memoryMapping_t := (16#1000#, iAsyRxBufSize_g + 4);
@@ -218,6 +221,10 @@ signal		outRpdo2Buf_s				: pdi32Bit_t;
 ---virtual buffer control/state
 signal		vBufTriggerPdo_s			: pdiTrig_t; --tpdo, rpdo2, rpdo1, rpdo0
 signal		vBufSel_s					: pdi32Bit_t := ((others => '1'), (others => '1')); --TXPDO_ACK | RXPDO2_ACK | RXPDO1_ACK | RXPDO0_ACK
+---ap irq generation
+signal		apIrqValue					: std_logic_vector(31 downto 0);
+signal		apIrqControlPcp,
+			apIrqControlAp				: std_logic_vector(7 downto 0);
 begin
 	
 	ASSERT NOT(iRpdos_g < 1 or iRpdos_g > 3)
@@ -378,6 +385,7 @@ begin
 -- control / status register
 	theCntrlStatReg4Pcp : entity work.pdiControlStatusReg
 	generic map (
+			bIsPcp						=> true,
 			iAddrWidth_g				=> extLog2MaxOneSpan-2,
 			--memory map from 0x4 to 0x0f into dpr
 			iBaseDpr_g					=> 16#4#/4, --base address of content to be mapped to dpr
@@ -426,11 +434,15 @@ begin
 			dprDin						=> dprCntStReg_s.pcp.din,
 			dprDout						=> dprOut.pcp,
 			dprBe						=> dprCntStReg_s.pcp.be,
-			dprWr						=> dprCntStReg_s.pcp.wr
+			dprWr						=> dprCntStReg_s.pcp.wr,
+			--ap irq generation
+			apIrqValue					=> apIrqValue,
+			apIrqControl				=> apIrqControlPcp
 	);
 	
 	theCntrlStatReg4Ap : entity work.pdiControlStatusReg
 	generic map (
+			bIsPcp						=> false,
 			iAddrWidth_g				=> extLog2MaxOneSpan-2,
 			--memory map from 0x4 to 0x0f into dpr
 			iBaseDpr_g					=> 16#4#/4, --base address of content to be mapped to dpr
@@ -479,7 +491,31 @@ begin
 			dprDin						=> dprCntStReg_s.ap.din,
 			dprDout						=> dprOut.ap,
 			dprBe						=> dprCntStReg_s.ap.be,
-			dprWr						=> dprCntStReg_s.ap.wr
+			dprWr						=> dprCntStReg_s.ap.wr,
+			--ap irq generation
+			--apIrqValue					=>
+			apIrqControl				=> apIrqControlAp
+	);
+	
+	theApIrqGenerator : entity work.apIrqGen
+	generic map (
+		cntWidth => 32
+	)
+			
+	port map (
+		--CLOCK DOMAIN PCP
+		clkA => pcp_clk,
+		rstA => pcp_reset,
+		irqA => pcp_irq,
+		preValA => apIrqValue,
+		enableA => apIrqControlPcp(7),
+		modeA => apIrqControlPcp(6),
+		setA => apIrqControlPcp(0),
+		--CLOCK DOMAIN AP
+		clkB => ap_clk,
+		rstB => ap_reset,
+		ackB => apIrqControlAp(0),
+		irqB => ap_irq
 	);
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -965,6 +1001,7 @@ USE ieee.std_logic_unsigned.all;
 
 entity pdiControlStatusReg is
 	generic (
+			bIsPcp						:		boolean := true;
 			iAddrWidth_g				:		integer := 8;
 			iBaseDpr_g					:		integer := 16#4#; --base address (in external mapping) of content in dpr
 			iSpanDpr_g					:		integer := 12; --span of content in dpr
@@ -999,6 +1036,9 @@ entity pdiControlStatusReg is
 			pdoVirtualBufferSel			: in	std_logic_vector(31 downto 0); --for debugging purpose from SW side
 			tPdoTrigger					: out	std_logic; --TPDO virtual buffer change trigger
 			rPdoTrigger					: out	std_logic_vector(2 downto 0); --RPDOs virtual buffer change triggers
+			---is used for Irq Generation and should be mapped to apIrqGen
+			apIrqValue					: out	std_logic_vector(31 downto 0); --pcp only
+			apIrqControl				: out	std_logic_vector(7 downto 0);
 			--dpr interface (from PCP/AP to DPR)
 			dprAddr						: out	std_logic_vector(iDprAddrWidth_g-1 downto 0);
 			dprDin						: out	std_logic_vector(31 downto 0);
@@ -1013,7 +1053,12 @@ architecture rtl of pdiControlStatusReg is
 signal selDpr							:		std_logic; --if '1' get/write content from/to dpr
 signal nonDprDout						:		std_logic_vector(31 downto 0);
 signal addrRes							:		std_logic_vector(dprAddr'range);
-begin
+signal apIrqValue_s						: 		std_logic_vector(31 downto 0); --pcp only
+signal apIrqControl_s					: 		std_logic_vector(7 downto 0);
+begin	
+	
+	apIrqValue <= apIrqValue_s;
+	apIrqControl <= apIrqControl_s;
 	
 	--generate dpr select signal
 	selDpr	<=	sel		when	(conv_integer(addr) >= iBaseDpr_g AND
@@ -1042,9 +1087,12 @@ begin
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
 			nonDprDout <= (others => '0');
+			apIrqValue_s <= (others => '0');
+			apIrqControl_s <= (others => '0');
 		elsif clk = '1' and clk'event then
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
+			apIrqControl_s(0) <= '0'; --ack/set generates 50Meg pulse
 			
 			if rd = '1' then
 				case conv_integer(addr)*4 is
@@ -1076,6 +1124,14 @@ begin
 						nonDprDout	<=	rAsyncBuffer;
 					when 16#30# =>
 						nonDprDout	<=	pdoVirtualBufferSel;
+					when 16#34# =>
+						if bIsPcp then
+							nonDprDout	<=	apIrqValue_s;
+						else
+							nonDprDout	<=	x"DEADC0DE";
+						end if;
+					when 16#38# =>
+						nonDprDout	<=	x"000000" & apIrqControl_s; 
 					when others =>
 						nonDprDout	<=	x"DEADC0DE";
 				end case;
@@ -1090,12 +1146,174 @@ begin
 								rPdoTrigger(i) <= '1';
 							end if;
 						end loop;
+					when 16#34# =>
+						if bIsPcp then
+							for i in 3 downto 0 loop
+								if be(i) = '1' then
+									apIrqValue_s((i+1)*8-1 downto i*8) <= din((i+1)*8-1 downto i*8);
+								end if;
+							end loop;
+						end if;
+					when 16#38# =>
+						if be(0) = '1' then
+							apIrqControl_s <= din(7 downto 0);
+						end if;
 					when others =>
 				end case;
 			end if;
 		end if;
 	end process;
 		
+end architecture rtl;
+
+------------------------------------------------------------------------------------------------------------------------
+-- entity for AP IRQ generation
+------------------------------------------------------------------------------------------------------------------------
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_arith.all;
+USE ieee.std_logic_unsigned.all;
+
+entity apIrqGen is
+	generic (
+		cntWidth						:		integer := 32
+	);
+			
+	port (
+		--CLOCK DOMAIN PCP
+		clkA							: in	std_logic;
+		rstA							: in	std_logic;
+		irqA							: in	std_logic;
+		preValA							: in	std_logic_vector(cntWidth-1 downto 0); --APIRQ_VALUE (by PCP)
+		enableA							: in	std_logic; --APIRQ_CONTROL / IRQ_En
+		modeA							: in	std_logic; --APIRQ_CONTROL / IRQ_MODE
+		setA							: in	std_logic; --APIRQ_CONTROL / IRQ_SET
+		--CLOCK DOMAIN AP
+		clkB							: in	std_logic;
+		rstB							: in	std_logic;
+		ackB							: in	std_logic; --APIRQ_CONTROL / IRQ_ACK
+		irqB							: out	std_logic
+	);
+end entity apIrqGen;
+
+architecture rtl of apIrqGen is
+type fsm_t is (wait4event, count, setIrq, wait4ack);
+signal fsm								:		fsm_t;
+signal preVal, cnt						:		std_logic_vector(cntWidth-1 downto 0);
+signal enable, mode, irq, set, cntRst	:		std_logic;
+begin
+	
+	--everything is done in clkB domain!
+	theFsm : process(clkB, rstB)
+	begin
+		if rstB = '1' then
+			irqB <= '0';
+			fsm <= wait4event;
+		elsif clkB = '1' and clkB'event then
+			if enable = '1' then
+				case fsm is
+					when wait4event =>
+						if mode = '0' and set = '1' then
+							fsm <= setIrq;
+						elsif mode = '1' and irq = '1' then
+							fsm <= count;
+						else
+							fsm <= wait4event;
+						end if;
+					when count =>
+						if cntRst = '1' then
+							fsm <= setIrq;
+						else
+							fsm <= count;
+						end if;
+					when setIrq =>
+						irqB <= '1';
+						fsm <= wait4ack;
+					when wait4ack =>
+						if ackB = '1' then
+							irqB <= '0';
+							fsm <= wait4event;
+						else
+							fsm <= wait4ack;
+						end if;
+				end case;
+			else
+				irqB <= '0';
+				fsm <= wait4event;
+			end if;
+		end if;
+	end process;
+	
+	theCounter : process(clkB, rstB)
+	begin
+		if rstB = '1' then
+			cnt <= (others => '0');
+		elsif clkB = '1' and clkB'event then
+			if cntRst = '1' then
+				cnt <= (others => '0');
+			else
+				cnt <= cnt + 1;
+			end if;
+		end if;
+	end process;
+	cntRst <= '1' when cnt = preVal or fsm /= count else '0';
+	
+	--use only one stage synchronizer for preVal (less LE required!)
+	process(clkB, rstB)
+	begin
+		if rstB = '1' then
+			preVal <= (others => '0');
+		elsif clkB = '1' and clkB'event then
+			preVal <= preValA;
+		end if;
+	end process;
+	--sync those signals to clkB
+--	syncPreVal : for i in cntWidth-1 downto 0 generate
+--		theSync : entity work.sync
+--			port map (
+--				inData => preValA(i),
+--				outData => preVal(i),
+--				clk => clkB,
+--				rst => rstB
+--			);
+--	end generate;
+	
+	syncEnable : entity work.sync
+		port map (
+			inData => enableA,
+			outData => enable,
+			clk => clkB,
+			rst => rstB
+		);
+	
+	syncSet : entity work.slow2fastSync
+		port map (
+			dataSrc => setA,
+			dataDst => set,
+			clkSrc => clkA,
+			rstSrc => rstA,
+			clkDst => clkB,
+			rstDst => rstB
+		);
+	
+	syncMode : entity work.sync
+		port map (
+			inData => modeA,
+			outData => mode,
+			clk => clkB,
+			rst => rstB
+		);
+	
+	syncIrq : entity work.slow2fastSync
+		port map (
+			dataSrc => irqA,
+			dataDst => irq,
+			clkSrc => clkA,
+			rstSrc => rstA,
+			clkDst => clkB,
+			rstDst => rstB
+		);
+	
 end architecture rtl;
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -1152,3 +1370,138 @@ begin
 	addrRes <=	conv_std_logic_vector(conv_integer(addr) + iBaseMap2_g, addrRes'length);
 		
 end architecture rtl;
+
+----------------
+--synchronizer--
+----------------
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_arith.all;
+USE ieee.std_logic_unsigned.all;
+
+ENTITY sync IS
+	PORT (
+			inData						: IN	STD_LOGIC;
+			outData						: OUT	STD_LOGIC;
+			clk							: IN	STD_LOGIC;
+			rst							: IN	STD_LOGIC
+	);
+END ENTITY sync;
+
+ARCHITECTURE rtl OF sync IS
+SIGNAL sync1_s, sync2_s					: STD_LOGIC;
+BEGIN
+	outData <= sync2_s;
+	
+	syncShiftReg : PROCESS(clk, rst)
+	BEGIN
+		IF rst = '1' THEN
+			sync1_s <= '0';
+			sync2_s <= '0';
+		ELSIF clk = '1' AND clk'EVENT THEN
+			sync1_s <= inData; --1st ff
+			sync2_s <= sync1_s; --2nd ff
+		END IF;
+	END PROCESS syncShiftReg;
+END ARCHITECTURE rtl;
+
+-----------------
+--edge detector--
+-----------------
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_arith.all;
+USE ieee.std_logic_unsigned.all;
+
+ENTITY edgeDet IS
+	PORT (
+			inData						: IN	STD_LOGIC;
+			rising						: OUT	STD_LOGIC;
+			falling						: OUT	STD_LOGIC;
+			any							: OUT	STD_LOGIC;
+			clk							: IN	STD_LOGIC;
+			rst							: IN	STD_LOGIC
+	);
+END ENTITY edgeDet;
+
+ARCHITECTURE rtl OF edgeDet IS
+SIGNAL sreg								: STD_LOGIC_VECTOR(1 downto 0);
+BEGIN
+	
+	any <= sreg(1) xor sreg(0);
+	falling <= sreg(1) and not sreg(0);
+	rising <= not sreg(1) and sreg(0);
+	
+	shiftReg : PROCESS(clk, rst)
+	BEGIN
+		IF rst = '1' THEN
+			sreg <= (others => '0');
+		ELSIF clk = '1' AND clk'EVENT THEN
+			sreg <= sreg(0) & inData;
+		END IF;
+	END PROCESS;
+	
+END ARCHITECTURE rtl;
+
+--------------------------
+--slow2fast synchronizer--
+--------------------------
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_arith.all;
+USE ieee.std_logic_unsigned.all;
+
+ENTITY slow2fastSync IS
+	PORT (
+			dataSrc						: IN	STD_LOGIC;
+			dataDst						: OUT	STD_LOGIC;
+			clkSrc						: IN	STD_LOGIC;
+			rstSrc						: IN	STD_LOGIC;
+			clkDst						: IN	STD_LOGIC;
+			rstDst						: IN	STD_LOGIC
+	);
+END ENTITY slow2fastSync;
+
+ARCHITECTURE rtl OF slow2fastSync IS
+signal toggle, toggleSync, pulse : std_logic;
+begin
+	firstEdgeDet : entity work.edgeDet
+		port map (
+			inData => dataSrc,
+			rising => pulse,
+			falling => open,
+			any => open,
+			clk => clkSrc,
+			rst => rstSrc
+		);
+	
+	process(clkSrc, rstSrc)
+	begin
+		if rstSrc = '1' then
+			toggle <= '0';
+		elsif clkSrc = '1' and clkSrc'event then
+			if pulse = '1' then
+				toggle <= not toggle;
+			end if;
+		end if;
+	end process;
+	
+	sync : entity work.sync
+		port map (
+			inData => toggle,
+			outData => toggleSync,
+			clk => clkDst,
+			rst => rstDst
+		);
+	
+	secondEdgeDet : entity work.edgeDet
+		port map (
+			inData => toggleSync,
+			rising => open,
+			falling => open,
+			any => dataDst,
+			clk => clkDst,
+			rst => rstDst
+		);
+		
+END ARCHITECTURE rtl;
