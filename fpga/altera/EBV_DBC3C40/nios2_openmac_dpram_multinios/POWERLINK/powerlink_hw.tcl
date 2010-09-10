@@ -471,6 +471,8 @@ send_message error "The SPI AP Interface is not yet implemented! Please use Aval
 	set_module_assignment embeddedsw.CMacro.MACRXBUFFERS			$macRxBuffers
 	set_module_assignment embeddedsw.CMacro.MACTXBUFSIZE			$txBufSize
 	set_module_assignment embeddedsw.CMacro.MACTXBUFFERS			$macTxBuffers
+	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
+	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 }
 
 #display

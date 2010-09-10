@@ -47,8 +47,8 @@ extern void Gi_init(void);
 extern int Gi_initAsync(tAsyncMsg *pAsyncSendBuf_p, tAsyncMsg *pAsyncRecvBuf_p);
 extern void Gi_pollAsync(void);
 
-extern int Gi_initPdo(char *pTxPdoBuf_p, char *pRxPdoBuf_p,
-					  WORD *pTxPdoAckAdrsPcp_p, WORD *pRxPdoAckAdrsPcp_p,
+extern int Gi_initPdo(BYTE *pTxPdoBuf_p, BYTE *pRxPdoBuf_p,
+					  BYTE *pTxPdoAckAdrsPcp_p, BYTE *pRxPdoAckAdrsPcp_p,
 					  tPdoDescHeader *pTxDescBuf_p, tPdoDescHeader *pRxDescBuf_p);
 extern void Gi_readPdo(void);
 extern void Gi_writePdo(void);
@@ -57,6 +57,9 @@ extern int Gi_setupPdoDesc(BYTE bDirection_p);
 extern void Gi_initSyncInt(void);
 extern void Gi_calcSyncIntPeriod(void);
 extern void Gi_generateSyncInt(void);
+extern void Gi_disableSyncInt(void);
+extern void Gi_SetTimerSyncInt(UINT32 uiTimeValue);
+
 
 extern void Gi_initDpramMutex(void);
 extern BYTE Gi_getPdoWriteIndex(void);

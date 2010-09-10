@@ -57,7 +57,11 @@ This header file contains definitions for the CN API.
 #define RPDO_CHANNELS_MAX		1					///< Max Number of RxPDO's received and mapped by this CN
 #define TPDO_CHANNELS_MAX		1					///< Max Number of TxPDO's transmitted and mapped by this CN
 
-#define	PCP_MAGIC				0x50435000			///< magic number identifies valid PCP memory
+#define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
+#define SYNC_IRQ_CONROL_REG_OFFSET 	0x38			///< Offset of the PCP to AP synchronization IRQ control register
+
+
+
 
 /******************************************************************************/
 /* type definitions */
@@ -95,11 +99,11 @@ typedef enum {
  * \brief enumeration with valid AP commands
  */
 typedef enum {
-	kApCmdNone = 0,
-	kApCmdInit,
-	kApCmdPreop,
-	kApCmdReadyToOperate,
-	kApCmdReboot
+	kApCmdNone = -1,
+	kApCmdInit = 0,
+	kApCmdPreop = 1,
+	kApCmdReadyToOperate = 2,
+	kApCmdReboot = 3
 } tApCmd;
 
 
@@ -169,7 +173,6 @@ typedef enum eAsyncSendStatus{
 	kAsyncSendStatusBufEmpty = 2,			///< message buffer is empty
 	kAsyncSendStatusDataTooLong = -1		///< data too long for message buffer
 } tAsyncSendStatus;
-
 
 /**
  * \brief structure for InitPcpReq command
@@ -375,8 +378,8 @@ typedef enum {
 } tApTransitions;
 
 /* definitions for PCP state machine, transitions and states */
-typedef enum {
-	kPcpStateBooted,
+typedef enum { //TODO: define state "none?" - adapt docu for correct values!
+	kPcpStateBooted = 0,
 	kPcpStateInit,
 	kPcpStatePreop1,
 	kPcpStatePreop2,
@@ -406,40 +409,40 @@ typedef enum {
 *
 * tPcpCtrlReg defines the PCP control registers.
 */
-struct sPcpControlReg {
+
+struct sPcpControlReg {//TODO: improve structure
 	volatile DWORD			m_dwMagic;
-	volatile BYTE			m_bState;
-	volatile BYTE			m_bCommand;
-	volatile BYTE			m_bError;
-//	volatile BYTE			m_bReserved1;
 	volatile BYTE			m_bIntCtrl;
-//
-//	volatile WORD			m_wReserved2;
-	volatile WORD			m_wMinCycleTime;
+	volatile BYTE			m_bError;
+	volatile BYTE			m_bCommand;
+	volatile BYTE			m_bState;
 	volatile WORD			m_wMaxCycleTime;
-	volatile BYTE			m_bMaxCylceNum;
-	volatile BYTE			m_bCycleError;
+	volatile WORD			m_wMinCycleTime;
 	volatile WORD			m_wCycleCorrect;
-	volatile WORD			m_awTxPdoBufSize[TPDO_CHANNELS_MAX];
-	volatile WORD			m_awTxPdoBufAdrs[TPDO_CHANNELS_MAX];
-	volatile WORD			m_awRxPdoBufSize[RPDO_CHANNELS_MAX]; //TODO: adapt functions to array capability
-	volatile WORD			m_awRxPdoBufAdrs[RPDO_CHANNELS_MAX];
-	volatile WORD			m_wTxPdoDescSize;
-	volatile WORD			m_awTxPdoDescAdrs[TPDO_CHANNELS_MAX];
+	volatile BYTE			m_bCycleError;
+	volatile BYTE			m_bMaxCylceNum;
+	volatile WORD			m_awTxPdoBufSize[1]; 
+	volatile WORD			m_awTxPdoBufAdrs[1];
+	volatile WORD			m_awRxPdoBufSize[1]; //TODO: adapt functions for array capability or add '0'
+	volatile WORD			m_awRxPdoBufAdrs[1]; 
+	volatile WORD			m_awRxPdo1BufSize; 
+	volatile WORD			m_awRxPdo1BufAdrs; 
+	volatile WORD			m_awRxPdo2BufSize; 
+	volatile WORD			m_awRxPdo2BufAdrs; 
+	volatile WORD			m_wTxPdoDescSize;  //TODO: improve naming: not an array!
+	volatile WORD			m_awTxPdoDescAdrs[1];
 	volatile WORD			m_wRxPdoDescSize;
-	volatile WORD			m_awRxPdoDescAdrs[RPDO_CHANNELS_MAX];
+	volatile WORD			m_awRxPdoDescAdrs[1];
 	volatile WORD			m_wTxAsyncBufSize;
 	volatile WORD			m_wTxAsyncBufAdrs;
 	volatile WORD			m_wRxAsyncBufSize;
 	volatile WORD			m_wRxAsyncBufAdrs;
-	volatile DWORD			m_awTxPdoAckAdrsAp[TPDO_CHANNELS_MAX]; 		///< adress array of Tx PDO buffer acknowledge registers for PCP side
-	volatile DWORD			m_awRxPdoAckAdrsAp[RPDO_CHANNELS_MAX]; 		///< adress array of Rx PDO buffer acknowledge registers for AP side
-	volatile BYTE			m_bIntAck;
-	/*TODO: Use the following instead*/
-	/*volatile WORD			m_awTxPdoAckAdrsPcp[TPDO_CHANNELS_MAX]; 	///< adress array of Tx PDO buffer acknowledge registers for PCP side
-	volatile WORD			m_awTxPdoAckAdrsAp[TPDO_CHANNELS_MAX]; 		///< adress array of Tx PDO buffer acknowledge registers for PCP side
-	volatile WORD			m_awRxPdoAckAdrsPcp[RPDO_CHANNELS_MAX]; 	///< adress array of Rx PDO buffer acknowledge registers for AP side
-	volatile WORD			m_awRxPdoAckAdrsAp[RPDO_CHANNELS_MAX]; 		///< adress array of Rx PDO buffer acknowledge registers for AP side*/
+	volatile BYTE			m_awRxPdoAckAdrsAp[1]; //TODO: naming: not AP! ///< adress acknowledge register of Rx PDO buffer nr. 0
+	volatile BYTE			m_awRxPdo1AckAdrs;					///< adress acknowledge register of Rx PDO buffer nr. 1
+	volatile BYTE			m_awRxPdo2AckAdrs;					///< adress acknowledge register of Rx PDO buffer nr. 2
+	volatile BYTE			m_awTxPdoAckAdrsAp[1]; 				///< adress acknowledge register of Tx PDO buffer
+	volatile DWORD			m_dwAPIrqTimerValue; //new TODO: use this instead of Defines! 	///< PCP -> AP synchronization IRQ timer value
+	volatile BYTE			m_bAPIrqControl;	//new TODO: use this instead of Defines!	///< PCP -> AP synchronization IRQ control register
 }__attribute__((__packed__));
 
 typedef struct sPcpControlReg tPcpCtrlReg;

@@ -39,7 +39,10 @@ a dual ported RAM (DPRAM) area.
 /******************************************************************************/
 /* defines */
 
-#define CN_API_DPRAM_BASE 0x3000000
+#define PDI_DPRAM_BASE_AP POWERLINK_0_BASE
+// Defines for Sync IRQ for AP only
+#define SYNC_IRQ_ACK				0
+#define SYNC_IRQ_CONTROL_REGISTER 	(BYTE *) (PDI_DPRAM_BASE_AP + SYNC_IRQ_CONROL_REG_OFFSET)
 
 
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
@@ -77,7 +80,6 @@ BYTE			digitalOut[NUM_OUTPUT_OBJS];					///< The values of the digital output pi
 
 /******************************************************************************/
 /* forward declarations */
-void initPortConfiguration (char *p_portIsOutput);
 WORD getNodeId (void);
 void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *pMac_p);
 void workInputOutput(void);
@@ -100,13 +102,12 @@ int main (void)
     alt_dcache_flush_all();
 
     /* initializing */
-    initPortConfiguration(portIsOutput);
     nodeId = getNodeId();
 
     printf("Initialize CN API functions...\n");
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				// initialize POWERLINK parameters
 
-    if ((status = CnApi_init((BYTE *)CN_API_DPRAM_BASE, &initParm)) < 0)		// initialize and start the CN API
+    if ((status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm)) < 0)		// initialize and start the CN API
     {
     	printf ("CN API library could not be initialized (%d)\n", status);
 		return -1;
@@ -135,7 +136,7 @@ int main (void)
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
     /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 4000 us, maxCycleNum = 10 */
-    initInterrupt(SYNC_IRQ_IRQ, 2000, 4000, 10);
+    initInterrupt(POWERLINK_0_IRQ, 2000, 4000, 10);
 
     /* Start periodic main loop */
     printf("API example is running...\n");
@@ -189,52 +190,9 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
 	pInitParm_p->m_dwPresMaxLatency = 2000;
 	pInitParm_p->m_dwAsendMaxLatency= 2000;
 
-	pInitParm_p->m_dwDpramBase = CN_API_DPRAM_BASE;		//address of DPRAM area
+	pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;		//address of DPRAM area
 }
 
-/**
-********************************************************************************
-\brief	init port configuration
-
-initPortConfiguration() reads the port configuration inputs. The port
-configuration inputs are connected to general purpose I/O pins IO3V3[16..12].
-The read port configuration if stored at the port configuration outputs to
-set up the input/output selection logic.
-
-\param	pPortIsOutput_p		pointer to array where output flags are stored
-*******************************************************************************/
-void initPortConfiguration (char *pPortIsOutput_p)
-{
-	register int			i;
-	volatile unsigned char	portconf;
-	unsigned int			direction = 0;
-
-#ifdef	INCLUDE_PORTCONF_READ
-	/* read port configuration input pins */
-	portconf = IORD_ALTERA_AVALON_PIO_DATA(PORTCONF_PIO_BASE);
-#else
-	portconf = DEFAULT_PORTCONF;
-#endif
-
-	for (i = 0; i <= 3; i++)
-	{
-		if (portconf & (1 << i))
-		{
-			direction |= 0xff << (i * 8);
-			pPortIsOutput_p[i] = TRUE;
-		}
-		else
-		{
-			direction &= ~(0xff << (i * 8));
-			pPortIsOutput_p[i] = FALSE;
-		}
-	}
-
-	/* setup input / output selection logic by setting up portconf output pins */
-	IOWR_ALTERA_AVALON_PIO_DATA(PORTCONF_PIO_BASE, portconf);
-	/* set PIO direction for I/Os */
-	IOWR_ALTERA_AVALON_PIO_DIRECTION(DIGIO_PIO_BASE, direction);
-}
 
 /**
 ********************************************************************************
@@ -248,20 +206,9 @@ void workInputOutput(void)
     register int	i;
     unsigned int	ports;
 
-    ports = IORD_ALTERA_AVALON_PIO_DATA(DIGIO_PIO_BASE);
+    digitalIn[0] = IORD_ALTERA_AVALON_PIO_DATA(INPORT_AP_BASE); ///> Digital IN: read push- and joystick buttons
 
-    for (i = 0; i <= 3; i++)
-    {
-        if (portIsOutput[i])
-        {
-        	ports = (ports & ~(0xFF << (i * 8))) | (digitalOut[i] << (i * 8));
-        }
-        else
-        {
-        	digitalIn[i] = (ports >> (i * 8)) & 0xff;
-        }
-    }
-    IOWR_ALTERA_AVALON_PIO_DATA(DIGIO_PIO_BASE, ports);
+    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, digitalOut[0]); ///> Digital OUT: set Leds and hex digits on Mercury-Board
 }
 
 /**
@@ -298,13 +245,13 @@ See the Altera NIOSII Reference manual for further details of interrupt
 handlers.
 *******************************************************************************/
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
-static void syncIntHandler (void* pArg_p)
+static void syncIntHandler(BYTE* pArg_p)
 #else
-static void syncIntHandler (void* pArg_p, alt_u32 dwInt_p)
+static void syncIntHandler(BYTE* pArg_p, alt_u32 dwInt_p)
 #endif
 {
-	/* acknowledge interrupt by writing to the edge capture register*/
-	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(SYNC_IRQ_BASE, 0);
+	/* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
+	*SYNC_IRQ_CONTROL_REGISTER = (1 << SYNC_IRQ_ACK);
 
 	CnApi_transferPdo();		// Call CN API PDO transfer function
 }
@@ -335,17 +282,13 @@ int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMax
 		return ERROR;
 	}
  #else
-    if (alt_irq_register(irq, NULL, CnApi_syncIntHandler))
+    if (alt_irq_register(irq, NULL, syncIntHandler))
     {
         return ERROR;
     }
 #endif
 
-	/* enable interrupts */
-    IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_BASE, 1);
-
-    /* enable interrupt from PCP */
+    /* enable interrupt of PCP */
     CnApi_enableSyncInt();
-
 	return OK;
 }

@@ -81,14 +81,6 @@
          type = "String";
       }
    }
-   element jtag_uart_1.avalon_jtag_slave
-   {
-      datum baseAddress
-      {
-         value = "2128";
-         type = "long";
-      }
-   }
    element jtag_uart_0.avalon_jtag_slave
    {
       datum _lockedAddress
@@ -99,6 +91,14 @@
       datum baseAddress
       {
          value = "8272";
+         type = "long";
+      }
+   }
+   element jtag_uart_1.avalon_jtag_slave
+   {
+      datum baseAddress
+      {
+         value = "2128";
          type = "long";
       }
    }
@@ -425,6 +425,59 @@
          type = "boolean";
       }
    }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2096";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2112";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2080";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
    element system_timer.s1
    {
       datum _lockedAddress
@@ -438,19 +491,11 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "16777216";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2096";
+         value = "33554432";
          type = "long";
       }
    }
@@ -472,51 +517,6 @@
       datum baseAddress
       {
          value = "8192";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2080";
-         type = "long";
-      }
-   }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8224";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2112";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum baseAddress
-      {
-         value = "33554432";
          type = "long";
       }
    }
@@ -637,8 +637,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="20195654346" />
- <parameter name="timeStamp" value="1282823188843" />
+ <parameter name="systemHash" value="14947197002" />
+ <parameter name="timeStamp" value="1284033359570" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1184,15 +1184,15 @@
   <parameter name="configApSpi_CPOL" value="0" />
   <parameter name="configApSpi_CPHA" value="0" />
   <parameter name="rpdoNum" value="1" />
-  <parameter name="rpdo0size" value="50" />
+  <parameter name="rpdo0size" value="100" />
   <parameter name="rpdo1size" value="1" />
   <parameter name="rpdo2size" value="1" />
   <parameter name="tpdoNum" value="1" />
-  <parameter name="tpdo0size" value="50" />
+  <parameter name="tpdo0size" value="100" />
   <parameter name="asyncTxBufSize" value="1518" />
   <parameter name="asyncRxBufSize" value="1518" />
-  <parameter name="iTpdoObjNumber_g" value="50" />
-  <parameter name="iRpdoObjNumber_g" value="50" />
+  <parameter name="iTpdoObjNumber_g" value="100" />
+  <parameter name="iRpdoObjNumber_g" value="100" />
   <parameter name="AUTO_PCP_CLK_CLOCK_RATE" value="90000000" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="50000000" />
   <parameter name="AUTO_CLK100MEG_CLOCK_RATE" value="100000000" />

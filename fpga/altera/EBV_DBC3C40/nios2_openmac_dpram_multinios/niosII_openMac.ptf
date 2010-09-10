@@ -1,7 +1,7 @@
 SYSTEM niosII_openMac
 {
-   System_Wizard_Version = "10.00";
-   System_Wizard_Build = "218";
+   System_Wizard_Version = "10.01";
+   System_Wizard_Build = "262";
    Builder_Application = "sopc_builder_ca";
    WIZARD_SCRIPT_ARGUMENTS 
    {
@@ -1893,7 +1893,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1282823283 ";
+         contents_info = "";
       }
       SIMULATION 
       {
@@ -5310,7 +5310,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>33C13AD3</b>    (unique ID tag) <br> <b>4C765415</b> (timestamp: Thu Aug 26, 2010 @1:46 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>7AEC2050</b>    (unique ID tag) <br> <b>4C88CB50</b> (timestamp: Thu Sep 9, 2010 @1:56 PM)";
             MESSAGES 
             {
             }
@@ -5318,8 +5318,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "868301523u";
-         timestamp = "1282823189u";
+         id = "2062295120u";
+         timestamp = "1284033360u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5328,7 +5328,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000900 --id=868301523 --timestamp=1282823189";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000900 --id=2062295120 --timestamp=1284033360";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6653,11 +6653,15 @@ SYSTEM niosII_openMac
       {
          CONFIG = "CN with AP";
          CONFIGAPIF = "Avalon";
-         MACBUFSIZE = "9584";
+         MACBUFSIZE = "9632";
          MACRXBUFFERS = "4";
          MACRXBUFSIZE = "6136";
          MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "3446";
+         MACTXBUFSIZE = "3496";
+         PDIRPDOOBJ = "100";
+         PDIRPDOS = "1";
+         PDITPDOOBJ = "100";
+         PDITPDOS = "1";
       }
    }
    MODULE outport_ap

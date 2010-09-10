@@ -23,7 +23,7 @@
 
 /******************************************************************************/
 /* defines */
-#define		PDO_COPY_TBL_SIZE		100
+#define		PDO_COPY_TBL_SIZE		100  //TODO: delete / replace define
 
 /******************************************************************************/
 /* typedefs */
@@ -37,12 +37,12 @@ typedef struct sPdoCopyTbl {
 
 /******************************************************************************/
 /* global variables */
-static char* 			pTxPdoAdrs_l;
+static BYTE* 			pTxPdoAdrs_l;
 static WORD 			wTxPdoSize_l;
-static char* 			pRxPdoAdrs_l;
+static BYTE* 			pRxPdoAdrs_l;
 static WORD 			wRxPdoSize_l;
-static WORD*			pRxPdoAckAdrsAp_l;
-static WORD*			pTxPdoAckAdrsAp_l;
+static BYTE*			pRxPdoAckAdrsAp_l;
+static BYTE*			pTxPdoAckAdrsAp_l;
 static tPdoDescHeader*	pTxDescAdrs_l;
 static WORD 			wTxDescSize_l;
 static tPdoDescHeader*	pRxDescAdrs_l;
@@ -125,9 +125,9 @@ static void CnApi_setupCopyTable (BYTE bDirection_p, tPdoDesc *pPdoDesc_p, WORD 
 
 CnApi_initPdo() is used to initialize the PDO module.
 *******************************************************************************/
-void CnApi_initPdo(char *pTxPdoAdrs_p, WORD wTxPdoSize_p,
-				   char *pRxPdoAdrs_p, WORD wRxPdoSize_p,
-				   WORD* pTxPdoAckAdrsAp_p, WORD* pRxPdoAckAdrsAp_p,
+void CnApi_initPdo(BYTE *pTxPdoAdrs_p, WORD wTxPdoSize_p,
+				   BYTE *pRxPdoAdrs_p, WORD wRxPdoSize_p,
+				   BYTE *pTxPdoAckAdrsAp_p, BYTE *pRxPdoAckAdrsAp_p,
 				   tPdoDescHeader *pTxDescAdrs_p, WORD wTxDescSize_p,
 				   tPdoDescHeader *pRxDescAdrs_p, WORD wRxDescSize_p)
 {
@@ -145,8 +145,8 @@ void CnApi_initPdo(char *pTxPdoAdrs_p, WORD wTxPdoSize_p,
 	wTxPdoSize_l = wTxPdoSize_p;
 	pRxPdoAdrs_l = pRxPdoAdrs_p;			/* RXPDO buffer address offset */
 	wRxPdoSize_l = wRxPdoSize_p;
-	pTxPdoAckAdrsAp_l = pTxPdoAckAdrsAp_p; 	/* TXPDO buffer acknowledge address offset */
-	pRxPdoAckAdrsAp_l = pRxPdoAckAdrsAp_p; 	/* RXPDO buffer acknowledge address offset */
+	pTxPdoAckAdrsAp_l = pTxPdoAckAdrsAp_p; 	/* TXPDO buffer acknowledge address */
+	pRxPdoAckAdrsAp_l = pRxPdoAckAdrsAp_p; 	/* RXPDO buffer acknowledge address */
 	pTxDescAdrs_l = pTxDescAdrs_p;			/* TXPDO descriptor address offset */
 	wTxDescSize_l = wTxDescSize_p;
 	pRxDescAdrs_l = pRxDescAdrs_p;			/* RXPDO descriptor address offset */
@@ -186,9 +186,9 @@ void CnApi_readPdoDesc(void)
 CnApi_ackPdoBuffer() writes a random 32bit value
 to a defined buffer control register.
 *******************************************************************************/
-inline void CnApi_ackPdoBuffer(WORD* pAckReg_p)
+inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 {
-    (DWORD) (*pAckReg_p) = 0xdeadbeef; //TODO: delete casting as soon as Ack Ctrl. Reg. is set to WORD
+    *pAckReg_p = 0xff; ///> write random byte value
 }
 
 /**

@@ -29,6 +29,12 @@ This header file contains internal definitions for the CN API.
 #define	CNAPI_INT_CTRL_EN	0x80
 #define	CNAPI_INT_CTRL_POL	0x20
 
+/* defines for sync IRQ for PCP only */
+#define SYNC_IRQ_ENABLE 7
+#define SYNC_IRQ_MODE	6
+#define SYNC_IRQ_SET	0
+#define SYNC_IRQ_TIMER_VALUE_REG_OFFSET 0x34 ///< Register offset of PCP -> AP timer value register for "timer delay mode"
+
 /******************************************************************************/
 /* function declarations */
 extern BYTE CnApi_getPcpState(void);
@@ -57,9 +63,9 @@ extern int CnApi_doInitPcpReq(void);
 extern int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p);
 
 /* functions for PDO transfers */
-extern void CnApi_initPdo(char *pTxPdoAdrs_p, WORD wTxPdoSize_p,
-						  char *pRxPdoAdrs_p, WORD wRxPdoSize_p,
-						  WORD* pTxPdoAckAdrsAp_p, WORD* pRxPdoAckAdrsAp_p,
+extern void CnApi_initPdo(BYTE *pTxPdoAdrs_p, WORD wTxPdoSize_p,
+						  BYTE *pRxPdoAdrs_p, WORD wRxPdoSize_p,
+						  BYTE *pTxPdoAckAdrsAp_p, BYTE *pRxPdoAckAdrsAp_p,
 						  tPdoDescHeader *pTxDescAdrs_p, WORD wTxDescSize_p,
 						  tPdoDescHeader *pRxDescAdrs_p, WORD wRxDescSize_p);
 extern void CnApi_readPdoDesc(void);

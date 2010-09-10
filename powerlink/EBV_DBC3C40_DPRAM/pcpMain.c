@@ -31,7 +31,9 @@
 
 /******************************************************************************/
 /* defines */
-#define PCP_API_DPRAM_BASE 		0x00020000 	//defined in system.h
+#define PDI_DPRAM_BASE_PCP				POWERLINK_0_PDI_PCP_BASE  //from system.h
+#define SYNC_IRQ_CONTROL_REGISTER 		(alt_u8*) (PDI_DPRAM_BASE_PCP + SYNC_IRQ_CONROL_REG_OFFSET) 	//from cnApi.h
+#define SYNC_IRQ_TIMER_VALUE_REGISTER 	(alt_u8*) (PDI_DPRAM_BASE_PCP + SYNC_IRQ_TIMER_VALUE_REG_OFFSET)//from cnApiIntern.h
 
 #define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
 #define CYCLE_LEN   1000 // [us]
@@ -52,7 +54,6 @@ tEplKernel PUBLIC AppCbEvent(
     tEplApiEventArg*        pEventArg_p,   // IN: event argument (union)
     void GENERIC*           pUserArg_p);
 
-BYTE		portIsOutput[4];
 BYTE		digitalIn[4];
 BYTE		digitalOut[4];
 
@@ -119,16 +120,14 @@ int main (void)
 
     initStateMachine();
     Gi_init();
-    Gi_initAsync((tAsyncMsg *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_wTxAsyncBufAdrs),
-    		     (tAsyncMsg *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs));
-    Gi_initPdo((char *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoBufAdrs[0]),
-		       (char *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoBufAdrs[0]),
-	//TODO: Use this instead of following Ap Version	       //&(pCtrlReg_g->m_awTxPdoAckAdrsPcp[0]),
-		       //&(pCtrlReg_g->m_awRxPdoAckAdrsPcp[0]),
-		       (WORD *)(&pCtrlReg_g->m_awTxPdoAckAdrsAp[0]),
-		       (WORD *)(&pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
-		       (tPdoDescHeader *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoDescAdrs[0]),
-		       (tPdoDescHeader *)(PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoDescAdrs[0]));
+    Gi_initAsync((tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBufAdrs),
+    		     (tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBufAdrs));
+    Gi_initPdo((BYTE *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awTxPdoBufAdrs[0]),
+		       (BYTE *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awRxPdoBufAdrs[0]),
+		       (BYTE *)(&pCtrlReg_g->m_awTxPdoAckAdrsAp[0]),
+		       (BYTE *)(&pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
+		       (tPdoDescHeader *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awTxPdoDescAdrs[0]),
+		       (tPdoDescHeader *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awRxPdoDescAdrs[0]));
 
     Gi_initSyncInt();
 
@@ -462,7 +461,7 @@ tEplKernel PUBLIC AppCbSync(void)
     {
 		if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
 		{
-			Gi_generateSyncInt();
+			Gi_generateSyncInt();// TODO: To avoid jitter, synchronize on openMAC Sync interrupt instead of IR throwing by SW
 		}
     }
     return EplRet;
@@ -509,61 +508,15 @@ BYTE getPcpState(void)
 void Gi_init(void)
 {
 
-#ifdef SETUP_DPRAM_IN_SW  //delete all as soon as Tripple Buffer in HW is stable
-	WORD		wSize; 									///< byte offset counter
+	// SETUP PCP DPRAM -> already accessible in consistent control register structure
 
-	/* Incremental DPRAM Memory Map Setup and Initialization of Control Registers */
-
-    pCtrlReg_g = (tPcpCtrlReg *)PCP_API_DPRAM_BASE;		///< set address of control register - equals DPRAM base address
-    memset(pCtrlReg_g, 0, sizeof(tPcpCtrlReg));
-
-    wSize = 0;
-
-    /* PDO Buffers Initialization and Referencing */
-    pCtrlReg_g->m_awTxPdoBufAdrs[0] = sizeof(tPcpCtrlReg); 	///< set TPDO buffer address offset
-    pCtrlReg_g->m_awTxPdoBufSize[0] = PDO_BUF_SIZE;			///< and span
-    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoBufAdrs[0], 0x00, 3 * PDO_BUF_SIZE);
-    wSize = sizeof(tPcpCtrlReg) + 3 * PDO_BUF_SIZE;
-
-    pCtrlReg_g->m_awRxPdoBufAdrs[0] = wSize;			///< set RPDO buffer address offset
-    pCtrlReg_g->m_awRxPdoBufSize[0] = PDO_BUF_SIZE;		///< and span
-    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoBufAdrs[0], 0x00, 3 * PDO_BUF_SIZE);
-    wSize += (3 * PDO_BUF_SIZE);
-
-    /* PDO Descriptor Buffers Initialization and Referencing */
-    pCtrlReg_g->m_awTxPdoDescAdrs[0] = wSize;			///< set TPDO descriptor buffer address offset and size
-    pCtrlReg_g->m_wTxPdoDescSize = PDO_DESC_SIZE;		///< and span
-    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awTxPdoDescAdrs[0], 0x00, PDO_DESC_SIZE);
-    wSize += PDO_DESC_SIZE;
-
-    pCtrlReg_g->m_awRxPdoDescAdrs[0] = wSize;			///< set RPDO descriptor buffer address offset and size
-    pCtrlReg_g->m_wRxPdoDescSize = PDO_DESC_SIZE;		///< and span
-    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_awRxPdoDescAdrs[0], 0x00, PDO_DESC_SIZE);
-    wSize += PDO_DESC_SIZE;
-
-    /* Asynchronous Buffer Initialization and Referencing */
-    pCtrlReg_g->m_wTxAsyncBufAdrs = wSize;				///< set tx async. buffer address offset
-    pCtrlReg_g->m_wTxAsyncBufSize = ASYNC_BUF_SIZE;		///< and span
-    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_wTxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
-    wSize += ASYNC_BUF_SIZE;
-
-    pCtrlReg_g->m_wRxAsyncBufAdrs = wSize;				///< set rx async. buffer address offset
-    pCtrlReg_g->m_wRxAsyncBufSize = ASYNC_BUF_SIZE;		///< and span
-    memset((char *)PCP_API_DPRAM_BASE + pCtrlReg_g->m_wRxAsyncBufAdrs, 0x00, ASYNC_BUF_SIZE);
-    wSize += ASYNC_BUF_SIZE;
-
-    pCtrlReg_g->m_bState = 0xff;
+    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;		///< set address of control register - equals DPRAM base address
+    memset(pCtrlReg_g + 4, 0, 12); 						///< initialize remaining writable registers
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;
 
-#else //SETUP DPRAM already in HW -> already accessible in consistent control register structure
-
-    pCtrlReg_g = (tPcpCtrlReg *)PCP_API_DPRAM_BASE;		///< set address of control register - equals DPRAM base address
-    memset(pCtrlReg_g + 4, 0, 12); 						///< initialize remaining writeable registers
-
     pCtrlReg_g->m_bState = 0xff;
 
-#endif
 }
 
 /**
@@ -572,8 +525,8 @@ void Gi_init(void)
 *******************************************************************************/
 void Gi_initSyncInt(void)
 {
-	/* set interrupt low */
-	IOWR_ALTERA_AVALON_PIO_DATA(IRQ_GEN_BASE, 1);
+	// enable IRQ and set mode to "IR generation by SW"
+	*SYNC_IRQ_CONTROL_REGISTER = (1 << SYNC_IRQ_ENABLE); // & (0 << SYNC_IRQ_MODE);
 }
 
 /**
@@ -624,20 +577,35 @@ void Gi_calcSyncIntPeriod(void)
 
 /**
 ********************************************************************************
-\brief	generate sync interrupt
+\brief	generate the PCP -> AP synchronization interrupt
 *******************************************************************************/
 void Gi_generateSyncInt(void)
 {
-	volatile int			i;
+	/* Throw interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
+	*SYNC_IRQ_CONTROL_REGISTER |= (1 << SYNC_IRQ_SET); //set `set` bit to high
+	return;
+}
 
-	/* activate interrupt */
-	IOWR_ALTERA_AVALON_PIO_DATA(IRQ_GEN_BASE, 0);
+/**
+********************************************************************************
+\brief	disable the PCP -> AP synchronization interrupt
+*******************************************************************************/
+void Gi_disableSyncInt(void)
+{
+	/* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
+	*SYNC_IRQ_CONTROL_REGISTER &= !(1 << SYNC_IRQ_ENABLE); // set enable bit to low
+	return;
+}
 
-	for(i = 0; i < 1000; i++);
-
-	/* deactivate interrupt */
-	IOWR_ALTERA_AVALON_PIO_DATA(IRQ_GEN_BASE, 1);
-
+/**
+********************************************************************************
+\brief	set the PCP -> AP synchronization interrupt timer value for delay mode
+*******************************************************************************/
+void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
+{
+	/* set timer value by writing to the SYNC_IRQ_TIMER_VALUE_REGISTER */
+	*SYNC_IRQ_TIMER_VALUE_REGISTER = uiTimeValue;
+	*SYNC_IRQ_CONTROL_REGISTER |= (1 << SYNC_IRQ_MODE); // set mode bit to high
 	return;
 }
 

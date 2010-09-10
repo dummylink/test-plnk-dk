@@ -74,7 +74,7 @@ static BOOL checkPowerlinkEvent(tPowerlinkEvent event_p)
 
 /**
 ********************************************************************************
-\brief	check for powerlink event
+\brief	check for application processor event
 *******************************************************************************/
 static BOOL checkApCommand(BYTE cmd_p)
 {

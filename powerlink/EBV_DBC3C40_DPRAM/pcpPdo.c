@@ -22,8 +22,6 @@
 
 #include <string.h>
 
-#include <altera_avalon_mutex.h>
-
 /******************************************************************************/
 /* defines */
 #define		PDO_COPY_TBL_SIZE		100
@@ -40,10 +38,10 @@ typedef struct sPdoCopyTbl {
 
 /******************************************************************************/
 /* global variables */
-static	char*				pTxPdoBuf_l;
-static	char*				pRxPdoBuf_l;
-static  WORD*				pTxPdoAckAdrsPcp_l;
-static  WORD*				pRxPdoAckAdrsPcp_l;
+static	BYTE*				pTxPdoBuf_l;
+static	BYTE*				pRxPdoBuf_l;
+static  BYTE*				pTxPdoAckAdrsPcp_l; //TODO: naming: no PCP!
+static  BYTE*				pRxPdoAckAdrsPcp_l;
 
 static	tPdoDescHeader*		pTxDescBuf_l;
 static	tPdoDescHeader*		pRxDescBuf_l;
@@ -80,8 +78,8 @@ static void DecodeObjectMapping(QWORD qwObjectMapping_p, unsigned int* puiIndex_
 ********************************************************************************
 \brief	initialize asynchronous functions
 *******************************************************************************/
-int Gi_initPdo(char *pTxPdoBuf_p, char *pRxPdoBuf_p,
-		WORD *pTxPdoAckAdrsPcp_p, WORD *pRxPdoAckAdrsPcp_p,
+int Gi_initPdo(BYTE *pTxPdoBuf_p, BYTE *pRxPdoBuf_p,
+		BYTE *pTxPdoAckAdrsPcp_p, BYTE *pRxPdoAckAdrsPcp_p,
 		tPdoDescHeader *pTxDescBuf_p, tPdoDescHeader *pRxDescBuf_p)
 {
 	/* initialize buffers */
@@ -109,9 +107,9 @@ int Gi_initPdo(char *pTxPdoBuf_p, char *pRxPdoBuf_p,
 CnApi_ackPdoBuffer() writes a random 32bit value
 to a defined buffer control register.
 *******************************************************************************/
-inline void CnApi_ackPdoBuffer(WORD* pAckReg_p)
+inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 {
-    *pAckReg_p = (DWORD) 0xdeadbeef; //TODO: delete casting as soon as Ack Ctrl. Reg. is set to WORD
+    *pAckReg_p = 0xab; ///> write random byte value
 }
 
 /**
