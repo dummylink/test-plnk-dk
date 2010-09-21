@@ -81,7 +81,7 @@ fi
 NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
 --set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
-#--set APP_CFLAGS_DEBUG_LEVEL -g \
+
 
 #echo "${NIOS2_APP_GEN_ARGS}"
 
@@ -120,6 +120,9 @@ done
 
 if [ -z "$NO_OPT" ]; then
     NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O2"
+else
+# in case of --debug option ("-g" means to insert debug information)
+    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O1 --set APP_CFLAGS_DEBUG_LEVEL -g"
 fi
 
 # Also make sure that the APP has not been created already.  Check for

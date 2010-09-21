@@ -362,21 +362,6 @@ typedef enum {
 	kNumApState
 } tApStates;
 
-typedef enum {
-	kApTransBootedReadyToInit = 0,
-	kApTransReadyToInitInit,
-	kApTransInitPreop1,
-	kApTransPreop1Preop2,
-	kApTransPreop2ReadyToOperate,
-	kApTransReadyToOperateOperational,
-	kApTransOperationalInit,
-	kApTransReadyToInitError,
-	kApTransPreop2Preop1,
-	kApTransReadytoOperatePreop1,
-	kApTransOperationalPreop1,
-	kNumApTransitions
-} tApTransitions;
-
 /* definitions for PCP state machine, transitions and states */
 typedef enum { //TODO: define state "none?" - adapt docu for correct values!
 	kPcpStateBooted = 0,
@@ -387,20 +372,6 @@ typedef enum { //TODO: define state "none?" - adapt docu for correct values!
 	kPcpStateOperational,
 	kNumPcpStates
 } tPcpStates;
-
-typedef enum {
-	kPcpTransBootedInit = 0,
-	kPcpTransInitPreop,
-	kPcpTransPreop1Preop2,
-	kPcpTransPreop2ReadyToOperate,
-	kPcpTransReadyToOperateOperational,
-	kPcpTransOperationalPreop1,
-	kPcpTransOperationalBooted,
-	kPcpTransOperationalShutdown,
-	kPcpTransPreop2Preop1,
-	kPcpTransReadyToOperatePreop1,
-	kNumPcpTransitions
-} tPcpTransitions;
 
 /******************************************************************************/
 

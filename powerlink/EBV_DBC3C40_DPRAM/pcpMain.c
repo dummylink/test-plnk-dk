@@ -138,12 +138,12 @@ int main (void)
 #endif
 
     /***** Starting main state machine *****/
-    activateStateMachine();
+    resetStateMachine();
     while (stateMachineIsRunning())
     {
     	EplApiProcess();
     	updateStateMachine();
-    	usleep(100);		/* wait 100 us */
+    	//usleep(100);		/* wait 100 us */ //TODO: delete this line
     }
 
     DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
@@ -507,15 +507,14 @@ BYTE getPcpState(void)
 
 void Gi_init(void)
 {
-
-	// SETUP PCP DPRAM -> already accessible in consistent control register structure
+	/* Setup PCP Control Register in DPRAM */
 
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;		///< set address of control register - equals DPRAM base address
-    memset(pCtrlReg_g + 4, 0, 12); 						///< initialize remaining writable registers
+    // memset(pCtrlReg_g + 4, 0xff, 12); 						///< initialize remaining writable registers //TODO: delete this line
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;
-
-    pCtrlReg_g->m_bState = 0xff;
+    pCtrlReg_g->m_bError = 0x00;	///< no error
+    pCtrlReg_g->m_bState = 0xff; 	///< set invalid PCP state
 
 }
 

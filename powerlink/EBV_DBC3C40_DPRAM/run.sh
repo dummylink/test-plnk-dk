@@ -12,18 +12,36 @@ SOFDIR=${CN_DK_DIR}/fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
 PCPDIR=./
 APDIR=${CN_DK_DIR}/apps/EBV_DBC3C40_DigitalIO
 
-nios2-configure-sof -C ${SOFDIR} 	# Configure FPGA HW
+#echo " "
+#echo "Erase Serial Flash Memory..."
+#echo " "
+#nios2-flash-programmer --base=0x00 --epcs --erase-all --instance=1
 
-# This sequence is mandatory! 1st PCP, then AP
-make download-elf -C ${PCPDIR}  	# download the PCP software and start the PCP
-make download-elf -C ${APDIR}	  	# download the AP software and start the AP
+echo " "
+echo "Configure FPGA HW..."
+echo " "
+
+# Configure FPGA HW
+nios2-configure-sof -C ${SOFDIR} 	
+
+# download the AP software and start the AP
+make -C ${APDIR}	  	
+echo " "
+echo "Download AP SW..."
+echo " "
+nios2-download -C ${APDIR} --device=1 --instance=0 --cpu_name=ap_cpu epl.elf --go
+
+# download the PCP software and start the PCP
+make -C ${PCPDIR}  		
+echo " "
+echo "Download PCP SW..."
+echo " "
+nios2-download -C ${PCPDIR} --device=1 --instance=1 --cpu_name=pcp_cpu epl.elf --go
 
 echo " "
 echo "Dual NIOS-II design has been uploaded."
-echo "FPGA HW and SW configured."
+echo "Power-Cycle the FPGA before next reprogramming!"
 echo " "
-echo "If you see 00 on the 7-Seg numbers and nothing happens,"
-echo "try 'nios2-configure-sof' after power cycle manually several times!"
 
 
 exit 0

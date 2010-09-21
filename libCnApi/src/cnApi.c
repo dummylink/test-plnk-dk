@@ -68,6 +68,9 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 	/* allocate memory */
 	/* TODO if necessary! */
 
+    pCtrlReg_g->m_bState = 0xff; 							///< set invalid PCP state
+    pCtrlReg_g->m_bCommand = kApCmdReboot; 					///< send reboot cmd to PCP
+
 	/* initialize state machine */
 	CnApi_initApStateMachine();
 

@@ -38,7 +38,7 @@ POWERLINK CN generic interface.
 /* global variables */
 static tStateMachine		pcpStateMachine_l;
 static tState				aPcpStates_l[kNumPcpStates];
-static tTransition 			aPcpTransitions_l[kNumPcpTransitions];
+static tTransition 			aPcpTransitions_l[MAX_TRANSITIONS_PER_STATE * kNumPcpStates];
 static BOOL					fEvent = FALSE;
 static tPowerlinkEvent		powerlinkEvent;
 
@@ -117,7 +117,13 @@ static BOOL checkEvent(void)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateBooted)
 {
-	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xfe);
+	while(!checkApCommand(kApCmdReboot)) 	///< AP has to start bootup procedure
+	{
+		asm("NOP;");
+	}
+	pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
+
+	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xee); ///< set "bootup LED"
 	storePcpState(kPcpStateBooted);
 }
 /*----------------------------------------------------------------------------*/
@@ -139,7 +145,7 @@ FUNC_DOACT(kPcpStateBooted)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateBooted,kPcpStateInit,1)
 {
-	return checkEvent();
+	return checkEvent(); 					///< Transition, if event occured
 }
 
 /*============================================================================*/
@@ -170,12 +176,18 @@ FUNC_EVT(kPcpStateInit,kPcpStatePreop1,1)
 {
 	return checkEvent();
 }
+/*----------------------------------------------------------------------------*/
+FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
+{
+	return checkApCommand(kApCmdReboot);
+}
 
 /*============================================================================*/
 /* State: PRE_OPERATIONAL1 */
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreop1)
 {
+	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xff); ///< reset "bootup LED"
 	storePcpState(kPcpStatePreop1);
 }
 /*----------------------------------------------------------------------------*/
@@ -186,6 +198,11 @@ FUNC_DOACT(kPcpStatePreop1)
 FUNC_EVT(kPcpStatePreop1,kPcpStatePreop2,1)
 {
 	return checkPowerlinkEvent(kPowerlinkEventEnterPreop2);
+}
+/*----------------------------------------------------------------------------*/
+FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
+{
+	return checkApCommand(kApCmdReboot);
 }
 
 /*============================================================================*/
@@ -210,6 +227,11 @@ FUNC_EVT(kPcpStatePreop2,kPcpStatePreop1,1)
 {
 	return checkPowerlinkEvent(kPowerlinkEventReset);
 }
+/*----------------------------------------------------------------------------*/
+FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
+{
+	return checkApCommand(kApCmdReboot);
+}
 
 /*============================================================================*/
 /* State: READY_TO_OPERATE */
@@ -233,6 +255,11 @@ FUNC_EVT(kPcpStateReadyToOperate,kPcpStatePreop1,1)
 {
 	return checkPowerlinkEvent(kPowerlinkEventReset);
 }
+/*----------------------------------------------------------------------------*/
+FUNC_EVT(kPcpStateReadyToOperate,kPcpStateBooted,1)
+{
+	return checkApCommand(kApCmdReboot);
+}
 
 /*============================================================================*/
 /* State: Operational */
@@ -246,14 +273,14 @@ FUNC_DOACT(kPcpStateOperational)
 {
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStateOperational,kPcpStateBooted,1)
-{
-	return FALSE;
-}
-/*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,kPcpStatePreop1,1)
 {
 	return checkPowerlinkEvent(kPowerlinkEventReset);
+}
+/*----------------------------------------------------------------------------*/
+FUNC_EVT(kPcpStateOperational,kPcpStateBooted,1)
+{
+	return checkApCommand(kApCmdReboot);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,STATE_FINAL,1)
@@ -295,7 +322,7 @@ void initStateMachine(void)
 
 	/* initialize state machine */
 	sm_init(&pcpStateMachine_l, aPcpStates_l, kNumPcpStates, aPcpTransitions_l,
-			kNumPcpTransitions, kPcpStateBooted, stateChange);
+			0, kPcpStateBooted, stateChange);
 
 	/***** build up states ******/
 	/* state: BOOTED */
@@ -304,25 +331,29 @@ void initStateMachine(void)
 
 	/* state: INIT */
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateInit, kPcpStatePreop1, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateInit, kPcpStateBooted, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateInit);
 
 	/* state: PREOP */
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop1, kPcpStatePreop2, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop1, kPcpStateBooted, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStatePreop1);
 
 	/* state: WAIT_READY_TO_OPERATE */
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop2, kPcpStateReadyToOperate, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop2, kPcpStatePreop1, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop2, kPcpStateBooted, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStatePreop2);
 
 	/* state: READY_TO_OPERATE */
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateReadyToOperate, kPcpStateOperational, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateReadyToOperate, kPcpStatePreop1, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateReadyToOperate, kPcpStateBooted, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateReadyToOperate);
 
 	/* state: OPERATIONAL */
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, kPcpStateBooted, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, kPcpStatePreop1, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, kPcpStateBooted, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, STATE_FINAL, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateOperational);
 }
@@ -331,7 +362,7 @@ void initStateMachine(void)
 ********************************************************************************
 \brief	activate state machine
 *******************************************************************************/
-void activateStateMachine(void)
+void resetStateMachine(void)
 {
 	DEBUG_FUNC;
 

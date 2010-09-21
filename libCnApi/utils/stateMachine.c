@@ -51,7 +51,7 @@ This module contains the state machine engine used to implement state machines.
 static tTransition* sm_getActiveTransition(tStateMachine *pStateMachine_p,
 		                                    tState *pState_p)
 {
-	register int i = 0;
+	volatile int i;
 	tTransition	*pTransition;
 
 	for (i = 0; i < pState_p->m_bUsedTransitions; i++)
@@ -204,7 +204,7 @@ void sm_init(tStateMachine *pStateMachine_p, tState *pStates_p,
 	pStateMachine_p->m_pStates = pStates_p;
 	pStateMachine_p->m_bNumStates = bNumStates_p;
 	pStateMachine_p->m_pTransitions = pTransitions_p;
-	pStateMachine_p->m_bMaxTransitions = bMaxTransitions_p;
+	pStateMachine_p->m_bMaxTransitions = MAX_TRANSITIONS_PER_STATE * bNumStates_p;
 	pStateMachine_p->m_bInitState = bInitState_p;
 	pStateMachine_p->m_pfnOnStateChange = pfnOnStateChange_p;
 

@@ -50,7 +50,7 @@ typedef enum ePowerlinkEvent {
 /******************************************************************************/
 /* functions */
 extern void initStateMachine(void);
-extern void activateStateMachine(void);
+extern void resetStateMachine(void);
 extern BOOL updateStateMachine(void);
 extern BOOL stateMachineIsRunning(void);
 extern void	setPowerlinkEvent(tPowerlinkEvent event_p);

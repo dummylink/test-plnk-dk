@@ -10,7 +10,7 @@
 
 (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 
-This module contains the AP state machine implementationa of the openPOWERLINK
+This module contains the AP state machine implementation of the openPOWERLINK
 CN API library. The state machine implements the main state machine of an
 application processor (AP).
 *******************************************************************************/
@@ -36,7 +36,7 @@ application processor (AP).
 /* global variables */
 static tStateMachine		apStateMachine;
 static tState				apStates[kNumApState];
-static tTransition 			apTransitions[kNumApTransitions];
+static tTransition 			apTransitions[MAX_TRANSITIONS_PER_STATE * kNumApState];
 
 static BOOL					fErrorEvent;
 
@@ -297,7 +297,7 @@ void CnApi_initApStateMachine(void)
 
 	/* initialize state machine */
 	sm_init(&apStateMachine, apStates, kNumApState, apTransitions,
-			kNumApTransitions, kApStateBooted, stateChange);
+			0, kApStateBooted, stateChange);
 
 	/* build up states */
 

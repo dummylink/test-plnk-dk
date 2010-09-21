@@ -101,6 +101,9 @@ int main (void)
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
+    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); ///> set hex digits on Mercury-Board to indicate AP presence
+    usleep(1000000);		/* wait 1 s */
+
     /* initializing */
     nodeId = getNodeId();
 
@@ -149,7 +152,7 @@ int main (void)
     	/* The AP state machine must be periodically updated, let's do it ... */
     	CnApi_processApStateMachine();
 
-    	/* read inputs and outpus */
+    	/* read inputs and outputs */
     	workInputOutput();
 
     	/* wait until next period */

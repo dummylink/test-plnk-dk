@@ -21,7 +21,7 @@
 
 /******************************************************************************/
 /* defines */
-#define	MAX_TRANSITIONS_PER_STATE				6		///< maximum number of transitions per state
+#define	MAX_TRANSITIONS_PER_STATE				3		///< maximum number of transitions per state
 #define	STATE_INITIAL							0xFE	///< predefined initial state
 #define	STATE_FINAL								0xFF	///< predefined final state
 
