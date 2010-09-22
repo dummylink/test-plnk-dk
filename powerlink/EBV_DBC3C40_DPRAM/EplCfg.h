@@ -53,7 +53,7 @@
 
                 $Author: Michael.Ulbricht $
 
-                $Revision: 1.4 $  $Date: 2010/06/21 08:27:34 $
+                $Revision: 1.5 $  $Date: 2010/08/11 09:53:36 $
 
                 $State: Exp $
 
@@ -200,6 +200,9 @@
 
 // CN supports PRes Chaining
 #define EPL_DLL_PRES_CHAINING_CN        TRUE
+
+// Disable deferred release of rx-buffers until Edrv for openMAC supports it
+#define EPL_DLL_DISABLE_DEFERRED_RXFRAME_RELEASE    TRUE
 
 
 // =========================================================================
