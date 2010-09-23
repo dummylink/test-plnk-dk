@@ -27,7 +27,7 @@
    {
       datum baseAddress
       {
-         value = "8280";
+         value = "8272";
          type = "long";
       }
    }
@@ -69,7 +69,7 @@
       }
       datum baseAddress
       {
-         value = "8272";
+         value = "8288";
          type = "long";
       }
    }
@@ -303,6 +303,22 @@
          type = "boolean";
       }
    }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8256";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
    element status_led_pio.s1
    {
       datum baseAddress
@@ -311,11 +327,16 @@
          type = "long";
       }
    }
-   element node_switch_pio.s1
+   element onchip_memory_pcp.s1
    {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
       datum baseAddress
       {
-         value = "8256";
+         value = "8192";
          type = "long";
       }
    }
@@ -342,27 +363,6 @@
       datum baseAddress
       {
          value = "2048";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
-         type = "long";
-      }
-   }
-   element onchip_memory_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
          type = "long";
       }
    }
@@ -429,8 +429,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-8051359828" />
- <parameter name="timeStamp" value="1282841428656" />
+ <parameter name="systemHash" value="-10259888295" />
+ <parameter name="timeStamp" value="1285146911385" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -826,6 +826,8 @@
   <parameter name="configPowerlink" value="Simple I/O CN" />
   <parameter name="configApInterface" value="Avalon" />
   <parameter name="configApParallelInterface" value="8bit" />
+  <parameter name="configApParSigs" value="High Active" />
+  <parameter name="configApParOutSigs" value="High Active" />
   <parameter name="configApSpi_CPOL" value="0" />
   <parameter name="configApSpi_CPHA" value="0" />
   <parameter name="rpdoNum" value="3" />
@@ -935,7 +937,7 @@
    start="clock_crossing_0.m1"
    end="jtag_uart_0.avalon_jtag_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2050" />
+  <parameter name="baseAddress" value="0x2060" />
  </connection>
  <connection
    kind="avalon"
@@ -1095,7 +1097,7 @@
    start="clock_crossing_0.m1"
    end="powerlink_0.MAC_CMP">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2058" />
+  <parameter name="baseAddress" value="0x2050" />
  </connection>
  <connection
    kind="avalon"

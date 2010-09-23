@@ -10,16 +10,18 @@
 Contents
 ---------
 
-- FPGA design with Nios II CPU and openMAC
+- FPGA design with Nios II CPU and openMAC: 
+- The PCP (POWERLINK Communication Processor) interface (DPRAM) can be accessed via external Avalon Bus (Altera FPGA internal bus).
+  This is useful when connecting your own locig to the Avalon interface. You might also use a second Nios II CPU (but better see other design example).
 
 
-Requirements
+RRequirements
 -------------
 
 - Development Board EBV DBC3C40 (Mercury Board)
 
-- Altera Quartus II v9.0 or newer (Web Edition is also possible)
-  and Altera Nios II Embedded Design Suite v9.0 or newer
+- Altera Quartus II v10.0 SP1 or newer (Web Edition is also possible)
+  and Altera Nios II Embedded Design Suite v10.0 SP1 or newer
   (http://www.altera.com/support/software/download/nios2/dnl-nios2.jsp )
 
 - Experiences with this development environment are required
@@ -37,12 +39,14 @@ Otherwise you can use the supplied SOF file and go directly to step 6.
 
 3. Press the button "Generate" in the SOPC Builder to regenerate the Nios II system.
 
-4. Close the SOPC Builder when the generation has finished.
+4. Close the SOPC Builder when the generation has finished (shown as information output).
 
-5. Start the compilation in the Quartus II window via menu "Processing" -> "Start Compilation".
+5. A message window will pop up. Choose "Update: All symbols or blocks in this file".
 
-6. Use the design with the supplied demo projects in the openPOWERLINK
-   subdirectory Examples\altera_nios2\no_os\gnu.
+5. Start the compilation in the Quartus II window via menu "Processing" -> "Start Compilation". Choose "Yes" for saving all changed files.
+
+6. Use the design with the supplied demo projects in the openPOWERLINK_CNDK
+   subdirectory "powerlink"
 
    Please refer to the readme.txt in the subdirectory of the demo project for
    further information.

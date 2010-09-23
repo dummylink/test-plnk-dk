@@ -29,6 +29,8 @@
 #define IP_ADDR     0xc0a86401  // 192.168.100.1 // don't care the last byte!
 #define SUBNET_MASK 0xFFFFFF00  // 255.255.255.0
 
+#define LATCHED_IOPORT_BASE (void*) POWERLINK_0_SMP_BASE
+#define LATCHED_IOPORT_CFG	(void*) (LATCHED_IOPORT_BASE + 4)
 
 // This function is the entry point for your object dictionary. It is defined
 // in OBJDICT.C by define EPL_OBD_INIT_RAM_NAME. Use this function name to define
@@ -61,26 +63,26 @@ WORD GetNodeId (void);
 *******************************************************************************/
 int main (void)
 {
-    int i=0;
+    int iCnt=0;
 
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
-    printf("Digital I/O interface is running...\n");
-    printf("starting openPowerlink...\n\n");
+    PRINTF("Digital I/O interface is running...\n");
+    PRINTF("starting openPowerlink...\n\n");
 
     while (1) {
         if (openPowerlink() != 0) {
-            printf("openPowerlink was shut down because of an error\n");
+        	PRINTF("openPowerlink was shut down because of an error\n");
             break;
         } else {
-            printf("openPowerlink was shut down, restart...\n\n");
+        	PRINTF("openPowerlink was shut down, restart...\n\n");
         }
         /* wait some time until we restart the stack */
-        for (i=0; i<1000000; i++);
+        for (iCnt=0; iCnt<1000000; iCnt++);
     }
 
-    printf("shut down NIOS II...\n%c", 4);
+    PRINTF1("shut down NIOS II...\n%c", 4);
 
     return 0;
 }
@@ -144,17 +146,17 @@ int openPowerlink(void) {
 
     /************************/
 	/* initialize POWERLINK stack */
-    printf("init POWERLINK stack:\n");
+    PRINTF("init POWERLINK stack:\n");
 	EplRet = EplApiInitialize(&EplApiInitParam);
 	if(EplRet != kEplSuccessful) {
-        printf("init POWERLINK Stack... error %X\n\n", EplRet);
+		PRINTF1("init POWERLINK Stack... error %X\n\n", EplRet);
 		goto Exit;
     }
-    printf("init POWERLINK Stack...ok\n\n");
+	PRINTF("init POWERLINK Stack...ok\n\n");
 
     /**********************************************************/
 	/* link process variables used by CN to object dictionary */
-    printf("linking process vars:\n");
+	PRINTF("linking process vars:\n");
 
     ObdSize = sizeof(digitalIn[0]);
     uiVarEntries = 4;
@@ -173,18 +175,21 @@ int openPowerlink(void) {
         printf("linking process vars... error\n\n");
         goto ExitShutdown;
     }
-	printf("linking process vars... ok\n\n");
+
+    PRINTF("linking process vars... ok\n\n");
 
 	// start the POWERLINK stack
-    printf("start EPL Stack...\n");
+    PRINTF("start EPL Stack...\n");
 	EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
     if (EplRet != kEplSuccessful) {
-        printf("start EPL Stack... error\n\n");
+    	PRINTF("start EPL Stack... error\n\n");
         goto ExitShutdown;
     }
-    printf("start POWERLINK Stack... ok\n\n");
 
-    printf("Digital I/O interface with openPowerlink is ready!\n\n");
+    /*Start POWERLINK Stack*/
+    PRINTF("start POWERLINK Stack... ok\n\n");
+
+    PRINTF("Digital I/O interface with openPowerlink is ready!\n\n");
 
 #ifdef STATUS_LED_PIO_BASE
     IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
@@ -198,7 +203,7 @@ int openPowerlink(void) {
     }
 
 ExitShutdown:
-    printf("Shutdown EPL Stack\n");
+	PRINTF("Shutdown EPL Stack\n");
     EplApiShutdown(); //shutdown node
 
 Exit:
@@ -413,23 +418,30 @@ inputs and runs the control loop.
 tEplKernel PUBLIC AppCbSync(void)
 {
 	tEplKernel 		EplRet = kEplSuccessful;
-    register int	i;
-    unsigned int	ports;
+    register int	iCnt;
+    DWORD			ports;
+    DWORD*			ulDigInputs = LATCHED_IOPORT_BASE;
+    DWORD*			ulDigOutputs = LATCHED_IOPORT_BASE;
 
-    ports = IORD_ALTERA_AVALON_PIO_DATA(DIGIO_PIO_BASE);
+    /* read digital input ports */
+    ports = ~(*ulDigInputs); ///< low-active buttons
 
-    for (i = 0; i <= 3; i++)
+    for (iCnt = 0; iCnt <= 3; iCnt++)
     {
-        if (portIsOutput[i])
+        if (portIsOutput[iCnt])
         {
-        	ports = (ports & ~(0xFF << (i * 8))) | (digitalOut[i] << (i * 8));
+        	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
+        	ports = (ports & ~(0xff << (iCnt * 8))) | (digitalOut[iCnt] << (iCnt * 8));
         }
         else
         {
-        	digitalIn[i] = (ports >> (i * 8)) & 0xff;
+        	/* configured as input -> store in TPDO mapped variable */
+        	digitalIn[iCnt] = (ports >> (iCnt * 8)) & 0xff;
         }
     }
-    IOWR_ALTERA_AVALON_PIO_DATA(DIGIO_PIO_BASE, ports);
+
+    /* write digital output ports */
+    *ulDigOutputs = ports;
 
     return EplRet;
 }
@@ -447,32 +459,29 @@ set up the input/output selection logic.
 *******************************************************************************/
 void InitPortConfiguration (char *p_portIsOutput)
 {
-	register int	i;
-	volatile unsigned char	portconf;
+	register int	iCnt;
+	volatile BYTE	portconf;
 	unsigned int	direction = 0;
 
 	/* read port configuration input pins */
-	portconf = IORD_ALTERA_AVALON_PIO_DATA(PORTCONF_PIO_BASE);
-	portconf = 0xb;
+	memcpy((BYTE *) &portconf, LATCHED_IOPORT_CFG, 1);
+	portconf = ~portconf;
 
-	for (i = 0; i <= 3; i++)
+	PRINTF1("\nPort configuration register value = %d \n", portconf);
+
+	for (iCnt = 0; iCnt <= 3; iCnt++)
 	{
-		if (portconf & (1 << i))
+		if (portconf & (1 << iCnt))
 		{
-			direction |= 0xff << (i * 8);
-			p_portIsOutput[i] = TRUE;
+			direction |= 0xff << (iCnt * 8);
+			p_portIsOutput[iCnt] = TRUE;
 		}
 		else
 		{
-			direction &= ~(0xff << (i * 8));
-			p_portIsOutput[i] = FALSE;
+			direction &= ~(0xff << (iCnt * 8));
+			p_portIsOutput[iCnt] = FALSE;
 		}
 	}
-
-	/* setup input / output selection logic by setting up portconf output pins */
-	IOWR_ALTERA_AVALON_PIO_DATA(PORTCONF_PIO_BASE, portconf);
-	/* set PIO direction for I/Os */
-	IOWR_ALTERA_AVALON_PIO_DIRECTION(DIGIO_PIO_BASE, direction);
 }
 
 /**
@@ -490,7 +499,7 @@ WORD GetNodeId (void)
 
 	/* read port configuration input pins */
 	nodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
-	nodeId = 1;  // Fixed for debugging!
+	nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
 
 	return nodeId;
 }

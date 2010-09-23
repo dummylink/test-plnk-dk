@@ -129,6 +129,7 @@ int main (void)
      * datatype of variables must match with datatype of POWERLINK object dictionary!!!
      * Number of linked objects must match NUM_OBJECTS!!!
      */
+	///< CnApi_linkObject(Index, SubIndex, size in bytes, ptr) 
     CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
     CnApi_linkObject(0x6000, 2, 1, &digitalIn[1]);
     CnApi_linkObject(0x6000, 3, 1, &digitalIn[2]);
