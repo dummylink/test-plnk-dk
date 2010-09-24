@@ -143,7 +143,7 @@ int main (void)
     {
     	EplApiProcess();
     	updateStateMachine();
-    	//usleep(100);		/* wait 100 us */ //TODO: delete this line
+    	usleep(100);		/* wait 100 us */ //TODO: delete this line
     }
 
     DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
@@ -185,7 +185,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_uiMultiplCycleCnt = 0;
 	EplApiInitParam.m_uiAsyncMtu = 1500;
 	EplApiInitParam.m_uiPrescaler = 2;
-	EplApiInitParam.m_dwLossOfFrameTolerance = 500000;
+	EplApiInitParam.m_dwLossOfFrameTolerance = 500000000;
 	EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
 	EplApiInitParam.m_dwWaitSocPreq = 0;
 	EplApiInitParam.m_dwDeviceType = pInitParm_p->m_dwDeviceType;

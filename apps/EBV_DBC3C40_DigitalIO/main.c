@@ -72,7 +72,7 @@ a dual ported RAM (DPRAM) area.
 
 /******************************************************************************/
 /* global variables */
-BYTE			portIsOutput[4];								///< Variable to store the port configuration
+BYTE			portIsOutput[4]={0xff, 0xff, 0xff, 0x00}; //TODO: Delete initialization ///< Variable to store the port configuration
 WORD			nodeId;											///< The node ID to be used by the application
 BYTE 			abMacAddr_g[] = { MAC_ADDR };					///< The MAC address to be used
 BYTE			digitalIn[NUM_INPUT_OBJS];						///< The values of the digital input pins of the board will be stored here
@@ -140,7 +140,7 @@ int main (void)
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
     /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 4000 us, maxCycleNum = 10 */
-    initInterrupt(POWERLINK_0_IRQ, 2000, 4000, 10);
+    initInterrupt(POWERLINK_0_IRQ, 1000, 4000, 10);
 
     /* Start periodic main loop */
     printf("API example is running...\n");
@@ -207,12 +207,33 @@ be periodically called in the main loop.
 *******************************************************************************/
 void workInputOutput(void)
 {
-    register int	i;
-    unsigned int	ports;
+	register iCnt;
+	DWORD ports;
+	BYTE cInPort;
+	
+	///> Digital IN: read push- and joystick buttons
+	cInPort = IORD_ALTERA_AVALON_PIO_DATA(INPORT_AP_BASE);
+	digitalIn[0] = cInPort;
+	digitalIn[1] = cInPort;
+	digitalIn[2] = cInPort;
+	digitalIn[3] = cInPort;
 
-    digitalIn[0] = IORD_ALTERA_AVALON_PIO_DATA(INPORT_AP_BASE); ///> Digital IN: read push- and joystick buttons
-
-    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, digitalOut[0]); ///> Digital OUT: set Leds and hex digits on Mercury-Board
+	///> Digital OUT: set Leds and hex digits on Mercury-Board
+    for (iCnt = 0; iCnt <= 3; iCnt++)
+    {
+        if (iCnt <= 1)
+        {
+        	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
+        	ports = (ports & ~(0xff << (iCnt * 8))) | (digitalOut[iCnt] << (iCnt * 8));
+        }
+        else if (iCnt == 3)
+        {
+        	/* configured as input -> store in TPDO mapped variable */
+        	ports = (ports & ~(0xff << (2 * 8))) | (digitalOut[iCnt] << (2 * 8));
+        }
+    }
+	
+    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, ports);
 }
 
 /**
