@@ -1877,7 +1877,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_pcp.hex 1285147021 ";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_pcp.hex 1286185434 ";
       }
       SIMULATION 
       {
@@ -3738,7 +3738,7 @@ SYSTEM niosII_openMac
       }
       PORT_WIRING 
       {
-         PORT clk100
+         PORT clkEth
          {
             type = "clk";
             width = "1";
@@ -3801,27 +3801,6 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiClk
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiDat
-         {
-            type = "export";
-            width = "1";
-            direction = "inout";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiRst_n
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
          PORT phy0_RxDat
          {
             type = "export";
@@ -3844,6 +3823,27 @@ SYSTEM niosII_openMac
             Is_Enabled = "1";
          }
          PORT phy0_TxEn
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiClk
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiDat
+         {
+            type = "export";
+            width = "1";
+            direction = "inout";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiRst_n
          {
             type = "export";
             width = "1";
@@ -4206,7 +4206,7 @@ SYSTEM niosII_openMac
       }
       HDL_INFO 
       {
-         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/POWERLINK/src/powerlink.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_par.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_dpr.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_tripleVBufLogic.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenFILTER.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenHUB.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_AvalonIF.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DPR_Altera.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_PHYMI.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/portio.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi_sreg.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_spi.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
+         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/POWERLINK/src/powerlink.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_par.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_dpr.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_tripleVBufLogic.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenFILTER.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenHUB.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_AvalonIF.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DPR_Altera.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_PHYMI.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/rmii2mii.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/portio.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi_sreg.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_spi.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {

@@ -1,10 +1,10 @@
-/* Quartus II Version 9.1 Build 304 01/25/2010 Service Pack 1 SJ Full Version */
+/* Quartus II Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version */
 JedecChain;
 	FileRevision(JESD32A);
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP3C40F484) Path("C:/Data/Source/work/openPOWERLINK-work/Examples/altera_nios2/EBV_DBC3C40/design_nios2_openmac_digio/") File("nios_openMac.sof") MfrSpec(OpMask(1));
+		Device PartName(EP3C40F484) Path("C:/svn/EBV_DB3C40/nios2_openmac_SimpleLatchedIO/") File("nios_openMac.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

@@ -303,22 +303,6 @@
          type = "boolean";
       }
    }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8256";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
-         type = "long";
-      }
-   }
    element status_led_pio.s1
    {
       datum baseAddress
@@ -353,6 +337,14 @@
          type = "long";
       }
    }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
    element remote_update_cycloneiii_0.s1
    {
       datum _lockedAddress
@@ -363,6 +355,14 @@
       datum baseAddress
       {
          value = "2048";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8256";
          type = "long";
       }
    }
@@ -429,8 +429,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-10259888295" />
- <parameter name="timeStamp" value="1285146911385" />
+ <parameter name="systemHash" value="-11498672049" />
+ <parameter name="timeStamp" value="1286185339908" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -838,11 +838,12 @@
   <parameter name="tpdo0size" value="1" />
   <parameter name="asyncTxBufSize" value="1514" />
   <parameter name="asyncRxBufSize" value="1514" />
+  <parameter name="phyIF" value="RMII" />
   <parameter name="iTpdoObjNumber_g" value="1" />
   <parameter name="iRpdoObjNumber_g" value="1" />
   <parameter name="AUTO_PCP_CLK_CLOCK_RATE" value="90000000" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_CLK100MEG_CLOCK_RATE" value="100000000" />
+  <parameter name="AUTO_CLKETH_CLOCK_RATE" value="100000000" />
   <parameter name="AUTO_CLK50MEG_CLOCK_RATE" value="50000000" />
  </module>
  <connection
@@ -1084,11 +1085,6 @@
  <connection
    kind="clock"
    version="10.0"
-   start="altpll_0.c1"
-   end="powerlink_0.clk100meg" />
- <connection
-   kind="clock"
-   version="10.0"
    start="altpll_0.c2"
    end="powerlink_0.pcp_clk" />
  <connection
@@ -1107,4 +1103,9 @@
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
  </connection>
+ <connection
+   kind="clock"
+   version="10.0"
+   start="altpll_0.c1"
+   end="powerlink_0.clkEth" />
 </system>
