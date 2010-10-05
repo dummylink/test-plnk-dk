@@ -180,8 +180,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_fAsyncOnly = FALSE;
 	EplApiInitParam.m_dwFeatureFlags = pInitParm_p->m_dwFeatureFlags;
 	EplApiInitParam.m_dwCycleLen = CYCLE_LEN;
-	EplApiInitParam.m_uiPreqActPayloadLimit = 50;
-	EplApiInitParam.m_uiPresActPayloadLimit = 50;
+	EplApiInitParam.m_uiPreqActPayloadLimit = 36;
+	EplApiInitParam.m_uiPresActPayloadLimit = 36;
 	EplApiInitParam.m_uiMultiplCycleCnt = 0;
 	EplApiInitParam.m_uiAsyncMtu = 1500;
 	EplApiInitParam.m_uiPrescaler = 2;

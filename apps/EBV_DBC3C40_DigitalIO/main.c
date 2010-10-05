@@ -139,8 +139,8 @@ int main (void)
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
-    /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 4000 us, maxCycleNum = 10 */
-    initInterrupt(POWERLINK_0_IRQ, 1000, 4000, 10);
+    /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 65535 us (max. val. for DWORD), maxCycleNum = 10 */
+    initInterrupt(POWERLINK_0_IRQ, 1000, 65535, 10);
 
     /* Start periodic main loop */
     printf("API example is running...\n");
