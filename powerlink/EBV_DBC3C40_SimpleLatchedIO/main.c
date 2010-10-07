@@ -130,7 +130,7 @@ int openPowerlink(void) {
 	EplApiInitParam.m_uiMultiplCycleCnt = 0;
 	EplApiInitParam.m_uiAsyncMtu = 1500;
 	EplApiInitParam.m_uiPrescaler = 2;
-	EplApiInitParam.m_dwLossOfFrameTolerance = 500000;
+	EplApiInitParam.m_dwLossOfFrameTolerance = 500000000;
 	EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
 	EplApiInitParam.m_dwWaitSocPreq = 0;
 	EplApiInitParam.m_dwDeviceType = -1;
@@ -419,15 +419,16 @@ tEplKernel PUBLIC AppCbSync(void)
 {
 	tEplKernel 		EplRet = kEplSuccessful;
     register int	iCnt;
-    DWORD			ports;
+    DWORD			ports; //<<< 4 byte input or output ports
     DWORD*			ulDigInputs = LATCHED_IOPORT_BASE;
     DWORD*			ulDigOutputs = LATCHED_IOPORT_BASE;
 
     /* read digital input ports */
-    ports = ~(*ulDigInputs); ///< low-active buttons
-
+    ports = *ulDigInputs; 
+	
     for (iCnt = 0; iCnt <= 3; iCnt++)
     {
+	
         if (portIsOutput[iCnt])
         {
         	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
