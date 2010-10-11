@@ -11,7 +11,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
    }
@@ -81,6 +81,14 @@
          type = "String";
       }
    }
+   element jtag_uart_1.avalon_jtag_slave
+   {
+      datum baseAddress
+      {
+         value = "2128";
+         type = "long";
+      }
+   }
    element jtag_uart_0.avalon_jtag_slave
    {
       datum _lockedAddress
@@ -91,14 +99,6 @@
       datum baseAddress
       {
          value = "8288";
-         type = "long";
-      }
-   }
-   element jtag_uart_1.avalon_jtag_slave
-   {
-      datum baseAddress
-      {
-         value = "2128";
          type = "long";
       }
    }
@@ -237,7 +237,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
    }
@@ -259,6 +259,14 @@
          type = "boolean";
       }
    }
+   element ap_cpu.jtag_debug_module
+   {
+      datum baseAddress
+      {
+         value = "4096";
+         type = "long";
+      }
+   }
    element pcp_cpu.jtag_debug_module
    {
       datum _lockedAddress
@@ -269,14 +277,6 @@
       datum baseAddress
       {
          value = "6144";
-         type = "long";
-      }
-   }
-   element ap_cpu.jtag_debug_module
-   {
-      datum baseAddress
-      {
-         value = "4096";
          type = "long";
       }
    }
@@ -351,7 +351,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
    }
@@ -421,15 +421,15 @@
       }
       datum sopceditor_expanded
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
    }
-   element sdram_0.s1
+   element status_led_pio.s1
    {
       datum baseAddress
       {
-         value = "33554432";
+         value = "8224";
          type = "long";
       }
    }
@@ -462,19 +462,11 @@
          type = "long";
       }
    }
-   element system_timer_ap.s1
+   element inport_ap.s1
    {
       datum baseAddress
       {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8224";
+         value = "2112";
          type = "long";
       }
    }
@@ -491,11 +483,27 @@
          type = "long";
       }
    }
+   element sdram_0.s1
+   {
+      datum baseAddress
+      {
+         value = "33554432";
+         type = "long";
+      }
+   }
    element clock_crossing_0.s1
    {
       datum baseAddress
       {
          value = "16777216";
+         type = "long";
+      }
+   }
+   element system_timer_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2048";
          type = "long";
       }
    }
@@ -509,14 +517,6 @@
       datum baseAddress
       {
          value = "8192";
-         type = "long";
-      }
-   }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2112";
          type = "long";
       }
    }
@@ -624,7 +624,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
    }
@@ -637,8 +637,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="10899315171" />
- <parameter name="timeStamp" value="1285143644923" />
+ <parameter name="systemHash" value="9660531417" />
+ <parameter name="timeStamp" value="1286793442577" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1193,11 +1193,12 @@
   <parameter name="tpdo0size" value="100" />
   <parameter name="asyncTxBufSize" value="1518" />
   <parameter name="asyncRxBufSize" value="1518" />
+  <parameter name="phyIF" value="RMII" />
   <parameter name="iTpdoObjNumber_g" value="100" />
   <parameter name="iRpdoObjNumber_g" value="100" />
   <parameter name="AUTO_PCP_CLK_CLOCK_RATE" value="90000000" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="50000000" />
-  <parameter name="AUTO_CLK100MEG_CLOCK_RATE" value="100000000" />
+  <parameter name="AUTO_CLKETH_CLOCK_RATE" value="100000000" />
   <parameter name="AUTO_CLK50MEG_CLOCK_RATE" value="50000000" />
  </module>
  <module kind="altera_avalon_pio" version="10.0" enabled="1" name="outport_ap">
@@ -1539,11 +1540,6 @@
  <connection
    kind="clock"
    version="10.0"
-   start="altpll_0.c2"
-   end="powerlink_0.clk100meg" />
- <connection
-   kind="clock"
-   version="10.0"
    start="altpll_0.c0"
    end="powerlink_0.clk50meg" />
  <connection
@@ -1615,4 +1611,9 @@
   <parameter name="baseAddress" value="0x0840" />
  </connection>
  <connection kind="clock" version="10.0" start="altpll_0.c0" end="inport_ap.clk" />
+ <connection
+   kind="clock"
+   version="10.0"
+   start="altpll_0.c2"
+   end="powerlink_0.clkEth" />
 </system>

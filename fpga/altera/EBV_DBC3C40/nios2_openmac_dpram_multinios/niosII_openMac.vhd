@@ -13772,9 +13772,9 @@ component powerlink_0 is
                     signal ap_read : IN STD_LOGIC;
                     signal ap_write : IN STD_LOGIC;
                     signal ap_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-                    signal clk100 : IN STD_LOGIC;
                     signal clk50 : IN STD_LOGIC;
                     signal clkAp : IN STD_LOGIC;
+                    signal clkEth : IN STD_LOGIC;
                     signal clkPcp : IN STD_LOGIC;
                     signal mac_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
                     signal mac_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -16070,9 +16070,9 @@ begin
       ap_read => powerlink_0_PDI_AP_read,
       ap_write => powerlink_0_PDI_AP_write,
       ap_writedata => powerlink_0_PDI_AP_writedata,
-      clk100 => internal_clk100Meg,
       clk50 => internal_clk50Meg,
       clkAp => internal_clk50Meg,
+      clkEth => internal_clk100Meg,
       clkPcp => internal_pcp_clk,
       mac_address => powerlink_0_MAC_REG_address,
       mac_byteenable_n => powerlink_0_MAC_REG_byteenable_n,

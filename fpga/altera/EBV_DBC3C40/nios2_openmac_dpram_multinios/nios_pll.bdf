@@ -1169,18 +1169,6 @@ applicable agreement for further details.
 	(bus)
 )
 (connector
-	(text "inport[7..4]" (rect 682 912 735 924)(font "Arial" ))
-	(pt 408 920)
-	(pt 672 920)
-	(bus)
-)
-(connector
-	(text "inport[3..0]" (rect 682 960 735 972)(font "Arial" ))
-	(pt 408 968)
-	(pt 672 968)
-	(bus)
-)
-(connector
 	(pt 240 56)
 	(pt 240 80)
 )
@@ -1366,5 +1354,17 @@ applicable agreement for further details.
 	(text "inport[7..0]" (rect -40 280 13 292)(font "Arial" ))
 	(pt 272 288)
 	(pt 24 288)
+	(bus)
+)
+(connector
+	(text "inport[7..4]" (rect 682 960 735 972)(font "Arial" ))
+	(pt 408 968)
+	(pt 672 968)
+	(bus)
+)
+(connector
+	(text "inport[3..0]" (rect 682 912 735 924)(font "Arial" ))
+	(pt 408 920)
+	(pt 672 920)
 	(bus)
 )

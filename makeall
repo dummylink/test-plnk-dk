@@ -11,7 +11,7 @@ echo $ROOTDIR
 
 # Create single NIOS designs
 # ----------------------------
-cd ${ROOTDIR}/powerlink/EBV_DBC3C40_DigitalIO
+cd ${ROOTDIR}/powerlink/EBV_DBC3C40_SimpleLatchedIO
 ./create-this-app --rebuild --no-make
 cd ${ROOTDIR}
 
@@ -27,13 +27,24 @@ cd ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
 ./create-this-app --rebuild --no-make
 cd ${ROOTDIR}
 
-
+#
 # Make all
 # -----------
+
+#### SimpleLatchedIO Design ####
+make -C ${ROOTDIR}/powerlink/EBV_DBC3C40_SimpleLatchedIO
+
+
+###### Dual NIOS #####
+# Make CN API Library
 make -C ${ROOTDIR}/libCnApi/target/nios2_newlib # has to be created first!
 
+# Make AP 
 make -C ${ROOTDIR}/apps/EBV_DBC3C40_DigitalIO
 
+# Make PCP
 make -C ${ROOTDIR}/powerlink/EBV_DBC3C40_DPRAM
+
+
 
 exit 0
