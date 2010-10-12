@@ -80,6 +80,11 @@ static BOOL checkApCommand(BYTE cmd_p)
 {
 	if (getCommandFromAp() == cmd_p)
 	{
+		if (cmd_p != kApCmdReboot) ///< reset AP command will take place in state 'kPcpStateBooted'
+		{
+		pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
+		}
+
 		return TRUE;
 	}
 	else
@@ -121,9 +126,17 @@ FUNC_ENTRYACT(kPcpStateBooted)
 	{
 		asm("NOP;");
 	}
+
 	pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
 
-	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xee); ///< set "bootup LED"
+	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xef); ///< set "bootup LED"
+
+	///< if this is not the first boot: shutdown POWERLINK first
+	if(bPLisInitalized == TRUE)
+	{
+		EplNmtuNmtEvent(kEplNmtEventSwitchOff); ///< shutdown and cleanup POWERLINK
+	    bPLisInitalized = FALSE;
+	}
 	storePcpState(kPcpStateBooted);
 }
 /*----------------------------------------------------------------------------*/
@@ -135,7 +148,10 @@ FUNC_DOACT(kPcpStateBooted)
 	if (checkApCommand(kApCmdInit))
 	{
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
-		iStatus = initPowerlink(&initParm_g);
+		if(bPLisInitalized == FALSE) ///< POWERLINK is not initialized yet
+		{
+			iStatus = initPowerlink(&initParm_g);
+		}
 		if (iStatus == kEplSuccessful)
 		{
 			fEvent = TRUE;
@@ -299,7 +315,7 @@ static void stateChange(BYTE current, BYTE target)
 	currentIdx = current + 2;
 	targetIdx = target + 2;
 
-	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "\nSTATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
 }
 
 /******************************************************************************/

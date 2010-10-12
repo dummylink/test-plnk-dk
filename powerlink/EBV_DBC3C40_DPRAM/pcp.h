@@ -31,6 +31,7 @@ DETAILED_DESCRIPTION_OF_FILE
 /* global variables */
 extern tPcpCtrlReg	*pCtrlReg_g;
 extern tCnApiInitParm initParm_g;
+extern BOOL bPLisInitalized;
 extern int iSyncIntCycle_g;
 
 /******************************************************************************/

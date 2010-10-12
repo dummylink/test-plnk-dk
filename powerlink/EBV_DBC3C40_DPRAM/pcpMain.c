@@ -59,6 +59,7 @@ BYTE		digitalOut[4];
 
 tPcpCtrlReg		*pCtrlReg_g;
 tCnApiInitParm 	initParm_g;
+BOOL 			bPLisInitalized = FALSE;
 int				iSyncIntCycle_g;
 
 
@@ -210,6 +211,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	else
 	{
 		DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...ok\n\n");
+		bPLisInitalized = TRUE;
 	}
     return EplRet;
 }
