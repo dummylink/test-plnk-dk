@@ -1772,7 +1772,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1287402127 ";
       }
       SIMULATION 
       {
@@ -5189,7 +5189,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>216524E1</b>    (unique ID tag) <br> <b>4C90D40F</b> (timestamp: Wed Sep 15, 2010 @4:11 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>216524E1</b>    (unique ID tag) <br> <b>4CBC3223</b> (timestamp: Mon Oct 18, 2010 @1:40 PM)";
             MESSAGES 
             {
             }
@@ -5198,7 +5198,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "560276705u";
-         timestamp = "1284559887u";
+         timestamp = "1287402019u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5207,7 +5207,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=560276705 --timestamp=1284559887";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=560276705 --timestamp=1287402019";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6345,27 +6345,6 @@ SYSTEM niosII_openMac
             direction = "input";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiClk
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiDat
-         {
-            type = "export";
-            width = "1";
-            direction = "inout";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiRst_n
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
          PORT phyMii0_TxClk
          {
             type = "export";
@@ -6413,6 +6392,27 @@ SYSTEM niosII_openMac
             type = "export";
             width = "4";
             direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiClk
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiDat
+         {
+            type = "export";
+            width = "1";
+            direction = "inout";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiRst_n
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
             Is_Enabled = "1";
          }
          PORT phy0_MiiClk
@@ -6572,9 +6572,9 @@ SYSTEM niosII_openMac
          CONFIGAPIF = "Avalon";
          MACBUFSIZE = "9632";
          MACRXBUFFERS = "4";
-         MACRXBUFSIZE = "6136";
+         MACRXBUFSIZE = "6128";
          MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "3496";
+         MACTXBUFSIZE = "3504";
          PDIRPDOOBJ = "100";
          PDIRPDOS = "1";
          PDITPDOOBJ = "100";

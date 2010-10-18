@@ -54,9 +54,6 @@ tEplKernel PUBLIC AppCbEvent(
     tEplApiEventArg*        pEventArg_p,   // IN: event argument (union)
     void GENERIC*           pUserArg_p);
 
-BYTE		digitalIn[4];
-BYTE		digitalOut[4];
-
 tPcpCtrlReg		*pCtrlReg_g;
 tCnApiInitParm 	initParm_g;
 BOOL 			bPLisInitalized = FALSE;

@@ -10,7 +10,8 @@
 . ../../project.config
 
 if [ -z "$SOPC_DIR" ]; then
-SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO/
+#SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
+SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
 fi
 
 BSP_DIR=./bsp
@@ -89,6 +90,7 @@ fi
 
 # save arguments for passing to create-this-bsp
 SAVE_ARGS=$@
+#TODO: put here the ../SOPC_DIR correctly
 
 # process arguments
 SKIP_MAKE=
@@ -168,7 +170,7 @@ SOF_FILE := $(wildcard $(QUARTUS_PROJECT_DIR)/*.sof)
 .PHONY : $(PROGRAM_EPCS_TARGET)
 $(PROGRAM_EPCS_TARGET) : $(ELF)
 
-	@$(ECHO) Info: Programming $(basename $@).flash
+	@$(ECHO) Info: Programming $(basename $@).flash	
 	@if [ -n "$($(basename $@)_EPCS_FLAGS)" ]; \
 	then \
 		nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \

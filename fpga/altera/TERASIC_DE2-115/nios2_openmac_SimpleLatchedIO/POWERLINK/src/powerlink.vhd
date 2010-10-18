@@ -297,21 +297,22 @@ begin
 				rst						=> rstPcp
 			);
 		
-		theParPortSyncRd : entity work.sync
-			port map (
-				inData					=> pap_rd_s, --sync the parallel port rd signal
-				outData					=> pap_rd_ss, --the sync cs is used rd trigger fsm
-				clk						=> clk50,
-				rst						=> rstPcp
-			);
-		
-		theParPortSyncWr : entity work.sync
-			port map (
-				inData					=> pap_wr_s, --sync the parallel port wr signal
-				outData					=> pap_wr_ss, --the sync cs is used wr trigger fsm
-				clk						=> clk50,
-				rst						=> rstPcp
-			);
+--		theParPortSyncRd : entity work.sync
+--			port map (
+--				inData					=> pap_rd_s, --sync the parallel port rd signal
+--				outData					=> pap_rd_ss, --the sync cs is used rd trigger fsm
+--				clk						=> clk50,
+--				rst						=> rstPcp
+--			);
+		pap_rd_ss <= pap_rd_s;
+--		theParPortSyncWr : entity work.sync
+--			port map (
+--				inData					=> pap_wr_s, --sync the parallel port wr signal
+--				outData					=> pap_wr_ss, --the sync cs is used wr trigger fsm
+--				clk						=> clk50,
+--				rst						=> rstPcp
+--			);
+		pap_wr_ss <= pap_wr_s;
 		--
 		-------------------------------------------------------------------------------------
 		

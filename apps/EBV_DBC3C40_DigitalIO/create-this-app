@@ -9,7 +9,8 @@
 . ../../project.config
 
 if [ -z "$SOPC_DIR" ]; then
-SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios/
+#SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
+SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
 fi
 
 BSP_DIR=./bsp
@@ -68,8 +69,7 @@ then
 fi
 
 # save arguments for passing to create-this-bsp
-SAVE_ARGS=$@
-
+SAVE_ARGS=SOPC_DIR
 
 # process arguments
 SKIP_MAKE=

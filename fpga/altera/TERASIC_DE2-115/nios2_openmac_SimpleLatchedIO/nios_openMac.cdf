@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP4CE115F29) Path("C:/svn/TERASIC_DE2-115/nios2_openmac_digitalIO/") File("nios_openMac.sof") MfrSpec(OpMask(1));
+		Device PartName(EP4CE115F29) Path("C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO/") File("nios_openMac.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

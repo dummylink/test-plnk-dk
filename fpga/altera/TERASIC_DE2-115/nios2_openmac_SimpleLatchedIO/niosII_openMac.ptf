@@ -1756,7 +1756,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_pcp.hex 1287392024 ";
       }
       SIMULATION 
       {
@@ -3636,27 +3636,6 @@ SYSTEM niosII_openMac
             direction = "input";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiClk
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiDat
-         {
-            type = "export";
-            width = "1";
-            direction = "inout";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiRst_n
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
          PORT phyMii0_TxClk
          {
             type = "export";
@@ -3704,6 +3683,27 @@ SYSTEM niosII_openMac
             type = "export";
             width = "4";
             direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiClk
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiDat
+         {
+            type = "export";
+            width = "1";
+            direction = "inout";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiRst_n
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
             Is_Enabled = "1";
          }
          PORT phy0_MiiClk
@@ -3952,11 +3952,11 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          CONFIG = "Simple I/O CN";
-         MACBUFSIZE = "12604";
+         MACBUFSIZE = "12600";
          MACRXBUFFERS = "6";
-         MACRXBUFSIZE = "9204";
+         MACRXBUFSIZE = "9192";
          MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "3400";
+         MACTXBUFSIZE = "3408";
          PDIRPDOS = "3";
          PDITPDOS = "1";
       }
