@@ -23,6 +23,8 @@
 
 /******************************************************************************/
 /* defines */
+#define SET_NODE_ID_PER_SW 			//NodeID will be overwritten with SW define
+
 #define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
 #define CYCLE_LEN   1000 // [us]
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
@@ -31,6 +33,7 @@
 
 #define LATCHED_IOPORT_BASE (void*) POWERLINK_0_SMP_BASE
 #define LATCHED_IOPORT_CFG	(void*) (LATCHED_IOPORT_BASE + 4)
+
 
 // This function is the entry point for your object dictionary. It is defined
 // in OBJDICT.C by define EPL_OBD_INIT_RAM_NAME. Use this function name to define
@@ -108,10 +111,10 @@ int openPowerlink(void) {
     InitPortConfiguration(portIsOutput);
 
     /* setup the POWERLINK stack */
-
+	
 	// calc the IP address with the nodeid
 	ip &= 0xFFFFFF00; //dump the last byte
-	ip |= NODEID; // and mask it with the node id
+	ip |= GetNodeId(); // and mask it with the node id
 
 	// set EPL init parameters
 	EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
@@ -130,7 +133,7 @@ int openPowerlink(void) {
 	EplApiInitParam.m_uiMultiplCycleCnt = 0;
 	EplApiInitParam.m_uiAsyncMtu = 1500;
 	EplApiInitParam.m_uiPrescaler = 2;
-	EplApiInitParam.m_dwLossOfFrameTolerance = 500000000;
+	EplApiInitParam.m_dwLossOfFrameTolerance = 5000000;
 	EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
 	EplApiInitParam.m_dwWaitSocPreq = 0;
 	EplApiInitParam.m_dwDeviceType = -1;
@@ -143,7 +146,10 @@ int openPowerlink(void) {
 	EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
-
+	
+	
+	PRINTF1("\nNode ID is set to: %d\n", EplApiInitParam.m_uiNodeId);
+	
     /************************/
 	/* initialize POWERLINK stack */
     PRINTF("init POWERLINK stack:\n");
@@ -468,7 +474,7 @@ void InitPortConfiguration (char *p_portIsOutput)
 	memcpy((BYTE *) &portconf, LATCHED_IOPORT_CFG, 1);
 	portconf = ~portconf;
 
-	PRINTF1("\nPort configuration register value = %d \n", portconf);
+	PRINTF1("\nPort configuration register value (only last digit matters) = %X \n", portconf);
 
 	for (iCnt = 0; iCnt <= 3; iCnt++)
 	{
@@ -500,7 +506,9 @@ WORD GetNodeId (void)
 
 	/* read port configuration input pins */
 	nodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
-	nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
+	#ifdef SET_NODE_ID_PER_SW
+		nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
+	#endif
 
 	return nodeId;
 }

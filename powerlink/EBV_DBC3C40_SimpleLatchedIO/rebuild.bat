@@ -6,8 +6,8 @@
 @ REM ######################################
 @ REM # SET PARAMETERS
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
-@ set SOF_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
-@ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
 
 @ REM ######################################
 @ REM # Discover the root nios2eds directory
@@ -52,12 +52,12 @@
 @ goto run_bash
 
 :run_bash
-@ echo . verifying path...: %~dp0%SOF_DIR%
-@ if not exist "%~dp0%SOF_DIR%" goto errorSOPC
+@ echo . verifying path...: %~dp0%SOPC_DIR%
+@ if not exist "%~dp0%SOPC_DIR%" goto errorSOPC
 @ echo . verifying path...OK
 @ echo .
 @ REM execute "$QUARTUS_ROOTDIR/sopc_builder/bin/nios_bash" in every bash.exe call !
-@ "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\run.sh" --terminal --sopcdir %SOF_DIR%
+@ "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\rebuild_SimpleLatchedIO.sh" --sopcdir %SOPC_DIR%
 
 @ pause
 @ exit
@@ -90,12 +90,12 @@
 
 :errorSOPC
 @ echo . 
-@ echo . Cannot locate SOF directory (SOF_DIR) at:
+@ echo . Cannot locate SOPC directory (SOPC_DIR) at:
 @ echo . 
-@ echo .    %SOF_DIR%
-@ echo .    (setting in run.bat)
+@ echo .    %SOPC_DIR%
+@ echo .    (setting in rebuild.bat)
 @ echo . 
-@ echo . Switch to existing path where the sof-file resides!
+@ echo . Switch to existing path where the sopcinfo-file resides!
 @ echo . 
 @ pause
 @ exit
