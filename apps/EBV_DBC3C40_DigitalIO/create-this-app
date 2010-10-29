@@ -28,6 +28,7 @@ ${LIBAPIDIR}/utils"
 # Custom libraries
 LIBDIRS="${LIBAPIDIR}/target/nios2_newlib"
 LIBNAMES="CnApi"
+LIBTARGETFOLDER=$LIBAPIDIR/target/nios2_newlib
 
 ###############################################################################
 # Select here between debug and release settings
@@ -150,6 +151,25 @@ $cmd || {
     echo "nios2-app-generate-makefile failed"
     exit 1
 }
+
+echo
+echo "Rebuild target library before using it..."
+echo 
+make -C $LIBTARGETFOLDER clean
+make -C $LIBTARGETFOLDER
+
+if [ -f $LIBTARGETFOLDER/libCnApi.a ]
+then
+	echo
+	echo "Target library rebuild done!"
+	echo
+else
+    echo 
+    echo "Target library rebuild ERROR!"
+    echo "Rebuild stopped!"
+	echo
+    exit 1
+fi
 
 if [ -z "$SKIP_MAKE" ]; then
 	cmd="make"

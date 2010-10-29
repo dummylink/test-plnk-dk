@@ -25,6 +25,7 @@ a dual ported RAM (DPRAM) area.
 /* includes */
 #include "cnApiGlobal.h"     // global definitions
 #include "cnApi.h"
+#include "cnApiDebug.h"
 
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
@@ -39,11 +40,16 @@ a dual ported RAM (DPRAM) area.
 /******************************************************************************/
 /* defines */
 
-#define PDI_DPRAM_BASE_AP POWERLINK_0_BASE
-// Defines for Sync IRQ for AP only
-#define SYNC_IRQ_ACK				0
-#define SYNC_IRQ_CONTROL_REGISTER 	(BYTE *) (PDI_DPRAM_BASE_AP + SYNC_IRQ_CONROL_REG_OFFSET)
+#ifndef CN_API_USING_SPI
+    #define PDI_DPRAM_BASE_AP POWERLINK_0_BASE                      ///< from system.h
+#else
+    #define PDI_DPRAM_BASE_AP 0x00                                  ///< no base address necessary
+#endif
 
+
+#define NUM_INPUT_OBJS      4                                   ///< number of used input objects
+#define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects
+#define NUM_OBJECTS         (NUM_INPUT_OBJS + NUM_OUTPUT_OBJS)  ///< number of objects to be linked to the object dictionary
 
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
 #define IP_ADDR     0xc0a86401  								///< 192.168.100.1 // don't care the last byte!
@@ -51,39 +57,28 @@ a dual ported RAM (DPRAM) area.
 
 /*----------------------------------------------------------------------------*/
 /* some options */
+#define DEFAULT_NODEID      0x00 ///< default node ID to use, should be NOT 0xF0 (=MN) if this is a CN
+/* If you don't intend to connect node Id switches to the PCP, this value might set != 0x00 */
 
-/* reading of node id pins could be disabled if no node switch is connected.
- * DEFAULT_NODEID will be used instead of contents of node switch.
- */
-#undef	INCLUDE_NODE_ID_READ
-
-/*
- * reading of port configuration pins could be disabled if nothing is connected.
- * DEFAULT_PORTCONF will be used instead of contents of port configuration pins.
- */
-#undef	INCLUDE_PORTCONF_READ
-#define DEFAULT_NODEID      0x01 								///< default node ID to use, should be NOT 0xF0 (=MN) in case of CN
-#define	DEFAULT_PORTCONF	0x0B								///< default port pin configuration to use
-
-
-#define	NUM_INPUT_OBJS		4									///< number of used input objects
-#define	NUM_OUTPUT_OBJS		4									///< number of used output objects
-#define	NUM_OBJECTS			(NUM_INPUT_OBJS + NUM_OUTPUT_OBJS)	///< number of objects to be linked to the object dictionary
+//#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
 
 /******************************************************************************/
 /* global variables */
-BYTE			portIsOutput[4]={0xff, 0xff, 0xff, 0x00}; //TODO: Delete initialization ///< Variable to store the port configuration
-WORD			nodeId;											///< The node ID to be used by the application
+WORD			nodeId;											///< The node ID, which can overwrite the node switches if != 0x00
 BYTE 			abMacAddr_g[] = { MAC_ADDR };					///< The MAC address to be used
 BYTE			digitalIn[NUM_INPUT_OBJS];						///< The values of the digital input pins of the board will be stored here
 BYTE			digitalOut[NUM_OUTPUT_OBJS];					///< The values of the digital output pins of the board will be stored here
 
 /******************************************************************************/
 /* forward declarations */
-WORD getNodeId (void);
 void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *pMac_p);
 void workInputOutput(void);
 int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycleNum);
+
+#ifdef CN_API_USING_SPI
+int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p);
+int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p);
+#endif
 
 /**
 ********************************************************************************
@@ -101,18 +96,18 @@ int main (void)
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
-    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); ///> set hex digits on Mercury-Board to indicate AP presence
-    usleep(1000000);		/* wait 1 s */
+    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); ///< set hex digits on Mercury-Board to indicate AP presence
+    usleep(1000000);		                                ///< wait 1 s, so you can see the LEDs
 
-    /* initializing */
-    nodeId = getNodeId();
+    TRACE("Initialize CN API functions...\n");
 
-    printf("Initialize CN API functions...\n");
-    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				// initialize POWERLINK parameters
+    nodeId = DEFAULT_NODEID;    ///< in case you dont want to use Node Id switches, use a diffenrent value then 0x00
+    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				///< initialize POWERLINK parameters
 
-    if ((status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm)) < 0)		// initialize and start the CN API
+    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  ///< initialize and start the CN API
+    if (status < 0)
     {
-    	printf ("CN API library could not be initialized (%d)\n", status);
+        TRACE1("CN API library could not be initialized (%d)\n", status);
 		return -1;
     }
 
@@ -121,7 +116,7 @@ int main (void)
     /* initialize CN API object module */
     if (CnApi_initObjects(NUM_OBJECTS) < 0)
     {
-    	printf ("CN API library initObjects failed\n");
+        TRACE("CN API library initObjects failed\n");
     	return -1;
     }
 
@@ -139,28 +134,40 @@ int main (void)
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
+#ifdef USE_POLLING_MODE
+    CnApi_disableSyncInt();
+#else
     /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 65535 us (max. val. for DWORD), maxCycleNum = 10 */
     initInterrupt(POWERLINK_0_IRQ, 1000, 65535, 10);
+#endif /* USE_POLLING_MODE */
 
     /* Start periodic main loop */
-    printf("API example is running...\n");
+    TRACE("API example is running...\n");
 	CnApi_activateApStateMachine();
 
 	/* main program loop */
 	/* TODO: implement exit of application! */
     while (1)
     {
-    	/* The AP state machine must be periodically updated, let's do it ... */
-    	CnApi_processApStateMachine();
+        /* Instead of this while loop, you can use your own (nonblocking) tasks ! */
 
-    	/* read inputs and outputs */
-    	workInputOutput();
+        /*--- TASK 1: START ---*/
+    	CnApi_processApStateMachine();     ///< The AP state machine must be periodically updated
+    	workInputOutput();                 ///< update the PCB's inputs and outputs
+    	/*--- TASK 1: END   ---*/
 
     	/* wait until next period */
-    	usleep(1000);		/* wait 1 ms */
+    	usleep(1000);		               ///< wait 1 ms to simulate a task behavior
+
+        #ifdef USE_POLLING_MODE
+        /*--- TASK 2: START ---*/
+    	CnApi_transferPdo();               ///< update linked variables
+        /*--- TASK 2: END   ---*/
+        #endif /* USE_POLLING_MODE */
+
     }
 
-    printf("shut down application...\n");
+    TRACE("shut down application...\n");
     CnApi_disableSyncInt();
     CnApi_cleanupObjects();
     CnApi_exit();
@@ -207,8 +214,8 @@ be periodically called in the main loop.
 *******************************************************************************/
 void workInputOutput(void)
 {
-	register iCnt;
-	DWORD ports;
+	register BYTE iCnt;
+	DWORD dwOutPort = 0;
 	BYTE cInPort;
 	
 	///> Digital IN: read push- and joystick buttons
@@ -224,39 +231,16 @@ void workInputOutput(void)
         if (iCnt <= 1)
         {
         	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
-        	ports = (ports & ~(0xff << (iCnt * 8))) | (digitalOut[iCnt] << (iCnt * 8));
+            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[iCnt] << (iCnt * 8));
         }
         else if (iCnt == 3)
         {
         	/* configured as input -> store in TPDO mapped variable */
-        	ports = (ports & ~(0xff << (2 * 8))) | (digitalOut[iCnt] << (2 * 8));
+            dwOutPort = (dwOutPort & ~(0xff << (2 * 8))) | (digitalOut[iCnt] << (2 * 8));
         }
     }
 	
-    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, ports);
-}
-
-/**
-********************************************************************************
-\brief	get node ID
-
-getNodeId() reads the node switches connected to the node switch inputs and
-returns the node ID.
-
-\retval	nodeID		the node ID which was read
-*******************************************************************************/
-WORD getNodeId (void)
-{
-	WORD 	nodeId;
-
-#ifdef	INCLUDE_NODE_ID_READ
-	/* read port configuration input pins */
-	nodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
-#else
-	nodeId = DEFAULT_NODEID;
-#endif
-
-	return nodeId;
+    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, dwOutPort);
 }
 
 /**
@@ -269,6 +253,7 @@ the interrupt when periodic data is ready to transfer.
 See the Altera NIOSII Reference manual for further details of interrupt
 handlers.
 *******************************************************************************/
+#ifndef USE_POLLING_MODE
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
 static void syncIntHandler(BYTE* pArg_p)
 #else
@@ -276,11 +261,15 @@ static void syncIntHandler(BYTE* pArg_p, alt_u32 dwInt_p)
 #endif
 {
 	/* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
-	*SYNC_IRQ_CONTROL_REGISTER = (1 << SYNC_IRQ_ACK);
+	pCtrlReg_g->m_bAPIrqControl = (1 << SYNC_IRQ_ACK);
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_bAPIrqControl); ///< update pcp register
+#endif
 
 	CnApi_transferPdo();		// Call CN API PDO transfer function
 }
-
+#endif /* USE_POLLING_MODE */
 /**
 ********************************************************************************
 \brief	initialize synchronous interrupt
@@ -296,6 +285,7 @@ will be enabled.
 
 \return	OK, or ERROR if interrupt couldn't be connected
 *******************************************************************************/
+#ifndef USE_POLLING_MODE
 int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycleNum_p)
 {
 	CnApi_initSyncInt(wMinCycleTime_p, wMaxCycleTime_p, bMaxCycleNum_p);
@@ -317,3 +307,31 @@ int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMax
     CnApi_enableSyncInt();
 	return OK;
 }
+#endif /* USE_POLLING_MODE */
+
+#ifdef CN_API_USING_SPI
+int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
+{
+    alt_avalon_spi_command(
+        SPI_0_BASE, 0,      //core base, spi slave
+        iBytes_p, pTxBuf_p, //write bytes, addr of write data
+        0, NULL,            //read bytes, addr of read data
+        0);                 //flags (don't care)
+
+    return PDISPI_OK;
+}
+
+int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
+{
+    alt_avalon_spi_command(
+        SPI_0_BASE, 0,      //core base, spi slave
+        0, NULL,            //write bytes, addr of write data
+        iBytes_p, pRxBuf_p, //read bytes, addr of read data
+        0);                 //flags (don't care)
+
+    return PDISPI_OK;
+}
+#endif /* CN_API_USING_SPI */
+
+/* END-OF-FILE */
+/******************************************************************************/

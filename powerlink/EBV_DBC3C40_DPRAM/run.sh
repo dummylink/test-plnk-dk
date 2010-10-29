@@ -1,49 +1,65 @@
 #!/bin/bash
 ###############################################################################
-# This script runs the CN_DK dual-nios design
-###############################################################################
-# TODO: - copy this file to the PCP folder and adapt CN_DK_DIR
-# TODO: - Power-Cycle the FPGA before using this script
+# This script makes and runs the digital I/O application of this directory.
 ###############################################################################
 
-CN_DK_DIR=../..
+###############################################################################
+#
+#
+. "$QUARTUS_ROOTDIR/sopc_builder/bin/nios_bash"
 
-SOFDIR=${CN_DK_DIR}/fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
-PCPDIR=./
-APDIR=${CN_DK_DIR}/apps/EBV_DBC3C40_DigitalIO
+######## Input Parameters ############
+#
+INPUT_VARS=$@
+#
 
-#echo " "
-#echo "Erase Serial Flash Memory..."
-#echo " "
-#nios2-flash-programmer --base=0x00 --epcs --erase-all --instance=1
+######## Fixed Parameters ############
+#
+PCP_ELF_DIR=./
+#
 
-echo " "
-echo "Configure FPGA HW..."
-echo " "
+echo --- This is rebuild_SimpleLatchedIO ---
+echo input parameters: $INPUT_VARS
 
-# Configure FPGA HW
-nios2-configure-sof -C ${SOFDIR} 	
+# process arguments
+SOF_DIR=
+TERMINAL=
+while [ $# -gt 0 ]
+do
+  case "$1" in
+	  --sopcdir)
+		 shift
+		 #relative path!
+		 SOF_DIR=$1
+		 echo SOF_DIR set to \"$SOF_DIR\"
+		 echo -------------------------------;;
+      --terminal)
+		 TERMINAL=1;; 
+  esac
+  shift
+done
 
-# download the AP software and start the AP
-make -C ${APDIR}	  	
-echo " "
-echo "Download AP SW..."
-echo " "
-nios2-download -C ${APDIR} --device=1 --instance=0 --cpu_name=ap_cpu epl.elf --go
+if [ -z "$SOF_DIR" ]; then
+echo "No SOPC directory specified (needed for sof-file) !"
+echo "Use parameter: --sopcdir <SOF_directory>"
+exit 1
+fi
 
-# download the PCP software and start the PCP
-make -C ${PCPDIR}  		
-echo " "
-echo "Download PCP SW..."
-echo " "
-nios2-download -C ${PCPDIR} --device=1 --instance=1 --cpu_name=pcp_cpu epl.elf --go
 
-echo " "
-echo "Dual NIOS-II design has been uploaded."
-echo "Power-Cycle the FPGA before next reprogramming!"
-echo " "
 
+#######################################
+### Program the FPGA and run the SW ###
+nios2-configure-sof -C $SOF_DIR
+nios2-download -C ${PCP_ELF_DIR} --device=1 --instance=0 --cpu_name=pcp_cpu epl.elf --go
+
+
+# Open Terminal
+if [ -z "$TERMINAL" ]
+	then
+		echo	
+	else
+	nios2-terminal -c USB-Blaster[USB-0]
+fi
+#######################################
 
 exit 0
-
-#EOF

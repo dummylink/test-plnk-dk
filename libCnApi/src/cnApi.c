@@ -33,10 +33,12 @@ processor (AP) to the POWERLINK communication processor (PCP).
 /******************************************************************************/
 /* global variables */
 
-BYTE 				*pDpram_g;				// pointer to DPRAM
 tPcpCtrlReg			*pCtrlReg_g;			// pointer to PCP control registers
 tCnApiInitParm		*pInitParm_g;			// pointer to POWERLINK init parameters
 tpfnSyncIntCb		pfnSyncIntCb = NULL;	// function pointer to sync interrupt callback
+#ifdef CN_API_USING_SPI
+tPcpCtrlReg     sPcPCntrlReg; ///< if SPI is used, we need a local copy of the PCP Control Register
+#endif
 /******************************************************************************/
 /* function declarations */
 
@@ -60,21 +62,43 @@ called by the application in order to use the API.
 *******************************************************************************/
 tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 {
-	/* initialize pointers */
-	pDpram_g = pDpram_p;
-	pCtrlReg_g = (tPcpCtrlReg *)pDpram_p;
+#ifdef CN_API_USING_SPI
+    iRet = PDISPI_OK;
+#endif
+    /* initialize pointers */
+#ifdef CN_API_USING_SPI
+    pCtrlReg_g = &sPcPCntrlReg; ///< if SPI is used, take local var instead of parameter
+#else
+	pCtrlReg_g = (tPcpCtrlReg *)pDpram_p; ///< if no SPI is used, take parameter
+#endif
 	pInitParm_g = pInitParm_p;
 
 	/* allocate memory */
 	/* TODO if necessary! */
 
-    pCtrlReg_g->m_bState = 0xff; 							///< set invalid PCP state
-    pCtrlReg_g->m_bCommand = kApCmdReboot; 					///< send reboot cmd to PCP
+    pCtrlReg_g->m_bState = 0xff; 							                ///< set invalid PCP state
+    pCtrlReg_g->m_bCommand = kApCmdReboot;                                  ///< send reboot cmd to PCP
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_writeByte(PCP_CTRLREG_STATE_OFFSET, pCtrlReg_g->m_bState);    ///< update pcp register
+    CnApi_Spi_writeByte(PCP_CTRLREG_CMD_OFFSET, pCtrlReg_g->m_bCommand);    ///< update pcp register
+
+    /* initialize callback functions (implemented by user) for SPI */
+    iRet = CnApi_initSpiMaster(&CnApi_CbSpiMasterTx, &CnApi_CbSpiMasterRx);
+    if( iRet != PDISPI_OK )
+    {
+        printError(iRet, 0x01);
+        goto exit;
+    }
+#endif
 
 	/* initialize state machine */
 	CnApi_initApStateMachine();
 
 	return kCnApiStatusOk;
+
+	exit:
+	return kCnApiStatusError;
 }
 
 /**
@@ -109,6 +133,12 @@ void CnApi_initSyncInt(WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycl
 	pCtrlReg_g->m_wMinCycleTime = wMinCycleTime_p;
 	pCtrlReg_g->m_wMaxCycleTime = wMaxCycleTime_p;
 	pCtrlReg_g->m_bMaxCylceNum = bMaxCycleNum_p;
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_write(PCP_CTRLREG_MINCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMinCycleTime), &pCtrlReg_g->m_wMinCycleTime); ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_MAXCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMaxCycleTime), &pCtrlReg_g->m_wMaxCycleTime); ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_MAXCYCNUM_OFFSET, sizeof(pCtrlReg_g->m_bMaxCylceNum), &pCtrlReg_g->m_bMaxCylceNum); ///< update pcp register
+#endif
 }
 
 /**
@@ -119,8 +149,16 @@ CnApi_enableSyncInt() enables the synchronization interrupt at the PCP.
 *******************************************************************************/
 void CnApi_enableSyncInt(void)
 {
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_readByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update struct member, we do logic operation on it
+#endif
+
     /* enable interrupt from PCP */
-    pCtrlReg_g->m_bIntCtrl |= CNAPI_INT_CTRL_EN;
+    pCtrlReg_g->m_bSyncMode |= CNAPI_INT_CTRL_EN;
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_writeByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update pcp register
+#endif
 }
 
 /**
@@ -132,7 +170,15 @@ CnApi_disableSyncInt() disables the synchronization interrupt at the PCP.
 void CnApi_disableSyncInt(void)
 {
     /* enable interrupt from PCP */
-    pCtrlReg_g->m_bIntCtrl &= ~CNAPI_INT_CTRL_EN;
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_readByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update struct member, we do logic operation on it
+#endif
+
+    pCtrlReg_g->m_bSyncMode &= ~CNAPI_INT_CTRL_EN;
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_writeByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update pcp register
+#endif
 }
 
 /**
@@ -145,6 +191,10 @@ CnApi_getPcpState() reads the state of the PCP and returns it.
 *******************************************************************************/
 BYTE CnApi_getPcpState(void)
 {
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_readByte(PCP_CTRLREG_STATE_OFFSET, &pCtrlReg_g->m_bState);    ///< update struct element
+#endif
+
 	return pCtrlReg_g->m_bState;
 }
 
@@ -158,6 +208,10 @@ CnApi_getPcpMagic() reads the magic number stored in the PCP DPRAM area.
 *******************************************************************************/
 DWORD CnApi_getPcpMagic(void)
 {
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_MAGIC_OFFSET, sizeof(pCtrlReg_g->m_dwMagic), &pCtrlReg_g->m_dwMagic); ///< update struct element
+#endif
+
 	return pCtrlReg_g->m_dwMagic;
 }
 
@@ -168,6 +222,10 @@ DWORD CnApi_getPcpMagic(void)
 void CnApi_setApCommand(BYTE bCmd_p)
 {
 	pCtrlReg_g->m_bCommand = bCmd_p;
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_writeByte(PCP_CTRLREG_CMD_OFFSET, pCtrlReg_g->m_bCommand);    ///< update pcp register
+#endif
 }
 
 

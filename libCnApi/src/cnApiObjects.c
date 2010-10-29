@@ -154,7 +154,7 @@ void CnApi_resetObjectSelector(void)
 
 /**
 ********************************************************************************
-\brief	reset the object selector
+\brief	increment oject structure to next object, if it exists
 *******************************************************************************/
 int CnApi_getNextObject(tCnApiObjId *pObjId)
 {
@@ -270,6 +270,11 @@ CnApi_createObjects().
 *******************************************************************************/
 void CnApi_readObjects(WORD index, BYTE subIndex, int CN_readObjectCb)
 {
+    /* Add the object to the read queue */
+
+    /* as soon as the object read is finished
+     * the callback function shall be called.
+     */
 
 }
 

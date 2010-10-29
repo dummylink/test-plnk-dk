@@ -199,7 +199,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 
 	/* initialize POWERLINK stack */
-    printf("init POWERLINK stack:\n");
+	DEBUG_TRACE(DEBUG_LVL_28, "init POWERLINK stack:\n");
 	EplRet = EplApiInitialize(&EplApiInitParam);
 	if(EplRet != kEplSuccessful)
 	{
@@ -249,7 +249,7 @@ void processPowerlink(void)
             break;
     }
 
-    printf("Shutdown EPL Stack\n");
+    DEBUG_TRACE(DEBUG_LVL_28, "Shutdown EPL Stack\n");
     EplApiShutdown(); //shutdown node
 	return;
 }
@@ -456,7 +456,7 @@ tEplKernel PUBLIC AppCbSync(void)
     Gi_writePdo();
 
     /* check if interrupts are enabled */
-    if ((pCtrlReg_g->m_bIntCtrl & CNAPI_INT_CTRL_EN) && (iSyncIntCycle_g != 0))
+    if ((pCtrlReg_g->m_bSyncMode & CNAPI_INT_CTRL_EN) && (iSyncIntCycle_g != 0))
     {
 		if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
 		{

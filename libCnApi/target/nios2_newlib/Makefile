@@ -6,6 +6,9 @@
 # Includes the BSP.
 ALT_INCLUDE_DIRS := ../../include ../../utils
 
+# Define path to the root of the BSP.
+BSP_ROOT_DIR := ../../../apps/EBV_DBC3C40_DigitalIO/bsp
+
 # List of root library directories that support running make to build them.
 # Includes the BSP and any ALT libraries.
 MAKEABLE_LIBRARY_ROOT_DIRS :=
@@ -96,6 +99,7 @@ C_SRCS += ../../src/cnApiAsync.c
 C_SRCS += ../../src/cnApiObjects.c
 C_SRCS += ../../src/cnApiPdo.c
 C_SRCS += ../../src/cnApiStateMachine.c
+C_SRCS += ../../src/cnApiPdiSpi.c
 C_SRCS += ../../utils/stateMachine.c
 CXX_SRCS :=
 ASM_SRCS :=
@@ -123,9 +127,6 @@ LIB_INCLUDE_DIRS :=
 # Pre- and post- processor settings.
 BUILD_PRE_PROCESS :=
 BUILD_POST_PROCESS :=
-
-# Define path to the root of the BSP.
-BSP_ROOT_DIR := ../../../apps/EBV_DBC3C40_DigitalIO/bsp
 
 # List of public include directories for -I compiler option (-I added when used).
 

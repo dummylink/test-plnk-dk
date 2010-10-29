@@ -43,24 +43,36 @@ This header file contains definitions for the CN API.
 #define	DEBUG_LVL_CNAPI_INFO_TRACE2		DEBUG_LVL_11_TRACE2
 #define	DEBUG_LVL_CNAPI_INFO_TRACE3		DEBUG_LVL_11_TRACE3
 
-#define	DEBUG_LVL_CNAPI_INFO			DEBUG_LVL_11
-
 #define	DEBUG_FUNC		DEBUG_TRACE1(DEBUG_LVL_09, "%s:\n", __func__)
 
- // Defines only used for initialize the control register. HW solution already sets up the registers itself. TODO: Delete those defines
-#ifdef SETUP_DPRAM_IN_SW //delete all as soon as Tripple Buffer in HW is stable
-	#define	ASYNC_BUF_SIZE			0x1500				///< default size of asynchronous buffer
-	#define	PDO_BUF_SIZE			0x100				///< default size of PDO buffer
-	#define	PDO_DESC_SIZE			0x100				///< default size of PDO descriptor buffer
-#endif
+/* CN API definitions */
 
 #define RPDO_CHANNELS_MAX		1					///< Max Number of RxPDO's received and mapped by this CN
 #define TPDO_CHANNELS_MAX		1					///< Max Number of TxPDO's transmitted and mapped by this CN
 
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
 #define SYNC_IRQ_CONROL_REG_OFFSET 	0x38			///< Offset of the PCP to AP synchronization IRQ control register
+#define SYNC_IRQ_ACK                0               ///< Define for Sync IRQ for AP only
 
-
+/* Control Register Offsets, used for SPI */
+//TODO: ifdef system.h SPI_DEFINE
+#define PCP_CTRLREG_START_ADR               0x00
+#define PCP_CTRLREG_MAGIC_OFFSET            0x00
+#define PCP_CTRLREG_SYNMD_OFFSET            0x04
+#define PCP_CTRLREG_ERROR_OFFSET            0x05
+#define PCP_CTRLREG_CMD_OFFSET              0x06
+#define PCP_CTRLREG_STATE_OFFSET            0x07
+#define PCP_CTRLREG_MINCYCT_OFFSET          0x08
+#define PCP_CTRLREG_MAXCYCT_OFFSET          0x0A
+#define PCP_CTRLREG_CYCCRCT_OFFSET          0x0C
+#define PCP_CTRLREG_CYCERR_OFFSET           0x0E
+#define PCP_CTRLREG_MAXCYCNUM_OFFSET        0x0F
+#define PCP_CTRLREG_RPDO0ACK_OFFSET         0x30
+#define PCP_CTRLREG_RPDO1ACK_OFFSET         0x31
+#define PCP_CTRLREG_RPDO2ACK_OFFSET         0x32
+#define PCP_CTRLREG_TPDOACK_OFFSET          0x33
+#define PCP_CTRLREG_SYNCIRQCTRL_OFFSET      0x38
+#define PCP_CTRLREG_SPAN                    0x38
 
 
 /******************************************************************************/
@@ -383,7 +395,7 @@ typedef enum { //TODO: define state "none?" - adapt docu for correct values!
 
 struct sPcpControlReg {//TODO: improve structure
 	volatile DWORD			m_dwMagic;
-	volatile BYTE			m_bIntCtrl;
+	volatile BYTE			m_bSyncMode;
 	volatile BYTE			m_bError;
 	volatile BYTE			m_bCommand;
 	volatile BYTE			m_bState;
@@ -412,8 +424,11 @@ struct sPcpControlReg {//TODO: improve structure
 	volatile BYTE			m_awRxPdo1AckAdrs;					///< adress acknowledge register of Rx PDO buffer nr. 1
 	volatile BYTE			m_awRxPdo2AckAdrs;					///< adress acknowledge register of Rx PDO buffer nr. 2
 	volatile BYTE			m_awTxPdoAckAdrsAp[1]; 				///< adress acknowledge register of Tx PDO buffer
-	volatile DWORD			m_dwAPIrqTimerValue; //new TODO: use this instead of Defines! 	///< PCP -> AP synchronization IRQ timer value
-	volatile BYTE			m_bAPIrqControl;	//new TODO: use this instead of Defines!	///< PCP -> AP synchronization IRQ control register
+	volatile DWORD			m_dwPcpIrqTimerValue; ///< synchronization IRQ timer value, accessible only by PCP
+	volatile BYTE			m_bAPIrqControl;	  ///< synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
+	volatile BYTE           m_reserved1;
+    volatile BYTE           m_reserved2;
+    volatile BYTE           m_reserved3;
 }__attribute__((__packed__));
 
 typedef struct sPcpControlReg tPcpCtrlReg;

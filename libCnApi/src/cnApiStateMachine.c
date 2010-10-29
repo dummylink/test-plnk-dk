@@ -90,6 +90,11 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 	int		iStatus;
 	DEBUG_FUNC;
 
+#ifdef CN_API_USING_SPI
+	/* update control register before accessing it */
+    CnApi_Spi_read(PCP_CTRLREG_START_ADR, sizeof(pCtrlReg_g), &pCtrlReg_g);
+#endif
+
 	/* initialize asynchronous transfer functions */
 	CnApi_initAsync((tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBufAdrs), pCtrlReg_g->m_wTxAsyncBufSize,
 					(tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAdrs), pCtrlReg_g->m_wRxAsyncBufSize);
@@ -195,7 +200,7 @@ FUNC_ENTRYACT(kApStatePreop2)
 	CnApi_readPdoDesc();
 
 	/* TODO: prepare for READY_TO_OPERATE */
-	printf("***Calling Callback to prepare ready to operate!!***\n");
+	TRACE("***Calling Callback to prepare ready to operate!!***\n");
 
 	CnApi_setApCommand(kApCmdReadyToOperate);
 }
@@ -281,7 +286,7 @@ static void stateChange(BYTE current, BYTE target)
 	currentIdx = current + 2;
 	targetIdx = target + 2;
 
-	printf ("STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+	TRACE2("STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
 }
 
 /******************************************************************************/
