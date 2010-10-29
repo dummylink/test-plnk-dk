@@ -34,8 +34,9 @@
 
 /******************************************************************************/
 /* global variables */
-static	tAsyncMsg *			pAsyncSendBuf;
-static	tAsyncMsg *			pAsyncRecvBuf;
+static	tAsyncMsg *	pAsyncSendBuf;
+static	tAsyncMsg *	pAsyncRecvBuf;
+char   *pObjData   = NULL;
 
 /******************************************************************************/
 /* function declarations */
@@ -165,7 +166,7 @@ void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateO
 	int				iSize, iEntrySize;
 	unsigned int	uiVarEntries;
 	tEplKernel		EplRet;
-	char			*pObjData, *pData;
+	char            *pData;
 	unsigned int	uiSubindex;
 
 	DEBUG_FUNC;
@@ -214,6 +215,10 @@ void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateO
 	if (pCreateObjResp_p->m_wStatus == kCnApiStatusOk)
 	{
 		/* allocate memory */
+	    if (pObjData != NULL)
+	    {
+	        free(pObjData); ///< memory has been allocated before! overwrite it...
+	    }
 		if ((pObjData = malloc(iSize)) == NULL)
 		{
 			DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Couldn't allocate memory for objects!\n");

@@ -142,7 +142,7 @@ FUNC_ENTRYACT(kPcpStateBooted)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateBooted)
 {
-	int iStatus;
+	int iStatus = kEplSuccessful;
 
 	Gi_pollAsync();
 	if (checkApCommand(kApCmdInit))
@@ -190,7 +190,10 @@ FUNC_DOACT(kPcpStateInit)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateInit,kPcpStatePreop1,1)
 {
-	return checkEvent();
+    if(checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1) && checkEvent())
+    {
+        return TRUE;
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
@@ -226,7 +229,13 @@ FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreop2)
 {
+    /* setup PDO descriptors */
+    Gi_setupPdoDesc(kCnApiDirReceive);
+    Gi_setupPdoDesc(kCnApiDirTransmit);
+    Gi_calcSyncIntPeriod();
+
 	storePcpState(kPcpStatePreop2);
+	EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStatePreop2)
@@ -236,12 +245,16 @@ FUNC_DOACT(kPcpStatePreop2)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
 {
-	return checkApCommand(kApCmdReadyToOperate);
+    if(checkPowerlinkEvent(kPowerlinkEventkEnterReadyToOperate) &&
+       checkApCommand(kApCmdReadyToOperate))
+	{
+        return TRUE;
+	}
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStatePreop1,1)
 {
-	return checkPowerlinkEvent(kPowerlinkEventReset);
+	return checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
@@ -255,7 +268,6 @@ FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
 FUNC_ENTRYACT(kPcpStateReadyToOperate)
 {
 	storePcpState(kPcpStateReadyToOperate);
-	EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateReadyToOperate)
@@ -269,7 +281,7 @@ FUNC_EVT(kPcpStateReadyToOperate,kPcpStateOperational,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateReadyToOperate,kPcpStatePreop1,1)
 {
-	return checkPowerlinkEvent(kPowerlinkEventReset);
+	return checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateReadyToOperate,kPcpStateBooted,1)
@@ -291,7 +303,7 @@ FUNC_DOACT(kPcpStateOperational)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,kPcpStatePreop1,1)
 {
-	return checkPowerlinkEvent(kPowerlinkEventReset);
+	return checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,kPcpStateBooted,1)

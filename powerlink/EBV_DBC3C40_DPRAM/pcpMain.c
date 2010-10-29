@@ -199,7 +199,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 
 	/* initialize POWERLINK stack */
-	DEBUG_TRACE(DEBUG_LVL_28, "init POWERLINK stack:\n");
+	DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
 	EplRet = EplApiInitialize(&EplApiInitParam);
 	if(EplRet != kEplSuccessful)
 	{
@@ -249,7 +249,7 @@ void processPowerlink(void)
             break;
     }
 
-    DEBUG_TRACE(DEBUG_LVL_28, "Shutdown EPL Stack\n");
+    DEBUG_TRACE0(DEBUG_LVL_28, "Shutdown EPL Stack\n");
     EplApiShutdown(); //shutdown node
 	return;
 }
@@ -299,13 +299,14 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     break;
                 }
 
+                case kEplNmtCsPreOperational1:
+                {
+                    setPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
+                    break;
+                }
+
                 case kEplNmtCsPreOperational2:
                 {
-                	/* setup PDO descriptors */
-                	Gi_setupPdoDesc(kCnApiDirReceive);
-                	Gi_setupPdoDesc(kCnApiDirTransmit);
-                	Gi_calcSyncIntPeriod();
-
                 	setPowerlinkEvent(kPowerlinkEventEnterPreop2);
                		EplRet = kEplReject;
                 	break;
@@ -313,16 +314,16 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                 case kEplNmtCsReadyToOperate:
                 {
+                    setPowerlinkEvent(kPowerlinkEventkEnterReadyToOperate);
                 	break;
                 }
 
                 case kEplNmtGsInitialising:
                 case kEplNmtGsResetConfiguration:
                 case kEplNmtGsResetApplication:
-                case kEplNmtCsPreOperational1:
-                case kEplNmtCsBasicEthernet:
+                case kEplNmtCsBasicEthernet:                        ///< this state is only indicated  by Led
                 {
-                    setPowerlinkEvent(kPowerlinkEventReset);
+                    setPowerlinkEvent(kPowerlinkEventReset);        ///< fall back to PCP_PREOP1 (API-STATE)
                     break;
                 }
 
@@ -332,7 +333,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 					DWORD   dwNodeAssignment = EPL_NODEASSIGN_NODE_EXISTS;
 					WORD    wPresPayloadLimit = 256;
 
-					setPowerlinkEvent(kPowerlinkEventReset);
+					setPowerlinkEvent(kPowerlinkEventReset);        ///< fall back to PCP_PREOP1 (API-STATE)
 
                     EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
                     if (EplRet != kEplSuccessful)
@@ -355,7 +356,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     break;
                 }
 
-                case kEplNmtCsNotActive:
+                case kEplNmtCsNotActive:                        ///< indicated only by Led, AP is not informed
                     break;
 
                 case kEplNmtCsOperational:

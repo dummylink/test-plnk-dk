@@ -29,7 +29,9 @@ DETAILED_DESCRIPTION_OF_FILE
 
 typedef enum ePowerlinkEvent {
 	kPowerlinkEventNone,
+	kPowerlinkEventEnterPreOperational1,
 	kPowerlinkEventEnterPreop2,
+	kPowerlinkEventkEnterReadyToOperate,
 	kPowerlinkEventReset,
 	kPowerlinkEventEnterOperational,
 	kPowerlinkEventShutdown

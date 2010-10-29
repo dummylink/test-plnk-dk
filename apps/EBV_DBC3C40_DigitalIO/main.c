@@ -57,10 +57,10 @@ a dual ported RAM (DPRAM) area.
 
 /*----------------------------------------------------------------------------*/
 /* some options */
-#define DEFAULT_NODEID      0x00 ///< default node ID to use, should be NOT 0xF0 (=MN) if this is a CN
+#define DEFAULT_NODEID      0x01 ///< default node ID to use, should be NOT 0xF0 (=MN) if this is a CN
 /* If you don't intend to connect node Id switches to the PCP, this value might set != 0x00 */
 
-//#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
+#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
 
 /******************************************************************************/
 /* global variables */
@@ -121,8 +121,9 @@ int main (void)
     }
 
     /* connect local variables to object IDs
-     * datatype of variables must match with datatype of POWERLINK object dictionary!!!
-     * Number of linked objects must match NUM_OBJECTS!!!
+     * - Linked Objects have do be indicated in the XDD file !
+     * - datatype of variables must match with datatype of POWERLINK object dictionary !
+     * - Number of linked objects must match NUM_OBJECTS !
      */
 	///< CnApi_linkObject(Index, SubIndex, size in bytes, ptr) 
     CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
