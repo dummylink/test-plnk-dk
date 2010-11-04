@@ -99,7 +99,7 @@ static void CnApi_setupCopyTable (BYTE bDirection_p, tPdoDesc *pPdoDesc_p, WORD 
 	while (size < wPdoDescSize_p)
 	{
 		/* if object line up matches then acquire data pointer and size information from the linking table */
-		if (!CnApi_getObjectData(pDesc->m_wPdoIndex, pDesc->m_bPdoSubIndex, &wObjSize, &pObjAdrs))
+		if (!CnApi_setupMappedObjects(pDesc->m_wPdoIndex, pDesc->m_bPdoSubIndex, &wObjSize, &pObjAdrs))
 		{
 		    TRACE2("Couldn't find object 0x%04x/0x%02x in object table!\n", pDesc->m_wPdoIndex, pDesc->m_bPdoSubIndex);
 			pCopyTbl->m_adrs = 0;

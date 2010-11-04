@@ -51,7 +51,6 @@ This header file contains definitions for the CN API.
 #define TPDO_CHANNELS_MAX		1					///< Max Number of TxPDO's transmitted and mapped by this CN
 
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
-#define SYNC_IRQ_CONROL_REG_OFFSET 	0x38			///< Offset of the PCP to AP synchronization IRQ control register
 #define SYNC_IRQ_ACK                0               ///< Define for Sync IRQ for AP only
 
 /* Control Register Offsets, used for SPI */
@@ -72,7 +71,8 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_RPDO2ACK_OFFSET         0x32
 #define PCP_CTRLREG_TPDOACK_OFFSET          0x33
 #define PCP_CTRLREG_SYNCIRQCTRL_OFFSET      0x38
-#define PCP_CTRLREG_SPAN                    0x38
+#define PCP_CTRLREG_SYNCTIME_OFFSET         0x3A
+#define PCP_CTRLREG_SPAN                    sizeof(tPcpCtrlReg)
 
 
 /******************************************************************************/
@@ -141,6 +141,21 @@ typedef enum eProcType {
 /******************************************************************************/
 /* definitions for asynchronous transfer functions */
 
+
+typedef enum eAsyncTxState {
+    kAsyncTxStateReady,             ///< asynchronous tx service is ready to use
+    kAsyncTxStateBusy,              ///< asynchronous tx is processing
+    kAsyncTxStatePending,           ///< asynchronous tx is waiting to be fetched
+    kAsyncTxStateStopped            ///< asynchronous transmission has not been fetched in time
+} tAsyncTxState;
+
+typedef enum eAsyncRxState {
+    kAsyncRxStateReady,             ///< asynchronous rx service is ready to use
+    kAsyncRxStateBusy,              ///< asynchronous rx is processing
+    kAsyncRxStatePending,           ///< asynchronous rx is waiting for data
+    kAsyncRxStateStopped            ///< no tx data could be fetched in time
+} tAsyncRxState;
+
 /**
  * \brief constants for asynchronous transfer channels
  */
@@ -154,11 +169,12 @@ typedef enum eAsyncChannel {
  */
 typedef enum eAsyncCmd {
 	kAsyncCmdInitPcpReq = 0x01,
-	kAsyncCmdCreateObjReq,
+	kAsyncCmdCreateObjLinksReq,
 	kAsyncCmdWriteObjReq,
 	kAsyncCmdReadObjReq,
 	kAsyncCmdInitPcpResp = 0x80,
-	kAsyncCmdCreateObjResp,
+	kAsyncCmdCreateObjLinksResp,
+//	kAsyncCmdLinkPdosReq,
 	kAsyncCmdWriteObjResp,
 	kAsyncCmdReadObjResp
 } tAsyncCmd;
@@ -222,7 +238,7 @@ typedef struct sCreateObjReq {
 	BYTE					m_bCmd;
 	BYTE					m_bReqId;
 	WORD					m_wNumObjs;
-} tCreateObjReq;
+} tCreateObjLksReq;
 
 /**
  * \brief structure for CreateObjResp command
@@ -233,7 +249,14 @@ typedef struct sCreateObjResp {
 	WORD					m_wStatus;
 	WORD					m_wErrIndex;
 	BYTE					m_bErrSubindex;
-} tCreateObjResp;
+} tCreateObjLksResp;
+
+typedef struct sLinkPdosReq {
+    BYTE                    m_bCmd;
+    BYTE                    m_reserved;
+    BYTE                    m_bDescrCnt;
+    BYTE                    m_bDescrVers;
+} tLinkPdosReq;
 
 /**
  * \brief structure for WriteObjReq command
@@ -270,8 +293,9 @@ typedef union uAsyncIntChan {
 	tAsyncIntHeader			m_intHeader;
 	tInitPcpReq				m_initPcpReq;
 	tInitPcpResp			m_initPcpResp;
-	tCreateObjReq			m_createObjReq;
-	tCreateObjResp			m_createObjResp;
+	tCreateObjLksReq		m_createObjLinksReq;
+	tCreateObjLksResp		m_createObjLinksResp;
+//	tLinkPdosReq            m_linkPdosReq;
 	tWriteObjReq			m_writeObjReq;
 	tWriteObjResp			m_writeObjResp;
 } tAsyncIntChan;
@@ -286,7 +310,8 @@ typedef union uAsyncData {
 typedef struct sAsyncMsgHeader {
 	BYTE					m_bSync;
 	BYTE					m_bChannel;
-	WORD					m_wDataLen;
+	WORD					m_wFrgmtLen;
+//	DWORD                   m_dwStreamLen;
 } tAsyncMsgHeader;
 
 typedef struct sAsyncMsg {
@@ -306,8 +331,8 @@ typedef enum eAsyncDir {
  * \brief constants for SYN flags
  */
 typedef enum eSynFlag {
-	kMsgBufEmpty = 0x00,
-	kMsgBufFull = 0x01
+	kMsgBufWriteOnly = 0x00,
+	kMsgBufReadOnly = 0x01
 } tSynFlag;
 
 /******************************************************************************/
@@ -425,10 +450,9 @@ struct sPcpControlReg {//TODO: improve structure
 	volatile BYTE			m_awRxPdo2AckAdrs;					///< adress acknowledge register of Rx PDO buffer nr. 2
 	volatile BYTE			m_awTxPdoAckAdrsAp[1]; 				///< adress acknowledge register of Tx PDO buffer
 	volatile DWORD			m_dwPcpIrqTimerValue; ///< synchronization IRQ timer value, accessible only by PCP
-	volatile BYTE			m_bAPIrqControl;	  ///< synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
-	volatile BYTE           m_reserved1;
-    volatile BYTE           m_reserved2;
-    volatile BYTE           m_reserved3;
+	volatile BYTE			m_bSyncIrqControl;	  ///< synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
+	volatile BYTE           m_breserved1;
+    volatile WORD           m_wSyncIntCycTime;
 }__attribute__((__packed__));
 
 typedef struct sPcpControlReg tPcpCtrlReg;

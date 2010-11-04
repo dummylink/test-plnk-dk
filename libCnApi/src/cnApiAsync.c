@@ -74,7 +74,7 @@ tAsyncSendStatus CnApi_sendAsync(BYTE bChannel_p, tAsyncIntChan *pData_p, WORD w
 	char  *pDest;
 
 	/* check if buffer is free */
-	if (pAsyncTxAdrs_l->m_header.m_bSync == kMsgBufFull)
+	if (pAsyncTxAdrs_l->m_header.m_bSync == kMsgBufReadOnly)
 		return kAsyncSendStatusBufFull;
 
 	/* check if data length is too big */
@@ -92,9 +92,9 @@ tAsyncSendStatus CnApi_sendAsync(BYTE bChannel_p, tAsyncIntChan *pData_p, WORD w
 	}
 
 	/* write message header */
-	pAsyncTxAdrs_l->m_header.m_wDataLen = wLen_p;
+	pAsyncTxAdrs_l->m_header.m_wFrgmtLen = wLen_p;
 	pAsyncTxAdrs_l->m_header.m_bChannel = bChannel_p;
-	pAsyncTxAdrs_l->m_header.m_bSync = kMsgBufFull;
+	pAsyncTxAdrs_l->m_header.m_bSync = kMsgBufReadOnly;
 
 	return kAsyncSendStatusOk;
 }
@@ -108,7 +108,7 @@ asynchronous RX buffer.
 
 \param		pChannel_p				pointer to store channel of received message
 \param		pData_p					pointer to store received data
-\param		pLen_p					pointer to the maximum length of the receive buffer.
+\param		pLen_p					pointer to the maximum length of the local receive buffer.
                                     After copying the data, CnApi_receiveAsync() stores the
                                     length of the copied data in this location.
 
@@ -119,23 +119,23 @@ asynchronous RX buffer.
 *******************************************************************************/
 tAsyncSendStatus CnApi_receiveAsync(BYTE *pChannel_p, tAsyncIntChan *pData_p, WORD *pLen_p)
 {
-	/* check if buffer is full */
-	if (pAsyncRxAdrs_l->m_header.m_bSync == kMsgBufEmpty)
+	/* check if buffer contains a message for us */
+	if (pAsyncRxAdrs_l->m_header.m_bSync == kMsgBufWriteOnly)
 		return kAsyncSendStatusBufEmpty;
 
 	/* check if the response buffer is big enough to store the answer */
-	if (pAsyncRxAdrs_l->m_header.m_wDataLen > *pLen_p)
+	if (pAsyncRxAdrs_l->m_header.m_wFrgmtLen > *pLen_p)
 		return kAsyncSendStatusDataTooLong;
 
 	/* copy data from msg buffer */
-	memcpy(pData_p, &pAsyncRxAdrs_l->m_chan.m_intChan, pAsyncRxAdrs_l->m_header.m_wDataLen);
+	memcpy(pData_p, &pAsyncRxAdrs_l->m_chan.m_intChan, pAsyncRxAdrs_l->m_header.m_wFrgmtLen);
 
-	/* read header information */
-	*pChannel_p = pAsyncRxAdrs_l->m_header.m_bChannel;
-	*pLen_p = pAsyncRxAdrs_l->m_header.m_wDataLen;
+	/* read async message header information */
+	*pChannel_p = pAsyncRxAdrs_l->m_header.m_bChannel;   ///< return info about channel type
+	*pLen_p = pAsyncRxAdrs_l->m_header.m_wFrgmtLen;       ///< return info about copied data
 
 	/* reset sync flag */
-	pAsyncRxAdrs_l->m_header.m_bSync = kMsgBufEmpty;
+	pAsyncRxAdrs_l->m_header.m_bSync = kMsgBufWriteOnly;
 
 	return kAsyncSendStatusOk;
 }
@@ -170,6 +170,37 @@ void CnApi_initAsync(tAsyncMsg *pAsyncTxAdrs_p, WORD wAsyncTxSize_p,
 
 	bReqId_l = 0;
 }
+
+//tAsyncCallStatus Cn_Api_PostAsyncMsg(BYTE* pMsg_p, BOOL* fMsgPending)
+//{
+//    tAsyncCallStatus Ret = kAsyncCallStatusReady;
+//    /* check if message is pending and has not been send before */
+//    if(*fMsgPending == FALSE)
+//    {
+//        goto exit;                                     ///< ignore this message
+//    }
+//
+//    /* check if buffer is occupied */
+//    if(/*occupied*/)
+//    {
+//        *fMsgPending = TRUE;
+//        Ret = kAsyncCallStatusPending;
+//        goto exit;
+//    }
+//    /* check if message size fits in buffer */
+//    if(/*msg size > buffer size*/) //TODO: auf mehrere Msgs aufsplitten, wenns nicht reinpasst
+//    {
+//        *fMsgPending = TRUE;
+//        Ret = kAsyncCallStatusPending;
+//        goto exit;
+//    }
+//
+//
+//    /* setup asynchronous message buffer */
+//
+//exit:
+//    return Ret;
+//}
 
 /**
 ********************************************************************************
@@ -294,7 +325,7 @@ int CnApi_doInitPcpReq(void)
 ********************************************************************************
 \brief	execute a createObj call
 
-CnApi_doCreateObjReq() executes a createObj command.
+CnApi_doCreateObjLinksReq() executes a createObjectLinks Request command.
 
 \todo	function should be implemented as state machine to avoid polling and
 		for answer and therefore blocking whole application!
@@ -302,12 +333,12 @@ CnApi_doCreateObjReq() executes a createObj command.
 \retval		ERROR		if an error occured
 \retval		OK			if the call was successfully
 *******************************************************************************/
-int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
+int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 {
 	int					iStatus;
-	tCreateObjReq		createObjReq;
-	tCreateObjResp		createObjResp;
-	WORD				wCreateObjRespLen;
+	tCreateObjLksReq	createObjLinksReq;                ///< local message storage
+	tCreateObjLksResp	createObjLinksResp;               ///< local message storage
+	WORD				wCreateObjLinksRespLen;
 	BOOL				fReady = FALSE;
 	BYTE				bChannel;
 	int					i;
@@ -318,8 +349,8 @@ int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 
 	DEBUG_FUNC;
 
-	/* calculate maximum number of objects which can be created in one createObjReq Call */
-	wMaxObjs = (pCtrlReg_g->m_wTxAsyncBufSize - sizeof(createObjReq)) / sizeof(tCnApiObjId);
+	/* calculate maximum number of objects which can be created in one createObjLinksReq Call */
+	wMaxObjs = (pCtrlReg_g->m_wTxAsyncBufSize - sizeof(createObjLinksReq)) / sizeof(tCnApiObjId);
 	wCurObjs = (wNumObjs_p > wMaxObjs) ? wMaxObjs : wNumObjs_p;
 	pObj = pObjList_p;
 	wReqObjs = 0;
@@ -327,13 +358,13 @@ int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 	while (wCurObjs > 0)
 	{
 		/* build up CreateObjReq */
-		memset (&createObjReq, 0x00, sizeof(createObjReq));
-		createObjReq.m_wNumObjs = wCurObjs;
+		memset (&createObjLinksReq, 0x00, sizeof(createObjLinksReq));
+		createObjLinksReq.m_wNumObjs = wCurObjs;
 
-		createObjReq.m_bCmd = kAsyncCmdCreateObjReq;
-		createObjReq.m_bReqId = ++bReqId_l;
+		createObjLinksReq.m_bCmd = kAsyncCmdCreateObjLinksReq;
+		createObjLinksReq.m_bReqId = ++bReqId_l;
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Creating %d objects\n", wCurObjs);
-		if ((iStatus = CnApi_sendAsync(kAsyncChannelInternal, (tAsyncIntChan *)&createObjReq, sizeof(createObjReq),
+		if ((iStatus = CnApi_sendAsync(kAsyncChannelInternal, (tAsyncIntChan *)&createObjLinksReq, sizeof(createObjLinksReq),
 									   (char *)pObj, wCurObjs * sizeof(tCnApiObjId))) != kAsyncSendStatusOk)
 		{
 			return ERROR;
@@ -342,8 +373,8 @@ int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 		for (i = 0; i < MAX_ASYNC_TIMEOUT; i++)
 		{
 			usleep(10000);
-			wCreateObjRespLen = sizeof(createObjResp);
-			iStatus = CnApi_receiveAsync(&bChannel, (tAsyncIntChan *)&createObjResp, &wCreateObjRespLen);
+			wCreateObjLinksRespLen = sizeof(createObjLinksResp);
+			iStatus = CnApi_receiveAsync(&bChannel, (tAsyncIntChan *)&createObjLinksResp, &wCreateObjLinksRespLen);
 			if (iStatus == kAsyncSendStatusBufEmpty)
 			{
 				continue;
@@ -370,13 +401,13 @@ int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 				return ERROR;
 			}
 
-			if (createObjResp.m_bReqId != bReqId_l)
+			if (createObjLinksResp.m_bReqId != bReqId_l)
 			{
 				return ERROR;
 			}
 
-			DEBUG_TRACE1(DEBUG_LVL_10, "createObjResp: status = %d\n", createObjResp.m_wStatus);
-			if (createObjResp.m_wStatus == kCnApiStatusOk)
+			DEBUG_TRACE1(DEBUG_LVL_10, "createObjLinksResp: status = %d\n", createObjLinksResp.m_wStatus);
+			if (createObjLinksResp.m_wStatus == kCnApiStatusOk)
 			{
 				pObj = pObj + wCurObjs;
 				wReqObjs += wCurObjs;
@@ -424,7 +455,7 @@ int CnApi_doWriteObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 
 	DEBUG_FUNC;
 
-	/* calculate maximum number of objects which can be created in one createObjReq Call */
+	/* calculate maximum number of objects which can be created in one createObjLinksReq Call */
 	wMaxObjs = (pCtrlReg_g->m_wTxAsyncBufSize - sizeof(writeObjReq)) / sizeof(tCnApiObjId);
 	wCurObjs = (wNumObjs_p > wMaxObjs) ? wMaxObjs : wNumObjs_p;
 	pObj = pObjList_p;

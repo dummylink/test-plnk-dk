@@ -138,7 +138,7 @@ FUNC_EVT(kApStateInit, kApStatePreop1, 1)
 FUNC_ENTRYACT(kApStateInit)
 {
 	/* object creation and initialization */
-	CnApi_createObjects();
+	CnApi_createObjectLinks();
 	CnApi_setApCommand(kApCmdPreop);
 }
 /*----------------------------------------------------------------------------*/
@@ -165,7 +165,8 @@ FUNC_EVT(kApStatePreop1, kApStatePreop2, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStatePreop1)
 {
-
+    /* read PDO descriptors */
+    CnApi_readPdoDesc();
 }
 
 /*============================================================================*/
@@ -196,8 +197,7 @@ FUNC_EVT(kApStatePreop2, kApStatePreop1, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStatePreop2)
 {
-	/* read PDO descriptors */
-	CnApi_readPdoDesc();
+	TRACE("\nINFO: Synchronization IR Period is %d us.\n", CnApi_getSyncIntPeriod());
 
 	/* TODO: prepare for READY_TO_OPERATE */
 	TRACE("***Calling Callback to prepare ready to operate!!***\n");

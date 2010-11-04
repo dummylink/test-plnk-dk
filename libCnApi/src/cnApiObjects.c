@@ -117,13 +117,14 @@ int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_
 
 /**
 ********************************************************************************
-\brief	get object data
+\brief	setup actually mapped objects
 
-The function CnApi_getObjectData() compares the local linking table and the
+The function CnApi_setupMappedObjects() compares the local linking table and the
 descriptor table. If the entries line up equally, take the data pointer and
-the respective size out of the linking table.
+the respective size out of the linking table. So only currently mapped objects
+at PCP side will be considered in the copy table!
 *******************************************************************************/
-BOOL CnApi_getObjectData(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p)
+BOOL CnApi_setupMappedObjects(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p)
 {
 	tObjTbl		*pTbl;
 	int			i;
@@ -178,12 +179,12 @@ int CnApi_getNextObject(tCnApiObjId *pObjId)
 ********************************************************************************
 \brief	create an object
 
-CnApi_createObjects() creates the object in the openPOWERLINK stack. Precisely
+CnApi_createObjectLinks() creates the PDO links in the openPOWERLINK stack. Precisely
 it commands the PCP to link objects to the heap by creating an object link table.
 This table has to be send in a buffer message to the PCP. The objects
 must exist in the PCPs object dictionary to be created.
 *******************************************************************************/
-void CnApi_createObjects(void)
+void CnApi_createObjectLinks(void)
 {
 	tCnApiObjId 		objId[NUM_OBJ_CREATE_ENTRIES];
 	register int		i;
@@ -200,7 +201,7 @@ void CnApi_createObjects(void)
 		if (i == NUM_OBJ_CREATE_ENTRIES)
 		{
 			/* no more objects do fit in the message, therefore execute create command */
-			CnApi_doCreateObjReq(objId, i);
+			CnApi_doCreateObjLinksReq(objId, i);
 			i = 0;
 			pObjId = objId;
 		}
@@ -209,7 +210,7 @@ void CnApi_createObjects(void)
 	if (i < NUM_OBJ_CREATE_ENTRIES)
 	{
 		/* there a some objects leftover to be created, let's create them now */
-		CnApi_doCreateObjReq(objId, i);
+		CnApi_doCreateObjLinksReq(objId, i);
 	}
 }
 
@@ -219,7 +220,7 @@ void CnApi_createObjects(void)
 
 CnApi_writeObjects() writes a object in the openPOWERLINK stack. The object must
 exist in the object dictionary and must already be created by
-CnApi_createObjects(). The object will be identified with its \p index and
+CnApi_createObjectLinks(). The object will be identified with its \p index and
 \p subIndex. \p dataLen must contain the size of the object data. A pointer to
 the object data must be provided in \p p_data.
 
@@ -259,7 +260,7 @@ int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen,
 
 CnApi_readObjects() reads an object in the openPOWERLINK stack. The object must
 exist in the object directory and must already be created by
-CnApi_createObjects().
+CnApi_createObjectLinks().
 
 \param		index				index of object in the object dictionary
 \param		subIndex			sub-index of object in the object dictionary

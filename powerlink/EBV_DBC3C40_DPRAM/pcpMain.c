@@ -1,8 +1,8 @@
 /**
 ********************************************************************************
-\file		GenericIfMain.c
+\file		pcpMain.c
 
-\brief		main module of digital I/O user interface
+\brief		main module of powerlink stack for PCP, supporting an external SW API
 
 \author		Josef Baumgartner
 
@@ -32,15 +32,6 @@
 /******************************************************************************/
 /* defines */
 #define PDI_DPRAM_BASE_PCP				POWERLINK_0_PDI_PCP_BASE  //from system.h
-#define SYNC_IRQ_CONTROL_REGISTER 		(alt_u8*) (PDI_DPRAM_BASE_PCP + SYNC_IRQ_CONROL_REG_OFFSET) 	//from cnApi.h
-#define SYNC_IRQ_TIMER_VALUE_REGISTER 	(alt_u8*) (PDI_DPRAM_BASE_PCP + SYNC_IRQ_TIMER_VALUE_REG_OFFSET)//from cnApiIntern.h
-
-#define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
-#define CYCLE_LEN   1000 // [us]
-#define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
-#define IP_ADDR     0xc0a86401  // 192.168.100.1 // don't care the last byte!
-#define SUBNET_MASK 0xFFFFFF00  // 255.255.255.0
-
 
 // This function is the entry point for your object dictionary. It is defined
 // in OBJDICT.C by define EPL_OBD_INIT_RAM_NAME. Use this function name to define
@@ -50,20 +41,16 @@
 tEplKernel PUBLIC  EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
 tEplKernel PUBLIC AppCbSync(void);
 tEplKernel PUBLIC AppCbEvent(
-    tEplApiEventType        EventType_p,   // IN: event type (enum)
-    tEplApiEventArg*        pEventArg_p,   // IN: event argument (union)
+    tEplApiEventType        EventType_p,   ///< IN: event type (enum)
+    tEplApiEventArg*        pEventArg_p,   ///< IN: event argument (union)
     void GENERIC*           pUserArg_p);
 
-tPcpCtrlReg		*pCtrlReg_g;
-tCnApiInitParm 	initParm_g;
-BOOL 			bPLisInitalized = FALSE;
-int				iSyncIntCycle_g;
-
-
-BYTE		baAsyncSend_g[512];
-BYTE		baAsyncRecv_g[512];
-
-static BOOL     fShutdown_l = FALSE;
+tPcpCtrlReg		*pCtrlReg_g;               ///< ptr. to PCP control register
+tCnApiInitParm 	initParm_g;                ///< Powerlink initialization parameter
+BOOL 			fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
+int				iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
+BOOL            fIrqSyncMode_g = FALSE;    ///< synchronization mode flag
+static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 
 /******************************************************************************/
 /* forward declarations */
@@ -127,9 +114,7 @@ int main (void)
 		       (tPdoDescHeader *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awTxPdoDescAdrs[0]),
 		       (tPdoDescHeader *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awRxPdoDescAdrs[0]));
 
-    Gi_initSyncInt();
-
-    DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
+     DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
 
 #ifdef STATUS_LED_PIO_BASE
     IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
@@ -141,7 +126,7 @@ int main (void)
     {
     	EplApiProcess();
     	updateStateMachine();
-    	usleep(100);		/* wait 100 us */ //TODO: delete this line
+    	usleep(100);		                   ///< wait 100 us//TODO: use this value ?
     }
 
     DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
@@ -155,16 +140,16 @@ int main (void)
 *******************************************************************************/
 int initPowerlink(tCnApiInitParm *pInitParm_p)
 {
-	DWORD		 			ip = IP_ADDR; // ip address
-	static tEplApiInitParam EplApiInitParam; //epl init parameter
+	DWORD		 			ip = IP_ADDR;      ///< ip address
+	static tEplApiInitParam EplApiInitParam;   ///< epl init parameter
 	tEplKernel 				EplRet;
 
 	DEBUG_FUNC;
 
     /* setup the POWERLINK stack */
 	/* calc the IP address with the nodeid */
-	ip &= 0xFFFFFF00; //dump the last byte
-	ip |= pInitParm_p->m_bNodeId; // and mask it with the node id
+	ip &= 0xFFFFFF00;                          ///< dump the last byte
+	ip |= pInitParm_p->m_bNodeId;              ///< and mask it with the node id
 
 	/* set EPL init parameters */
 	EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
@@ -177,7 +162,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_dwAsndMaxLatency = pInitParm_p->m_dwAsendMaxLatency;
 	EplApiInitParam.m_fAsyncOnly = FALSE;
 	EplApiInitParam.m_dwFeatureFlags = pInitParm_p->m_dwFeatureFlags;
-	EplApiInitParam.m_dwCycleLen = CYCLE_LEN;
+	EplApiInitParam.m_dwCycleLen = DEFAULT_CYCLE_LEN;
 	EplApiInitParam.m_uiPreqActPayloadLimit = 36;
 	EplApiInitParam.m_uiPresActPayloadLimit = 36;
 	EplApiInitParam.m_uiMultiplCycleCnt = 0;
@@ -208,7 +193,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	else
 	{
 		DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...ok\n\n");
-		bPLisInitalized = TRUE;
+		fPLisInitalized_g = TRUE;
 	}
     return EplRet;
 }
@@ -250,7 +235,7 @@ void processPowerlink(void)
     }
 
     DEBUG_TRACE0(DEBUG_LVL_28, "Shutdown EPL Stack\n");
-    EplApiShutdown(); //shutdown node
+    EplApiShutdown();                           ///<shutdown node
 	return;
 }
 
@@ -277,7 +262,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 {
 	tEplKernel          EplRet = kEplSuccessful;
 
-    // check if NMT_GS_OFF is reached
+    /* check if NMT_GS_OFF is reached */
     switch (EventType_p)
     {
 
@@ -317,9 +302,14 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     setPowerlinkEvent(kPowerlinkEventkEnterReadyToOperate);
                 	break;
                 }
-
-                case kEplNmtGsInitialising:
                 case kEplNmtGsResetConfiguration:
+                {
+                    /* Prepare PDO descriptor message for AP */
+                    Gi_setupPdoDesc(kCnApiDirReceive);
+                    Gi_setupPdoDesc(kCnApiDirTransmit);
+                    break;
+                }
+                case kEplNmtGsInitialising:
                 case kEplNmtGsResetApplication:
                 case kEplNmtCsBasicEthernet:                        ///< this state is only indicated  by Led
                 {
@@ -457,13 +447,21 @@ tEplKernel PUBLIC AppCbSync(void)
     Gi_writePdo();
 
     /* check if interrupts are enabled */
-    if ((pCtrlReg_g->m_bSyncMode & CNAPI_INT_CTRL_EN) && (iSyncIntCycle_g != 0))
+
+    if ((pCtrlReg_g->m_bSyncMode & CNAPI_SYNC_MODE_IR_EN) &&
+        (iSyncIntCycle_g != 0)                            &&
+        (getPcpState()== kPcpStateOperational)               )
     {
 		if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
 		{
 			Gi_generateSyncInt();// TODO: To avoid jitter, synchronize on openMAC Sync interrupt instead of IR throwing by SW
 		}
     }
+
+    /* process Async DPRAM buffer */
+
+
+
     return EplRet;
 }
 
@@ -509,12 +507,11 @@ void Gi_init(void)
 {
 	/* Setup PCP Control Register in DPRAM */
 
-    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;		///< set address of control register - equals DPRAM base address
-    // memset(pCtrlReg_g + 4, 0xff, 12); 						///< initialize remaining writable registers //TODO: delete this line
+    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;	   ///< set address of control register - equals DPRAM base address
 
-    pCtrlReg_g->m_dwMagic = PCP_MAGIC;
-    pCtrlReg_g->m_bError = 0x00;	///< no error
-    pCtrlReg_g->m_bState = 0xff; 	///< set invalid PCP state
+    pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
+    pCtrlReg_g->m_bError = 0x00;	                   ///< no error
+    pCtrlReg_g->m_bState = 0xff; 	                   ///< set invalid PCP state
 
 }
 
@@ -525,7 +522,27 @@ void Gi_init(void)
 void Gi_initSyncInt(void)
 {
 	// enable IRQ and set mode to "IR generation by SW"
-	*SYNC_IRQ_CONTROL_REGISTER = (1 << SYNC_IRQ_ENABLE); // & (0 << SYNC_IRQ_MODE);
+    pCtrlReg_g->m_bSyncIrqControl = (1 << SYNC_IRQ_ENABLE); // & (0 << SYNC_IRQ_MODE);
+}
+
+/**
+********************************************************************************
+\brief  read control register sync mode flags
+*******************************************************************************/
+void Gi_getSyncIntModeFlags(void)
+{
+    BYTE bSyncModeFlags;
+
+    bSyncModeFlags = pCtrlReg_g->m_bSyncMode;
+
+    if(bSyncModeFlags &= CNAPI_SYNC_MODE_IR_EN)
+    {
+        fIrqSyncMode_g = TRUE;  ///< Sync IR is enabled
+    }
+    else
+    {
+        fIrqSyncMode_g = FALSE; ///< Sync IR is disabled -> AP applies polling
+    }
 }
 
 /**
@@ -571,6 +588,8 @@ void Gi_calcSyncIntPeriod(void)
 
 	pCtrlReg_g->m_bCycleError = kCnApiSyncCycleOk;
 	iSyncIntCycle_g = iNumCycles;
+	pCtrlReg_g->m_wSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
+
 	return;
 }
 
@@ -581,7 +600,7 @@ void Gi_calcSyncIntPeriod(void)
 void Gi_generateSyncInt(void)
 {
 	/* Throw interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-	*SYNC_IRQ_CONTROL_REGISTER |= (1 << SYNC_IRQ_SET); //set `set` bit to high
+    pCtrlReg_g->m_bSyncIrqControl |= (1 << SYNC_IRQ_SET); //set `set` bit to high
 	return;
 }
 
@@ -592,7 +611,7 @@ void Gi_generateSyncInt(void)
 void Gi_disableSyncInt(void)
 {
 	/* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-	*SYNC_IRQ_CONTROL_REGISTER &= !(1 << SYNC_IRQ_ENABLE); // set enable bit to low
+    pCtrlReg_g->m_bSyncIrqControl &= !(1 << SYNC_IRQ_ENABLE); // set enable bit to low
 	return;
 }
 
@@ -603,8 +622,8 @@ void Gi_disableSyncInt(void)
 void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
 {
 	/* set timer value by writing to the SYNC_IRQ_TIMER_VALUE_REGISTER */
-	*SYNC_IRQ_TIMER_VALUE_REGISTER = uiTimeValue;
-	*SYNC_IRQ_CONTROL_REGISTER |= (1 << SYNC_IRQ_MODE); // set mode bit to high
+    pCtrlReg_g->m_dwPcpIrqTimerValue = uiTimeValue;
+	pCtrlReg_g->m_bSyncIrqControl |= (1 << SYNC_IRQ_MODE); ///< set mode bit to high -> HW assertion
 	return;
 }
 

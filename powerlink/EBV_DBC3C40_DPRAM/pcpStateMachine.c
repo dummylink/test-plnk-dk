@@ -128,14 +128,15 @@ FUNC_ENTRYACT(kPcpStateBooted)
 	}
 
 	pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
+	pCtrlReg_g->m_wSyncIntCycTime = 0x0000;
 
 	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xef); ///< set "bootup LED"
 
 	///< if this is not the first boot: shutdown POWERLINK first
-	if(bPLisInitalized == TRUE)
+	if(fPLisInitalized_g == TRUE)
 	{
 		EplNmtuNmtEvent(kEplNmtEventSwitchOff); ///< shutdown and cleanup POWERLINK
-	    bPLisInitalized = FALSE;
+	    fPLisInitalized_g = FALSE;
 	}
 	storePcpState(kPcpStateBooted);
 }
@@ -148,7 +149,7 @@ FUNC_DOACT(kPcpStateBooted)
 	if (checkApCommand(kApCmdInit))
 	{
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
-		if(bPLisInitalized == FALSE) ///< POWERLINK is not initialized yet
+		if(fPLisInitalized_g == FALSE) ///< POWERLINK is not initialized yet
 		{
 			iStatus = initPowerlink(&initParm_g);
 		}
@@ -176,7 +177,7 @@ FUNC_DOACT(kPcpStateInit)
 {
 	int		iStatus;
 
-	Gi_pollAsync();
+	Gi_pollAsync();///< right now, this is a blockin function ! TODO: state machine implementation
 	if (checkApCommand(kApCmdPreop))
 	{
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdPreop\n", __func__);
@@ -229,10 +230,17 @@ FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreop2)
 {
-    /* setup PDO descriptors */
-    Gi_setupPdoDesc(kCnApiDirReceive);
-    Gi_setupPdoDesc(kCnApiDirTransmit);
-    Gi_calcSyncIntPeriod();
+    /* setup PDO descriptors */            //TODO: delete this line
+//    Gi_setupPdoDesc(kCnApiDirReceive);  //TODO: delete this line
+//    Gi_setupPdoDesc(kCnApiDirTransmit); //TODO: delete this line
+
+    /* setup the synchronization interrupt */
+    Gi_getSyncIntModeFlags();           ///< AP has to set the flags by now!
+    if(fIrqSyncMode_g)                  ///< true if Sync IR is enabled by AP
+    {
+        Gi_initSyncInt();               ///< enable IR HW
+        Gi_calcSyncIntPeriod();         ///< calculate multiple of cycles
+    }
 
 	storePcpState(kPcpStatePreop2);
 	EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate);

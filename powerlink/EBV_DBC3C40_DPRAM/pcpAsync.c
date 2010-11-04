@@ -41,7 +41,7 @@ char   *pObjData   = NULL;
 /******************************************************************************/
 /* function declarations */
 static void handleInitPcpReq(tInitPcpReq *pInitPcpReq_p, tInitPcpResp *pInitPcpResp_p);
-static void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateObjResp_p);
+static void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjLksResp *pCreateObjLinksResp_p);
 
 /******************************************************************************/
 /* private functions */
@@ -71,26 +71,26 @@ void Gi_pollAsync(void)
 	//DEBUG_FUNC;
 
 	/* check if there is an asynchronous message from the AP */
-	if (pAsyncSendBuf->m_header.m_bSync != kMsgBufFull)
-		return;
+	if (pAsyncSendBuf->m_header.m_bSync != kMsgBufReadOnly)
+		return;                                                       ///< no message
 
 	if (pAsyncSendBuf->m_header.m_bChannel != kAsyncChannelInternal)
 	{
 		/* SDO channel received. Ignore!!! */
-		pAsyncSendBuf->m_header.m_bSync = kMsgBufEmpty;
-		return;
+		pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly;
+		return;                                                       ///< no  internal message
 	}
 
 	bMsgType = pAsyncSendBuf->m_chan.m_intChan.m_intHeader.m_bCmd;
 
-	/* handle the internal channel message */
+	/* handle the internal channel message and set up response */
 	switch (bMsgType)
 	{
 	case kAsyncCmdInitPcpReq:
 		handleInitPcpReq(&pAsyncSendBuf->m_chan.m_intChan.m_initPcpReq, &pAsyncRecvBuf->m_chan.m_intChan.m_initPcpResp);
 		break;
-	case kAsyncCmdCreateObjReq:
-		handleCreateObjReq(&pAsyncSendBuf->m_chan.m_intChan.m_createObjReq, &pAsyncRecvBuf->m_chan.m_intChan.m_createObjResp);
+	case kAsyncCmdCreateObjLinksReq:
+		handleCreateObjLinksReq(&pAsyncSendBuf->m_chan.m_intChan.m_createObjLinksReq, &pAsyncRecvBuf->m_chan.m_intChan.m_createObjLinksResp);
 		break;
 	case kAsyncCmdWriteObjReq:
 		break;
@@ -98,34 +98,36 @@ void Gi_pollAsync(void)
 		break;
 	}
 
-	pAsyncSendBuf->m_header.m_bSync = kMsgBufEmpty;		/* reset sync flag */
+	pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly;		/* reset sync flag */
 
 	/* wait for free buffer */
-	while (pAsyncRecvBuf->m_header.m_bSync == kMsgBufFull);
+	while (pAsyncRecvBuf->m_header.m_bSync == kMsgBufReadOnly);
+	//TODO: additional AP -> PCP IR Signal would prevent this while loop
 
+	/* prepare async msg header */
 	switch (bMsgType)
 	{
 	case kAsyncCmdInitPcpReq:
-		pAsyncRecvBuf->m_header.m_wDataLen = sizeof(tInitPcpResp);
+		pAsyncRecvBuf->m_header.m_wFrgmtLen = sizeof(tInitPcpResp);
 		break;
-	case kAsyncCmdCreateObjReq:
-		pAsyncRecvBuf->m_header.m_wDataLen = sizeof(tCreateObjResp);
+	case kAsyncCmdCreateObjLinksReq:
+		pAsyncRecvBuf->m_header.m_wFrgmtLen = sizeof(tCreateObjLksResp);
 		break;
 	case kAsyncCmdWriteObjReq:
 		break;
 	default:
 		break;
 	}
-	/* set internal channel and synchronise flag */
+	/* set channel and sync flag */
 	pAsyncRecvBuf->m_header.m_bChannel = kAsyncChannelInternal;
-	pAsyncRecvBuf->m_header.m_bSync = kMsgBufFull;
+	pAsyncRecvBuf->m_header.m_bSync = kMsgBufReadOnly; ///< activate response
 
 }
 
 
 /**
 ********************************************************************************
-\brief	handle an initPcpReq
+\brief	handle an initPcpReq and set up response
 *******************************************************************************/
 void handleInitPcpReq(tInitPcpReq *pInitPcpReq_p, tInitPcpResp *pInitPcpResp_p)
 {
@@ -156,9 +158,9 @@ void handleInitPcpReq(tInitPcpReq *pInitPcpReq_p, tInitPcpResp *pInitPcpResp_p)
 
 /**
 ********************************************************************************
-\brief	handle an createObjReq
+\brief	handle an createObjLinksReq, allocate DPRAM memory and set up response
 *******************************************************************************/
-void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateObjResp_p)
+void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjLksResp *pCreateObjLinksResp_p)
 {
 	register int 	i;
 	WORD			wNumObjs;
@@ -171,64 +173,69 @@ void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateO
 
 	DEBUG_FUNC;
 
-	wNumObjs = pCreateObjReq_p->m_wNumObjs;
-	pObjId = (tCnApiObjId *)(pCreateObjReq_p + 1);
+	wNumObjs = pCreateObjLinksReq_p->m_wNumObjs;
+	pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
 
-	pCreateObjResp_p->m_wStatus = kCnApiStatusOk;
+	pCreateObjLinksResp_p->m_wStatus = kCnApiStatusOk;
 
-	/* count data size and check if objects are existing */
+	/* check if objects are existing and count data size for HEAP allocation */
 	iSize = 0;
 	for (i = 0; i < wNumObjs; i++, pObjId++)
 	{
-		if (pObjId->m_bSubIndex == 0)
+		if (pObjId->m_bSubIndex == 0) ///< indicator of subindex chain msg -> check whole index
 		{
-			/* get size of object */
-			for (uiSubindex = 0; uiSubindex <= pObjId->m_bNumEntries; uiSubindex++)
+			/* get size of objects for the whole subindex chain */
+			for (uiSubindex = 1; uiSubindex <= pObjId->m_bNumEntries; uiSubindex++) //TODO: does it make sense to start with Subindex 0 for DomainObject or Arrayobject e.g?
 			{
-				// read entry size
+				// read local entry size (defined in objdict.h)
 				iEntrySize = EplObdGetDataSize(pObjId->m_wIndex, uiSubindex);
 				if (iEntrySize == 0x00)
 				{
 					// invalid entry size (maybe object doesn't exist or entry of type DOMAIN is empty)
-					pCreateObjResp_p->m_wStatus = kCnApiStatusObjectNotExist;
-					pCreateObjResp_p->m_wErrIndex = pObjId->m_wIndex;
-					pCreateObjResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
+				    /* prepare response msg */
+					pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
+					pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
+					pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
 					break;
 				}
-				iSize += iEntrySize;
+				iSize += iEntrySize; //TODO: Sepp, why does Subindex 0x00 count??
 			}
 		}
-		else
+		else ///< check
 		{
 			if ((iEntrySize = EplObdGetDataSize(pObjId->m_wIndex, pObjId->m_bSubIndex)) == 0)
 			{
 				// invalid entry size (maybe object doesn't exist or entry of type DOMAIN is empty)
-				pCreateObjResp_p->m_wStatus = kCnApiStatusObjectNotExist;
-				pCreateObjResp_p->m_wErrIndex = pObjId->m_wIndex;
-				pCreateObjResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
+			    /* prepare response msg */
+				pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
+				pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
+				pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
 				break;
 			}
 			iSize += iEntrySize;
 		}
 	}
 
-	if (pCreateObjResp_p->m_wStatus == kCnApiStatusOk)
+	/* all objects exist -> link them to HEAP */
+	if (pCreateObjLinksResp_p->m_wStatus == kCnApiStatusOk)
 	{
-		/* allocate memory */
+		/* allocate memory in DPRAM */
 	    if (pObjData != NULL)
 	    {
 	        free(pObjData); ///< memory has been allocated before! overwrite it...
 	    }
 		if ((pObjData = malloc(iSize)) == NULL)
 		{
+		    /* prepare response msg */
 			DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Couldn't allocate memory for objects!\n");
-			pCreateObjResp_p->m_wStatus = kCnApiStatusAllocationFailed;
+			pCreateObjLinksResp_p->m_wStatus = kCnApiStatusAllocationFailed;
 		}
 		else
 		{
-			/* link objects to allocated memory */
-			pObjId = (tCnApiObjId *)(pCreateObjReq_p + 1);
+			/* link objects to allocated DPRAM memory */
+			pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
 			pData = pObjData;
+			//TODO: Link to DPRAM instead of HEAP! Problem: is object asynchronously readable then?
 			for (i = 0; i < wNumObjs; i++, pObjId++)
 			{
 				uiVarEntries = pObjId->m_bNumEntries;
@@ -237,10 +244,11 @@ void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateO
 				EplRet = EplApiLinkObject(pObjId->m_wIndex, pData, &uiVarEntries, &iSize, pObjId->m_bSubIndex);
 				if (EplRet != kEplSuccessful)
 				{
+				    /* prepare response msg */
 					DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
-					pCreateObjResp_p->m_wStatus = kCnApiStatusObjectNotExist;
-					pCreateObjResp_p->m_wErrIndex = pObjId->m_wIndex;
-					pCreateObjResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
+					pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
+					pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
+					pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
 					break;
 				}
 				pData += iSize;
@@ -248,9 +256,9 @@ void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateO
 		}
 	}
 
-	/* setup response */
-	pCreateObjResp_p->m_bCmd = kAsyncCmdCreateObjResp;
-	pCreateObjResp_p->m_bReqId = pCreateObjReq_p->m_bReqId;
+	/* setup response msg header */
+	pCreateObjLinksResp_p->m_bCmd = kAsyncCmdCreateObjLinksResp;
+	pCreateObjLinksResp_p->m_bReqId = pCreateObjLinksReq_p->m_bReqId;
 	return;
 }
 
@@ -258,7 +266,7 @@ void handleCreateObjReq(tCreateObjReq *pCreateObjReq_p, tCreateObjResp *pCreateO
 ********************************************************************************
 \brief	handle an writeObjReq
 *******************************************************************************/
-void handleWriteObjReq(tAsyncIntChan *pCreateObjReq_p, tAsyncIntChan *pCreateObjResp_p)
+void handleWriteObjReq(tAsyncIntChan *pCreateObjLinksReq_p, tAsyncIntChan *pCreateObjLinksResp_p)
 {
 	DEBUG_FUNC;
 

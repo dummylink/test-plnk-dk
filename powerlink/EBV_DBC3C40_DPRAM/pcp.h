@@ -1,8 +1,8 @@
 /**
 ********************************************************************************
-\file		GenericIf.h
+\file		pcp.h
 
-\brief		BRIEF_DESCRIPTION_OF_FILE
+\brief		header file of Powerlink Communication Processor application
 
 \author		baumgartnerj
 
@@ -16,23 +16,27 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* includes */
-
 #include "cnApi.h"
+#include "Debug.h"
 
 /******************************************************************************/
 /* defines */
 
-#include "Debug.h"
+/* Powerlink defaults */
+#define DEFAULT_CYCLE_LEN   1000    ///< [us]
+#define IP_ADDR     0xc0a86401      ///< 192.168.100.1 - last byte will be nodeId
+#define SUBNET_MASK 0xFFFFFF00      ///< 255.255.255.0
 
 /******************************************************************************/
 /* typedefs */
 
 /******************************************************************************/
 /* global variables */
-extern tPcpCtrlReg	*pCtrlReg_g;
-extern tCnApiInitParm initParm_g;
-extern BOOL bPLisInitalized;
-extern int iSyncIntCycle_g;
+extern tPcpCtrlReg     *pCtrlReg_g;       ///< ptr. to PCP control register
+extern tCnApiInitParm  initParm_g;        ///< Powerlink initialization parameter
+extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after boot-up flag
+extern int             iSyncIntCycle_g;   ///< IR synchronization factor (multiple cycle time)
+extern BOOL            fIrqSyncMode_g;    ///< synchronization mode flag
 
 /******************************************************************************/
 /* function declarations */
@@ -56,6 +60,7 @@ extern void Gi_writePdo(void);
 extern int Gi_setupPdoDesc(BYTE bDirection_p);
 
 extern void Gi_initSyncInt(void);
+extern void Gi_getSyncIntModeFlags(void);
 extern void Gi_calcSyncIntPeriod(void);
 extern void Gi_generateSyncInt(void);
 extern void Gi_disableSyncInt(void);

@@ -19,21 +19,20 @@ This header file contains internal definitions for the CN API.
 /******************************************************************************/
 /* includes */
 #include "cnApiDebug.h"
-#include "cnApiGlobal.h"     // global definitions
+#include "cnApiGlobal.h"            ///< global definitions
 
 /******************************************************************************/
 /* defines */
-#define	MAX_ASYNC_TIMEOUT	500			///< timeout counter for asynchronous transfers
+#define	MAX_ASYNC_TIMEOUT	500	    ///< timeout counter for asynchronous transfers
 
-/* interrupt control register definitions */
-#define	CNAPI_INT_CTRL_EN	0x80
-#define	CNAPI_INT_CTRL_POL	0x20
+/* synchronization mode register definitions */
+#define	CNAPI_SYNC_MODE_IR_EN	 0x80
 
 /* defines for sync IRQ for PCP only */
 #define SYNC_IRQ_ENABLE 7
 #define SYNC_IRQ_MODE	6
 #define SYNC_IRQ_SET	0
-#define SYNC_IRQ_TIMER_VALUE_REG_OFFSET 0x34 ///< Register offset of PCP -> AP timer value register for "timer delay mode"
+#define SYNC_IRQ_TIMER_VALUE_REG_OFFSET 0x34 ///< Register offset of PCP -> AP timer value register for "timer delay mode" //TODO: replace with struct member
 
 /******************************************************************************/
 /* function declarations */
@@ -43,10 +42,10 @@ extern void CnApi_setApCommand(BYTE bCmd_p);
 extern void CnApi_initApStateMachine(void);
 
 /* functions for object access */
-extern BOOL CnApi_getObjectData(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p);
+extern BOOL CnApi_setupMappedObjects(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p);
 extern void CnApi_resetObjectSelector(void);
 extern int CnApi_getNextObject(tCnApiObjId *pObjId);
-extern void CnApi_createObjects(void);
+extern void CnApi_createObjectLinks(void);
 extern int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen, BYTE* p_data, BOOL sync);
 
 /* functions for asynchronous transfers */
@@ -60,7 +59,10 @@ extern void CnApi_setupAsyncCall(BYTE bCmd_p, tAsyncIntChan *pInitPcpReq_p, WORD
 					tAsyncIntChan *pInitPcpResp_p, WORD *pRespLen_p);
 extern int CnApi_processAsyncCall(void);
 extern int CnApi_doInitPcpReq(void);
-extern int CnApi_doCreateObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p);
+extern int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p);
+
+/* functions for interrupt synchronization */
+extern WORD CnApi_getSyncIntPeriod(void);
 
 /* functions for PDO transfers */
 extern void CnApi_initPdo(BYTE *pTxPdoAdrs_p, WORD wTxPdoSize_p,

@@ -60,7 +60,7 @@ a dual ported RAM (DPRAM) area.
 #define DEFAULT_NODEID      0x01 ///< default node ID to use, should be NOT 0xF0 (=MN) if this is a CN
 /* If you don't intend to connect node Id switches to the PCP, this value might set != 0x00 */
 
-#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
+// #define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
 
 /******************************************************************************/
 /* global variables */
@@ -154,17 +154,21 @@ int main (void)
 
         /*--- TASK 1: START ---*/
     	CnApi_processApStateMachine();     ///< The AP state machine must be periodically updated
-    	workInputOutput();                 ///< update the PCB's inputs and outputs
+    	//TODO: Implement Cbfunc "OperationalSyncCb"in statemachine?
+            workInputOutput();             ///< update the PCB's inputs and outputs
     	/*--- TASK 1: END   ---*/
 
     	/* wait until next period */
-    	usleep(1000);		               ///< wait 1 ms to simulate a task behavior
+    	usleep(100);		               ///< wait 100 us to simulate a task behavior
 
-        #ifdef USE_POLLING_MODE
+#ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/
-    	CnApi_transferPdo();               ///< update linked variables
+    	if (CnApi_getPcpState() >= kApStateReadyToOperate) //TODO: Alternatively implement Cbfunc in statemachine
+    	{
+    	    CnApi_transferPdo();           ///< update linked variables
+    	}
         /*--- TASK 2: END   ---*/
-        #endif /* USE_POLLING_MODE */
+#endif /* USE_POLLING_MODE */
 
     }
 
@@ -262,10 +266,10 @@ static void syncIntHandler(BYTE* pArg_p, alt_u32 dwInt_p)
 #endif
 {
 	/* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
-	pCtrlReg_g->m_bAPIrqControl = (1 << SYNC_IRQ_ACK);
+	pCtrlReg_g->m_bSyncIrqControl = (1 << SYNC_IRQ_ACK);
 
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_bAPIrqControl); ///< update pcp register
+    CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_bSyncIrqControl); ///< update pcp register
 #endif
 
 	CnApi_transferPdo();		// Call CN API PDO transfer function

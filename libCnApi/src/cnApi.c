@@ -78,17 +78,18 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 
     pCtrlReg_g->m_bState = 0xff; 							                ///< set invalid PCP state
     pCtrlReg_g->m_bCommand = kApCmdReboot;                                  ///< send reboot cmd to PCP
+    //pCtrlReg_g->m_wSyncIntCycTime = 0x0000;
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_STATE_OFFSET, pCtrlReg_g->m_bState);    ///< update pcp register
     CnApi_Spi_writeByte(PCP_CTRLREG_CMD_OFFSET, pCtrlReg_g->m_bCommand);    ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_SYNCTIME_OFFSET, sizeof(pCtrlReg_g->m_wSyncIntCycTime), &pCtrlReg_g->m_wSyncIntCycTime);    ///< update pcp register
 
     /* initialize callback functions (implemented by user) for SPI */
     iRet = CnApi_initSpiMaster(&CnApi_CbSpiMasterTx, &CnApi_CbSpiMasterRx);
     if( iRet != PDISPI_OK )
     {
-        printError(iRet, 0x01);
-        goto exit;
+        return kCnApiStatusError;
     }
 #endif
 
@@ -96,9 +97,6 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 	CnApi_initApStateMachine();
 
 	return kCnApiStatusOk;
-
-	exit:
-	return kCnApiStatusError;
 }
 
 /**
@@ -154,7 +152,7 @@ void CnApi_enableSyncInt(void)
 #endif
 
     /* enable interrupt from PCP */
-    pCtrlReg_g->m_bSyncMode |= CNAPI_INT_CTRL_EN;
+    pCtrlReg_g->m_bSyncMode |= CNAPI_SYNC_MODE_IR_EN;
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update pcp register
@@ -174,11 +172,28 @@ void CnApi_disableSyncInt(void)
     CnApi_Spi_readByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update struct member, we do logic operation on it
 #endif
 
-    pCtrlReg_g->m_bSyncMode &= ~CNAPI_INT_CTRL_EN;
+    pCtrlReg_g->m_bSyncMode &= ~CNAPI_SYNC_MODE_IR_EN;
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update pcp register
 #endif
+}
+
+/**
+********************************************************************************
+\brief  get PCP state
+
+CnApi_getSyncIntPeriod() reads time of the periodic synchronization interrupt
+
+\retval wSyncIntCycTime      synchronization interrupt time of PCP
+*******************************************************************************/
+WORD CnApi_getSyncIntPeriod(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_SYNCTIME_OFFSET, sizeof(pCtrlReg_g->m_SyncIntCycTime), &pCtrlReg_g->m_SyncIntCycTime); ///< update struct element
+#endif
+
+    return pCtrlReg_g->m_wSyncIntCycTime;
 }
 
 /**
