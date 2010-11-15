@@ -151,8 +151,8 @@
 //#define EDRV_EARLY_RX_INT               TRUE
 
 // enables setting of several port pins for benchmarking purposes
-#define EDRV_BENCHMARK                  FALSE
-//#define EDRV_BENCHMARK                  TRUE // MCF_GPIO_PODR_PCIBR
+//#define EDRV_BENCHMARK                  FALSE
+#define EDRV_BENCHMARK                  TRUE // MCF_GPIO_PODR_PCIBR
 
 // Call Tx handler (i.e. EplDllCbFrameTransmitted()) already if DMA has finished,
 // otherwise call the Tx handler if frame was actually transmitted over ethernet.

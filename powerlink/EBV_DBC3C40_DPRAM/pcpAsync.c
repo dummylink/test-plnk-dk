@@ -34,8 +34,13 @@
 
 /******************************************************************************/
 /* global variables */
-static	tAsyncMsg *	pAsyncSendBuf;
-static	tAsyncMsg *	pAsyncRecvBuf;
+
+// asynchronous messages
+tLinkPdosReq *pAsycMsgLinkPdoReq_g;
+
+/* local variables */
+static  tAsyncMsg * pAsyncSendBuf;
+static  tAsyncMsg * pAsyncRecvBuf;
 char   *pObjData   = NULL;
 
 /******************************************************************************/
@@ -158,7 +163,10 @@ void handleInitPcpReq(tInitPcpReq *pInitPcpReq_p, tInitPcpResp *pInitPcpResp_p)
 
 /**
 ********************************************************************************
-\brief	handle an createObjLinksReq, allocate DPRAM memory and set up response
+\brief	handle an createObjLinksReq
+
+This function allocates memory and links objects to HEAP.
+Furthermore it sets up a response.
 *******************************************************************************/
 void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjLksResp *pCreateObjLinksResp_p)
 {
@@ -198,10 +206,10 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 					pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
 					break;
 				}
-				iSize += iEntrySize; //TODO: Sepp, why does Subindex 0x00 count??
+				iSize += iEntrySize;
 			}
 		}
-		else ///< check
+		else ///< check object entry of
 		{
 			if ((iEntrySize = EplObdGetDataSize(pObjId->m_wIndex, pObjId->m_bSubIndex)) == 0)
 			{
@@ -235,12 +243,15 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 			/* link objects to allocated DPRAM memory */
 			pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
 			pData = pObjData;
-			//TODO: Link to DPRAM instead of HEAP! Problem: is object asynchronously readable then?
-			for (i = 0; i < wNumObjs; i++, pObjId++)
+
+			//TODO: Link to DPRAM instead of HEAP!
+            for (i = 0; i < wNumObjs; i++, pObjId++)
 			{
 				uiVarEntries = pObjId->m_bNumEntries;
 				iSize = 0;
+
 				DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "Linking variable: 0x%04x/0x%02x to 0x%08x\n", pObjId->m_wIndex, pObjId->m_bSubIndex, (unsigned int)pData);
+
 				EplRet = EplApiLinkObject(pObjId->m_wIndex, pData, &uiVarEntries, &iSize, pObjId->m_bSubIndex);
 				if (EplRet != kEplSuccessful)
 				{

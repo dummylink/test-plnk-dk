@@ -6,8 +6,9 @@
 @ REM ######################################
 @ REM # SET PARAMETERS
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
-@ set SOF_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
+
 @ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
+@ set SOF_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
 
 @ REM ######################################
 @ REM # Discover the root nios2eds directory

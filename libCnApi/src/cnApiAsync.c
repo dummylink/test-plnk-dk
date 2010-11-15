@@ -34,6 +34,9 @@ This module contains functions for the asynchronous transfer in the CN API libra
 
 /******************************************************************************/
 /* global variables */
+// asynchronous messages
+tLinkPdosReq *pAsycMsgLinkPdoReqAp_g;
+
 static tAsyncMsg			*pAsyncTxAdrs_l;
 static WORD					wAsyncTxSize_l;
 

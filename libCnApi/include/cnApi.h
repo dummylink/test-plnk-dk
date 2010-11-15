@@ -20,6 +20,7 @@ This header file contains definitions for the CN API.
 /* includes */
 #include "cnApiDebug.h"
 #include "cnApiGlobal.h"     // global definitions
+#include "system.h"          // pcp system.h defines
 
 /******************************************************************************/
 /* defines */
@@ -42,13 +43,15 @@ This header file contains definitions for the CN API.
 #define	DEBUG_LVL_CNAPI_INFO_TRACE1		DEBUG_LVL_11_TRACE1
 #define	DEBUG_LVL_CNAPI_INFO_TRACE2		DEBUG_LVL_11_TRACE2
 #define	DEBUG_LVL_CNAPI_INFO_TRACE3		DEBUG_LVL_11_TRACE3
+#define DEBUG_LVL_CNAPI_INFO_TRACE4     DEBUG_LVL_11_TRACE4
 
 #define	DEBUG_FUNC		DEBUG_TRACE1(DEBUG_LVL_09, "%s:\n", __func__)
 
 /* CN API definitions */
 
-#define RPDO_CHANNELS_MAX		1					///< Max Number of RxPDO's received and mapped by this CN
-#define TPDO_CHANNELS_MAX		1					///< Max Number of TxPDO's transmitted and mapped by this CN
+/* from pcp system.h */
+#define TPDO_CHANNELS_MAX       1//POWERLINK_0_MAC_BUF_PDITPDOS ///< Max Number of TxPDO's of this CN
+#define RPDO_CHANNELS_MAX		3//POWERLINK_0_MAC_BUF_PDIRPDOS ///< Max Number of RxPDO's of this CN
 
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
 #define SYNC_IRQ_ACK                0               ///< Define for Sync IRQ for AP only
@@ -174,7 +177,7 @@ typedef enum eAsyncCmd {
 	kAsyncCmdReadObjReq,
 	kAsyncCmdInitPcpResp = 0x80,
 	kAsyncCmdCreateObjLinksResp,
-//	kAsyncCmdLinkPdosReq,
+	kAsyncCmdLinkPdosReq,
 	kAsyncCmdWriteObjResp,
 	kAsyncCmdReadObjResp
 } tAsyncCmd;
@@ -270,6 +273,7 @@ typedef struct sWriteObjReq {
 /**
  * \brief structure for WriteObjResp command
  */
+
 typedef struct sWriteObjResp {
 	BYTE					m_bCmd;
 	BYTE					m_bReqId;
@@ -295,7 +299,7 @@ typedef union uAsyncIntChan {
 	tInitPcpResp			m_initPcpResp;
 	tCreateObjLksReq		m_createObjLinksReq;
 	tCreateObjLksResp		m_createObjLinksResp;
-//	tLinkPdosReq            m_linkPdosReq;
+	tLinkPdosReq            m_linkPdosReq;
 	tWriteObjReq			m_writeObjReq;
 	tWriteObjResp			m_writeObjResp;
 } tAsyncIntChan;
@@ -311,7 +315,7 @@ typedef struct sAsyncMsgHeader {
 	BYTE					m_bSync;
 	BYTE					m_bChannel;
 	WORD					m_wFrgmtLen;
-//	DWORD                   m_dwStreamLen;
+	DWORD                   m_dwStreamLen;
 } tAsyncMsgHeader;
 
 typedef struct sAsyncMsg {
@@ -345,23 +349,29 @@ typedef struct sObjTbl {
 	char			*m_pData;
 } tObjTbl;
 
+typedef enum ePdoDir {
+   TPdo = 0x01, ///< Transmit PDO
+   RPdo = 0x80  ///< Receive PDO
+} tPdoDir;
+
 typedef struct sPdoDescHeader {
-	WORD	m_wPdoDescVers;
-	WORD	m_wPdoDescSize;
+	WORD	   m_bEntryCnt;
+	BYTE       m_bPdoDir;
+	BYTE       m_bBufferNum;
 } tPdoDescHeader;
 
 typedef struct sPdoDesc {
 	WORD	m_wPdoIndex;
 	BYTE	m_bPdoSubIndex;
-	BYTE	m_reserved;
-} tPdoDesc;
+	BYTE	m_bReserved;    // NumObjChain not used
+} tPdoDescEntry;
 
 #define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
 #define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
 #define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
 #define EPL_PDOU_OBD_IDX_TX_MAPP_PARAM  0x1A00
 
-typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, WORD wPdoDescSize_p); 	///< type definition for PDO descriptor callback function
+typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, WORD wDescrEntries_p); 	///< type definition for PDO descriptor callback function
 typedef	void (*tpfnPdoCopyCb) (BYTE *pPdoData_p); 						///< type definition for PDO copy callback function
 typedef void (*tpfnSyncIntCb) (void);									///< type definition for Sync interrupt callback function
 
@@ -418,7 +428,7 @@ typedef enum { //TODO: define state "none?" - adapt docu for correct values!
 * tPcpCtrlReg defines the PCP control registers.
 */
 
-struct sPcpControlReg {//TODO: improve structure
+struct sPcpControlReg {
 	volatile DWORD			m_dwMagic;
 	volatile BYTE			m_bSyncMode;
 	volatile BYTE			m_bError;
@@ -429,38 +439,56 @@ struct sPcpControlReg {//TODO: improve structure
 	volatile WORD			m_wCycleCorrect;
 	volatile BYTE			m_bCycleError;
 	volatile BYTE			m_bMaxCylceNum;
-	volatile WORD			m_awTxPdoBufSize[1]; 
-	volatile WORD			m_awTxPdoBufAdrs[1];
-	volatile WORD			m_awRxPdoBufSize[1]; //TODO: adapt functions for array capability or add '0'
-	volatile WORD			m_awRxPdoBufAdrs[1]; 
-	volatile WORD			m_awRxPdo1BufSize; 
-	volatile WORD			m_awRxPdo1BufAdrs; 
-	volatile WORD			m_awRxPdo2BufSize; 
-	volatile WORD			m_awRxPdo2BufAdrs; 
-	volatile WORD			m_wTxPdoDescSize;  //TODO: improve naming: not an array!
-	volatile WORD			m_awTxPdoDescAdrs[1];
+    volatile DWORD          m_dwSyncIntCycTime;
+	volatile DWORD          m_dwReserved1;
+	volatile WORD			m_wTxPdo0BufSize;
+	volatile WORD			m_wTxPdo0BufAoffs;
+	volatile WORD			m_wRxPdo0BufSize;
+	volatile WORD			m_wRxPdo0BufAoffs;
+	volatile WORD			m_wRxPdo1BufSize;
+	volatile WORD			m_wRxPdo1BufAoffs;
+	volatile WORD			m_wRxPdo2BufSize;
+	volatile WORD			m_wRxPdo2BufAoffs;
+	volatile WORD			m_wTxPdoDescSize;
+	volatile WORD			m_wTxPdoDescAdrs;
 	volatile WORD			m_wRxPdoDescSize;
-	volatile WORD			m_awRxPdoDescAdrs[1];
+	volatile WORD			m_wRxPdoDescAdrs;
 	volatile WORD			m_wTxAsyncBufSize;
-	volatile WORD			m_wTxAsyncBufAdrs;
+	volatile WORD			m_wTxAsyncBufAoffs;
 	volatile WORD			m_wRxAsyncBufSize;
-	volatile WORD			m_wRxAsyncBufAdrs;
-	volatile BYTE			m_awRxPdoAckAdrsAp[1]; //TODO: naming: not AP! ///< adress acknowledge register of Rx PDO buffer nr. 0
-	volatile BYTE			m_awRxPdo1AckAdrs;					///< adress acknowledge register of Rx PDO buffer nr. 1
-	volatile BYTE			m_awRxPdo2AckAdrs;					///< adress acknowledge register of Rx PDO buffer nr. 2
-	volatile BYTE			m_awTxPdoAckAdrsAp[1]; 				///< adress acknowledge register of Tx PDO buffer
+	volatile WORD			m_wRxAsyncBufAoffs;
+	volatile BYTE			m_bRxPdo0Ack;  ///< address acknowledge register of RPDO buffer nr. 0
+	volatile BYTE			m_bRxPdo1Ack;  ///< address acknowledge register of RPDO buffer nr. 1
+	volatile BYTE			m_bRxPdo2Ack;  ///< address acknowledge register of RPDO buffer nr. 2
+	volatile BYTE			m_bTxPdo0Ack;  ///< address acknowledge register of TPDO buffer nr. 0
 	volatile DWORD			m_dwPcpIrqTimerValue; ///< synchronization IRQ timer value, accessible only by PCP
 	volatile BYTE			m_bSyncIrqControl;	  ///< synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
-	volatile BYTE           m_breserved1;
-    volatile WORD           m_wSyncIntCycTime;
 }__attribute__((__packed__));
 
 typedef struct sPcpControlReg tPcpCtrlReg;
+
+typedef struct sTPdoBuffer { ///< used to group buffer structure infos from control register
+    BYTE    *pAdrs_m;
+    WORD    wSize_m;
+    BYTE    *pAck_m;
+} tTPdoBuffer;
+
+typedef struct
+sRPdoBuffer { ///< used to group buffer structure infos from control register
+    BYTE    *pAdrs_m;
+    WORD    wSize_m;
+    BYTE    *pAck_m;
+} tRPdoBuffer;
 
 /******************************************************************************/
 /* global variables */
 extern tCnApiInitParm		*pInitParm_g;		// pointer to POWERLINK init parameters
 extern tPcpCtrlReg			*pCtrlReg_g;		// pointer to PCP control registers
+
+// asynchronous messages
+extern tLinkPdosReq *pAsycMsgLinkPdoReqAp_g;
+
+//TODO:DELETE extern tLinkPdosReq       *pTxDescBuf_g; //TODO: delete; currently used for LinkPdosReq in pcpMain.c
 
 /******************************************************************************/
 /* function declarations */
@@ -471,8 +499,9 @@ extern BOOL CnApi_processApStateMachine(void);
 extern void CnApi_initSyncInt(WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycleNum);
 extern void CnApi_enableSyncInt(void);
 extern void CnApi_disableSyncInt(void);
-extern int CnApi_initObjects(DWORD dwNumObjects_p);
+extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p);
+void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p);
 extern void CnApi_cleanupObjects(void);
 extern void CnApi_transferPdo(void);
 

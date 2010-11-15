@@ -16,11 +16,14 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* includes */
+#include "system.h"
 #include "cnApi.h"
 #include "Debug.h"
 
 /******************************************************************************/
 /* defines */
+/* defines */
+#define PDI_DPRAM_BASE_PCP      POWERLINK_0_PDI_PCP_BASE  //from system.h
 
 /* Powerlink defaults */
 #define DEFAULT_CYCLE_LEN   1000    ///< [us]
@@ -38,6 +41,10 @@ extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after bo
 extern int             iSyncIntCycle_g;   ///< IR synchronization factor (multiple cycle time)
 extern BOOL            fIrqSyncMode_g;    ///< synchronization mode flag
 
+extern tLinkPdosReq *pAsycMsgLinkPdoReq_g; ///< Asynchronous PDI Message
+
+//TODO:DELETE extern tLinkPdosReq     *pTxDescBuf_g; //TODO: delete as soon as tunnel through Async Channel
+
 /******************************************************************************/
 /* function declarations */
 extern BYTE getCommandFromAp(void);
@@ -52,12 +59,10 @@ extern void Gi_init(void);
 extern int Gi_initAsync(tAsyncMsg *pAsyncSendBuf_p, tAsyncMsg *pAsyncRecvBuf_p);
 extern void Gi_pollAsync(void);
 
-extern int Gi_initPdo(BYTE *pTxPdoBuf_p, BYTE *pRxPdoBuf_p,
-					  BYTE *pTxPdoAckAdrsPcp_p, BYTE *pRxPdoAckAdrsPcp_p,
-					  tPdoDescHeader *pTxDescBuf_p, tPdoDescHeader *pRxDescBuf_p);
+extern int Gi_initPdo(void);
 extern void Gi_readPdo(void);
 extern void Gi_writePdo(void);
-extern int Gi_setupPdoDesc(BYTE bDirection_p);
+extern int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosReq *pLinkPdoReq_p);
 
 extern void Gi_initSyncInt(void);
 extern void Gi_getSyncIntModeFlags(void);

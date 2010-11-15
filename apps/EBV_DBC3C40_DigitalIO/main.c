@@ -260,9 +260,9 @@ handlers.
 *******************************************************************************/
 #ifndef USE_POLLING_MODE
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
-static void syncIntHandler(BYTE* pArg_p)
+static void syncIntHandler(void* pArg_p)
 #else
-static void syncIntHandler(BYTE* pArg_p, alt_u32 dwInt_p)
+static void syncIntHandler(void* pArg_p, void* dwInt_p)
 #endif
 {
 	/* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/

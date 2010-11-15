@@ -96,17 +96,18 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 #endif
 
 	/* initialize asynchronous transfer functions */
-	CnApi_initAsync((tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBufAdrs), pCtrlReg_g->m_wTxAsyncBufSize,
-					(tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAdrs), pCtrlReg_g->m_wRxAsyncBufSize);
+	CnApi_initAsync((tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBufAoffs), pCtrlReg_g->m_wTxAsyncBufSize,
+					(tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAoffs), pCtrlReg_g->m_wRxAsyncBufSize);
 
 	/* initialize PDO transfer functions */
-	CnApi_initPdo((char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoBufAdrs[0]), pCtrlReg_g->m_awTxPdoBufSize[0],
-			      (char *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoBufAdrs[0]), pCtrlReg_g->m_awRxPdoBufSize[0],
-			      (BYTE *)(&pCtrlReg_g->m_awTxPdoAckAdrsAp[0]), (BYTE *)(&pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
-				  (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awTxPdoDescAdrs[0]), pCtrlReg_g->m_wTxPdoDescSize,
-			      (tPdoDescHeader *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_awRxPdoDescAdrs[0]), pCtrlReg_g->m_wRxPdoDescSize);
+	iStatus = CnApi_initPdo();
+	if (iStatus != OK)
+	{
+	    DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApi_initPdo() failed!!\n");
+	}
 
 	iStatus = CnApi_doInitPcpReq();
+
 	DEBUG_TRACE2(DEBUG_LVL_10, "%s: status:%d\n", __func__, iStatus);
 	if (iStatus == OK)
 	{
@@ -166,7 +167,7 @@ FUNC_EVT(kApStatePreop1, kApStatePreop2, 1)
 FUNC_ENTRYACT(kApStatePreop1)
 {
     /* read PDO descriptors */
-    CnApi_readPdoDesc();
+    CnApi_handleLinkPdosReq(pAsycMsgLinkPdoReqAp_g);
 }
 
 /*============================================================================*/

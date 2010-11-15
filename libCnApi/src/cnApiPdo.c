@@ -24,38 +24,37 @@
 
 /******************************************************************************/
 /* defines */
-#define		PDO_COPY_TBL_SIZE		100  //TODO: delete / replace define
+/* equals number of mapped objects, if memory-chaining is not applied */
+#define		PDO_COPY_TBL_ELEMENTS		100  //TODO: delete / replace define
 
 /******************************************************************************/
 /* typedefs */
-typedef struct sPdoCopyTbl {
-	BYTE			*m_adrs;
-	unsigned int	m_size;
+typedef struct sPdoCopyTblEntry {
+    BYTE            *pAdrs_m;
+    WORD             size_m;
+} tPdoCopyTblEntry;
+
+typedef struct sPdoCpyTbl {
+   BYTE                 bNumOfEntries_m;
+   tPdoCopyTblEntry     aEntry_m[PDO_COPY_TBL_ELEMENTS];
 } tPdoCopyTbl;
+
+
 
 /******************************************************************************/
 /* external variable declarations */
 
 /******************************************************************************/
 /* global variables */
-static BYTE* 			pTxPdoAdrs_l;
-static WORD 			wTxPdoSize_l;
-static BYTE* 			pRxPdoAdrs_l;
-static WORD 			wRxPdoSize_l;
-static BYTE*			pRxPdoAckAdrsAp_l;
-static BYTE*			pTxPdoAckAdrsAp_l;
-static tPdoDescHeader*	pTxDescAdrs_l;
-static WORD 			wTxDescSize_l;
-static tPdoDescHeader*	pRxDescAdrs_l;
-static WORD 			wRxDescSize_l;
+static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
+static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
 
-static WORD				wRxPdoMappingVersion_l = 0xff;
-static WORD				wTxPdoMappingVersion_l = 0xff;
+//TODO:DELETE tLinkPdosReq*       pTxDescBuf_g; //TODO: delete; currently used for LinkPdosReq in pcpMain.c
+//TODO:DELETE static  tPdoDescHeader*     pRxDescBuf_l; //TODO: delete
 
-static	tPdoCopyTbl		pTxPdoCopyTbl_l[PDO_COPY_TBL_SIZE];
-static	WORD			wTxPdoCopyTblSize_l;
-static	tPdoCopyTbl		pRxPdoCopyTbl_l[PDO_COPY_TBL_SIZE];
-static	WORD			wRxPdoCopyTblSize_l;
+static  WORD                wPdoMappingVersion_l = 0xff; ///< LinkPdosReq command mapping version
+static  tPdoCopyTbl         aTxPdoCopyTbl_l[TPDO_CHANNELS_MAX];
+static  tPdoCopyTbl         aRxPdoCopyTbl_l[RPDO_CHANNELS_MAX];
 
 /******************************************************************************/
 /* function declarations */
@@ -67,54 +66,93 @@ static	WORD			wRxPdoCopyTblSize_l;
 ********************************************************************************
 \brief	setup copy table
 
-Setup the PDO data copy table.
+Setup the data copy table for TPDO or RPDO according to the descriptor.
+The descriptor is compared with the local object link table.
+Not stated objects in local table will be ignored.
 
+\param  pPdoDesc_p          pointer to PDO descriptor
+\param  wDescrEntries_p     Number of entries of the PDO descriptor
 \param	bDirection_p		Copy direction (read/write) of this copy table
-\param	pPdoDesc_p			Pointer to the PDO descriptor
-\param	wPdoDescSize_p		The size of the PDO descriptor
-*******************************************************************************/
-static void CnApi_setupCopyTable (BYTE bDirection_p, tPdoDesc *pPdoDesc_p, WORD wPdoDescSize_p)
-{
-	WORD		size;
-	tPdoDesc	*pDesc;
-	tPdoCopyTbl	*pCopyTbl;
-	WORD		wObjSize;
-	WORD		*pNumObjs;
-	char		*pObjAdrs;
+\param	wPdoBufNum_p	    PDO buffer number of one direction
 
-	if (bDirection_p == kCnApiDirReceive)
+*******************************************************************************/
+static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
+                                  WORD              wDescrEntries_p,
+                                  BYTE              bDirection_p,
+                                  WORD                 wPdoBufNum_p)
+{
+    int iCnt = 0;
+	WORD   wTblNum = 0;
+	tPdoDescEntry	*pDescEntry;
+	tPdoCopyTbl   *pCopyTbl;
+	BYTE    *pbCpyTblEntries;
+	tPdoDir PdoDir;
+	WORD	wObjSize;
+	char	*pObjAdrs;
+
+	PdoDir = (tPdoDir) bDirection_p;
+
+	/* select copy table */
+	if (PdoDir == TPdo)
 	{
-		pCopyTbl = pRxPdoCopyTbl_l;
-		pNumObjs = &wRxPdoCopyTblSize_l;
+		pCopyTbl = &aTxPdoCopyTbl_l[wPdoBufNum_p];
+		pbCpyTblEntries = &aTxPdoCopyTbl_l[wPdoBufNum_p].bNumOfEntries_m;
+	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for TPDO %d ...:", wPdoBufNum_p);
+	}
+	else if(PdoDir == RPdo)
+	{
+		pCopyTbl = &aRxPdoCopyTbl_l[wPdoBufNum_p];
+		pbCpyTblEntries = &aRxPdoCopyTbl_l[wPdoBufNum_p].bNumOfEntries_m;
+		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for RPDO %d ...:", wPdoBufNum_p);
 	}
 	else
 	{
-		pCopyTbl = pTxPdoCopyTbl_l;
-		pNumObjs = &wTxPdoCopyTblSize_l;
-	}
+	    DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s:"
+                     "Descriptor has no valid direction!\n", __func__);
+	    goto exit;
+    }
 
-	size = 0;
-	pDesc = pPdoDesc_p;
-	*pNumObjs = 0;
-	while (size < wPdoDescSize_p)
+	if (wDescrEntries_p > PDO_COPY_TBL_ELEMENTS)
+	{
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s:"
+                     "failed!\nCopy table size too small"
+                     " for count of descriptor elements!\n", __func__);
+        goto exit;
+    }
+
+	/* prepare loop */
+	*pbCpyTblEntries = 0;
+	pDescEntry = (tPdoDescEntry*) ((BYTE*) pPdoDesc_p + sizeof(tPdoDescHeader)); ///< first element
+
+	/* check if indices exist locally and setup copy table */
+	while(iCnt < wDescrEntries_p)
 	{
 		/* if object line up matches then acquire data pointer and size information from the linking table */
-		if (!CnApi_setupMappedObjects(pDesc->m_wPdoIndex, pDesc->m_bPdoSubIndex, &wObjSize, &pObjAdrs))
+		if (!CnApi_setupMappedObjects(pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, &wObjSize, &pObjAdrs))
 		{
-		    TRACE2("Couldn't find object 0x%04x/0x%02x in object table!\n", pDesc->m_wPdoIndex, pDesc->m_bPdoSubIndex);
-			pCopyTbl->m_adrs = 0;
-			pCopyTbl->m_size = 0;
+		    /* skip this copy table element */
+		    TRACE2("Couldn't find descriptor object 0x%04x/0x%02x"
+		            " in local object table!\n", pDescEntry->m_wPdoIndex,
+                                                 pDescEntry->m_bPdoSubIndex);
+			pCopyTbl->aEntry_m[wTblNum].pAdrs_m = 0;
+			pCopyTbl->aEntry_m[wTblNum].size_m = 0;
 		}
 		else
-		{
-			pCopyTbl->m_adrs = pObjAdrs;
-			pCopyTbl->m_size = wObjSize;
+		{   /* assing copy table element values */
+		    pCopyTbl->aEntry_m[wTblNum].pAdrs_m = pObjAdrs;
+		    pCopyTbl->aEntry_m[wTblNum].size_m = wObjSize;
+		    wTblNum++;
+		    (*pbCpyTblEntries)++;
 		}
-		size += sizeof(tPdoDesc);
-		pCopyTbl++;
-		pDesc++;
-		(*pNumObjs)++;
+
+		/* prepare next loop */
+		pDescEntry++;
+	    iCnt++;
 	}
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "OK\n");
+
+exit:
+	return;
 }
 
 /******************************************************************************/
@@ -126,32 +164,128 @@ static void CnApi_setupCopyTable (BYTE bDirection_p, tPdoDesc *pPdoDesc_p, WORD 
 
 CnApi_initPdo() is used to initialize the PDO module.
 *******************************************************************************/
-void CnApi_initPdo(BYTE *pTxPdoAdrs_p, WORD wTxPdoSize_p,
-				   BYTE *pRxPdoAdrs_p, WORD wRxPdoSize_p,
-				   BYTE *pTxPdoAckAdrsAp_p, BYTE *pRxPdoAckAdrsAp_p,
-				   tPdoDescHeader *pTxDescAdrs_p, WORD wTxDescSize_p,
-				   tPdoDescHeader *pRxDescAdrs_p, WORD wRxDescSize_p)
+int CnApi_initPdo(void)
 {
-	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "CnApi_initPdo: TXPDO:%08x(%04x)\n",
-			                            (unsigned int)pTxPdoAdrs_p, wTxPdoSize_p);
-	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "CnApi_initPdo: RXPDO:%08x(%04x)\n",
-			                            (unsigned int)pRxPdoAdrs_p, wRxPdoSize_p);
-	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "CnApi_initPdo: TXDESC:%08x(%04x)\n",
-			                            (unsigned int)pTxDescAdrs_p, wTxDescSize_p);
-	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "CnApi_initPdo: RXDESC:%08x(%04x)\n",
-			                            (unsigned int)pRxDescAdrs_p, wRxDescSize_p);
+    register WORD wCnt;
 
-	/* initialize buffers */
-	pTxPdoAdrs_l = pTxPdoAdrs_p;			/* TXPDO buffer address offset */
-	wTxPdoSize_l = wTxPdoSize_p;
-	pRxPdoAdrs_l = pRxPdoAdrs_p;			/* RXPDO buffer address offset */
-	wRxPdoSize_l = wRxPdoSize_p;
-	pTxPdoAckAdrsAp_l = pTxPdoAckAdrsAp_p; 	/* TXPDO buffer acknowledge address */
-	pRxPdoAckAdrsAp_l = pRxPdoAckAdrsAp_p; 	/* RXPDO buffer acknowledge address */
-	pTxDescAdrs_l = pTxDescAdrs_p;			/* TXPDO descriptor address offset */
-	wTxDescSize_l = wTxDescSize_p;
-	pRxDescAdrs_l = pRxDescAdrs_p;			/* RXPDO descriptor address offset */
-	wRxDescSize_l = wRxDescSize_p;
+    /** group TPDO PDI channels address, size and acknowledge settings */
+#if (TPDO_CHANNELS_MAX >= 1)
+    aTPdosPdi_l[0].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxPdo0BufAoffs);
+    aTPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wTxPdo0BufSize;
+    aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_bTxPdo0Ack);
+#endif /* TPDO_CHANNELS_MAX >= 1 */
+
+    /** group RPDO PDI channels address, size and acknowledge settings */
+#if (RPDO_CHANNELS_MAX >= 1)
+    aRPdosPdi_l[0].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo0BufAoffs);
+    aRPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wRxPdo0BufSize;
+    aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_bRxPdo0Ack);
+#endif /* RPDO_CHANNELS_MAX >= 1 */
+
+#if (RPDO_CHANNELS_MAX >= 2)
+    aRPdosPdi_l[1].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo1BufAoffs);
+    aRPdosPdi_l[1].wSize_m = pCtrlReg_g->m_wRxPdo1BufSize;
+    aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_g->m_bRxPdo1Ack);
+#endif /* RPDO_CHANNELS_MAX >= 2 */
+
+#if (RPDO_CHANNELS_MAX >= 3)
+    aRPdosPdi_l[2].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo2BufAoffs);
+    aRPdosPdi_l[2].wSize_m = pCtrlReg_g->m_wRxPdo2BufSize;
+    aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_g->m_bRxPdo2Ack);
+#endif /* RPDO_CHANNELS_MAX >= 3 */
+
+for (wCnt = 0; wCnt < TPDO_CHANNELS_MAX; ++wCnt)
+{
+    if ((aTPdosPdi_l[wCnt].pAdrs_m == NULL) ||
+        (aTPdosPdi_l[wCnt].wSize_m == 0)    ||
+        (aTPdosPdi_l[wCnt].pAck_m ==  NULL)   )
+    {
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "\n\nError in %s: initializing TPDO %d failed!\n\n", __func__, wCnt);
+        goto exit;
+    }
+    else
+    {
+        DEBUG_LVL_CNAPI_INFO_TRACE4("%s: TXPDO %d: adrs. %08x (size %d)\n",
+                                            __func__, wCnt,(unsigned int)aTPdosPdi_l[wCnt].pAdrs_m, aTPdosPdi_l[wCnt].wSize_m);
+    }
+}
+for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
+{
+    if ((aRPdosPdi_l[wCnt].pAdrs_m == NULL) ||
+        (aRPdosPdi_l[wCnt].wSize_m == 0)    ||
+        (aRPdosPdi_l[wCnt].pAck_m ==  NULL)   )
+    {
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "\n\nError in %s: initializing RPDO %d failed!\n\n", __func__, wCnt);
+        goto exit;
+    }
+    else
+    {
+        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%s: RXPDO %d: adrs. %08x (size %d)\n",
+                     __func__, wCnt, (unsigned int)aRPdosPdi_l[wCnt].pAdrs_m,
+                     aRPdosPdi_l[wCnt].wSize_m);
+    }
+}
+
+//TODO: this is direct link to buffer, change to local message buffer
+    pAsycMsgLinkPdoReqAp_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAoffs);
+    /** initialize PDO PDI descriptor address */
+//TODO:DELETE    pTxDescBuf_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxPdoDescAdrs); /* TXPDO descriptor address offset */
+//TODO:DELETE    pRxDescBuf_l = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdoDescAdrs);   /* RXPDO descriptor address offset */
+
+
+    return OK;
+exit:
+    return ERROR;
+}
+
+/**
+********************************************************************************
+\brief  handle an LinkPdosReq command from AP
+
+This function allocates memory and links it to the DPRAM by the given
+and set up response
+*******************************************************************************/
+void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p) //TODO: move to Async
+{
+    register int    iCnt;
+    WORD            wNumDescr;
+    tPdoDescHeader  *pPdoDescHeader; ///< ptr to descriptor
+
+    DEBUG_FUNC;
+
+    /** check if LinkPdosReq command is present */
+    //TODO
+
+    /* check if mapping version has changed */
+    if(pLinkPdosReq_p->m_bDescrVers == wPdoMappingVersion_l)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Descriptor Version %d still valid. \n", wPdoMappingVersion_l);
+        goto exit;
+    }
+    else
+    {
+        wPdoMappingVersion_l = pLinkPdosReq_p->m_bDescrVers;
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "New Descriptor Version: %d\n", wPdoMappingVersion_l);
+    }
+
+    /* get numbers of descriptors in this message */
+    wNumDescr = pLinkPdosReq_p->m_bDescrCnt;
+    /* get pointer to  first descriptor */
+
+    pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdosReq_p + sizeof(tLinkPdosReq));
+
+   /* read all descriptors and setup the corresponding copy tables */
+    for (iCnt = 0; iCnt < wNumDescr; ++iCnt)
+    {
+        CnApi_readPdoDesc(pPdoDescHeader);
+
+        /* get pointer to next descriptor */
+        pPdoDescHeader = (BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
+                         (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry));
+    }
+
+exit:
+    return;
 }
 
 /**
@@ -160,24 +294,23 @@ void CnApi_initPdo(BYTE *pTxPdoAdrs_p, WORD wTxPdoSize_p,
 
 CnApi_readPdoDesc() checks if the mapping changed. If it changed the
 PDO descriptor is read and the copy table is updated.
+
+
 *******************************************************************************/
-void CnApi_readPdoDesc(void)
+void CnApi_readPdoDesc(tPdoDescHeader *pPdoDescHeader_p)
 {
-	/* check if mapping changed */
-	if (pRxDescAdrs_l->m_wPdoDescVers != wRxPdoMappingVersion_l)
-	{
-		wRxPdoMappingVersion_l = pRxDescAdrs_l->m_wPdoDescVers;		// save new mapping version
+    WORD wNumDescrEntries;
+    WORD wPdoBufNum;
+    tPdoDir bPdoDir;
 
-		CnApi_setupCopyTable(kCnApiDirReceive, (tPdoDesc *)(pRxDescAdrs_l + 1), pRxDescAdrs_l->m_wPdoDescSize);
-	}
+    wNumDescrEntries = pPdoDescHeader_p->m_bEntryCnt;
+    bPdoDir = pPdoDescHeader_p->m_bPdoDir;
+    wPdoBufNum = pPdoDescHeader_p->m_bBufferNum;
 
-	/* check if mapping changed */
-	if (pTxDescAdrs_l->m_wPdoDescVers != wTxPdoMappingVersion_l)
-	{
-		wTxPdoMappingVersion_l = pTxDescAdrs_l->m_wPdoDescVers;		// save new mapping version
-
-		CnApi_setupCopyTable(kCnApiDirTransmit, (tPdoDesc *)(pTxDescAdrs_l + 1), pTxDescAdrs_l->m_wPdoDescSize);
-	}
+    CnApi_setupCopyTable(pPdoDescHeader_p,
+                         wNumDescrEntries,
+                         bPdoDir,
+                         wPdoBufNum);
 }
 
 /**
@@ -189,6 +322,7 @@ to a defined buffer control register.
 *******************************************************************************/
 inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 {
+    //TODO: SPI
     *pAckReg_p = 0xff; ///> write random byte value
 }
 
@@ -200,22 +334,29 @@ CnApi_receivePdo() receives PDO data from the PCP.
 *******************************************************************************/
 void CnApi_receivePdo(void)
 {
-	BYTE			*pPdoData;
-	tPdoCopyTbl		*pCopyTbl;
-	register int 	i;
+    BYTE                *pPdoPdiData;      ///< pointer to Pdo buffer
+    tPdoCopyTblEntry    *pCopyTblEntry;    ///< pointer to table entry
+    WORD                wEntryCnt;         ///< number of copy table entries
+    register int        iCntin;            ///< inner loop counter
+    register int        iCntout;           ///< outer loop counter
 
-	pPdoData = pRxPdoAdrs_l;
-	pCopyTbl = pRxPdoCopyTbl_l;
+    /* copy all RPDOs to PDI buffer */
+    for (iCntout = 0; iCntout < RPDO_CHANNELS_MAX; ++iCntout)
+    {
+        pCopyTblEntry = &(aRxPdoCopyTbl_l[iCntout].aEntry_m[0]);
+        wEntryCnt = aRxPdoCopyTbl_l[iCntout].bNumOfEntries_m;
+        pPdoPdiData = aRPdosPdi_l[iCntout].pAdrs_m;
 
-	/* prepare PDO buffer for read access */
-	CnApi_ackPdoBuffer(pRxPdoAckAdrsAp_l);
+        /* prepare PDO buffer for read access */
+        CnApi_ackPdoBuffer(aRPdosPdi_l[iCntout].pAck_m);
 
-	for (i = 0; i < wRxPdoCopyTblSize_l; i++)
-	{
-		memcpy (pCopyTbl->m_adrs, pPdoData, pCopyTbl->m_size);
-		pPdoData += pCopyTbl->m_size;
-		pCopyTbl ++;
-	}
+        for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
+        { //TODO: SPI
+            memcpy (pCopyTblEntry->pAdrs_m, pPdoPdiData, pCopyTblEntry->size_m);
+            pPdoPdiData += pCopyTblEntry->size_m;
+            pCopyTblEntry++;
+        }
+    }
 }
 
 /**
@@ -226,22 +367,30 @@ CnApi_transmitPdo() transmits PDO data to the PCP.
 *******************************************************************************/
 void CnApi_transmitPdo(void)
 {
-	BYTE			*pPdoData;
-	tPdoCopyTbl		*pCopyTbl;
-	register int 	i;
+    BYTE                *pPdoPdiData;      ///< pointer to Pdo buffer
+    tPdoCopyTblEntry    *pCopyTblEntry;    ///< pointer to table entry
+    WORD                wEntryCnt;         ///< number of copy table entries
+    register int        iCntin;            ///< inner loop counter
+    register int        iCntout;           ///< outer loop counter
 
-	pPdoData = pTxPdoAdrs_l;
-	pCopyTbl = pTxPdoCopyTbl_l;
+    /* copy all TPdos to PDI buffer */
+    for (iCntout = 0; iCntout < TPDO_CHANNELS_MAX; ++iCntout)
+    {
+        pCopyTblEntry = &(aTxPdoCopyTbl_l[iCntout].aEntry_m[0]);
+        wEntryCnt = aTxPdoCopyTbl_l[iCntout].bNumOfEntries_m;
+        pPdoPdiData = aTPdosPdi_l[iCntout].pAdrs_m;
 
-	for (i = 0; i < wTxPdoCopyTblSize_l; i++)
-	{
-		memcpy (pPdoData, pCopyTbl->m_adrs, pCopyTbl->m_size);
-		pPdoData += pCopyTbl->m_size;
-		pCopyTbl ++;
-	}
+        for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
+        {
+            //TODO: SPI
+            memcpy (pPdoPdiData, pCopyTblEntry->pAdrs_m, pCopyTblEntry->size_m);
+            pPdoPdiData += pCopyTblEntry->size_m;
+            pCopyTblEntry++;
+        }
 
-	/* prepare PDO buffer for next write access */
-	CnApi_ackPdoBuffer(pTxPdoAckAdrsAp_l);
+        /* prepare PDO buffer for next write access */
+        CnApi_ackPdoBuffer(aTPdosPdi_l[iCntout].pAck_m);
+    }
 }
 
 /**

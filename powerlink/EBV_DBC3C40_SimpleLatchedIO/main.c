@@ -25,7 +25,7 @@
 /* defines */
 #define SET_NODE_ID_PER_SW 			//NodeID will be overwritten with SW define
 
-#define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
+#define NODEID      0x05 // should be NOT 0xF0 (=MN) in case of CN
 #define CYCLE_LEN   1000 // [us]
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
 #define IP_ADDR     0xc0a86401  // 192.168.100.1 // don't care the last byte!

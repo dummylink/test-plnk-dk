@@ -252,8 +252,8 @@ RESERVED_INPUT               : G5        :        :                   :         
 VCCA3                        : G6        : power  :                   : 2.5V    :           :                
 RESERVED_INPUT               : G7        :        :                   :         : 8         :                
 RESERVED_INPUT               : G8        :        :                   :         : 8         :                
-node_switch[2]               : G9        : input  : 3.3-V LVTTL       :         : 8         : Y              
-node_switch[3]               : G10       : input  : 3.3-V LVTTL       :         : 8         : Y              
+benchmrk_pins[6]             : G9        : output : 3.3-V LVTTL       :         : 8         : Y              
+benchmrk_pins[7]             : G10       : output : 3.3-V LVTTL       :         : 8         : Y              
 node_switch[5]               : G11       : input  : 3.3-V LVTTL       :         : 8         : Y              
 VCCINT                       : G12       : power  :                   : 1.2V    :           :                
 node_switch[7]               : G13       : input  : 3.3-V LVTTL       :         : 7         : Y              
@@ -270,13 +270,13 @@ RESERVED_INPUT               : H1        :        :                   :         
 RESERVED_INPUT               : H2        :        :                   :         : 1         :                
 GND                          : H3        : gnd    :                   :         :           :                
 VCCIO1                       : H4        : power  :                   : 3.3V    : 1         :                
-RESERVED_INPUT               : H5        :        :                   :         : 1         :                
+node_switch[3]               : H5        : input  : 3.3-V LVTTL       :         : 1         : N              
 RESERVED_INPUT               : H6        :        :                   :         : 1         :                
 RESERVED_INPUT               : H7        :        :                   :         : 1         :                
-node_switch[1]               : H8        : input  : 3.3-V LVTTL       :         : 1         : Y              
+benchmrk_pins[5]             : H8        : output : 3.3-V LVTTL       :         : 1         : Y              
 VCCINT                       : H9        : power  :                   : 1.2V    :           :                
-RESERVED_INPUT               : H10       :        :                   :         : 8         :                
-RESERVED_INPUT               : H11       :        :                   :         : 8         :                
+benchmrk_pins[0]             : H10       : output : 3.3-V LVTTL       :         : 8         : Y              
+benchmrk_pins[1]             : H11       : output : 3.3-V LVTTL       :         : 8         : Y              
 GND                          : H12       : gnd    :                   :         :           :                
 GND                          : H13       : gnd    :                   :         :           :                
 RESERVED_INPUT               : H14       :        :                   :         : 7         :                
@@ -295,7 +295,7 @@ RESERVED_INPUT               : J4        :        :                   :         
 RESERVED_INPUT               : J5        :        :                   :         : 1         :                
 RESERVED_INPUT               : J6        :        :                   :         : 1         :                
 RESERVED_INPUT               : J7        :        :                   :         : 1         :                
-node_switch[0]               : J8        : input  : 3.3-V LVTTL       :         : 1         : Y              
+benchmrk_pins[4]             : J8        : output : 3.3-V LVTTL       :         : 1         : Y              
 GND                          : J9        : gnd    :                   :         :           :                
 VCCINT                       : J10       : power  :                   : 1.2V    :           :                
 VCCINT                       : J11       : power  :                   : 1.2V    :           :                
@@ -316,8 +316,8 @@ GND                          : K3        : gnd    :                   :         
 VCCIO1                       : K4        : power  :                   : 3.3V    : 1         :                
 nCONFIG                      : K5        :        :                   :         : 1         :                
 nSTATUS                      : K6        :        :                   :         : 1         :                
-RESERVED_INPUT               : K7        :        :                   :         : 1         :                
-RESERVED_INPUT               : K8        :        :                   :         : 1         :                
+benchmrk_pins[3]             : K7        : output : 3.3-V LVTTL       :         : 1         : Y              
+node_switch[0]               : K8        : input  : 3.3-V LVTTL       :         : 1         : N              
 VCCINT                       : K9        : power  :                   : 1.2V    :           :                
 GND                          : K10       : gnd    :                   :         :           :                
 GND                          : K11       : gnd    :                   :         :           :                
@@ -326,7 +326,7 @@ GND                          : K13       : gnd    :                   :         
 VCCINT                       : K14       : power  :                   : 1.2V    :           :                
 VCCINT                       : K15       : power  :                   : 1.2V    :           :                
 GND                          : K16       : gnd    :                   :         :           :                
-RESERVED_INPUT               : K17       :        :                   :         : 6         :                
+node_switch[1]               : K17       : input  : 3.3-V LVTTL       :         : 6         : N              
 noe                          : K18       : output : 3.3-V LVTTL       :         : 6         : Y              
 nbe[1]                       : K19       : output : 3.3-V LVTTL       :         : 6         : Y              
 MSEL3                        : K20       :        :                   :         : 6         :                
@@ -339,7 +339,7 @@ altera_reserved_tdo          : L4        : output : 3.3-V LVTTL       :         
 altera_reserved_tdi          : L5        : input  : 3.3-V LVTTL       :         : 1         : N              
 RESERVED_INPUT               : L6        :        :                   :         : 2         :                
 RESERVED_INPUT               : L7        :        :                   :         : 2         :                
-RESERVED_INPUT               : L8        :        :                   :         : 1         :                
+benchmrk_pins[2]             : L8        : output : 3.3-V LVTTL       :         : 1         : Y              
 VCCINT                       : L9        : power  :                   : 1.2V    :           :                
 GND                          : L10       : gnd    :                   :         :           :                
 GND                          : L11       : gnd    :                   :         :           :                
@@ -474,7 +474,7 @@ RESERVED_INPUT               : U7        :        :                   :         
 RESERVED_INPUT               : U8        :        :                   :         : 3         :                
 RESERVED_INPUT               : U9        :        :                   :         : 3         :                
 RESERVED_INPUT               : U10       :        :                   :         : 3         :                
-RESERVED_INPUT               : U11       :        :                   :         : 3         :                
+node_switch[2]               : U11       : input  : 3.3-V LVTTL       :         : 3         : N              
 RESERVED_INPUT               : U12       :        :                   :         : 4         :                
 RESERVED_INPUT               : U13       :        :                   :         : 4         :                
 phy0_smi_io                  : U14       : bidir  : 3.3-V LVTTL       :         : 4         : Y              

@@ -44,6 +44,7 @@ extern void CnApi_initApStateMachine(void);
 /* functions for object access */
 extern BOOL CnApi_setupMappedObjects(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p);
 extern void CnApi_resetObjectSelector(void);
+extern void CnApi_resetLinkCounter(void);
 extern int CnApi_getNextObject(tCnApiObjId *pObjId);
 extern void CnApi_createObjectLinks(void);
 extern int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen, BYTE* p_data, BOOL sync);
@@ -62,14 +63,10 @@ extern int CnApi_doInitPcpReq(void);
 extern int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p);
 
 /* functions for interrupt synchronization */
-extern WORD CnApi_getSyncIntPeriod(void);
+extern DWORD CnApi_getSyncIntPeriod(void);
 
 /* functions for PDO transfers */
-extern void CnApi_initPdo(BYTE *pTxPdoAdrs_p, WORD wTxPdoSize_p,
-						  BYTE *pRxPdoAdrs_p, WORD wRxPdoSize_p,
-						  BYTE *pTxPdoAckAdrsAp_p, BYTE *pRxPdoAckAdrsAp_p,
-						  tPdoDescHeader *pTxDescAdrs_p, WORD wTxDescSize_p,
-						  tPdoDescHeader *pRxDescAdrs_p, WORD wRxDescSize_p);
-extern void CnApi_readPdoDesc(void);
+extern int CnApi_initPdo(void);
+void CnApi_readPdoDesc(tPdoDescHeader *pPdoDescHeader_p);
 
 #endif /* CNAPIINTERN_H_ */

@@ -17,7 +17,6 @@
 #include "Epl.h"
 #include "Debug.h"
 
-#include "system.h"
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 #include <sys/alt_cache.h>
@@ -30,8 +29,6 @@
 #include "pcpStateMachine.h"
 
 /******************************************************************************/
-/* defines */
-#define PDI_DPRAM_BASE_PCP				POWERLINK_0_PDI_PCP_BASE  //from system.h
 
 // This function is the entry point for your object dictionary. It is defined
 // in OBJDICT.C by define EPL_OBD_INIT_RAM_NAME. Use this function name to define
@@ -93,6 +90,7 @@ char * getNmtState (tEplNmtState state)
 *******************************************************************************/
 int main (void)
 {
+    int iRet= OK;
 
 	/* flush all caches */
     alt_icache_flush_all();
@@ -105,14 +103,13 @@ int main (void)
 
     initStateMachine();
     Gi_init();
-    Gi_initAsync((tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBufAdrs),
-    		     (tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBufAdrs));
-    Gi_initPdo((BYTE *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awTxPdoBufAdrs[0]),
-		       (BYTE *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awRxPdoBufAdrs[0]),
-		       (BYTE *)(&pCtrlReg_g->m_awTxPdoAckAdrsAp[0]),
-		       (BYTE *)(&pCtrlReg_g->m_awRxPdoAckAdrsAp[0]),
-		       (tPdoDescHeader *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awTxPdoDescAdrs[0]),
-		       (tPdoDescHeader *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_awRxPdoDescAdrs[0]));
+    Gi_initAsync((tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBufAoffs),
+    		     (tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBufAoffs));
+    iRet = Gi_initPdo();
+    if (iRet != OK )
+    {
+        goto exit;
+    }
 
      DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
 
@@ -132,6 +129,8 @@ int main (void)
     DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
 
     return 0;
+exit:
+    return ERROR;
 }
 
 /**
@@ -261,6 +260,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 		                     tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
 {
 	tEplKernel          EplRet = kEplSuccessful;
+    WORD wCurDescrPayloadOffset = 0; ///< TODO: put this var to Async or pdo module
+    tLinkPdosReq *pLinkPdosReq; //TODO: Replace with local message buffer (queue)
 
     /* check if NMT_GS_OFF is reached */
     switch (EventType_p)
@@ -305,8 +306,17 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtGsResetConfiguration:
                 {
                     /* Prepare PDO descriptor message for AP */
-                    Gi_setupPdoDesc(kCnApiDirReceive);
-                    Gi_setupPdoDesc(kCnApiDirTransmit);
+                    //TODO: use local message structure for this message (not directly in Async Buffer)
+
+                    pLinkPdosReq = pAsycMsgLinkPdoReq_g;
+                    pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
+
+                    Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
+                    Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
+
+                    pLinkPdosReq->m_bCmd = kAsyncCmdLinkPdosReq;
+                    pLinkPdosReq->m_bDescrVers++; ///< increase descriptor version number
+
                     break;
                 }
                 case kEplNmtGsInitialising:
@@ -588,7 +598,7 @@ void Gi_calcSyncIntPeriod(void)
 
 	pCtrlReg_g->m_bCycleError = kCnApiSyncCycleOk;
 	iSyncIntCycle_g = iNumCycles;
-	pCtrlReg_g->m_wSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
+	pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
 
 	return;
 }

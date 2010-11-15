@@ -22,7 +22,8 @@ This module implements the object access functions of the CN API library.
 
 /******************************************************************************/
 /* defines */
-#define		NUM_OBJ_CREATE_ENTRIES				100
+/* Entries for CreatObjLinks command. If exceeded, the command will be split. */
+#define		OBJ_CREATE_LINKS_ENTRIES				100
 
 
 /******************************************************************************/
@@ -33,10 +34,10 @@ This module implements the object access functions of the CN API library.
 
 /******************************************************************************/
 /* global variables */
-static tObjTbl		*pObjTbl;
-static DWORD		dwNumObjs;
-static DWORD		dwMaxObjs;
-static DWORD		dwSelectObj;
+static tObjTbl		*pObjTbl_l;
+static DWORD		dwNumVarLinks_l; ///< Number local link assignments
+static DWORD		dwMaxLinkEntries_l;
+static DWORD		dwSelectObj_l;
 
 /******************************************************************************/
 /* function declarations */
@@ -51,17 +52,17 @@ static DWORD		dwSelectObj;
 ********************************************************************************
 \brief	initialize objects module
 *******************************************************************************/
-int CnApi_initObjects(DWORD dwNumObjects_p)
+int CnApi_initObjects(DWORD dwMaxLinks_p)
 {
 
 	/* allocate memory for object table */
-	if ((pObjTbl = malloc (sizeof(tObjTbl) * dwNumObjects_p)) == NULL)
+	if ((pObjTbl_l = malloc (sizeof(tObjTbl) * dwMaxLinks_p)) == NULL)
 	{
 		return ERROR;
 	}
 
-	dwNumObjs = 0;
-	dwMaxObjs = dwNumObjects_p;
+	dwMaxLinkEntries_l = dwMaxLinks_p;
+	CnApi_resetLinkCounter();
 
 	return OK;
 }
@@ -72,7 +73,16 @@ int CnApi_initObjects(DWORD dwNumObjects_p)
 *******************************************************************************/
 void CnApi_cleanupObjects(void)
 {
-	free (pObjTbl);
+	free (pObjTbl_l);
+}
+
+/**
+********************************************************************************
+\brief  reset the counter of CnApi_linkObject() commands
+*******************************************************************************/
+void CnApi_resetLinkCounter(void)
+{
+    dwNumVarLinks_l = 0;
 }
 
 /**
@@ -84,6 +94,7 @@ the linking information into a table. The table is subsequently read by the PCP
 which links its PDOs to DPRAM by using a pointer.
 The data type of linked local variable must match with data type of POWERLINK object !!!
 Number of linked objects must match NUM_OBJECTS !!!
+Application Example:   CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
 
 \param		wIndex_p			index of object in the object dictionary
 \param		bSubIndex_p			subindex of object in the object dictionary
@@ -92,25 +103,27 @@ Number of linked objects must match NUM_OBJECTS !!!
 
 
 \return		status of write operation
-    CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
+
 *******************************************************************************/
 int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p)
 {
 	tObjTbl		*pTbl;
 
-	pTbl = pObjTbl + dwNumObjs;
+	pTbl = pObjTbl_l + dwNumVarLinks_l;
 
-	if (dwNumObjs < dwMaxObjs)
+	if (dwNumVarLinks_l < dwMaxLinkEntries_l)
 	{
 		pTbl->m_wIndex = wIndex_p;
 		pTbl->m_bSubIndex = bSubIndex_p;
 		pTbl->m_wSize = wSize_p;
 		pTbl->m_pData = pAdrs_p;
-		dwNumObjs ++;
+		dwNumVarLinks_l ++;
 		return OK;
 	}
 	else
 	{
+	    DEBUG_LVL_CNAPI_ERR_TRACE2("\n\nError in %s:"
+        " Too many Object-Links! Failed at %d !\n\n", __func__, dwNumVarLinks_l);
 		return ERROR;
 	}
 }
@@ -120,21 +133,22 @@ int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_
 \brief	setup actually mapped objects
 
 The function CnApi_setupMappedObjects() compares the local linking table and the
-descriptor table. If the entries line up equally, take the data pointer and
-the respective size out of the linking table. So only currently mapped objects
-at PCP side will be considered in the copy table!
+descriptor table. If the entries line up equally, the data pointer and
+the respective size is taken out of the local object linking table.
+So only currently mapped objects at PCP side will be considered in the copy table!
 *******************************************************************************/
 BOOL CnApi_setupMappedObjects(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p)
 {
 	tObjTbl		*pTbl;
 	int			i;
 
-	for (i = 0; i < dwNumObjs; i++)
+	for (i = 0; i < dwNumVarLinks_l; i++)
 	{
-		pTbl = pObjTbl + i;
+		pTbl = pObjTbl_l + i;
 		if ((pTbl->m_wIndex == wIndex_p) &&
 			(pTbl->m_bSubIndex == bSubIndex_p))
 		{
+		    /* indices match found so return data and size of this object */
 			*pAdrs_p = pTbl->m_pData;
 			*wSize_p = pTbl->m_wSize;
 			return TRUE;
@@ -150,8 +164,9 @@ BOOL CnApi_setupMappedObjects(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, ch
 *******************************************************************************/
 void CnApi_resetObjectSelector(void)
 {
-	dwSelectObj = 0;
+	dwSelectObj_l = 0;
 }
+
 
 /**
 ********************************************************************************
@@ -161,19 +176,21 @@ int CnApi_getNextObject(tCnApiObjId *pObjId)
 {
 	tObjTbl		*pCurrentObj;
 
-	if (dwSelectObj >= dwNumObjs)
+	if (dwSelectObj_l >= dwNumVarLinks_l)
 		return 0;
 
-	pCurrentObj = pObjTbl + dwSelectObj;
+	pCurrentObj = pObjTbl_l + dwSelectObj_l;
 
 	pObjId->m_wIndex = pCurrentObj->m_wIndex;
 	pObjId->m_bSubIndex = pCurrentObj->m_bSubIndex;
 	pObjId->m_bNumEntries = 1;
 
-	dwSelectObj++;
+	dwSelectObj_l++;
 
 	return 1;
 }
+
+
 
 /**
 ********************************************************************************
@@ -186,7 +203,7 @@ must exist in the PCPs object dictionary to be created.
 *******************************************************************************/
 void CnApi_createObjectLinks(void)
 {
-	tCnApiObjId 		objId[NUM_OBJ_CREATE_ENTRIES];
+	tCnApiObjId 		objId[OBJ_CREATE_LINKS_ENTRIES];
 	register int		i;
 	tCnApiObjId			*pObjId;
 
@@ -198,7 +215,7 @@ void CnApi_createObjectLinks(void)
 	{
 		pObjId++;
 		i++;
-		if (i == NUM_OBJ_CREATE_ENTRIES)
+		if (i == OBJ_CREATE_LINKS_ENTRIES)
 		{
 			/* no more objects do fit in the message, therefore execute create command */
 			CnApi_doCreateObjLinksReq(objId, i);
@@ -207,7 +224,7 @@ void CnApi_createObjectLinks(void)
 		}
 	}
 
-	if (i < NUM_OBJ_CREATE_ENTRIES)
+	if (i < OBJ_CREATE_LINKS_ENTRIES)
 	{
 		/* there a some objects leftover to be created, let's create them now */
 		CnApi_doCreateObjLinksReq(objId, i);

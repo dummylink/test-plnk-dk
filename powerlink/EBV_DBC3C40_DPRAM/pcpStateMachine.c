@@ -128,7 +128,7 @@ FUNC_ENTRYACT(kPcpStateBooted)
 	}
 
 	pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
-	pCtrlReg_g->m_wSyncIntCycTime = 0x0000;
+	pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
 
 	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xef); ///< set "bootup LED"
 
@@ -177,7 +177,7 @@ FUNC_DOACT(kPcpStateInit)
 {
 	int		iStatus;
 
-	Gi_pollAsync();///< right now, this is a blockin function ! TODO: state machine implementation
+	Gi_pollAsync();///< right now, this is a blocking function ! TODO: state machine implementation
 	if (checkApCommand(kApCmdPreop))
 	{
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdPreop\n", __func__);
@@ -195,6 +195,7 @@ FUNC_EVT(kPcpStateInit,kPcpStatePreop1,1)
     {
         return TRUE;
     }
+    return FALSE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
@@ -258,6 +259,7 @@ FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
 	{
         return TRUE;
 	}
+    return FALSE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStatePreop1,1)
