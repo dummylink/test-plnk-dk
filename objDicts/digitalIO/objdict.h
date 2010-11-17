@@ -34,6 +34,7 @@ EPL_OBD_BEGIN ()
             EPL_OBD_SUBINDEX_RAM_VAR(0x1402, 0x02, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, MappingVersion_U8, 0x00)
         EPL_OBD_END_INDEX(0x1402)
 
+
         // Object 1600h: PDO_RxMappParam_00h_AU64
         EPL_OBD_BEGIN_INDEX_RAM(0x1600, 0x1A, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1600, 0x00, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, NumberOfEntries, 0x00)
@@ -124,6 +125,7 @@ EPL_OBD_BEGIN ()
             EPL_OBD_SUBINDEX_RAM_VAR(0x1602, 0x19, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
         EPL_OBD_END_INDEX(0x1602)
 
+
         // Object 1800h: PDO_TxCommParam_00h_REC
         EPL_OBD_BEGIN_INDEX_RAM(0x1800, 0x03, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1800, 0x00, kEplObdTypUInt8, kEplObdAccConst, tEplObdUnsigned8, NumberOfEntries, 0x02)
@@ -205,6 +207,24 @@ EPL_OBD_BEGIN ()
             EPL_OBD_SUBINDEX_RAM_USERDEF(0x6200, 0x03, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut3, 0x0)
             EPL_OBD_SUBINDEX_RAM_USERDEF(0x6200, 0x04, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut4, 0x0)
         EPL_OBD_END_INDEX(0x6200)
+
+		 // Write output 8-bit
+        EPL_OBD_BEGIN_INDEX_RAM(0x6300, 0x05, NULL)
+            EPL_OBD_SUBINDEX_RAM_VAR(0x6300, 0x00, kEplObdTypUInt8, kEplObdAccConst, tEplObdUnsigned8, number_of_entries, 0x4)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6300, 0x01, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut1, 0x0)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6300, 0x02, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut2, 0x0)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6300, 0x03, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut3, 0x0)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6300, 0x04, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut4, 0x0)
+        EPL_OBD_END_INDEX(0x6300)
+
+		 // Write output 8-bit
+        EPL_OBD_BEGIN_INDEX_RAM(0x6400, 0x05, NULL)
+            EPL_OBD_SUBINDEX_RAM_VAR(0x6400, 0x00, kEplObdTypUInt8, kEplObdAccConst, tEplObdUnsigned8, number_of_entries, 0x4)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6400, 0x01, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut1, 0x0)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6400, 0x02, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut2, 0x0)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6400, 0x03, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut3, 0x0)
+            EPL_OBD_SUBINDEX_RAM_USERDEF(0x6400, 0x04, kEplObdTypUInt8, kEplObdAccVPRW, tEplObdUnsigned8, digitalOut4, 0x0)
+        EPL_OBD_END_INDEX(0x6400)
 
     EPL_OBD_END_PART ()
 

@@ -307,7 +307,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {
                     /* Prepare PDO descriptor message for AP */
                     //TODO: use local message structure for this message (not directly in Async Buffer)
-
                     pLinkPdosReq = pAsycMsgLinkPdoReq_g;
                     pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
 

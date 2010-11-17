@@ -690,7 +690,7 @@ SYSTEM niosII_openMac
          gui_include_tightly_coupled_data_masters = "0";
          gui_omit_avalon_data_master = "0";
          cache_has_icache = "1";
-         cache_icache_size = "2048";
+         cache_icache_size = "512";
          cache_icache_line_size = "32";
          cache_icache_ram_block_type = "AUTO";
          cache_icache_bursts = "0";
@@ -848,7 +848,7 @@ SYSTEM niosII_openMac
             }
             CONSTANT nasys_icache_size
             {
-               value = "2048";
+               value = "512";
                comment = "Size in bytes of instruction cache";
             }
             CONSTANT nasys_icache_line_size
@@ -5316,7 +5316,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>363DF615</b>    (unique ID tag) <br> <b>4CE12FA4</b> (timestamp: Mon Nov 15, 2010 @2:03 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>2417F410</b>    (unique ID tag) <br> <b>4CE279F8</b> (timestamp: Tue Nov 16, 2010 @1:32 PM)";
             MESSAGES 
             {
             }
@@ -5324,8 +5324,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "910030357u";
-         timestamp = "1289826212u";
+         id = "605549584u";
+         timestamp = "1289910776u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5334,7 +5334,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000920 --id=910030357 --timestamp=1289826212";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000920 --id=605549584 --timestamp=1289910776";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

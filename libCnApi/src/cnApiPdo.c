@@ -92,32 +92,40 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 
 	PdoDir = (tPdoDir) bDirection_p;
 
+    if(wDescrEntries_p > PDO_COPY_TBL_ELEMENTS)
+    {
+        DEBUG_TRACE3(DEBUG_LVL_ERROR, "Error in %s:"
+                     "\nCopy table size of PDO Buffer %d too small"
+                     " for count of descriptor elements (%d)!\n"
+                     "Skipping copy table setup!\n", __func__, wPdoBufNum_p, wDescrEntries_p);
+        goto exit;
+    }
+
+
 	/* select copy table */
 	if (PdoDir == TPdo)
 	{
 		pCopyTbl = &aTxPdoCopyTbl_l[wPdoBufNum_p];
 		pbCpyTblEntries = &aTxPdoCopyTbl_l[wPdoBufNum_p].bNumOfEntries_m;
-	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for TPDO %d ...:", wPdoBufNum_p);
+	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for TPDO %d :\n", wPdoBufNum_p);
 	}
 	else if(PdoDir == RPdo)
 	{
 		pCopyTbl = &aRxPdoCopyTbl_l[wPdoBufNum_p];
 		pbCpyTblEntries = &aRxPdoCopyTbl_l[wPdoBufNum_p].bNumOfEntries_m;
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for RPDO %d ...:", wPdoBufNum_p);
+		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for RPDO %d :\n", wPdoBufNum_p);
 	}
 	else
 	{
 	    DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s:"
-                     "Descriptor has no valid direction!\n", __func__);
+                     "\nDescriptor has no valid direction! Skipping copy table for this PDO.\n", __func__);
 	    goto exit;
     }
-
-	if (wDescrEntries_p > PDO_COPY_TBL_ELEMENTS)
-	{
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s:"
-                     "failed!\nCopy table size too small"
-                     " for count of descriptor elements!\n", __func__);
-        goto exit;
+    if(wDescrEntries_p == 0)
+    {
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "%s INFO:"
+                         "\nNo Objects mapped for PDO Buffer %d -> Skipping copy table setup.\n", __func__, wPdoBufNum_p);
+         goto exit;
     }
 
 	/* prepare loop */
@@ -131,7 +139,7 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 		if (!CnApi_setupMappedObjects(pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, &wObjSize, &pObjAdrs))
 		{
 		    /* skip this copy table element */
-		    TRACE2("Couldn't find descriptor object 0x%04x/0x%02x"
+		    DEBUG_TRACE2(DEBUG_LVL_ERROR,"Couldn't find descriptor object 0x%04x/0x%02x"
 		            " in local object table!\n", pDescEntry->m_wPdoIndex,
                                                  pDescEntry->m_bPdoSubIndex);
 			pCopyTbl->aEntry_m[wTblNum].pAdrs_m = 0;
@@ -143,6 +151,9 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 		    pCopyTbl->aEntry_m[wTblNum].size_m = wObjSize;
 		    wTblNum++;
 		    (*pbCpyTblEntries)++;
+
+	        DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO,"0x%04x/0x%02x"
+	                    " size %d \n", pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, wObjSize);
 		}
 
 		/* prepare next loop */
@@ -150,8 +161,10 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 	    iCnt++;
 	}
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "OK\n");
+    return;
 
 exit:
+    //*pbCpyTblEntries = 0;
 	return;
 }
 
@@ -281,7 +294,7 @@ void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p) //TODO: move to Async
 
         /* get pointer to next descriptor */
         pPdoDescHeader = (BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
-                         (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry));
+                         ((BYTE*) pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry));
     }
 
 exit:

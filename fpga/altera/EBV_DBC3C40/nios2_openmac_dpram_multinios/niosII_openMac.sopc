@@ -443,24 +443,19 @@
          type = "boolean";
       }
    }
-   element outport_ap.s1
+   element inport_ap.s1
    {
       datum baseAddress
       {
-         value = "2096";
+         value = "2112";
          type = "long";
       }
    }
-   element onchip_memory_0.s1
+   element node_switch_pio.s1
    {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
       datum baseAddress
       {
-         value = "8192";
+         value = "2080";
          type = "long";
       }
    }
@@ -477,51 +472,16 @@
          type = "long";
       }
    }
-   element system_timer_ap.s1
+   element onchip_memory_0.s1
    {
-      datum baseAddress
+      datum _lockedAddress
       {
-         value = "2048";
-         type = "long";
+         value = "0";
+         type = "boolean";
       }
-   }
-   element status_led_pio.s1
-   {
       datum baseAddress
       {
-         value = "8224";
-         type = "long";
-      }
-   }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2112";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2080";
+         value = "8192";
          type = "long";
       }
    }
@@ -538,11 +498,51 @@
          type = "long";
       }
    }
+   element system_timer_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
    element sdram_0.s1
    {
       datum baseAddress
       {
          value = "33554432";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2096";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2304";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
          type = "long";
       }
    }
@@ -663,8 +663,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="15942415886" />
- <parameter name="timeStamp" value="1289826212091" />
+ <parameter name="systemHash" value="17785418760" />
+ <parameter name="timeStamp" value="1289910775524" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -726,7 +726,7 @@
   <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='onchip_memory_0.s1' start='0x2000' end='0x2400' /><slave name='DBC3C40_SRAM_0.avalon_tristate_slave' start='0x200000' end='0x300000' /></address-map>]]></parameter>
   <parameter name="instAddrWidth" value="22" />
   <parameter name="impl" value="Small" />
-  <parameter name="icache_size" value="_2048" />
+  <parameter name="icache_size" value="_512" />
   <parameter name="icache_ramBlockType" value="Automatic" />
   <parameter name="icache_numTCIM" value="_0" />
   <parameter name="icache_burstType" value="None" />

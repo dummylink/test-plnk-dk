@@ -166,6 +166,7 @@ FUNC_EVT(kApStatePreop1, kApStatePreop2, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStatePreop1)
 {
+    usleep(3000000); //TODO: delete this line. workaround til statemachine for Async Buffers is used. otherwise a wrong message will be read.
     /* read PDO descriptors */
     CnApi_handleLinkPdosReq(pAsycMsgLinkPdoReqAp_g);
 }

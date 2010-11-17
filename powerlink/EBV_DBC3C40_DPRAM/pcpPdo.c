@@ -283,7 +283,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	BYTE                bNodeId;
 	QWORD               qwObjectMapping;
 	BYTE                bMappSubindex;
-	BYTE                bObdSubIdxCount;
+	BYTE                bObdSubIdxCount = 0;
 	BYTE                bAddedDecrEntries;          ///> added descriptor entry counter
 
 	tPdoDescEntry	    *pPdoDescEntry;             ///< ptr to descriptor payload = object entries
@@ -355,18 +355,18 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 
 		/* read number of mapped objects of 18XX or 1AXX */
         ObdSize = sizeof (bObdSubIdxCount);
-        if (PDO_COPY_TBL_ELEMENTS < bObdSubIdxCount)
-        {
-            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Objects do not fit in copy table!\n");
-            goto exit;
-        }
-
 		Ret = EplObduReadEntry(uiMappParamIndex, 0x00, &bObdSubIdxCount, &ObdSize);
 		if (Ret != kEplSuccessful)
 		{
 		    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "OBD could not be read!\n");
 			goto exit;
 		}
+
+        if (PDO_COPY_TBL_ELEMENTS < bObdSubIdxCount)
+        {
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Objects do not fit in copy table!\n");
+            goto exit;
+        }
 
 		/* setup descriptor and copy table of this PDO channel */
 		for (bMappSubindex = 1; bMappSubindex <= bObdSubIdxCount; bMappSubindex++)
@@ -389,16 +389,27 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	        }
 			else
 			{
-			    pPdoDescEntry->m_wPdoIndex = uiMapIndex;
-			    pPdoDescEntry->m_bPdoSubIndex = (BYTE)uiMapSubIndex;
-			    pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
-	            bAddedDecrEntries++;             ///< count actually added entries
+	             /* add object to copy table */
+			    if (EplObdGetDataSize(uiMapIndex, uiMapSubIndex) == 0) // size is 0
+			    {
+	                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Size 0 invalid. Skipped!\n");
+			    }
+			    else
+			    {
+			        pCopyTblEntry->pAdrs_m = EplObdGetObjectDataPtr(uiMapIndex, uiMapSubIndex);  ///< linked address
+                    pCopyTblEntry->size_m = EplObdGetDataSize(uiMapIndex, uiMapSubIndex);        ///< linked size
 
-			    /* add object to copy table */
-			    pCopyTblEntry->pAdrs_m = EplObdGetObjectDataPtr(uiMapIndex, uiMapSubIndex);  ///< linked address
-			    pCopyTblEntry->size_m = EplObdGetDataSize(uiMapIndex, uiMapSubIndex);        ///< linked size
-			    pCopyTblEntry++;                                                             ///< prepare ptr for next element
-			    pCopyTbl->bNumOfEntries_m++;                                                 ///< increment entry counter
+                    pPdoDescEntry->m_wPdoIndex = uiMapIndex;               ///< write descriptor entry
+                    pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;         ///< write descriptor entry
+
+
+                    DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size %d\n", uiMapIndex, (BYTE)uiMapSubIndex, pCopyTblEntry->size_m); //TODO: delete
+
+                    pCopyTblEntry++;                ///< prepare ptr for next element
+	                pCopyTbl->bNumOfEntries_m++;    ///< increment entry counter
+	                pPdoDescEntry++;                ///< prepare for next PDO descriptor entry
+	                bAddedDecrEntries++;            ///< count actually added entries
+			    }
 			}
 
 		}
@@ -409,7 +420,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 
 		/* prepare for next PDO */
 		wPdoDescSize = sizeof(tPdoDescHeader) + (bAddedDecrEntries * sizeof(tPdoDescEntry));
-		pPdoDescHeader += wPdoDescSize; ///< increment PDO descriptor count of Link PDO Request
+		pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) (pPdoDescHeader) + wPdoDescSize); ///< increment PDO descriptor count of Link PDO Request
 		*pCurrentDescrOffset_p += wPdoDescSize;
 		bApiBufferNum++;   ///< increment DPRAM PDO buffer number of this direction
 		pCopyTbl++;        ///< choose copy table of next PDO

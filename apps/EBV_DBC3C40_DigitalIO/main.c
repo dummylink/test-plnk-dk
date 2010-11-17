@@ -48,7 +48,7 @@ a dual ported RAM (DPRAM) area.
 
 
 #define NUM_INPUT_OBJS      4                                   ///< number of used input objects
-#define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects
+#define NUM_OUTPUT_OBJS     12                                   ///< number of used output objects
 #define NUM_OBJECTS         (NUM_INPUT_OBJS + NUM_OUTPUT_OBJS)  ///< number of objects to be linked to the object dictionary
 
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
@@ -134,6 +134,15 @@ int main (void)
     CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
+    CnApi_linkObject(0x6300, 1, 1, &digitalOut[4]);
+    CnApi_linkObject(0x6300, 2, 1, &digitalOut[5]);
+    CnApi_linkObject(0x6300, 3, 1, &digitalOut[6]);
+    CnApi_linkObject(0x6300, 4, 1, &digitalOut[7]);
+    CnApi_linkObject(0x6400, 1, 1, &digitalOut[8]);
+    CnApi_linkObject(0x6400, 2, 1, &digitalOut[9]);
+    CnApi_linkObject(0x6400, 3, 1, &digitalOut[10]);
+    CnApi_linkObject(0x6400, 4, 1, &digitalOut[11]);
+
 
 #ifdef USE_POLLING_MODE
     CnApi_disableSyncInt();
@@ -225,26 +234,30 @@ void workInputOutput(void)
 	
 	///> Digital IN: read push- and joystick buttons
 	cInPort = IORD_ALTERA_AVALON_PIO_DATA(INPORT_AP_BASE);
-	digitalIn[0] = cInPort;
-	digitalIn[1] = cInPort;
-	digitalIn[2] = cInPort;
-	digitalIn[3] = cInPort;
+	digitalIn[0] = cInPort;    // 6000/01
+	digitalIn[1] = cInPort;    // 6000/02
+	digitalIn[2] = cInPort;    // 6000/03
+	digitalIn[3] = cInPort;    // 6000/04
 
 	///> Digital OUT: set Leds and hex digits on Mercury-Board
-    for (iCnt = 0; iCnt <= 3; iCnt++)
+    for (iCnt = 0; iCnt <= 2; iCnt++)
     {
-        if (iCnt <= 1)
+        if (iCnt == 0) //first 8 bit of DigOut
         {
         	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
-            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[iCnt] << (iCnt * 8));
+            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[7] << (iCnt * 8)); //6300/04
         }
-        else if (iCnt == 3)
+        else if (iCnt == 1) //second 8 bit of DigOut
+        {
+            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[11] << (iCnt * 8)); //6400/04
+        }
+        else if (iCnt == 2)  //third 8 bit of DigOut
         {
         	/* configured as input -> store in TPDO mapped variable */
-            dwOutPort = (dwOutPort & ~(0xff << (2 * 8))) | (digitalOut[iCnt] << (2 * 8));
+            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[3] << (iCnt * 8)); //Hex digits at 6200/04
         }
     }
-	
+
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, dwOutPort);
 }
 
