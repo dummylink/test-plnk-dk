@@ -308,15 +308,15 @@
           </Object>
           <Object index="1401" name="PDO_RxCommParam_0h_REC" objectType="9">
             <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="const" defaultValue="0x02" PDOmapping="no" />
-            <SubObject subIndex="01" name="NodeID_U8" objectType="7" dataType="0005" accessType="rw" defaultValue="0xF0" actualValue="0x06" PDOmapping="no" />
+            <SubObject subIndex="01" name="NodeID_U8" objectType="7" dataType="0005" accessType="ro" defaultValue="0x06" actualValue="0x06" PDOmapping="no" />
             <SubObject subIndex="02" name="MappingVersion_U8" objectType="7" dataType="0005" accessType="rw" defaultValue="0x0" PDOmapping="no" />
           </Object>
           <Object index="1601" name="PDO_RxMappParam_0h_AU64" objectType="8">
-            <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="rw" defaultValue="0x04" PDOmapping="no" />
-            <SubObject subIndex="01" name="ObjectMapping 1" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008000000016300" PDOmapping="no" />
-            <SubObject subIndex="02" name="ObjectMapping 2" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008000800026300" PDOmapping="no" />
-            <SubObject subIndex="03" name="ObjectMapping 3" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008001000036300" PDOmapping="no" />
-            <SubObject subIndex="04" name="ObjectMapping 4" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008001800046300" PDOmapping="no" />
+            <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="ro" defaultValue="0x04" PDOmapping="no" />
+            <SubObject subIndex="01" name="ObjectMapping 1" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008000000016300" actualValue="0x0008000000016300" PDOmapping="no" />
+            <SubObject subIndex="02" name="ObjectMapping 2" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008000800026300" actualValue="0x0008000800026300" PDOmapping="no" />
+            <SubObject subIndex="03" name="ObjectMapping 3" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008001000036300" actualValue="0x0008001000036300" PDOmapping="no" />
+            <SubObject subIndex="04" name="ObjectMapping 4" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008001800046300" actualValue="0x0008001800046300" PDOmapping="no" />
             <SubObject subIndex="05" name="ObjectMapping 5" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" PDOmapping="no" />
             <SubObject subIndex="06" name="ObjectMapping 6" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" PDOmapping="no" />
             <SubObject subIndex="07" name="ObjectMapping 7" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" PDOmapping="no" />
@@ -341,15 +341,15 @@
           </Object>
 		            <Object index="1402" name="PDO_RxCommParam_0h_REC" objectType="9">
             <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="const" defaultValue="0x02" PDOmapping="no" />
-            <SubObject subIndex="01" name="NodeID_U8" objectType="7" dataType="0005" accessType="rw" defaultValue="0x07" actualValue="0x07" PDOmapping="no" />
+            <SubObject subIndex="01" name="NodeID_U8" objectType="7" dataType="0005" accessType="ro" defaultValue="0x07" actualValue="0x07" PDOmapping="no" />
             <SubObject subIndex="02" name="MappingVersion_U8" objectType="7" dataType="0005" accessType="rw" defaultValue="0x0" PDOmapping="no" />
           </Object>
           <Object index="1602" name="PDO_RxMappParam_0h_AU64" objectType="8">
-            <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="rw" defaultValue="0x04" PDOmapping="no" />
-            <SubObject subIndex="01" name="ObjectMapping 1" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008000000016400" PDOmapping="no" />
-            <SubObject subIndex="02" name="ObjectMapping 2" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008000800026400" PDOmapping="no" />
-            <SubObject subIndex="03" name="ObjectMapping 3" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008001000036400" PDOmapping="no" />
-            <SubObject subIndex="04" name="ObjectMapping 4" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" actualValue="0x0008001800046400" PDOmapping="no" />
+            <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="ro" defaultValue="0x04" PDOmapping="no" />
+            <SubObject subIndex="01" name="ObjectMapping 1" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008000000016400" actualValue="0x0008000000016400" PDOmapping="no" />
+            <SubObject subIndex="02" name="ObjectMapping 2" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008000800026400" actualValue="0x0008000800026400" PDOmapping="no" />
+            <SubObject subIndex="03" name="ObjectMapping 3" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008001000036400" actualValue="0x0008001000036400" PDOmapping="no" />
+            <SubObject subIndex="04" name="ObjectMapping 4" objectType="7" dataType="001B" accessType="ro" defaultValue="0x0008001800046400" actualValue="0x0008001800046400" PDOmapping="no" />
             <SubObject subIndex="05" name="ObjectMapping 5" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" PDOmapping="no" />
             <SubObject subIndex="06" name="ObjectMapping 6" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" PDOmapping="no" />
             <SubObject subIndex="07" name="ObjectMapping 7" objectType="7" dataType="001B" accessType="rw" defaultValue="0x0" PDOmapping="no" />

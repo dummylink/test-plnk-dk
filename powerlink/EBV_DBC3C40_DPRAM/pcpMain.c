@@ -46,6 +46,7 @@ tPcpCtrlReg		*pCtrlReg_g;               ///< ptr. to PCP control register
 tCnApiInitParm 	initParm_g;                ///< Powerlink initialization parameter
 BOOL 			fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 int				iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
+
 BOOL            fIrqSyncMode_g = FALSE;    ///< synchronization mode flag
 static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 
@@ -108,6 +109,8 @@ int main (void)
     iRet = Gi_initPdo();
     if (iRet != OK )
     {
+        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
+        //TODO: set error flag at Cntrl Reg
         goto exit;
     }
 
@@ -128,7 +131,9 @@ int main (void)
 
     DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
 
-    return 0;
+    Gi_shutdown();
+
+    return OK;
 exit:
     return ERROR;
 }
@@ -506,6 +511,30 @@ BYTE getPcpState(void)
 	return pCtrlReg_g->m_bState;
 }
 
+/**
+********************************************************************************
+\brief  create table of objects to be linked at PCP side according to AP message
+
+\param dwMaxLinks_p     Number of objects to be linked.
+\param pObjLinksTable_p Returned pointer to object table. NULL if error occured.
+
+\return OK or ERROR
+*******************************************************************************/
+int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
+{
+    if (pPcpLinkedObjs_g != NULL) // table has already been created
+    {
+        free(pPcpLinkedObjs_g);
+    }
+    /* allocate memory for object table */
+    if ((pPcpLinkedObjs_g = malloc (sizeof(tObjTbl) * dwMaxLinks_p)) == NULL)
+    {
+        return ERROR;
+    }
+    dwApObjLinkEntries_g = 0; // reset entry counter
+
+    return OK;
+}
 
 /**
 ********************************************************************************
@@ -521,7 +550,19 @@ void Gi_init(void)
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
     pCtrlReg_g->m_bError = 0x00;	                   ///< no error
     pCtrlReg_g->m_bState = 0xff; 	                   ///< set invalid PCP state
+}
 
+/**
+********************************************************************************
+\brief  cleanup and exit generic interface
+*******************************************************************************/
+
+void Gi_shutdown(void)
+{
+    /* free object link table */
+    free(pPcpLinkedObjs_g);
+
+    //TODO: free other things
 }
 
 /**
@@ -578,7 +619,7 @@ void Gi_calcSyncIntPeriod(void)
 	iNumCycles = (pCtrlReg_g->m_wMinCycleTime + uiCycleTime - 1) / uiCycleTime;	/* do it this way to round up integer division! */
 	iSyncPeriod = iNumCycles * uiCycleTime;
 
-	DEBUG_TRACE3 (DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%d --> syncPeriod=%d\n",
+	DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%d --> syncPeriod=%d\n",
 			       uiCycleTime, pCtrlReg_g->m_wMinCycleTime, iSyncPeriod);
 
 	if (iNumCycles > pCtrlReg_g->m_bMaxCylceNum)
@@ -590,10 +631,20 @@ void Gi_calcSyncIntPeriod(void)
 
 	if (iSyncPeriod > pCtrlReg_g->m_wMaxCycleTime)
 	{
+	    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
+
 		pCtrlReg_g->m_bCycleError = kCnApiSyncCycleError;
 		iSyncIntCycle_g = 0;
 		return;
 	}
+    if (iSyncPeriod < pCtrlReg_g->m_wMinCycleTime)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
+
+        pCtrlReg_g->m_bCycleError = kCnApiSyncCycleError;
+        iSyncIntCycle_g = 0;
+        return;
+    }
 
 	pCtrlReg_g->m_bCycleError = kCnApiSyncCycleOk;
 	iSyncIntCycle_g = iNumCycles;

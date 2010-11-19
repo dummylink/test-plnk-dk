@@ -22,8 +22,8 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* defines */
-/* defines */
 #define PDI_DPRAM_BASE_PCP      POWERLINK_0_PDI_PCP_BASE  //from system.h
+#define MAX_NUM_LINKED_OBJ_PCP  500 //TODO: system.h
 
 /* Powerlink defaults */
 #define DEFAULT_CYCLE_LEN   1000    ///< [us]
@@ -41,9 +41,10 @@ extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after bo
 extern int             iSyncIntCycle_g;   ///< IR synchronization factor (multiple cycle time)
 extern BOOL            fIrqSyncMode_g;    ///< synchronization mode flag
 
-extern tLinkPdosReq *pAsycMsgLinkPdoReq_g; ///< Asynchronous PDI Message
+extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp side according to AP message
+extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp side
 
-//TODO:DELETE extern tLinkPdosReq     *pTxDescBuf_g; //TODO: delete as soon as tunnel through Async Channel
+extern tLinkPdosReq *pAsycMsgLinkPdoReq_g; ///< Asynchronous PDI Message
 
 /******************************************************************************/
 /* function declarations */
@@ -55,11 +56,14 @@ extern int linkPowerlinkVars(void);
 extern int startPowerlink(void);
 
 extern void Gi_init(void);
+void Gi_shutdown(void);
 
 extern int Gi_initAsync(tAsyncMsg *pAsyncSendBuf_p, tAsyncMsg *pAsyncRecvBuf_p);
 extern void Gi_pollAsync(void);
 
 extern int Gi_initPdo(void);
+extern int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
+extern BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p);
 extern void Gi_readPdo(void);
 extern void Gi_writePdo(void);
 extern int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosReq *pLinkPdoReq_p);

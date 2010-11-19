@@ -82,7 +82,7 @@ static BOOL checkApCommand(BYTE cmd_p)
 	{
 		if (cmd_p != kApCmdReboot) ///< reset AP command will take place in state 'kPcpStateBooted'
 		{
-		pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
+		    pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
 		}
 
 		return TRUE;

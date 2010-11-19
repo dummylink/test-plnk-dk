@@ -25,7 +25,7 @@
 /******************************************************************************/
 /* defines */
 /* equals number of mapped objects, if memory-chaining is not applied */
-#define		PDO_COPY_TBL_ELEMENTS		100
+#define		PDO_COPY_TBL_ELEMENTS		100 // TODO: equal num of objects?
 
 /******************************************************************************/
 /* typedefs */
@@ -45,11 +45,12 @@ typedef struct sPdoCpyTbl {
 
 /******************************************************************************/
 /* global variables */
+tObjTbl     *pPcpLinkedObjs_g = NULL;     ///< table of linked objects at pcp side according to AP message
+DWORD       dwApObjLinkEntries_g = 0;  ///< number of linked objects at pcp side
+
+/* local variables */
 static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
 static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
-
-//TODO:DELETE tLinkPdosReq*		pTxDescBuf_g; //TODO: delete; currently used for LinkPdosReq in pcpMain.c
-//TODO:DELETE static	tPdoDescHeader*		pRxDescBuf_l; //TODO: delete
 
 static	tPdoCopyTbl			aTxPdoCopyTbl_l[TPDO_CHANNELS_MAX];
 static	tPdoCopyTbl	        aRxPdoCopyTbl_l[RPDO_CHANNELS_MAX];
@@ -89,6 +90,7 @@ and stores it into variables for this module. Also initial values are assigned.
 int Gi_initPdo(void)
 {
     register WORD wCnt;
+    int iRet;
 
     /** group TPDO PDI channels address, size and acknowledge settings */
 #if (TPDO_CHANNELS_MAX >= 1)
@@ -149,16 +151,12 @@ for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
     //TODO: this is direct link to buffer, change to local message buffer
     pAsycMsgLinkPdoReq_g = (tLinkPdosReq*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBufAoffs);
 
-    /** initialize PDO PDI descriptor address */
-//TODO:DELETE	pTxDescBuf_g = (BYTE*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxPdoDescAdrs);	/* TXPDO descriptor address offset */
-//TODO:DELETE	pRxDescBuf_l = (BYTE*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxPdoDescAdrs);   /* RXPDO descriptor address offset */
-
-#ifdef USE_THIS //TODO:DELETE
-	pTxDescBuf_g->m_wPdoDescSize = 0;
-	pTxDescBuf_g->m_wPdoDescVers = 0;/*Descriptor Buffer not in use TODO: delete completely*/
-	pRxDescBuf_l->m_wPdoDescSize = 0;
-	pRxDescBuf_l->m_wPdoDescVers = 0;
-#endif /* USE_THIS */
+    /* allocate memory for PCP object-links table */
+	iRet = Gi_createPcpObjLinksTbl((DWORD) MAX_NUM_LINKED_OBJ_PCP);
+    if(iRet != OK)
+    {
+        goto exit;
+    }
 
 	return OK;
 exit:
@@ -247,6 +245,42 @@ void Gi_writePdo(void)
 
 /**
 ********************************************************************************
+\brief  check if object is already linked
+
+This function searches the specified index and sub-index in
+the table of linked objects (according to AP command)
+and returns true, if it is found.
+
+\param  dwMapIndex         object index
+\param  dwMapSubIndex      object sub-index
+
+\return TRUE if object is linked or FALSE if not linked.
+*******************************************************************************/
+BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p)
+{
+    DWORD dwCnt;
+    tObjTbl *pObjTbl;
+
+    pObjTbl = pPcpLinkedObjs_g;
+
+    /* search the object links table for the given object */
+    for (dwCnt = 0; dwCnt < dwApObjLinkEntries_g; ++dwCnt)
+    {
+       if (pObjTbl->m_wIndex ==  wIndex_p &&
+           pObjTbl->m_bSubIndex == (BYTE) wSubIndex_p)
+       {
+           return TRUE; // entry found
+       }
+       else
+       {
+           pObjTbl++; // switch to next entry
+       }
+    }
+    return FALSE;
+}
+
+/**
+********************************************************************************
 \brief	setup PDO descriptor
 
 Gi_setupPdoDesc() reads the object mapping from the object dictionary and stores
@@ -283,8 +317,9 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	BYTE                bNodeId;
 	QWORD               qwObjectMapping;
 	BYTE                bMappSubindex;
+	BYTE                *pTempAdrs;                 ///< Address of linked object
 	BYTE                bObdSubIdxCount = 0;
-	BYTE                bAddedDecrEntries;          ///> added descriptor entry counter
+	BYTE                bAddedDecrEntries;          ///< added descriptor entry counter
 
 	tPdoDescEntry	    *pPdoDescEntry;             ///< ptr to descriptor payload = object entries
 	tPdoDescHeader		*pPdoDescHeader = NULL;     ///< ptr to descriptor header
@@ -389,26 +424,39 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	        }
 			else
 			{
+			    /* check if object has been linked before by AP command */
+			    if (!Gi_checkIfObjLinked((WORD) uiMapIndex, (WORD) uiMapSubIndex))
+			    {
+                    continue; // goto next sub index of for loop, because only linked objects should be copied!
+                }
+
 	             /* add object to copy table */
-			    if (EplObdGetDataSize(uiMapIndex, uiMapSubIndex) == 0) // size is 0
+			    if ((pCopyTblEntry->size_m = EplObdGetDataSize(uiMapIndex, uiMapSubIndex)) == 0) // size is 0
 			    {
 	                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Size 0 invalid. Skipped!\n");
 			    }
 			    else
 			    {
-			        pCopyTblEntry->pAdrs_m = EplObdGetObjectDataPtr(uiMapIndex, uiMapSubIndex);  ///< linked address
-                    pCopyTblEntry->size_m = EplObdGetDataSize(uiMapIndex, uiMapSubIndex);        ///< linked size
+			        pTempAdrs = EplObdGetObjectDataPtr(uiMapIndex, uiMapSubIndex);
+			        if(pTempAdrs == NULL)
+			        {
+			            DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "%04x/%02x not linked (only mapped). Skipped.\n", uiMapIndex, (BYTE)uiMapSubIndex);
+			        }
+			        else
+			        {
+			            pCopyTblEntry->pAdrs_m = pTempAdrs;                                      ///< linked address
+			            //pCopyTblEntry->size_m is already assigned in if statement above        ///< linked size
 
-                    pPdoDescEntry->m_wPdoIndex = uiMapIndex;               ///< write descriptor entry
-                    pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;         ///< write descriptor entry
+			            pPdoDescEntry->m_wPdoIndex = uiMapIndex;               ///< write descriptor entry
+			            pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;         ///< write descriptor entry
 
+			            DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size: %d linkadr: %p\n", uiMapIndex, (BYTE)uiMapSubIndex, pCopyTblEntry->size_m, pTempAdrs);
 
-                    DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size %d\n", uiMapIndex, (BYTE)uiMapSubIndex, pCopyTblEntry->size_m); //TODO: delete
-
-                    pCopyTblEntry++;                ///< prepare ptr for next element
-	                pCopyTbl->bNumOfEntries_m++;    ///< increment entry counter
-	                pPdoDescEntry++;                ///< prepare for next PDO descriptor entry
-	                bAddedDecrEntries++;            ///< count actually added entries
+			            pCopyTblEntry++;                ///< prepare ptr for next element
+			            pCopyTbl->bNumOfEntries_m++;    ///< increment entry counter
+			            pPdoDescEntry++;                ///< prepare for next PDO descriptor entry
+			            bAddedDecrEntries++;            ///< count actually added entries
+			        }
 			    }
 			}
 

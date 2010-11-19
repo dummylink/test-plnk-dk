@@ -178,11 +178,13 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 	tEplKernel		EplRet;
 	char            *pData;
 	unsigned int	uiSubindex;
+	tObjTbl         *pObjLinksTable;
 
 	DEBUG_FUNC;
 
 	wNumObjs = pCreateObjLinksReq_p->m_wNumObjs;
 	pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
+	pObjLinksTable = pPcpLinkedObjs_g + dwApObjLinkEntries_g;
 
 	pCreateObjLinksResp_p->m_wStatus = kCnApiStatusOk;
 
@@ -209,7 +211,7 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 				iSize += iEntrySize;
 			}
 		}
-		else ///< check object entry of
+		else ///< regular single subindex (no subindex chain msg)
 		{
 			if ((iEntrySize = EplObdGetDataSize(pObjId->m_wIndex, pObjId->m_bSubIndex)) == 0)
 			{
@@ -227,7 +229,7 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 	/* all objects exist -> link them to HEAP */
 	if (pCreateObjLinksResp_p->m_wStatus == kCnApiStatusOk)
 	{
-		/* allocate memory in DPRAM */
+		/* allocate memory in HEAP */
 	    if (pObjData != NULL)
 	    {
 	        free(pObjData); ///< memory has been allocated before! overwrite it...
@@ -240,13 +242,19 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 		}
 		else
 		{
-			/* link objects to allocated DPRAM memory */
+			/* link objects to allocated HEAP memory */
 			pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
 			pData = pObjData;
 
-			//TODO: Link to DPRAM instead of HEAP!
             for (i = 0; i < wNumObjs; i++, pObjId++)
 			{
+
+                if (dwApObjLinkEntries_g > MAX_NUM_LINKED_OBJ_PCP)
+                {
+                  DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "Object link table (size %d) exceeded! Linking stopped!\n", MAX_NUM_LINKED_OBJ_PCP);
+                  goto exit;
+                }
+
 				uiVarEntries = pObjId->m_bNumEntries;
 				iSize = 0;
 
@@ -262,6 +270,17 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 					pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
 					break;
 				}
+
+				/* add entry to table of linked objects */
+				pObjLinksTable->m_wIndex = pObjId->m_wIndex;
+				pObjLinksTable->m_bSubIndex = pObjId->m_bSubIndex;
+				pObjLinksTable->m_pData = pData;
+				pObjLinksTable->m_wSize = (WORD) iSize;
+
+				/* prepare next iteration*/
+				dwApObjLinkEntries_g++;
+				pObjLinksTable++;
+
 				pData += iSize;
 			}
 		}
@@ -270,7 +289,9 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 	/* setup response msg header */
 	pCreateObjLinksResp_p->m_bCmd = kAsyncCmdCreateObjLinksResp;
 	pCreateObjLinksResp_p->m_bReqId = pCreateObjLinksReq_p->m_bReqId;
-	return;
+
+exit:
+    return;
 }
 
 /**

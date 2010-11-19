@@ -49,9 +49,6 @@ typedef struct sPdoCpyTbl {
 static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
 static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
 
-//TODO:DELETE tLinkPdosReq*       pTxDescBuf_g; //TODO: delete; currently used for LinkPdosReq in pcpMain.c
-//TODO:DELETE static  tPdoDescHeader*     pRxDescBuf_l; //TODO: delete
-
 static  WORD                wPdoMappingVersion_l = 0xff; ///< LinkPdosReq command mapping version
 static  tPdoCopyTbl         aTxPdoCopyTbl_l[TPDO_CHANNELS_MAX];
 static  tPdoCopyTbl         aRxPdoCopyTbl_l[RPDO_CHANNELS_MAX];
@@ -241,10 +238,6 @@ for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
 
 //TODO: this is direct link to buffer, change to local message buffer
     pAsycMsgLinkPdoReqAp_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAoffs);
-    /** initialize PDO PDI descriptor address */
-//TODO:DELETE    pTxDescBuf_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxPdoDescAdrs); /* TXPDO descriptor address offset */
-//TODO:DELETE    pRxDescBuf_l = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdoDescAdrs);   /* RXPDO descriptor address offset */
-
 
     return OK;
 exit:
@@ -293,8 +286,8 @@ void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p) //TODO: move to Async
         CnApi_readPdoDesc(pPdoDescHeader);
 
         /* get pointer to next descriptor */
-        pPdoDescHeader = (BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
-                         ((BYTE*) pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry));
+        pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
+                         (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry)));
     }
 
 exit:

@@ -134,6 +134,7 @@ int main (void)
     CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
+//#ifdef NOT_DEF
     CnApi_linkObject(0x6300, 1, 1, &digitalOut[4]);
     CnApi_linkObject(0x6300, 2, 1, &digitalOut[5]);
     CnApi_linkObject(0x6300, 3, 1, &digitalOut[6]);
@@ -142,12 +143,13 @@ int main (void)
     CnApi_linkObject(0x6400, 2, 1, &digitalOut[9]);
     CnApi_linkObject(0x6400, 3, 1, &digitalOut[10]);
     CnApi_linkObject(0x6400, 4, 1, &digitalOut[11]);
+//#endif
 
 
 #ifdef USE_POLLING_MODE
     CnApi_disableSyncInt();
 #else
-    /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 65535 us (max. val. for DWORD), maxCycleNum = 10 */
+    /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 65535 us (max. val. for WORD), maxCycleNum = 10 */
     initInterrupt(POWERLINK_0_IRQ, 1000, 65535, 10);
 #endif /* USE_POLLING_MODE */
 

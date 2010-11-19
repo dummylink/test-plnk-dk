@@ -52,6 +52,7 @@ This header file contains definitions for the CN API.
 /* from pcp system.h */
 #define TPDO_CHANNELS_MAX       1//POWERLINK_0_MAC_BUF_PDITPDOS ///< Max Number of TxPDO's of this CN
 #define RPDO_CHANNELS_MAX		3//POWERLINK_0_MAC_BUF_PDIRPDOS ///< Max Number of RxPDO's of this CN
+#define MAX_NUM_LINKED_OBJ_AP   0//not yet used
 
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
 #define SYNC_IRQ_ACK                0               ///< Define for Sync IRQ for AP only
@@ -487,8 +488,6 @@ extern tPcpCtrlReg			*pCtrlReg_g;		// pointer to PCP control registers
 
 // asynchronous messages
 extern tLinkPdosReq *pAsycMsgLinkPdoReqAp_g;
-
-//TODO:DELETE extern tLinkPdosReq       *pTxDescBuf_g; //TODO: delete; currently used for LinkPdosReq in pcpMain.c
 
 /******************************************************************************/
 /* function declarations */
