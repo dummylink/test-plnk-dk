@@ -21,9 +21,17 @@
 #include "alt_types.h"
 #include <sys/alt_cache.h>
 
+#include "omethlib.h"
+
 /******************************************************************************/
 /* defines */
-#define SET_NODE_ID_PER_SW 			//NodeID will be overwritten with SW define
+//#define SET_NODE_ID_PER_SW 			//NodeID will be overwritten with SW define
+
+#ifndef SET_NODE_ID_PER_SW
+#ifndef NODE_SWITCH_PIO_BASE
+    #error No Node ID module present in SOPC. Node ID can only be set by SW!
+#endif
+#endif
 
 #define NODEID      0x05 // should be NOT 0xF0 (=MN) in case of CN
 #define CYCLE_LEN   1000 // [us]

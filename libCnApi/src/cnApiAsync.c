@@ -419,7 +419,10 @@ int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 			}
 			else
 			{
-				return ERROR;
+                DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
+                             "NO OBJECTS WILL BE LINKED!\n\n", __func__, createObjLinksResp.m_wErrIndex, createObjLinksResp.m_bErrSubindex);
+                pObjList_p->m_bNumEntries = 0; ///< reset counter, so copy table won't be set up
+                return ERROR;
 			}
 		}
 		else
@@ -525,7 +528,10 @@ int CnApi_doWriteObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 			}
 			else
 			{
-				return ERROR;
+	             DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
+	                          , __func__, writeObjResp.m_wErrIndex, writeObjResp.m_bErrSubindex);
+	             pObjList_p->m_bNumEntries = 0; ///< reset counter, so copy table won't be set up
+	             return ERROR;
 			}
 		}
 		else

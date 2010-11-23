@@ -150,6 +150,14 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 
 	DEBUG_FUNC;
 
+	/* check if NodeID has been set to 0x00 by AP -> use node switches */
+#ifdef SET_NODE_ID_BY_HW
+	if(pInitParm_p->m_bNodeId == 0x00)
+	{   /* read port configuration input pins */
+	    pInitParm_p->m_bNodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
+	}
+#endif /* SET_NODE_ID_BY_HW */
+
     /* setup the POWERLINK stack */
 	/* calc the IP address with the nodeid */
 	ip &= 0xFFFFFF00;                          ///< dump the last byte
@@ -186,6 +194,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
 	EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
+
+	DEBUG_TRACE1(DEBUG_LVL_09, "INFO: NODE ID is set to 0x%02x\n", EplApiInitParam.m_uiNodeId);
 
 	/* initialize POWERLINK stack */
 	DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
@@ -345,7 +355,19 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         goto Exit;
                     }
 
-                    bNodeId = 0x04;
+                    bNodeId = 0x06; //CN 6 is present in network
+                    EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
+                    if (EplRet != kEplSuccessful)
+                    {
+                        goto Exit;
+                    }
+
+                    EplRet = EplApiWriteLocalObject(0x1F8D, bNodeId, &wPresPayloadLimit, sizeof (wPresPayloadLimit));
+                    if (EplRet != kEplSuccessful)
+                    {
+                        goto Exit;
+                    }
+                    bNodeId = 0x7; //CN 7 is present in network
                     EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
                     if (EplRet != kEplSuccessful)
                     {

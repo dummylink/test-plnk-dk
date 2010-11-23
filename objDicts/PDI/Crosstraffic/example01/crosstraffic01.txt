@@ -15,12 +15,8 @@ TODO:
 Copy the file objdict.h and recompile the PCP project. Upload the new elf-file to the target.
 
   
-Note: If you intend to use an B&R MN, then you have to modify the file 
-	  <openPOWERLINKStackFOLDER>\ObjDicts\Generic\objdict_1b00-1fff.h
-      - Replace the line:
-      EPL_OBD_RAM_INDEX_RAM_ARRAY(0x1F81, EPL_NMT_MAX_NODE_ID, NULL, kEplObdTypUInt32, kEplObdAccSRW, tEplObdUnsigned32, NMT_NodeAssignment_AU32, 0)
-        with
-	  EPL_OBD_RAM_INDEX_RAM_ARRAY(0x1F81, EPL_NMT_MAX_NODE_ID, NULL, kEplObdTypUInt32, kEplObdAccSRW, tEplObdUnsigned32, NMT_NodeAssignment_AU32, 0x07)
-
+Note: If you intend to use an B&R MN, ensure that the objects 0x1F81 and 0x1F8D are locally assigned in pcpMain.c 
+	  with the function EplApiWriteLocalObject(); This is already done for the example projects.
 	  Otherwise the FPGA CN will not recognize the presence of CN 6 & 7.
+
 	  This issue does not occur with the openPOWERLINK MN when using openCONFIGURATOR, because the object 0x1F81 will be written by the MN.

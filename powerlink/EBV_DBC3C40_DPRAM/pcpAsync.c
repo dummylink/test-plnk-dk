@@ -206,7 +206,11 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 					pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
 					pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
 					pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
-					break;
+
+		            DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
+		                         "No Objects will be linked!\n", __func__, pObjId->m_wIndex, pObjId->m_bSubIndex);
+		            wNumObjs = 0; ///< skip object linking
+		            break;
 				}
 				iSize += iEntrySize;
 			}
@@ -220,6 +224,9 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 				pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
 				pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
 				pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
+				DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
+                             "No Objects will be linked!\n", __func__, pObjId->m_wIndex, pObjId->m_bSubIndex);
+				wNumObjs = 0; ///< skip object linking
 				break;
 			}
 			iSize += iEntrySize;

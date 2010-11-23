@@ -48,7 +48,7 @@ a dual ported RAM (DPRAM) area.
 
 
 #define NUM_INPUT_OBJS      4                                   ///< number of used input objects
-#define NUM_OUTPUT_OBJS     12                                   ///< number of used output objects
+#define NUM_OUTPUT_OBJS     12                                  ///< number of used output objects
 #define NUM_OBJECTS         (NUM_INPUT_OBJS + NUM_OUTPUT_OBJS)  ///< number of objects to be linked to the object dictionary
 
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
@@ -57,8 +57,9 @@ a dual ported RAM (DPRAM) area.
 
 /*----------------------------------------------------------------------------*/
 /* some options */
-#define DEFAULT_NODEID      0x01 ///< default node ID to use, should be NOT 0xF0 (=MN) if this is a CN
-/* If you don't intend to connect node Id switches to the PCP, this value might set != 0x00 */
+
+#define DEFAULT_NODEID      0x01    ///< default node ID to use, should be NOT 0xF0 (=MN)
+/* If node Id switches are connected to the PCP, this value must be 0x00! */
 
 // #define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
 
@@ -99,7 +100,7 @@ int main (void)
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); ///< set hex digits on Mercury-Board to indicate AP presence
     usleep(1000000);		                                ///< wait 1 s, so you can see the LEDs
 
-    TRACE("Initialize CN API functions...\n");
+    TRACE("\n\nInitialize CN API functions...\n");
 
     nodeId = DEFAULT_NODEID;    ///< in case you dont want to use Node Id switches, use a diffenrent value then 0x00
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				///< initialize POWERLINK parameters
@@ -126,24 +127,22 @@ int main (void)
      * - Number of linked objects must match NUM_OBJECTS !
      */
 	///< CnApi_linkObject(Index, SubIndex, size in bytes, ptr) 
-    CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
+    CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);  ///< TPDO 0
     CnApi_linkObject(0x6000, 2, 1, &digitalIn[1]);
     CnApi_linkObject(0x6000, 3, 1, &digitalIn[2]);
     CnApi_linkObject(0x6000, 4, 1, &digitalIn[3]);
-    CnApi_linkObject(0x6200, 1, 1, &digitalOut[0]);
+    CnApi_linkObject(0x6200, 1, 1, &digitalOut[0]); ///< RPDO 0
     CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
-//#ifdef NOT_DEF
-    CnApi_linkObject(0x6300, 1, 1, &digitalOut[4]);
+    CnApi_linkObject(0x6300, 1, 1, &digitalOut[4]); ///< RPDO 1
     CnApi_linkObject(0x6300, 2, 1, &digitalOut[5]);
     CnApi_linkObject(0x6300, 3, 1, &digitalOut[6]);
     CnApi_linkObject(0x6300, 4, 1, &digitalOut[7]);
-    CnApi_linkObject(0x6400, 1, 1, &digitalOut[8]);
+    CnApi_linkObject(0x6400, 1, 1, &digitalOut[8]); ///< RPDO 2
     CnApi_linkObject(0x6400, 2, 1, &digitalOut[9]);
     CnApi_linkObject(0x6400, 3, 1, &digitalOut[10]);
     CnApi_linkObject(0x6400, 4, 1, &digitalOut[11]);
-//#endif
 
 
 #ifdef USE_POLLING_MODE
