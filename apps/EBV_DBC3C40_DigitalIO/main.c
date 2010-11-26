@@ -26,9 +26,11 @@ a dual ported RAM (DPRAM) area.
 #include "cnApiGlobal.h"     // global definitions
 #include "cnApi.h"
 #include "cnApiDebug.h"
+#include "cnApiPdiSpi.h"
 
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
+#include "altera_avalon_spi.h"
 #include "alt_types.h"
 #include <sys/alt_cache.h>
 #include <sys/alt_irq.h>
@@ -44,7 +46,7 @@ a dual ported RAM (DPRAM) area.
     #define PDI_DPRAM_BASE_AP POWERLINK_0_BASE                      ///< from system.h
 #else
     #define PDI_DPRAM_BASE_AP 0x00                                  ///< no base address necessary
-#endif
+#endif /* CN_API_USING_SPI */
 
 
 #define NUM_INPUT_OBJS      4                                   ///< number of used input objects
@@ -58,7 +60,7 @@ a dual ported RAM (DPRAM) area.
 /*----------------------------------------------------------------------------*/
 /* some options */
 
-#define DEFAULT_NODEID      0x01    ///< default node ID to use, should be NOT 0xF0 (=MN)
+#define DEFAULT_NODEID      0x00    ///< default node ID to use, should be NOT 0xF0 (=MN)
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
 
 // #define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
@@ -149,7 +151,12 @@ int main (void)
     CnApi_disableSyncInt();
 #else
     /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 65535 us (max. val. for WORD), maxCycleNum = 10 */
+    #ifdef CN_API_USING_SPI
+    initInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 65535, 10);  ///< no base address necessary
+    #else
     initInterrupt(POWERLINK_0_IRQ, 1000, 65535, 10);
+    #endif /* CN_API_USING_SPI */
+
 #endif /* USE_POLLING_MODE */
 
     /* Start periodic main loop */
@@ -165,7 +172,7 @@ int main (void)
         /*--- TASK 1: START ---*/
     	CnApi_processApStateMachine();     ///< The AP state machine must be periodically updated
     	//TODO: Implement Cbfunc "OperationalSyncCb"in statemachine?
-            workInputOutput();             ///< update the PCB's inputs and outputs
+        workInputOutput();                 ///< update the PCB's inputs and outputs
     	/*--- TASK 1: END   ---*/
 
     	/* wait until next period */
@@ -332,23 +339,23 @@ int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMax
 int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
 {
     alt_avalon_spi_command(
-        SPI_0_BASE, 0,      //core base, spi slave
+        SPI_MASTER_BASE, 0,      //core base, spi slave
         iBytes_p, pTxBuf_p, //write bytes, addr of write data
         0, NULL,            //read bytes, addr of read data
         0);                 //flags (don't care)
 
-    return PDISPI_OK;
+    return OK;
 }
 
 int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
 {
     alt_avalon_spi_command(
-        SPI_0_BASE, 0,      //core base, spi slave
+        SPI_MASTER_BASE, 0,      //core base, spi slave
         0, NULL,            //write bytes, addr of write data
         iBytes_p, pRxBuf_p, //read bytes, addr of read data
         0);                 //flags (don't care)
 
-    return PDISPI_OK;
+    return OK;
 }
 #endif /* CN_API_USING_SPI */
 

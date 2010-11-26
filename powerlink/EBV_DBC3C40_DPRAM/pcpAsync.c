@@ -72,6 +72,7 @@ int Gi_initAsync(tAsyncMsg *pAsyncSendBuf_p, tAsyncMsg *pAsyncRecvBuf_p)
 void Gi_pollAsync(void)
 {
 	BYTE		bMsgType;
+	int         iWait = 0;
 
 	//DEBUG_FUNC;
 
@@ -106,7 +107,16 @@ void Gi_pollAsync(void)
 	pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly;		/* reset sync flag */
 
 	/* wait for free buffer */
-	while (pAsyncRecvBuf->m_header.m_bSync == kMsgBufReadOnly);
+	while(pAsyncRecvBuf->m_header.m_bSync == kMsgBufReadOnly)
+	{
+	   iWait++;
+	   if (iWait >= 100000)
+	   {
+	       printf("TIMEOUT: AP does not respond!\n");
+	       DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: AP does not respond!\n");
+	       return;
+	   }
+    }
 	//TODO: additional AP -> PCP IR Signal would prevent this while loop
 
 	/* prepare async msg header */

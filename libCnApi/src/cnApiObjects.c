@@ -123,7 +123,7 @@ int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_
 	else
 	{
 	    DEBUG_LVL_CNAPI_ERR_TRACE2("\nERROR:"
-        " Too many Object-Links! Failed at %dth usage of %s()!\n"
+        " Too many Object-Links! Failed at %lu th usage of %s()!\n"
 	    "Please adapt NUM_OBJECTS!\n\n", dwNumVarLinks_l + 1, __func__);
 		return ERROR;
 	}

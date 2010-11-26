@@ -139,6 +139,8 @@ This file has to be included before other include files.
 // DEBUG_LVL_ERROR
 // DEBUG_LVL_ALWAYS
 
+/* CN API Configuration */
+#define CN_API_USING_SPI
 
 #endif  // #ifndef _CNAPI_GLOBAL_H_
 

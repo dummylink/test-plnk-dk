@@ -20,6 +20,7 @@ application processor (AP).
 #include "cnApi.h"
 #include "cnApiIntern.h"
 #include "stateMachine.h"
+#include "cnApiPdiSpi.h"
 
 #include <string.h>
 
@@ -92,7 +93,7 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 
 #ifdef CN_API_USING_SPI
 	/* update control register before accessing it */
-    CnApi_Spi_read(PCP_CTRLREG_START_ADR, sizeof(pCtrlReg_g), &pCtrlReg_g);
+    CnApi_Spi_read(PCP_CTRLREG_START_ADR, PCP_CTRLREG_SPAN, (BYTE*) pCtrlReg_g);
 #endif
 
 	/* initialize asynchronous transfer functions */
@@ -168,6 +169,10 @@ FUNC_ENTRYACT(kApStatePreop1)
 {
     /*usleep(3000000);*/ //TODO: delete this line. workaround til statemachine for Async Buffers is used. otherwise a wrong message will be read.
     /* read PDO descriptors */
+#ifdef CN_API_USING_SPI
+    /* update local shadow message buffer */
+    CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, sizeof(pAsycMsgLinkPdoReqAp_g), (BYTE*) &pAsycMsgLinkPdoReqAp_g);
+#endif
     CnApi_handleLinkPdosReq(pAsycMsgLinkPdoReqAp_g);
 }
 
@@ -199,7 +204,7 @@ FUNC_EVT(kApStatePreop2, kApStatePreop1, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStatePreop2)
 {
-	TRACE("\nINFO: Synchronization IR Period is %d us.\n", CnApi_getSyncIntPeriod());
+	TRACE1("\nINFO: Synchronization IR Period is %lu us.\n", CnApi_getSyncIntPeriod());
 
 	/* TODO: prepare for READY_TO_OPERATE */
 	TRACE("***Calling Callback to prepare ready to operate!!***\n");

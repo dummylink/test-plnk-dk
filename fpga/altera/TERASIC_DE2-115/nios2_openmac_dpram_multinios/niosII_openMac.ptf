@@ -5203,7 +5203,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>308AD398</b>    (unique ID tag) <br> <b>4CEBB96F</b> (timestamp: Tue Nov 23, 2010 @1:54 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>5EE1674A</b>    (unique ID tag) <br> <b>4CEE536A</b> (timestamp: Thu Nov 25, 2010 @1:15 PM)";
             MESSAGES 
             {
             }
@@ -5211,8 +5211,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "814404504u";
-         timestamp = "1290516847u";
+         id = "1591830346u";
+         timestamp = "1290687338u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5221,7 +5221,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=814404504 --timestamp=1290516847";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1591830346 --timestamp=1290687338";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6584,14 +6584,14 @@ SYSTEM niosII_openMac
       {
          CONFIG = "CN with AP";
          CONFIGAPIF = "Avalon";
-         MACBUFSIZE = "12696";
+         MACBUFSIZE = "14084";
          MACRXBUFFERS = "6";
          MACRXBUFSIZE = "9192";
          MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "3504";
+         MACTXBUFSIZE = "4892";
          PDIRPDOOBJ = "100";
          PDIRPDOS = "3";
-         PDITPDOOBJ = "100";
+         PDITPDOOBJ = "255";
          PDITPDOS = "1";
       }
    }

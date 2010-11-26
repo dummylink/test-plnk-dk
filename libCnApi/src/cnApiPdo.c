@@ -19,8 +19,8 @@
 #include "cnApiDebug.h"
 
 #include <string.h>
-
 #include <unistd.h>
+#include <malloc.h>
 
 /******************************************************************************/
 /* defines */
@@ -210,7 +210,7 @@ for (wCnt = 0; wCnt < TPDO_CHANNELS_MAX; ++wCnt)
         (aTPdosPdi_l[wCnt].wSize_m == 0)    ||
         (aTPdosPdi_l[wCnt].pAck_m ==  NULL)   )
     {
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "\n\nError in %s: initializing TPDO %d failed!\n\n", __func__, wCnt);
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "\nError in %s: initializing TPDO %d failed!\n\n", __func__, wCnt);
         goto exit;
     }
     else
@@ -236,8 +236,15 @@ for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
     }
 }
 
-//TODO: this is direct link to buffer, change to local message buffer
+
+
+#ifdef CN_API_USING_SPI
+    /* shadow variable - copy of DPRAM */
+    pAsycMsgLinkPdoReqAp_g = malloc(sizeof(pAsycMsgLinkPdoReqAp_g)); //TODO: change to static as soon as asyn state machine is implemented.
+#else
+    //TODO: this is direct link to buffer, change to local message buffer
     pAsycMsgLinkPdoReqAp_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAoffs);
+#endif /* CN_API_USING_SPI */
 
     return OK;
 exit:

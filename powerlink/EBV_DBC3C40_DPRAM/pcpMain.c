@@ -168,15 +168,15 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EPL_MEMCPY(EplApiInitParam.m_abMacAddress, pInitParm_p->m_abMac, sizeof(EplApiInitParam.m_abMacAddress));
 	EplApiInitParam.m_uiNodeId = pInitParm_p->m_bNodeId;
 	EplApiInitParam.m_dwIpAddress = ip;
-	EplApiInitParam.m_uiIsochrTxMaxPayload = pInitParm_p->m_wIsoTxMaxPayload;
-	EplApiInitParam.m_uiIsochrRxMaxPayload = pInitParm_p->m_wIsoRxMaxPayload;
+	EplApiInitParam.m_uiIsochrTxMaxPayload = pInitParm_p->m_wIsoTxMaxPayload; // TODO: use system.h define?
+	EplApiInitParam.m_uiIsochrRxMaxPayload = pInitParm_p->m_wIsoRxMaxPayload; // TODO: use system.h define?
 	EplApiInitParam.m_dwPresMaxLatency = pInitParm_p->m_dwPresMaxLatency;
 	EplApiInitParam.m_dwAsndMaxLatency = pInitParm_p->m_dwAsendMaxLatency;
 	EplApiInitParam.m_fAsyncOnly = FALSE;
 	EplApiInitParam.m_dwFeatureFlags = pInitParm_p->m_dwFeatureFlags;
 	EplApiInitParam.m_dwCycleLen = DEFAULT_CYCLE_LEN;
-	EplApiInitParam.m_uiPreqActPayloadLimit = 36;
-	EplApiInitParam.m_uiPresActPayloadLimit = 36;
+	EplApiInitParam.m_uiPreqActPayloadLimit = 36;                              //TODO: use system.h define?
+	EplApiInitParam.m_uiPresActPayloadLimit = 36;                              //TODO: use system.he define?
 	EplApiInitParam.m_uiMultiplCycleCnt = 0;
 	EplApiInitParam.m_uiAsyncMtu = 1500;
 	EplApiInitParam.m_uiPrescaler = 2;

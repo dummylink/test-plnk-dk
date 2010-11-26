@@ -20,6 +20,9 @@ processor (AP) to the POWERLINK communication processor (PCP).
 /* includes */
 #include "cnApi.h"
 #include "cnApiIntern.h"
+#ifdef CN_API_USING_SPI
+    #include "cnApiPdiSpi.h"
+#endif
 
 /******************************************************************************/
 /* defines */
@@ -63,7 +66,7 @@ called by the application in order to use the API.
 tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 {
 #ifdef CN_API_USING_SPI
-    iRet = PDISPI_OK;
+    int iRet = OK;
 #endif
     /* initialize pointers */
 #ifdef CN_API_USING_SPI
@@ -81,17 +84,18 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     //pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
 
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_writeByte(PCP_CTRLREG_STATE_OFFSET, pCtrlReg_g->m_bState);    ///< update pcp register
-    CnApi_Spi_writeByte(PCP_CTRLREG_CMD_OFFSET, pCtrlReg_g->m_bCommand);    ///< update pcp register
-    CnApi_Spi_write(PCP_CTRLREG_SYNCTIME_OFFSET, sizeof(pCtrlReg_g->m_dwSyncIntCycTime), &pCtrlReg_g->m_dwSyncIntCycTime);    ///< update pcp register
-
     /* initialize callback functions (implemented by user) for SPI */
     iRet = CnApi_initSpiMaster(&CnApi_CbSpiMasterTx, &CnApi_CbSpiMasterRx);
-    if( iRet != PDISPI_OK )
+    if( iRet != OK )
     {
         return kCnApiStatusError;
     }
-#endif
+
+    CnApi_Spi_writeByte(PCP_CTRLREG_STATE_OFFSET, pCtrlReg_g->m_bState);    ///< update pcp register
+    CnApi_Spi_writeByte(PCP_CTRLREG_CMD_OFFSET, pCtrlReg_g->m_bCommand);    ///< update pcp register
+    //CnApi_Spi_write(PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET, sizeof(pCtrlReg_g->m_dwSyncIntCycTime), (BYTE*) &pCtrlReg_g->m_dwSyncIntCycTime);    ///< update pcp register
+
+#endif /* CN_API_USING_SPI */
 
 	/* initialize state machine */
 	CnApi_initApStateMachine();
@@ -133,9 +137,9 @@ void CnApi_initSyncInt(WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycl
 	pCtrlReg_g->m_bMaxCylceNum = bMaxCycleNum_p;
 
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_write(PCP_CTRLREG_MINCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMinCycleTime), &pCtrlReg_g->m_wMinCycleTime); ///< update pcp register
-    CnApi_Spi_write(PCP_CTRLREG_MAXCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMaxCycleTime), &pCtrlReg_g->m_wMaxCycleTime); ///< update pcp register
-    CnApi_Spi_write(PCP_CTRLREG_MAXCYCNUM_OFFSET, sizeof(pCtrlReg_g->m_bMaxCylceNum), &pCtrlReg_g->m_bMaxCylceNum); ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_MINCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMinCycleTime), (BYTE*) &pCtrlReg_g->m_wMinCycleTime); ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_MAXCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMaxCycleTime), (BYTE*) &pCtrlReg_g->m_wMaxCycleTime); ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_MAXCYCNUM_OFFSET, sizeof(pCtrlReg_g->m_bMaxCylceNum), (BYTE*) &pCtrlReg_g->m_bMaxCylceNum); ///< update pcp register
 #endif
 }
 
@@ -148,7 +152,7 @@ CnApi_enableSyncInt() enables the synchronization interrupt at the PCP.
 void CnApi_enableSyncInt(void)
 {
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_readByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update struct member, we do logic operation on it
+    CnApi_Spi_readByte((WORD) PCP_CTRLREG_SYNMD_OFFSET, (BYTE*) &pCtrlReg_g->m_bSyncMode); ///< update struct member
 #endif
 
     /* enable interrupt from PCP */
@@ -169,7 +173,7 @@ void CnApi_disableSyncInt(void)
 {
     /* enable interrupt from PCP */
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_readByte(PCP_CTRLREG_SYNMD_OFFSET, pCtrlReg_g->m_bSyncMode); ///< update struct member, we do logic operation on it
+    CnApi_Spi_readByte(PCP_CTRLREG_SYNMD_OFFSET, (BYTE*) &pCtrlReg_g->m_bSyncMode); ///< update struct member, we do logic operation on it
 #endif
 
     pCtrlReg_g->m_bSyncMode &= ~CNAPI_SYNC_MODE_IR_EN;
@@ -190,7 +194,7 @@ CnApi_getSyncIntPeriod() reads time of the periodic synchronization interrupt
 DWORD CnApi_getSyncIntPeriod(void)
 {
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_read(PCP_CTRLREG_SYNCTIME_OFFSET, sizeof(pCtrlReg_g->m_SyncIntCycTime), &pCtrlReg_g->m_SyncIntCycTime); ///< update struct element
+    CnApi_Spi_read(PCP_CTRLREG_SYNCTIME_OFFSET, sizeof(pCtrlReg_g->m_dwSyncIntCycTime), (BYTE*) &pCtrlReg_g->m_dwSyncIntCycTime); ///< update struct element
 #endif
 
     return pCtrlReg_g->m_dwSyncIntCycTime;
@@ -207,7 +211,7 @@ CnApi_getPcpState() reads the state of the PCP and returns it.
 BYTE CnApi_getPcpState(void)
 {
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_readByte(PCP_CTRLREG_STATE_OFFSET, &pCtrlReg_g->m_bState);    ///< update struct element
+    CnApi_Spi_readByte(PCP_CTRLREG_STATE_OFFSET, (BYTE*) &pCtrlReg_g->m_bState);    ///< update struct element
 #endif
 
 	return pCtrlReg_g->m_bState;
@@ -224,7 +228,7 @@ CnApi_getPcpMagic() reads the magic number stored in the PCP DPRAM area.
 DWORD CnApi_getPcpMagic(void)
 {
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_read(PCP_CTRLREG_MAGIC_OFFSET, sizeof(pCtrlReg_g->m_dwMagic), &pCtrlReg_g->m_dwMagic); ///< update struct element
+    CnApi_Spi_read(PCP_CTRLREG_MAGIC_OFFSET, sizeof(pCtrlReg_g->m_dwMagic), (BYTE*) &pCtrlReg_g->m_dwMagic); ///< update struct element
 #endif
 
 	return pCtrlReg_g->m_dwMagic;

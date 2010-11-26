@@ -19,6 +19,9 @@ This module contains functions for the asynchronous transfer in the CN API libra
 #include "cnApi.h"
 #include "cnApiIntern.h"
 #include "stateMachine.h"
+#ifdef CN_API_USING_SPI
+    #include "cnApiPdiSpi.h"
+#endif
 
 #include <string.h>
 #include <unistd.h>
@@ -39,11 +42,15 @@ tLinkPdosReq *pAsycMsgLinkPdoReqAp_g;
 
 static tAsyncMsg			*pAsyncTxAdrs_l;
 static WORD					wAsyncTxSize_l;
-
 static tAsyncMsg			*pAsyncRxAdrs_l;
 static WORD					wAsyncRxSize_l;
-
 static BYTE					bReqId_l;						///< saved request Id of request
+
+#ifdef CN_API_USING_SPI
+/* shadow variables - copys of DPRAM */
+static tAsyncMsg            ShadAsyncTxMsg_l;
+static tAsyncMsg            ShadAsyncRxMsg_l;
+#endif /* CN_API_USING_SPI */
 
 /******************************************************************************/
 /* function declarations */
@@ -71,33 +78,47 @@ asynchronous transmit buffer.
 \retval		kCnApiStatusDataTooLong		if data is to long for message buffer
 \retval		kCnApiStatusOk				if data was successfully written to the message buffer
 *******************************************************************************/
-tAsyncSendStatus CnApi_sendAsync(BYTE bChannel_p, tAsyncIntChan *pData_p, WORD wLen_p,
+tAsyncSendStatus CnApi_sendAsync(BYTE bChannel_p, tAsyncIntChan *pData_p, WORD wMsgHdrLen_p,
 		            char *pPayload_p, WORD wPayloadLen_p)
 {
 	char  *pDest;
 
-	/* check if buffer is free */
+#ifdef CN_API_USING_SPI
+    /* update local shadow AsyncTxMsg header (pAsyncTxAdrs_l points to ShadAsyncTxMsg_l) */
+    CnApi_Spi_read(PCP_CTRLREG_TX_ASYNC_OFST_OFFSET, sizeof(tAsyncMsg), (BYTE*) &ShadAsyncTxMsg_l);
+#endif
+
+    /* check if buffer is free */
 	if (pAsyncTxAdrs_l->m_header.m_bSync == kMsgBufReadOnly)
 		return kAsyncSendStatusBufFull;
 
 	/* check if data length is too big */
-	if (wLen_p > (wAsyncTxSize_l - sizeof(tAsyncMsgHeader)))
+	if (wMsgHdrLen_p > (wAsyncTxSize_l - sizeof(tAsyncMsgHeader)))
 		return kAsyncSendStatusDataTooLong;
 
 	pDest = (char *)&pAsyncTxAdrs_l->m_chan.m_intChan;
 	/* copy data to msg buffer */
-	memcpy(pDest, pData_p, wLen_p);
+	memcpy(pDest, pData_p, wMsgHdrLen_p);
 
 	/* check if we have to copy additional payload data */
 	if (pPayload_p != NULL)
 	{
-		memcpy(pDest + wLen_p, (char *)pPayload_p, wPayloadLen_p);
+#ifdef CN_API_USING_SPI
+	pDest = (BYTE*) (PCP_CTRLREG_TX_ASYNC_OFST_OFFSET + (char *)&pAsyncTxAdrs_l->m_chan.m_intChan - (char *)&pAsyncTxAdrs_l + wMsgHdrLen_p);
+    CnApi_Spi_write((WORD) pDest, wPayloadLen_p, (BYTE*) pPayload_p);  ///< write payload to PCP DPRAM
+#else
+    memcpy(pDest + wMsgHdrLen_p, (char *)pPayload_p, wPayloadLen_p);
+#endif /* CN_API_USING_SPI */
 	}
 
 	/* write message header */
-	pAsyncTxAdrs_l->m_header.m_wFrgmtLen = wLen_p;
+	pAsyncTxAdrs_l->m_header.m_wFrgmtLen = wMsgHdrLen_p; // Todo: + wPayloadLen_p ?
 	pAsyncTxAdrs_l->m_header.m_bChannel = bChannel_p;
 	pAsyncTxAdrs_l->m_header.m_bSync = kMsgBufReadOnly;
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_write(PCP_CTRLREG_TX_ASYNC_OFST_OFFSET, sizeof(tAsyncMsg), (BYTE*) &ShadAsyncTxMsg_l);  ///< update PCP DPRAM with local shadow data
+#endif
 
 	return kAsyncSendStatusOk;
 }
@@ -122,6 +143,13 @@ asynchronous RX buffer.
 *******************************************************************************/
 tAsyncSendStatus CnApi_receiveAsync(BYTE *pChannel_p, tAsyncIntChan *pData_p, WORD *pLen_p)
 {
+#ifdef CN_API_USING_SPI
+    char *pDest;
+
+    /* update local shadow AsyncRxMsg header (pAsyncRxAdrs_l points to ShadAsyncRxMsg_l) */
+    CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, sizeof(tAsyncMsg), (BYTE*) &ShadAsyncRxMsg_l);
+#endif
+
 	/* check if buffer contains a message for us */
 	if (pAsyncRxAdrs_l->m_header.m_bSync == kMsgBufWriteOnly)
 		return kAsyncSendStatusBufEmpty;
@@ -131,14 +159,24 @@ tAsyncSendStatus CnApi_receiveAsync(BYTE *pChannel_p, tAsyncIntChan *pData_p, WO
 		return kAsyncSendStatusDataTooLong;
 
 	/* copy data from msg buffer */
+#ifdef CN_API_USING_SPI
+    /* update local shadow AsyncRxMsg header (pAsyncRxAdrs_l points to ShadAsyncRxMsg_l) */
+    CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, pAsyncRxAdrs_l->m_header.m_wFrgmtLen, (BYTE*) &ShadAsyncRxMsg_l);
+#else
 	memcpy(pData_p, &pAsyncRxAdrs_l->m_chan.m_intChan, pAsyncRxAdrs_l->m_header.m_wFrgmtLen);
+#endif /* CN_API_USING_SPI */
 
 	/* read async message header information */
-	*pChannel_p = pAsyncRxAdrs_l->m_header.m_bChannel;   ///< return info about channel type
+	*pChannel_p = pAsyncRxAdrs_l->m_header.m_bChannel;    ///< return info about channel type
 	*pLen_p = pAsyncRxAdrs_l->m_header.m_wFrgmtLen;       ///< return info about copied data
 
 	/* reset sync flag */
 	pAsyncRxAdrs_l->m_header.m_bSync = kMsgBufWriteOnly;
+
+#ifdef CN_API_USING_SPI
+    pDest = (BYTE*) (PCP_CTRLREG_RX_ASYNC_OFST_OFFSET + (char *)&pAsyncRxAdrs_l->m_header.m_bSync - (char *)&pAsyncTxAdrs_l);
+    CnApi_Spi_write((WORD) pDest, sizeof(pAsyncRxAdrs_l->m_header.m_bSync), (BYTE*) &pAsyncRxAdrs_l->m_header.m_bSync);  ///< write SyncFlag to PCP DPRAM
+#endif
 
 	return kAsyncSendStatusOk;
 }
@@ -170,6 +208,12 @@ void CnApi_initAsync(tAsyncMsg *pAsyncTxAdrs_p, WORD wAsyncTxSize_p,
 	wAsyncTxSize_l = wAsyncTxSize_p;
 	pAsyncRxAdrs_l = pAsyncRxAdrs_p;
 	wAsyncRxSize_l = wAsyncRxSize_p;
+
+#ifdef CN_API_USING_SPI
+/* switch pointer to local copy instead of direct DPRAM access */
+	pAsyncTxAdrs_l = &ShadAsyncTxMsg_l;
+	pAsyncRxAdrs_l = &ShadAsyncRxMsg_l;
+#endif /* CN_API_USING_SPI */
 
 	bReqId_l = 0;
 }

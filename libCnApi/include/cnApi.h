@@ -70,12 +70,27 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_CYCCRCT_OFFSET          0x0C
 #define PCP_CTRLREG_CYCERR_OFFSET           0x0E
 #define PCP_CTRLREG_MAXCYCNUM_OFFSET        0x0F
-#define PCP_CTRLREG_RPDO0ACK_OFFSET         0x30
-#define PCP_CTRLREG_RPDO1ACK_OFFSET         0x31
-#define PCP_CTRLREG_RPDO2ACK_OFFSET         0x32
-#define PCP_CTRLREG_TPDOACK_OFFSET          0x33
-#define PCP_CTRLREG_SYNCIRQCTRL_OFFSET      0x38
-#define PCP_CTRLREG_SYNCTIME_OFFSET         0x3A
+#define PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET   0x10
+#define PCP_CTRLREG_RESERVED1_OFFSET        0x14
+#define PCP_CTRLREG_TPDO0_BUFSIZE_OFFSET    0x18
+#define PCP_CTRLREG_TPDO0_OFST_OFFSET       0x1A
+#define PCP_CTRLREG_RPDO0_BUFSIZE_OFFSET    0x1C
+#define PCP_CTRLREG_RPDO0_OFST_OFFSET       0x1E
+#define PCP_CTRLREG_RPDO1_BUFSIZE_OFFSET    0x20
+#define PCP_CTRLREG_RPDO1_OFST_OFFSET       0x22
+#define PCP_CTRLREG_RPDO2_BUFSIZE_OFFSET    0x24
+#define PCP_CTRLREG_RPDO2_OFST_OFFSET       0x26
+
+#define PCP_CTRLREG_TX_ASYNC_BUFSIZE_OFFSET 0x30
+#define PCP_CTRLREG_TX_ASYNC_OFST_OFFSET    0x32
+#define PCP_CTRLREG_RX_ASYNC_BUFSIZE_OFFSET 0x34
+#define PCP_CTRLREG_RX_ASYNC_OFST_OFFSET    0x36
+#define PCP_CTRLREG_RPDO0ACK_OFFSET         0x38
+#define PCP_CTRLREG_RPDO1ACK_OFFSET         0x39
+#define PCP_CTRLREG_RPDO2ACK_OFFSET         0x3A
+#define PCP_CTRLREG_TPDOACK_OFFSET          0x3B
+#define PCP_CTRLREG_SYNCIRQCTRL_OFFSET      0x3C
+#define PCP_CTRLREG_SYNCTIME_OFFSET         0x40
 #define PCP_CTRLREG_SPAN                    sizeof(tPcpCtrlReg)
 
 
@@ -372,9 +387,11 @@ typedef struct sPdoDesc {
 #define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
 #define EPL_PDOU_OBD_IDX_TX_MAPP_PARAM  0x1A00
 
-typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, WORD wDescrEntries_p); 	///< type definition for PDO descriptor callback function
+typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, WORD wDescrEntries_p); ///< type definition for PDO descriptor callback function
 typedef	void (*tpfnPdoCopyCb) (BYTE *pPdoData_p); 						///< type definition for PDO copy callback function
 typedef void (*tpfnSyncIntCb) (void);									///< type definition for Sync interrupt callback function
+typedef int (*tpfnSpiMasterTxCb) (unsigned char *pTxBuf_p, int iBytes_p);
+typedef int (*tpfnSpiMasterRxCb) (unsigned char *pTxBuf_p, int iBytes_p);
 
 /******************************************************************************/
 
@@ -450,10 +467,10 @@ struct sPcpControlReg {
 	volatile WORD			m_wRxPdo1BufAoffs;
 	volatile WORD			m_wRxPdo2BufSize;
 	volatile WORD			m_wRxPdo2BufAoffs;
-	volatile WORD			m_wTxPdoDescSize;
-	volatile WORD			m_wTxPdoDescAdrs;
-	volatile WORD			m_wRxPdoDescSize;
-	volatile WORD			m_wRxPdoDescAdrs;
+	volatile WORD			m_wTxPdoDescSize;  //deprecated
+	volatile WORD			m_wTxPdoDescAdrs;  //deprecated
+	volatile WORD			m_wRxPdoDescSize;  //deprecated
+	volatile WORD			m_wRxPdoDescAdrs;  //deprecated
 	volatile WORD			m_wTxAsyncBufSize;
 	volatile WORD			m_wTxAsyncBufAoffs;
 	volatile WORD			m_wRxAsyncBufSize;
@@ -503,5 +520,8 @@ extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char 
 void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p);
 extern void CnApi_cleanupObjects(void);
 extern void CnApi_transferPdo(void);
+
+extern int CnApi_CbSpiMasterTx (unsigned char *pTxBuf_p, int iBytes_p); //SPI Master Tx Handler
+extern int CnApi_CbSpiMasterRx (unsigned char *pRxBuf_p, int iBytes_p); //SPI MASTER Rx Handler
 
 #endif /* CNAPI_H_ */

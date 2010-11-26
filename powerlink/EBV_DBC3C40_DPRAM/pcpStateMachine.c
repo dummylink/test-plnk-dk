@@ -146,6 +146,7 @@ FUNC_DOACT(kPcpStateBooted)
 	int iStatus = kEplSuccessful;
 
 	Gi_pollAsync();
+	storePcpState(kPcpStateBooted);
 	if (checkApCommand(kApCmdInit))
 	{
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
