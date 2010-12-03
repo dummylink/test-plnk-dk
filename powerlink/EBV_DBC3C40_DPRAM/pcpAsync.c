@@ -24,6 +24,8 @@
 #include "Epl.h"
 #include "kernel/EplObdk.h"
 
+#include <unistd.h> // for usleep()
+
 #include <string.h>
 
 /******************************************************************************/
@@ -62,6 +64,30 @@ int Gi_initAsync(tAsyncMsg *pAsyncSendBuf_p, tAsyncMsg *pAsyncRecvBuf_p)
 {
 	pAsyncSendBuf = pAsyncSendBuf_p;
 	pAsyncRecvBuf = pAsyncRecvBuf_p;
+
+    if ((pAsyncSendBuf == NULL)              ||
+        (pAsyncRecvBuf == NULL)              ||
+        (pCtrlReg_g->m_wTxAsyncBufSize == 0) ||
+        (pCtrlReg_g->m_wRxAsyncBufSize == 0)   )
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s: initializing async PCP PDI failed!\n\n", __func__);
+        goto exit;
+    }
+    else
+    {
+        DEBUG_LVL_CNAPI_INFO_TRACE3("%s: Async Tx buffer adrs. %08x (size %d)\n",
+                                            __func__, (unsigned int)pAsyncSendBuf, pCtrlReg_g->m_wTxAsyncBufSize);
+        DEBUG_LVL_CNAPI_INFO_TRACE3("%s: Async Rx buffer adrs. %08x (size %d)\n",
+                                            __func__, (unsigned int)pAsyncRecvBuf, pCtrlReg_g->m_wRxAsyncBufSize);
+    }
+
+    memset(pAsyncSendBuf, 0 ,sizeof(tAsyncMsg)); ///> reset Headers
+    memset(pAsyncRecvBuf, 0 ,sizeof(tAsyncMsg));
+
+    pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly; ///> free buffers
+    pAsyncRecvBuf->m_header.m_bSync = kMsgBufWriteOnly;
+
+exit:
 	return 0;
 }
 
@@ -79,6 +105,10 @@ void Gi_pollAsync(void)
 	/* check if there is an asynchronous message from the AP */
 	if (pAsyncSendBuf->m_header.m_bSync != kMsgBufReadOnly)
 		return;                                                       ///< no message
+
+    /* check if response buffer is free */
+    if (pAsyncRecvBuf->m_header.m_bSync != kMsgBufWriteOnly)
+        return;                                                       ///< buffer occupied, can not setup response
 
 	if (pAsyncSendBuf->m_header.m_bChannel != kAsyncChannelInternal)
 	{
@@ -104,20 +134,7 @@ void Gi_pollAsync(void)
 		break;
 	}
 
-	pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly;		/* reset sync flag */
-
-	/* wait for free buffer */
-	while(pAsyncRecvBuf->m_header.m_bSync == kMsgBufReadOnly)
-	{
-	   iWait++;
-	   if (iWait >= 100000)
-	   {
-	       printf("TIMEOUT: AP does not respond!\n");
-	       DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: AP does not respond!\n");
-	       return;
-	   }
-    }
-	//TODO: additional AP -> PCP IR Signal would prevent this while loop
+	pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly;		/* reset sync flag -> free async buffer for AP access */
 
 	/* prepare async msg header */
 	switch (bMsgType)
@@ -136,6 +153,19 @@ void Gi_pollAsync(void)
 	/* set channel and sync flag */
 	pAsyncRecvBuf->m_header.m_bChannel = kAsyncChannelInternal;
 	pAsyncRecvBuf->m_header.m_bSync = kMsgBufReadOnly; ///< activate response
+
+    /* wait to ensure AP response */
+    while(pAsyncRecvBuf->m_header.m_bSync == kMsgBufReadOnly)
+    {
+       iWait++;
+       if (iWait >= 100)
+       {   /* can not write to buffer, it is not freed */
+           DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: AP does not respond!\n");
+           return;
+       }
+       usleep(1000);
+    }
+    //TODO: additional AP -> PCP IR Signal would prevent this while loop
 
 }
 

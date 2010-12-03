@@ -45,6 +45,13 @@ This header file contains definitions for the CN API.
 #define	DEBUG_LVL_CNAPI_INFO_TRACE3		DEBUG_LVL_11_TRACE3
 #define DEBUG_LVL_CNAPI_INFO_TRACE4     DEBUG_LVL_11_TRACE4
 
+#define DEBUG_LVL_CNAPI_SPI            DEBUG_LVL_12
+#define DEBUG_LVL_CNAPI_SPI_TRACE0     DEBUG_LVL_12_TRACE0
+#define DEBUG_LVL_CNAPI_SPI_TRACE1     DEBUG_LVL_12_TRACE1
+#define DEBUG_LVL_CNAPI_SPI_TRACE2     DEBUG_LVL_12_TRACE2
+#define DEBUG_LVL_CNAPI_SPI_TRACE3     DEBUG_LVL_12_TRACE3
+#define DEBUG_LVL_CNAPI_SPI_TRACE4     DEBUG_LVL_12_TRACE4
+
 #define	DEBUG_FUNC		DEBUG_TRACE1(DEBUG_LVL_09, "%s:\n", __func__)
 
 /* CN API definitions */
@@ -60,37 +67,36 @@ This header file contains definitions for the CN API.
 /* Control Register Offsets, used for SPI */
 //TODO: ifdef system.h SPI_DEFINE
 #define PCP_CTRLREG_START_ADR               0x00
-#define PCP_CTRLREG_MAGIC_OFFSET            0x00
-#define PCP_CTRLREG_SYNMD_OFFSET            0x04
-#define PCP_CTRLREG_ERROR_OFFSET            0x05
-#define PCP_CTRLREG_CMD_OFFSET              0x06
-#define PCP_CTRLREG_STATE_OFFSET            0x07
-#define PCP_CTRLREG_MINCYCT_OFFSET          0x08
-#define PCP_CTRLREG_MAXCYCT_OFFSET          0x0A
-#define PCP_CTRLREG_CYCCRCT_OFFSET          0x0C
-#define PCP_CTRLREG_CYCERR_OFFSET           0x0E
-#define PCP_CTRLREG_MAXCYCNUM_OFFSET        0x0F
-#define PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET   0x10
-#define PCP_CTRLREG_RESERVED1_OFFSET        0x14
-#define PCP_CTRLREG_TPDO0_BUFSIZE_OFFSET    0x18
-#define PCP_CTRLREG_TPDO0_OFST_OFFSET       0x1A
-#define PCP_CTRLREG_RPDO0_BUFSIZE_OFFSET    0x1C
-#define PCP_CTRLREG_RPDO0_OFST_OFFSET       0x1E
-#define PCP_CTRLREG_RPDO1_BUFSIZE_OFFSET    0x20
-#define PCP_CTRLREG_RPDO1_OFST_OFFSET       0x22
-#define PCP_CTRLREG_RPDO2_BUFSIZE_OFFSET    0x24
-#define PCP_CTRLREG_RPDO2_OFST_OFFSET       0x26
+#define PCP_CTRLREG_MAGIC_OFFSET            offsetof(tPcpCtrlReg, m_dwMagic)        //0x00
+#define PCP_CTRLREG_SYNMD_OFFSET            offsetof(tPcpCtrlReg, m_bSyncMode)      //0x04
+#define PCP_CTRLREG_ERROR_OFFSET            offsetof(tPcpCtrlReg, m_bError)         //0x05
+#define PCP_CTRLREG_CMD_OFFSET              offsetof(tPcpCtrlReg, m_bCommand)       //0x06
+#define PCP_CTRLREG_STATE_OFFSET            offsetof(tPcpCtrlReg, m_bState)         //0x07
+#define PCP_CTRLREG_MAXCYCT_OFFSET          offsetof(tPcpCtrlReg, m_wMaxCycleTime)  //0x08
+#define PCP_CTRLREG_MINCYCT_OFFSET          offsetof(tPcpCtrlReg, m_wMinCycleTime)  //0x0A
+#define PCP_CTRLREG_CYCCRCT_OFFSET          offsetof(tPcpCtrlReg, m_wCycleCorrect)  //0x0C
+#define PCP_CTRLREG_CYCERR_OFFSET           offsetof(tPcpCtrlReg, m_bCycleError)    //0x0E
+#define PCP_CTRLREG_MAXCYCNUM_OFFSET        offsetof(tPcpCtrlReg, m_bMaxCylceNum)   //0x0F
+#define PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET   offsetof(tPcpCtrlReg, m_dwSyncIntCycTime)//0x10
+#define PCP_CTRLREG_RESERVED1_OFFSET        offsetof(tPcpCtrlReg, m_dwReserved1)    //0x14
+#define PCP_CTRLREG_TPDO0_BUFSIZE_OFFSET    offsetof(tPcpCtrlReg, m_wTxPdo0BufSize) //0x18
+#define PCP_CTRLREG_TPDO0_OFST_OFFSET       pCtrlReg_g->m_wTxPdo0BufAoffs           //0x1A
+#define PCP_CTRLREG_RPDO0_BUFSIZE_OFFSET    offsetof(tPcpCtrlReg, m_wRxPdo0BufSize) //0x1C
+#define PCP_CTRLREG_RPDO0_OFST_OFFSET       pCtrlReg_g->m_wRxPdo0BufAoffs           //0x1E
+#define PCP_CTRLREG_RPDO1_BUFSIZE_OFFSET    offsetof(tPcpCtrlReg, m_wRxPdo1BufSize) //0x20
+#define PCP_CTRLREG_RPDO1_OFST_OFFSET       pCtrlReg_g->m_wRxPdo1BufAoffs           //0x22
+#define PCP_CTRLREG_RPDO2_BUFSIZE_OFFSET    offsetof(tPcpCtrlReg, m_wRxPdo2BufSize) //0x24
+#define PCP_CTRLREG_RPDO2_OFST_OFFSET       pCtrlReg_g->m_wRxPdo2BufAoffs           //0x26
 
-#define PCP_CTRLREG_TX_ASYNC_BUFSIZE_OFFSET 0x30
-#define PCP_CTRLREG_TX_ASYNC_OFST_OFFSET    0x32
-#define PCP_CTRLREG_RX_ASYNC_BUFSIZE_OFFSET 0x34
-#define PCP_CTRLREG_RX_ASYNC_OFST_OFFSET    0x36
-#define PCP_CTRLREG_RPDO0ACK_OFFSET         0x38
-#define PCP_CTRLREG_RPDO1ACK_OFFSET         0x39
-#define PCP_CTRLREG_RPDO2ACK_OFFSET         0x3A
-#define PCP_CTRLREG_TPDOACK_OFFSET          0x3B
-#define PCP_CTRLREG_SYNCIRQCTRL_OFFSET      0x3C
-#define PCP_CTRLREG_SYNCTIME_OFFSET         0x40
+#define PCP_CTRLREG_TX_ASYNC_BUFSIZE_OFFSET offsetof(tPcpCtrlReg, m_wTxAsyncBufSize) //0x30
+#define PCP_CTRLREG_TX_ASYNC_OFST_OFFSET    pCtrlReg_g->m_wTxAsyncBufAoffs           //0x32
+#define PCP_CTRLREG_RX_ASYNC_BUFSIZE_OFFSET offsetof(tPcpCtrlReg, m_wRxAsyncBufSize) //0x34
+#define PCP_CTRLREG_RX_ASYNC_OFST_OFFSET    pCtrlReg_g->m_wRxAsyncBufAoffs           //0x36
+#define PCP_CTRLREG_RPDO0ACK_OFFSET         offsetof(tPcpCtrlReg, m_bRxPdo0Ack)      //0x38
+#define PCP_CTRLREG_RPDO1ACK_OFFSET         offsetof(tPcpCtrlReg, m_bRxPdo1Ack)      //0x39
+#define PCP_CTRLREG_RPDO2ACK_OFFSET         offsetof(tPcpCtrlReg, m_bRxPdo2Ack)      //0x3A
+#define PCP_CTRLREG_TPDOACK_OFFSET          offsetof(tPcpCtrlReg, m_bTxPdo0Ack)      //0x3B
+#define PCP_CTRLREG_SYNCIRQCTRL_OFFSET      offsetof(tPcpCtrlReg, m_bSyncIrqControl) //0x3C
 #define PCP_CTRLREG_SPAN                    sizeof(tPcpCtrlReg)
 
 
@@ -489,6 +495,8 @@ typedef struct sTPdoBuffer { ///< used to group buffer structure infos from cont
     BYTE    *pAdrs_m;
     WORD    wSize_m;
     BYTE    *pAck_m;
+    DWORD   dwSpiBufOffs_m;
+    WORD    wSpiAckOffs_m;
 } tTPdoBuffer;
 
 typedef struct
@@ -496,6 +504,8 @@ sRPdoBuffer { ///< used to group buffer structure infos from control register
     BYTE    *pAdrs_m;
     WORD    wSize_m;
     BYTE    *pAck_m;
+    DWORD   dwSpiBufOffs_m;
+    WORD    wSpiAckOffs_m;
 } tRPdoBuffer;
 
 /******************************************************************************/

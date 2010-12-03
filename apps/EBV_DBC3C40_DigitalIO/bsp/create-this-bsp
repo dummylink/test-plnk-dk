@@ -1,6 +1,9 @@
 #!/bin/bash
 #
-# This script creates the Board Support Package (BSP) for the digital IO application
+###############################################################################
+# This script creates the bsp files in the current directory.
+# 
+###############################################################################
 
 INPUT_VARS=$@
 
@@ -11,6 +14,7 @@ BSP_TYPE=hal
 BSP_DIR=.
 NIOS2_BSP_ARGS="--set hal.sys_clk_timer system_timer_ap --cpu-name ap_cpu --settings settings.bsp"
 # --set hal.make.bsp_cflags_debug none
+
 #NIOS2_BSP_ARGS="--set hal.max_file_descriptors 4 --set hal.enable_small_c_library true --set hal.sys_clk_timer none --set hal.timestamp_timer none --set hal.enable_exit false --set hal.enable_c_plus_plus false --set hal.enable_lightweight_device_driver_api true --set hal.enable_clean_exit false --set hal.enable_sim_optimize false --set hal.enable_reduced_device_drivers true  --set hal.make.bsp_cflags_optimization '-Os'"
 
 # process arguments
@@ -43,8 +47,6 @@ do
 done
 
 if [ -z "$SOPC_DIR" ]; then
-#SOPC_DIR=../../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
-#SOPC_DIR=../../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
 echo "No SOPC directory specified !"
 echo "Use parameter: --sopcdir <SOPC_directory>"
 exit 1
@@ -52,6 +54,8 @@ fi
 
 if [ -z "$NO_OPT" ]; then
     NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2"
+else
+    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2" # for deuggig also at O2 for now.	
 fi
 
 # Run nios2-bsp utility to create a hal BSP in this directory

@@ -42,6 +42,16 @@ a dual ported RAM (DPRAM) area.
 /******************************************************************************/
 /* defines */
 
+/*----------------------------------------------------------------------------*/
+/* USER OPTIONS */
+
+/* If node Id switches are connected to the PCP, this value must be 0x00! */
+#define DEFAULT_NODEID      0x01    ///< default node ID to use, should be NOT 0xF0 (=MN)
+
+//#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
+
+/*----------------------------------------------------------------------------*/
+
 #ifndef CN_API_USING_SPI
     #define PDI_DPRAM_BASE_AP POWERLINK_0_BASE                      ///< from system.h
 #else
@@ -56,14 +66,6 @@ a dual ported RAM (DPRAM) area.
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
 #define IP_ADDR     0xc0a86401  								///< 192.168.100.1 // don't care the last byte!
 #define SUBNET_MASK 0xFFFFFF00  								///< netmask 255.255.255.0
-
-/*----------------------------------------------------------------------------*/
-/* some options */
-
-#define DEFAULT_NODEID      0x00    ///< default node ID to use, should be NOT 0xF0 (=MN)
-/* If node Id switches are connected to the PCP, this value must be 0x00! */
-
-// #define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
 
 /******************************************************************************/
 /* global variables */
@@ -137,6 +139,7 @@ int main (void)
     CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
+#ifdef TEST_MORE_OBJS
     CnApi_linkObject(0x6300, 1, 1, &digitalOut[4]); ///< RPDO 1
     CnApi_linkObject(0x6300, 2, 1, &digitalOut[5]);
     CnApi_linkObject(0x6300, 3, 1, &digitalOut[6]);
@@ -145,7 +148,7 @@ int main (void)
     CnApi_linkObject(0x6400, 2, 1, &digitalOut[9]);
     CnApi_linkObject(0x6400, 3, 1, &digitalOut[10]);
     CnApi_linkObject(0x6400, 4, 1, &digitalOut[11]);
-
+#endif /* TEST_MORE_OBJS */
 
 #ifdef USE_POLLING_MODE
     CnApi_disableSyncInt();
@@ -180,7 +183,7 @@ int main (void)
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/
-    	if (CnApi_getPcpState() >= kApStateReadyToOperate) //TODO: Alternatively implement Cbfunc in statemachine
+    	if (CnApi_getPcpState() == kPcpStateOperational) //TODO: Alternatively implement Cbfunc in statemachine
     	{
     	    CnApi_transferPdo();           ///< update linked variables
     	}
@@ -253,16 +256,16 @@ void workInputOutput(void)
         if (iCnt == 0) //first 8 bit of DigOut
         {
         	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
-            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[7] << (iCnt * 8)); //6300/04
+            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[0] << (iCnt * 8)); // [7] 6300/04 or [0]6200/01
         }
         else if (iCnt == 1) //second 8 bit of DigOut
         {
-            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[11] << (iCnt * 8)); //6400/04
+            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[1] << (iCnt * 8)); // [11]6400/04 or [1]6200/02
         }
         else if (iCnt == 2)  //third 8 bit of DigOut
         {
         	/* configured as input -> store in TPDO mapped variable */
-            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[3] << (iCnt * 8)); //Hex digits at 6200/04
+            dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[3] << (iCnt * 8)); //Hex digits at [3]6200/04
         }
     }
 

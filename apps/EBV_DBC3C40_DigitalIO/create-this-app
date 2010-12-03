@@ -1,13 +1,26 @@
 #!/bin/bash
 ###############################################################################
-# This script creates the digital I/O application in this directory.
+# This script creates the application in the current directory.
+# It invokes create-this-bsp. 
+###############################################################################
+
+###############################################################################
+# USER SETTINGS: Select here the debug level and general CN API settings  	  #
+
+DBG_MODE=_DEBUG	# compile printfs()
+# DBG_MODE=NDEBUG # This define overwrites all others printf-debug defines
+				# -> no printfs() will be compiled!
+
+				
+CN_API_FLAGS= 	# empty							
+#CN_API_FLAGS="CN_API_USING_SPI"
+                                                                              #
 ###############################################################################
 
 ###############################################################################
 # include project configuration
-#
-. ../../project.config
 
+. ../../project.config
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
 
@@ -16,52 +29,6 @@ INPUT_VARS=$@
 
 echo --- This is create-this-app ---
 echo input parameters: $INPUT_VARS
-
-
-###############################################################################
-# Include directories
-INCLUDES="\
-${LIBAPIDIR}/include \
-${LIBAPIDIR}/utils"
-
-###############################################################################
-# Custom libraries
-LIBDIRS="${LIBAPIDIR}/target/nios2_newlib"
-LIBNAMES="CnApi"
-LIBTARGETFOLDER=$LIBAPIDIR/target/nios2_newlib
-
-###############################################################################
-# Select here between debug and release settings
-#DBG_MODE=NDEBUG
-DBG_MODE=_DEBUG
-#MODFLAGS=-D$(DBG_MODE)
-
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=0xEC00FF00L -DALTERA_MUTEX_SYNC"
-#EXTRA_CFLAGS = -Wa,-alhs $(INCLUDES) $(MODFLAGS)
-
-###############################################################################
-SRCFILES="main.c"
-
-
-###############################################################################
-# work-around for bug in Nios2 EDS V9.0
-cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --version"
-$cmd | grep "9.0"
-if [ "$?" == "0" ] ; then
-# V9.0 needs additional double quotes around the include directories
-INCLUDES=\"${INCLUDES}\"
-fi
-
-NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
---set CREATE_OBJDUMP 0 \
---set CFLAGS=\"${CFLAGS}\" \
---set APP_LIBRARY_DIRS=\"${LIBDIRS}\" \
---set APP_LIBRARY_NAMES=\"${LIBNAMES}\" \
---set APP_INCLUDE_DIRS=\"${INCLUDES}\" \
---src-files $SRCFILES"
-#--set APP_CFLAGS_DEBUG_LEVEL \
-
-#echo "${NIOS2_APP_GEN_ARGS}"
 
 # First, check to see if $SOPC_KIT_NIOS2 environmental variable is set.
 # This variable is required for the command line tools to execute correctly.
@@ -103,9 +70,58 @@ do
   shift
 done
 
+###############################################################################
+# Include directories
+INCLUDES="\
+${LIBAPIDIR}/include \
+${LIBAPIDIR}/utils"
+
+###############################################################################
+# Custom libraries
+LIBDIRS="${LIBAPIDIR}/target/nios2_newlib"
+LIBNAMES="CnApi"
+LIBTARGETFOLDER=$LIBAPIDIR/target/nios2_newlib
+
+###############################################################################
+# handle --debug parameter
+# for explanation:
+# 0x00000100L DEBUG_LVL_09 (= DEBUG_LVL_CNAPI_FUNC)
+# 0x00000200L DEBUG_LVL_10 (= DEBUG_LVL_CNAPI_ERR)
+# 0x00000400L DEBUG_LVL_11 (= DEBUG_LVL_CNAPI_INFO)
+# 0x20000000L DEBUG_LVL_ASSERT                
+# 0x80000000L DEBUG_LVL_ERROR
+# 0x40000000L DEBUG_LVL_ALWAYS
+
+if [ -z "$NO_OPT" ]; then
+	DEF_DEBUG_LVL="0xE0000000L" # only ASSERT, ERROR and ALWAYS messages
+else
+	DEF_DEBUG_LVL="0xEC00FF00L" # only ASSERT, ERROR and ALWAYS + CN API messages
+fi
+
+CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}" # only PCP API debug
+
+###############################################################################
+# source files
+SRCFILES="main.c"
+
+###############################################################################
+# work-around for bug in Nios2 EDS V9.0
+cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --version"
+$cmd | grep "9.0"
+if [ "$?" == "0" ] ; then
+# V9.0 needs additional double quotes around the include directories
+INCLUDES=\"${INCLUDES}\"
+fi
+
+NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
+--set CREATE_OBJDUMP 0 \
+--set CFLAGS=\"${CFLAGS}\" \
+--set APP_LIBRARY_DIRS=\"${LIBDIRS}\" \
+--set APP_LIBRARY_NAMES=\"${LIBNAMES}\" \
+--set APP_INCLUDE_DIRS=\"${INCLUDES}\" \
+--src-files $SRCFILES"
+
 if [ -z "$SOPC_DIR" ]; then
-#SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
-#SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
 echo "No SOPC directory specified !"
 echo "Use parameter: --sopcdir <SOPC_directory>"
 exit 1
@@ -171,9 +187,38 @@ else
     exit 1
 fi
 
+cat >> Makefile <<'Heredoc'
+
+# Rules for EPCS flash programming commands (EPCS contains SOF and application)
+PROGRAM_EPCS_SUFFIX := -epcs
+PROGRAM_EPCS_TARGET := $(addsuffix $(PROGRAM_EPCS_SUFFIX), $(FLASH_FILES))
+
+.PHONY : program-epcs
+program-epcs : $(PROGRAM_EPCS_TARGET)
+
+SOF_FILE := $(wildcard $(QUARTUS_PROJECT_DIR)/*.sof)
+
+.PHONY : $(PROGRAM_EPCS_TARGET)
+$(PROGRAM_EPCS_TARGET) : $(ELF)
+
+	@$(ECHO) Info: Programming $(basename $@).flash	
+	@if [ -n "$($(basename $@)_EPCS_FLAGS)" ]; \
+	then \
+		nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \
+		sof2flash --epcs --input=$(SOF_FILE) --output=sof.flash; \
+		$(ELF2FLASH) --after=sof.flash --input=$(ELF) --outfile=$(basename $@)_after_sof.flash --sim_optimize=$(SIM_OPTIMIZE) $(elf2flash_extra_args); \
+		$(ECHO) $(FLASHPROG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) sof.flash $(basename $@)_after_sof.flash; \
+		$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) -g --override=../generic/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
+	fi
+
+Heredoc
+
 if [ -z "$SKIP_MAKE" ]; then
 	cmd="make"
-
+	
+	echo "make clean first..."
+	make clean
+	
 	echo "create-this-app: Running \"$cmd\""
 	$cmd || {
     	echo "make failed"

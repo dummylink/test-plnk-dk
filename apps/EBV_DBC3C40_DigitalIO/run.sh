@@ -39,18 +39,18 @@ do
   shift
 done
 
-if [ -z "$SOF_DIR" ]; then
-echo "No SOPC directory specified (needed for sof-file) !"
-echo "Use parameter: --sopcdir <SOF_directory>"
-exit 1
-fi
+#SOF_DIR is not needed in this script - SOF programming is done with PCP "run.sh"
+#if [ -z "$SOF_DIR" ]; then
+#echo "No SOPC directory specified (needed for sof-file) !"
+#echo "Use parameter: --sopcdir <SOF_directory>"
+#exit 1
+#fi
 
 
 
 #######################################
-### Program the FPGA and run the SW ###
-nios2-configure-sof -C $SOF_DIR
-nios2-download -C ${PCP_ELF_DIR} --device=1 --instance=1 --cpu_name=pcp_cpu epl.elf --go
+### Run the SW 						###
+nios2-download -C ${PCP_ELF_DIR} --device=1 --instance=0 --cpu_name=ap_cpu epl.elf --go
 
 
 # Open Terminal
@@ -58,7 +58,7 @@ if [ -z "$TERMINAL" ]
 	then
 		echo	
 	else
-	nios2-terminal -c USB-Blaster[USB-0] --instance 1
+	nios2-terminal -c USB-Blaster[USB-0] --instance 0
 fi
 #######################################
 

@@ -35,10 +35,12 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-08-16  V0.01	zelenkaj        First version
+-- 2010-08-16  	V0.01	zelenkaj    First version
+-- 2010-10-11  	V0.02	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
+-- 2010-10-25	V0.03	zelenkaj	Use one Address Adder per DPR port side (reduces LE usage)
 ------------------------------------------------------------------------------------------------------------------------
---	This logic implements the virtual triple buffers, by changing an input address to the appropriate
---	output address. The output address is connected to a RAM implementing the virtual buffers.
+--	This logic implements the virtual triple buffers, by selecting the appropriate address offset
+--	The output address offset has to be added to the input address.
 --	The trigger signal switches to the next available buffer. The switch mechanism is implemented in the
 --	PCP's clock domain. Thus the switch over on the PCP side is performed without delay. An AP switch over crosses
 --  from AP to PCP clock domain (2x pcpClk) and back from PCP to AP (2x apClk).
@@ -58,21 +60,23 @@ ENTITY tripleVBufLogic IS
 			--out address width
 			iOutAddrWidth_g				:		INTEGER :=		13;
 			--in address width
-			iInAddrWidth_g				:		INTEGER :=		11
+			iInAddrWidth_g				:		INTEGER :=		11;
+			--ap is producer
+			bApIsProducer				:		BOOLEAN :=		FALSE
 	);
 			
 	PORT (
 			pcpClk						: IN	STD_LOGIC;
 			pcpReset					: IN	STD_LOGIC;
 			pcpTrigger					: IN	STD_LOGIC;									--trigger virtual buffer change
-			pcpInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
-			pcpOutAddr					: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g-1 DOWNTO 0);
+			--pcpInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
+			pcpOutAddrOff				: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g DOWNTO 0);
 			pcpOutSelVBuf				: OUT	STD_LOGIC_VECTOR(2 DOWNTO 0);				--selected virtual buffer (one-hot coded)
 			apClk						: IN	STD_LOGIC;
 			apReset						: IN	STD_LOGIC;
 			apTrigger					: IN	STD_LOGIC;									--trigger virtual buffer change
-			apInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
-			apOutAddr					: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g-1 DOWNTO 0);
+			--apInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
+			apOutAddrOff				: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g DOWNTO 0);
 			apOutSelVBuf				: OUT	STD_LOGIC_VECTOR(2 DOWNTO 0)				--selected virtual buffer (one-hot coded)
 	);
 END ENTITY tripleVBufLogic;
@@ -106,8 +110,8 @@ BEGIN
 	-- "001"		| ???InAddr + iVirtualBufferBase0_c
 	-- "010"		| ???InAddr + iVirtualBufferBase1_c
 	-- "100"		| ???InAddr + iVirtualBufferBase2_c
-	SIGNAL	pcpAddrOffset, apAddrOffset:		STD_LOGIC_VECTOR(iOutAddrWidth_g-1 DOWNTO 0);
-	SIGNAL	pcpSum, apSum				:		STD_LOGIC_VECTOR(iOutAddrWidth_g   DOWNTO 0);
+	SIGNAL	pcpAddrOffset, apAddrOffset:		STD_LOGIC_VECTOR(iOutAddrWidth_g DOWNTO 0);
+	--SIGNAL	pcpSum, apSum				:		STD_LOGIC_VECTOR(iOutAddrWidth_g   DOWNTO 0);
 	BEGIN
 		
 		--select address offset
@@ -115,18 +119,20 @@ BEGIN
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = "010" ELSE
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = "100" ELSE
 							(OTHERS => '0');
+		pcpOutAddrOff <= pcpAddrOffset;
 		--calculate address for dpr, leading zero is a sign!
-		pcpSum <= ('0' & conv_std_logic_vector(conv_integer(pcpInAddr), iOutAddrWidth_g-1)) + ('0' & pcpAddrOffset);
-		pcpOutAddr <= pcpSum(pcpOutAddr'RANGE);
+		--pcpSum <= ('0' & conv_std_logic_vector(conv_integer(pcpInAddr), iOutAddrWidth_g-1)) + ('0' & pcpAddrOffset);
+		--pcpOutAddr <= pcpSum(pcpOutAddr'RANGE);
 		
 		--select address offset
 		apAddrOffset <= 	CONV_STD_LOGIC_VECTOR(iVirtualBufferBase0_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "001" ELSE
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "010" ELSE
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "100" ELSE
 							(OTHERS => '0');
+		apOutAddrOff <= apAddrOffset;
 		--calculate address for dpr, leading zero is a sign!
-		apSum <= ('0' & conv_std_logic_vector(conv_integer(apInAddr), iOutAddrWidth_g-1)) + ('0' & apAddrOffset);
-		apOutAddr <= apSum(apOutAddr'RANGE);
+		--apSum <= ('0' & conv_std_logic_vector(conv_integer(apInAddr), iOutAddrWidth_g-1)) + ('0' & apAddrOffset);
+		--apOutAddr <= apSum(apOutAddr'RANGE);
 		
 	END BLOCK theAddrCalcer;
 		
@@ -148,7 +154,7 @@ BEGIN
 	--The AP triggers with triggerB and locks buffers for reading.
 	SIGNAL	clk, rst					:		STD_LOGIC;
 	SIGNAL	triggerA					:		STD_LOGIC;
-	SIGNAL	triggerB					:		STD_LOGIC;									--triggerB is in AP clock domain!
+	SIGNAL	triggerB, triggerB_s		:		STD_LOGIC;									--triggerB is in AP clock domain!
 	SIGNAL	toggleB, toggleBsync		:		STD_LOGIC;									--toggleB is toggled by AP and synced to PCP
 	SIGNAL	toggleEdge					:		STD_LOGIC_VECTOR(1 DOWNTO 0);
 	SIGNAL	locked						:		STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -159,8 +165,8 @@ BEGIN
 		clk <= pcpClk;
 		rst <= pcpReset;
 		
-		--triggerA is in PCP's clk domain
-		triggerA <= pcpTrigger;
+		--triggerA is the producer's trigger
+		triggerA <= pcpTrigger when bApIsProducer = false else triggerB_s;
 		
 		--conTrigger pulse is in AP clock domain, thus different clock rates will produce more or less pulses!
 		---thus a toggling signal crosses the clock domain
@@ -193,13 +199,15 @@ BEGIN
 				toggleEdge <= toggleEdge(0) & toggleBsync;
 			END IF;
 		END PROCESS toggleShiftReg;
-		triggerB <= toggleEdge(1) xor toggleEdge(0);
+		triggerB_s <= toggleEdge(1) xor toggleEdge(0);
+		--triggerB is the consumer's trigger
+		triggerB <= triggerB_s when bApIsProducer = false else pcpTrigger;
 		
 		--currentA is set by PCP (currently used buffer by PCP)
-		pcpSelVBuf_s <= currentA;
+		pcpSelVBuf_s <= currentA when bApIsProducer = false else locked;
 		
 		--locked virtual buffer in PCP clock domain
-		lockedVBuf_s <= locked;
+		lockedVBuf_s <= locked when bApIsProducer = false else currentA;
 		
 		tripleBufMechanism : PROCESS(clk, rst)
 		VARIABLE	valid_v				:	STD_LOGIC_VECTOR(2 DOWNTO 0);

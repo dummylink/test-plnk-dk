@@ -464,7 +464,8 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 		pPdoDescHeader->m_bEntryCnt = bAddedDecrEntries;      ///< number of entries of this PDO descriptor
 		pLinkPdoReq_p->m_bDescrCnt++;                         ///< update descriptor counter of LinkPdoReq message
 
-        DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "setup PDO desc: DIR:%d BufferNum:%d numObjs:%d\n", bDirection_p, pPdoDescHeader->m_bBufferNum, pPdoDescHeader->m_bEntryCnt);
+        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "setup PDO Descriptor %d : DIR:%d BufferNum:%d numObjs:%d\n"
+                ,pLinkPdoReq_p->m_bDescrCnt, bDirection_p, pPdoDescHeader->m_bBufferNum, pPdoDescHeader->m_bEntryCnt);
 
 		/* prepare for next PDO */
 		wPdoDescSize = sizeof(tPdoDescHeader) + (bAddedDecrEntries * sizeof(tPdoDescEntry));

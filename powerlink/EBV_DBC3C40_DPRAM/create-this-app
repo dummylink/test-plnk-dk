@@ -5,87 +5,33 @@
 ###############################################################################
 
 ###############################################################################
+# USER SETTINGS: Select here the debug level and general CN API settings  	  #
+
+DBG_MODE=_DEBUG	# compile printfs()
+# DBG_MODE=NDEBUG # This define overwrites all others printf-debug defines
+				# -> no printfs() will be compiled!
+
+				
+CN_API_FLAGS= 	# empty	
+
+# replace this path to the object dictionary you wish to include
+OBJDICTDIR=../../objDicts/digitalIO						
+                                                                              #
+###############################################################################
+
+###############################################################################
 # include project configuration
-#
+
 . ../../project.config
 
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
-#
-# replace this path to the object dictionary you wish to include
-OBJDICTDIR=../../objDicts/digitalIO
 
 ###############################################################################
 INPUT_VARS=$@
 
 echo --- This is create-this-app ---
 echo input parameters: $INPUT_VARS
-
-###############################################################################
-# Include directories
-INCLUDES="\
-. \
-${POWERLINKDIR}/Edrv/openmac/include \
-${POWERLINKDIR}/Include \
-${POWERLINKDIR}/SharedBuff \
-${POWERLINKDIR}/ObjDicts \
-${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
-${OBJDICTDIR} \
-${LIBAPIDIR}/include \
-${LIBAPIDIR}/utils"
-
-#           Select here between debug and release settings
-#DBG_MODE=NDEBUG
-DBG_MODE=_DEBUG
-
-#MODFLAGS=-D$(DBG_MODE)
-#MODFLAGS=-D${DBG_MODE} -D_DBG_TRACE_POINTS_ -DDEF_DEBUG_LVL=0xEC000040L
-#CFLAGS="-D${DBG_MODE} -D_DBG_TRACE_POINTS_ -DDEF_DEBUG_LVL=0xEC000000L"
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=0xEC00FF00L" # only PCP API debug
-
-#EXTRA_CFLAGS = -Wa,-alhs $(INCLUDES) $(MODFLAGS)
-
-SRCFILES="pcpMain.c \
-pcpAsync.c \
-pcpPdo.c \
-pcpStateMachine.c \
-${OBJDICTDIR}/Objdict.c \
-${LIBAPIDIR}/utils/stateMachine.c \
-${POWERLINKDIR}/Edrv/openmac/source/EdrvOpenMac.c \
-${POWERLINKDIR}/Edrv/openmac/source/EplTimerSynck_OpenMac.c \
-${POWERLINKDIR}/Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
-${POWERLINKDIR}/Edrv/openmac/source/omethlib.c ${POWERLINKDIR}/Edrv/openmac/source/omethlibint.c \
-${POWERLINKDIR}/EplStack/EplDllk.c ${POWERLINKDIR}/EplStack/EplDllkCal.c \
-${POWERLINKDIR}/EplStack/EplDlluCal.c \
-${POWERLINKDIR}/EplStack/EplLedu.c \
-${POWERLINKDIR}/EplStack/EplEventk.c ${POWERLINKDIR}/EplStack/EplEventu.c \
-${POWERLINKDIR}/EplStack/EplNmtk.c \
-${POWERLINKDIR}/EplStack/EplNmtu.c ${POWERLINKDIR}/EplStack/EplNmtCnu.c \
-${POWERLINKDIR}/EplStack/EplPdok.c ${POWERLINKDIR}/EplStack/EplPdokCal.c \
-${POWERLINKDIR}/EplStack/EplPdou.c ${POWERLINKDIR}/EplStack/EplPdouCal.c \
-${POWERLINKDIR}/EplStack/EplObd.c \
-${POWERLINKDIR}/EplStack/EplSdoComu.c ${POWERLINKDIR}/EplStack/EplSdoAsySequ.c ${POWERLINKDIR}/EplStack/EplSdoAsndu.c \
-${POWERLINKDIR}/EplStack/EplTimeruGeneric.c \
-${POWERLINKDIR}/EplStack/EplErrorHandlerk.c \
-${POWERLINKDIR}/EplStack/EplApiGeneric.c \
-${POWERLINKDIR}/EplStack/amiarm.c \
-${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/generic/ShbTarget_Nios2.c \
-${POWERLINKDIR}/SharedBuff/SharedBuff.c ${POWERLINKDIR}/SharedBuff/ShbIpc-NoOS.c"
-
-# work-around for bug in Nios2 EDS V9.0
-cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --version"
-$cmd | grep "9.0"
-if [ "$?" == "0" ] ; then
-# V9.0 needs additional double quotes around the include directories
-INCLUDES=\"${INCLUDES}\"
-fi
-
-NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
---set CREATE_OBJDUMP 0 \
---set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
-
-
-#echo "${NIOS2_APP_GEN_ARGS}"
 
 # First, check to see if $SOPC_KIT_NIOS2 environmental variable is set.
 # This variable is required for the command line tools to execute correctly.
@@ -127,9 +73,83 @@ do
   shift
 done
 
+###############################################################################
+# Include directories
+INCLUDES="\
+. \
+${POWERLINKDIR}/Edrv/openmac/include \
+${POWERLINKDIR}/Include \
+${POWERLINKDIR}/SharedBuff \
+${POWERLINKDIR}/ObjDicts \
+${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
+${OBJDICTDIR} \
+${LIBAPIDIR}/include \
+${LIBAPIDIR}/utils"
+
+###############################################################################
+# Custom libraries
+
+###############################################################################
+# handle --debug parameter
+# for explanation:
+# 0x00000100L DEBUG_LVL_09 (= DEBUG_LVL_CNAPI_FUNC)
+# 0x00000200L DEBUG_LVL_10 (= DEBUG_LVL_CNAPI_ERR)
+# 0x00000400L DEBUG_LVL_11 (= DEBUG_LVL_CNAPI_INFO)
+# 0x20000000L DEBUG_LVL_ASSERT                
+# 0x80000000L DEBUG_LVL_ERROR
+# 0x40000000L DEBUG_LVL_ALWAYS
+
+if [ -z "$NO_OPT" ]; then
+	DEF_DEBUG_LVL="0xEC000000L" # only ASSERT, ERROR and ALWAYS messages + Powerlink stack debugs
+else
+	DEF_DEBUG_LVL="0xEC00FF00L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs + CN API messages
+fi
+
+CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
+
+###############################################################################
+# source files
+SRCFILES="pcpMain.c \
+pcpAsync.c \
+pcpPdo.c \
+pcpStateMachine.c \
+${OBJDICTDIR}/Objdict.c \
+${LIBAPIDIR}/utils/stateMachine.c \
+${POWERLINKDIR}/Edrv/openmac/source/EdrvOpenMac.c \
+${POWERLINKDIR}/Edrv/openmac/source/EplTimerSynck_OpenMac.c \
+${POWERLINKDIR}/Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
+${POWERLINKDIR}/Edrv/openmac/source/omethlib.c ${POWERLINKDIR}/Edrv/openmac/source/omethlibint.c \
+${POWERLINKDIR}/EplStack/EplDllk.c ${POWERLINKDIR}/EplStack/EplDllkCal.c \
+${POWERLINKDIR}/EplStack/EplDlluCal.c \
+${POWERLINKDIR}/EplStack/EplLedu.c \
+${POWERLINKDIR}/EplStack/EplEventk.c ${POWERLINKDIR}/EplStack/EplEventu.c \
+${POWERLINKDIR}/EplStack/EplNmtk.c \
+${POWERLINKDIR}/EplStack/EplNmtu.c ${POWERLINKDIR}/EplStack/EplNmtCnu.c \
+${POWERLINKDIR}/EplStack/EplPdok.c ${POWERLINKDIR}/EplStack/EplPdokCal.c \
+${POWERLINKDIR}/EplStack/EplPdou.c ${POWERLINKDIR}/EplStack/EplPdouCal.c \
+${POWERLINKDIR}/EplStack/EplObd.c \
+${POWERLINKDIR}/EplStack/EplSdoComu.c ${POWERLINKDIR}/EplStack/EplSdoAsySequ.c ${POWERLINKDIR}/EplStack/EplSdoAsndu.c \
+${POWERLINKDIR}/EplStack/EplTimeruGeneric.c \
+${POWERLINKDIR}/EplStack/EplErrorHandlerk.c \
+${POWERLINKDIR}/EplStack/EplApiGeneric.c \
+${POWERLINKDIR}/EplStack/amiarm.c \
+${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/generic/ShbTarget_Nios2.c \
+${POWERLINKDIR}/SharedBuff/SharedBuff.c ${POWERLINKDIR}/SharedBuff/ShbIpc-NoOS.c"
+
+###############################################################################
+# work-around for bug in Nios2 EDS V9.0
+cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --version"
+$cmd | grep "9.0"
+if [ "$?" == "0" ] ; then
+# V9.0 needs additional double quotes around the include directories
+INCLUDES=\"${INCLUDES}\"
+fi
+
+NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
+--set CREATE_OBJDUMP 0 \
+--set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
+
 if [ -z "$SOPC_DIR" ]; then
-#SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
-#SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
 echo "No SOPC directory specified !"
 echo "Use parameter: --sopcdir <SOPC_directory>"
 exit 1
@@ -177,9 +197,38 @@ $cmd || {
     exit 1
 }
 
+cat >> Makefile <<'Heredoc'
+
+# Rules for EPCS flash programming commands (EPCS contains SOF and application)
+PROGRAM_EPCS_SUFFIX := -epcs
+PROGRAM_EPCS_TARGET := $(addsuffix $(PROGRAM_EPCS_SUFFIX), $(FLASH_FILES))
+
+.PHONY : program-epcs
+program-epcs : $(PROGRAM_EPCS_TARGET)
+
+SOF_FILE := $(wildcard $(QUARTUS_PROJECT_DIR)/*.sof)
+
+.PHONY : $(PROGRAM_EPCS_TARGET)
+$(PROGRAM_EPCS_TARGET) : $(ELF)
+
+	@$(ECHO) Info: Programming $(basename $@).flash	
+	@if [ -n "$($(basename $@)_EPCS_FLAGS)" ]; \
+	then \
+		nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \
+		sof2flash --epcs --input=$(SOF_FILE) --output=sof.flash; \
+		$(ELF2FLASH) --after=sof.flash --input=$(ELF) --outfile=$(basename $@)_after_sof.flash --sim_optimize=$(SIM_OPTIMIZE) $(elf2flash_extra_args); \
+		$(ECHO) $(FLASHPROG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) sof.flash $(basename $@)_after_sof.flash; \
+		$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) -g --override=../generic/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
+	fi
+
+Heredoc
+
 if [ -z "$SKIP_MAKE" ]; then
 	cmd="make"
 
+	echo "make clean first..."
+	make clean
+	
 	echo "create-this-app: Running \"$cmd\""
 	$cmd || {
     	echo "make failed"

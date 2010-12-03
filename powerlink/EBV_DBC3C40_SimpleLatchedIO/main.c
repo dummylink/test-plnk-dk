@@ -20,20 +20,25 @@
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 #include <sys/alt_cache.h>
+#include <unistd.h>
 
 #include "omethlib.h"
 
+#ifdef LCD_BASE
+#include "lcd.h"
+#endif
+
 /******************************************************************************/
 /* defines */
-//#define SET_NODE_ID_PER_SW 			//NodeID will be overwritten with SW define
 
-#ifndef SET_NODE_ID_PER_SW
+//#define SET_NODE_ID_PER_SW //apply this define if no node switches are connected.
+
 #ifndef NODE_SWITCH_PIO_BASE
-    #error No Node ID module present in SOPC. Node ID can only be set by SW!
-#endif
+        #error No Node ID module present in SOPC. Node ID can only be set by SW! Set define SET_NODE_ID_PER_SW!
 #endif
 
-#define NODEID      0x05 // should be NOT 0xF0 (=MN) in case of CN
+#define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
+
 #define CYCLE_LEN   1000 // [us]
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
 #define IP_ADDR     0xc0a86401  // 192.168.100.1 // don't care the last byte!
@@ -78,6 +83,10 @@ int main (void)
 
     alt_icache_flush_all();
     alt_dcache_flush_all();
+
+#ifdef LCD_BASE
+    LCD_Test();
+#endif
 
     PRINTF("Digital I/O interface is running...\n");
     PRINTF("starting openPowerlink...\n\n");
@@ -308,7 +317,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     {
                         goto Exit;
                     }
-
                     break;
                 }
 
@@ -511,12 +519,27 @@ returns the node ID.
 WORD GetNodeId (void)
 {
 	WORD 	nodeId;
+#ifdef LCD_BASE
+    char TextNodeID[17];
+#endif
 
+#ifdef NODE_SWITCH_PIO_BASE
 	/* read port configuration input pins */
 	nodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
-	#ifdef SET_NODE_ID_PER_SW
-		nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
-	#endif
+#endif
+
+#ifdef SET_NODE_ID_PER_SW
+	/* overwrite node ID */
+	nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
+#endif
+
+#ifdef LCD_BASE
+	sprintf(TextNodeID, "NodeID: 0x%02X", nodeId );
+	//itoa(TextNodeID, (int)nodeId);
+	usleep(5000000);
+    LCD_Clear();
+	LCD_Show_Text(TextNodeID);
+#endif
 
 	return nodeId;
 }

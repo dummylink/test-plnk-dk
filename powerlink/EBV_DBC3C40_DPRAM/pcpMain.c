@@ -126,7 +126,7 @@ int main (void)
     {
     	EplApiProcess();
     	updateStateMachine();
-    	usleep(100);		                   ///< wait 100 us//TODO: use this value ?
+    	//usleep(100);		                   ///< wait 100 us//TODO: use this value ?
     }
 
     DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
@@ -153,7 +153,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	/* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef SET_NODE_ID_BY_HW
 	if(pInitParm_p->m_bNodeId == 0x00)
-	{   /* read port configuration input pins */
+	{   /* read port configuration input pins and overwrite parameter */
 	    pInitParm_p->m_bNodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
 	}
 #endif /* SET_NODE_ID_BY_HW */
@@ -323,13 +323,15 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     /* Prepare PDO descriptor message for AP */
                     //TODO: use local message structure for this message (not directly in Async Buffer)
                     pLinkPdosReq = pAsycMsgLinkPdoReq_g;
-                    pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
+                    pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter //TODO: do this in initialization
 
                     Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
                     Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
 
-                    pLinkPdosReq->m_bCmd = kAsyncCmdLinkPdosReq;
                     pLinkPdosReq->m_bDescrVers++; ///< increase descriptor version number
+                    pLinkPdosReq->m_bCmd = kAsyncCmdLinkPdosReq;
+
+                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d\n", pLinkPdosReq->m_bDescrVers);
 
                     break;
                 }

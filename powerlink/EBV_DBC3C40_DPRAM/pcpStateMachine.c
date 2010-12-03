@@ -41,6 +41,7 @@ static tState				aPcpStates_l[kNumPcpStates];
 static tTransition 			aPcpTransitions_l[MAX_TRANSITIONS_PER_STATE * kNumPcpStates];
 static BOOL					fEvent = FALSE;
 static tPowerlinkEvent		powerlinkEvent;
+static BOOL                 fPcpEvent = FALSE;
 
 
 char	*strStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "INIT", "PREOP1", "PREOP2", "READY_TO_OPERATE", "OPERATIONAL"};
@@ -145,8 +146,10 @@ FUNC_DOACT(kPcpStateBooted)
 {
 	int iStatus = kEplSuccessful;
 
-	Gi_pollAsync();
-	storePcpState(kPcpStateBooted);
+    storePcpState(kPcpStateBooted);
+
+	Gi_pollAsync();                    ///< get Init PCP request
+
 	if (checkApCommand(kApCmdInit))
 	{
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
@@ -215,11 +218,19 @@ FUNC_ENTRYACT(kPcpStatePreop1)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStatePreop1)
 {
+
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop1,kPcpStatePreop2,1)
 {
-	return checkPowerlinkEvent(kPowerlinkEventEnterPreop2);
+    if(checkPowerlinkEvent(kPowerlinkEventEnterPreop2))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
@@ -232,10 +243,6 @@ FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreop2)
 {
-    /* setup PDO descriptors */            //TODO: delete this line
-//    Gi_setupPdoDesc(kCnApiDirReceive);  //TODO: delete this line
-//    Gi_setupPdoDesc(kCnApiDirTransmit); //TODO: delete this line
-
     /* setup the synchronization interrupt */
     Gi_getSyncIntModeFlags();           ///< AP has to set the flags by now!
     if(fIrqSyncMode_g)                  ///< true if Sync IR is enabled by AP
@@ -255,11 +262,18 @@ FUNC_DOACT(kPcpStatePreop2)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
 {
-    if(checkPowerlinkEvent(kPowerlinkEventkEnterReadyToOperate) &&
-       checkApCommand(kApCmdReadyToOperate))
+    if(checkApCommand(kApCmdReadyToOperate))
+    {
+        fPcpEvent = TRUE;
+    }
+    if((checkPowerlinkEvent(kPowerlinkEventkEnterReadyToOperate)
+       || checkPowerlinkEvent(kPowerlinkEventEnterOperational))
+       && fPcpEvent)
 	{
+        fPcpEvent = FALSE;
         return TRUE;
 	}
+
     return FALSE;
 }
 /*----------------------------------------------------------------------------*/
@@ -278,6 +292,19 @@ FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateReadyToOperate)
 {
+    int iWait = 0;
+
+    // check if AP has acknowledged message //TODO: only temporary
+    while(pAsycMsgLinkPdoReq_g->m_bCmd != 0x00)
+    {
+       iWait++;
+       if (iWait >= 10)
+       {   /* can not write to buffer, it is not freed */
+           DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: AP does not respond!\n");
+           return;
+       }
+       usleep(1000);
+    }
 	storePcpState(kPcpStateReadyToOperate);
 }
 /*----------------------------------------------------------------------------*/

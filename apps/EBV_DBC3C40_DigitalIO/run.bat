@@ -3,13 +3,77 @@
 @ REM :  - Invokes bash, recompiles the BSP and application
 @ REM :  - Programs the FPGA and invokes the nios2 terminal
 
+@ goto start REM Temporary skip path choice
+
+@ cls
+@ echo ==================================================
+@ echo  Run POWERLINK Communication Processor PDI Menu
+@ echo ==================================================
+@ echo .
+@ echo  PCP with additional NIOS II as AP (in one FPGA)
+@ echo  -----------------------------------------------
+@ echo    Mercury Board (EBV DBC3C40)
+@ echo      1: Avalon PDI
+@ echo      2: SPI PDI
+@ echo    INK Board (TERASIC DE2-115)
+@ echo      3: Avalon PDI
+@ echo      4: SPI PDI
+@ echo . 
+@ echo ==================================================
+
+
+
+:user_entry
+@ set /p choice= Enter design number [1-8]:
+@ if /I "%choice%" == "1" ( goto EBV_PCP_AP_avalon )
+@ if /I "%choice%" == "2" ( goto EBV_PCP_AP_SPI )
+@ if /I "%choice%" == "3" ( goto INK_PCP_AP_avalon )
+@ if /I "%choice%" == "4" ( goto INK_PCP_AP_SPI )
+@ if /I "%choice%" == "5" ( goto EBV_PCP_SPI )
+@ if /I "%choice%" == "6" ( goto EBV_PCP_16bitparallel )
+@ if /I "%choice%" == "7" ( goto INK_PCP_SPI )
+@ if /I "%choice%" == "8" ( goto INK_PCP_16bitparallel ) else (
+@ set choice=
+@ echo Invalid input!
+@ goto user_entry )
+
+
 @ REM ######################################
 @ REM # SET PARAMETERS
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
 
+:EBV_PCP_AP_avalon
+@ set SOF_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
+@ set DUAL_NIOS = "1"
+@ goto start
+:EBV_PCP_AP_SPI
+@ set SOF_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SPI_multinios
+@ set DUAL_NIOS = "1"
+@ goto start
+:EBV_PCP_SPI
+@ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ goto start
+:EBV_PCP_16bitparallel
+@ set SOF_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_16bitprll
+@ goto start
+:INK_PCP_AP_avalon
+@ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
+@ set DUAL_NIOS = "1"
+@ goto start
+:INK_PCP_AP_SPI
+@ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ set DUAL_NIOS = "1"
+@ goto start
+:INK_PCP_SPI
+@ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ goto start
+:INK_PCP_16bitparallel
+@ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ goto start
 
+REM TODO: if @ if DUAL_NIOS == "1" goto run_ap
+
+:start
 @ REM ######################################
 @ REM # Discover the root nios2eds directory
 @ set SOPC_KIT_NIOS2=%SOPC_KIT_NIOS2%
@@ -53,12 +117,14 @@
 @ goto run_bash
 
 :run_bash
-@ echo . verifying path...: %~dp0%SOPC_DIR%
-@ if not exist "%~dp0%SOPC_DIR%" goto errorSOPC
-@ echo . verifying path...OK
-@ echo .
+REM @ echo . verifying path...: %~dp0%SOF_DIR%
+REM @ if not exist "%~dp0%SOF_DIR%" goto errorSOPC
+REM @ if not exist "%~dp0%SOF_DIR%\*.sof" goto errorSOF
+REM @ echo . verifying path...OK
+REM @ echo .
 @ REM execute "$QUARTUS_ROOTDIR/sopc_builder/bin/nios_bash" in every bash.exe call !
-@ "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\rebuild.sh" --sopcdir %SOPC_DIR%
+@ "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\run.sh" --terminal --instance %CPU_NAME% --sopcdir %SOF_DIR%
+
 
 @ pause
 @ exit
@@ -91,12 +157,24 @@
 
 :errorSOPC
 @ echo . 
-@ echo . Cannot locate SOPC directory (SOPC_DIR) at:
+@ echo . Cannot locate SOF directory (SOF_DIR) at:
 @ echo . 
-@ echo .    %SOPC_DIR%
-@ echo .    (setting in rebuild.bat)
+@ echo .    %SOF_DIR%
+@ echo .    (setting in run.bat)
 @ echo . 
-@ echo . Switch to existing path where the sopcinfo-file resides!
+@ echo . Switch to existing path where the sof-file resides!
+@ echo . 
+@ pause
+@ exit
+
+:errorSOF
+@ echo . 
+@ echo . Missing SOF-file at:
+@ echo . 
+@ echo .    %SOF_DIR%
+@ echo .    (setting in run.bat)
+@ echo . 
+@ echo . Generate sof with Quartus II or adjust path!
 @ echo . 
 @ pause
 @ exit

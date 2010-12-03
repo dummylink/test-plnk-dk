@@ -28,5 +28,5 @@ set_global_assignment -name SDC_FILE [file join $::quartus(qip_path) pcp_cpu.sdc
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/src/spi_sreg.vhd]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/src/OpenFILTER.vhd]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/src/OpenMAC.vhd]
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0026B9DFD44A0000012BF31C0A81 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0026B9DFD44A0000012C96B3272B 
  

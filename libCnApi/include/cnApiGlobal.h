@@ -127,20 +127,8 @@ This file has to be included before other include files.
 
 
 /*----------------------------------------------------------------------------*/
-/* Debug Prints */
-#define DEBUG_GLB_LVL()  (0x00000100 | \
-                          0x00000200 | \
-                          0x00000400 | \
-                          0x80000000 | \
-                          0x40000000 )
-// DEBUG_LVL_09 (= DEBUG_LVL_CNAPI_FUNC)
-// DEBUG_LVL_10 (= DEBUG_LVL_CNAPI_ERR)
-// DEBUG_LVL_11 (= DEBUG_LVL_CNAPI_INFO)
-// DEBUG_LVL_ERROR
-// DEBUG_LVL_ALWAYS
-
 /* CN API Configuration */
-#define CN_API_USING_SPI
+#define CN_API_USING_SPI //TODO: connect with system.h define
 
 #endif  // #ifndef _CNAPI_GLOBAL_H_
 

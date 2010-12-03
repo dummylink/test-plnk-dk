@@ -3,13 +3,80 @@
 @ REM :  - Invokes bash, recompiles the BSP and application
 @ REM :  - Programs the FPGA and invokes the nios2 terminal
 
+@ cls
+@ echo ====================================================
+@ echo  Rebuild POWERLINK Communication Processor PDI Menu
+@ echo ====================================================
+@ echo .
+@ echo  PCP with additional NIOS II as AP (in one FPGA)
+@ echo  -----------------------------------------------
+@ echo    Mercury Board (EBV DBC3C40)
+@ echo      1: Avalon
+@ echo      2: SPI
+@ echo    INK Board (TERASIC DE2-115)
+@ echo      3: Avalon
+@ echo      4: SPI
+@ echo . 
+@ echo  Stand alone PCP (in one FPGA)
+@ echo  -----------------------------------------------
+@ echo    Mercury Board (EBV DBC3C40)
+@ echo      5: SPI
+@ echo      6: 16 Bit parallel
+@ echo    INK Board (TERASIC DE2-115)
+@ echo      7: SPI
+@ echo      8: 16 Bit parallel
+@ echo .
+@ echo ==================================================
+
+:user_entry
+@ set /p choice= Enter design number [1-8]:
+@ if /I "%choice%" == "1" ( goto EBV_PCP_AP_avalon )
+@ if /I "%choice%" == "2" ( goto EBV_PCP_AP_SPI )
+@ if /I "%choice%" == "3" ( goto INK_PCP_AP_avalon )
+@ if /I "%choice%" == "4" ( goto INK_PCP_AP_SPI )
+@ if /I "%choice%" == "5" ( goto EBV_PCP_SPI )
+@ if /I "%choice%" == "6" ( goto EBV_PCP_16bitparallel )
+@ if /I "%choice%" == "7" ( goto INK_PCP_SPI )
+@ if /I "%choice%" == "8" ( goto INK_PCP_16bitparallel ) else (
+@ set choice=
+@ echo Invalid input!
+@ goto user_entry )
+
+
 @ REM ######################################
 @ REM # SET PARAMETERS
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
 
+:EBV_PCP_AP_avalon
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
+@ set DUAL_NIOS = "1"
+@ goto start
+:EBV_PCP_AP_SPI
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SPI_multinios
+@ set DUAL_NIOS = "1"
+@ goto start
+:EBV_PCP_SPI
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ goto start
+:EBV_PCP_16bitparallel
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_16bitprll
+@ goto start
+:INK_PCP_AP_avalon
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
+@ set DUAL_NIOS = "1"
+@ goto start
+:INK_PCP_AP_SPI
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ set DUAL_NIOS = "1"
+@ goto start
+:INK_PCP_SPI
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ goto start
+:INK_PCP_16bitparallel
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ goto start
 
+:start
 @ REM ######################################
 @ REM # Discover the root nios2eds directory
 @ set SOPC_KIT_NIOS2=%SOPC_KIT_NIOS2%

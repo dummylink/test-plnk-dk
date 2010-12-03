@@ -167,13 +167,12 @@ FUNC_EVT(kApStatePreop1, kApStatePreop2, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStatePreop1)
 {
-    /*usleep(3000000);*/ //TODO: delete this line. workaround til statemachine for Async Buffers is used. otherwise a wrong message will be read.
-    /* read PDO descriptors */
-#ifdef CN_API_USING_SPI
-    /* update local shadow message buffer */
-    CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, sizeof(pAsycMsgLinkPdoReqAp_g), (BYTE*) &pAsycMsgLinkPdoReqAp_g);
-#endif
-    CnApi_handleLinkPdosReq(pAsycMsgLinkPdoReqAp_g);
+
+}
+/*----------------------------------------------------------------------------*/
+FUNC_DOACT(kApStatePreop1)
+{
+
 }
 
 /*============================================================================*/
@@ -186,6 +185,11 @@ FUNC_EVT(kApStatePreop2, kApStateReadyToOperate, 1)
 	{
 		CnApi_setApCommand(kApCmdNone);
 		return TRUE;
+	}
+	else if(CnApi_getPcpState() == kPcpStateOperational)
+	{
+	    CnApi_setApCommand(kApCmdNone);
+	    return TRUE;
 	}
 	else
 	{
@@ -207,13 +211,38 @@ FUNC_ENTRYACT(kApStatePreop2)
 	TRACE1("\nINFO: Synchronization IR Period is %lu us.\n", CnApi_getSyncIntPeriod());
 
 	/* TODO: prepare for READY_TO_OPERATE */
-	TRACE("***Calling Callback to prepare ready to operate!!***\n");
+	//TRACE("***Calling Callback to prepare ready to operate!!***\n");
 
-	CnApi_setApCommand(kApCmdReadyToOperate);
+	/* TODO: DO THIS IN Cb FUNCION */
+    /* read PDO descriptors */
+#ifdef CN_API_USING_SPI
+    /* update local shadow message buffer */
+        CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, pCtrlReg_g->m_wRxAsyncBufSize, (BYTE*) pAsycMsgLinkPdoReqAp_g);
+#endif /* CN_API_USING_SPI */
+
+    if(pAsycMsgLinkPdoReqAp_g->m_bCmd == kAsyncCmdLinkPdosReq) //check if message is present
+    {
+        CnApi_handleLinkPdosReq(pAsycMsgLinkPdoReqAp_g);
+    }
+    else
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nLinkPdosReq not present -> Take old descriptors!\n", __func__);
+    }
+    /* TODO: DO THIS IN Cb FUNCION */
+
+
+    pAsycMsgLinkPdoReqAp_g->m_bCmd = 0x00; //reset cmd to inform PCP that message was received.
+#ifdef CN_API_USING_SPI
+    // "acknowledge" meassage //TODO: This is just a temporary solution
+    CnApi_Spi_write(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, sizeof(tLinkPdosReq), (BYTE*) pAsycMsgLinkPdoReqAp_g);
+#endif /* CN_API_USING_SPI */
+
+
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kApStatePreop2)
 {
+    CnApi_setApCommand(kApCmdReadyToOperate);
 }
 
 /*============================================================================*/
@@ -231,11 +260,16 @@ FUNC_EVT(kApStateReadyToOperate, kApStateOperational, 1)
 FUNC_EVT(kApStateReadyToOperate, kApStatePreop1, 1)
 {
 	/* check for PCP state: PCP_PREOP */
-	if ((CnApi_getPcpState() == kPcpStatePreop1) ||
-		(CnApi_getPcpState() == kPcpStatePreop2))
+	if (CnApi_getPcpState() == kPcpStatePreop1
+	    || CnApi_getPcpState() == kPcpStatePreop2 )
+	{
 		return TRUE;
+	}
 	else
+	{
 		return FALSE;
+	}
+
 }
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateReadyToOperate)
@@ -328,7 +362,7 @@ void CnApi_initApStateMachine(void)
 
 	/* State: PREOP1 */
 	SM_ADD_TRANSITION(&apStateMachine, kApStatePreop1, kApStatePreop2, 1);
-	SM_ADD_ACTION_100(&apStateMachine, kApStatePreop1);
+	SM_ADD_ACTION_110(&apStateMachine, kApStatePreop1);
 
 	/* State: PREOP2 */
 	SM_ADD_TRANSITION(&apStateMachine, kApStatePreop2, kApStateReadyToOperate, 1);

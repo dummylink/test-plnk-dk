@@ -1,5 +1,5 @@
 <sld_project_info>
-  <hub_info ir_width="2" node_count="4"/>
+  <hub_info ir_width="3" node_count="5"/>
   <node_info>
     <node hpath="niosII_openMac:inst|ap_cpu:the_ap_cpu|ap_cpu_nios2_oci:the_ap_cpu_nios2_oci|ap_cpu_jtag_debug_module_wrapper:the_ap_cpu_jtag_debug_module_wrapper|sld_virtual_jtag_basic:ap_cpu_jtag_debug_module_phy|sld_virtual_jtag_impl:sld_virtual_jtag_impl_inst" instance_id="0" mfg_id="70" node_id="34" sld_node_info="0x19104600" version="3">
       <parameters>
@@ -272,6 +272,22 @@
         <port name="jtag.bp.inst_the_pcp_cpu_the_pcp_cpu_nios2_oci_the_pcp_cpu_jtag_debug_module_wrapper_pcp_cpu_jtag_debug_module_phy_sld_virtual_jtag_impl_inst_ir_out_0_"/>
         <port name="jtag.bp.inst_the_pcp_cpu_the_pcp_cpu_nios2_oci_the_pcp_cpu_jtag_debug_module_wrapper_pcp_cpu_jtag_debug_module_phy_sld_virtual_jtag_impl_inst_ir_out_1_"/>
       </outputs>
+    </node>
+    <node hpath="sld_multitap:auto_lai_0" instance_id="0" mfg_id="110" node_id="7" sld_node_info="0x386E00" version="0">
+      <parameters>
+        <parameter name="sld_node_info" type="unknown" value="3698176"/>
+        <parameter name="SLD_IP_VERSION" type="dec" value="0"/>
+        <parameter name="SLD_IP_MINOR_VERSION" type="dec" value="0"/>
+        <parameter name="SLD_COMMON_IP_VERSION" type="dec" value="0"/>
+        <parameter name="sld_node_crc" type="unknown" value="36825"/>
+        <parameter name="sld_bank_width" type="unknown" value="8"/>
+        <parameter name="sld_bank_size" type="unknown" value="1"/>
+        <parameter name="sld_bank_sel_width" type="unknown" value="1"/>
+        <parameter name="sld_power_up_state" type="unknown" value="0"/>
+        <parameter name="sld_acq_mode" type="unknown" value="0"/>
+      </parameters>
+      <inputs/>
+      <outputs/>
     </node>
   </node_info>
 </sld_project_info>

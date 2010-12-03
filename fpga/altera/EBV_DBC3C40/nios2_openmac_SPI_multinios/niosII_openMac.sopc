@@ -417,6 +417,14 @@
          type = "boolean";
       }
    }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
    element clock_crossing_0.s1
    {
       datum baseAddress
@@ -425,16 +433,11 @@
          type = "long";
       }
    }
-   element onchip_memory_0.s1
+   element system_timer_ap.s1
    {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
       datum baseAddress
       {
-         value = "8192";
+         value = "2048";
          type = "long";
       }
    }
@@ -446,16 +449,24 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
+   element sdram_0.s1
    {
-      datum _lockedAddress
+      datum baseAddress
       {
-         value = "1";
-         type = "boolean";
+         value = "33554432";
+         type = "long";
+      }
+   }
+   element sync_irq_from_pcp.s1
+   {
+      datum _tags
+      {
+         value = "";
+         type = "String";
       }
       datum baseAddress
       {
-         value = "2048";
+         value = "2320";
          type = "long";
       }
    }
@@ -467,16 +478,13 @@
          type = "long";
       }
    }
-   element sdram_0.s1
+   element remote_update_cycloneiii_0.s1
    {
-      datum baseAddress
+      datum _lockedAddress
       {
-         value = "33554432";
-         type = "long";
+         value = "1";
+         type = "boolean";
       }
-   }
-   element system_timer_ap.s1
-   {
       datum baseAddress
       {
          value = "2048";
@@ -496,32 +504,24 @@
          type = "long";
       }
    }
-   element sync_irq_from_pcp.s1
-   {
-      datum _tags
-      {
-         value = "";
-         type = "String";
-      }
-      datum baseAddress
-      {
-         value = "2320";
-         type = "long";
-      }
-   }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8224";
-         type = "long";
-      }
-   }
    element node_switch_pio.s1
    {
       datum baseAddress
       {
          value = "2304";
+         type = "long";
+      }
+   }
+   element onchip_memory_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
          type = "long";
       }
    }
@@ -676,8 +676,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="15093021533" />
- <parameter name="timeStamp" value="1288273897270" />
+ <parameter name="systemHash" value="15248353691" />
+ <parameter name="timeStamp" value="1291018480231" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1225,10 +1225,10 @@
   <parameter name="configApParEndian" value="Little" />
   <parameter name="configApSpi_CPOL" value="0" />
   <parameter name="configApSpi_CPHA" value="0" />
-  <parameter name="rpdoNum" value="1" />
+  <parameter name="rpdoNum" value="3" />
   <parameter name="rpdo0size" value="100" />
-  <parameter name="rpdo1size" value="1" />
-  <parameter name="rpdo2size" value="1" />
+  <parameter name="rpdo1size" value="30" />
+  <parameter name="rpdo2size" value="30" />
   <parameter name="tpdoNum" value="1" />
   <parameter name="tpdo0size" value="100" />
   <parameter name="asyncTxBufSize" value="1518" />

@@ -194,7 +194,7 @@ CnApi_getSyncIntPeriod() reads time of the periodic synchronization interrupt
 DWORD CnApi_getSyncIntPeriod(void)
 {
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_read(PCP_CTRLREG_SYNCTIME_OFFSET, sizeof(pCtrlReg_g->m_dwSyncIntCycTime), (BYTE*) &pCtrlReg_g->m_dwSyncIntCycTime); ///< update struct element
+    CnApi_Spi_read(PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET, sizeof(pCtrlReg_g->m_dwSyncIntCycTime), (BYTE*) &pCtrlReg_g->m_dwSyncIntCycTime); ///< update struct element
 #endif
 
     return pCtrlReg_g->m_dwSyncIntCycTime;
