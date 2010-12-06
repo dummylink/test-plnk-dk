@@ -9,6 +9,14 @@
 #
 . "$QUARTUS_ROOTDIR/sopc_builder/bin/nios_bash"
 
+### SET USER PATHS ###
+PCP_BSP_DIR=../../powerlink/EBV_DBC3C40_DPRAM/bsp
+
+# TODO: ideally the one saved in a file from the last build of PCP.
+PCP_SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SPI_multinios/
+
+
+### INPUT ARGUMENTS ###
 INPUT_VARS=$@
 
 echo --- This is rebuild.sh ---
@@ -69,6 +77,25 @@ fi
 
 #######################################
 ###        Rebuild the SW           ###
+
+# first, rebuild BSP of PCP, because the CN API library needs pcp system.h - TODO: maybe use create-this-app instead in order to rebuild also the PCP.
+if [ -a "$PCP_BSP_DIR/create-this-bsp" ]; then
+    pushd $PCP_BSP_DIR >> /dev/null
+	echo -e "\ncreate-this-bsp of PCP (API library needs it) ...\n"	
+    ./create-this-bsp --rebuild --sopcdir $PCP_SOPC_DIR --cpu-name pcp_cpu  || {
+    	echo "create-this-bsp of PCP failed"
+    	exit 1
+    }
+    popd >> /dev/null
+	echo -e "\ncreate-this-bsp of PCP done!\n"
+else
+	echo "create-this-bsp of PCP doesn't exist at \"$PCP_BSP_DIR\" !"
+	exit 1
+fi
+
+# rebuild library and application for AP
 ./create-this-app --sopcdir $SOPC_DIR --rebuild ${DEBUG_FLAG}
+
+#######################################
 
 exit 0

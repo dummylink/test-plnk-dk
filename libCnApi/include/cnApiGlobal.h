@@ -125,11 +125,6 @@ This file has to be included before other include files.
 	#define	OK		0
 #endif
 
-
-/*----------------------------------------------------------------------------*/
-/* CN API Configuration */
-#define CN_API_USING_SPI //TODO: connect with system.h define
-
 #endif  // #ifndef _CNAPI_GLOBAL_H_
 
 

@@ -74,7 +74,7 @@ done
 # Include directories
 INCLUDES="\
 . \
-${POWERLINKDIR}/Edrv/openmac/include \
+./Edrv/openmac/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
@@ -97,26 +97,35 @@ CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
 SRCFILES="main.c \
 lcd.c \
 ${OBJDICTDIR}/Objdict.c \
-${POWERLINKDIR}/Edrv/openmac/source/EdrvOpenMac.c \
-${POWERLINKDIR}/Edrv/openmac/source/EplTimerSynck_OpenMac.c \
-${POWERLINKDIR}/Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
-${POWERLINKDIR}/Edrv/openmac/source/omethlib.c ${POWERLINKDIR}/Edrv/openmac/source/omethlibint.c \
-${POWERLINKDIR}/EplStack/EplDllk.c ${POWERLINKDIR}/EplStack/EplDllkCal.c \
+./Edrv/openmac/source/EdrvOpenMac.c \
+./Edrv/openmac/source/EplTimerSynck_OpenMac.c \
+./Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
+./Edrv/openmac/source/omethlib.c \
+./Edrv/openmac/source/omethlibint.c \
+${POWERLINKDIR}/EplStack/EplDllk.c \
+${POWERLINKDIR}/EplStack/EplDllkCal.c \
 ${POWERLINKDIR}/EplStack/EplDlluCal.c \
 ${POWERLINKDIR}/EplStack/EplLedu.c \
-${POWERLINKDIR}/EplStack/EplEventk.c ${POWERLINKDIR}/EplStack/EplEventu.c \
+${POWERLINKDIR}/EplStack/EplEventk.c \
+${POWERLINKDIR}/EplStack/EplEventu.c \
 ${POWERLINKDIR}/EplStack/EplNmtk.c \
-${POWERLINKDIR}/EplStack/EplNmtu.c ${POWERLINKDIR}/EplStack/EplNmtCnu.c \
-${POWERLINKDIR}/EplStack/EplPdok.c ${POWERLINKDIR}/EplStack/EplPdokCal.c \
-${POWERLINKDIR}/EplStack/EplPdou.c ${POWERLINKDIR}/EplStack/EplPdouCal.c \
+${POWERLINKDIR}/EplStack/EplNmtu.c \
+${POWERLINKDIR}/EplStack/EplNmtCnu.c \
+${POWERLINKDIR}/EplStack/EplPdok.c \
+${POWERLINKDIR}/EplStack/EplPdokCal.c \
+${POWERLINKDIR}/EplStack/EplPdou.c \
+${POWERLINKDIR}/EplStack/EplPdouCal.c \
 ${POWERLINKDIR}/EplStack/EplObd.c \
-${POWERLINKDIR}/EplStack/EplSdoComu.c ${POWERLINKDIR}/EplStack/EplSdoAsySequ.c ${POWERLINKDIR}/EplStack/EplSdoAsndu.c \
+${POWERLINKDIR}/EplStack/EplSdoComu.c \
+${POWERLINKDIR}/EplStack/EplSdoAsySequ.c \
+${POWERLINKDIR}/EplStack/EplSdoAsndu.c \
 ${POWERLINKDIR}/EplStack/EplTimeruGeneric.c \
 ${POWERLINKDIR}/EplStack/EplErrorHandlerk.c \
 ${POWERLINKDIR}/EplStack/EplApiGeneric.c \
 ${POWERLINKDIR}/EplStack/amiarm.c \
 ${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/generic/ShbTarget_Nios2.c \
-${POWERLINKDIR}/SharedBuff/SharedBuff.c ${POWERLINKDIR}/SharedBuff/ShbIpc-NoOS.c"
+${POWERLINKDIR}/SharedBuff/SharedBuff.c \
+${POWERLINKDIR}/SharedBuff/ShbIpc-NoOS.c"
 
 ###############################################################################
 # work-around for bug in Nios2 EDS V9.0
