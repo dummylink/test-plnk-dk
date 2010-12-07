@@ -1631,6 +1631,10 @@ applicable agreement for further details.
 	(pt 272 448)
 )
 (connector
+	(pt 736 560)
+	(pt 880 560)
+)
+(connector
 	(pt 248 752)
 	(pt 272 752)
 )
@@ -1646,14 +1650,5 @@ applicable agreement for further details.
 	(pt 120 480)
 	(pt 272 480)
 )
-(connector
-	(pt 736 560)
-	(pt 880 560)
-)
-(connector
-	(pt 880 560)
-	(pt 888 560)
-)
-(junction (pt 272 752))
 (junction (pt 120 480))
-(junction (pt 880 560))
+(junction (pt 272 752))

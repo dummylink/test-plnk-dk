@@ -104,11 +104,11 @@ GND+                         : AA11      :        :                   :         
 GND+                         : AA12      :        :                   :         : 4         :                
 phy1_tx_d[0]                 : AA13      : output : 3.3-V LVTTL       :         : 4         : Y              
 phy1_rx_d[0]                 : AA14      : input  : 3.3-V LVTTL       :         : 4         : Y              
-RESERVED_INPUT               : AA15      :        :                   :         : 4         :                
+node_switch[6]               : AA15      : input  : 3.3-V LVTTL       :         : 4         : N              
 phy1_smi_clk                 : AA16      : output : 3.3-V LVTTL       :         : 4         : Y              
 phy1_rst_n                   : AA17      : output : 3.3-V LVTTL       :         : 4         : Y              
 phy0_tx_d[0]                 : AA18      : output : 3.3-V LVTTL       :         : 4         : Y              
-node_switch[1]               : AA19      : input  : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : AA19      :        :                   :         : 4         :                
 phy0_smi_clk                 : AA20      : output : 3.3-V LVTTL       :         : 4         : Y              
 adr[17]                      : AA21      : output : 3.3-V LVTTL       :         : 5         : Y              
 adr[1]                       : AA22      : output : 3.3-V LVTTL       :         : 5         : Y              
@@ -172,7 +172,7 @@ sdram_ba[0]                  : C13       : output : 3.3-V LVTTL       :         
 GND                          : C14       : gnd    :                   :         :           :                
 sdram_dq[25]                 : C15       : bidir  : 3.3-V LVTTL       :         : 7         : Y              
 GND                          : C16       : gnd    :                   :         :           :                
-node_switch[4]               : C17       : input  : 3.3-V LVTTL       :         : 7         : N              
+RESERVED_INPUT               : C17       :        :                   :         : 7         :                
 GND                          : C18       : gnd    :                   :         :           :                
 RESERVED_INPUT               : C19       :        :                   :         : 7         :                
 RESERVED_INPUT               : C20       :        :                   :         : 6         :                
@@ -196,7 +196,7 @@ sdram_dq[26]                 : D15       : bidir  : 3.3-V LVTTL       :         
 VCCIO7                       : D16       : power  :                   : 3.3V    : 7         :                
 RESERVED_INPUT               : D17       :        :                   :         : 7         :                
 VCCIO7                       : D18       : power  :                   : 3.3V    : 7         :                
-node_switch[5]               : D19       : input  : 3.3-V LVTTL       :         : 7         : N              
+RESERVED_INPUT               : D19       :        :                   :         : 7         :                
 RESERVED_INPUT               : D20       :        :                   :         : 6         :                
 RESERVED_INPUT               : D21       :        :                   :         : 6         :                
 io24_o[15]                   : D22       : output : 3.3-V LVTTL       :         : 6         : Y              
@@ -289,7 +289,7 @@ adr[3]                       : H20       : output : 3.3-V LVTTL       :         
 io24_o[9]                    : H21       : output : 3.3-V LVTTL       :         : 6         : Y              
 io24_o[10]                   : H22       : output : 3.3-V LVTTL       :         : 6         : Y              
 RESERVED_INPUT               : J1        :        :                   :         : 1         :                
-node_switch[6]               : J2        : input  : 3.3-V LVTTL       :         : 1         : N              
+RESERVED_INPUT               : J2        :        :                   :         : 1         :                
 RESERVED_INPUT               : J3        :        :                   :         : 1         :                
 RESERVED_INPUT               : J4        :        :                   :         : 1         :                
 RESERVED_INPUT               : J5        :        :                   :         : 1         :                
@@ -337,7 +337,7 @@ altera_reserved_tck          : L2        : input  : 3.3-V LVTTL       :         
 nCE                          : L3        :        :                   :         : 1         :                
 altera_reserved_tdo          : L4        : output : 3.3-V LVTTL       :         : 1         : N              
 altera_reserved_tdi          : L5        : input  : 3.3-V LVTTL       :         : 1         : N              
-RESERVED_INPUT               : L6        :        :                   :         : 2         :                
+node_switch[4]               : L6        : input  : 3.3-V LVTTL       :         : 2         : N              
 RESERVED_INPUT               : L7        :        :                   :         : 2         :                
 RESERVED_INPUT               : L8        :        :                   :         : 1         :                
 VCCINT                       : L9        : power  :                   : 1.2V    :           :                
@@ -359,7 +359,7 @@ nav[1]                       : M2        : input  : 3.3-V LVTTL       :         
 RESERVED_INPUT               : M3        :        :                   :         : 2         :                
 RESERVED_INPUT               : M4        :        :                   :         : 2         :                
 led[5]                       : M5        : output : 3.3-V LVTTL       :         : 2         : Y              
-node_switch[0]               : M6        : input  : 3.3-V LVTTL       :         : 2         : N              
+RESERVED_INPUT               : M6        :        :                   :         : 2         :                
 RESERVED_INPUT               : M7        :        :                   :         : 2         :                
 RESERVED_INPUT               : M8        :        :                   :         : 2         :                
 VCCINT                       : M9        : power  :                   : 1.2V    :           :                
@@ -456,7 +456,7 @@ RESERVED_INPUT               : T11       :        :                   :         
 phy0_rst_n                   : T12       : output : 3.3-V LVTTL       :         : 4         : Y              
 spi_clk                      : T13       : input  : 3.3-V LVTTL       :         : 4         : Y              
 spim_clk                     : T14       : output : 3.3-V LVTTL       :         : 4         : Y              
-node_switch[2]               : T15       : input  : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT               : T15       :        :                   :         : 4         :                
 RESERVED_INPUT               : T16       :        :                   :         : 4         :                
 io24_o[1]                    : T17       : output : 3.3-V LVTTL       :         : 5         : Y              
 adr[6]                       : T18       : output : 3.3-V LVTTL       :         : 5         : Y              
@@ -475,7 +475,7 @@ RESERVED_INPUT               : U8        :        :                   :         
 RESERVED_INPUT               : U9        :        :                   :         : 3         :                
 RESERVED_INPUT               : U10       :        :                   :         : 3         :                
 RESERVED_INPUT               : U11       :        :                   :         : 3         :                
-RESERVED_INPUT               : U12       :        :                   :         : 4         :                
+node_switch[1]               : U12       : input  : 3.3-V LVTTL       :         : 4         : N              
 node_switch[3]               : U13       : input  : 3.3-V LVTTL       :         : 4         : N              
 phy0_smi_io                  : U14       : bidir  : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : U15       :        :                   :         : 4         :                
@@ -497,7 +497,7 @@ RESERVED_INPUT               : V8        :        :                   :         
 RESERVED_INPUT               : V9        :        :                   :         : 3         :                
 RESERVED_INPUT               : V10       :        :                   :         : 3         :                
 RESERVED_INPUT               : V11       :        :                   :         : 3         :                
-RESERVED_INPUT               : V12       :        :                   :         : 4         :                
+node_switch[0]               : V12       : input  : 3.3-V LVTTL       :         : 4         : N              
 phy0_rx_d[1]                 : V13       : input  : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : V14       :        :                   :         : 4         :                
 RESERVED_INPUT               : V15       :        :                   :         : 4         :                
@@ -521,7 +521,7 @@ RESERVED_INPUT               : W10       :        :                   :         
 VCCIO3                       : W11       : power  :                   : 3.3V    : 3         :                
 VCCIO4                       : W12       : power  :                   : 3.3V    : 4         :                
 phy0_rx_d[0]                 : W13       : input  : 3.3-V LVTTL       :         : 4         : Y              
-RESERVED_INPUT               : W14       :        :                   :         : 4         :                
+node_switch[5]               : W14       : input  : 3.3-V LVTTL       :         : 4         : N              
 io24_o[6]                    : W15       : output : 3.3-V LVTTL       :         : 4         : Y              
 VCCIO4                       : W16       : power  :                   : 3.3V    : 4         :                
 io24_o[4]                    : W17       : output : 3.3-V LVTTL       :         : 4         : Y              
@@ -542,7 +542,7 @@ GND                          : Y9        : gnd    :                   :         
 RESERVED_INPUT               : Y10       :        :                   :         : 3         :                
 GND                          : Y11       : gnd    :                   :         :           :                
 GND                          : Y12       : gnd    :                   :         :           :                
-RESERVED_INPUT               : Y13       :        :                   :         : 4         :                
+node_switch[2]               : Y13       : input  : 3.3-V LVTTL       :         : 4         : N              
 VCCIO4                       : Y14       : power  :                   : 3.3V    : 4         :                
 GND                          : Y15       : gnd    :                   :         :           :                
 GND                          : Y16       : gnd    :                   :         :           :                

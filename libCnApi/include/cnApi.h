@@ -32,9 +32,9 @@ This header file contains definitions for the CN API.
 #define RPDO_CHANNELS_MAX		POWERLINK_0_MAC_BUF_PDIRPDOS ///< Max Number of RxPDO's of this CN
 #define MAX_NUM_LINKED_OBJ_AP   0//not yet used
 
-//TODO PCP system.h: #ifdef SPI
+//#if POWERLINK_0_PDI_PCP_CONFIG == 3 ///< 3 = SPI
 #define CN_API_USING_SPI //TODO: connect with system.h define
-//TODO #endif /* SPI */
+//#endif /* POWERLINK_0_PDI_PCP_CONFIG */
 
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
 #define SYNC_IRQ_ACK                0               ///< Sync IRQ Bit shift (for AP only)
@@ -73,7 +73,7 @@ This header file contains definitions for the CN API.
  #define PCP_CTRLREG_TPDOACK_OFFSET          offsetof(tPcpCtrlReg, m_bTxPdo0Ack)      //0x3B
  #define PCP_CTRLREG_SYNCIRQCTRL_OFFSET      offsetof(tPcpCtrlReg, m_bSyncIrqControl) //0x3C
  #define PCP_CTRLREG_SPAN                    sizeof(tPcpCtrlReg)
-#endif /* TODO: (POWERLINK_0_CONFIGAPIF_SPI) */
+#endif /* CN_API_USING_SPI */
 
 /* some debug definitions */
 #define DEBUG_LVL_CNAPI_FUNC            DEBUG_LVL_09

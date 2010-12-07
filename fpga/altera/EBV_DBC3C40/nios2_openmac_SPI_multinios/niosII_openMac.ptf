@@ -616,12 +616,6 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry altpll_0/pll_slave
-            {
-               address = "0x01002040";
-               span = "0x00000010";
-               is_bridge = "0";
-            }
             Entry jtag_uart_0/avalon_jtag_slave
             {
                address = "0x01002060";
@@ -635,6 +629,12 @@ SYSTEM niosII_openMac
                is_bridge = "0";
             }
             Entry powerlink_0/MAC_CMP
+            {
+               address = "0x01002040";
+               span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry altpll_0/pll_slave
             {
                address = "0x01002050";
                span = "0x00000010";
@@ -670,13 +670,13 @@ SYSTEM niosII_openMac
                span = "0x00000100";
                is_bridge = "0";
             }
-            Entry node_switch_pio/s1
+            Entry sync_irq_from_pcp/s1
             {
                address = "0x00000900";
                span = "0x00000010";
                is_bridge = "0";
             }
-            Entry sync_irq_from_pcp/s1
+            Entry node_switch_pio/s1
             {
                address = "0x00000910";
                span = "0x00000010";
@@ -2660,12 +2660,6 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry altpll_0/pll_slave
-            {
-               address = "0x00002040";
-               span = "0x00000010";
-               is_bridge = "0";
-            }
             Entry jtag_uart_0/avalon_jtag_slave
             {
                address = "0x00002060";
@@ -2679,6 +2673,12 @@ SYSTEM niosII_openMac
                is_bridge = "0";
             }
             Entry powerlink_0/MAC_CMP
+            {
+               address = "0x00002040";
+               span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry altpll_0/pll_slave
             {
                address = "0x00002050";
                span = "0x00000010";
@@ -2960,9 +2960,9 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000900";
+               Offset_Address = "0x00000910";
             }
-            Base_Address = "0x00000900";
+            Base_Address = "0x00000910";
             Has_IRQ = "0";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
@@ -3534,7 +3534,7 @@ SYSTEM niosII_openMac
             }
             Entry sync_irq_from_pcp/s1
             {
-               address = "0x00000910";
+               address = "0x00000900";
                span = "0x00000010";
                is_bridge = "0";
             }
@@ -5322,7 +5322,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>0CDF69A2</b>    (unique ID tag) <br> <b>4CF360F0</b> (timestamp: Mon Nov 29, 2010 @9:14 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>1313C46C</b>    (unique ID tag) <br> <b>4CFE39C8</b> (timestamp: Tue Dec 7, 2010 @2:42 PM)";
             MESSAGES 
             {
             }
@@ -5330,8 +5330,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "215968162u";
-         timestamp = "1291018480u";
+         id = "320062572u";
+         timestamp = "1291729352u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5340,7 +5340,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000920 --id=215968162 --timestamp=1291018480";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000920 --id=320062572 --timestamp=1291729352";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -5449,9 +5449,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002040";
+               Offset_Address = "0x00002050";
             }
-            Base_Address = "0x01002040";
+            Base_Address = "0x01002050";
             Address_Group = "0";
          }
       }
@@ -6340,9 +6340,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002050";
+               Offset_Address = "0x00002040";
             }
-            Base_Address = "0x01002050";
+            Base_Address = "0x01002040";
             Address_Group = "1";
          }
       }
@@ -6577,16 +6577,14 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         CONFIG = "CN with AP";
-         CONFIGAPIF = "SPI";
-         MACBUFSIZE = "12696";
+         CONFIG = "3";
+         CONFIGAPENDIAN = "0";
+         MACBUFSIZE = "16200";
          MACRXBUFFERS = "6";
          MACRXBUFSIZE = "9192";
-         MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "3504";
-         PDIRPDOOBJ = "100";
+         MACTXBUFFERS = "12";
+         MACTXBUFSIZE = "7008";
          PDIRPDOS = "3";
-         PDITPDOOBJ = "100";
          PDITPDOS = "1";
       }
    }
@@ -7213,18 +7211,18 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000910";
+               Offset_Address = "0x00000900";
             }
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000910";
+               Offset_Address = "0x00000900";
             }
             IRQ_MASTER ap_cpu/data_master
             {
                IRQ_Number = "1";
             }
-            Base_Address = "0x00000910";
+            Base_Address = "0x00000900";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
             {
