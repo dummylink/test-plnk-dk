@@ -71,4 +71,9 @@ fi
 ###        Rebuild the SW           ###
 ./create-this-app --sopcdir $SOPC_DIR --rebuild ${DEBUG_FLAG}
 
+# Generate cnApiLib.h in order to inform the LIB about the PCP HW
+./cfglib.sh
+
+echo -e "You also need to rebuild the API Library and your application\nin order to apply changes!\n"
+
 exit 0

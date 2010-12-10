@@ -696,7 +696,7 @@ SYSTEM niosII_openMac
          gui_include_tightly_coupled_data_masters = "0";
          gui_omit_avalon_data_master = "0";
          cache_has_icache = "1";
-         cache_icache_size = "16384";
+         cache_icache_size = "512";
          cache_icache_line_size = "32";
          cache_icache_ram_block_type = "AUTO";
          cache_icache_bursts = "0";
@@ -854,7 +854,7 @@ SYSTEM niosII_openMac
             }
             CONSTANT nasys_icache_size
             {
-               value = "16384";
+               value = "512";
                comment = "Size in bytes of instruction cache";
             }
             CONSTANT nasys_icache_line_size
@@ -5322,7 +5322,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>1313C46C</b>    (unique ID tag) <br> <b>4CFE39C8</b> (timestamp: Tue Dec 7, 2010 @2:42 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>611A6EDC</b>    (unique ID tag) <br> <b>4D0098EB</b> (timestamp: Thu Dec 9, 2010 @9:52 AM)";
             MESSAGES 
             {
             }
@@ -5330,8 +5330,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "320062572u";
-         timestamp = "1291729352u";
+         id = "1629122268u";
+         timestamp = "1291884779u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5340,7 +5340,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000920 --id=320062572 --timestamp=1291729352";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000920 --id=1629122268 --timestamp=1291884779";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -7262,7 +7262,7 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Wire_Test_Bench_Values = "1";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk50Meg";
          Has_Clock = "1";
          Date_Modified = "";
          View 

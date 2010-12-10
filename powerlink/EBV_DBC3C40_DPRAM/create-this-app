@@ -15,7 +15,7 @@ DBG_MODE=_DEBUG	# compile printfs()
 CN_API_FLAGS= 	# empty	
 
 # replace this path to the object dictionary you wish to include
-OBJDICTDIR=../../objDicts/digitalIO						
+OBJDICTDIR=../../objDicts/PDI			
                                                                               #
 ###############################################################################
 

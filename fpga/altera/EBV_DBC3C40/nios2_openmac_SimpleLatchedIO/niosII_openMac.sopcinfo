@@ -4,7 +4,7 @@
  kind="com_altera_sopcmodel_ensemble_Ensemble"
  version="10.0">
  <!-- Format version 10.0sp1 262 (Future versions may contain additional information.) -->
- <!-- 2010.10.07.13:11:17 -->
+ <!-- 2010.12.10.11:13:03 -->
  <!-- A collection of modules and connections -->
  <parameter name="deviceFamily">
   <type>com.altera.entityinterfaces.moduleext.IDeviceFamily$EDeviceFamily</type>
@@ -64,7 +64,7 @@
  </parameter>
  <parameter name="systemHash">
   <type>long</type>
-  <value>-11498672049</value>
+  <value>-12725296876</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>true</visible>
@@ -72,7 +72,7 @@
  </parameter>
  <parameter name="timeStamp">
   <type>long</type>
-  <value>1286449855561</value>
+  <value>1291975974933</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>true</visible>
@@ -1093,7 +1093,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="dataSlaveMapParam">
    <type>java.lang.String</type>
-   <value><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='altpll_0.pll_slave' start='0x900' end='0x910' /><slave name='powerlink_0.SMP' start='0x910' end='0x918' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='onchip_memory_pcp.s1' start='0x2000' end='0x2400' /><slave name='powerlink_0.MAC_BUF' start='0x4000' end='0x8000' /><slave name='DBC3C40_SRAM_0.avalon_tristate_slave' start='0x200000' end='0x300000' /><slave name='clock_crossing_0.s1' start='0x1000000' end='0x1004000' /></address-map>]]></value>
+   <value><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='altpll_0.pll_slave' start='0x900' end='0x910' /><slave name='powerlink_0.SMP' start='0x918' end='0x920' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='onchip_memory_pcp.s1' start='0x2000' end='0x2400' /><slave name='powerlink_0.MAC_BUF' start='0x4000' end='0x8000' /><slave name='DBC3C40_SRAM_0.avalon_tristate_slave' start='0x200000' end='0x300000' /><slave name='clock_crossing_0.s1' start='0x1000000' end='0x1004000' /></address-map>]]></value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -1900,7 +1900,7 @@ parameters are a RESULT of the module parameters. -->
     <moduleName>jtag_uart_0</moduleName>
     <slaveName>avalon_jtag_slave</slaveName>
     <name>jtag_uart_0.avalon_jtag_slave</name>
-    <baseAddress>16785504</baseAddress>
+    <baseAddress>16785488</baseAddress>
     <span>8</span>
    </memoryBlock>
    <memoryBlock>
@@ -1913,18 +1913,10 @@ parameters are a RESULT of the module parameters. -->
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
-    <moduleName>node_switch_pio</moduleName>
-    <slaveName>s1</slaveName>
-    <name>node_switch_pio.s1</name>
-    <baseAddress>16785472</baseAddress>
-    <span>16</span>
-   </memoryBlock>
-   <memoryBlock>
-    <isBridge>false</isBridge>
     <moduleName>powerlink_0</moduleName>
     <slaveName>MAC_CMP</slaveName>
     <name>powerlink_0.MAC_CMP</name>
-    <baseAddress>16785488</baseAddress>
+    <baseAddress>16785472</baseAddress>
     <span>16</span>
    </memoryBlock>
    <memoryBlock>
@@ -1972,7 +1964,15 @@ parameters are a RESULT of the module parameters. -->
     <moduleName>powerlink_0</moduleName>
     <slaveName>SMP</slaveName>
     <name>powerlink_0.SMP</name>
-    <baseAddress>2320</baseAddress>
+    <baseAddress>2328</baseAddress>
+    <span>8</span>
+   </memoryBlock>
+   <memoryBlock>
+    <isBridge>false</isBridge>
+    <moduleName>powerlink_0</moduleName>
+    <slaveName>SMP</slaveName>
+    <name>powerlink_0.SMP</name>
+    <baseAddress>2328</baseAddress>
     <span>8</span>
    </memoryBlock>
   </interface>
@@ -6278,7 +6278,7 @@ parameters are a RESULT of the module parameters. -->
     <moduleName>jtag_uart_0</moduleName>
     <slaveName>avalon_jtag_slave</slaveName>
     <name>jtag_uart_0.avalon_jtag_slave</name>
-    <baseAddress>8288</baseAddress>
+    <baseAddress>8272</baseAddress>
     <span>8</span>
    </memoryBlock>
    <memoryBlock>
@@ -6291,18 +6291,10 @@ parameters are a RESULT of the module parameters. -->
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
-    <moduleName>node_switch_pio</moduleName>
-    <slaveName>s1</slaveName>
-    <name>node_switch_pio.s1</name>
-    <baseAddress>8256</baseAddress>
-    <span>16</span>
-   </memoryBlock>
-   <memoryBlock>
-    <isBridge>false</isBridge>
     <moduleName>powerlink_0</moduleName>
     <slaveName>MAC_CMP</slaveName>
     <name>powerlink_0.MAC_CMP</name>
-    <baseAddress>8272</baseAddress>
+    <baseAddress>8256</baseAddress>
     <span>16</span>
    </memoryBlock>
    <memoryBlock>
@@ -7542,601 +7534,6 @@ parameters are a RESULT of the module parameters. -->
    <port>
     <name>out_port</name>
     <direction>Output</direction>
-    <width>8</width>
-    <role>export</role>
-   </port>
-  </interface>
- </module>
- <module name="node_switch_pio" kind="altera_avalon_pio" version="10.0">
-  <!-- Describes a single module. Module parameters are
-the requested settings for a module instance. -->
-  <assignment>
-   <name>embeddedsw.CMacro.DO_TEST_BENCH_WIRING</name>
-   <value>0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.DRIVEN_SIM_VALUE</name>
-   <value>0x0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.HAS_TRI</name>
-   <value>0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.HAS_OUT</name>
-   <value>0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.HAS_IN</name>
-   <value>1</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.CAPTURE</name>
-   <value>0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.BIT_CLEARING_EDGE_REGISTER</name>
-   <value>0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.BIT_MODIFYING_OUTPUT_REGISTER</name>
-   <value>0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.DATA_WIDTH</name>
-   <value>8</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.RESET_VALUE</name>
-   <value>0x0</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.EDGE_TYPE</name>
-   <value>"NONE"</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.IRQ_TYPE</name>
-   <value>"NONE"</value>
-  </assignment>
-  <assignment>
-   <name>embeddedsw.CMacro.FREQ</name>
-   <value>50000000u</value>
-  </assignment>
-  <parameter name="bitClearingEdgeCapReg">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>false</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="bitModifyingOutReg">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>false</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="captureEdge">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="clockRate">
-   <type>long</type>
-   <value>50000000</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="direction">
-   <type>com.altera.sopcmodel.components.avalon.AlteraAvalonPIO.AlteraAvalonPIO$Direction</type>
-   <value>Input</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="edgeType">
-   <type>com.altera.sopcmodel.components.avalon.AlteraAvalonPIO.AlteraAvalonPIO$EdgeType</type>
-   <value>RISING</value>
-   <derived>false</derived>
-   <enabled>false</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="generateIRQ">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="irqType">
-   <type>com.altera.sopcmodel.components.avalon.AlteraAvalonPIO.AlteraAvalonPIO$IrqType</type>
-   <value>LEVEL</value>
-   <derived>false</derived>
-   <enabled>false</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="resetValue">
-   <type>long</type>
-   <value>0</value>
-   <derived>false</derived>
-   <enabled>false</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="simDoTestBenchWiring">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="simDrivenValue">
-   <type>long</type>
-   <value>0</value>
-   <derived>false</derived>
-   <enabled>false</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="width">
-   <type>int</type>
-   <value>8</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="deviceFamily">
-   <type>java.lang.String</type>
-   <value>UNKNOWN</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="generateLegacySim">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <interface name="clk" kind="clock_sink" version="10.0">
-   <!-- The connection points exposed by a module instance for the
-particular module parameters. Connection points and their
-parameters are a RESULT of the module parameters. -->
-   <parameter name="externallyDriven">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="ptfSchematicName">
-    <type>java.lang.String</type>
-    <value></value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="deviceFamily">
-    <type>java.lang.String</type>
-    <value>UNKNOWN</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="generateLegacySim">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="clockRateKnown">
-    <type>java.lang.Boolean</type>
-    <value>true</value>
-    <derived>true</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="clockRate">
-    <type>java.lang.Long</type>
-    <value>50000000</value>
-    <derived>true</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <type>clock</type>
-   <isStart>false</isStart>
-   <port>
-    <name>clk</name>
-    <direction>Input</direction>
-    <width>1</width>
-    <role>clk</role>
-   </port>
-   <port>
-    <name>reset_n</name>
-    <direction>Input</direction>
-    <width>1</width>
-    <role>reset_n</role>
-   </port>
-  </interface>
-  <interface name="s1" kind="avalon_slave" version="10.0">
-   <!-- The connection points exposed by a module instance for the
-particular module parameters. Connection points and their
-parameters are a RESULT of the module parameters. -->
-   <assignment>
-    <name>embeddedsw.configuration.isFlash</name>
-    <value>0</value>
-   </assignment>
-   <assignment>
-    <name>embeddedsw.configuration.isMemoryDevice</name>
-    <value>0</value>
-   </assignment>
-   <assignment>
-    <name>embeddedsw.configuration.isNonVolatileStorage</name>
-    <value>0</value>
-   </assignment>
-   <assignment>
-    <name>embeddedsw.configuration.isPrintableDevice</name>
-    <value>0</value>
-   </assignment>
-   <parameter name="addressAlignment">
-    <type>com.altera.sopcmodel.avalon.AvalonConnectionPoint$AddressAlignment</type>
-    <value>NATIVE</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="addressGroup">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="addressSpan">
-    <type>long</type>
-    <value>4</value>
-    <derived>true</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="addressUnits">
-    <type>com.altera.sopcmodel.avalon.EAddrBurstUnits</type>
-    <value>WORDS</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="alwaysBurstMaxBurst">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="associatedClock">
-    <type>java.lang.String</type>
-    <value>clk</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="associatedReset">
-    <type>java.lang.String</type>
-    <value></value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="bitsPerSymbol">
-    <type>int</type>
-    <value>8</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="bridgesToMaster">
-    <type>com.altera.entityinterfaces.IConnectionPoint</type>
-    <value></value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="burstOnBurstBoundariesOnly">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="burstcountUnits">
-    <type>com.altera.sopcmodel.avalon.EAddrBurstUnits</type>
-    <value>WORDS</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="constantBurstBehavior">
-    <type>boolean</type>
-    <value>true</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="explicitAddressSpan">
-    <type>long</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="holdTime">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="interleaveBursts">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="isBigEndian">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="isFlash">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="isMemoryDevice">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="isNonVolatileStorage">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="linewrapBursts">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="maximumPendingReadTransactions">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>false</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="minimumUninterruptedRunLength">
-    <type>int</type>
-    <value>1</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="printableDevice">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="readLatency">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="readWaitStates">
-    <type>int</type>
-    <value>1</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="readWaitTime">
-    <type>int</type>
-    <value>1</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="registerIncomingSignals">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="registerOutgoingSignals">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="setupTime">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="timingUnits">
-    <type>com.altera.sopcmodel.avalon.TimingUnits</type>
-    <value>Cycles</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="transparentBridge">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="wellBehavedWaitrequest">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="writeLatency">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="writeWaitStates">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>false</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="writeWaitTime">
-    <type>int</type>
-    <value>0</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="deviceFamily">
-    <type>java.lang.String</type>
-    <value>UNKNOWN</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="generateLegacySim">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <type>avalon</type>
-   <isStart>false</isStart>
-   <port>
-    <name>address</name>
-    <direction>Input</direction>
-    <width>2</width>
-    <role>address</role>
-   </port>
-   <port>
-    <name>readdata</name>
-    <direction>Output</direction>
-    <width>8</width>
-    <role>readdata</role>
-   </port>
-  </interface>
-  <interface name="external_connection" kind="conduit" version="7.1">
-   <!-- The connection points exposed by a module instance for the
-particular module parameters. Connection points and their
-parameters are a RESULT of the module parameters. -->
-   <parameter name="deviceFamily">
-    <type>java.lang.String</type>
-    <value>UNKNOWN</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <parameter name="generateLegacySim">
-    <type>boolean</type>
-    <value>false</value>
-    <derived>false</derived>
-    <enabled>true</enabled>
-    <visible>true</visible>
-    <valid>true</valid>
-   </parameter>
-   <type>conduit</type>
-   <isStart>false</isStart>
-   <port>
-    <name>in_port</name>
-    <direction>Input</direction>
     <width>8</width>
     <role>export</role>
    </port>
@@ -10024,12 +9421,6 @@ parameters are a RESULT of the module parameters. -->
    </clockDomainMember>
    <clockDomainMember>
     <isBridge>false</isBridge>
-    <moduleName>node_switch_pio</moduleName>
-    <slaveName>clk</slaveName>
-    <name>node_switch_pio.clk</name>
-   </clockDomainMember>
-   <clockDomainMember>
-    <isBridge>false</isBridge>
     <moduleName>status_led_pio</moduleName>
     <slaveName>clk</slaveName>
     <name>status_led_pio.clk</name>
@@ -10039,6 +9430,12 @@ parameters are a RESULT of the module parameters. -->
     <moduleName>powerlink_0</moduleName>
     <slaveName>clk50meg</slaveName>
     <name>powerlink_0.clk50meg</name>
+   </clockDomainMember>
+   <clockDomainMember>
+    <isBridge>false</isBridge>
+    <moduleName>clock_crossing_0</moduleName>
+    <slaveName>clk_s1</slaveName>
+    <name>clock_crossing_0.clk_s1</name>
    </clockDomainMember>
   </interface>
   <interface name="c1" kind="clock_source" version="10.0">
@@ -10201,12 +9598,6 @@ parameters are a RESULT of the module parameters. -->
     <moduleName>onchip_memory_pcp</moduleName>
     <slaveName>clk1</slaveName>
     <name>onchip_memory_pcp.clk1</name>
-   </clockDomainMember>
-   <clockDomainMember>
-    <isBridge>false</isBridge>
-    <moduleName>clock_crossing_0</moduleName>
-    <slaveName>clk_s1</slaveName>
-    <name>clock_crossing_0.clk_s1</name>
    </clockDomainMember>
    <clockDomainMember>
     <isBridge>false</isBridge>
@@ -10866,11 +10257,15 @@ parameters are a RESULT of the module parameters. -->
 the requested settings for a module instance. -->
   <assignment>
    <name>embeddedsw.CMacro.CONFIG</name>
-   <value>Simple I/O CN</value>
+   <value>0</value>
+  </assignment>
+  <assignment>
+   <name>embeddedsw.CMacro.CONFIGAPENDIAN</name>
+   <value>0</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.MACBUFSIZE</name>
-   <value>12604</value>
+   <value>16008</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.MACRXBUFFERS</name>
@@ -10878,15 +10273,15 @@ the requested settings for a module instance. -->
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.MACRXBUFSIZE</name>
-   <value>9204</value>
+   <value>9192</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.MACTXBUFFERS</name>
-   <value>6</value>
+   <value>12</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.MACTXBUFSIZE</name>
-   <value>3400</value>
+   <value>6816</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.PDIRPDOS</name>
@@ -10896,9 +10291,33 @@ the requested settings for a module instance. -->
    <name>embeddedsw.CMacro.PDITPDOS</name>
    <value>1</value>
   </assignment>
+  <parameter name="clkRateEth">
+   <type>int</type>
+   <value>100000000</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="clkRate50">
+   <type>int</type>
+   <value>50000000</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="clkRatePcp">
+   <type>int</type>
+   <value>90000000</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
   <parameter name="configPowerlink">
    <type>java.lang.String</type>
-   <value>Simple I/O CN</value>
+   <value>Direct I/O CN</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -10936,6 +10355,14 @@ the requested settings for a module instance. -->
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
+  <parameter name="configApEndian">
+   <type>java.lang.String</type>
+   <value>Little</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
   <parameter name="configApSpi_CPOL">
    <type>java.lang.String</type>
    <value>0</value>
@@ -10947,6 +10374,14 @@ the requested settings for a module instance. -->
   <parameter name="configApSpi_CPHA">
    <type>java.lang.String</type>
    <value>0</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="configApSpi_IRQ">
+   <type>java.lang.String</type>
+   <value>High Active</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -11024,6 +10459,38 @@ the requested settings for a module instance. -->
    <visible>true</visible>
    <valid>true</valid>
   </parameter>
+  <parameter name="validSet">
+   <type>int</type>
+   <value>10</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="validAssertDuration">
+   <type>java.lang.String</type>
+   <value>111.111111111</value>
+   <derived>true</derived>
+   <enabled>false</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="macTxBuf">
+   <type>int</type>
+   <value>1514</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="macRxBuf">
+   <type>int</type>
+   <value>1514</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
   <parameter name="genPdi_g">
    <type>boolean</type>
    <value>false</value>
@@ -11082,7 +10549,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="iRpdo0BufSize_g">
    <type>int</type>
-   <value>4</value>
+   <value>20</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -11090,7 +10557,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="iRpdo1BufSize_g">
    <type>int</type>
-   <value>4</value>
+   <value>20</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -11098,31 +10565,15 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="iRpdo2BufSize_g">
    <type>int</type>
-   <value>4</value>
+   <value>20</value>
    <derived>true</derived>
-   <enabled>true</enabled>
-   <visible>false</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="iTpdoObjNumber_g">
-   <type>int</type>
-   <value>1</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>false</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="iRpdoObjNumber_g">
-   <type>int</type>
-   <value>1</value>
-   <derived>false</derived>
    <enabled>true</enabled>
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
   <parameter name="iAsyTxBufSize_g">
    <type>int</type>
-   <value>1514</value>
+   <value>1518</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -11130,7 +10581,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="iAsyRxBufSize_g">
    <type>int</type>
-   <value>1514</value>
+   <value>1518</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -11146,7 +10597,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="iBufSize_g">
    <type>int</type>
-   <value>12604</value>
+   <value>16008</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -11184,6 +10635,14 @@ the requested settings for a module instance. -->
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
+  <parameter name="papBigEnd_g">
+   <type>boolean</type>
+   <value>false</value>
+   <derived>true</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
   <parameter name="spiCPOL_g">
    <type>boolean</type>
    <value>false</value>
@@ -11200,10 +10659,18 @@ the requested settings for a module instance. -->
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
-  <parameter name="AUTO_PCP_CLK_CLOCK_RATE">
-   <type>java.lang.Long</type>
-   <value>90000000</value>
-   <derived>false</derived>
+  <parameter name="spiBigEnd_g">
+   <type>boolean</type>
+   <value>false</value>
+   <derived>true</derived>
+   <enabled>true</enabled>
+   <visible>false</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="pioValLen_g">
+   <type>int</type>
+   <value>0</value>
+   <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
    <valid>true</valid>
@@ -11211,22 +10678,6 @@ the requested settings for a module instance. -->
   <parameter name="AUTO_AP_CLK_CLOCK_RATE">
    <type>java.lang.Long</type>
    <value>-1</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>false</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="AUTO_CLKETH_CLOCK_RATE">
-   <type>java.lang.Long</type>
-   <value>100000000</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>false</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="AUTO_CLK50MEG_CLOCK_RATE">
-   <type>java.lang.Long</type>
-   <value>50000000</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -13258,6 +12709,12 @@ parameters are a RESULT of the module parameters. -->
     <width>32</width>
     <role>export</role>
    </port>
+   <port>
+    <name>pio_operational</name>
+    <direction>Output</direction>
+    <width>1</width>
+    <role>export</role>
+   </port>
   </interface>
  </module>
  <connection
@@ -13733,7 +13190,7 @@ parameters are a RESULT of the module parameters. -->
   </parameter>
   <parameter name="baseAddress">
    <type>long</type>
-   <value>0x2060</value>
+   <value>0x2050</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -13990,33 +13447,6 @@ parameters are a RESULT of the module parameters. -->
   <endConnectionPoint>clk1</endConnectionPoint>
  </connection>
  <connection
-   name="altpll_0.c2/clock_crossing_0.clk_s1"
-   kind="clock"
-   version="10.0"
-   start="altpll_0.c2"
-   end="clock_crossing_0.clk_s1">
-  <parameter name="deviceFamily">
-   <type>java.lang.String</type>
-   <value>UNKNOWN</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="generateLegacySim">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <startModule>altpll_0</startModule>
-  <startConnectionPoint>c2</startConnectionPoint>
-  <endModule>clock_crossing_0</endModule>
-  <endConnectionPoint>clk_s1</endConnectionPoint>
- </connection>
- <connection
    name="altpll_0.c0/clock_crossing_0.clk_m1"
    kind="clock"
    version="10.0"
@@ -14166,76 +13596,6 @@ parameters are a RESULT of the module parameters. -->
   <startConnectionPoint>m1</startConnectionPoint>
   <endModule>status_led_pio</endModule>
   <endConnectionPoint>s1</endConnectionPoint>
- </connection>
- <connection
-   name="clock_crossing_0.m1/node_switch_pio.s1"
-   kind="avalon"
-   version="6.1"
-   start="clock_crossing_0.m1"
-   end="node_switch_pio.s1">
-  <parameter name="arbitrationPriority">
-   <type>int</type>
-   <value>1</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="baseAddress">
-   <type>long</type>
-   <value>0x2040</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="deviceFamily">
-   <type>java.lang.String</type>
-   <value>UNKNOWN</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="generateLegacySim">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <startModule>clock_crossing_0</startModule>
-  <startConnectionPoint>m1</startConnectionPoint>
-  <endModule>node_switch_pio</endModule>
-  <endConnectionPoint>s1</endConnectionPoint>
- </connection>
- <connection
-   name="altpll_0.c0/node_switch_pio.clk"
-   kind="clock"
-   version="10.0"
-   start="altpll_0.c0"
-   end="node_switch_pio.clk">
-  <parameter name="deviceFamily">
-   <type>java.lang.String</type>
-   <value>UNKNOWN</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <parameter name="generateLegacySim">
-   <type>boolean</type>
-   <value>false</value>
-   <derived>false</derived>
-   <enabled>true</enabled>
-   <visible>true</visible>
-   <valid>true</valid>
-  </parameter>
-  <startModule>altpll_0</startModule>
-  <startConnectionPoint>c0</startConnectionPoint>
-  <endModule>node_switch_pio</endModule>
-  <endConnectionPoint>clk</endConnectionPoint>
  </connection>
  <connection
    name="altpll_0.c0/status_led_pio.clk"
@@ -14533,7 +13893,7 @@ parameters are a RESULT of the module parameters. -->
   </parameter>
   <parameter name="baseAddress">
    <type>long</type>
-   <value>0x0910</value>
+   <value>0x0918</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -14603,7 +13963,7 @@ parameters are a RESULT of the module parameters. -->
   </parameter>
   <parameter name="baseAddress">
    <type>long</type>
-   <value>0x2050</value>
+   <value>0x2040</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -14700,20 +14060,82 @@ parameters are a RESULT of the module parameters. -->
   <endModule>powerlink_0</endModule>
   <endConnectionPoint>clkEth</endConnectionPoint>
  </connection>
+ <connection
+   name="pcp_cpu.data_master/powerlink_0.SMP"
+   kind="avalon"
+   version="6.1"
+   start="pcp_cpu.data_master"
+   end="powerlink_0.SMP">
+  <parameter name="arbitrationPriority">
+   <type>int</type>
+   <value>1</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="baseAddress">
+   <type>long</type>
+   <value>0x0918</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="deviceFamily">
+   <type>java.lang.String</type>
+   <value>UNKNOWN</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="generateLegacySim">
+   <type>boolean</type>
+   <value>false</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <startModule>pcp_cpu</startModule>
+  <startConnectionPoint>data_master</startConnectionPoint>
+  <endModule>powerlink_0</endModule>
+  <endConnectionPoint>SMP</endConnectionPoint>
+ </connection>
+ <connection
+   name="altpll_0.c0/clock_crossing_0.clk_s1"
+   kind="clock"
+   version="10.0"
+   start="altpll_0.c0"
+   end="clock_crossing_0.clk_s1">
+  <parameter name="deviceFamily">
+   <type>java.lang.String</type>
+   <value>UNKNOWN</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <parameter name="generateLegacySim">
+   <type>boolean</type>
+   <value>false</value>
+   <derived>false</derived>
+   <enabled>true</enabled>
+   <visible>true</visible>
+   <valid>true</valid>
+  </parameter>
+  <startModule>altpll_0</startModule>
+  <startConnectionPoint>c0</startConnectionPoint>
+  <endModule>clock_crossing_0</endModule>
+  <endConnectionPoint>clk_s1</endConnectionPoint>
+ </connection>
  <plugin>
   <instanceCount>1</instanceCount>
-  <name>altera_avalon_remote_update_cycloneiii</name>
+  <name>altera_avalon_jtag_uart</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>Remote Update Controller (Cyclone III)</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>avalon_tristate_master</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Avalon Memory Mapped Tristate Master</displayName>
+  <displayName>JTAG UART</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
@@ -14725,83 +14147,11 @@ parameters are a RESULT of the module parameters. -->
   <version>10.0</version>
  </plugin>
  <plugin>
-  <instanceCount>4</instanceCount>
-  <name>clock_source</name>
+  <instanceCount>1</instanceCount>
+  <name>nios_custom_instruction_master</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Clock Output</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>19</instanceCount>
-  <name>avalon</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IConnection</subtype>
-  <displayName>Avalon Memory Mapped Connection</displayName>
-  <version>6.1</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>reset_source</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Reset Output</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>altera_avalon_clock_crossing</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>Avalon-MM Clock Crossing Bridge</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>5</instanceCount>
-  <name>interrupt</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IConnection</subtype>
-  <displayName>Interrupt Connection</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>altera_avalon_tri_state_bridge</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>Avalon-MM Tristate Bridge</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>DBC3C40_SRAM</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>IS61WV51216</displayName>
-  <version>1.0</version>
- </plugin>
- <plugin>
-  <instanceCount>5</instanceCount>
-  <name>clock_sink</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Clock Input</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>avalon_tristate_slave</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Avalon Memory Mapped Tristate Slave</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>3</instanceCount>
-  <name>avalon_master</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Avalon Memory Mapped Master</displayName>
+  <displayName>Custom Instruction Master</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
@@ -14814,42 +14164,74 @@ parameters are a RESULT of the module parameters. -->
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
-  <name>altera_avalon_jtag_uart</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>JTAG UART</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>avalon_tristate</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IConnection</subtype>
-  <displayName>Avalon Memory Mapped Tristate Connection</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>altera_avalon_timer</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>Interval Timer</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>3</instanceCount>
-  <name>conduit</name>
+  <name>reset_sink</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Conduit Endpoint</displayName>
-  <version>7.1</version>
+  <displayName>Reset Input</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>altera_avalon_onchip_memory2</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IModule</subtype>
+  <displayName>On-Chip Memory (RAM or ROM)</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>19</instanceCount>
+  <name>avalon</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IConnection</subtype>
+  <displayName>Avalon Memory Mapped Connection</displayName>
+  <version>6.1</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>DBC3C40_SRAM</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IModule</subtype>
+  <displayName>IS61WV51216</displayName>
+  <version>1.0</version>
  </plugin>
  <plugin>
   <instanceCount>3</instanceCount>
+  <name>reset_sink</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Reset Input</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>8</instanceCount>
+  <name>avalon_slave</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Avalon Memory Mapped Slave</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>2</instanceCount>
   <name>interrupt_sender</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Interrupt Sender</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>altera_avalon_pio</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IModule</subtype>
+  <displayName>PIO (Parallel I/O)</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>avalon_tristate_slave</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Avalon Memory Mapped Tristate Slave</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
@@ -14861,30 +14243,6 @@ parameters are a RESULT of the module parameters. -->
   <version>10.0</version>
  </plugin>
  <plugin>
-  <instanceCount>3</instanceCount>
-  <name>reset_sink</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Reset Input</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>1</instanceCount>
-  <name>interrupt_receiver</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Interrupt Receiver</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>11</instanceCount>
-  <name>clock_sink</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Clock Input</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
   <instanceCount>1</instanceCount>
   <name>powerlink</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
@@ -14893,27 +14251,19 @@ parameters are a RESULT of the module parameters. -->
   <version>1.0</version>
  </plugin>
  <plugin>
-  <instanceCount>7</instanceCount>
-  <name>conduit_end</name>
+  <instanceCount>5</instanceCount>
+  <name>interrupt</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Conduit</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>9</instanceCount>
-  <name>avalon_slave</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Avalon Memory Mapped Slave</displayName>
+  <subtype>com.altera.entityinterfaces.IConnection</subtype>
+  <displayName>Interrupt Connection</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
-  <name>altera_avalon_onchip_memory2</name>
+  <name>conduit_end</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>On-Chip Memory (RAM or ROM)</displayName>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Conduit</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
@@ -14933,39 +14283,23 @@ parameters are a RESULT of the module parameters. -->
   <version>10.0</version>
  </plugin>
  <plugin>
-  <instanceCount>1</instanceCount>
-  <name>conduit_end</name>
+  <instanceCount>5</instanceCount>
+  <name>clock_sink</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Conduit</displayName>
+  <displayName>Clock Input</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
-  <name>reset_sink</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Reset Input</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>2</instanceCount>
-  <name>altera_avalon_pio</name>
-  <type>com.altera.entityinterfaces.IElementClass</type>
-  <subtype>com.altera.entityinterfaces.IModule</subtype>
-  <displayName>PIO (Parallel I/O)</displayName>
-  <version>10.0</version>
- </plugin>
- <plugin>
-  <instanceCount>15</instanceCount>
-  <name>clock</name>
+  <name>avalon_tristate</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IConnection</subtype>
-  <displayName>Clock Connection</displayName>
+  <displayName>Avalon Memory Mapped Tristate Connection</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
-  <instanceCount>2</instanceCount>
+  <instanceCount>3</instanceCount>
   <name>interrupt_sender</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
@@ -14973,11 +14307,43 @@ parameters are a RESULT of the module parameters. -->
   <version>10.0</version>
  </plugin>
  <plugin>
-  <instanceCount>1</instanceCount>
-  <name>nios_custom_instruction_master</name>
+  <instanceCount>2</instanceCount>
+  <name>conduit</name>
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
-  <displayName>Custom Instruction Master</displayName>
+  <displayName>Conduit Endpoint</displayName>
+  <version>7.1</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>altera_avalon_timer</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IModule</subtype>
+  <displayName>Interval Timer</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>altera_avalon_clock_crossing</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IModule</subtype>
+  <displayName>Avalon-MM Clock Crossing Bridge</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>14</instanceCount>
+  <name>clock</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IConnection</subtype>
+  <displayName>Clock Connection</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>4</instanceCount>
+  <name>clock_source</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Clock Output</displayName>
   <version>10.0</version>
  </plugin>
  <plugin>
@@ -14988,6 +14354,70 @@ parameters are a RESULT of the module parameters. -->
   <displayName>Clock Output</displayName>
   <version>10.0</version>
  </plugin>
+ <plugin>
+  <instanceCount>7</instanceCount>
+  <name>conduit_end</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Conduit</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>avalon_tristate_master</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Avalon Memory Mapped Tristate Master</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>10</instanceCount>
+  <name>clock_sink</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Clock Input</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>altera_avalon_remote_update_cycloneiii</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IModule</subtype>
+  <displayName>Remote Update Controller (Cyclone III)</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>3</instanceCount>
+  <name>avalon_master</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Avalon Memory Mapped Master</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>reset_source</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Reset Output</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>altera_avalon_tri_state_bridge</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IModule</subtype>
+  <displayName>Avalon-MM Tristate Bridge</displayName>
+  <version>10.0</version>
+ </plugin>
+ <plugin>
+  <instanceCount>1</instanceCount>
+  <name>interrupt_receiver</name>
+  <type>com.altera.entityinterfaces.IElementClass</type>
+  <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
+  <displayName>Interrupt Receiver</displayName>
+  <version>10.0</version>
+ </plugin>
  <reportVersion>10.0sp1 262</reportVersion>
- <uniqueIdentifier>0026B9DFD44A0000012B8662DF2B</uniqueIdentifier>
+ <uniqueIdentifier>0026B9DFD44A0000012CCFC170F2</uniqueIdentifier>
 </EnsembleReport>

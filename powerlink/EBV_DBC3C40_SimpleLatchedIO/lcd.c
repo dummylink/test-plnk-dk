@@ -1,8 +1,13 @@
+
+
 #include <unistd.h> // for usleep()
 #include <string.h>
 #include <io.h>
 #include "system.h"
 #include "lcd.h"
+
+#ifdef LCD_BASE
+
 //-------------------------------------------------------------------------
 void LCD_Init()
 {
@@ -54,3 +59,5 @@ void LCD_Test()
   LCD_Show_Text(Text2);
 }
 //-------------------------------------------------------------------------
+
+#endif /* LCD_BASE */

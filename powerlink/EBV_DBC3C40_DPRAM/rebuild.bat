@@ -1,7 +1,7 @@
 @ REM : SDK Shell Batch File for POWERLINK CNDK Build Targets
 @ REM : --------------------------------------------------------
 @ REM :  - Invokes bash, recompiles the BSP and application
-@ REM :  - Programs the FPGA and invokes the nios2 terminal
+@ REM : 
 
 @ cls
 @ echo ====================================================

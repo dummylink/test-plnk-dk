@@ -31,10 +31,9 @@
 /******************************************************************************/
 /* defines */
 
-//#define SET_NODE_ID_PER_SW //apply this define if no node switches are connected.
-
 #ifndef NODE_SWITCH_PIO_BASE
-        #error No Node ID module present in SOPC. Node ID can only be set by SW! Set define SET_NODE_ID_PER_SW!
+#define SET_NODE_ID_PER_SW //apply this define if no node switches are connected.
+ #warning No Node ID module present in SOPC. Node ID can only be set by SW!
 #endif
 
 #define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN

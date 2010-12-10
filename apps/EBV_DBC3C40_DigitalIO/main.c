@@ -34,6 +34,7 @@ a dual ported RAM (DPRAM) area.
 #include "alt_types.h"
 #include <sys/alt_cache.h>
 #include <sys/alt_irq.h>
+#include <io.h>
 
 #include <unistd.h>
 #include <string.h>
@@ -155,7 +156,7 @@ int main (void)
 #else
     /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 65535 us (max. val. for WORD), maxCycleNum = 10 */
     #ifdef CN_API_USING_SPI
-    initInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 65535, 10);  ///< no base address necessary
+    initInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 65535, 10);  ///< local AP IRQ is enabled here
     #else
     initInterrupt(POWERLINK_0_IRQ, 1000, 65535, 10);
     #endif /* CN_API_USING_SPI */
@@ -176,10 +177,11 @@ int main (void)
     	CnApi_processApStateMachine();     ///< The AP state machine must be periodically updated
     	//TODO: Implement Cbfunc "OperationalSyncCb"in statemachine?
         workInputOutput();                 ///< update the PCB's inputs and outputs
-    	/*--- TASK 1: END   ---*/
+        /*--- TASK 1: END   ---*/
+
 
     	/* wait until next period */
-    	usleep(100);		               ///< wait 100 us to simulate a task behavior
+    	//usleep(100);		               ///< wait 100 us to simulate a task behavior
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/
@@ -289,14 +291,27 @@ static void syncIntHandler(void* pArg_p)
 static void syncIntHandler(void* pArg_p, void* dwInt_p)
 #endif
 {
-	/* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
-	pCtrlReg_g->m_bSyncIrqControl = (1 << SYNC_IRQ_ACK);
+#ifdef CN_API_USING_SPI
+    //TODO: ifdef not Avalon IF
+    alt_ic_irq_disable(0, SYNC_IRQ_FROM_PCP_IRQ);  ///< disable specific IRQ Number
+#endif
+
+	CnApi_transferPdo();		// Call CN API PDO transfer function
+
+    /* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
+    pCtrlReg_g->m_bSyncIrqControl = (1 << SYNC_IRQ_ACK);
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_bSyncIrqControl); ///< update pcp register
 #endif
 
-	CnApi_transferPdo();		// Call CN API PDO transfer function
+#ifdef CN_API_USING_SPI
+    // Temporary Workaround:
+    workInputOutput();
+    //TODO: this workaround is unnecessary, but otherwise it will not work! IR blocks while() loop somehow.
+
+    alt_ic_irq_enable(0, SYNC_IRQ_FROM_PCP_IRQ);  ///< enable specific IRQ Number
+#endif /* CN_API_USING_SPI */
 }
 #endif /* USE_POLLING_MODE */
 /**
@@ -325,15 +340,22 @@ int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMax
 	{
 		return ERROR;
 	}
- #else
+#else
     if (alt_irq_register(irq, NULL, syncIntHandler))
     {
         return ERROR;
     }
 #endif
 
-    /* enable interrupt of PCP */
-    CnApi_enableSyncInt();
+    /* enable interrupt from PCP to AP */
+    //TODO: ifdef not Avalon IF
+#ifdef CN_API_USING_SPI
+    alt_ic_irq_enable(0, irq);  ///< enable specific IRQ Number
+    IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_FROM_PCP_BASE, 0x01);
+    //TODO: endif not Avalon IF
+#endif /* CN_API_USING_SPI */
+
+    CnApi_enableSyncInt();      ///< cause the PCP to set periodic IR's
 	return OK;
 }
 #endif /* USE_POLLING_MODE */

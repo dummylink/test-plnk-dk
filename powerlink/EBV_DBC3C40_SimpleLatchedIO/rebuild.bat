@@ -1,15 +1,37 @@
 @ REM : SDK Shell Batch File for POWERLINK CNDK Build Targets
 @ REM : --------------------------------------------------------
 @ REM :  - Invokes bash, recompiles the BSP and application
-@ REM :  - Programs the FPGA and invokes the nios2 terminal
+@ REM : 
+
+@ cls
+@ echo ======================================================
+@ echo  Run POWERLINK Communication Processor Direct IO Menu
+@ echo ======================================================
+@ echo .
+@ echo  1: Mercury Board (EBV DBC3C40)
+@ echo  2: INK Board     (TERASIC DE2-115)
+@ echo .
+@ echo ======================================================
+
+:user_entry
+@ set /p choice= Enter design number:
+@ if /I "%choice%" == "1" ( goto EBV_directIO )
+@ if /I "%choice%" == "2" ( goto INK_directIO ) else (
+@ set choice=
+@ echo Invalid input!
+@ goto user_entry )
 
 @ REM ######################################
 @ REM # SET PARAMETERS
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
+:EBV_directIO
 @ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
+@ goto start
+:INK_directIO
 @ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
+@ goto start
 
-
+:start
 @ REM ######################################
 @ REM # Discover the root nios2eds directory
 @ set SOPC_KIT_NIOS2=%SOPC_KIT_NIOS2%

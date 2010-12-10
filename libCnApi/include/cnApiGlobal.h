@@ -125,6 +125,7 @@ This file has to be included before other include files.
 	#define	OK		0
 #endif
 
+
 #endif  // #ifndef _CNAPI_GLOBAL_H_
 
 

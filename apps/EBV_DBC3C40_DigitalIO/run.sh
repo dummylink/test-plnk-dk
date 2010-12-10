@@ -15,10 +15,13 @@ INPUT_VARS=$@
 
 ######## Fixed Parameters ############
 #
-PCP_ELF_DIR=./
-#
+AP_ELF_DIR=./
+READ_FILE=./bsp/makefile
 
-echo --- This is rebuild_SimpleLatchedIO ---
+#Error definitions
+E_NOSUCHFILE=85
+
+echo --- This is run.sh ---
 echo input parameters: $INPUT_VARS
 
 # process arguments
@@ -39,18 +42,32 @@ do
   shift
 done
 
-#SOF_DIR is not needed in this script - SOF programming is done with PCP "run.sh"
-#if [ -z "$SOF_DIR" ]; then
-#echo "No SOPC directory specified (needed for sof-file) !"
-#echo "Use parameter: --sopcdir <SOF_directory>"
-#exit 1
-#fi
+###### READ SOPC PATH ###### 
+PATTERN[0]="SOPC_FILE" 			# Search this pattern
 
+if [ ! -f "$READ_FILE" ]
+then   # Exit if no such file.
+  echo "File $READ_FILE not found."
+  exit $E_NOSUCHFILE
+fi
+
+# Get SOPC path from bsp makefile
+AP_SOPC_PATH=$(grep "${PATTERN[0]} " ${READ_FILE} | cut -d ' ' -f 3 | cut -d '/' -f 2- | sed 's/\/niosII_openMac.sopcinfo//')
+
+if [ ! -d "$AP_SOPC_PATH" ]
+then   # Exit if no such directory
+  echo "Directory doesn't exist: $AP_SOPC_PATH"
+  exit $E_NOSUCHFILE
+else
+SOF_DIR="$AP_SOPC_PATH"
+echo "SOPC path  (of bsp makefile): "$SOF_DIR""
+fi
+############################
 
 
 #######################################
-### Run the SW 						###
-nios2-download -C ${PCP_ELF_DIR} --device=1 --instance=0 --cpu_name=ap_cpu epl.elf --go
+### Program the FPGA and run the SW ###
+nios2-download -C ${AP_ELF_DIR} --device=1 --instance=0 --cpu_name=ap_cpu epl.elf --go
 
 
 # Open Terminal

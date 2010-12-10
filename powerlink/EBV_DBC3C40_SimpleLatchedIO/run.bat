@@ -1,36 +1,7 @@
 @ REM : SDK Shell Batch File for POWERLINK CNDK Build Targets
 @ REM : --------------------------------------------------------
-@ REM :  - Invokes bash, recompiles the BSP and application
+@ REM :  
 @ REM :  - Programs the FPGA and invokes the nios2 terminal
-
-@ cls
-@ echo ======================================================
-@ echo  Run POWERLINK Communication Processor Direct IO Menu
-@ echo ======================================================
-@ echo .
-@ echo  1: Mercury Board (EBV DBC3C40)
-@ echo  2: INK Board     (TERASIC DE2-115)
-@ echo .
-@ echo ======================================================
-
-:user_entry
-@ set /p choice= Enter design number:
-@ if /I "%choice%" == "1" ( goto EBV_directIO )
-@ if /I "%choice%" == "2" ( goto INK_directIO ) else (
-@ set choice=
-@ echo Invalid input!
-@ goto user_entry )
-
-@ REM ######################################
-@ REM # SET PARAMETERS
-@ REM It has to be "/", because it is a parameter passed to unix-bash!
-:EBV_directIO
-@ set SOF_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
-@ goto start
-:INK_directIO
-@ set SOF_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
-@ goto start
-
 
 :start
 @ REM ######################################
@@ -76,13 +47,8 @@
 @ goto run_bash
 
 :run_bash
-@ echo . verifying path...: %~dp0%SOF_DIR%
-@ if not exist "%~dp0%SOF_DIR%" goto errorSOPC
-@ if not exist "%~dp0%SOF_DIR%\*.sof" goto errorSOF
-@ echo . verifying path...OK
-@ echo .
 @ REM execute "$QUARTUS_ROOTDIR/sopc_builder/bin/nios_bash" in every bash.exe call !
-@ "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\run.sh" --terminal --sopcdir %SOF_DIR%
+@ "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\run.sh" --terminal --instance
 
 @ pause
 @ exit

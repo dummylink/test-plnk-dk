@@ -20,7 +20,9 @@ This header file contains definitions for the CN API.
 /* includes */
 #include "cnApiDebug.h"
 #include "cnApiGlobal.h"     // global definitions
-#include "system.h"          // PCP system.h defines
+#include "cnApiCfg.h"
+#include "system.h"
+
 
 /******************************************************************************/
 /* defines */
@@ -28,13 +30,13 @@ This header file contains definitions for the CN API.
 /* CN API definitions */
 
 /* from PCP system.h */
-#define TPDO_CHANNELS_MAX       POWERLINK_0_MAC_BUF_PDITPDOS ///< Max Number of TxPDO's of this CN
-#define RPDO_CHANNELS_MAX		POWERLINK_0_MAC_BUF_PDIRPDOS ///< Max Number of RxPDO's of this CN
+#define TPDO_CHANNELS_MAX       POWERLINK_0_PDI_PCP_PDITPDOS ///< Max Number of TxPDO's of this CN
+#define RPDO_CHANNELS_MAX		POWERLINK_0_PDI_PCP_PDIRPDOS ///< Max Number of RxPDO's of this CN
 #define MAX_NUM_LINKED_OBJ_AP   0//not yet used
 
-//#if POWERLINK_0_PDI_PCP_CONFIG == 3 ///< 3 = SPI
-#define CN_API_USING_SPI //TODO: connect with system.h define
-//#endif /* POWERLINK_0_PDI_PCP_CONFIG */
+#ifndef POWERLINK_0_PDI_PCP_PDITPDOS
+#error "cnApiCfg.h has not been generated correctly!"
+#endif /* ndef POWERLINK_0_PDI_PCP_PDITPDOS */
 
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
 #define SYNC_IRQ_ACK                0               ///< Sync IRQ Bit shift (for AP only)
@@ -499,8 +501,10 @@ typedef struct sTPdoBuffer { ///< used to group buffer structure infos from cont
     BYTE    *pAdrs_m;
     WORD    wSize_m;
     BYTE    *pAck_m;
+#ifdef CN_API_USING_SPI
     DWORD   dwSpiBufOffs_m;
     WORD    wSpiAckOffs_m;
+#endif /* CN_API_USING_SPI */
 } tTPdoBuffer;
 
 typedef struct

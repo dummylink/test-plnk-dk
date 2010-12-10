@@ -20,7 +20,7 @@ DBG_MODE=_DEBUG	# compile printfs()
 BSP_DIR=./bsp
 
 # replace this path to the object dictionary you wish to include
-OBJDICTDIR=../../objDicts/digitalIO
+OBJDICTDIR=../../objDicts/Direct_IO
 
 ###############################################################################
 

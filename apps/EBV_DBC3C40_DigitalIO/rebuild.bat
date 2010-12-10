@@ -1,14 +1,14 @@
 @ REM : SDK Shell Batch File for POWERLINK CNDK Build Targets
 @ REM : --------------------------------------------------------
 @ REM :  - Invokes bash, recompiles the BSP and application
-@ REM :  - Programs the FPGA and invokes the nios2 terminal
+@ REM :  
 
 @ cls
 @ echo ====================================================
-@ echo  Rebuild POWERLINK Communication Processor PDI Menu
+@ echo  Rebuild Application Processor PDI Menu
 @ echo ====================================================
 @ echo .
-@ echo  PCP with additional NIOS II as AP (in one FPGA)
+@ echo  AP is NIOS II - FPGA design includes also PCP
 @ echo  -----------------------------------------------
 @ echo    Mercury Board (EBV DBC3C40)
 @ echo      1: Avalon
@@ -17,14 +17,14 @@
 @ echo      3: Avalon
 @ echo      4: SPI
 @ echo . 
-@ echo   AP only
+@ echo  AP is NIOS II - standalone
 @ echo  -----------------------------------------------
 @ echo    Mercury Board (EBV DBC3C40)
 @ echo      5: SPI
-REM      6: 16 Bit parallel
+@ REM      6: 16 Bit parallel
 @ echo    INK Board (TERASIC DE2-115)
 @ echo      7: SPI
-REM     8: 16 Bit parallel
+@ REM     8: 16 Bit parallel
 @ echo .
 @ echo ==================================================
 
