@@ -7,7 +7,7 @@
 ALT_INCLUDE_DIRS := ../../include ../../utils 
 
 # Define path to the root of the BSP.
-BSP_ROOT_DIR := ../../../apps/EBV_DBC3C40_DigitalIO/bsp
+BSP_ROOT_DIR := ../../../apps/ap_PDI/bsp
 
 
 # List of root library directories that support running make to build them.

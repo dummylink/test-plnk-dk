@@ -347,23 +347,7 @@
          type = "boolean";
       }
    }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
-         type = "long";
-      }
-   }
-   element onchip_memory_0.s1
+   element system_timer.s1
    {
       datum _lockedAddress
       {
@@ -373,14 +357,6 @@
       datum baseAddress
       {
          value = "8192";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2304";
          type = "long";
       }
    }
@@ -405,7 +381,31 @@
          type = "long";
       }
    }
-   element system_timer.s1
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2304";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2304";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
+   element onchip_memory_0.s1
    {
       datum _lockedAddress
       {
@@ -499,8 +499,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-8253551241" />
- <parameter name="timeStamp" value="1289823516156" />
+ <parameter name="systemHash" value="-10316778436" />
+ <parameter name="timeStamp" value="1292000329777" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -894,15 +894,19 @@
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone III" />
  </module>
  <module kind="powerlink" version="1.0" enabled="1" name="powerlink_0">
+  <parameter name="clkRateEth" value="100000000" />
+  <parameter name="clkRate50" value="50000000" />
+  <parameter name="clkRatePcp" value="90000000" />
   <parameter name="configPowerlink" value="CN with AP" />
-  <parameter name="configApInterface" value="SPI" />
+  <parameter name="configApInterface" value="Parallel" />
   <parameter name="configApParallelInterface" value="16bit" />
   <parameter name="configApParSigs" value="High Active" />
   <parameter name="configApParOutSigs" value="High Active" />
-  <parameter name="configApParEndian" value="Little" />
+  <parameter name="configApEndian" value="Little" />
   <parameter name="configApSpi_CPOL" value="0" />
   <parameter name="configApSpi_CPHA" value="0" />
-  <parameter name="rpdoNum" value="1" />
+  <parameter name="configApSpi_IRQ" value="High Active" />
+  <parameter name="rpdoNum" value="3" />
   <parameter name="rpdo0size" value="100" />
   <parameter name="rpdo1size" value="20" />
   <parameter name="rpdo2size" value="30" />
@@ -910,13 +914,11 @@
   <parameter name="tpdo0size" value="100" />
   <parameter name="asyncTxBufSize" value="1518" />
   <parameter name="asyncRxBufSize" value="1518" />
-  <parameter name="phyIF" value="MII" />
-  <parameter name="iTpdoObjNumber_g" value="100" />
-  <parameter name="iRpdoObjNumber_g" value="100" />
-  <parameter name="AUTO_PCP_CLK_CLOCK_RATE" value="90000000" />
+  <parameter name="phyIF" value="RMII" />
+  <parameter name="validSet" value="1" />
+  <parameter name="macTxBuf" value="1514" />
+  <parameter name="macRxBuf" value="1514" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_CLKETH_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_CLK50MEG_CLOCK_RATE" value="50000000" />
  </module>
  <module
    kind="altera_avalon_pio"
@@ -1223,4 +1225,9 @@
    version="10.0"
    start="clk_0.clk"
    end="altpll_0.inclk_interface" />
+ <connection
+   kind="clock"
+   version="10.0"
+   start="altpll_0.c2"
+   end="powerlink_0.clkEth" />
 </system>

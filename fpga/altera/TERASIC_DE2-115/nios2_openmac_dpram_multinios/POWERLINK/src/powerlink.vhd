@@ -39,6 +39,12 @@
 -- 2010-09-13	V0.02	zelenkaj	added selection Rmii / Mii
 -- 2010-10-18	V0.03	zelenkaj	added selection Big/Little Endian (pdi_par)
 --									use bidirectional bus (pdi_par)
+-- 2010-11-23	V0.04	zelenkaj	Added 2 GPIO signals to parallel interface
+--									Added Operational Flag to simple I/O interface
+--									Omitted T/RPDO descriptor sections in DPR
+--									Added generic to set duration of valid assertion (portio)
+-- 2010-11-29	V0.05	zelenkaj	Added Big/Little Endian (pdi_spi)
+-- 2010-12-06	V0.06	zelenkaj	Bugfix: ap_irq was not driven in SPI configuration
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -66,9 +72,9 @@ entity powerlink is
 		iRpdo0BufSize_g				:		integer 							:= 100;
 		iRpdo1BufSize_g				:		integer 							:= 100;
 		iRpdo2BufSize_g				:		integer 							:= 100;
-		--PDO-objects
-		iTpdoObjNumber_g			:		integer 							:= 10;
-		iRpdoObjNumber_g			:		integer 							:= 10; --includes all PDOs!!!
+--		--PDO-objects
+--		iTpdoObjNumber_g			:		integer 							:= 10;
+--		iRpdoObjNumber_g			:		integer 							:= 10; --includes all PDOs!!!
 		--asynchronous TX and RX buffer size
 		iAsyTxBufSize_g				:		integer 							:= 1500;
 		iAsyRxBufSize_g				:		integer 							:= 1500;
@@ -78,7 +84,10 @@ entity powerlink is
 		papBigEnd_g					:		boolean								:= false;
 	-- SPI GENERICS
 		spiCPOL_g					:		boolean 							:= false;
-		spiCPHA_g					:		boolean 							:= false
+		spiCPHA_g					:		boolean 							:= false;
+		spiBigEnd_g					:		boolean								:= false;
+	-- PORTIO
+		pioValLen_g					:		integer								:= 50 --clock ticks of pcp_clk
 	);
 	port(
 	-- CLOCK / RESET PORTS
@@ -151,6 +160,7 @@ entity powerlink is
 --		pap_doe						: out	std_logic;
 		pap_ready					: out	std_logic;
 		pap_ready_n					: out	std_logic;
+		pap_gpio					: inout	std_logic_vector(1 downto 0);
 	---- SPI
 		spi_clk						: in	std_logic;
 		spi_sel_n					: in	std_logic;
@@ -167,6 +177,7 @@ entity powerlink is
 		pio_portInLatch				: in 	std_logic_vector(3 downto 0);
 		pio_portOutValid 			: out 	std_logic_vector(3 downto 0);
 		pio_portio     				: inout std_logic_vector(31 downto 0);
+		pio_operational				: out	std_logic;
 	-- EXTERNAL
 	--- RMII PORTS
 		phy0_RxDat                 	: in    std_logic_vector(1 downto 0);
@@ -249,9 +260,9 @@ begin
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
 				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
 				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
-				--PDO-objects
-				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
-				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
+--				--PDO-objects
+--				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
+--				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
 				--asynchronous TX and RX buffer size
 				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
 				iAsyRxBufSize_g				=> iAsyRxBufSize_g
@@ -361,6 +372,7 @@ begin
 --				pap_rddata					=> pap_rddata,
 --				pap_doe						=> pap_doe,
 				pap_ready					=> pap_ready_s,
+				pap_gpio					=> pap_gpio,
 			-- clock for AP side
 				ap_reset					=> rstPcp,
 				ap_clk						=> clk50,
@@ -383,9 +395,9 @@ begin
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
 				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
 				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
-				--PDO-objects
-				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
-				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
+--				--PDO-objects
+--				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
+--				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
 				--asynchronous TX and RX buffer size
 				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
 				iAsyRxBufSize_g				=> iAsyRxBufSize_g
@@ -421,11 +433,15 @@ begin
 		
 		spi_sel_s <= not spi_sel_n;
 		
+		ap_irq <= ap_irq_s;
+		ap_irq_n <= not ap_irq_s;
+		
 		thePdiSpi : entity work.pdi_spi
 			generic map (
 				spiSize_g					=> 8, --fixed value!
 				cpol_g 						=> spiCPOL_g,
-				cpha_g 						=> spiCPHA_g
+				cpha_g 						=> spiCPHA_g,
+				spiBigEnd_g					=> spiBigEnd_g
 			)
 			port map (
 				-- SPI
@@ -455,9 +471,9 @@ begin
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
 				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
 				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
-				--PDO-objects
-				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
-				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
+--				--PDO-objects
+--				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
+--				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
 				--asynchronous TX and RX buffer size
 				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
 				iAsyRxBufSize_g				=> iAsyRxBufSize_g
@@ -494,6 +510,9 @@ begin
 --SIMPLE I/O CN
 	genSimpleIO : if genSimpleIO_g generate
 		thePortIO : entity work.portio
+			generic map (
+				pioValLen_g			=> pioValLen_g
+			)
 			port map (
 				s0_address			=> smp_address,
 				s0_read				=> smp_read,
@@ -506,7 +525,8 @@ begin
 				x_pconfig			=> pio_pconfig,
 				x_portInLatch		=> pio_portInLatch,
 				x_portOutValid		=> pio_portOutValid,
-				x_portio			=> pio_portio
+				x_portio			=> pio_portio,
+				x_operational		=> pio_operational
 			);
 	end generate genSimpleIO;
 --

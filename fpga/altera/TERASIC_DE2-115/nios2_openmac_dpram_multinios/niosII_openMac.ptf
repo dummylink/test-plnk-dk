@@ -654,13 +654,13 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_BUF
             {
-               address = "0x00004000";
-               span = "0x00004000";
+               address = "0x00008000";
+               span = "0x00008000";
                is_bridge = "0";
             }
             Entry powerlink_0/PDI_PCP
             {
-               address = "0x00008000";
+               address = "0x00010000";
                span = "0x00008000";
                is_bridge = "0";
             }
@@ -5203,7 +5203,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>5EE1674A</b>    (unique ID tag) <br> <b>4CEE536A</b> (timestamp: Thu Nov 25, 2010 @1:15 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>6FDC4213</b>    (unique ID tag) <br> <b>4D02515A</b> (timestamp: Fri Dec 10, 2010 @5:12 PM)";
             MESSAGES 
             {
             }
@@ -5211,8 +5211,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "1591830346u";
-         timestamp = "1290687338u";
+         id = "1876705811u";
+         timestamp = "1291997530u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5221,7 +5221,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1591830346 --timestamp=1290687338";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1876705811 --timestamp=1291997530";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -5910,7 +5910,7 @@ SYSTEM niosII_openMac
             PORT mbf_address
             {
                type = "address";
-               width = "12";
+               width = "13";
                direction = "input";
                Is_Enabled = "1";
             }
@@ -5940,7 +5940,7 @@ SYSTEM niosII_openMac
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
             Is_Nonvolatile_Storage = "0";
-            Address_Span = "16384";
+            Address_Span = "32768";
             Read_Latency = "0";
             Is_Memory_Device = "0";
             Maximum_Pending_Read_Transactions = "0";
@@ -5949,7 +5949,7 @@ SYSTEM niosII_openMac
             Write_Latency = "0";
             Is_Flash = "0";
             Data_Width = "32";
-            Address_Width = "12";
+            Address_Width = "13";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -5962,11 +5962,11 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00004000";
+               Offset_Address = "0x00008000";
             }
             Clock_Source = "pcp_clk";
             Has_Clock = "1";
-            Base_Address = "0x00004000";
+            Base_Address = "0x00008000";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
             {
@@ -6244,11 +6244,11 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00008000";
+               Offset_Address = "0x00010000";
             }
             Clock_Source = "pcp_clk";
             Has_Clock = "1";
-            Base_Address = "0x00008000";
+            Base_Address = "0x00010000";
             Address_Group = "3";
             IRQ_MASTER pcp_cpu/data_master
             {
@@ -6582,16 +6582,14 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         CONFIG = "CN with AP";
-         CONFIGAPIF = "Avalon";
-         MACBUFSIZE = "14084";
+         CONFIG = "4";
+         CONFIGAPENDIAN = "0";
+         MACBUFSIZE = "18976";
          MACRXBUFFERS = "6";
          MACRXBUFSIZE = "9192";
-         MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "4892";
-         PDIRPDOOBJ = "100";
+         MACTXBUFFERS = "12";
+         MACTXBUFSIZE = "9784";
          PDIRPDOS = "3";
-         PDITPDOOBJ = "255";
          PDITPDOS = "1";
       }
    }

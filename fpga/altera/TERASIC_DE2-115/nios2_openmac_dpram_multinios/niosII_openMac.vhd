@@ -8277,7 +8277,7 @@ entity powerlink_0_MAC_BUF_arbitrator is
                  signal pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                  signal pcp_cpu_data_master_requests_powerlink_0_MAC_BUF : OUT STD_LOGIC;
-                 signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal powerlink_0_MAC_BUF_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal powerlink_0_MAC_BUF_chipselect : OUT STD_LOGIC;
                  signal powerlink_0_MAC_BUF_read_n : OUT STD_LOGIC;
@@ -8347,7 +8347,7 @@ begin
   powerlink_0_MAC_BUF_begins_xfer <= NOT d1_reasons_to_wait AND (internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF);
   --assign powerlink_0_MAC_BUF_readdata_from_sa = powerlink_0_MAC_BUF_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_MAC_BUF_readdata_from_sa <= powerlink_0_MAC_BUF_readdata;
-  internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 14) & std_logic_vector'("00000000000000")) = std_logic_vector'("0000000000100000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("0000000001000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
   --powerlink_0_MAC_BUF_arb_share_counter set values, which is an e_mux
   powerlink_0_MAC_BUF_arb_share_set_values <= std_logic_vector'("01");
   --powerlink_0_MAC_BUF_non_bursting_master_requests mux, which is an e_mux
@@ -8441,7 +8441,7 @@ begin
   powerlink_0_MAC_BUF_write_n <= NOT ((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_write));
   shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master <= pcp_cpu_data_master_address_to_slave;
   --powerlink_0_MAC_BUF_address mux, which is an e_mux
-  powerlink_0_MAC_BUF_address <= A_EXT (A_SRL(shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")), 12);
+  powerlink_0_MAC_BUF_address <= A_EXT (A_SRL(shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")), 13);
   --d1_powerlink_0_MAC_BUF_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
@@ -9369,7 +9369,7 @@ begin
   powerlink_0_PDI_PCP_begins_xfer <= NOT d1_reasons_to_wait AND (internal_pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP);
   --assign powerlink_0_PDI_PCP_readdata_from_sa = powerlink_0_PDI_PCP_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_PDI_PCP_readdata_from_sa <= powerlink_0_PDI_PCP_readdata;
-  internal_pcp_cpu_data_master_requests_powerlink_0_PDI_PCP <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("0000000001000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  internal_pcp_cpu_data_master_requests_powerlink_0_PDI_PCP <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("0000000010000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
   --powerlink_0_PDI_PCP_arb_share_counter set values, which is an e_mux
   powerlink_0_PDI_PCP_arb_share_set_values <= std_logic_vector'("01");
   --powerlink_0_PDI_PCP_non_bursting_master_requests mux, which is an e_mux
@@ -14231,7 +14231,7 @@ component powerlink_0_MAC_BUF_arbitrator is
                     signal pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                     signal pcp_cpu_data_master_requests_powerlink_0_MAC_BUF : OUT STD_LOGIC;
-                    signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal powerlink_0_MAC_BUF_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal powerlink_0_MAC_BUF_chipselect : OUT STD_LOGIC;
                     signal powerlink_0_MAC_BUF_read_n : OUT STD_LOGIC;
@@ -14388,7 +14388,7 @@ component powerlink_0 is
                     signal mac_read_n : IN STD_LOGIC;
                     signal mac_write_n : IN STD_LOGIC;
                     signal mac_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-                    signal mbf_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal mbf_address : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal mbf_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal mbf_chipselect : IN STD_LOGIC;
                     signal mbf_read_n : IN STD_LOGIC;
@@ -15308,7 +15308,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal pcp_cpu_jtag_debug_module_resetrequest_from_sa :  STD_LOGIC;
                 signal pcp_cpu_jtag_debug_module_write :  STD_LOGIC;
                 signal pcp_cpu_jtag_debug_module_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal powerlink_0_MAC_BUF_address :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal powerlink_0_MAC_BUF_address :  STD_LOGIC_VECTOR (12 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_chipselect :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_read_n :  STD_LOGIC;

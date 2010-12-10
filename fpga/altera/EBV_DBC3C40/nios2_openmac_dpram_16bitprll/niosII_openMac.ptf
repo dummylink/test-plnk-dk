@@ -3125,7 +3125,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>6BF3328C</b>    (unique ID tag) <br> <b>4CE1251C</b> (timestamp: Mon Nov 15, 2010 @1:18 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>66ED8BC8</b>    (unique ID tag) <br> <b>4D025C4A</b> (timestamp: Fri Dec 10, 2010 @5:58 PM)";
             MESSAGES 
             {
             }
@@ -3133,8 +3133,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "1811100300u";
-         timestamp = "1289823516u";
+         id = "1726843848u";
+         timestamp = "1292000330u";
          regenerate_values = "0";
          MAKE 
          {
@@ -3143,7 +3143,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1811100300 --timestamp=1289823516";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1726843848 --timestamp=1292000330";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -3892,6 +3892,177 @@ SYSTEM niosII_openMac
             }
          }
       }
+      PORT_WIRING 
+      {
+         PORT clkEth
+         {
+            type = "clk";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT pap_cs
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT pap_rd
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT pap_wr
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT pap_be
+         {
+            type = "export";
+            width = "2";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT pap_addr
+         {
+            type = "export";
+            width = "16";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT pap_data
+         {
+            type = "export";
+            width = "16";
+            direction = "inout";
+            Is_Enabled = "1";
+         }
+         PORT pap_ready
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT pap_gpio
+         {
+            type = "export";
+            width = "2";
+            direction = "inout";
+            Is_Enabled = "1";
+         }
+         PORT ap_irq
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_RxDat
+         {
+            type = "export";
+            width = "2";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phy1_RxDv
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phy1_TxDat
+         {
+            type = "export";
+            width = "2";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_TxEn
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy0_RxDat
+         {
+            type = "export";
+            width = "2";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phy0_RxDv
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phy0_TxDat
+         {
+            type = "export";
+            width = "2";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy0_TxEn
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiClk
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiDat
+         {
+            type = "export";
+            width = "1";
+            direction = "inout";
+            Is_Enabled = "1";
+         }
+         PORT phy1_MiiRst_n
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy0_MiiClk
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy0_MiiDat
+         {
+            type = "export";
+            width = "1";
+            direction = "inout";
+            Is_Enabled = "1";
+         }
+         PORT phy0_MiiRst_n
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+      }
       SLAVE MAC_CMP
       {
          PORT_WIRING 
@@ -4004,184 +4175,6 @@ SYSTEM niosII_openMac
             }
             Base_Address = "0x01002050";
             Address_Group = "1";
-         }
-      }
-      PORT_WIRING 
-      {
-         PORT spi_clk
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT spi_sel_n
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT spi_mosi
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT spi_miso
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT ap_irq
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phyMii1_TxClk
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phyMii1_TxEn
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phyMii1_TxEr
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phyMii1_TxDat
-         {
-            type = "export";
-            width = "4";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phyMii1_RxClk
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phyMii1_RxDv
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phyMii1_RxDat
-         {
-            type = "export";
-            width = "4";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phyMii0_TxClk
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phyMii0_TxEn
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phyMii0_TxEr
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phyMii0_TxDat
-         {
-            type = "export";
-            width = "4";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phyMii0_RxClk
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phyMii0_RxDv
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phyMii0_RxDat
-         {
-            type = "export";
-            width = "4";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiClk
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiDat
-         {
-            type = "export";
-            width = "1";
-            direction = "inout";
-            Is_Enabled = "1";
-         }
-         PORT phy1_MiiRst_n
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phy0_MiiClk
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT phy0_MiiDat
-         {
-            type = "export";
-            width = "1";
-            direction = "inout";
-            Is_Enabled = "1";
-         }
-         PORT phy0_MiiRst_n
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
          }
       }
       SLAVE PDI_PCP
@@ -4400,7 +4393,8 @@ SYSTEM niosII_openMac
          Instantiate_In_System_Module = "1";
          Is_Bridge = "0";
          Is_Enabled = "1";
-         Clock_Source = "clk_0";
+         Clock_Source = "clk100Meg";
+         Has_Clock = "1";
          View 
          {
             MESSAGES 
@@ -4414,16 +4408,14 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         CONFIG = "CN with AP";
-         CONFIGAPIF = "SPI";
-         MACBUFSIZE = "9632";
-         MACRXBUFFERS = "4";
-         MACRXBUFSIZE = "6128";
-         MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "3504";
-         PDIRPDOOBJ = "100";
-         PDIRPDOS = "1";
-         PDITPDOOBJ = "100";
+         CONFIG = "2";
+         CONFIGAPENDIAN = "0";
+         MACBUFSIZE = "16200";
+         MACRXBUFFERS = "6";
+         MACRXBUFSIZE = "9192";
+         MACTXBUFFERS = "12";
+         MACTXBUFSIZE = "7008";
+         PDIRPDOS = "3";
          PDITPDOS = "1";
       }
    }

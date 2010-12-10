@@ -61,7 +61,7 @@ a dual ported RAM (DPRAM) area.
 
 
 #define NUM_INPUT_OBJS      4                                   ///< number of used input objects
-#define NUM_OUTPUT_OBJS     12                                  ///< number of used output objects
+#define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects
 #define NUM_OBJECTS         (NUM_INPUT_OBJS + NUM_OUTPUT_OBJS)  ///< number of objects to be linked to the object dictionary
 
 #define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
