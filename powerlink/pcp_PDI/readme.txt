@@ -1,16 +1,18 @@
-  (c) SYSTEC electronic GmbH, D-07973 Greiz, August-Bebel-Str. 29
-        www.systec-electronic.com
-	openPOWERLINK.sourceforge.net
+-------------------------------------------------------------------------------
+POWERLINK CN Development Kit (CNDK)
+-------------------------------------------------------------------------------
+(C) Bernecker + Rainer, B & R Strasse 1, 5142 Eggelsberg, Austria
+-------------------------------------------------------------------------------
 
 
-	openPOWERLINK - Extended Demo for EBV DBC3C40 with openMAC
+	openPOWERLINK - Demo for EBV DBC3C40 and INK-Board
 	===========================================================
 
 
 Contents
 ---------
 
-- POWERLINK SW for PCP (Powerlink Communication Processor) which includes a Nios II CPU.
+- POWERLINK SW for PCP (Powerlink Communication Processor).
 
 Performance Data
 -----------------
@@ -18,7 +20,7 @@ Performance Data
 - Minimum cycle length: TBD
 - PReq-PRes Latency: 1 µs
 - Process data: 4 bytes input and 4 bytes output
-- There is 1 RPDOs and 1 TPDO available.
+- There are 3 RPDOs and 1 TPDO available.
 
 
 Requirements
@@ -34,79 +36,27 @@ Requirements
 
 - POWERLINK network with Configuration Manager.
   The corresponding XDD for this node can be found in the subdirectory
-  ObjDicts\CiA401_3r1tpdo_CN of the openPOWERLINK main directory.
-
-
-How to build the binary
-------------------------
-
-1. Open "Nios II Command Shell"
-
-2. Go to this subdirectory of openPOWERLINK_CNDK:
-
-    $ cd Examples\altera_nios2\no_os\gnu\demo_cn_3r1tpdo
-
-3. Run script create-this-app to create the Makefile for
-   the demo application and the necessary BSP.
-   (This step is only necessary once)
-
-    $ ./create-this-app
-
-4. Run make to build the ELF file after changing the sources.
-   (The script create-this-app will do this automatically)
-
-    $ make
-
-5. Rebuild the Makefile for the demo application and the
-   BSP, if the Nios II Design was changed inside the SOPC Builder.
-
-    $ ./create-this-app --rebuild
+  ObjDicts\PDI.
 
 
 How to run the demo
 --------------------
 
-1. Setup the POWERLINK network as described in main readme.txt located in
-   openPOWERLINK main directory.
+For Windows:
 
-2. Program SOF file with Quartus II Programmer into FPGA.
-   It is located in the following subdirectory of openPOWERLINK
-   main directory:
-   \Examples\altera_nios2\EBV_DBC3C40\design_nios2_openmac\nios_openMac.sof
+1. Click on "rebuild.bat"
 
-3. Download the ELF file to the target:
+2. Choose the desired platform and design by entering a number
 
-    $ cd Examples\altera_nios2\no_os\gnu\demo_cn_3r1tpdo
-    $ make download-elf
+3. A bash script will be invoked, which rebuild the SW.
 
-4. Enjoy the running POWERLINK network.
+4. Click on "run.bat" - the HW configuration and the PCP SW will be downloaded to the FPGA
 
+5. AFTER rebuilding, goto the "apps/ap_PDI" folder and rebuild
+   the Application Processor SW. Choose the SAME platform and design as before!
 
-How to import the project into Nios II IDE for debugging purposes
-------------------------------------------------------------------
+6. Likewise, click on "run.bat" in "apps/ap_PDI"
 
-Requirement: Steps in the previous section "How to build the binary" are completed.
+5. Enjoy the terminal outputs and the running POWERLINK network.
 
-1. Start the "Nios II IDE"
-
-2. Select menu "File" -> "Import..."
-
-3. Select the import source "Altera Nios II" ->
-   "Existing Nios II software build tools project or folder into workspace"
-
-4. Browse to the main directory of openPOWERLINK
-   (via the button "Browse...")
-
-5. Press the button "Finish".
-
-6. Select menu "File" -> "Import..."
-
-7. Select the import source "Altera Nios II" ->
-   "Existing Nios II software build tools project or folder into workspace"
-
-8. Browse to the subdirectory
-   Examples\altera_nios2\no_os\gnu\demo_cn_3r1tpdo
-   of openPOWERLINK (via the button "Browse...")
-
-9. Press the button "Finish".
 

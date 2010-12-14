@@ -11,7 +11,7 @@ doc							Documentation of the development kit
 libCnApi					openPOWERLINK CN API library
 fpga						FPGA projects and IP cores
 powerlink					Example openPOWERLINK applications (PCP)
-
+							also contains the openPOWERLINK stack
 
 
 

@@ -5,21 +5,17 @@ POWERLINK CN Development Kit (CNDK)
 -------------------------------------------------------------------------------
 
 
-	openPOWERLINK - Demo for EBV DBC3C40 and INK Board (Direct IOs)
-	===============================================================
+	openPOWERLINK - AP Demo for EBV DBC3C40 and INK Board 
+	======================================================
 
 Contents
 ---------
 
-- POWERLINK SW for PCP (Powerlink Communication Processor).
+- POWERLINK SW for AP (Application Processor).
 
 Performance Data
 -----------------
 
-- Minimum cycle length: TBD
-- PReq-PRes Latency: 1 µs
-- Process data: 4 bytes input and 4 bytes output
-- There are 3 RPDOs and 1 TPDO available.
 - The following 8 objects - each has the size 1 Byte - can be mapped:
 
   6000/01: not in use
@@ -53,13 +49,13 @@ How to run the demo
 
 For Windows:
 
-1. Click on "rebuild.bat"
+1. Click on "rebuild.bat" AFTER the PCP SW rebuild is finished (please refer to "pcp_PDI/readme.txt")
 
-2. Choose the desired platform and design by entering a number
+2. Choose the same platform and design as the PCP SW by entering a number
 
 3. A bash script will be invoked, which rebuild the SW.
 
-4. Click on "run.bat" - the HW configuration and the PCP SW will be downloaded to the FPGA
+4. Click on "run.bat" - the HW configuration and the AP SW will be downloaded to the FPGA
 
 5. Enjoy the terminal outputs and the running POWERLINK network.
 
