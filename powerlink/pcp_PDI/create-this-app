@@ -22,8 +22,8 @@ OBJDICTDIR=../../objDicts/PDI
 ###############################################################################
 # include project configuration
 
-. ../../project.config #POWERLINK stack path
-
+. ../../project.config  						#POWERLINK stack path
+EDRV_DIR=../generic/POWERLINK_IP_Edrv/			#Ethernet driver path 
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
 
@@ -77,7 +77,7 @@ done
 # Include directories
 INCLUDES="\
 . \
-./Edrv/openmac/include \
+${EDRV_DIR}/openmac/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
@@ -115,11 +115,11 @@ pcpPdo.c \
 pcpStateMachine.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
-./Edrv/openmac/source/EdrvOpenMac.c \
-./Edrv/openmac/source/EplTimerSynck_OpenMac.c \
-./Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
-./Edrv/openmac/source/omethlib.c \
-./Edrv/openmac/source/omethlibint.c \
+${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
+${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
+${EDRV_DIR}/openmac/source/EplTgtTimeStamp_OpenMac.c \
+${EDRV_DIR}/openmac/source/omethlib.c \
+${EDRV_DIR}/openmac/source/omethlibint.c \
 ${POWERLINKDIR}/EplStack/EplDllk.c \
 ${POWERLINKDIR}/EplStack/EplDllkCal.c \
 ${POWERLINKDIR}/EplStack/EplDlluCal.c \

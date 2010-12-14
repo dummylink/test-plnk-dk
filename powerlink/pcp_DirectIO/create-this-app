@@ -16,7 +16,8 @@ DBG_MODE=_DEBUG	# compile printfs()
 ###############################################################################
 # include project configuration
 
-. ../../project.config
+. ../../project.config  						#POWERLINK stack path
+EDRV_DIR=../generic/POWERLINK_IP_Edrv/			#Ethernet driver path 
 BSP_DIR=./bsp
 
 # replace this path to the object dictionary you wish to include
@@ -74,7 +75,7 @@ done
 # Include directories
 INCLUDES="\
 . \
-./Edrv/openmac/include \
+${EDRV_DIR}/openmac/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
@@ -97,11 +98,11 @@ CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
 SRCFILES="main.c \
 lcd.c \
 ${OBJDICTDIR}/Objdict.c \
-./Edrv/openmac/source/EdrvOpenMac.c \
-./Edrv/openmac/source/EplTimerSynck_OpenMac.c \
-./Edrv/openmac/source/EplTgtTimeStamp_OpenMac.c \
-./Edrv/openmac/source/omethlib.c \
-./Edrv/openmac/source/omethlibint.c \
+${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
+${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
+${EDRV_DIR}/openmac/source/EplTgtTimeStamp_OpenMac.c \
+${EDRV_DIR}/openmac/source/omethlib.c \
+${EDRV_DIR}/openmac/source/omethlibint.c \
 ${POWERLINKDIR}/EplStack/EplDllk.c \
 ${POWERLINKDIR}/EplStack/EplDllkCal.c \
 ${POWERLINKDIR}/EplStack/EplDlluCal.c \
