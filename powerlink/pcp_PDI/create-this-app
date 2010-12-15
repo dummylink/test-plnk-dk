@@ -23,7 +23,7 @@ OBJDICTDIR=../../objDicts/PDI
 # include project configuration
 
 . ../../project.config  						#POWERLINK stack path
-EDRV_DIR=../generic/POWERLINK_IP_Edrv/			#Ethernet driver path 
+EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path 
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
 

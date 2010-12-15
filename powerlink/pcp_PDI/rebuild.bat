@@ -66,7 +66,7 @@
 @ set DUAL_NIOS = "1"
 @ goto start
 :INK_PCP_AP_SPI
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SPI_multinios
 @ set DUAL_NIOS = "1"
 @ goto start
 :INK_PCP_SPI

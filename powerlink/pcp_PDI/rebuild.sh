@@ -74,6 +74,6 @@ fi
 # Generate cnApiLib.h in order to inform the LIB about the PCP HW
 ./cfglib.sh
 
-echo -e "You also need to rebuild the API Library and your application\nin order to apply changes!\n"
+echo -e "You also need to rebuild the API Library and your application\nin order to apply changes!\nDo so by executing ../../apps/rebuild.bat!\n"
 
 exit 0
