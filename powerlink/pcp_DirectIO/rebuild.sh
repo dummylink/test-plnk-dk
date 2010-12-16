@@ -69,6 +69,10 @@ fi
 
 #######################################
 ###        Rebuild the SW           ###
-./create-this-app --sopcdir $SOPC_DIR --rebuild ${DEBUG_FLAG}
-
+cmd="./create-this-app --sopcdir $SOPC_DIR --rebuild ${DEBUG_FLAG}"
+echo "rebuild.sh: Running \"$cmd\""
+$cmd || {
+    echo -e "\ncreate-this-app failed!\nVerify openPOWERLINK stack path setting in 'project.config'!\n"
+    exit 1
+}
 exit 0
