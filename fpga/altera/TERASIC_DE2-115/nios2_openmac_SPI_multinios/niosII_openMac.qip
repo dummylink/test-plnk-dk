@@ -28,5 +28,5 @@ set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/
 set_global_assignment -name SOURCE_FILE [file join $::quartus(qip_path) pcp_cpu.ocp]
 set_global_assignment -name TCL_FILE [file join $::quartus(qip_path) DE2-115/IS61WV102416BLL_10TLI_hw.tcl]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/src/OpenMAC_AvalonIF.vhd]
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0018E73510F10000012CEA9247E8 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0018E73510F10000012CEF1A4C9D 
  
