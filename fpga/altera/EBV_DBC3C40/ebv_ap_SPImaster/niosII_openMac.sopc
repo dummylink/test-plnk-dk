@@ -289,45 +289,11 @@
          type = "boolean";
       }
    }
-   element inport_ap.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "128";
-         type = "long";
-      }
-   }
-   element sync_irq_from_pcp.s1
-   {
-      datum _tags
-      {
-         value = "";
-         type = "String";
-      }
-      datum baseAddress
-      {
-         value = "144";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "32";
-         type = "long";
-      }
-   }
-   element onchip_memory_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
+         value = "33554432";
          type = "long";
       }
    }
@@ -344,6 +310,35 @@
          type = "long";
       }
    }
+   element system_timer_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "32";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "128";
+         type = "long";
+      }
+   }
+   element onchip_memory_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
    element clock_crossing_0.s1
    {
       datum baseAddress
@@ -352,19 +347,16 @@
          type = "long";
       }
    }
-   element sdram_0.s1
+   element sync_irq_from_pcp.s1
    {
-      datum baseAddress
+      datum _tags
       {
-         value = "33554432";
-         type = "long";
+         value = "";
+         type = "String";
       }
-   }
-   element status_led_pio.s1
-   {
       datum baseAddress
       {
-         value = "0";
+         value = "144";
          type = "long";
       }
    }
@@ -373,6 +365,14 @@
       datum baseAddress
       {
          value = "112";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "0";
          type = "long";
       }
    }
@@ -509,8 +509,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="9734126675" />
- <parameter name="timeStamp" value="1291988250635" />
+ <parameter name="systemHash" value="9082424028" />
+ <parameter name="timeStamp" value="1293098269317" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -947,14 +947,14 @@
   <parameter name="dataWidth" value="8" />
   <parameter name="disableAvalonFlowControl" value="false" />
   <parameter name="inputClockRate" value="50000000" />
-  <parameter name="insertDelayBetweenSlaveSelectAndSClk" value="false" />
-  <parameter name="insertSync" value="false" />
+  <parameter name="insertDelayBetweenSlaveSelectAndSClk" value="true" />
+  <parameter name="insertSync" value="true" />
   <parameter name="lsbOrderedFirst" value="false" />
   <parameter name="masterSPI" value="true" />
   <parameter name="numberOfSlaves" value="1" />
   <parameter name="syncRegDepth" value="2" />
-  <parameter name="targetClockRate" value="1000000" />
-  <parameter name="targetSlaveSelectToSClkDelay" value="0.0" />
+  <parameter name="targetClockRate" value="100000" />
+  <parameter name="targetSlaveSelectToSClkDelay" value="4.0" />
  </module>
  <module
    kind="altera_avalon_pio"

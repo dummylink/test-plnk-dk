@@ -70,7 +70,7 @@
 @ set DUAL_NIOS = "1"
 @ goto start
 :INK_PCP_SPI
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_pcp_SPI
 @ goto start
 :INK_PCP_16bitparallel
 @ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/

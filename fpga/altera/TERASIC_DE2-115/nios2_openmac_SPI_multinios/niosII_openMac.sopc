@@ -259,14 +259,6 @@
          type = "boolean";
       }
    }
-   element ap_cpu.jtag_debug_module
-   {
-      datum baseAddress
-      {
-         value = "4096";
-         type = "long";
-      }
-   }
    element pcp_cpu.jtag_debug_module
    {
       datum _lockedAddress
@@ -277,6 +269,14 @@
       datum baseAddress
       {
          value = "6144";
+         type = "long";
+      }
+   }
+   element ap_cpu.jtag_debug_module
+   {
+      datum baseAddress
+      {
+         value = "4096";
          type = "long";
       }
    }
@@ -446,11 +446,32 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
+   element onchip_memory_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
+   element system_timer_ap.s1
    {
       datum baseAddress
       {
-         value = "8256";
+         value = "2048";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2144";
          type = "long";
       }
    }
@@ -470,22 +491,6 @@
          type = "long";
       }
    }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2160";
-         type = "long";
-      }
-   }
    element sdram_0.s1
    {
       datum baseAddress
@@ -494,11 +499,11 @@
          type = "long";
       }
    }
-   element outport_ap.s1
+   element benchmark_pio.s1
    {
       datum baseAddress
       {
-         value = "2144";
+         value = "8256";
          type = "long";
       }
    }
@@ -515,37 +520,19 @@
          type = "long";
       }
    }
-   element onchip_memory_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
-   element system_timer.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
    element benchmark_ap_pio.s1
    {
       datum baseAddress
       {
          value = "2112";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
          type = "long";
       }
    }
@@ -562,11 +549,24 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element system_timer.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
    {
       datum baseAddress
       {
-         value = "8224";
+         value = "2160";
          type = "long";
       }
    }
@@ -729,8 +729,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="16928396281" />
- <parameter name="timeStamp" value="1292501656598" />
+ <parameter name="systemHash" value="13430915947" />
+ <parameter name="timeStamp" value="1293089602297" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1327,12 +1327,12 @@
   <parameter name="disableAvalonFlowControl" value="false" />
   <parameter name="inputClockRate" value="50000000" />
   <parameter name="insertDelayBetweenSlaveSelectAndSClk" value="false" />
-  <parameter name="insertSync" value="false" />
+  <parameter name="insertSync" value="true" />
   <parameter name="lsbOrderedFirst" value="false" />
   <parameter name="masterSPI" value="true" />
   <parameter name="numberOfSlaves" value="1" />
   <parameter name="syncRegDepth" value="2" />
-  <parameter name="targetClockRate" value="1000000" />
+  <parameter name="targetClockRate" value="100000" />
   <parameter name="targetSlaveSelectToSClkDelay" value="0.0" />
  </module>
  <module

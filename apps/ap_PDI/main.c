@@ -368,7 +368,7 @@ int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
         iBytes_p, pTxBuf_p, //write bytes, addr of write data
         0, NULL,            //read bytes, addr of read data
         0);                 //flags (don't care)
-
+    usleep(100);
     return OK;
 }
 
@@ -379,7 +379,7 @@ int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
         0, NULL,            //write bytes, addr of write data
         iBytes_p, pRxBuf_p, //read bytes, addr of read data
         0);                 //flags (don't care)
-
+    usleep(100);
     return OK;
 }
 #endif /* CN_API_USING_SPI */

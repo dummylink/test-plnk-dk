@@ -1784,7 +1784,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1292501772 ";
+         contents_info = "";
       }
       SIMULATION 
       {
@@ -5219,7 +5219,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>7102D400</b>    (unique ID tag) <br> <b>4D0A0299</b> (timestamp: Thu Dec 16, 2010 @1:14 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>208B8371</b>    (unique ID tag) <br> <b>4D12FB42</b> (timestamp: Thu Dec 23, 2010 @8:33 AM)";
             MESSAGES 
             {
             }
@@ -5227,8 +5227,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "1896010752u";
-         timestamp = "1292501657u";
+         id = "546014065u";
+         timestamp = "1293089602u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5237,7 +5237,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1896010752 --timestamp=1292501657";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=546014065 --timestamp=1293089602";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -7003,7 +7003,7 @@ SYSTEM niosII_openMac
       {
          databits = "8";
          datawidth = "16";
-         targetclock = "1000000";
+         targetclock = "100000";
          clockunits = "Hz";
          clockmult = "1";
          numslaves = "1";
@@ -7012,7 +7012,7 @@ SYSTEM niosII_openMac
          clockphase = "0";
          lsbfirst = "0";
          extradelay = "0";
-         insert_sync = "0";
+         insert_sync = "1";
          sync_reg_depth = "2";
          disableAvalonFlowControl = "0";
          targetssdelay = "0.0";

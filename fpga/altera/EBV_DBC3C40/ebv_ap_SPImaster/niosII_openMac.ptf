@@ -1893,7 +1893,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1291988340 ";
+         contents_info = "";
       }
       SIMULATION 
       {
@@ -2986,7 +2986,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>4432FC57</b>    (unique ID tag) <br> <b>4D022D1B</b> (timestamp: Fri Dec 10, 2010 @2:37 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>1D5ACAE0</b>    (unique ID tag) <br> <b>4D131D1D</b> (timestamp: Thu Dec 23, 2010 @10:57 AM)";
             MESSAGES 
             {
             }
@@ -2994,8 +2994,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "1144192087u";
-         timestamp = "1291988251u";
+         id = "492489440u";
+         timestamp = "1293098269u";
          regenerate_values = "0";
          MAKE 
          {
@@ -3004,7 +3004,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x010000a8 --id=1144192087 --timestamp=1291988251";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x010000a8 --id=492489440 --timestamp=1293098269";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -4114,7 +4114,7 @@ SYSTEM niosII_openMac
       {
          databits = "8";
          datawidth = "16";
-         targetclock = "1000000";
+         targetclock = "100000";
          clockunits = "Hz";
          clockmult = "1";
          numslaves = "1";
@@ -4122,11 +4122,11 @@ SYSTEM niosII_openMac
          clockpolarity = "0";
          clockphase = "0";
          lsbfirst = "0";
-         extradelay = "0";
-         insert_sync = "0";
+         extradelay = "1";
+         insert_sync = "1";
          sync_reg_depth = "2";
          disableAvalonFlowControl = "0";
-         targetssdelay = "0.0";
+         targetssdelay = "4.0";
          delayunits = "ns";
          delaymult = "1e-009";
          prefix = "spi_";
