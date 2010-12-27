@@ -77,6 +77,9 @@ This header file contains definitions for the CN API.
  #define PCP_CTRLREG_SPAN                    sizeof(tPcpCtrlReg)
 #endif /* CN_API_USING_SPI */
 
+/* Timer definitions */
+#define PCP_PRESENCE_TIMEOUT 500
+
 /* some debug definitions */
 #define DEBUG_LVL_CNAPI_FUNC            DEBUG_LVL_09
 #define DEBUG_LVL_CNAPI_FUNC_TRACE0     DEBUG_LVL_09_TRACE0

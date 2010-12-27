@@ -111,7 +111,7 @@ int main (void)
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				///< initialize POWERLINK parameters
 
     status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  ///< initialize and start the CN API
-    if (status < 0)
+    if (status > 0)
     {
         TRACE1("CN API library could not be initialized (%d)\n", status);
 		return -1;

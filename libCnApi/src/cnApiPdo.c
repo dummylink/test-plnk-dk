@@ -293,7 +293,7 @@ void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p) //TODO: move to Async
     /** check if LinkPdosReq command is present */
     if(pLinkPdosReq_p->m_bCmd != kAsyncCmdLinkPdosReq)
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "No LinkPdosRequest present!\n", wPdoMappingVersion_l);
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "No LinkPdosRequest present!\n");
         goto exit;
     }
 
