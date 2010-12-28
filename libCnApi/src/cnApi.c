@@ -94,8 +94,9 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     for(iCnt = 0; iCnt < PCP_PRESENCE_TIMEOUT; iCnt++)
     {
 #ifdef CN_API_USING_SPI
-        CnApi_Spi_read(PCP_CTRLREG_MAGIC_OFFSET, sizeof((BYTE*) &pCtrlReg_g->m_dwMagic), (BYTE*) &pCtrlReg_g->m_dwMagic);
+        CnApi_Spi_read(PCP_CTRLREG_MAGIC_OFFSET, sizeof(pCtrlReg_g->m_dwMagic), (BYTE*) &pCtrlReg_g->m_dwMagic);
 #endif
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#0x ..", pCtrlReg_g->m_dwMagic);
         if(PCP_MAGIC == pCtrlReg_g->m_dwMagic)
         {
             fPcpPresent = TRUE;
@@ -105,20 +106,17 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
         usleep(10000);
     }
 
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "PCP Magic value: %lu ..", pCtrlReg_g->m_dwMagic);
-
     if(!fPcpPresent)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".ERROR!\n\n");
 
         /* PCP_PRESENCE_TIMEOUT exceeded */
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: PCP is not present!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Reading PDI failed!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }
     else
     {
-
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".OK!\n");
 #ifdef CN_API_USING_SPI
         /* update PCP control register */

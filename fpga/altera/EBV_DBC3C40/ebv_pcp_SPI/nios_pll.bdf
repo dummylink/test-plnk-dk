@@ -1060,11 +1060,6 @@ applicable agreement for further details.
 	(pt 880 496)
 )
 (connector
-	(pt 88 416)
-	(pt 120 416)
-)
-(connector
 	(pt 120 416)
 	(pt 272 416)
 )
-(junction (pt 120 416))

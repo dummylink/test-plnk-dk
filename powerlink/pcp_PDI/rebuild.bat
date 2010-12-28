@@ -56,7 +56,7 @@
 @ set DUAL_NIOS = "1"
 @ goto start
 :EBV_PCP_SPI
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_pcp_SPI
 @ goto start
 :EBV_PCP_16bitparallel
 @ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_16bitprll
