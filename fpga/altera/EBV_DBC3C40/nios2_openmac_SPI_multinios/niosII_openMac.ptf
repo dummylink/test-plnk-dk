@@ -1899,7 +1899,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1294770367 ";
       }
       SIMULATION 
       {
@@ -5316,7 +5316,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>521A70F0</b>    (unique ID tag) <br> <b>4D08F4AB</b> (timestamp: Wed Dec 15, 2010 @6:02 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>521A70F0</b>    (unique ID tag) <br> <b>4D2CA031</b> (timestamp: Tue Jan 11, 2011 @7:23 PM)";
             MESSAGES 
             {
             }
@@ -5325,7 +5325,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "1377464560u";
-         timestamp = "1292432555u";
+         timestamp = "1294770225u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5334,7 +5334,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1377464560 --timestamp=1292432555";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1377464560 --timestamp=1294770225";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

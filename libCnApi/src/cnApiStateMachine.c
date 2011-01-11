@@ -226,7 +226,7 @@ FUNC_ENTRYACT(kApStatePreop2)
     }
     else
     {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nLinkPdosReq not present -> Take old descriptors!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\n%s: LinkPdosReq not present -> Take old descriptors!\n", __func__);
     }
     /* TODO: DO THIS IN Cb FUNCION */
 

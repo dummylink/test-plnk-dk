@@ -105,7 +105,7 @@ int main (void)
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); ///< set hex digits on Mercury-Board to indicate AP presence
     usleep(1000000);		                                ///< wait 1 s, so you can see the LEDs
 
-    TRACE("\n\nInitialize CN API functions...\n");
+    TRACE("\n\nInitialize CN API functions...");
 
     nodeId = DEFAULT_NODEID;    ///< in case you dont want to use Node Id switches, use a diffenrent value then 0x00
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				///< initialize POWERLINK parameters
@@ -113,8 +113,12 @@ int main (void)
     status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  ///< initialize and start the CN API
     if (status > 0)
     {
-        TRACE1("CN API library could not be initialized (%d)\n", status);
+        TRACE1("\nERROR: CN API library could not be initialized (%d)\n", status);
 		return -1;
+    }
+    else
+    {
+        TRACE("\nInitialize CN API functions...successful!\n");
     }
 
     /* initialize and link objects to object dictionary */
@@ -122,7 +126,7 @@ int main (void)
     /* initialize CN API object module */
     if (CnApi_initObjects(NUM_OBJECTS) < 0)
     {
-        TRACE("CN API library initObjects failed\n");
+        TRACE("ERROR: CN API library initObjects failed\n");
     	return -1;
     }
 
@@ -140,16 +144,6 @@ int main (void)
     CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
-#ifdef TEST_MORE_OBJS
-    CnApi_linkObject(0x6300, 1, 1, &digitalOut[4]); ///< RPDO 1
-    CnApi_linkObject(0x6300, 2, 1, &digitalOut[5]);
-    CnApi_linkObject(0x6300, 3, 1, &digitalOut[6]);
-    CnApi_linkObject(0x6300, 4, 1, &digitalOut[7]);
-    CnApi_linkObject(0x6400, 1, 1, &digitalOut[8]); ///< RPDO 2
-    CnApi_linkObject(0x6400, 2, 1, &digitalOut[9]);
-    CnApi_linkObject(0x6400, 3, 1, &digitalOut[10]);
-    CnApi_linkObject(0x6400, 4, 1, &digitalOut[11]);
-#endif /* TEST_MORE_OBJS */
 
 #ifdef USE_POLLING_MODE
     CnApi_disableSyncInt();
@@ -364,22 +358,20 @@ int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMax
 int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
 {
     alt_avalon_spi_command(
-        SPI_MASTER_BASE, 0,      //core base, spi slave
+        SPI_MASTER_BASE, 0, //core base, spi slave
         iBytes_p, pTxBuf_p, //write bytes, addr of write data
         0, NULL,            //read bytes, addr of read data
         0);                 //flags (don't care)
-    usleep(100);
     return OK;
 }
 
 int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
 {
     alt_avalon_spi_command(
-        SPI_MASTER_BASE, 0,      //core base, spi slave
+        SPI_MASTER_BASE, 0, //core base, spi slave
         0, NULL,            //write bytes, addr of write data
         iBytes_p, pRxBuf_p, //read bytes, addr of read data
         0);                 //flags (don't care)
-    usleep(100);
     return OK;
 }
 #endif /* CN_API_USING_SPI */

@@ -417,35 +417,6 @@
          type = "boolean";
       }
    }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2128";
-         type = "long";
-      }
-   }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8224";
-         type = "long";
-      }
-   }
    element sync_irq_from_pcp.s1
    {
       datum _tags
@@ -467,11 +438,24 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element inport_ap.s1
    {
       datum baseAddress
       {
-         value = "16777216";
+         value = "2128";
+         type = "long";
+      }
+   }
+   element onchip_memory_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
          type = "long";
       }
    }
@@ -480,6 +464,35 @@
       datum baseAddress
       {
          value = "2304";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2112";
          type = "long";
       }
    }
@@ -504,24 +517,11 @@
          type = "long";
       }
    }
-   element onchip_memory_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
+   element status_led_pio.s1
    {
       datum baseAddress
       {
-         value = "2112";
+         value = "8224";
          type = "long";
       }
    }
@@ -677,7 +677,7 @@
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="12114882795" />
- <parameter name="timeStamp" value="1292432555025" />
+ <parameter name="timeStamp" value="1294770224915" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />

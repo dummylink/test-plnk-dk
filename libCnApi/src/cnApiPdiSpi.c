@@ -1,5 +1,13 @@
-/* cnApiPdiSpi.c - Library for FPGA PDI via SPI */
-/*
+/**
+********************************************************************************
+\file		cnApiPdiSpi.c
+
+\brief		Library for FPGA PDI via SPI
+
+\author		Joerg Zelenka
+
+\date		2010/09/09
+
 ------------------------------------------------------------------------------
 Copyright (c) 2010, B&R
 All rights reserved.
@@ -31,14 +39,6 @@ OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-------------------------------------------------------------------------------
- Module:    cnApiPdiSpi
- File:      cnApiPdiSpi.c
- Author:    Joerg Zelenka (zelenkaj)
- Created:   2010/09/09
- Revised:   -
- State:     tested on Altera Nios II with SOPC's SPI core
 ------------------------------------------------------------------------------
 
  Functions:
@@ -49,87 +49,86 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             CnApi_Spi_read          read given data size to PDI
 
             CnApi_Spi_writeByte     write given byte to given address
-            
+
             CnApi_Spi_readByte      read a byte from given address
+
             
-            
+            writeSq     	write given bytes to given address
+
+            readSq      	read bytes from given address
+
             setPdiAddrReg   build addressing commands for given address
-            
+
             sendTxBuffer    finally send the Tx Buffers in the driver instance
-            
+
             recRxBuffer     receive one byte and store to driver instance
-            
+
             buildCmdFrame   build a CMD Frame
 
 ------------------------------------------------------------------------------
  History:
     2010/09/09  zelenkaj    created
 	2010/10/25	hoggerm		added function for scalable data size transfers
+	2010/12/13	zelenkaj	added sq-functionality
+	2011/01/10	zelenkaj	added wake up functionality
 
-----------------------------------------------------------------------------*/
+*******************************************************************************/
 
-#include "cnApi.h"
-#include "cnApiDebug.h"
+/* target specific header files */
+#include <unistd.h> // for usleep()
+#include <string.h> // for memcpy() memset()
+
+/* Cn API header files */
 #include "cnApiPdiSpi.h"
-#include <string.h>
+#include "cnApiDebug.h"
 
 /***************************************************************************************
  * LOCAL DEFINES
  ***************************************************************************************/
 #define ADDR_WR_DOWN    1
 #define ADDR_CHECK      2
+#define ADDR_WR_DOWN_LO 3
+#define ADDR_CHECK_LO   4
+
+#define PDISPI_USLEEP(x)	usleep(x)
 
 /***************************************************************************************
  * LOCALS
  ***************************************************************************************/
-/* Generates address set CMD and forwards them to the m_txBuffer
- * uwAddr_p : Address to be written to / read from
- * fWr_p :  ADDR_WR_DOWN -> writes down uwAddr_p in any case
- *          ADDR_CHECK -> checks uwAddr_p with local copy first
- *  PDISPI_OK ... Set Address Register done successfully
- *  PDISPI_ERROR ... otherwise
- */
+
+static int writeSq
+(
+    WORD            uwAddr_p,       ///< PDI Address to be written to
+    WORD            uwSize_p,       ///< Write data size (bytes)
+    BYTE            *pData_p        ///< Write data
+);
+
+static int readSq
+(
+    WORD            uwAddr_p,       ///< PDI Address to be read from
+    WORD            uwSize_p,       ///< Read data size
+    BYTE            *pData_p        ///< Read data
+);
+
 static int setPdiAddrReg
 (
     unsigned short          uwAddr_p,   //address to be accessed at PDI
     int                     fWr_p       //way of handle address change
 );
 
-/* Sends m_toBeTx bytes stored in the m_txBuffer.
- * 
- *  PDISPI_OK ... Tx done successfully
- *  PDISPI_ERROR ... otherwise
- */
 static int sendTxBuffer
 (
     void
 );
 
-/* Receives one byte and stores it into m_rxBuffer.
- * 
- *  PDISPI_OK ... Rx done successfully
- *  PDISPI_ERROR ... otherwise
- */
 static int recRxBuffer
 (
     void
 );
 
-/* Builds CMD Frame
- *  pFrame_p points to the buffer
- *  ubTyp_p identifies the CMD type:
- *      - PDISPI_CMD_HIGHADDR
- *      - PDISPI_CMD_MIDADDR
- *      - PDISPI_CMD_WR
- *      - PDISPI_CMD_RD
- *      - PDISPI_CMD_IDLE
- * 
- *  PDISPI_OK ... build done successfully
- *  PDISPI_ERROR ... otherwise
- */
 static int buildCmdFrame
 (
-    unsigned short          uwAddr_p,   //CMD frame address
+    unsigned short          uwPayload_p,   //CMD frame address
     unsigned char           *pFrame_p,  //buffer for CMD frame to be built
     unsigned char           ubTyp_p     //CMD frame type
 );
@@ -142,26 +141,35 @@ static tPdiSpiInstance PdiSpiInstance_l;
  * PUBLIC FUNCTIONS
  ***************************************************************************************/
 
-/* PDI SPI Driver Init
- *  Has to be called before using any other function of this library to register the
- *  SPI Master Tx/Rx handler.
- *  Furthermore the function sets the Address Register of the PDI SPI Slave to a known
- *  state.
- * return:
- *  PDISPI_OK ... init done successfully
- *  PDISPI_ERROR ... otherwise
- */
+/**
+********************************************************************************
+\brief  initializes the local SPI Master and the PDI SPI
+
+CnApi_initSpiMaster() has to be called before using any other function of
+this library to register the SPI Master Tx/Rx handler.
+Furthermore the function sets the Address Register of the PDI SPI Slave
+to a known state.
+
+\param  SpiMasterTxH_p     SPI Master Tx Handler callback
+\param  SpiMasterRxH_p     SPI Master Rx Handler callback
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
 int CnApi_initSpiMaster
 (
-    tSpiMasterTxHandler     SpiMasterTxH_p, //SPI Master Tx Handler 
-    tSpiMasterRxHandler     SpiMasterRxH_p  //SPI MASTER Rx Handler
+    tSpiMasterTxHandler     SpiMasterTxH_p, ///< SPI Master Tx Handler
+    tSpiMasterRxHandler     SpiMasterRxH_p  ///< SPI MASTER Rx Handler
 )
 {
-    int             iRet = OK;
+    int     iRet = PDISPI_OK;
+    int     iCnt;
+    BOOL    fPcpSpiPresent = FALSE;
     
     if( (SpiMasterTxH_p == 0) || (SpiMasterRxH_p == 0) )
     {
-        iRet = ERROR;
+        iRet = PDISPI_ERROR;
+        
         goto exit;
     }
     
@@ -170,10 +178,73 @@ int CnApi_initSpiMaster
     PdiSpiInstance_l.m_SpiMasterTxHandler = SpiMasterTxH_p;
     PdiSpiInstance_l.m_SpiMasterRxHandler = SpiMasterRxH_p;
     
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nStarting SPI connection..");
+
+    /* check if PCP SPI slave is present */
+    for(iCnt = 0; iCnt < PCP_SPI_PRESENCE_TIMEOUT; iCnt++)
+    {
+		//send out wake up frame to enter idle surely!
+		PdiSpiInstance_l.m_txBuffer[0] = PDISPI_WAKEUP;
+		PdiSpiInstance_l.m_txBuffer[1] = PDISPI_WAKEUP1;
+		PdiSpiInstance_l.m_toBeTx = 2;
+
+		//send byte in Tx buffer
+		iRet = sendTxBuffer();
+
+		if( iRet != PDISPI_OK )
+		{
+			goto exit;
+		}
+
+		//receive one byte
+		PdiSpiInstance_l.m_toBeRx = 1;
+
+		iRet = recRxBuffer();
+
+		if( iRet != PDISPI_OK )
+		{
+			goto exit;
+		}
+		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nRx Byte: 0x%0X", PdiSpiInstance_l.m_rxBuffer[0]);
+		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP1)
+		{
+			//received last wake up pattern
+		    fPcpSpiPresent = TRUE;
+			break;
+		}
+
+		PDISPI_USLEEP(1000000);
+    }
+
+    if(!fPcpSpiPresent)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "...ERROR!\n\n");
+
+        /* PCP_SPI_PRESENCE_TIMEOUT exceeded */
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Spi initialization failed!\n");
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+    else
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".OK!\n");
+    }
+
+    //send out some idle frames
+    PdiSpiInstance_l.m_toBeTx = PDISPI_MAX_TX;
+    memset(&PdiSpiInstance_l.m_txBuffer, PDISPI_CMD_IDLE, PDISPI_MAX_TX);
+
+	iRet = sendTxBuffer();
+
+	if( iRet != PDISPI_OK )
+	{
+		goto exit;
+	}
+
     //set address register in pdi to zero
-    iRet = setPdiAddrReg(0, ADDR_WR_DOWN);
+    iRet = setPdiAddrReg(0, ADDR_WR_DOWN_LO);
     
-    if( iRet != OK )
+    if( iRet != PDISPI_OK )
     {
         goto exit;
     }
@@ -184,17 +255,23 @@ exit:
 	return iRet;
 }
 
-/* PDI SPI Driver Write
- *  This function writes a byte (ubData_p) to the PDI at the given address
- *  (uwAddr_p).
- * return:
- *  PDISPI_OK ... write done successfully
- *  PDISPI_ERROR ... otherwise
- */
+/**
+********************************************************************************
+\brief  write byte to the CN PDI via SPI
+
+CnApi_Spi_writeByte() writes one byte to the POWERLINK CN PDI via SPI.
+This byte will be written to PDI address.
+
+\param  uwAddr_p    PDI address to be written to
+\param  pData_p     Write data
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
 int CnApi_Spi_writeByte
 (
-    WORD          uwAddr_p,       //PDI Address to be written to
-    BYTE           ubData_p        //Write data
+    WORD          uwAddr_p,       ///< PDI Address to be written to
+    BYTE           ubData_p        ///< Write data
 )
 {
     int             iRet = PDISPI_OK;
@@ -228,21 +305,29 @@ int CnApi_Spi_writeByte
     //send bytes in Tx buffer
     iRet = sendTxBuffer();
 
+    PdiSpiInstance_l.m_addrReg++;
+
 exit:
     return iRet;
 }
 
-/* PDI SPI Driver Read
- *  This function reads a byte (pData_p) from the PDI at a given address
- *  (uwAddr_p).
- * return:
- *  PDISPI_OK ... read done successfully
- *  PDISPI_ERROR ... otherwise
- */
+/**
+********************************************************************************
+\brief  read one byte from the CN PDI via SPI
+
+CnApi_Spi_readByte() reads one byte from the POWERLINK CN PDI via SPI.
+This data will be read from PDI address and stored to a local address.
+
+\param  uwAddr_p     PDI address to be read from
+\param  pData_p      Read data
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
 int CnApi_Spi_readByte
 (
-    WORD          uwAddr_p,       //PDI Address to be read from
-    BYTE           *pData_p        //Read data
+    WORD          uwAddr_p,       ///< PDI Address to be read from
+    BYTE           *pData_p        ///< Read data
 )
 {
     int             iRet = PDISPI_OK;
@@ -288,8 +373,70 @@ int CnApi_Spi_readByte
     //received byte is stored in driver instance
     *pData_p = PdiSpiInstance_l.m_rxBuffer[0];
     
+    PdiSpiInstance_l.m_addrReg++;
+
 exit:
     return iRet;
+}
+
+/**
+********************************************************************************
+\brief  write data to the CN PDI via SPI
+
+CnCnApi_Spi_writerites a certain amount of data to the POWERLINK CN PDI
+via SPI. This data will be read from a local address and stored to a PDI address.
+
+\param  wAddr_p     PDI Address to be written to
+\param  wSize_p     Size of transmitted data in Bytes
+\param  pSrcVar     (Byte-) Pointer to local source address
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
+int CnApi_Spi_write
+(
+    WORD   wPcpAddr_p,          ///< PDI Address to be written to
+    WORD   wSize_p,             ///< size in Bytes
+    BYTE*  pApSrcVar_p          ///< ptr to local source
+)
+{
+    int iRet = PDISPI_OK;
+
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI, "SPI write: %d byte\n", wSize_p);
+
+    /* Depending on data size, choose different SPI processing*/
+    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: SPI PDI data size invalid!");
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+    else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
+    {
+
+    	iRet = writeSq(wPcpAddr_p, wSize_p, pApSrcVar_p);
+        if( iRet != PDISPI_OK )
+        {
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+
+    }
+    else /* transfer single bytes - in this case, better use CnApi_Spi_writeByte directly! */
+    {
+        for(; 0 < wSize_p; wSize_p--)
+         {
+          iRet = CnApi_Spi_writeByte(wPcpAddr_p++, (BYTE) *(pApSrcVar_p++));
+             if( iRet != PDISPI_OK )
+             {
+                 iRet = PDISPI_ERROR;
+                 goto exit;
+             }
+         }
+    }
+
+    exit:
+        return iRet;
 }
 
 /**
@@ -314,25 +461,25 @@ int CnApi_Spi_read
 )
 {
     int iRet = PDISPI_OK;
+
     DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI, "SPI read: %d byte\n", wSize_p);
+
     /* Depending on data size, choose different SPI processing*/
-    if(wSize_p > PDISPI_MAX_SIZE)
+    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
     {
-        TRACE("Error: SPI PDI data size invalid!");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: SPI PDI data size invalid!");
         iRet = PDISPI_ERROR;
         goto exit;
     }
-    else if (wSize_p == 0)
-    {
-        /* ignore transfer */
-        iRet = PDISPI_OK;
-        goto exit;
-    }
-    else if(wSize_p > SPI_THRSHLD_SIZE) /* use automatic address increment */
+    else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
     {
 
-        /*TODO: implement internal function using special command for 32 byte transfers */
-        /* and decrease SPI_THRSHLD_SIZE to apprx. "4" */
+    	iRet = readSq(wPcpAddr_p, wSize_p, pApTgtVar_p);
+        if( iRet != PDISPI_OK )
+        {
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
 
     }
     else /* transfer single bytes - in this case, better use CnApi_Spi_readByte() directly! */
@@ -352,88 +499,209 @@ int CnApi_Spi_read
         return iRet;
 }
 
-/**
-********************************************************************************
-\brief  write data to the CN PDI via SPI
-
-CnCnApi_Spi_writerites a certain amount of data to the POWERLINK CN PDI
-via SPI. This data will be read from a local address and stored to a PDI address.
-
-\param  wAddr_p     PDI Address to be written to
-\param  wSize_p     Size of transmitted data in Bytes
-\param  pSrcVar     (Byte-) Pointer to local source address
-
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
-*******************************************************************************/
-int CnApi_Spi_write
-(
-    WORD   wPcpAddr_p,    ///< PDI Address to be written to
-    WORD   wSize_p,       ///< size in Bytes
-    BYTE*  pApSrcVar_p    ///< ptr to local source
-)
-{
-    int iRet = PDISPI_OK;
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI, "SPI write: %d byte\n", wSize_p);
-    /* Depending on data size, choose different SPI processing*/
-    if(wSize_p > PDISPI_MAX_SIZE)
-    {
-        TRACE("Error: SPI PDI data size invalid!");
-        iRet = PDISPI_ERROR;
-        goto exit;
-    }
-    else if (wSize_p == 0)
-    {
-        /* ignore transfer */
-        iRet = PDISPI_OK;
-        goto exit;
-    }
-    else if(wSize_p > SPI_THRSHLD_SIZE) /* use automatic address increment */
-    {
-
-        /*TODO: implement internal function using special command for 32 byte transfers */
-        /* and decrease SPI_THRSHLD_SIZE to apprx. "4" */
-
-    }
-    else /* transfer single bytes - in this case, better use CnApi_Spi_writeByte directly! */
-    {
-        for(; 0 < wSize_p; wSize_p--)
-         {
-          CnApi_Spi_writeByte(wPcpAddr_p++, (BYTE) *(pApSrcVar_p++));
-             if( iRet != PDISPI_OK )
-             {
-                 iRet = PDISPI_ERROR;
-                 goto exit;
-             }
-         }
-    }
-
-    exit:
-        return iRet;
-}
 /***************************************************************************************
  * LOCAL FUNCTIONS
  ***************************************************************************************/
 
-/* Generates address set CMD and forwards them to the m_txBuffer
- * uwAddr_p : Address to be written to / read from
- * fWr_p :  ADDR_WR_DOWN -> writes down uwAddr_p in any case
- *          ADDR_CHECK -> checks uwAddr_p with local copy first
- *  PDISPI_OK ... Set Address Register done successfully
- *  PDISPI_ERROR ... otherwise
- */
+/**
+********************************************************************************
+\brief  write data to the CN PDI via SPI
+
+writeSq() writes several bytes to the POWERLINK CN PDI via SPI.
+This data will be written to PDI address.
+
+\param  uwAddr_p    PDI address to be written to
+\param  uwSize_p    Write data size
+\param  pData_p     Write data
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
+static int writeSq
+(
+    WORD            uwAddr_p,       ///< PDI Address to be written to
+    WORD            uwSize_p,       ///< Write data size (bytes)
+    BYTE            *pData_p        ///< Write data
+)
+{
+    int             iRet = PDISPI_OK;
+    unsigned char   ubTxData;
+    WORD            uwTxSize = 0;
+
+    //check the pdi's address register for the following cmd
+    iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
+    if( iRet != PDISPI_OK )
+    {
+        goto exit;
+    }
+
+    do
+    {
+        if( uwSize_p > PDISPI_MAX_SQ )
+        {
+            uwTxSize = PDISPI_MAX_SQ;
+            uwSize_p -= PDISPI_MAX_SQ;
+        }
+        else
+        {
+            uwTxSize = uwSize_p;
+            uwSize_p = 0;
+        }
+
+        //build WRSQ command with bytes-1 as payload
+        buildCmdFrame(uwTxSize-1, &ubTxData, PDISPI_CMD_WRSQ);
+
+        //store CMD to Tx Buffer
+        if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
+        {   //buffer full
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+        PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
+
+        //add tx data to tx buffer
+        if( (PdiSpiInstance_l.m_toBeTx-1 + uwTxSize) >= PDISPI_MAX_TX )
+        {   //buffer full
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+
+        memcpy((BYTE*)&PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx], pData_p, uwTxSize);
+        pData_p += uwTxSize; //increment to next buffer position
+        PdiSpiInstance_l.m_toBeTx += uwTxSize;
+
+        //send bytes in Tx buffer
+        iRet = sendTxBuffer();
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        PdiSpiInstance_l.m_addrReg += uwTxSize; //increment local copy too!
+    }
+    while( uwSize_p );
+
+exit:
+    return iRet;
+}
+
+/**
+********************************************************************************
+\brief  read data from the CN PDI via SPI
+
+readSq() reads several bytes from the POWERLINK CN PDI via SPI.
+This data will be read from PDI address and stored to a local address.
+
+\param  uwAddr_p     PDI address to be read from
+\param uwSize_p      Read data size (in bytes)
+\param  pData_p      Read data
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
+static int readSq
+(
+    WORD            uwAddr_p,       ///< PDI Address to be read from
+    WORD            uwSize_p,       ///< Read data size
+    BYTE            *pData_p        ///< Read data
+)
+{
+    int             iRet = PDISPI_OK;
+    unsigned char   ubTxData;
+    WORD            uwRxSize = 0;
+
+    //check the pdi's address register for the following cmd
+    iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
+    if( iRet != PDISPI_OK )
+    {
+        goto exit;
+    }
+
+    do
+    {
+        if( uwSize_p > PDISPI_MAX_SQ )
+        {
+            uwRxSize = PDISPI_MAX_SQ;
+            uwSize_p -= PDISPI_MAX_SQ;
+        }
+        else
+        {
+            uwRxSize = uwSize_p;
+            uwSize_p = 0;
+        }
+
+        //build RDSQ command with bytes-1 as payload
+        buildCmdFrame(uwRxSize-1, &ubTxData, PDISPI_CMD_RDSQ);
+
+        //store CMD to Tx Buffer
+        if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
+        {   //buffer full
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+        PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
+
+        //send bytes in Tx buffer
+        iRet = sendTxBuffer();
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        //receive byte
+        if( (PdiSpiInstance_l.m_toBeRx-1 + uwRxSize) >= PDISPI_MAX_RX )
+        {   //buffer full
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+        PdiSpiInstance_l.m_toBeRx += uwRxSize;
+        iRet = recRxBuffer();
+        if ( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        //received bytes are stored in driver instance
+        //*pData_p = PdiSpiInstance_l.m_rxBuffer[0];
+        memcpy(pData_p, (BYTE*)&PdiSpiInstance_l.m_rxBuffer[0], uwRxSize);
+        pData_p += uwRxSize; //increment to next buffer position
+        PdiSpiInstance_l.m_addrReg += uwRxSize; //increment local copy too!
+    }
+    while( uwSize_p );
+
+exit:
+    return iRet;
+}
+
+/**
+********************************************************************************
+\brief  set the PDI address register
+
+setPdiAddrReg() sets the PDI SPI address register (local copy and
+in the IP-core). If the fWr_p is set to ADDR_CHECK/ADDR_CHECK_LO the local copy
+is checked with uwAddr_p first to save SPI writes. Otherwise the uwAddr_p is
+written down without verification.
+
+\param  uwAddr_p    address to be accessed at PDI
+\param  fWr_p    	way of handle address change
+
+\retval iRet        PDISPI_OK if address register is set correctly
+					PDISPI_ERROR otherwise (e.g. full TX buffer)
+*******************************************************************************/
 static int setPdiAddrReg
 (
-    unsigned short          uwAddr_p,   //address to be accessed at PDI
-    int                     fWr_p       //way of handle address change
+    unsigned short          uwAddr_p,   ///< address to be accessed at PDI
+    int                     fWr_p       ///< way of handle address change
 )
 {
     int             iRet = PDISPI_OK;
     unsigned char   ubTxData;
     
+    //check high address first
     switch(fWr_p)
     {
         case ADDR_CHECK :
+        case ADDR_CHECK_LO :
             //check address with local copy
             if( (uwAddr_p & PDISPI_ADDR_HIGHADDR_MASK) == 
                 (PdiSpiInstance_l.m_addrReg & PDISPI_ADDR_HIGHADDR_MASK) )
@@ -442,6 +710,7 @@ static int setPdiAddrReg
                 break;
             }
         case ADDR_WR_DOWN :
+        case ADDR_WR_DOWN_LO :
         default :
             buildCmdFrame(uwAddr_p, &ubTxData, PDISPI_CMD_HIGHADDR);
             
@@ -456,9 +725,11 @@ static int setPdiAddrReg
             break;
     }
     
+    //check mid address
     switch(fWr_p)
     {
         case ADDR_CHECK :
+        case ADDR_CHECK_LO :
             //check address with local copy
             if( (uwAddr_p & PDISPI_ADDR_MIDADDR_MASK) == 
                 (PdiSpiInstance_l.m_addrReg & PDISPI_ADDR_MIDADDR_MASK) )
@@ -467,6 +738,7 @@ static int setPdiAddrReg
                 break;
             }
         case ADDR_WR_DOWN :
+        case ADDR_WR_DOWN_LO :
         default :
             buildCmdFrame(uwAddr_p, &ubTxData, PDISPI_CMD_MIDADDR);
             
@@ -480,6 +752,32 @@ static int setPdiAddrReg
             break;
     }
     
+    //check low address only if fWr_p is set to ???_LO
+    switch(fWr_p)
+    {
+        case ADDR_CHECK_LO :
+            //check address with local copy
+            if( (uwAddr_p & PDISPI_ADDR_LOWADDR_MASK) ==
+                (PdiSpiInstance_l.m_addrReg & PDISPI_ADDR_LOWADDR_MASK) )
+            {
+                //LOWADDR is equal to local copy(LOWADDR) => skip
+                break;
+            }
+        case ADDR_WR_DOWN_LO :
+            buildCmdFrame(uwAddr_p, &ubTxData, PDISPI_CMD_LOWADDR);
+
+            //store CMD to Tx Buffer
+            if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
+            {   //buffer full
+                iRet = PDISPI_ERROR;
+                goto exit;
+            }
+            PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
+            break;
+        default :
+            break;
+    }
+
     //remember the address register
     PdiSpiInstance_l.m_addrReg = uwAddr_p;
 
@@ -487,11 +785,15 @@ exit:
     return iRet;
 }
 
-/* Sends m_toBeTx bytes stored in the m_txBuffer.
- * 
- *  PDISPI_OK ... Tx done successfully
- *  PDISPI_ERROR ... otherwise
- */
+/**
+********************************************************************************
+\brief  Transmit m_toBeTx byte(s) and store it/them to m_txBuffer
+
+sendTxBuffer() calls the SPI master TX handler. The to be sent bytes should be
+stored in m_txBuffer.
+
+\retval iRet        PDISPI_OK - RX done / otherwise error!
+*******************************************************************************/
 static int sendTxBuffer
 (
     void
@@ -529,11 +831,15 @@ exit:
     return iRet;
 }
 
-/* Receives one byte and stores it into m_rxBuffer.
- * 
- *  PDISPI_OK ... Rx done successfully
- *  PDISPI_ERROR ... otherwise
- */
+/**
+********************************************************************************
+\brief  Receive m_toBeRx byte(s) and store it/them to m_rxBuffer
+
+recRxBuffer() calls the SPI master RX handler. The received bytes are stored
+in m_rxBuffer.
+
+\retval iRet        PDISPI_OK - RX done / otherwise error!
+*******************************************************************************/
 static int recRxBuffer
 (
     void
@@ -571,23 +877,26 @@ exit:
     return iRet;
 }
 
-/* Builds CMD Frame
- *  pFrame_p points to the buffer
- *  ubTyp_p identifies the CMD type:
- *      - PDISPI_CMD_HIGHADDR
- *      - PDISPI_CMD_MIDADDR
- *      - PDISPI_CMD_WR
- *      - PDISPI_CMD_RD
- *      - PDISPI_CMD_IDLE
- * 
- *  PDISPI_OK ... build done successfully
- *  PDISPI_ERROR ... otherwise
- */
+/**
+********************************************************************************
+\brief  Build command frame
+
+buildCmdFrame() builds the possible command frames in the byte pFrame_p. The
+payload of the frame (e.g. address of WR cmd or span of WRSQ cmd) is taken from
+uwPayload_p. ubType_p gives the command type (use defines).
+
+\param  uwPayload_p    cmd frame payload
+\param  pFrame_p    frame buffer pointer
+\param  ubTyp_p     cmd frame type
+
+\retval iRet        can be PDISPI_OK only - if ubTyp_p is unknown, idle frame
+					is returned!
+*******************************************************************************/
 static int buildCmdFrame
 (
-    unsigned short          uwAddr_p,   //CMD frame address
-    unsigned char           *pFrame_p,  //buffer for CMD frame to be built
-    unsigned char           ubTyp_p     //CMD frame type
+    unsigned short          uwPayload_p,   ///< CMD frame payload
+    unsigned char           *pFrame_p,  ///< buffer for CMD frame to be built
+    unsigned char           ubTyp_p     ///< CMD frame type
 )
 {
     int         iRet = PDISPI_OK;
@@ -595,28 +904,43 @@ static int buildCmdFrame
     switch(ubTyp_p)
     {
         case PDISPI_CMD_HIGHADDR :
-            *pFrame_p = (unsigned char) ((uwAddr_p & PDISPI_ADDR_HIGHADDR_MASK) \
+            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_HIGHADDR_MASK) \
                                         >> PDISPI_ADDR_HIGHADDR_OFFSET \
                                         | PDISPI_CMD_HIGHADDR);
             break;
         case PDISPI_CMD_MIDADDR :
-            *pFrame_p = (unsigned char) ((uwAddr_p & PDISPI_ADDR_MIDADDR_MASK) \
+            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_MIDADDR_MASK) \
                                         >> PDISPI_ADDR_MIDADDR_OFFSET \
                                         | PDISPI_CMD_MIDADDR);
             break;
+        case PDISPI_CMD_LOWADDR :
+            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_LOWADDR_MASK) \
+                                        >> PDISPI_ADDR_LOWADDR_OFFSET \
+                                        | PDISPI_CMD_LOWADDR);
+            break;
         case PDISPI_CMD_WR :
-            *pFrame_p = (unsigned char) ((uwAddr_p & PDISPI_ADDR_ADDR_MASK) \
+            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
                                         >> 0 \
                                         | PDISPI_CMD_WR);
             break;
         case PDISPI_CMD_RD :
-            *pFrame_p = (unsigned char) ((uwAddr_p & PDISPI_ADDR_ADDR_MASK) \
+            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
                                         >> 0 \
                                         | PDISPI_CMD_RD);
             break;
+        case PDISPI_CMD_WRSQ :
+            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
+                                        >> 0 \
+                                        | PDISPI_CMD_WRSQ);
+            break;
+        case PDISPI_CMD_RDSQ :
+            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
+                                        >> 0 \
+                                        | PDISPI_CMD_RDSQ);
+            break;
         case PDISPI_CMD_IDLE :
         default :
-            iRet = PDISPI_OK;
+            *pFrame_p = (unsigned char) (0 | PDISPI_CMD_IDLE);
             break;
     }
     

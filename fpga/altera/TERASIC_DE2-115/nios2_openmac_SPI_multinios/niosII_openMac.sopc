@@ -60,14 +60,6 @@
          type = "String";
       }
    }
-   element jtag_uart_1.avalon_jtag_slave
-   {
-      datum baseAddress
-      {
-         value = "2208";
-         type = "long";
-      }
-   }
    element jtag_uart_0.avalon_jtag_slave
    {
       datum _lockedAddress
@@ -78,6 +70,14 @@
       datum baseAddress
       {
          value = "8320";
+         type = "long";
+      }
+   }
+   element jtag_uart_1.avalon_jtag_slave
+   {
+      datum baseAddress
+      {
+         value = "2208";
          type = "long";
       }
    }
@@ -186,19 +186,19 @@
          type = "boolean";
       }
    }
-   element sysid.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2320";
-         type = "long";
-      }
-   }
    element lcd.control_slave
    {
       datum baseAddress
       {
          value = "2192";
+         type = "long";
+      }
+   }
+   element sysid.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2320";
          type = "long";
       }
    }
@@ -259,6 +259,14 @@
          type = "boolean";
       }
    }
+   element ap_cpu.jtag_debug_module
+   {
+      datum baseAddress
+      {
+         value = "4096";
+         type = "long";
+      }
+   }
    element pcp_cpu.jtag_debug_module
    {
       datum _lockedAddress
@@ -269,14 +277,6 @@
       datum baseAddress
       {
          value = "6144";
-         type = "long";
-      }
-   }
-   element ap_cpu.jtag_debug_module
-   {
-      datum baseAddress
-      {
-         value = "4096";
          type = "long";
       }
    }
@@ -446,7 +446,7 @@
          type = "long";
       }
    }
-   element onchip_memory_0.s1
+   element system_timer.s1
    {
       datum _lockedAddress
       {
@@ -459,27 +459,11 @@
          type = "long";
       }
    }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
    element outport_ap.s1
    {
       datum baseAddress
       {
          value = "2144";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
          type = "long";
       }
    }
@@ -491,11 +475,40 @@
          type = "long";
       }
    }
-   element sdram_0.s1
+   element sync_irq_from_pcp.s1
+   {
+      datum _tags
+      {
+         value = "";
+         type = "String";
+      }
+      datum baseAddress
+      {
+         value = "2176";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
    {
       datum baseAddress
       {
-         value = "268435456";
+         value = "2160";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
          type = "long";
       }
    }
@@ -520,36 +533,23 @@
          type = "long";
       }
    }
-   element benchmark_ap_pio.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "2112";
+         value = "268435456";
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element system_timer_ap.s1
    {
       datum baseAddress
       {
-         value = "8224";
+         value = "2048";
          type = "long";
       }
    }
-   element sync_irq_from_pcp.s1
-   {
-      datum _tags
-      {
-         value = "";
-         type = "String";
-      }
-      datum baseAddress
-      {
-         value = "2176";
-         type = "long";
-      }
-   }
-   element system_timer.s1
+   element onchip_memory_0.s1
    {
       datum _lockedAddress
       {
@@ -562,11 +562,11 @@
          type = "long";
       }
    }
-   element inport_ap.s1
+   element benchmark_ap_pio.s1
    {
       datum baseAddress
       {
-         value = "2160";
+         value = "2112";
          type = "long";
       }
    }
@@ -730,7 +730,7 @@
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="13430915947" />
- <parameter name="timeStamp" value="1293089602297" />
+ <parameter name="timeStamp" value="1294748616818" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
