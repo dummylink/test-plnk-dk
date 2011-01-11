@@ -1871,7 +1871,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_pcp.hex 1294734273 ";
       }
       SIMULATION 
       {
@@ -2489,7 +2489,7 @@ SYSTEM niosII_openMac
                priority = "1";
                Offset_Address = "0x01000000";
             }
-            Clock_Source = "clk50";
+            Clock_Source = "clk_pcp";
             Has_Clock = "1";
             Base_Address = "0x01000000";
             Address_Group = "0";

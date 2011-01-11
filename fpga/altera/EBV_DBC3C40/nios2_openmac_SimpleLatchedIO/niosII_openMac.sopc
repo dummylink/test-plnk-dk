@@ -303,6 +303,14 @@
          type = "boolean";
       }
    }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
    element status_led_pio.s1
    {
       datum baseAddress
@@ -324,24 +332,16 @@
          type = "long";
       }
    }
-   element onchip_memory_pcp.s1
+   element remote_update_cycloneiii_0.s1
    {
       datum _lockedAddress
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "8192";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
+         value = "2048";
          type = "long";
       }
    }
@@ -353,16 +353,16 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
+   element onchip_memory_pcp.s1
    {
       datum _lockedAddress
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "2048";
+         value = "8192";
          type = "long";
       }
    }
@@ -429,8 +429,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-12725296876" />
- <parameter name="timeStamp" value="1291975974933" />
+ <parameter name="systemHash" value="-12725296874" />
+ <parameter name="timeStamp" value="1294734168736" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1117,6 +1117,6 @@
  <connection
    kind="clock"
    version="10.0"
-   start="altpll_0.c0"
+   start="altpll_0.c2"
    end="clock_crossing_0.clk_s1" />
 </system>
