@@ -35,7 +35,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -40 64 16 80))
 )
 (pin
 	(input)
@@ -52,7 +51,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -40 240 16 256))
 )
 (pin
 	(input)
@@ -69,7 +67,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "GND" (rect 136 7 157 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 416 24 432))
 )
 (pin
 	(input)
@@ -86,7 +83,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 480 24 496))
 )
 (pin
 	(input)
@@ -103,7 +99,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 496 24 512))
 )
 (pin
 	(input)
@@ -120,7 +115,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 512 24 528))
 )
 (pin
 	(input)
@@ -137,7 +131,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 528 24 544))
 )
 (pin
 	(input)
@@ -154,7 +147,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 544 24 560))
 )
 (pin
 	(input)
@@ -171,7 +163,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 560 24 576))
 )
 (pin
 	(input)
@@ -188,7 +179,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 576 24 592))
 )
 (pin
 	(input)
@@ -205,7 +195,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -32 592 24 608))
 )
 (pin
 	(input)
@@ -222,7 +211,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 96 1152 152 1168))
 )
 (pin
 	(input)
@@ -239,7 +227,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 88 1184 152 1200))
 )
 (pin
 	(output)
@@ -256,7 +243,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 896 1176 912))
 )
 (pin
 	(output)
@@ -273,7 +259,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 944 1176 960))
 )
 (pin
 	(output)
@@ -290,7 +275,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 960 1168 976))
 )
 (pin
 	(output)
@@ -307,7 +291,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 880 1176 896))
 )
 (pin
 	(output)
@@ -324,7 +307,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 912 1168 928))
 )
 (pin
 	(output)
@@ -341,7 +323,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 240 1168 256))
 )
 (pin
 	(output)
@@ -358,7 +339,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 256 1160 272))
 )
 (pin
 	(output)
@@ -375,7 +355,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 272 1160 288))
 )
 (pin
 	(output)
@@ -392,7 +371,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 480 1168 496))
 )
 (pin
 	(output)
@@ -409,7 +387,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 512 1168 528))
 )
 (pin
 	(output)
@@ -426,7 +403,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 528 1168 544))
 )
 (pin
 	(output)
@@ -443,7 +419,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 560 1168 576))
 )
 (pin
 	(output)
@@ -460,7 +435,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 576 1168 592))
 )
 (pin
 	(output)
@@ -477,7 +451,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 592 1168 608))
 )
 (pin
 	(output)
@@ -494,7 +467,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 624 1168 640))
 )
 (pin
 	(output)
@@ -511,7 +483,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 640 1168 656))
 )
 (pin
 	(output)
@@ -528,7 +499,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 88 1168 104))
 )
 (pin
 	(output)
@@ -545,7 +515,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 104 1168 120))
 )
 (pin
 	(output)
@@ -562,7 +531,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 608 1168 624))
 )
 (pin
 	(output)
@@ -579,7 +547,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 656 1168 672))
 )
 (pin
 	(output)
@@ -596,7 +563,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 848 1168 864))
 )
 (pin
 	(output)
@@ -613,7 +579,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 64 1168 80))
 )
 (pin
 	(output)
@@ -630,7 +595,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 688 1168 704))
 )
 (pin
 	(output)
@@ -647,7 +611,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 720 1168 736))
 )
 (pin
 	(output)
@@ -664,7 +627,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 736 1176 752))
 )
 (pin
 	(output)
@@ -681,7 +643,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 752 1168 768))
 )
 (pin
 	(output)
@@ -698,7 +659,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 784 1168 800))
 )
 (pin
 	(output)
@@ -715,7 +675,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 800 1168 816))
 )
 (pin
 	(output)
@@ -732,7 +691,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 816 1168 832))
 )
 (pin
 	(output)
@@ -749,7 +707,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 984 1040 1040 1056))
 )
 (pin
 	(output)
@@ -766,7 +723,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 984 1104 1040 1120))
 )
 (pin
 	(output)
@@ -783,7 +739,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 984 1216 1040 1232))
 )
 (pin
 	(output)
@@ -800,7 +755,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 336 1168 352))
 )
 (pin
 	(output)
@@ -817,7 +771,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 352 1168 368))
 )
 (pin
 	(output)
@@ -834,7 +787,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 368 1168 384))
 )
 (pin
 	(output)
@@ -851,7 +803,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 384 1168 400))
 )
 (pin
 	(output)
@@ -868,7 +819,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 704 1168 720))
 )
 (pin
 	(output)
@@ -885,7 +835,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 304 1168 320))
 )
 (pin
 	(output)
@@ -902,7 +851,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 320 1168 336))
 )
 (pin
 	(output)
@@ -919,7 +867,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 208 1176 224))
 )
 (pin
 	(bidir)
@@ -937,7 +884,6 @@ applicable agreement for further details.
 		(line (pt 52 8)(pt 56 12))
 	)
 	(text "VCC" (rect 4 7 24 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 1112 928 1176 944))
 )
 (pin
 	(bidir)
@@ -955,7 +901,6 @@ applicable agreement for further details.
 		(line (pt 52 8)(pt 56 12))
 	)
 	(text "VCC" (rect 4 7 24 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 1112 496 1168 512))
 )
 (pin
 	(bidir)
@@ -973,7 +918,6 @@ applicable agreement for further details.
 		(line (pt 52 8)(pt 56 12))
 	)
 	(text "VCC" (rect 4 7 24 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 1112 544 1168 560))
 )
 (pin
 	(bidir)
@@ -991,7 +935,6 @@ applicable agreement for further details.
 		(line (pt 52 8)(pt 56 12))
 	)
 	(text "VCC" (rect 4 7 24 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 1112 768 1168 784))
 )
 (symbol
 	(rect 904 104 936 136)
@@ -1244,22 +1187,22 @@ applicable agreement for further details.
 	(port
 		(pt 480 304)
 		(output)
-		(text "LCD_E_from_the_lcd_0 " (rect 0 0 136 14)(font "Arial" (font_size 8)))
-		(text "LCD_E_from_the_lcd_0 " (rect 335 297 471 311)(font "Arial" (font_size 8)))
+		(text "LCD_E_from_the_lcd " (rect 0 0 122 14)(font "Arial" (font_size 8)))
+		(text "LCD_E_from_the_lcd " (rect 348 297 470 311)(font "Arial" (font_size 8)))
 		(line (pt 464 304)(pt 480 304))
 	)
 	(port
 		(pt 480 320)
 		(output)
-		(text "LCD_RS_from_the_lcd_0 " (rect 0 0 146 14)(font "Arial" (font_size 8)))
-		(text "LCD_RS_from_the_lcd_0 " (rect 328 313 474 327)(font "Arial" (font_size 8)))
+		(text "LCD_RS_from_the_lcd " (rect 0 0 132 14)(font "Arial" (font_size 8)))
+		(text "LCD_RS_from_the_lcd " (rect 340 313 472 327)(font "Arial" (font_size 8)))
 		(line (pt 464 320)(pt 480 320))
 	)
 	(port
 		(pt 480 336)
 		(output)
-		(text "LCD_RW_from_the_lcd_0 " (rect 0 0 149 14)(font "Arial" (font_size 8)))
-		(text "LCD_RW_from_the_lcd_0 " (rect 325 329 474 343)(font "Arial" (font_size 8)))
+		(text "LCD_RW_from_the_lcd " (rect 0 0 135 14)(font "Arial" (font_size 8)))
+		(text "LCD_RW_from_the_lcd " (rect 337 329 472 343)(font "Arial" (font_size 8)))
 		(line (pt 464 336)(pt 480 336))
 	)
 	(port
@@ -1440,8 +1383,8 @@ applicable agreement for further details.
 	(port
 		(pt 480 352)
 		(bidir)
-		(text "LCD_data_to_and_from_the_lcd_0[7..0] " (rect 0 0 228 14)(font "Arial" (font_size 8)))
-		(text "LCD_data_to_and_from_the_lcd_0[7..0] " (rect 259 345 487 359)(font "Arial" (font_size 8)))
+		(text "LCD_data_to_and_from_the_lcd[7..0] " (rect 0 0 214 14)(font "Arial" (font_size 8)))
+		(text "LCD_data_to_and_from_the_lcd[7..0] " (rect 271 345 485 359)(font "Arial" (font_size 8)))
 		(line (pt 464 352)(pt 480 352)(line_width 3))
 	)
 	(port
@@ -1488,36 +1431,29 @@ applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 776 808 896 864)
-	(text "LPM_INV" (rect 22 0 88 16)(font "Arial" (font_size 10)))
-	(text "inst5" (rect 3 45 30 59)(font "Arial" (font_size 8)))
+	(rect 832 824 880 856)
+	(text "NOT" (rect 1 0 21 10)(font "Arial" (font_size 6)))
+	(text "inst5" (rect 3 21 26 33)(font "Arial" ))
 	(port
-		(pt 0 32)
+		(pt 0 16)
 		(input)
-		(text "data[LPM_WIDTH-1..0]" (rect 5 19 131 33)(font "Arial" (font_size 8)))
-		(text "data[]" (rect 5 19 36 33)(font "Arial" (font_size 8)))
-		(line (pt 0 32)(pt 45 32)(line_width 3))
+		(text "IN" (rect 2 7 13 19)(font "Courier New" (bold))(invisible))
+		(text "IN" (rect 2 7 13 19)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 13 16))
 	)
 	(port
-		(pt 120 32)
+		(pt 48 16)
 		(output)
-		(text "result[LPM_WIDTH-1..0]" (rect 83 19 216 33)(font "Arial" (font_size 8)))
-		(text "result[]" (rect 83 19 121 33)(font "Arial" (font_size 8)))
-		(line (pt 71 32)(pt 120 32)(line_width 3))
-	)
-	(parameter
-		"LPM_WIDTH"
-		"8"
-		"Number of gates, any integer > 0"
-		" 1" " 2" " 3" " 4" " 5" " 6" " 7" " 8" " 9" "10" "11" "12" "13" "14" "15" "16" "20" "24" "28" "32" "40" "48" "56" "64" 
+		(text "OUT" (rect 32 7 49 19)(font "Courier New" (bold))(invisible))
+		(text "OUT" (rect 32 7 49 19)(font "Courier New" (bold))(invisible))
+		(line (pt 39 16)(pt 48 16))
 	)
 	(drawing
-		(line (pt 45 40)(pt 45 23))
-		(line (pt 45 41)(pt 63 32))
-		(line (pt 45 23)(pt 63 32))
-		(circle (rect 63 28 71 36))
+		(line (pt 13 25)(pt 13 7))
+		(line (pt 13 7)(pt 31 16))
+		(line (pt 13 25)(pt 31 16))
+		(circle (rect 31 12 39 20))
 	)
-	(annotation_block (parameter)(rect 856 824 888 856))
 )
 (connector
 	(text "pll_locked" (rect 858 144 906 156)(font "Arial" ))
@@ -1817,23 +1753,17 @@ applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 752 840)
-	(pt 776 840)
-	(bus)
-)
-(connector
-	(pt 888 840)
-	(pt 896 840)
-	(bus)
-)
-(connector
-	(pt 896 840)
+	(pt 880 840)
 	(pt 936 840)
+	(bus)
+)
+(connector
+	(pt 832 840)
+	(pt 752 840)
 	(bus)
 )
 (junction (pt 920 96))
 (junction (pt 920 296))
-(junction (pt 896 840))
 (text "tie gigabit clk to zero - no gigabit support!" (rect 936 16 1167 30)(font "Arial" (font_size 8)))
 (text "PORT I/O INPUTS" (rect 128 984 284 1003)(font "Arial" (font_size 12)(bold)))
 (text "PORT I/O OUTPUTS" (rect 536 984 714 1003)(font "Arial" (font_size 12)(bold)))

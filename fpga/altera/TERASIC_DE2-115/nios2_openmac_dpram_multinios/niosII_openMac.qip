@@ -28,5 +28,5 @@ set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/s
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/src/portio.vhd]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/src/spi_sreg.vhd]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) powerlink_0.vhd]
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0026B9DFD44A0000012CD10E43A8 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0018E73510F10000012D79A791A6 
  

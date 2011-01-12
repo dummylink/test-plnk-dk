@@ -1768,7 +1768,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_pcp.hex 1294826564 ";
       }
       SIMULATION 
       {

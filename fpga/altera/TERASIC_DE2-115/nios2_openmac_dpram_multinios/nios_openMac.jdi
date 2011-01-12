@@ -279,10 +279,10 @@
         <parameter name="SLD_IP_VERSION" type="dec" value="0"/>
         <parameter name="SLD_IP_MINOR_VERSION" type="dec" value="0"/>
         <parameter name="SLD_COMMON_IP_VERSION" type="dec" value="0"/>
-        <parameter name="sld_node_crc" type="unknown" value="55476"/>
+        <parameter name="sld_node_crc" type="unknown" value="13329"/>
         <parameter name="sld_bank_width" type="unknown" value="8"/>
-        <parameter name="sld_bank_size" type="unknown" value="1"/>
-        <parameter name="sld_bank_sel_width" type="unknown" value="1"/>
+        <parameter name="sld_bank_size" type="unknown" value="3"/>
+        <parameter name="sld_bank_sel_width" type="unknown" value="2"/>
         <parameter name="sld_power_up_state" type="unknown" value="0"/>
         <parameter name="sld_acq_mode" type="unknown" value="0"/>
       </parameters>

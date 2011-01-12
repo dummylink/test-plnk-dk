@@ -3,7 +3,7 @@
 --VERSION: WM1.0
 
 
---Legal Notice: (C)2010 Altera Corporation. All rights reserved.  Your
+--Legal Notice: (C)2011 Altera Corporation. All rights reserved.  Your
 --use of Altera Corporation's design tools, logic functions and other
 --software and tools, and its AMPP partner logic functions, and any
 --output files any of the foregoing (including device programming or
@@ -655,7 +655,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_granted_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                 signal ap_cpu_data_master_granted_lcd_0_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_granted_lcd_control_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_sdram_0_s1 : IN STD_LOGIC;
@@ -664,7 +664,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                 signal ap_cpu_data_master_qualified_request_lcd_0_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_qualified_request_lcd_control_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_sdram_0_s1 : IN STD_LOGIC;
@@ -674,7 +674,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                 signal ap_cpu_data_master_read_data_valid_lcd_0_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_read_data_valid_lcd_control_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_sdram_0_s1 : IN STD_LOGIC;
@@ -684,7 +684,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_requests_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                 signal ap_cpu_data_master_requests_lcd_0_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_requests_lcd_control_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_sdram_0_s1 : IN STD_LOGIC;
@@ -696,7 +696,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal d1_ap_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
                  signal d1_inport_ap_s1_end_xfer : IN STD_LOGIC;
                  signal d1_jtag_uart_1_avalon_jtag_slave_end_xfer : IN STD_LOGIC;
-                 signal d1_lcd_0_control_slave_end_xfer : IN STD_LOGIC;
+                 signal d1_lcd_control_slave_end_xfer : IN STD_LOGIC;
                  signal d1_outport_ap_s1_end_xfer : IN STD_LOGIC;
                  signal d1_powerlink_0_PDI_AP_end_xfer : IN STD_LOGIC;
                  signal d1_sdram_0_s1_end_xfer : IN STD_LOGIC;
@@ -706,9 +706,9 @@ entity ap_cpu_data_master_arbitrator is
                  signal jtag_uart_1_avalon_jtag_slave_irq_from_sa : IN STD_LOGIC;
                  signal jtag_uart_1_avalon_jtag_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa : IN STD_LOGIC;
-                 signal lcd_0_control_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-                 signal lcd_0_control_slave_wait_counter_eq_0 : IN STD_LOGIC;
-                 signal lcd_0_control_slave_wait_counter_eq_1 : IN STD_LOGIC;
+                 signal lcd_control_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal lcd_control_slave_wait_counter_eq_0 : IN STD_LOGIC;
+                 signal lcd_control_slave_wait_counter_eq_1 : IN STD_LOGIC;
                  signal outport_ap_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (23 DOWNTO 0);
                  signal powerlink_0_PDI_AP_irq_from_sa : IN STD_LOGIC;
                  signal powerlink_0_PDI_AP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -742,7 +742,7 @@ architecture europa of ap_cpu_data_master_arbitrator is
 begin
 
   --r_0 master_run cascaded wait assignment, which is an e_assign
-  r_0 <= Vector_To_Std_Logic(((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_lcd_0_control_slave OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_0_control_slave_wait_counter_eq_1)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_lcd_0_control_slave OR NOT ap_cpu_data_master_write)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_0_control_slave_wait_counter_eq_1)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
+  r_0 <= Vector_To_Std_Logic(((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_lcd_control_slave OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_control_slave_wait_counter_eq_1)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_lcd_control_slave OR NOT ap_cpu_data_master_write)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_control_slave_wait_counter_eq_1)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
   --cascaded wait assignment, which is an e_assign
   ap_cpu_data_master_run <= (r_0 AND r_1) AND r_2;
   --r_1 master_run cascaded wait assignment, which is an e_assign
@@ -752,7 +752,7 @@ begin
   --optimize select-logic by passing only those address bits which matter.
   internal_ap_cpu_data_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(ap_cpu_data_master_address(28)) & A_ToStdLogicVector(std_logic'('0')) & ap_cpu_data_master_address(26 DOWNTO 0));
   --ap_cpu/data_master readdata mux, which is an e_mux
-  ap_cpu_data_master_readdata <= (((((((((A_REP(NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_inport_ap_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (inport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_lcd_0_control_slave, 32) OR (std_logic_vector'("000000000000000000000000") & (lcd_0_control_slave_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_outport_ap_s1, 32) OR (std_logic_vector'("00000000") & (outport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_powerlink_0_PDI_AP, 32) OR powerlink_0_PDI_AP_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_sysid_control_slave, 32) OR sysid_control_slave_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_system_timer_ap_s1, 32) OR (std_logic_vector'("0000000000000000") & (system_timer_ap_s1_readdata_from_sa))));
+  ap_cpu_data_master_readdata <= (((((((((A_REP(NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_inport_ap_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (inport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_lcd_control_slave, 32) OR (std_logic_vector'("000000000000000000000000") & (lcd_control_slave_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_outport_ap_s1, 32) OR (std_logic_vector'("00000000") & (outport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_powerlink_0_PDI_AP, 32) OR powerlink_0_PDI_AP_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_sysid_control_slave, 32) OR sysid_control_slave_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_system_timer_ap_s1, 32) OR (std_logic_vector'("0000000000000000") & (system_timer_ap_s1_readdata_from_sa))));
   --actual waitrequest port, which is an e_register
   process (clk, reset_n)
   begin
@@ -4444,7 +4444,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-entity lcd_0_control_slave_arbitrator is 
+entity lcd_control_slave_arbitrator is 
         port (
               -- inputs:
                  signal ap_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
@@ -4453,69 +4453,69 @@ entity lcd_0_control_slave_arbitrator is
                  signal ap_cpu_data_master_write : IN STD_LOGIC;
                  signal ap_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal clk : IN STD_LOGIC;
-                 signal lcd_0_control_slave_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal lcd_control_slave_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                  signal reset_n : IN STD_LOGIC;
 
               -- outputs:
-                 signal ap_cpu_data_master_granted_lcd_0_control_slave : OUT STD_LOGIC;
-                 signal ap_cpu_data_master_qualified_request_lcd_0_control_slave : OUT STD_LOGIC;
-                 signal ap_cpu_data_master_read_data_valid_lcd_0_control_slave : OUT STD_LOGIC;
-                 signal ap_cpu_data_master_requests_lcd_0_control_slave : OUT STD_LOGIC;
-                 signal d1_lcd_0_control_slave_end_xfer : OUT STD_LOGIC;
-                 signal lcd_0_control_slave_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-                 signal lcd_0_control_slave_begintransfer : OUT STD_LOGIC;
-                 signal lcd_0_control_slave_read : OUT STD_LOGIC;
-                 signal lcd_0_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-                 signal lcd_0_control_slave_wait_counter_eq_0 : OUT STD_LOGIC;
-                 signal lcd_0_control_slave_wait_counter_eq_1 : OUT STD_LOGIC;
-                 signal lcd_0_control_slave_write : OUT STD_LOGIC;
-                 signal lcd_0_control_slave_writedata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+                 signal ap_cpu_data_master_granted_lcd_control_slave : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_qualified_request_lcd_control_slave : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_read_data_valid_lcd_control_slave : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_requests_lcd_control_slave : OUT STD_LOGIC;
+                 signal d1_lcd_control_slave_end_xfer : OUT STD_LOGIC;
+                 signal lcd_control_slave_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal lcd_control_slave_begintransfer : OUT STD_LOGIC;
+                 signal lcd_control_slave_read : OUT STD_LOGIC;
+                 signal lcd_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal lcd_control_slave_wait_counter_eq_0 : OUT STD_LOGIC;
+                 signal lcd_control_slave_wait_counter_eq_1 : OUT STD_LOGIC;
+                 signal lcd_control_slave_write : OUT STD_LOGIC;
+                 signal lcd_control_slave_writedata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
               );
-end entity lcd_0_control_slave_arbitrator;
+end entity lcd_control_slave_arbitrator;
 
 
-architecture europa of lcd_0_control_slave_arbitrator is
+architecture europa of lcd_control_slave_arbitrator is
                 signal ap_cpu_data_master_arbiterlock :  STD_LOGIC;
                 signal ap_cpu_data_master_arbiterlock2 :  STD_LOGIC;
                 signal ap_cpu_data_master_continuerequest :  STD_LOGIC;
-                signal ap_cpu_data_master_saved_grant_lcd_0_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_saved_grant_lcd_control_slave :  STD_LOGIC;
                 signal d1_reasons_to_wait :  STD_LOGIC;
                 signal enable_nonzero_assertions :  STD_LOGIC;
-                signal end_xfer_arb_share_counter_term_lcd_0_control_slave :  STD_LOGIC;
+                signal end_xfer_arb_share_counter_term_lcd_control_slave :  STD_LOGIC;
                 signal in_a_read_cycle :  STD_LOGIC;
                 signal in_a_write_cycle :  STD_LOGIC;
-                signal internal_ap_cpu_data_master_granted_lcd_0_control_slave :  STD_LOGIC;
-                signal internal_ap_cpu_data_master_qualified_request_lcd_0_control_slave :  STD_LOGIC;
-                signal internal_ap_cpu_data_master_requests_lcd_0_control_slave :  STD_LOGIC;
-                signal internal_lcd_0_control_slave_wait_counter_eq_0 :  STD_LOGIC;
-                signal lcd_0_control_slave_allgrants :  STD_LOGIC;
-                signal lcd_0_control_slave_allow_new_arb_cycle :  STD_LOGIC;
-                signal lcd_0_control_slave_any_bursting_master_saved_grant :  STD_LOGIC;
-                signal lcd_0_control_slave_any_continuerequest :  STD_LOGIC;
-                signal lcd_0_control_slave_arb_counter_enable :  STD_LOGIC;
-                signal lcd_0_control_slave_arb_share_counter :  STD_LOGIC;
-                signal lcd_0_control_slave_arb_share_counter_next_value :  STD_LOGIC;
-                signal lcd_0_control_slave_arb_share_set_values :  STD_LOGIC;
-                signal lcd_0_control_slave_beginbursttransfer_internal :  STD_LOGIC;
-                signal lcd_0_control_slave_begins_xfer :  STD_LOGIC;
-                signal lcd_0_control_slave_counter_load_value :  STD_LOGIC_VECTOR (5 DOWNTO 0);
-                signal lcd_0_control_slave_end_xfer :  STD_LOGIC;
-                signal lcd_0_control_slave_firsttransfer :  STD_LOGIC;
-                signal lcd_0_control_slave_grant_vector :  STD_LOGIC;
-                signal lcd_0_control_slave_in_a_read_cycle :  STD_LOGIC;
-                signal lcd_0_control_slave_in_a_write_cycle :  STD_LOGIC;
-                signal lcd_0_control_slave_master_qreq_vector :  STD_LOGIC;
-                signal lcd_0_control_slave_non_bursting_master_requests :  STD_LOGIC;
-                signal lcd_0_control_slave_pretend_byte_enable :  STD_LOGIC;
-                signal lcd_0_control_slave_reg_firsttransfer :  STD_LOGIC;
-                signal lcd_0_control_slave_slavearbiterlockenable :  STD_LOGIC;
-                signal lcd_0_control_slave_slavearbiterlockenable2 :  STD_LOGIC;
-                signal lcd_0_control_slave_unreg_firsttransfer :  STD_LOGIC;
-                signal lcd_0_control_slave_wait_counter :  STD_LOGIC_VECTOR (5 DOWNTO 0);
-                signal lcd_0_control_slave_waits_for_read :  STD_LOGIC;
-                signal lcd_0_control_slave_waits_for_write :  STD_LOGIC;
-                signal shifted_address_to_lcd_0_control_slave_from_ap_cpu_data_master :  STD_LOGIC_VECTOR (28 DOWNTO 0);
-                signal wait_for_lcd_0_control_slave_counter :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_granted_lcd_control_slave :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_qualified_request_lcd_control_slave :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_requests_lcd_control_slave :  STD_LOGIC;
+                signal internal_lcd_control_slave_wait_counter_eq_0 :  STD_LOGIC;
+                signal lcd_control_slave_allgrants :  STD_LOGIC;
+                signal lcd_control_slave_allow_new_arb_cycle :  STD_LOGIC;
+                signal lcd_control_slave_any_bursting_master_saved_grant :  STD_LOGIC;
+                signal lcd_control_slave_any_continuerequest :  STD_LOGIC;
+                signal lcd_control_slave_arb_counter_enable :  STD_LOGIC;
+                signal lcd_control_slave_arb_share_counter :  STD_LOGIC;
+                signal lcd_control_slave_arb_share_counter_next_value :  STD_LOGIC;
+                signal lcd_control_slave_arb_share_set_values :  STD_LOGIC;
+                signal lcd_control_slave_beginbursttransfer_internal :  STD_LOGIC;
+                signal lcd_control_slave_begins_xfer :  STD_LOGIC;
+                signal lcd_control_slave_counter_load_value :  STD_LOGIC_VECTOR (5 DOWNTO 0);
+                signal lcd_control_slave_end_xfer :  STD_LOGIC;
+                signal lcd_control_slave_firsttransfer :  STD_LOGIC;
+                signal lcd_control_slave_grant_vector :  STD_LOGIC;
+                signal lcd_control_slave_in_a_read_cycle :  STD_LOGIC;
+                signal lcd_control_slave_in_a_write_cycle :  STD_LOGIC;
+                signal lcd_control_slave_master_qreq_vector :  STD_LOGIC;
+                signal lcd_control_slave_non_bursting_master_requests :  STD_LOGIC;
+                signal lcd_control_slave_pretend_byte_enable :  STD_LOGIC;
+                signal lcd_control_slave_reg_firsttransfer :  STD_LOGIC;
+                signal lcd_control_slave_slavearbiterlockenable :  STD_LOGIC;
+                signal lcd_control_slave_slavearbiterlockenable2 :  STD_LOGIC;
+                signal lcd_control_slave_unreg_firsttransfer :  STD_LOGIC;
+                signal lcd_control_slave_wait_counter :  STD_LOGIC_VECTOR (5 DOWNTO 0);
+                signal lcd_control_slave_waits_for_read :  STD_LOGIC;
+                signal lcd_control_slave_waits_for_write :  STD_LOGIC;
+                signal shifted_address_to_lcd_control_slave_from_ap_cpu_data_master :  STD_LOGIC_VECTOR (28 DOWNTO 0);
+                signal wait_for_lcd_control_slave_counter :  STD_LOGIC;
 
 begin
 
@@ -4524,157 +4524,157 @@ begin
     if reset_n = '0' then
       d1_reasons_to_wait <= std_logic'('0');
     elsif clk'event and clk = '1' then
-      d1_reasons_to_wait <= NOT lcd_0_control_slave_end_xfer;
+      d1_reasons_to_wait <= NOT lcd_control_slave_end_xfer;
     end if;
 
   end process;
 
-  lcd_0_control_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_lcd_0_control_slave);
-  --assign lcd_0_control_slave_readdata_from_sa = lcd_0_control_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  lcd_0_control_slave_readdata_from_sa <= lcd_0_control_slave_readdata;
-  internal_ap_cpu_data_master_requests_lcd_0_control_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100001000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
-  --lcd_0_control_slave_arb_share_counter set values, which is an e_mux
-  lcd_0_control_slave_arb_share_set_values <= std_logic'('1');
-  --lcd_0_control_slave_non_bursting_master_requests mux, which is an e_mux
-  lcd_0_control_slave_non_bursting_master_requests <= internal_ap_cpu_data_master_requests_lcd_0_control_slave;
-  --lcd_0_control_slave_any_bursting_master_saved_grant mux, which is an e_mux
-  lcd_0_control_slave_any_bursting_master_saved_grant <= std_logic'('0');
-  --lcd_0_control_slave_arb_share_counter_next_value assignment, which is an e_assign
-  lcd_0_control_slave_arb_share_counter_next_value <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(lcd_0_control_slave_firsttransfer) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_0_control_slave_arb_share_set_values))) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(lcd_0_control_slave_arb_share_counter) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_0_control_slave_arb_share_counter))) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))));
-  --lcd_0_control_slave_allgrants all slave grants, which is an e_mux
-  lcd_0_control_slave_allgrants <= lcd_0_control_slave_grant_vector;
-  --lcd_0_control_slave_end_xfer assignment, which is an e_assign
-  lcd_0_control_slave_end_xfer <= NOT ((lcd_0_control_slave_waits_for_read OR lcd_0_control_slave_waits_for_write));
-  --end_xfer_arb_share_counter_term_lcd_0_control_slave arb share counter enable term, which is an e_assign
-  end_xfer_arb_share_counter_term_lcd_0_control_slave <= lcd_0_control_slave_end_xfer AND (((NOT lcd_0_control_slave_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
-  --lcd_0_control_slave_arb_share_counter arbitration counter enable, which is an e_assign
-  lcd_0_control_slave_arb_counter_enable <= ((end_xfer_arb_share_counter_term_lcd_0_control_slave AND lcd_0_control_slave_allgrants)) OR ((end_xfer_arb_share_counter_term_lcd_0_control_slave AND NOT lcd_0_control_slave_non_bursting_master_requests));
-  --lcd_0_control_slave_arb_share_counter counter, which is an e_register
+  lcd_control_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_lcd_control_slave);
+  --assign lcd_control_slave_readdata_from_sa = lcd_control_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  lcd_control_slave_readdata_from_sa <= lcd_control_slave_readdata;
+  internal_ap_cpu_data_master_requests_lcd_control_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100001000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  --lcd_control_slave_arb_share_counter set values, which is an e_mux
+  lcd_control_slave_arb_share_set_values <= std_logic'('1');
+  --lcd_control_slave_non_bursting_master_requests mux, which is an e_mux
+  lcd_control_slave_non_bursting_master_requests <= internal_ap_cpu_data_master_requests_lcd_control_slave;
+  --lcd_control_slave_any_bursting_master_saved_grant mux, which is an e_mux
+  lcd_control_slave_any_bursting_master_saved_grant <= std_logic'('0');
+  --lcd_control_slave_arb_share_counter_next_value assignment, which is an e_assign
+  lcd_control_slave_arb_share_counter_next_value <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(lcd_control_slave_firsttransfer) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_control_slave_arb_share_set_values))) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(lcd_control_slave_arb_share_counter) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(lcd_control_slave_arb_share_counter))) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))));
+  --lcd_control_slave_allgrants all slave grants, which is an e_mux
+  lcd_control_slave_allgrants <= lcd_control_slave_grant_vector;
+  --lcd_control_slave_end_xfer assignment, which is an e_assign
+  lcd_control_slave_end_xfer <= NOT ((lcd_control_slave_waits_for_read OR lcd_control_slave_waits_for_write));
+  --end_xfer_arb_share_counter_term_lcd_control_slave arb share counter enable term, which is an e_assign
+  end_xfer_arb_share_counter_term_lcd_control_slave <= lcd_control_slave_end_xfer AND (((NOT lcd_control_slave_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
+  --lcd_control_slave_arb_share_counter arbitration counter enable, which is an e_assign
+  lcd_control_slave_arb_counter_enable <= ((end_xfer_arb_share_counter_term_lcd_control_slave AND lcd_control_slave_allgrants)) OR ((end_xfer_arb_share_counter_term_lcd_control_slave AND NOT lcd_control_slave_non_bursting_master_requests));
+  --lcd_control_slave_arb_share_counter counter, which is an e_register
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      lcd_0_control_slave_arb_share_counter <= std_logic'('0');
+      lcd_control_slave_arb_share_counter <= std_logic'('0');
     elsif clk'event and clk = '1' then
-      if std_logic'(lcd_0_control_slave_arb_counter_enable) = '1' then 
-        lcd_0_control_slave_arb_share_counter <= lcd_0_control_slave_arb_share_counter_next_value;
+      if std_logic'(lcd_control_slave_arb_counter_enable) = '1' then 
+        lcd_control_slave_arb_share_counter <= lcd_control_slave_arb_share_counter_next_value;
       end if;
     end if;
 
   end process;
 
-  --lcd_0_control_slave_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  --lcd_control_slave_slavearbiterlockenable slave enables arbiterlock, which is an e_register
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      lcd_0_control_slave_slavearbiterlockenable <= std_logic'('0');
+      lcd_control_slave_slavearbiterlockenable <= std_logic'('0');
     elsif clk'event and clk = '1' then
-      if std_logic'((((lcd_0_control_slave_master_qreq_vector AND end_xfer_arb_share_counter_term_lcd_0_control_slave)) OR ((end_xfer_arb_share_counter_term_lcd_0_control_slave AND NOT lcd_0_control_slave_non_bursting_master_requests)))) = '1' then 
-        lcd_0_control_slave_slavearbiterlockenable <= lcd_0_control_slave_arb_share_counter_next_value;
+      if std_logic'((((lcd_control_slave_master_qreq_vector AND end_xfer_arb_share_counter_term_lcd_control_slave)) OR ((end_xfer_arb_share_counter_term_lcd_control_slave AND NOT lcd_control_slave_non_bursting_master_requests)))) = '1' then 
+        lcd_control_slave_slavearbiterlockenable <= lcd_control_slave_arb_share_counter_next_value;
       end if;
     end if;
 
   end process;
 
-  --ap_cpu/data_master lcd_0/control_slave arbiterlock, which is an e_assign
-  ap_cpu_data_master_arbiterlock <= lcd_0_control_slave_slavearbiterlockenable AND ap_cpu_data_master_continuerequest;
-  --lcd_0_control_slave_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  lcd_0_control_slave_slavearbiterlockenable2 <= lcd_0_control_slave_arb_share_counter_next_value;
-  --ap_cpu/data_master lcd_0/control_slave arbiterlock2, which is an e_assign
-  ap_cpu_data_master_arbiterlock2 <= lcd_0_control_slave_slavearbiterlockenable2 AND ap_cpu_data_master_continuerequest;
-  --lcd_0_control_slave_any_continuerequest at least one master continues requesting, which is an e_assign
-  lcd_0_control_slave_any_continuerequest <= std_logic'('1');
+  --ap_cpu/data_master lcd/control_slave arbiterlock, which is an e_assign
+  ap_cpu_data_master_arbiterlock <= lcd_control_slave_slavearbiterlockenable AND ap_cpu_data_master_continuerequest;
+  --lcd_control_slave_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  lcd_control_slave_slavearbiterlockenable2 <= lcd_control_slave_arb_share_counter_next_value;
+  --ap_cpu/data_master lcd/control_slave arbiterlock2, which is an e_assign
+  ap_cpu_data_master_arbiterlock2 <= lcd_control_slave_slavearbiterlockenable2 AND ap_cpu_data_master_continuerequest;
+  --lcd_control_slave_any_continuerequest at least one master continues requesting, which is an e_assign
+  lcd_control_slave_any_continuerequest <= std_logic'('1');
   --ap_cpu_data_master_continuerequest continued request, which is an e_assign
   ap_cpu_data_master_continuerequest <= std_logic'('1');
-  internal_ap_cpu_data_master_qualified_request_lcd_0_control_slave <= internal_ap_cpu_data_master_requests_lcd_0_control_slave;
-  --lcd_0_control_slave_writedata mux, which is an e_mux
-  lcd_0_control_slave_writedata <= ap_cpu_data_master_writedata (7 DOWNTO 0);
+  internal_ap_cpu_data_master_qualified_request_lcd_control_slave <= internal_ap_cpu_data_master_requests_lcd_control_slave;
+  --lcd_control_slave_writedata mux, which is an e_mux
+  lcd_control_slave_writedata <= ap_cpu_data_master_writedata (7 DOWNTO 0);
   --master is always granted when requested
-  internal_ap_cpu_data_master_granted_lcd_0_control_slave <= internal_ap_cpu_data_master_qualified_request_lcd_0_control_slave;
-  --ap_cpu/data_master saved-grant lcd_0/control_slave, which is an e_assign
-  ap_cpu_data_master_saved_grant_lcd_0_control_slave <= internal_ap_cpu_data_master_requests_lcd_0_control_slave;
-  --allow new arb cycle for lcd_0/control_slave, which is an e_assign
-  lcd_0_control_slave_allow_new_arb_cycle <= std_logic'('1');
+  internal_ap_cpu_data_master_granted_lcd_control_slave <= internal_ap_cpu_data_master_qualified_request_lcd_control_slave;
+  --ap_cpu/data_master saved-grant lcd/control_slave, which is an e_assign
+  ap_cpu_data_master_saved_grant_lcd_control_slave <= internal_ap_cpu_data_master_requests_lcd_control_slave;
+  --allow new arb cycle for lcd/control_slave, which is an e_assign
+  lcd_control_slave_allow_new_arb_cycle <= std_logic'('1');
   --placeholder chosen master
-  lcd_0_control_slave_grant_vector <= std_logic'('1');
+  lcd_control_slave_grant_vector <= std_logic'('1');
   --placeholder vector of master qualified-requests
-  lcd_0_control_slave_master_qreq_vector <= std_logic'('1');
-  lcd_0_control_slave_begintransfer <= lcd_0_control_slave_begins_xfer;
-  --lcd_0_control_slave_firsttransfer first transaction, which is an e_assign
-  lcd_0_control_slave_firsttransfer <= A_WE_StdLogic((std_logic'(lcd_0_control_slave_begins_xfer) = '1'), lcd_0_control_slave_unreg_firsttransfer, lcd_0_control_slave_reg_firsttransfer);
-  --lcd_0_control_slave_unreg_firsttransfer first transaction, which is an e_assign
-  lcd_0_control_slave_unreg_firsttransfer <= NOT ((lcd_0_control_slave_slavearbiterlockenable AND lcd_0_control_slave_any_continuerequest));
-  --lcd_0_control_slave_reg_firsttransfer first transaction, which is an e_register
+  lcd_control_slave_master_qreq_vector <= std_logic'('1');
+  lcd_control_slave_begintransfer <= lcd_control_slave_begins_xfer;
+  --lcd_control_slave_firsttransfer first transaction, which is an e_assign
+  lcd_control_slave_firsttransfer <= A_WE_StdLogic((std_logic'(lcd_control_slave_begins_xfer) = '1'), lcd_control_slave_unreg_firsttransfer, lcd_control_slave_reg_firsttransfer);
+  --lcd_control_slave_unreg_firsttransfer first transaction, which is an e_assign
+  lcd_control_slave_unreg_firsttransfer <= NOT ((lcd_control_slave_slavearbiterlockenable AND lcd_control_slave_any_continuerequest));
+  --lcd_control_slave_reg_firsttransfer first transaction, which is an e_register
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      lcd_0_control_slave_reg_firsttransfer <= std_logic'('1');
+      lcd_control_slave_reg_firsttransfer <= std_logic'('1');
     elsif clk'event and clk = '1' then
-      if std_logic'(lcd_0_control_slave_begins_xfer) = '1' then 
-        lcd_0_control_slave_reg_firsttransfer <= lcd_0_control_slave_unreg_firsttransfer;
+      if std_logic'(lcd_control_slave_begins_xfer) = '1' then 
+        lcd_control_slave_reg_firsttransfer <= lcd_control_slave_unreg_firsttransfer;
       end if;
     end if;
 
   end process;
 
-  --lcd_0_control_slave_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  lcd_0_control_slave_beginbursttransfer_internal <= lcd_0_control_slave_begins_xfer;
-  --lcd_0_control_slave_read assignment, which is an e_mux
-  lcd_0_control_slave_read <= (((internal_ap_cpu_data_master_granted_lcd_0_control_slave AND ap_cpu_data_master_read)) AND NOT lcd_0_control_slave_begins_xfer) AND to_std_logic((((std_logic_vector'("00000000000000000000000000") & (lcd_0_control_slave_wait_counter))<std_logic_vector'("00000000000000000000000000001101"))));
-  --lcd_0_control_slave_write assignment, which is an e_mux
-  lcd_0_control_slave_write <= (((((internal_ap_cpu_data_master_granted_lcd_0_control_slave AND ap_cpu_data_master_write)) AND NOT lcd_0_control_slave_begins_xfer) AND to_std_logic((((std_logic_vector'("00000000000000000000000000") & (lcd_0_control_slave_wait_counter))>=std_logic_vector'("00000000000000000000000000001101"))))) AND to_std_logic((((std_logic_vector'("00000000000000000000000000") & (lcd_0_control_slave_wait_counter))<std_logic_vector'("00000000000000000000000000011010"))))) AND lcd_0_control_slave_pretend_byte_enable;
-  shifted_address_to_lcd_0_control_slave_from_ap_cpu_data_master <= ap_cpu_data_master_address_to_slave;
-  --lcd_0_control_slave_address mux, which is an e_mux
-  lcd_0_control_slave_address <= A_EXT (A_SRL(shifted_address_to_lcd_0_control_slave_from_ap_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")), 2);
-  --d1_lcd_0_control_slave_end_xfer register, which is an e_register
+  --lcd_control_slave_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  lcd_control_slave_beginbursttransfer_internal <= lcd_control_slave_begins_xfer;
+  --lcd_control_slave_read assignment, which is an e_mux
+  lcd_control_slave_read <= (((internal_ap_cpu_data_master_granted_lcd_control_slave AND ap_cpu_data_master_read)) AND NOT lcd_control_slave_begins_xfer) AND to_std_logic((((std_logic_vector'("00000000000000000000000000") & (lcd_control_slave_wait_counter))<std_logic_vector'("00000000000000000000000000001101"))));
+  --lcd_control_slave_write assignment, which is an e_mux
+  lcd_control_slave_write <= (((((internal_ap_cpu_data_master_granted_lcd_control_slave AND ap_cpu_data_master_write)) AND NOT lcd_control_slave_begins_xfer) AND to_std_logic((((std_logic_vector'("00000000000000000000000000") & (lcd_control_slave_wait_counter))>=std_logic_vector'("00000000000000000000000000001101"))))) AND to_std_logic((((std_logic_vector'("00000000000000000000000000") & (lcd_control_slave_wait_counter))<std_logic_vector'("00000000000000000000000000011010"))))) AND lcd_control_slave_pretend_byte_enable;
+  shifted_address_to_lcd_control_slave_from_ap_cpu_data_master <= ap_cpu_data_master_address_to_slave;
+  --lcd_control_slave_address mux, which is an e_mux
+  lcd_control_slave_address <= A_EXT (A_SRL(shifted_address_to_lcd_control_slave_from_ap_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")), 2);
+  --d1_lcd_control_slave_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      d1_lcd_0_control_slave_end_xfer <= std_logic'('1');
+      d1_lcd_control_slave_end_xfer <= std_logic'('1');
     elsif clk'event and clk = '1' then
-      d1_lcd_0_control_slave_end_xfer <= lcd_0_control_slave_end_xfer;
+      d1_lcd_control_slave_end_xfer <= lcd_control_slave_end_xfer;
     end if;
 
   end process;
 
-  --lcd_0_control_slave_wait_counter_eq_1 assignment, which is an e_assign
-  lcd_0_control_slave_wait_counter_eq_1 <= to_std_logic(((std_logic_vector'("00000000000000000000000000") & (lcd_0_control_slave_wait_counter)) = std_logic_vector'("00000000000000000000000000000001")));
-  --lcd_0_control_slave_waits_for_read in a cycle, which is an e_mux
-  lcd_0_control_slave_waits_for_read <= lcd_0_control_slave_in_a_read_cycle AND wait_for_lcd_0_control_slave_counter;
-  --lcd_0_control_slave_in_a_read_cycle assignment, which is an e_assign
-  lcd_0_control_slave_in_a_read_cycle <= internal_ap_cpu_data_master_granted_lcd_0_control_slave AND ap_cpu_data_master_read;
+  --lcd_control_slave_wait_counter_eq_1 assignment, which is an e_assign
+  lcd_control_slave_wait_counter_eq_1 <= to_std_logic(((std_logic_vector'("00000000000000000000000000") & (lcd_control_slave_wait_counter)) = std_logic_vector'("00000000000000000000000000000001")));
+  --lcd_control_slave_waits_for_read in a cycle, which is an e_mux
+  lcd_control_slave_waits_for_read <= lcd_control_slave_in_a_read_cycle AND wait_for_lcd_control_slave_counter;
+  --lcd_control_slave_in_a_read_cycle assignment, which is an e_assign
+  lcd_control_slave_in_a_read_cycle <= internal_ap_cpu_data_master_granted_lcd_control_slave AND ap_cpu_data_master_read;
   --in_a_read_cycle assignment, which is an e_mux
-  in_a_read_cycle <= lcd_0_control_slave_in_a_read_cycle;
-  --lcd_0_control_slave_waits_for_write in a cycle, which is an e_mux
-  lcd_0_control_slave_waits_for_write <= lcd_0_control_slave_in_a_write_cycle AND wait_for_lcd_0_control_slave_counter;
-  --lcd_0_control_slave_in_a_write_cycle assignment, which is an e_assign
-  lcd_0_control_slave_in_a_write_cycle <= internal_ap_cpu_data_master_granted_lcd_0_control_slave AND ap_cpu_data_master_write;
+  in_a_read_cycle <= lcd_control_slave_in_a_read_cycle;
+  --lcd_control_slave_waits_for_write in a cycle, which is an e_mux
+  lcd_control_slave_waits_for_write <= lcd_control_slave_in_a_write_cycle AND wait_for_lcd_control_slave_counter;
+  --lcd_control_slave_in_a_write_cycle assignment, which is an e_assign
+  lcd_control_slave_in_a_write_cycle <= internal_ap_cpu_data_master_granted_lcd_control_slave AND ap_cpu_data_master_write;
   --in_a_write_cycle assignment, which is an e_mux
-  in_a_write_cycle <= lcd_0_control_slave_in_a_write_cycle;
-  internal_lcd_0_control_slave_wait_counter_eq_0 <= to_std_logic(((std_logic_vector'("00000000000000000000000000") & (lcd_0_control_slave_wait_counter)) = std_logic_vector'("00000000000000000000000000000000")));
+  in_a_write_cycle <= lcd_control_slave_in_a_write_cycle;
+  internal_lcd_control_slave_wait_counter_eq_0 <= to_std_logic(((std_logic_vector'("00000000000000000000000000") & (lcd_control_slave_wait_counter)) = std_logic_vector'("00000000000000000000000000000000")));
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      lcd_0_control_slave_wait_counter <= std_logic_vector'("000000");
+      lcd_control_slave_wait_counter <= std_logic_vector'("000000");
     elsif clk'event and clk = '1' then
-      lcd_0_control_slave_wait_counter <= lcd_0_control_slave_counter_load_value;
+      lcd_control_slave_wait_counter <= lcd_control_slave_counter_load_value;
     end if;
 
   end process;
 
-  lcd_0_control_slave_counter_load_value <= A_EXT (A_WE_StdLogicVector((std_logic'(((lcd_0_control_slave_in_a_read_cycle AND lcd_0_control_slave_begins_xfer))) = '1'), std_logic_vector'("000000000000000000000000000011000"), A_WE_StdLogicVector((std_logic'(((lcd_0_control_slave_in_a_write_cycle AND lcd_0_control_slave_begins_xfer))) = '1'), std_logic_vector'("000000000000000000000000000100101"), A_WE_StdLogicVector((std_logic'((NOT internal_lcd_0_control_slave_wait_counter_eq_0)) = '1'), ((std_logic_vector'("000000000000000000000000000") & (lcd_0_control_slave_wait_counter)) - std_logic_vector'("000000000000000000000000000000001")), std_logic_vector'("000000000000000000000000000000000")))), 6);
-  wait_for_lcd_0_control_slave_counter <= lcd_0_control_slave_begins_xfer OR NOT internal_lcd_0_control_slave_wait_counter_eq_0;
-  --lcd_0_control_slave_pretend_byte_enable byte enable port mux, which is an e_mux
-  lcd_0_control_slave_pretend_byte_enable <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'((internal_ap_cpu_data_master_granted_lcd_0_control_slave)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (ap_cpu_data_master_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))));
+  lcd_control_slave_counter_load_value <= A_EXT (A_WE_StdLogicVector((std_logic'(((lcd_control_slave_in_a_read_cycle AND lcd_control_slave_begins_xfer))) = '1'), std_logic_vector'("000000000000000000000000000011000"), A_WE_StdLogicVector((std_logic'(((lcd_control_slave_in_a_write_cycle AND lcd_control_slave_begins_xfer))) = '1'), std_logic_vector'("000000000000000000000000000100101"), A_WE_StdLogicVector((std_logic'((NOT internal_lcd_control_slave_wait_counter_eq_0)) = '1'), ((std_logic_vector'("000000000000000000000000000") & (lcd_control_slave_wait_counter)) - std_logic_vector'("000000000000000000000000000000001")), std_logic_vector'("000000000000000000000000000000000")))), 6);
+  wait_for_lcd_control_slave_counter <= lcd_control_slave_begins_xfer OR NOT internal_lcd_control_slave_wait_counter_eq_0;
+  --lcd_control_slave_pretend_byte_enable byte enable port mux, which is an e_mux
+  lcd_control_slave_pretend_byte_enable <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'((internal_ap_cpu_data_master_granted_lcd_control_slave)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (ap_cpu_data_master_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))));
   --vhdl renameroo for output signals
-  ap_cpu_data_master_granted_lcd_0_control_slave <= internal_ap_cpu_data_master_granted_lcd_0_control_slave;
+  ap_cpu_data_master_granted_lcd_control_slave <= internal_ap_cpu_data_master_granted_lcd_control_slave;
   --vhdl renameroo for output signals
-  ap_cpu_data_master_qualified_request_lcd_0_control_slave <= internal_ap_cpu_data_master_qualified_request_lcd_0_control_slave;
+  ap_cpu_data_master_qualified_request_lcd_control_slave <= internal_ap_cpu_data_master_qualified_request_lcd_control_slave;
   --vhdl renameroo for output signals
-  ap_cpu_data_master_requests_lcd_0_control_slave <= internal_ap_cpu_data_master_requests_lcd_0_control_slave;
+  ap_cpu_data_master_requests_lcd_control_slave <= internal_ap_cpu_data_master_requests_lcd_control_slave;
   --vhdl renameroo for output signals
-  lcd_0_control_slave_wait_counter_eq_0 <= internal_lcd_0_control_slave_wait_counter_eq_0;
+  lcd_control_slave_wait_counter_eq_0 <= internal_lcd_control_slave_wait_counter_eq_0;
 --synthesis translate_off
-    --lcd_0/control_slave enable non-zero assertions, which is an e_register
+    --lcd/control_slave enable non-zero assertions, which is an e_register
     process (clk, reset_n)
     begin
       if reset_n = '0' then
@@ -12864,11 +12864,11 @@ entity niosII_openMac is
               -- the_inport_ap
                  signal in_port_to_the_inport_ap : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 
-              -- the_lcd_0
-                 signal LCD_E_from_the_lcd_0 : OUT STD_LOGIC;
-                 signal LCD_RS_from_the_lcd_0 : OUT STD_LOGIC;
-                 signal LCD_RW_from_the_lcd_0 : OUT STD_LOGIC;
-                 signal LCD_data_to_and_from_the_lcd_0 : INOUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+              -- the_lcd
+                 signal LCD_E_from_the_lcd : OUT STD_LOGIC;
+                 signal LCD_RS_from_the_lcd : OUT STD_LOGIC;
+                 signal LCD_RW_from_the_lcd : OUT STD_LOGIC;
+                 signal LCD_data_to_and_from_the_lcd : INOUT STD_LOGIC_VECTOR (7 DOWNTO 0);
 
               -- the_node_switch_pio
                  signal in_port_to_the_node_switch_pio : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
@@ -13019,7 +13019,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_granted_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                    signal ap_cpu_data_master_granted_lcd_0_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_granted_lcd_control_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_sdram_0_s1 : IN STD_LOGIC;
@@ -13028,7 +13028,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                    signal ap_cpu_data_master_qualified_request_lcd_0_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_qualified_request_lcd_control_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_sdram_0_s1 : IN STD_LOGIC;
@@ -13038,7 +13038,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                    signal ap_cpu_data_master_read_data_valid_lcd_0_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_read_data_valid_lcd_control_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_sdram_0_s1 : IN STD_LOGIC;
@@ -13048,7 +13048,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_requests_ap_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
-                    signal ap_cpu_data_master_requests_lcd_0_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_requests_lcd_control_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_sdram_0_s1 : IN STD_LOGIC;
@@ -13060,7 +13060,7 @@ component ap_cpu_data_master_arbitrator is
                     signal d1_ap_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
                     signal d1_inport_ap_s1_end_xfer : IN STD_LOGIC;
                     signal d1_jtag_uart_1_avalon_jtag_slave_end_xfer : IN STD_LOGIC;
-                    signal d1_lcd_0_control_slave_end_xfer : IN STD_LOGIC;
+                    signal d1_lcd_control_slave_end_xfer : IN STD_LOGIC;
                     signal d1_outport_ap_s1_end_xfer : IN STD_LOGIC;
                     signal d1_powerlink_0_PDI_AP_end_xfer : IN STD_LOGIC;
                     signal d1_sdram_0_s1_end_xfer : IN STD_LOGIC;
@@ -13070,9 +13070,9 @@ component ap_cpu_data_master_arbitrator is
                     signal jtag_uart_1_avalon_jtag_slave_irq_from_sa : IN STD_LOGIC;
                     signal jtag_uart_1_avalon_jtag_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa : IN STD_LOGIC;
-                    signal lcd_0_control_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-                    signal lcd_0_control_slave_wait_counter_eq_0 : IN STD_LOGIC;
-                    signal lcd_0_control_slave_wait_counter_eq_1 : IN STD_LOGIC;
+                    signal lcd_control_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal lcd_control_slave_wait_counter_eq_0 : IN STD_LOGIC;
+                    signal lcd_control_slave_wait_counter_eq_1 : IN STD_LOGIC;
                     signal outport_ap_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (23 DOWNTO 0);
                     signal powerlink_0_PDI_AP_irq_from_sa : IN STD_LOGIC;
                     signal powerlink_0_PDI_AP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -13550,7 +13550,7 @@ component jtag_uart_1 is
                  );
 end component jtag_uart_1;
 
-component lcd_0_control_slave_arbitrator is 
+component lcd_control_slave_arbitrator is 
            port (
                  -- inputs:
                     signal ap_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
@@ -13559,27 +13559,27 @@ component lcd_0_control_slave_arbitrator is
                     signal ap_cpu_data_master_write : IN STD_LOGIC;
                     signal ap_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal clk : IN STD_LOGIC;
-                    signal lcd_0_control_slave_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal lcd_control_slave_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal reset_n : IN STD_LOGIC;
 
                  -- outputs:
-                    signal ap_cpu_data_master_granted_lcd_0_control_slave : OUT STD_LOGIC;
-                    signal ap_cpu_data_master_qualified_request_lcd_0_control_slave : OUT STD_LOGIC;
-                    signal ap_cpu_data_master_read_data_valid_lcd_0_control_slave : OUT STD_LOGIC;
-                    signal ap_cpu_data_master_requests_lcd_0_control_slave : OUT STD_LOGIC;
-                    signal d1_lcd_0_control_slave_end_xfer : OUT STD_LOGIC;
-                    signal lcd_0_control_slave_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-                    signal lcd_0_control_slave_begintransfer : OUT STD_LOGIC;
-                    signal lcd_0_control_slave_read : OUT STD_LOGIC;
-                    signal lcd_0_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-                    signal lcd_0_control_slave_wait_counter_eq_0 : OUT STD_LOGIC;
-                    signal lcd_0_control_slave_wait_counter_eq_1 : OUT STD_LOGIC;
-                    signal lcd_0_control_slave_write : OUT STD_LOGIC;
-                    signal lcd_0_control_slave_writedata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+                    signal ap_cpu_data_master_granted_lcd_control_slave : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_qualified_request_lcd_control_slave : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_read_data_valid_lcd_control_slave : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_requests_lcd_control_slave : OUT STD_LOGIC;
+                    signal d1_lcd_control_slave_end_xfer : OUT STD_LOGIC;
+                    signal lcd_control_slave_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal lcd_control_slave_begintransfer : OUT STD_LOGIC;
+                    signal lcd_control_slave_read : OUT STD_LOGIC;
+                    signal lcd_control_slave_readdata_from_sa : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal lcd_control_slave_wait_counter_eq_0 : OUT STD_LOGIC;
+                    signal lcd_control_slave_wait_counter_eq_1 : OUT STD_LOGIC;
+                    signal lcd_control_slave_write : OUT STD_LOGIC;
+                    signal lcd_control_slave_writedata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
                  );
-end component lcd_0_control_slave_arbitrator;
+end component lcd_control_slave_arbitrator;
 
-component lcd_0 is 
+component lcd is 
            port (
                  -- inputs:
                     signal address : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -13595,7 +13595,7 @@ component lcd_0 is
                     signal LCD_data : INOUT STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal readdata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
                  );
-end component lcd_0;
+end component lcd;
 
 component niosII_openMac_clock_0_in_arbitrator is 
            port (
@@ -14843,7 +14843,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_granted_ap_cpu_jtag_debug_module :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
-                signal ap_cpu_data_master_granted_lcd_0_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_granted_lcd_control_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_sdram_0_s1 :  STD_LOGIC;
@@ -14853,7 +14853,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
-                signal ap_cpu_data_master_qualified_request_lcd_0_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_qualified_request_lcd_control_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_sdram_0_s1 :  STD_LOGIC;
@@ -14863,7 +14863,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
-                signal ap_cpu_data_master_read_data_valid_lcd_0_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_read_data_valid_lcd_control_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_sdram_0_s1 :  STD_LOGIC;
@@ -14874,7 +14874,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_requests_ap_cpu_jtag_debug_module :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
-                signal ap_cpu_data_master_requests_lcd_0_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_requests_lcd_control_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_sdram_0_s1 :  STD_LOGIC;
@@ -14985,7 +14985,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal d1_inport_ap_s1_end_xfer :  STD_LOGIC;
                 signal d1_jtag_uart_0_avalon_jtag_slave_end_xfer :  STD_LOGIC;
                 signal d1_jtag_uart_1_avalon_jtag_slave_end_xfer :  STD_LOGIC;
-                signal d1_lcd_0_control_slave_end_xfer :  STD_LOGIC;
+                signal d1_lcd_control_slave_end_xfer :  STD_LOGIC;
                 signal d1_niosII_openMac_clock_0_in_end_xfer :  STD_LOGIC;
                 signal d1_niosII_openMac_clock_1_in_end_xfer :  STD_LOGIC;
                 signal d1_niosII_openMac_clock_2_in_end_xfer :  STD_LOGIC;
@@ -15026,9 +15026,9 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal inport_ap_s1_readdata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal inport_ap_s1_readdata_from_sa :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal inport_ap_s1_reset_n :  STD_LOGIC;
-                signal internal_LCD_E_from_the_lcd_0 :  STD_LOGIC;
-                signal internal_LCD_RS_from_the_lcd_0 :  STD_LOGIC;
-                signal internal_LCD_RW_from_the_lcd_0 :  STD_LOGIC;
+                signal internal_LCD_E_from_the_lcd :  STD_LOGIC;
+                signal internal_LCD_RS_from_the_lcd :  STD_LOGIC;
+                signal internal_LCD_RW_from_the_lcd :  STD_LOGIC;
                 signal internal_addr_to_the_sram_0 :  STD_LOGIC_VECTOR (20 DOWNTO 0);
                 signal internal_be_n_to_the_sram_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_ce_n_to_the_sram_0 :  STD_LOGIC;
@@ -15095,15 +15095,15 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa :  STD_LOGIC;
                 signal jtag_uart_1_avalon_jtag_slave_write_n :  STD_LOGIC;
                 signal jtag_uart_1_avalon_jtag_slave_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal lcd_0_control_slave_address :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal lcd_0_control_slave_begintransfer :  STD_LOGIC;
-                signal lcd_0_control_slave_read :  STD_LOGIC;
-                signal lcd_0_control_slave_readdata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-                signal lcd_0_control_slave_readdata_from_sa :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-                signal lcd_0_control_slave_wait_counter_eq_0 :  STD_LOGIC;
-                signal lcd_0_control_slave_wait_counter_eq_1 :  STD_LOGIC;
-                signal lcd_0_control_slave_write :  STD_LOGIC;
-                signal lcd_0_control_slave_writedata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal lcd_control_slave_address :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal lcd_control_slave_begintransfer :  STD_LOGIC;
+                signal lcd_control_slave_read :  STD_LOGIC;
+                signal lcd_control_slave_readdata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal lcd_control_slave_readdata_from_sa :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal lcd_control_slave_wait_counter_eq_0 :  STD_LOGIC;
+                signal lcd_control_slave_wait_counter_eq_1 :  STD_LOGIC;
+                signal lcd_control_slave_write :  STD_LOGIC;
+                signal lcd_control_slave_writedata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal module_input10 :  STD_LOGIC;
                 signal module_input11 :  STD_LOGIC;
                 signal module_input12 :  STD_LOGIC;
@@ -15520,7 +15520,7 @@ begin
       ap_cpu_data_master_granted_ap_cpu_jtag_debug_module => ap_cpu_data_master_granted_ap_cpu_jtag_debug_module,
       ap_cpu_data_master_granted_inport_ap_s1 => ap_cpu_data_master_granted_inport_ap_s1,
       ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave,
-      ap_cpu_data_master_granted_lcd_0_control_slave => ap_cpu_data_master_granted_lcd_0_control_slave,
+      ap_cpu_data_master_granted_lcd_control_slave => ap_cpu_data_master_granted_lcd_control_slave,
       ap_cpu_data_master_granted_outport_ap_s1 => ap_cpu_data_master_granted_outport_ap_s1,
       ap_cpu_data_master_granted_powerlink_0_PDI_AP => ap_cpu_data_master_granted_powerlink_0_PDI_AP,
       ap_cpu_data_master_granted_sdram_0_s1 => ap_cpu_data_master_granted_sdram_0_s1,
@@ -15529,7 +15529,7 @@ begin
       ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module => ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module,
       ap_cpu_data_master_qualified_request_inport_ap_s1 => ap_cpu_data_master_qualified_request_inport_ap_s1,
       ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave,
-      ap_cpu_data_master_qualified_request_lcd_0_control_slave => ap_cpu_data_master_qualified_request_lcd_0_control_slave,
+      ap_cpu_data_master_qualified_request_lcd_control_slave => ap_cpu_data_master_qualified_request_lcd_control_slave,
       ap_cpu_data_master_qualified_request_outport_ap_s1 => ap_cpu_data_master_qualified_request_outport_ap_s1,
       ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP => ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP,
       ap_cpu_data_master_qualified_request_sdram_0_s1 => ap_cpu_data_master_qualified_request_sdram_0_s1,
@@ -15539,7 +15539,7 @@ begin
       ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module => ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module,
       ap_cpu_data_master_read_data_valid_inport_ap_s1 => ap_cpu_data_master_read_data_valid_inport_ap_s1,
       ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave,
-      ap_cpu_data_master_read_data_valid_lcd_0_control_slave => ap_cpu_data_master_read_data_valid_lcd_0_control_slave,
+      ap_cpu_data_master_read_data_valid_lcd_control_slave => ap_cpu_data_master_read_data_valid_lcd_control_slave,
       ap_cpu_data_master_read_data_valid_outport_ap_s1 => ap_cpu_data_master_read_data_valid_outport_ap_s1,
       ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP => ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP,
       ap_cpu_data_master_read_data_valid_sdram_0_s1 => ap_cpu_data_master_read_data_valid_sdram_0_s1,
@@ -15549,7 +15549,7 @@ begin
       ap_cpu_data_master_requests_ap_cpu_jtag_debug_module => ap_cpu_data_master_requests_ap_cpu_jtag_debug_module,
       ap_cpu_data_master_requests_inport_ap_s1 => ap_cpu_data_master_requests_inport_ap_s1,
       ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave,
-      ap_cpu_data_master_requests_lcd_0_control_slave => ap_cpu_data_master_requests_lcd_0_control_slave,
+      ap_cpu_data_master_requests_lcd_control_slave => ap_cpu_data_master_requests_lcd_control_slave,
       ap_cpu_data_master_requests_outport_ap_s1 => ap_cpu_data_master_requests_outport_ap_s1,
       ap_cpu_data_master_requests_powerlink_0_PDI_AP => ap_cpu_data_master_requests_powerlink_0_PDI_AP,
       ap_cpu_data_master_requests_sdram_0_s1 => ap_cpu_data_master_requests_sdram_0_s1,
@@ -15561,7 +15561,7 @@ begin
       d1_ap_cpu_jtag_debug_module_end_xfer => d1_ap_cpu_jtag_debug_module_end_xfer,
       d1_inport_ap_s1_end_xfer => d1_inport_ap_s1_end_xfer,
       d1_jtag_uart_1_avalon_jtag_slave_end_xfer => d1_jtag_uart_1_avalon_jtag_slave_end_xfer,
-      d1_lcd_0_control_slave_end_xfer => d1_lcd_0_control_slave_end_xfer,
+      d1_lcd_control_slave_end_xfer => d1_lcd_control_slave_end_xfer,
       d1_outport_ap_s1_end_xfer => d1_outport_ap_s1_end_xfer,
       d1_powerlink_0_PDI_AP_end_xfer => d1_powerlink_0_PDI_AP_end_xfer,
       d1_sdram_0_s1_end_xfer => d1_sdram_0_s1_end_xfer,
@@ -15571,9 +15571,9 @@ begin
       jtag_uart_1_avalon_jtag_slave_irq_from_sa => jtag_uart_1_avalon_jtag_slave_irq_from_sa,
       jtag_uart_1_avalon_jtag_slave_readdata_from_sa => jtag_uart_1_avalon_jtag_slave_readdata_from_sa,
       jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa => jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa,
-      lcd_0_control_slave_readdata_from_sa => lcd_0_control_slave_readdata_from_sa,
-      lcd_0_control_slave_wait_counter_eq_0 => lcd_0_control_slave_wait_counter_eq_0,
-      lcd_0_control_slave_wait_counter_eq_1 => lcd_0_control_slave_wait_counter_eq_1,
+      lcd_control_slave_readdata_from_sa => lcd_control_slave_readdata_from_sa,
+      lcd_control_slave_wait_counter_eq_0 => lcd_control_slave_wait_counter_eq_0,
+      lcd_control_slave_wait_counter_eq_1 => lcd_control_slave_wait_counter_eq_1,
       outport_ap_s1_readdata_from_sa => outport_ap_s1_readdata_from_sa,
       powerlink_0_PDI_AP_irq_from_sa => powerlink_0_PDI_AP_irq_from_sa,
       powerlink_0_PDI_AP_readdata_from_sa => powerlink_0_PDI_AP_readdata_from_sa,
@@ -16012,46 +16012,46 @@ begin
     );
 
 
-  --the_lcd_0_control_slave, which is an e_instance
-  the_lcd_0_control_slave : lcd_0_control_slave_arbitrator
+  --the_lcd_control_slave, which is an e_instance
+  the_lcd_control_slave : lcd_control_slave_arbitrator
     port map(
-      ap_cpu_data_master_granted_lcd_0_control_slave => ap_cpu_data_master_granted_lcd_0_control_slave,
-      ap_cpu_data_master_qualified_request_lcd_0_control_slave => ap_cpu_data_master_qualified_request_lcd_0_control_slave,
-      ap_cpu_data_master_read_data_valid_lcd_0_control_slave => ap_cpu_data_master_read_data_valid_lcd_0_control_slave,
-      ap_cpu_data_master_requests_lcd_0_control_slave => ap_cpu_data_master_requests_lcd_0_control_slave,
-      d1_lcd_0_control_slave_end_xfer => d1_lcd_0_control_slave_end_xfer,
-      lcd_0_control_slave_address => lcd_0_control_slave_address,
-      lcd_0_control_slave_begintransfer => lcd_0_control_slave_begintransfer,
-      lcd_0_control_slave_read => lcd_0_control_slave_read,
-      lcd_0_control_slave_readdata_from_sa => lcd_0_control_slave_readdata_from_sa,
-      lcd_0_control_slave_wait_counter_eq_0 => lcd_0_control_slave_wait_counter_eq_0,
-      lcd_0_control_slave_wait_counter_eq_1 => lcd_0_control_slave_wait_counter_eq_1,
-      lcd_0_control_slave_write => lcd_0_control_slave_write,
-      lcd_0_control_slave_writedata => lcd_0_control_slave_writedata,
+      ap_cpu_data_master_granted_lcd_control_slave => ap_cpu_data_master_granted_lcd_control_slave,
+      ap_cpu_data_master_qualified_request_lcd_control_slave => ap_cpu_data_master_qualified_request_lcd_control_slave,
+      ap_cpu_data_master_read_data_valid_lcd_control_slave => ap_cpu_data_master_read_data_valid_lcd_control_slave,
+      ap_cpu_data_master_requests_lcd_control_slave => ap_cpu_data_master_requests_lcd_control_slave,
+      d1_lcd_control_slave_end_xfer => d1_lcd_control_slave_end_xfer,
+      lcd_control_slave_address => lcd_control_slave_address,
+      lcd_control_slave_begintransfer => lcd_control_slave_begintransfer,
+      lcd_control_slave_read => lcd_control_slave_read,
+      lcd_control_slave_readdata_from_sa => lcd_control_slave_readdata_from_sa,
+      lcd_control_slave_wait_counter_eq_0 => lcd_control_slave_wait_counter_eq_0,
+      lcd_control_slave_wait_counter_eq_1 => lcd_control_slave_wait_counter_eq_1,
+      lcd_control_slave_write => lcd_control_slave_write,
+      lcd_control_slave_writedata => lcd_control_slave_writedata,
       ap_cpu_data_master_address_to_slave => ap_cpu_data_master_address_to_slave,
       ap_cpu_data_master_byteenable => ap_cpu_data_master_byteenable,
       ap_cpu_data_master_read => ap_cpu_data_master_read,
       ap_cpu_data_master_write => ap_cpu_data_master_write,
       ap_cpu_data_master_writedata => ap_cpu_data_master_writedata,
       clk => internal_clk50,
-      lcd_0_control_slave_readdata => lcd_0_control_slave_readdata,
+      lcd_control_slave_readdata => lcd_control_slave_readdata,
       reset_n => clk50_reset_n
     );
 
 
-  --the_lcd_0, which is an e_ptf_instance
-  the_lcd_0 : lcd_0
+  --the_lcd, which is an e_ptf_instance
+  the_lcd : lcd
     port map(
-      LCD_E => internal_LCD_E_from_the_lcd_0,
-      LCD_RS => internal_LCD_RS_from_the_lcd_0,
-      LCD_RW => internal_LCD_RW_from_the_lcd_0,
-      LCD_data => LCD_data_to_and_from_the_lcd_0,
-      readdata => lcd_0_control_slave_readdata,
-      address => lcd_0_control_slave_address,
-      begintransfer => lcd_0_control_slave_begintransfer,
-      read => lcd_0_control_slave_read,
-      write => lcd_0_control_slave_write,
-      writedata => lcd_0_control_slave_writedata
+      LCD_E => internal_LCD_E_from_the_lcd,
+      LCD_RS => internal_LCD_RS_from_the_lcd,
+      LCD_RW => internal_LCD_RW_from_the_lcd,
+      LCD_data => LCD_data_to_and_from_the_lcd,
+      readdata => lcd_control_slave_readdata,
+      address => lcd_control_slave_address,
+      begintransfer => lcd_control_slave_begintransfer,
+      read => lcd_control_slave_read,
+      write => lcd_control_slave_write,
+      writedata => lcd_control_slave_writedata
     );
 
 
@@ -17214,11 +17214,11 @@ begin
   --sysid_control_slave_clock of type clock does not connect to anything so wire it to default (0)
   sysid_control_slave_clock <= std_logic'('0');
   --vhdl renameroo for output signals
-  LCD_E_from_the_lcd_0 <= internal_LCD_E_from_the_lcd_0;
+  LCD_E_from_the_lcd <= internal_LCD_E_from_the_lcd;
   --vhdl renameroo for output signals
-  LCD_RS_from_the_lcd_0 <= internal_LCD_RS_from_the_lcd_0;
+  LCD_RS_from_the_lcd <= internal_LCD_RS_from_the_lcd;
   --vhdl renameroo for output signals
-  LCD_RW_from_the_lcd_0 <= internal_LCD_RW_from_the_lcd_0;
+  LCD_RW_from_the_lcd <= internal_LCD_RW_from_the_lcd;
   --vhdl renameroo for output signals
   addr_to_the_sram_0 <= internal_addr_to_the_sram_0;
   --vhdl renameroo for output signals
@@ -17339,11 +17339,11 @@ component niosII_openMac is
                  -- the_inport_ap
                     signal in_port_to_the_inport_ap : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 
-                 -- the_lcd_0
-                    signal LCD_E_from_the_lcd_0 : OUT STD_LOGIC;
-                    signal LCD_RS_from_the_lcd_0 : OUT STD_LOGIC;
-                    signal LCD_RW_from_the_lcd_0 : OUT STD_LOGIC;
-                    signal LCD_data_to_and_from_the_lcd_0 : INOUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 -- the_lcd
+                    signal LCD_E_from_the_lcd : OUT STD_LOGIC;
+                    signal LCD_RS_from_the_lcd : OUT STD_LOGIC;
+                    signal LCD_RW_from_the_lcd : OUT STD_LOGIC;
+                    signal LCD_data_to_and_from_the_lcd : INOUT STD_LOGIC_VECTOR (7 DOWNTO 0);
 
                  -- the_node_switch_pio
                     signal in_port_to_the_node_switch_pio : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
@@ -17415,10 +17415,10 @@ component sdram_0_test_component is
                  );
 end component sdram_0_test_component;
 
-                signal LCD_E_from_the_lcd_0 :  STD_LOGIC;
-                signal LCD_RS_from_the_lcd_0 :  STD_LOGIC;
-                signal LCD_RW_from_the_lcd_0 :  STD_LOGIC;
-                signal LCD_data_to_and_from_the_lcd_0 :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal LCD_E_from_the_lcd :  STD_LOGIC;
+                signal LCD_RS_from_the_lcd :  STD_LOGIC;
+                signal LCD_RW_from_the_lcd :  STD_LOGIC;
+                signal LCD_data_to_and_from_the_lcd :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal addr_to_the_sram_0 :  STD_LOGIC_VECTOR (20 DOWNTO 0);
                 signal ap_clkSDRAM :  STD_LOGIC;
                 signal be_n_to_the_sram_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -17502,10 +17502,10 @@ begin
   --Set us up the Dut
   DUT : niosII_openMac
     port map(
-      LCD_E_from_the_lcd_0 => LCD_E_from_the_lcd_0,
-      LCD_RS_from_the_lcd_0 => LCD_RS_from_the_lcd_0,
-      LCD_RW_from_the_lcd_0 => LCD_RW_from_the_lcd_0,
-      LCD_data_to_and_from_the_lcd_0 => LCD_data_to_and_from_the_lcd_0,
+      LCD_E_from_the_lcd => LCD_E_from_the_lcd,
+      LCD_RS_from_the_lcd => LCD_RS_from_the_lcd,
+      LCD_RW_from_the_lcd => LCD_RW_from_the_lcd,
+      LCD_data_to_and_from_the_lcd => LCD_data_to_and_from_the_lcd,
       addr_to_the_sram_0 => addr_to_the_sram_0,
       ap_clkSDRAM => ap_clkSDRAM,
       be_n_to_the_sram_0 => be_n_to_the_sram_0,

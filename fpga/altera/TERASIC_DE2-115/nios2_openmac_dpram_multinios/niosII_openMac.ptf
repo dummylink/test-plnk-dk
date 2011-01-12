@@ -1784,7 +1784,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1294826279 ";
       }
       SIMULATION 
       {
@@ -3407,7 +3407,7 @@ SYSTEM niosII_openMac
                span = "0x00000010";
                is_bridge = "0";
             }
-            Entry lcd_0/control_slave
+            Entry lcd/control_slave
             {
                address = "0x00000840";
                span = "0x00000010";
@@ -3628,7 +3628,7 @@ SYSTEM niosII_openMac
          license_status = "none_required";
          mainmem_slave = "sdram_0/s1";
          datamem_slave = "sdram_0/s1";
-         maincomm_slave = "lcd_0/control_slave";
+         maincomm_slave = "lcd/control_slave";
          germs_monitor_id = "";
       }
       class = "altera_nios2";
@@ -5203,7 +5203,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>6FDC4213</b>    (unique ID tag) <br> <b>4D02515A</b> (timestamp: Fri Dec 10, 2010 @5:12 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>260625E3</b>    (unique ID tag) <br> <b>4D2D7AB5</b> (timestamp: Wed Jan 12, 2011 @10:56 AM)";
             MESSAGES 
             {
             }
@@ -5211,8 +5211,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "1876705811u";
-         timestamp = "1291997530u";
+         id = "637937123u";
+         timestamp = "1294826165u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5221,7 +5221,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1876705811 --timestamp=1291997530";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=637937123 --timestamp=1294826165";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -7037,7 +7037,7 @@ SYSTEM niosII_openMac
       {
       }
    }
-   MODULE lcd_0
+   MODULE lcd
    {
       SLAVE control_slave
       {
@@ -7184,7 +7184,7 @@ SYSTEM niosII_openMac
       {
          Precompiled_Simulation_Library_Files = "";
          Simulation_HDL_Files = "";
-         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/lcd_0.vhd";
+         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/lcd.vhd";
          Synthesis_Only_Files = "";
       }
    }
