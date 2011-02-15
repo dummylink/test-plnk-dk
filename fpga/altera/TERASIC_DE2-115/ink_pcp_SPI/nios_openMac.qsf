@@ -387,14 +387,14 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SDRAM_DQM[3]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SDRAM_DQM[2]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SDRAM_DQM[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SDRAM_DQM[0]
-set_location_assignment PIN_AC15 -to SPI_CLK
-set_location_assignment PIN_AE16 -to SPI_MISO
-set_location_assignment PIN_Y17 -to SPI_SEL_N
+set_location_assignment PIN_E10 -to SPI_CLK
+set_location_assignment PIN_H13 -to SPI_MISO
+set_location_assignment PIN_F14 -to SPI_SEL_N
 set_location_assignment PIN_AD21 -to SPIM_MISO
 set_location_assignment PIN_AB21 -to SPIM_SEL_N
 set_location_assignment PIN_AC21 -to SPIM_MOSI
 set_location_assignment PIN_AB22 -to SPIM_CLK
-set_location_assignment PIN_Y16 -to SPI_MOSI
+set_location_assignment PIN_H14 -to SPI_MOSI
 set_location_assignment PIN_AD15 -to SYNC_IRQ_IN
 set_location_assignment PIN_AE15 -to SYNC_IRQ_OUT
 set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE ../nios2_openmac_dpram_multinios/benchmark.lai
