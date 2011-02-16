@@ -37,7 +37,8 @@
 @ if /I "%choice%" == "5" ( goto EBV_AP_SPI )
 @ if /I "%choice%" == "6" ( goto EBV_AP_16bitparallel )
 @ if /I "%choice%" == "7" ( goto INK_AP_SPI )
-@ if /I "%choice%" == "8" ( goto INK_AP_16bitparallel ) else (
+@ if /I "%choice%" == "8" ( goto INK_AP_16bitparallel )
+@ if /I "%choice%" == "10" ( goto STC_AP_SPI ) else (
 @ set choice=
 @ echo Invalid input!
 @ goto user_entry )
@@ -74,6 +75,9 @@
 @ goto start
 :INK_AP_16bitparallel
 @ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ goto start
+:STC_AP_SPI
+@ set SOPC_DIR=../../fpga/altera/SYSTEC_ECUcore-EP3C/systec_ap_SPImaster
 @ goto start
 
 :start
