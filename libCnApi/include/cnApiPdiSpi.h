@@ -74,11 +74,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //timeouts
 #define PCP_SPI_PRESENCE_TIMEOUT        50
 
+//test mudules
+#define DEBUG_VERIFY_SPI_HW_CONNECTION
+#define SPI_L1_TESTS                    (256 * 10 )         ///< SPI HW test with pattern 0x00 - 0xff (10 times)
+
 //general define
 #define PDISPI_MAX_SQ                   (32)                ///< max number of bytes in sequence (WRSQ/RDSQ)
 #define PDISPI_MAX_TX                   (PDISPI_MAX_SQ + 4) ///< necessary tx buffers (HIG/MID/LOWADDR + WRSQ + DATA)
 #define PDISPI_MAX_RX                   (PDISPI_MAX_SQ)     ///< necessary rx buffers (only DATA)
-#define PDISPI_THRSHLD_SIZE             (3)                 ///< 3 bytes are transfered by sequence (WRSQ/RDSQ) approach
+#define PDISPI_THRSHLD_SIZE             (3)                 ///< 3 bytes or more are transfered by sequence (WRSQ/RDSQ) approach
 
 #define PDISPI_MAX_SIZE                 32768                   ///< max Nr. of bytes able to address (2^15)
 #define PDISPI_MAX_ADR_OFFSET           (PDISPI_MAX_SIZE - 1)   ///< highest possible address of PDI SPI
@@ -109,6 +113,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PDISPI_ADDR_MIDADDR_MASK        PDISPI_ADDR_MASK << PDISPI_ADDR_MIDADDR_OFFSET
 #define PDISPI_ADDR_LOWADDR_MASK        PDISPI_ADDR_MASK << PDISPI_ADDR_LOWADDR_OFFSET
 #define PDISPI_ADDR_ADDR_MASK           PDISPI_ADDR_MASK << PDISPI_ADDR_ADDR_OFFSET
+
+//function definitions
+#define PDISPI_USLEEP(x)                usleep(x)
 
 typedef int (*tSpiMasterTxHandler) (unsigned char *pTxBuf_p, int iBytes_p);
 typedef int (*tSpiMasterRxHandler) (unsigned char *pRxBuf_p, int iBytes_p);

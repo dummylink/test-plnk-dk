@@ -90,8 +90,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADDR_WR_DOWN_LO 3
 #define ADDR_CHECK_LO   4
 
-#define PDISPI_USLEEP(x)	usleep(x)
-
 /***************************************************************************************
  * LOCALS
  ***************************************************************************************/
@@ -164,6 +162,9 @@ int CnApi_initSpiMaster
 {
     int     iRet = PDISPI_OK;
     int     iCnt;
+    DWORD   dwCnt;
+    BYTE    bPattern = 0;
+    WORD    wSpiErrors = 0;
     BOOL    fPcpSpiPresent = FALSE;
     
     if( (SpiMasterTxH_p == 0) || (SpiMasterRxH_p == 0) )
@@ -177,10 +178,66 @@ int CnApi_initSpiMaster
     
     PdiSpiInstance_l.m_SpiMasterTxHandler = SpiMasterTxH_p;
     PdiSpiInstance_l.m_SpiMasterRxHandler = SpiMasterRxH_p;
+
+#ifdef DEBUG_VERIFY_SPI_HW_CONNECTION
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nVerifying HW layer of SPI connection.\n");
+    PDISPI_USLEEP(1000000);
+    //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0x1); //indicate start
+
+    /* check if SPI HW layer is working correctly */
+    for(dwCnt = 0; dwCnt < SPI_L1_TESTS; dwCnt++)
+    {
+        PdiSpiInstance_l.m_txBuffer[0] = bPattern;
+        PdiSpiInstance_l.m_toBeTx = 1;
+
+        //send one byte
+        iRet = sendTxBuffer();
+
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        //receive one byte
+        PdiSpiInstance_l.m_toBeRx = 1;
+
+        iRet = recRxBuffer();
+
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        if(PdiSpiInstance_l.m_rxBuffer[0] != bPattern)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nTx Byte: 0x%02X", PdiSpiInstance_l.m_txBuffer[0]);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nRx Byte: 0x%02X", PdiSpiInstance_l.m_rxBuffer[0]);
+            // Count Errors
+            wSpiErrors++;
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, " ...Error!\n");
+
+            //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0x7); //indicate end
+        }
+
+        bPattern++;
+    }
+    //end of SPI HW Test
+
+    //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0x8); //indicate end
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "\nSPI Errors: %d of %d transmissions.\n", wSpiErrors, SPI_L1_TESTS);
+
+    if (wSpiErrors > 0)
+    {   //SPI HW Test failed
+
+        //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xf); //indicate error & end
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+#endif /* DEBUG_VERIFY_SPI_HW_CONNECTION */
     
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nStarting SPI connection..");
 
-    /* check if PCP SPI slave is present */
+    /* wake up SPI-Slave state machine*/
     for(iCnt = 0; iCnt < PCP_SPI_PRESENCE_TIMEOUT; iCnt++)
     {
 		//send out wake up frame to enter idle surely!
@@ -205,10 +262,9 @@ int CnApi_initSpiMaster
 		{
 			goto exit;
 		}
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nRx Byte: 0x%0X", PdiSpiInstance_l.m_rxBuffer[0]);
+		//DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nRx Byte: 0x%02X", PdiSpiInstance_l.m_rxBuffer[0]);
 		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP1)
-		{
-			//received last wake up pattern
+		{	//received byte matches last wake up pattern
 		    fPcpSpiPresent = TRUE;
 			break;
 		}
@@ -218,16 +274,18 @@ int CnApi_initSpiMaster
 
     if(!fPcpSpiPresent)
     {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "...ERROR!\n\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".ERROR!\n\n");
 
         /* PCP_SPI_PRESENCE_TIMEOUT exceeded */
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Spi initialization failed!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! SPI initialization failed!\n");
         iRet = PDISPI_ERROR;
+        usleep(1000000 * 2);
         goto exit;
     }
     else
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".OK!\n");
+        usleep(1000000 * 2);
     }
 
     //send out some idle frames
@@ -241,7 +299,7 @@ int CnApi_initSpiMaster
 		goto exit;
 	}
 
-    //set address register in pdi to zero
+    //set address register in PDI to zero
     iRet = setPdiAddrReg(0, ADDR_WR_DOWN_LO);
     
     if( iRet != PDISPI_OK )
@@ -270,7 +328,7 @@ This byte will be written to PDI address.
 *******************************************************************************/
 int CnApi_Spi_writeByte
 (
-    WORD          uwAddr_p,       ///< PDI Address to be written to
+    WORD          uwAddr_p,        ///< PDI Address to be written to
     BYTE           ubData_p        ///< Write data
 )
 {
