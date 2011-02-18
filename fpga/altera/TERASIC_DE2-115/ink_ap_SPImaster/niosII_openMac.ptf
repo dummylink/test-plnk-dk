@@ -747,7 +747,7 @@ SYSTEM niosII_openMac
          hardware_multiply_impl = "no_mul";
          shift_rot_impl = "small_le_shift";
          gui_hardware_multiply_setting = "no_mul_small_le_shift";
-         reset_slave = "sdram_0/s1";
+         reset_slave = "epcs_flash_controller_0/epcs_control_port";
          break_slave = "ap_cpu/jtag_debug_module";
          exc_slave = "sdram_0/s1";
          reset_offset = "0x00000000";
@@ -2433,7 +2433,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>0D5770F0</b>    (unique ID tag) <br> <b>4D19EF89</b> (timestamp: Tue Dec 28, 2010 @3:09 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>05656A89</b>    (unique ID tag) <br> <b>4D5EAD26</b> (timestamp: Fri Feb 18, 2011 @6:32 PM)";
             MESSAGES 
             {
             }
@@ -2441,8 +2441,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "223834352u";
-         timestamp = "1293545353u";
+         id = "90532489u";
+         timestamp = "1298050342u";
          regenerate_values = "0";
          MAKE 
          {
@@ -2451,7 +2451,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x000009b8 --id=223834352 --timestamp=1293545353";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x000009b8 --id=90532489 --timestamp=1298050342";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -2703,10 +2703,10 @@ SYSTEM niosII_openMac
             {
                MACRO 
                {
-                  BOOTS_FROM_EPCS = "0";
+                  BOOTS_FROM_EPCS = "1";
                   BOOT_COPIER_EPCS = "boot_loader_epcs.srec";
                   CPU_CLASS = "altera_nios2";
-                  CPU_RESET_ADDRESS = "0x10000000";
+                  CPU_RESET_ADDRESS = "0x0";
                }
             }
             TARGET delete_placeholder_warning

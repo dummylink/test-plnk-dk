@@ -73,7 +73,7 @@ RESERVED_INPUT               : A3        :        :                   :         
 RESERVED_INPUT               : A4        :        :                   :         : 8         :                
 VCCIO8                       : A5        : power  :                   : 3.3V    : 8         :                
 RESERVED_INPUT               : A6        :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[6]       : A7        : output : 3.3-V LVTTL       :         : 8         : N              
+RESERVED_INPUT               : A7        :        :                   :         : 8         :                
 RESERVED_INPUT               : A8        :        :                   :         : 8         :                
 VCCIO8                       : A9        : power  :                   : 3.3V    : 8         :                
 RESERVED_INPUT               : A10       :        :                   :         : 8         :                
@@ -83,7 +83,7 @@ VCCIO8                       : A13       : power  :                   : 3.3V    
 GND+                         : A14       :        :                   :         : 8         :                
 GND+                         : A15       :        :                   :         : 7         :                
 VCCIO7                       : A16       : power  :                   : 3.3V    : 7         :                
-PHY0_GXCLK                   : A17       : output : 3.3-V LVTTL       :         : 7         : Y              
+RESERVED_INPUT               : A17       :        :                   :         : 7         :                
 RESERVED_INPUT               : A18       :        :                   :         : 7         :                
 RESERVED_INPUT               : A19       :        :                   :         : 7         :                
 VCCIO7                       : A20       : power  :                   : 3.3V    : 7         :                
@@ -152,14 +152,14 @@ RESERVED_INPUT               : AB27      :        :                   :         
 SW[0]                        : AB28      : input  : 3.3-V LVTTL       :         : 5         : Y              
 SDRAM_DQ[13]                 : AC1       : bidir  : 3.3-V LVTTL       :         : 2         : Y              
 SDRAM_DQ[15]                 : AC2       : bidir  : 3.3-V LVTTL       :         : 2         : Y              
-SW_BENCHMARK_AP_OUT[0]       : AC3       : output : 3.3-V LVTTL       :         : 2         : N              
+RESERVED_INPUT               : AC3       :        :                   :         : 2         :                
 RESERVED_INPUT               : AC4       :        :                   :         : 2         :                
 RESERVED_INPUT               : AC5       :        :                   :         : 2         :                
 GND                          : AC6       : gnd    :                   :         :           :                
 RESERVED_INPUT               : AC7       :        :                   :         : 3         :                
 RESERVED_INPUT               : AC8       :        :                   :         : 3         :                
 GND                          : AC9       : gnd    :                   :         :           :                
-RESERVED_INPUT               : AC10      :        :                   :         : 3         :                
+SW_BENCHMARK_AP_OUT[1]       : AC10      : output : 3.3-V LVTTL       :         : 3         : N              
 RESERVED_INPUT               : AC11      :        :                   :         : 3         :                
 RESERVED_INPUT               : AC12      :        :                   :         : 3         :                
 GND                          : AC13      : gnd    :                   :         :           :                
@@ -217,7 +217,7 @@ RESERVED_INPUT               : AE8       :        :                   :         
 RESERVED_INPUT               : AE9       :        :                   :         : 3         :                
 RESERVED_INPUT               : AE10      :        :                   :         : 3         :                
 RESERVED_INPUT               : AE11      :        :                   :         : 3         :                
-RESERVED_INPUT               : AE12      :        :                   :         : 3         :                
+SW_BENCHMARK_AP_OUT[3]       : AE12      : output : 3.3-V LVTTL       :         : 3         : N              
 RESERVED_INPUT               : AE13      :        :                   :         : 3         :                
 RESERVED_INPUT               : AE14      :        :                   :         : 3         :                
 RESERVED_INPUT               : AE15      :        :                   :         : 4         :                
@@ -271,7 +271,7 @@ RESERVED_INPUT               : AG6       :        :                   :         
 RESERVED_INPUT               : AG7       :        :                   :         : 3         :                
 RESERVED_INPUT               : AG8       :        :                   :         : 3         :                
 GND                          : AG9       : gnd    :                   :         :           :                
-SW_BENCHMARK_AP_OUT[4]       : AG10      : output : 3.3-V LVTTL       :         : 3         : N              
+RESERVED_INPUT               : AG10      :        :                   :         : 3         :                
 RESERVED_INPUT               : AG11      :        :                   :         : 3         :                
 RESERVED_INPUT               : AG12      :        :                   :         : 3         :                
 GND                          : AG13      : gnd    :                   :         :           :                
@@ -298,7 +298,7 @@ RESERVED_INPUT               : AH6       :        :                   :         
 RESERVED_INPUT               : AH7       :        :                   :         : 3         :                
 RESERVED_INPUT               : AH8       :        :                   :         : 3         :                
 VCCIO3                       : AH9       : power  :                   : 3.3V    : 3         :                
-SW_BENCHMARK_AP_OUT[1]       : AH10      : output : 3.3-V LVTTL       :         : 3         : N              
+RESERVED_INPUT               : AH10      :        :                   :         : 3         :                
 RESERVED_INPUT               : AH11      :        :                   :         : 3         :                
 RESERVED_INPUT               : AH12      :        :                   :         : 3         :                
 VCCIO3                       : AH13      : power  :                   : 3.3V    : 3         :                
@@ -322,7 +322,7 @@ RESERVED_INPUT               : B3        :        :                   :         
 RESERVED_INPUT               : B4        :        :                   :         : 8         :                
 GND                          : B5        : gnd    :                   :         :           :                
 RESERVED_INPUT               : B6        :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[5]       : B7        : output : 3.3-V LVTTL       :         : 8         : N              
+RESERVED_INPUT               : B7        :        :                   :         : 8         :                
 RESERVED_INPUT               : B8        :        :                   :         : 8         :                
 GND                          : B9        : gnd    :                   :         :           :                
 RESERVED_INPUT               : B10       :        :                   :         : 8         :                
@@ -353,7 +353,7 @@ RESERVED_INPUT               : C6        :        :                   :         
 RESERVED_INPUT               : C7        :        :                   :         : 8         :                
 RESERVED_INPUT               : C8        :        :                   :         : 8         :                
 RESERVED_INPUT               : C9        :        :                   :         : 8         :                
-RESERVED_INPUT               : C10       :        :                   :         : 8         :                
+SW_BENCHMARK_AP_OUT[2]       : C10       : output : 3.3-V LVTTL       :         : 8         : N              
 RESERVED_INPUT               : C11       :        :                   :         : 8         :                
 RESERVED_INPUT               : C12       :        :                   :         : 8         :                
 RESERVED_INPUT               : C13       :        :                   :         : 8         :                
@@ -366,7 +366,7 @@ RESERVED_INPUT               : C19       :        :                   :         
 RESERVED_INPUT               : C20       :        :                   :         : 7         :                
 RESERVED_INPUT               : C21       :        :                   :         : 7         :                
 RESERVED_INPUT               : C22       :        :                   :         : 7         :                
-PHY1_GXCLK                   : C23       : output : 3.3-V LVTTL       :         : 7         : Y              
+RESERVED_INPUT               : C23       :        :                   :         : 7         :                
 RESERVED_INPUT               : C24       :        :                   :         : 7         :                
 RESERVED_INPUT               : C25       :        :                   :         : 7         :                
 RESERVED_INPUT               : C26       :        :                   :         : 7         :                
@@ -381,7 +381,7 @@ RESERVED_INPUT               : D6        :        :                   :         
 RESERVED_INPUT               : D7        :        :                   :         : 8         :                
 RESERVED_INPUT               : D8        :        :                   :         : 8         :                
 RESERVED_INPUT               : D9        :        :                   :         : 8         :                
-RESERVED_INPUT               : D10       :        :                   :         : 8         :                
+SW_BENCHMARK_AP_OUT[6]       : D10       : output : 3.3-V LVTTL       :         : 8         : N              
 RESERVED_INPUT               : D11       :        :                   :         : 8         :                
 RESERVED_INPUT               : D12       :        :                   :         : 8         :                
 RESERVED_INPUT               : D13       :        :                   :         : 8         :                
@@ -410,7 +410,7 @@ RESERVED_INPUT               : E7        :        :                   :         
 RESERVED_INPUT               : E8        :        :                   :         : 8         :                
 VCCIO8                       : E9        : power  :                   : 3.3V    : 8         :                
 RESERVED_INPUT               : E10       :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[3]       : E11       : output : 3.3-V LVTTL       :         : 8         : N              
+RESERVED_INPUT               : E11       :        :                   :         : 8         :                
 RESERVED_INPUT               : E12       :        :                   :         : 8         :                
 VCCIO8                       : E13       : power  :                   : 3.3V    : 8         :                
 RESERVED_INPUT               : E14       :        :                   :         : 8         :                
@@ -438,7 +438,7 @@ RESERVED_INPUT               : F7        :        :                   :         
 RESERVED_INPUT               : F8        :        :                   :         : 8         :                
 GND                          : F9        : gnd    :                   :         :           :                
 RESERVED_INPUT               : F10       :        :                   :         : 8         :                
-RESERVED_INPUT               : F11       :        :                   :         : 8         :                
+SW_BENCHMARK_AP_OUT[5]       : F11       : output : 3.3-V LVTTL       :         : 8         : N              
 RESERVED_INPUT               : F12       :        :                   :         : 8         :                
 GND                          : F13       : gnd    :                   :         :           :                
 RESERVED_INPUT               : F14       :        :                   :         : 8         :                
@@ -468,7 +468,7 @@ RESERVED_INPUT               : G9        :        :                   :         
 RESERVED_INPUT               : G10       :        :                   :         : 8         :                
 RESERVED_INPUT               : G11       :        :                   :         : 8         :                
 RESERVED_INPUT               : G12       :        :                   :         : 8         :                
-RESERVED_INPUT               : G13       :        :                   :         : 8         :                
+SW_BENCHMARK_AP_OUT[4]       : G13       : output : 3.3-V LVTTL       :         : 8         : N              
 RESERVED_INPUT               : G14       :        :                   :         : 8         :                
 LEDR[15]                     : G15       : output : 3.3-V LVTTL       :         : 7         : Y              
 RESERVED_INPUT               : G16       :        :                   :         : 7         :                
@@ -518,7 +518,7 @@ RESERVED_INPUT               : J3        :        :                   :         
 RESERVED_INPUT               : J4        :        :                   :         : 1         :                
 RESERVED_INPUT               : J5        :        :                   :         : 1         :                
 RESERVED_INPUT               : J6        :        :                   :         : 1         :                
-RESERVED_INPUT               : J7        :        :                   :         : 1         :                
+SW_BENCHMARK_AP_OUT[0]       : J7        : output : 3.3-V LVTTL       :         : 1         : N              
 VCCA3                        : J8        : power  :                   : 2.5V    :           :                
 VCCD_PLL3                    : J9        : power  :                   : 1.2V    :           :                
 RESERVED_INPUT               : J10       :        :                   :         : 8         :                
@@ -714,7 +714,7 @@ SDRAM_DQ[29]                 : T3        : bidir  : 3.3-V LVTTL       :         
 SDRAM_CS_n                   : T4        : output : 3.3-V LVTTL       :         : 2         : Y              
 VCCIO2                       : T5        : power  :                   : 3.3V    : 2         :                
 GND                          : T6        : gnd    :                   :         :           :                
-SW_BENCHMARK_AP_OUT[2]       : T7        : output : 3.3-V LVTTL       :         : 2         : N              
+SW_BENCHMARK_AP_OUT[7]       : T7        : output : 3.3-V LVTTL       :         : 2         : N              
 RESERVED_INPUT               : T8        :        :                   :         : 2         :                
 VCCINT                       : T9        : power  :                   : 1.2V    :           :                
 GND                          : T10       : gnd    :                   :         :           :                
@@ -761,7 +761,7 @@ RESERVED_INPUT               : U22       :        :                   :         
 HEX1[5]                      : U23       : output : 3.3-V LVTTL       :         : 5         : Y              
 HEX1[6]                      : U24       : output : 3.3-V LVTTL       :         : 5         : Y              
 RESERVED_INPUT               : U25       :        :                   :         : 5         :                
-SW_BENCHMARK_AP_OUT[7]       : U26       : output : 3.3-V LVTTL       :         : 5         : N              
+RESERVED_INPUT               : U26       :        :                   :         : 5         :                
 RESERVED_INPUT               : U27       :        :                   :         : 5         :                
 RESERVED_INPUT               : U28       :        :                   :         : 5         :                
 SDRAM_DQ[6]                  : V1        : bidir  : 3.3-V LVTTL       :         : 2         : Y              

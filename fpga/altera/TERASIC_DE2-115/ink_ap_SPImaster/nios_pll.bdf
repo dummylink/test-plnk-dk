@@ -166,38 +166,6 @@ applicable agreement for further details.
 )
 (pin
 	(output)
-	(rect 904 96 1080 112)
-	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
-	(text "PHY0_GXCLK" (rect 90 0 160 12)(font "Arial" ))
-	(pt 0 8)
-	(drawing
-		(line (pt 0 8)(pt 52 8))
-		(line (pt 52 4)(pt 78 4))
-		(line (pt 52 12)(pt 78 12))
-		(line (pt 52 12)(pt 52 4))
-		(line (pt 78 4)(pt 82 8))
-		(line (pt 82 8)(pt 78 12))
-		(line (pt 78 12)(pt 82 8))
-	)
-)
-(pin
-	(output)
-	(rect 904 112 1080 128)
-	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
-	(text "PHY1_GXCLK" (rect 90 0 160 12)(font "Arial" ))
-	(pt 0 8)
-	(drawing
-		(line (pt 0 8)(pt 52 8))
-		(line (pt 52 4)(pt 78 4))
-		(line (pt 52 12)(pt 78 12))
-		(line (pt 52 12)(pt 52 4))
-		(line (pt 78 4)(pt 82 8))
-		(line (pt 82 8)(pt 78 12))
-		(line (pt 78 12)(pt 82 8))
-	)
-)
-(pin
-	(output)
 	(rect 904 72 1080 88)
 	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
 	(text "SDRAM_CLK" (rect 90 0 156 12)(font "Arial" ))
@@ -821,23 +789,6 @@ applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 872 128 904 160)
-	(text "GND" (rect 8 16 29 26)(font "Arial" (font_size 6)))
-	(text "inst2" (rect 3 21 26 33)(font "Arial" )(invisible))
-	(port
-		(pt 16 0)
-		(output)
-		(text "1" (rect 18 0 23 12)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 18 0 23 12)(font "Courier New" (bold))(invisible))
-		(line (pt 16 8)(pt 16 0))
-	)
-	(drawing
-		(line (pt 8 8)(pt 16 16))
-		(line (pt 16 16)(pt 24 8))
-		(line (pt 8 8)(pt 24 8))
-	)
-)
-(symbol
 	(rect 888 296 920 312)
 	(text "VCC" (rect 7 0 27 10)(font "Arial" (font_size 6)))
 	(text "inst1" (rect 3 5 26 17)(font "Arial" )(invisible))
@@ -899,14 +850,6 @@ applicable agreement for further details.
 (connector
 	(pt 736 272)
 	(pt 920 272)
-)
-(connector
-	(pt 904 104)
-	(pt 888 104)
-)
-(connector
-	(pt 904 120)
-	(pt 888 120)
 )
 (connector
 	(pt 736 592)
@@ -1089,16 +1032,7 @@ applicable agreement for further details.
 	(pt 904 320)
 	(pt 904 336)
 )
-(connector
-	(pt 888 104)
-	(pt 888 120)
-)
-(connector
-	(pt 888 120)
-	(pt 888 128)
-)
 (junction (pt 904 320))
-(junction (pt 888 120))
 (text "tie gigabit clk to zero - no gigabit support!" (rect 904 40 1135 54)(font "Arial" (font_size 8)))
 (text "PORT I/O INPUTS" (rect 32 736 188 755)(font "Arial" (font_size 12)(bold)))
 (text "PORT I/O OUTPUTS" (rect 440 736 618 755)(font "Arial" (font_size 12)(bold)))
