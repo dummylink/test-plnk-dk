@@ -3,15 +3,28 @@
 	openPOWERLINK.sourceforge.net
 
 
-	openPOWERLINK - FPGA design for EBV DBC3C40 with openMAC
+	openPOWERLINK - FPGA design for Systec ECU Board
 	=========================================================
 
 
 Contents
 ---------
 
-- FPGA design with Nios II CPU and openMAC: 2 Nios CPU's - one for POWERLINK communication, one for application.
-- PCP (POWERLINK Communication Processor) and AP (Application Processor) are connected via DPRAM accessed by Avalon Bus (Altera FPGA internal bus).
+- FPGA design with Nios II CPU used as POWERLINK communication processor with SPI (slave) interface.
+
+SPI slave connection on ECUcore Board:
+
+JP4 - clk 		out
+JP5 - sel_n 	out
+JP6 - MOSI 		out
+JP7 - MISO 		in
+JP8 - Sync_IR 	in
+
+-> Use the middle row of the pin header for SPI connection.
+
+-> Remove all jumpers of JP1 and JP2.
+
+All other jumper are configured as "standalone" configuration.
 
 
 RRequirements
