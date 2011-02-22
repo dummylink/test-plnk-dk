@@ -12,11 +12,11 @@ derive_pll_clocks -create_base_clocks
 derive_clock_uncertainty
 
 # generated clocks (out of pll in SOPC) stored as variable
-set pcp_clk 	inst|the_altpll_0|sd1|pll7|clk[1]
+set pcp_clk 	inst|the_altpll_0|sd1|pll7|clk[2]
 set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-set ap_clk 		inst|the_altpll_0|sd1|pll7|clk[3]
 set remote_clk	inst|the_altpll_0|sd1|pll7|clk[4]
-set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
+set clk100		inst|the_altpll_0|sd1|pll7|clk[1]
+set ap_clk		inst|the_altpll_0|sd1|pll7|clk[3]
 
 
 # set clock groups (is equal to false_path command)
@@ -26,28 +26,6 @@ set_clock_groups -asynchronous 	-group [get_clocks $remote_clk] \
 											-group [get_clocks $clk50] \
 											-group [get_clocks ext_clk] \
 											-group [get_clocks $clk100]
-
-# sram
-set_max_delay 2 -from [get_ports {data[*]}] -to [get_registers *]
-set_min_delay 0 -from [get_ports {data[*]}] -to [get_registers *]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {data[*]}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {data[*]}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {adr[*]}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {adr[*]}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {noe}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {noe}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {nwe}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {nwe}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {nbe[*]}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {nbe[*]}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {sram_ncs}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {sram_ncs}]
 
 # phy
 set_input_delay -clock $clk50 -max 12 [get_ports {phy0_rx_crsdv phy0_rx_d[*]}]
