@@ -64,12 +64,12 @@ set_interface_property s0 isNonVolatileStorage false
 set_interface_property s0 maximumPendingReadTransactions 0
 set_interface_property s0 printableDevice false
 set_interface_property s0 readLatency 0
-set_interface_property s0 readWaitStates 10
-set_interface_property s0 readWaitTime 10
+#set_interface_property s0 readWaitStates 10
+set_interface_property s0 readWaitTime 11
 set_interface_property s0 setupTime 0
 set_interface_property s0 timingUnits Nanoseconds
-set_interface_property s0 writeWaitStates 6
-set_interface_property s0 writeWaitTime 6
+#set_interface_property s0 writeWaitStates 10
+set_interface_property s0 writeWaitTime 10
 
 set_interface_property s0 ASSOCIATED_CLOCK clock
 set_interface_property s0 ENABLED true
