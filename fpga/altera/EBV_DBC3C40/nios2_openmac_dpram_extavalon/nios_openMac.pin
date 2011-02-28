@@ -358,7 +358,7 @@ nav[0]                       : M1        : input  : 3.3-V LVTTL       :         
 nav[1]                       : M2        : input  : 3.3-V LVTTL       :         : 2         : Y              
 RESERVED_INPUT               : M3        :        :                   :         : 2         :                
 RESERVED_INPUT               : M4        :        :                   :         : 2         :                
-led[5]                       : M5        : output : 3.3-V LVTTL       :         : 2         : Y              
+RESERVED_INPUT               : M5        :        :                   :         : 2         :                
 RESERVED_INPUT               : M6        :        :                   :         : 2         :                
 RESERVED_INPUT               : M7        :        :                   :         : 2         :                
 RESERVED_INPUT               : M8        :        :                   :         : 2         :                
@@ -402,7 +402,7 @@ button[3]                    : P1        : input  : 3.3-V LVTTL       :         
 nav[3]                       : P2        : input  : 3.3-V LVTTL       :         : 2         : Y              
 RESERVED_INPUT               : P3        :        :                   :         : 2         :                
 RESERVED_INPUT               : P4        :        :                   :         : 2         :                
-led[6]                       : P5        : output : 3.3-V LVTTL       :         : 2         : Y              
+RESERVED_INPUT               : P5        :        :                   :         : 2         :                
 RESERVED_INPUT               : P6        :        :                   :         : 2         :                
 RESERVED_INPUT               : P7        :        :                   :         : 2         :                
 GND                          : P8        : gnd    :                   :         :           :                
@@ -424,8 +424,8 @@ button[1]                    : R1        : input  : 3.3-V LVTTL       :         
 button[2]                    : R2        : input  : 3.3-V LVTTL       :         : 2         : Y              
 GND                          : R3        : gnd    :                   :         :           :                
 VCCIO2                       : R4        : power  :                   : 3.3V    : 2         :                
-led[2]                       : R5        : output : 3.3-V LVTTL       :         : 2         : Y              
-led[7]                       : R6        : output : 3.3-V LVTTL       :         : 2         : Y              
+RESERVED_INPUT               : R5        :        :                   :         : 2         :                
+RESERVED_INPUT               : R6        :        :                   :         : 2         :                
 RESERVED_INPUT               : R7        :        :                   :         : 2         :                
 VCCINT                       : R8        : power  :                   : 1.2V    :           :                
 GND                          : R9        : gnd    :                   :         :           :                
@@ -445,7 +445,7 @@ data[2]                      : R22       : bidir  : 3.3-V LVTTL       :         
 GND+                         : T1        :        :                   :         : 2         :                
 GND+                         : T2        :        :                   :         : 2         :                
 button[0]                    : T3        : input  : 3.3-V LVTTL       :         : 2         : Y              
-led[3]                       : T4        : output : 3.3-V LVTTL       :         : 2         : Y              
+RESERVED_INPUT               : T4        :        :                   :         : 2         :                
 7seg1[2]                     : T5        : output : 3.3-V LVTTL       :         : 2         : Y              
 VCCA1                        : T6        : power  :                   : 2.5V    :           :                
 RESERVED_INPUT               : T7        :        :                   :         : 2         :                
@@ -464,7 +464,7 @@ VCCIO5                       : T19       : power  :                   : 3.3V    
 GND                          : T20       : gnd    :                   :         :           :                
 GND+                         : T21       :        :                   :         : 5         :                
 GND+                         : T22       :        :                   :         : 5         :                
-led[4]                       : U1        : output : 3.3-V LVTTL       :         : 2         : Y              
+RESERVED_INPUT               : U1        :        :                   :         : 2         :                
 led[0]                       : U2        : output : 3.3-V LVTTL       :         : 2         : Y              
 GND                          : U3        : gnd    :                   :         :           :                
 VCCIO2                       : U4        : power  :                   : 3.3V    : 2         :                

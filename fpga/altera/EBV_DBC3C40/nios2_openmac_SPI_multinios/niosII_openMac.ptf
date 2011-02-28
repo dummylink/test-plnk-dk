@@ -1619,10 +1619,10 @@ SYSTEM niosII_openMac
          SYSTEM_BUILDER_INFO 
          {
             Bus_Type = "avalon_tristate";
-            Write_Wait_States = "1cycles";
-            Read_Wait_States = "2cycles";
-            Hold_Time = "1cycles";
-            Setup_Time = "0cycles";
+            Write_Wait_States = "10ns";
+            Read_Wait_States = "11ns";
+            Hold_Time = "0ns";
+            Setup_Time = "0ns";
             Is_Printable_Device = "0";
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
@@ -1899,7 +1899,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1294770367 ";
+         contents_info = "";
       }
       SIMULATION 
       {
@@ -2760,7 +2760,7 @@ SYSTEM niosII_openMac
             PORT writedata
             {
                type = "writedata";
-               width = "8";
+               width = "2";
                direction = "input";
                Is_Enabled = "1";
             }
@@ -2774,7 +2774,7 @@ SYSTEM niosII_openMac
             PORT readdata
             {
                type = "readdata";
-               width = "8";
+               width = "2";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -2797,7 +2797,7 @@ SYSTEM niosII_openMac
             Accepts_Internal_Connections = "1";
             Write_Latency = "0";
             Is_Flash = "0";
-            Data_Width = "8";
+            Data_Width = "2";
             Address_Width = "3";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
@@ -2825,7 +2825,7 @@ SYSTEM niosII_openMac
          PORT out_port
          {
             type = "export";
-            width = "8";
+            width = "2";
             direction = "output";
             Is_Enabled = "1";
          }
@@ -2833,13 +2833,13 @@ SYSTEM niosII_openMac
          {
             direction = "input";
             Is_Enabled = "0";
-            width = "8";
+            width = "2";
          }
          PORT bidir_port
          {
             direction = "inout";
             Is_Enabled = "0";
-            width = "8";
+            width = "2";
          }
       }
       class = "altera_avalon_pio";
@@ -2858,7 +2858,7 @@ SYSTEM niosII_openMac
             MESSAGES 
             {
             }
-            Settings_Summary = " 8-bit PIO using <br>
+            Settings_Summary = " 2-bit PIO using <br>
 					
 					
 					 output pins";
@@ -2872,7 +2872,7 @@ SYSTEM niosII_openMac
          has_out = "1";
          has_in = "0";
          capture = "0";
-         Data_Width = "8";
+         Data_Width = "2";
          reset_value = "0";
          edge_type = "NONE";
          irq_type = "NONE";
@@ -5316,7 +5316,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>521A70F0</b>    (unique ID tag) <br> <b>4D2CA031</b> (timestamp: Tue Jan 11, 2011 @7:23 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>29A55E4C</b>    (unique ID tag) <br> <b>4D6BDDE3</b> (timestamp: Mon Feb 28, 2011 @6:39 PM)";
             MESSAGES 
             {
             }
@@ -5324,8 +5324,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "1377464560u";
-         timestamp = "1294770225u";
+         id = "698703436u";
+         timestamp = "1298914787u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5334,7 +5334,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=1377464560 --timestamp=1294770225";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=698703436 --timestamp=1298914787";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

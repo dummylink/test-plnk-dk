@@ -329,15 +329,49 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
    {
       datum baseAddress
       {
-         value = "8224";
+         value = "8288";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8256";
          type = "long";
       }
    }
    element system_timer.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
+   element onchip_memory_pcp.s1
    {
       datum _lockedAddress
       {
@@ -358,45 +392,11 @@
          type = "long";
       }
    }
-   element onchip_memory_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
+   element status_led_pio.s1
    {
       datum baseAddress
       {
-         value = "8288";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8256";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
+         value = "8224";
          type = "long";
       }
    }
@@ -476,8 +476,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-5744966963" />
- <parameter name="timeStamp" value="1294826470904" />
+ <parameter name="systemHash" value="-6423728087" />
+ <parameter name="timeStamp" value="1298881809147" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -670,7 +670,7 @@
   <parameter name="resetValue" value="0" />
   <parameter name="simDoTestBenchWiring" value="false" />
   <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="8" />
+  <parameter name="width" value="2" />
  </module>
  <module
    kind="altera_avalon_pio"

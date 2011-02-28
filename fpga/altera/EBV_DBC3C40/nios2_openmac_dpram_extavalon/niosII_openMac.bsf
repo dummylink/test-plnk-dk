@@ -272,8 +272,8 @@
 (port
 (pt 632 544)
 (output)
-(text "out_port_from_the_status_led_pio[7..0] " (rect 0 0 188 16)(font "Arial" (font_size 8)))
-(text "out_port_from_the_status_led_pio[7..0] " (rect 417 537 605 553)(font "Arial" (font_size 8)))
+(text "out_port_from_the_status_led_pio[1..0] " (rect 0 0 188 16)(font "Arial" (font_size 8)))
+(text "out_port_from_the_status_led_pio[1..0] " (rect 417 537 605 553)(font "Arial" (font_size 8)))
 (line (pt 616 544)(pt 632 544)(line_width 3))
 )
 (port

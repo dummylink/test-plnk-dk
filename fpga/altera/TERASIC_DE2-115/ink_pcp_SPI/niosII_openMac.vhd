@@ -2296,7 +2296,7 @@ entity clock_crossing_0_m1_arbitrator is
                  signal powerlink_0_MAC_CMP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal powerlink_0_MAC_REG_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal reset_n : IN STD_LOGIC;
-                 signal status_led_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal status_led_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal system_timer_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 
               -- outputs:
@@ -2368,7 +2368,7 @@ begin
   --latent slave read data valid which is not flushed, which is an e_mux
   clock_crossing_0_m1_readdatavalid <= (((((((((((((((((((clock_crossing_0_m1_read_but_no_slave_selected OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_benchmark_pio_s1) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_jtag_uart_0_avalon_jtag_slave) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_niosII_openMac_clock_1_in) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR ((clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG AND dbs_counter_overflow))) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_status_led_pio_s1) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_system_timer_s1;
   --clock_crossing_0/m1 readdata mux, which is an e_mux
-  clock_crossing_0_m1_readdata <= (((((((A_REP(NOT ((clock_crossing_0_m1_qualified_request_benchmark_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000") & (benchmark_pio_s1_readdata_from_sa)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave AND clock_crossing_0_m1_read)) , 32) OR jtag_uart_0_avalon_jtag_slave_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_niosII_openMac_clock_1_in AND clock_crossing_0_m1_read)) , 32) OR niosII_openMac_clock_1_in_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP AND clock_crossing_0_m1_read)) , 32) OR powerlink_0_MAC_CMP_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG AND clock_crossing_0_m1_read)) , 32) OR Std_Logic_Vector'(powerlink_0_MAC_REG_readdata_from_sa(15 DOWNTO 0) & dbs_16_reg_segment_0)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_status_led_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000") & (status_led_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_system_timer_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("0000000000000000") & (system_timer_s1_readdata_from_sa))));
+  clock_crossing_0_m1_readdata <= (((((((A_REP(NOT ((clock_crossing_0_m1_qualified_request_benchmark_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000") & (benchmark_pio_s1_readdata_from_sa)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave AND clock_crossing_0_m1_read)) , 32) OR jtag_uart_0_avalon_jtag_slave_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_niosII_openMac_clock_1_in AND clock_crossing_0_m1_read)) , 32) OR niosII_openMac_clock_1_in_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP AND clock_crossing_0_m1_read)) , 32) OR powerlink_0_MAC_CMP_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG AND clock_crossing_0_m1_read)) , 32) OR Std_Logic_Vector'(powerlink_0_MAC_REG_readdata_from_sa(15 DOWNTO 0) & dbs_16_reg_segment_0)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_status_led_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000000000") & (status_led_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_system_timer_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("0000000000000000") & (system_timer_s1_readdata_from_sa))));
   --actual waitrequest port, which is an e_assign
   internal_clock_crossing_0_m1_waitrequest <= NOT clock_crossing_0_m1_run;
   --latent max counter, which is an e_register
@@ -7887,14 +7887,13 @@ entity status_led_pio_s1_arbitrator is
               -- inputs:
                  signal clk : IN STD_LOGIC;
                  signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
-                 signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
                  signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal reset_n : IN STD_LOGIC;
-                 signal status_led_pio_s1_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal status_led_pio_s1_readdata : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 
               -- outputs:
                  signal clock_crossing_0_m1_granted_status_led_pio_s1 : OUT STD_LOGIC;
@@ -7904,10 +7903,10 @@ entity status_led_pio_s1_arbitrator is
                  signal d1_status_led_pio_s1_end_xfer : OUT STD_LOGIC;
                  signal status_led_pio_s1_address : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
                  signal status_led_pio_s1_chipselect : OUT STD_LOGIC;
-                 signal status_led_pio_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal status_led_pio_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal status_led_pio_s1_reset_n : OUT STD_LOGIC;
                  signal status_led_pio_s1_write_n : OUT STD_LOGIC;
-                 signal status_led_pio_s1_writedata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+                 signal status_led_pio_s1_writedata : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
               );
 end entity status_led_pio_s1_arbitrator;
 
@@ -7942,7 +7941,6 @@ architecture europa of status_led_pio_s1_arbitrator is
                 signal status_led_pio_s1_in_a_write_cycle :  STD_LOGIC;
                 signal status_led_pio_s1_master_qreq_vector :  STD_LOGIC;
                 signal status_led_pio_s1_non_bursting_master_requests :  STD_LOGIC;
-                signal status_led_pio_s1_pretend_byte_enable :  STD_LOGIC;
                 signal status_led_pio_s1_reg_firsttransfer :  STD_LOGIC;
                 signal status_led_pio_s1_slavearbiterlockenable :  STD_LOGIC;
                 signal status_led_pio_s1_slavearbiterlockenable2 :  STD_LOGIC;
@@ -8023,7 +8021,7 @@ begin
   --local readdatavalid clock_crossing_0_m1_read_data_valid_status_led_pio_s1, which is an e_mux
   clock_crossing_0_m1_read_data_valid_status_led_pio_s1 <= (internal_clock_crossing_0_m1_granted_status_led_pio_s1 AND clock_crossing_0_m1_read) AND NOT status_led_pio_s1_waits_for_read;
   --status_led_pio_s1_writedata mux, which is an e_mux
-  status_led_pio_s1_writedata <= clock_crossing_0_m1_writedata (7 DOWNTO 0);
+  status_led_pio_s1_writedata <= clock_crossing_0_m1_writedata (1 DOWNTO 0);
   --master is always granted when requested
   internal_clock_crossing_0_m1_granted_status_led_pio_s1 <= internal_clock_crossing_0_m1_qualified_request_status_led_pio_s1;
   --clock_crossing_0/m1 saved-grant status_led_pio/s1, which is an e_assign
@@ -8057,7 +8055,7 @@ begin
   --status_led_pio_s1_beginbursttransfer_internal begin burst transfer, which is an e_assign
   status_led_pio_s1_beginbursttransfer_internal <= status_led_pio_s1_begins_xfer;
   --~status_led_pio_s1_write_n assignment, which is an e_mux
-  status_led_pio_s1_write_n <= NOT ((((internal_clock_crossing_0_m1_granted_status_led_pio_s1 AND clock_crossing_0_m1_write)) AND status_led_pio_s1_pretend_byte_enable));
+  status_led_pio_s1_write_n <= NOT ((internal_clock_crossing_0_m1_granted_status_led_pio_s1 AND clock_crossing_0_m1_write));
   --status_led_pio_s1_address mux, which is an e_mux
   status_led_pio_s1_address <= clock_crossing_0_m1_nativeaddress (2 DOWNTO 0);
   --d1_status_led_pio_s1_end_xfer register, which is an e_register
@@ -8084,8 +8082,6 @@ begin
   --in_a_write_cycle assignment, which is an e_mux
   in_a_write_cycle <= status_led_pio_s1_in_a_write_cycle;
   wait_for_status_led_pio_s1_counter <= std_logic'('0');
-  --status_led_pio_s1_pretend_byte_enable byte enable port mux, which is an e_mux
-  status_led_pio_s1_pretend_byte_enable <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'((internal_clock_crossing_0_m1_granted_status_led_pio_s1)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (clock_crossing_0_m1_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))));
   --vhdl renameroo for output signals
   clock_crossing_0_m1_granted_status_led_pio_s1 <= internal_clock_crossing_0_m1_granted_status_led_pio_s1;
   --vhdl renameroo for output signals
@@ -9439,7 +9435,7 @@ entity niosII_openMac is
                  signal spi_sel_n_to_the_powerlink_0 : IN STD_LOGIC;
 
               -- the_status_led_pio
-                 signal out_port_from_the_status_led_pio : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal out_port_from_the_status_led_pio : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
 
               -- the_tri_state_bridge_0_avalon_slave
                  signal addr_to_the_sram_0 : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
@@ -9636,7 +9632,7 @@ component clock_crossing_0_m1_arbitrator is
                     signal powerlink_0_MAC_CMP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal powerlink_0_MAC_REG_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal reset_n : IN STD_LOGIC;
-                    signal status_led_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal status_led_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal system_timer_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 
                  -- outputs:
@@ -10623,14 +10619,13 @@ component status_led_pio_s1_arbitrator is
                  -- inputs:
                     signal clk : IN STD_LOGIC;
                     signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
-                    signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
                     signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal reset_n : IN STD_LOGIC;
-                    signal status_led_pio_s1_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal status_led_pio_s1_readdata : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 
                  -- outputs:
                     signal clock_crossing_0_m1_granted_status_led_pio_s1 : OUT STD_LOGIC;
@@ -10640,10 +10635,10 @@ component status_led_pio_s1_arbitrator is
                     signal d1_status_led_pio_s1_end_xfer : OUT STD_LOGIC;
                     signal status_led_pio_s1_address : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
                     signal status_led_pio_s1_chipselect : OUT STD_LOGIC;
-                    signal status_led_pio_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal status_led_pio_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal status_led_pio_s1_reset_n : OUT STD_LOGIC;
                     signal status_led_pio_s1_write_n : OUT STD_LOGIC;
-                    signal status_led_pio_s1_writedata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+                    signal status_led_pio_s1_writedata : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
                  );
 end component status_led_pio_s1_arbitrator;
 
@@ -10655,11 +10650,11 @@ component status_led_pio is
                     signal clk : IN STD_LOGIC;
                     signal reset_n : IN STD_LOGIC;
                     signal write_n : IN STD_LOGIC;
-                    signal writedata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal writedata : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 
                  -- outputs:
-                    signal out_port : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-                    signal readdata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+                    signal out_port : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal readdata : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
                  );
 end component status_led_pio;
 
@@ -10960,7 +10955,7 @@ end component niosII_openMac_reset_clk25Meg_domain_synch_module;
                 signal internal_locked_from_the_altpll_0 :  STD_LOGIC;
                 signal internal_oe_n_to_the_sram_0 :  STD_LOGIC;
                 signal internal_out_port_from_the_benchmark_pio :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-                signal internal_out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal internal_out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_pcp_clk :  STD_LOGIC;
                 signal internal_phasedone_from_the_altpll_0 :  STD_LOGIC;
                 signal internal_phy0_MiiClk_from_the_powerlink_0 :  STD_LOGIC;
@@ -11244,11 +11239,11 @@ end component niosII_openMac_reset_clk25Meg_domain_synch_module;
                 signal reset_n_sources :  STD_LOGIC;
                 signal status_led_pio_s1_address :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal status_led_pio_s1_chipselect :  STD_LOGIC;
-                signal status_led_pio_s1_readdata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-                signal status_led_pio_s1_readdata_from_sa :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal status_led_pio_s1_readdata :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal status_led_pio_s1_readdata_from_sa :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal status_led_pio_s1_reset_n :  STD_LOGIC;
                 signal status_led_pio_s1_write_n :  STD_LOGIC;
-                signal status_led_pio_s1_writedata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal status_led_pio_s1_writedata :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal sysid_control_slave_address :  STD_LOGIC;
                 signal sysid_control_slave_clock :  STD_LOGIC;
                 signal sysid_control_slave_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -12384,7 +12379,6 @@ begin
       status_led_pio_s1_writedata => status_led_pio_s1_writedata,
       clk => internal_clk50Meg,
       clock_crossing_0_m1_address_to_slave => clock_crossing_0_m1_address_to_slave,
-      clock_crossing_0_m1_byteenable => clock_crossing_0_m1_byteenable,
       clock_crossing_0_m1_latency_counter => clock_crossing_0_m1_latency_counter,
       clock_crossing_0_m1_nativeaddress => clock_crossing_0_m1_nativeaddress,
       clock_crossing_0_m1_read => clock_crossing_0_m1_read,
@@ -12708,7 +12702,7 @@ component niosII_openMac is
                     signal spi_sel_n_to_the_powerlink_0 : IN STD_LOGIC;
 
                  -- the_status_led_pio
-                    signal out_port_from_the_status_led_pio : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal out_port_from_the_status_led_pio : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
 
                  -- the_tri_state_bridge_0_avalon_slave
                     signal addr_to_the_sram_0 : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
@@ -12748,7 +12742,7 @@ end component niosII_openMac;
                 signal niosII_openMac_clock_2_out_endofpacket :  STD_LOGIC;
                 signal oe_n_to_the_sram_0 :  STD_LOGIC;
                 signal out_port_from_the_benchmark_pio :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-                signal out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal pcp_clk :  STD_LOGIC;
                 signal phasedone_from_the_altpll_0 :  STD_LOGIC;
                 signal phy0_MiiClk_from_the_powerlink_0 :  STD_LOGIC;

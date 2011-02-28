@@ -186,19 +186,19 @@
          type = "boolean";
       }
    }
-   element lcd.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2192";
-         type = "long";
-      }
-   }
    element sysid.control_slave
    {
       datum baseAddress
       {
          value = "2320";
+         type = "long";
+      }
+   }
+   element lcd.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2192";
          type = "long";
       }
    }
@@ -446,48 +446,6 @@
          type = "long";
       }
    }
-   element system_timer.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2144";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
-   element sync_irq_from_pcp.s1
-   {
-      datum _tags
-      {
-         value = "";
-         type = "String";
-      }
-      datum baseAddress
-      {
-         value = "2176";
-         type = "long";
-      }
-   }
    element inport_ap.s1
    {
       datum baseAddress
@@ -496,27 +454,19 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "16777216";
+         value = "268435456";
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element benchmark_ap_pio.s1
    {
       datum baseAddress
       {
-         value = "8224";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8256";
+         value = "2112";
          type = "long";
       }
    }
@@ -533,11 +483,48 @@
          type = "long";
       }
    }
-   element sdram_0.s1
+   element node_switch_pio.s1
    {
       datum baseAddress
       {
-         value = "268435456";
+         value = "2304";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8256";
+         type = "long";
+      }
+   }
+   element system_timer.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2144";
          type = "long";
       }
    }
@@ -562,11 +549,24 @@
          type = "long";
       }
    }
-   element benchmark_ap_pio.s1
+   element sync_irq_from_pcp.s1
+   {
+      datum _tags
+      {
+         value = "";
+         type = "String";
+      }
+      datum baseAddress
+      {
+         value = "2176";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
    {
       datum baseAddress
       {
-         value = "2112";
+         value = "16777216";
          type = "long";
       }
    }
@@ -729,8 +729,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="13430915947" />
- <parameter name="timeStamp" value="1294748616818" />
+ <parameter name="systemHash" value="12752154823" />
+ <parameter name="timeStamp" value="1298888211132" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -914,7 +914,7 @@
   <parameter name="resetValue" value="0" />
   <parameter name="simDoTestBenchWiring" value="false" />
   <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="8" />
+  <parameter name="width" value="2" />
  </module>
  <module
    kind="altera_avalon_pio"

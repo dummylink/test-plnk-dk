@@ -550,22 +550,6 @@ applicable agreement for further details.
 )
 (pin
 	(output)
-	(rect 896 600 1072 616)
-	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
-	(text "LEDG[7..0]" (rect 90 0 145 12)(font "Arial" ))
-	(pt 0 8)
-	(drawing
-		(line (pt 0 8)(pt 52 8))
-		(line (pt 52 4)(pt 78 4))
-		(line (pt 52 12)(pt 78 12))
-		(line (pt 52 12)(pt 52 4))
-		(line (pt 78 4)(pt 82 8))
-		(line (pt 82 8)(pt 78 12))
-		(line (pt 78 12)(pt 82 8))
-	)
-)
-(pin
-	(output)
 	(rect 960 824 1136 840)
 	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
 	(text "LEDR[15..0]" (rect 90 0 151 12)(font "Arial" ))
@@ -713,6 +697,22 @@ applicable agreement for further details.
 	(rect 896 536 1072 552)
 	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
 	(text "STATE_OPERATIONAL" (rect 90 0 205 12)(font "Arial" ))
+	(pt 0 8)
+	(drawing
+		(line (pt 0 8)(pt 52 8))
+		(line (pt 52 4)(pt 78 4))
+		(line (pt 52 12)(pt 78 12))
+		(line (pt 52 12)(pt 52 4))
+		(line (pt 78 4)(pt 82 8))
+		(line (pt 82 8)(pt 78 12))
+		(line (pt 78 12)(pt 82 8))
+	)
+)
+(pin
+	(output)
+	(rect 896 600 1072 616)
+	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
+	(text "LEDG[1..0]" (rect 90 0 145 12)(font "Arial" ))
 	(pt 0 8)
 	(drawing
 		(line (pt 0 8)(pt 52 8))
@@ -1177,8 +1177,8 @@ applicable agreement for further details.
 	(port
 		(pt 496 624)
 		(output)
-		(text "out_port_from_the_status_led_pio[7..0] " (rect 0 0 226 14)(font "Arial" (font_size 8)))
-		(text "out_port_from_the_status_led_pio[7..0] " (rect 281 617 507 631)(font "Arial" (font_size 8)))
+		(text "out_port_from_the_status_led_pio[1..0] " (rect 0 0 226 14)(font "Arial" (font_size 8)))
+		(text "out_port_from_the_status_led_pio[1..0] " (rect 281 617 507 631)(font "Arial" (font_size 8)))
 		(line (pt 480 624)(pt 496 624)(line_width 3))
 	)
 	(port
