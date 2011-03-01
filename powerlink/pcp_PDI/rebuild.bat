@@ -7,8 +7,9 @@
 @ echo ====================================================
 @ echo  Rebuild POWERLINK Communication Processor PDI Menu
 @ echo ====================================================
+@ echo  Choose your desired PCP interface demo:
 @ echo .
-@ echo  PCP with additional NIOS II as AP (in one FPGA)
+@ echo  PCP including an additional NIOS II as AP (in one FPGA)
 @ echo  -----------------------------------------------
 @ echo    Mercury Board (EBV DBC3C40)
 @ echo      1: Avalon
@@ -17,7 +18,7 @@
 @ echo      3: Avalon
 @ echo      4: SPI
 @ echo . 
-@ echo  Stand alone PCP (in one FPGA)
+@ echo  Stand alone PCP with FPGA external MCU interface
 @ echo  -----------------------------------------------
 @ echo    Mercury Board (EBV DBC3C40)
 @ echo      5: SPI
@@ -37,7 +38,8 @@
 @ if /I "%choice%" == "5" ( goto EBV_PCP_SPI )
 @ if /I "%choice%" == "6" ( goto EBV_PCP_16bitparallel )
 @ if /I "%choice%" == "7" ( goto INK_PCP_SPI )
-@ if /I "%choice%" == "8" ( goto INK_PCP_16bitparallel ) else (
+@ if /I "%choice%" == "8" ( goto INK_PCP_16bitparallel )
+@ if /I "%choice%" == "9" ( goto ECU_PCP_SPI ) else (
 @ set choice=
 @ echo Invalid input!
 @ goto user_entry )
@@ -48,38 +50,44 @@
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
 
 :EBV_PCP_AP_avalon
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_ap_pcp_intavalon
 @ set DUAL_NIOS = "1"
 @ goto start
 :EBV_PCP_AP_SPI
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SPI_multinios
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_ap_pcp_SPI
 @ set DUAL_NIOS = "1"
 @ goto start
 :EBV_PCP_SPI
 @ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_pcp_SPI
 @ goto start
 :EBV_PCP_16bitparallel
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_16bitprll
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_pcp_16bitprll
 @ goto start
 :INK_PCP_AP_avalon
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_ap_pcp_intavalon
 @ set DUAL_NIOS = "1"
 @ goto start
 :INK_PCP_AP_SPI
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SPI_multinios
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_ap_pcp_SPI
 @ set DUAL_NIOS = "1"
 @ goto start
 :INK_PCP_SPI
 @ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_pcp_SPI
 @ goto start
 :INK_PCP_16bitparallel
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_pcp_16bitprll
+@ goto start
+:ECU_PCP_SPI
+@ set SOPC_DIR=../../fpga/altera/SYSTEC_ECUcore-EP3C/systec_pcp_SPI
 @ goto start
 
 :start
 @ REM ######################################
 @ REM # Discover the root nios2eds directory
 @ set SOPC_KIT_NIOS2=%SOPC_KIT_NIOS2%
+@ echo	Make sure you have the correct software installed!
+@ echo	- Quartus II 10.0 SP1
+@ echo	- Nios II EDS 10.0 SP1
 @ REM ######################################
 
 

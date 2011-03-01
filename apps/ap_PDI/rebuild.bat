@@ -7,6 +7,7 @@
 @ echo ====================================================
 @ echo  Rebuild Application Processor PDI Menu
 @ echo ====================================================
+@ echo  Choose your desired PCP interface demo:
 @ echo .
 @ echo  AP is NIOS II - FPGA design includes also PCP
 @ echo  -----------------------------------------------
@@ -49,32 +50,32 @@
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
 
 :EBV_PCP_AP_avalon
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_ap_pcp_intavalon
 @ set DUAL_NIOS = "1"
 @ goto start
 :EBV_PCP_AP_SPI
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SPI_multinios
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_ap_pcp_SPI
 @ set DUAL_NIOS = "1"
 @ goto start
 :EBV_AP_SPI
 @ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_ap_SPImaster
 @ goto start
 :EBV_AP_16bitparallel
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_16bitprll
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/...
 @ goto start
 :INK_PCP_AP_avalon
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_ap_pcp_intavalon
 @ set DUAL_NIOS = "1"
 @ goto start
 :INK_PCP_AP_SPI
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SPI_multinios
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_ap_pcp_SPI
 @ set DUAL_NIOS = "1"
 @ goto start
 :INK_AP_SPI
 @ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_ap_SPImaster
 @ goto start
 :INK_AP_16bitparallel
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/...
 @ goto start
 :STC_AP_SPI
 @ set SOPC_DIR=../../fpga/altera/SYSTEC_ECUcore-EP3C/systec_ap_SPImaster

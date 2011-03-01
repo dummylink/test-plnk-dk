@@ -25,10 +25,10 @@
 @ REM # SET PARAMETERS
 @ REM It has to be "/", because it is a parameter passed to unix-bash!
 :EBV_directIO
-@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/nios2_openmac_SimpleLatchedIO
+@ set SOPC_DIR=../../fpga/altera/EBV_DBC3C40/ebv_pcp_DirectIO
 @ goto start
 :INK_directIO
-@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/nios2_openmac_SimpleLatchedIO
+@ set SOPC_DIR=../../fpga/altera/TERASIC_DE2-115/ink_pcp_DirectIO
 @ goto start
 
 :start
