@@ -119,6 +119,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                         - added functions:
                                             omethGetTxBufBase and
                                             omethGetRxBufBase
+	25.01.2011	zelenkaj	changes:	- RX buffer allocation depends on
+											location (pktLoc).
+										- ometh_config_typ added pktLoc
+	21.02.2011	zelenkaj	added:		- missing Microblaze support (minor)
 
 ----------------------------------------------------------------------------*/
 
@@ -159,6 +163,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MICREL_KS8721_PHY_ID	0x22161
 #define	MICREL_KS8721_IPG		40			// due to phy runtime of 460ns the ipg can be reduced to 40 (40+2*460 = 960 ... minimum ipg)
+
+//IPG compensation valid for EBV DBC3C40 with two National phys...
+#define NATIONAL_DP83640_PHY_ID	0x5ce1200
+#define NATIONAL_DP83640_IPG	~0	//TODO: measure IPG and compensate
+
+#define MARVELL_88E1111_PHY_ID	0x5678 //TODO: obtain phy ID
+#define MARVELL_88E1111_IPG		~0	//TODO: measure IPG and compensate
+
 
 #define PHY_MICREL_REG1F_NOAUTOMDIX	0x2000
 
@@ -473,7 +485,10 @@ static OMETH_H		omethCreateInt
 	hEth->config.pPhyBase = OMETH_MAKE_NONCACHABLE(hEth->config.pPhyBase);
 	hEth->config.pRamBase = OMETH_MAKE_NONCACHABLE(hEth->config.pRamBase);
 	hEth->config.pRegBase = OMETH_MAKE_NONCACHABLE(hEth->config.pRegBase);
-    hEth->config.pBufBase = OMETH_MAKE_NONCACHABLE(hEth->config.pBufBase);
+	if(hEth->config.pktLoc == OMETH_PKT_LOC_MACINT)
+	{
+		hEth->config.pBufBase = OMETH_MAKE_NONCACHABLE(hEth->config.pBufBase);
+	}
 
 
 	// search for connected phys and count link bits
@@ -541,6 +556,15 @@ static OMETH_H		omethCreateInt
 	else if (hEth->phyCount==1)
 	{
 		if(phyId==MICREL_KS8721_PHY_ID)	i = MICREL_KS8721_IPG;
+	}
+	// reduce IPG automatically depending on phy type (if there are 2 phy existing)
+	else if (hEth->phyCount==2)
+	{
+		//e.g. EBV DB3C40 BOARD (Cyclone 3)
+		if(phyId==NATIONAL_DP83640_PHY_ID) i = NATIONAL_DP83640_IPG;
+		//e.g. TERASIC DE2-115 (Cyclone 4)
+		else if(phyId==MARVELL_88E1111_PHY_ID) i = MARVELL_88E1111_IPG;
+		//...add more if needed
 	}
 
 	// response IPG is defined, calculate value and write to descriptor
@@ -645,14 +669,32 @@ static OMETH_H		omethCreateInt
 	len = (len+3)&(~3);		// round up to next multiple of 4
 
 	// allocate buffers for rx data
-//----------------------------------------------------------------------------------------------------
-//allocate MAC-internal memory
-    pByte = hEth->config.pBufBase;//OMETH_MAKE_NONCACHABLE(calloc(hEth->config.rxBuffers * len ,1));
+	if(hEth->config.pktLoc == OMETH_PKT_LOC_MACINT)
+	{
+		//use mac internal packet buffer
+		pByte = hEth->config.pBufBase;
+
+		//store tx buffer address for appi
+	    hEth->pTxBufBase = pByte + hEth->config.rxBuffers * len;
+	}
+	else if(hEth->config.pktLoc == OMETH_PKT_LOC_HEAP)
+	{
+		//use heap
+		pByte = OMETH_MAKE_NONCACHABLE(calloc(hEth->config.rxBuffers * len ,1));
+
+		//store tx buffer address equ. rx buffer -> tx is handled by user!
+		hEth->pTxBufBase = pByte;
+	}
+	else
+	{
+		//error
+		return hEth;
+	}
+
 	if(pByte == 0) return hEth;
 
-	// store buffer address for appi and destroy function
+	// store rx buffer address for appi and destroy function
 	hEth->pRxBufBase = pByte;
-    hEth->pTxBufBase = pByte + hEth->config.rxBuffers * len;
 
 	//----------------- set all rx descriptor pointers in info structure ----------
 	pRxInfo	= hEth->pRxNext = hEth->pRxInfo;
@@ -1620,7 +1662,13 @@ void			omethFilterSetByteMask
  unsigned char	mask		/* mask to set										*/
 )
 {
+#ifdef __NIOS2__
 	hFilter->pFilterData->pFilterWriteOnly[offset].mask = mask;
+#elif defined(__MICROBLAZE__)
+	hFilter->pFilterData->pFilterWriteOnly[offset^1].mask = mask;
+#else
+#error "unknown CPU"
+#endif
 }
 
 /*****************************************************************************
@@ -2422,7 +2470,10 @@ int				omethDestroy
 
 	freePtr(hEth->pFilterList);
 	freePtr(hEth->pPhyReg);		// free phy register image
-	//freePtr(hEth->pRxBufBase);	// free allocated rx-buffers
+	if(hEth->config.pktLoc == OMETH_PKT_LOC_HEAP)
+	{
+		freePtr(hEth->pRxBufBase);	// free allocated rx-buffers
+	}
 	freePtr(hEth->pRxInfo);		// free rx/tx info list
 	freePtr(hEth->pTxInfo);
 	freePtr(hEth);				// free instance
