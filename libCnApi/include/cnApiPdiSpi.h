@@ -58,6 +58,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	2010/10/25	hoggerm		added function for scalable data size transfers
 	2010/12/13	zelenkaj	added sq-functionality
 	2011/01/10	zelenkaj	added wake up functionality
+	2011/03/01	zelenkaj	extend wake up (4 wake up pattern, inversion)
+    2011/03/03  hoggerm     added SPI HW Layer test
 
 *******************************************************************************/
 
@@ -76,20 +78,25 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //test mudules
 #define DEBUG_VERIFY_SPI_HW_CONNECTION
+
+#ifdef DEBUG_VERIFY_SPI_HW_CONNECTION
 #define SPI_L1_TESTS                    (256 * 10 )         ///< SPI HW test with pattern 0x00 - 0xff (10 times)
+#endif
 
 //general define
 #define PDISPI_MAX_SQ                   (32)                ///< max number of bytes in sequence (WRSQ/RDSQ)
 #define PDISPI_MAX_TX                   (PDISPI_MAX_SQ + 4) ///< necessary tx buffers (HIG/MID/LOWADDR + WRSQ + DATA)
 #define PDISPI_MAX_RX                   (PDISPI_MAX_SQ)     ///< necessary rx buffers (only DATA)
-#define PDISPI_THRSHLD_SIZE             (3)                 ///< 3 bytes or more are transfered by sequence (WRSQ/RDSQ) approach
+#define PDISPI_THRSHLD_SIZE             (3)                 ///< 3 bytes are transfered by sequence (WRSQ/RDSQ) approach
 
 #define PDISPI_MAX_SIZE                 32768                   ///< max Nr. of bytes able to address (2^15)
 #define PDISPI_MAX_ADR_OFFSET           (PDISPI_MAX_SIZE - 1)   ///< highest possible address of PDI SPI
 
 //WAKEUP
-#define PDISPI_WAKEUP					0x03
-#define PDISPI_WAKEUP1					0x0A
+#define PDISPI_WAKEUP					0x03U
+#define PDISPI_WAKEUP1					0x0AU
+#define PDISPI_WAKEUP2					0x0CU
+#define PDISPI_WAKEUP3					0x0FU
 
 //CMD Frame:
 // CMD(2..0) | DATA(4..0)
@@ -117,8 +124,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //function definitions
 #define PDISPI_USLEEP(x)                usleep(x)
 
-typedef int (*tSpiMasterTxHandler) (unsigned char *pTxBuf_p, int iBytes_p);
-typedef int (*tSpiMasterRxHandler) (unsigned char *pRxBuf_p, int iBytes_p);
+//type definitions
+typedef int (*tSpiMasterTxHandler) (BYTE *pTxBuf_p, int iBytes_p);
+typedef int (*tSpiMasterRxHandler) (BYTE *pRxBuf_p, int iBytes_p);
 
 typedef struct _tPdiSpiInstance
 {
@@ -128,16 +136,17 @@ typedef struct _tPdiSpiInstance
     tSpiMasterRxHandler     m_SpiMasterRxHandler;
 	
     //Local copy of the Address Register of the PDI SPI Slave
-    unsigned short          m_addrReg;
+    WORD					m_addrReg;
     
     //Tx Buffer
-    unsigned char           m_txBuffer[PDISPI_MAX_TX];
+    BYTE					m_txBuffer[PDISPI_MAX_TX];
     int                     m_toBeTx;
     //Rx Buffer
-    unsigned char           m_rxBuffer[PDISPI_MAX_RX];
+    BYTE					m_rxBuffer[PDISPI_MAX_RX];
     int                     m_toBeRx;
 } tPdiSpiInstance;
 
+//function declarations
 int CnApi_initSpiMaster
 (
     tSpiMasterTxHandler     SpiMasterTxH_p, ///< SPI Master Tx Handler
