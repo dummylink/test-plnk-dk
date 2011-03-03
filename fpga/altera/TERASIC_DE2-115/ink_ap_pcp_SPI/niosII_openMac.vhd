@@ -14382,12 +14382,12 @@ entity niosII_openMac is
 
               -- the_powerlink_0
                  signal ap_irq_from_the_powerlink_0 : OUT STD_LOGIC;
-                 signal phy0_MiiClk_from_the_powerlink_0 : OUT STD_LOGIC;
-                 signal phy0_MiiDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
-                 signal phy0_MiiRst_n_from_the_powerlink_0 : OUT STD_LOGIC;
-                 signal phy1_MiiClk_from_the_powerlink_0 : OUT STD_LOGIC;
-                 signal phy1_MiiDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
-                 signal phy1_MiiRst_n_from_the_powerlink_0 : OUT STD_LOGIC;
+                 signal phy0_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
+                 signal phy0_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
+                 signal phy0_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
+                 signal phy1_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
+                 signal phy1_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
+                 signal phy1_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
                  signal phyMii0_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii0_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal phyMii0_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
@@ -16138,12 +16138,12 @@ component powerlink_0 is
                     signal mac_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal mbf_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal pcp_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-                    signal phy0_MiiClk : OUT STD_LOGIC;
-                    signal phy0_MiiDat : INOUT STD_LOGIC;
-                    signal phy0_MiiRst_n : OUT STD_LOGIC;
-                    signal phy1_MiiClk : OUT STD_LOGIC;
-                    signal phy1_MiiDat : INOUT STD_LOGIC;
-                    signal phy1_MiiRst_n : OUT STD_LOGIC;
+                    signal phy0_Rst_n : OUT STD_LOGIC;
+                    signal phy0_SMIClk : OUT STD_LOGIC;
+                    signal phy0_SMIDat : INOUT STD_LOGIC;
+                    signal phy1_Rst_n : OUT STD_LOGIC;
+                    signal phy1_SMIClk : OUT STD_LOGIC;
+                    signal phy1_SMIDat : INOUT STD_LOGIC;
                     signal phyMii0_TxDat : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii0_TxEn : OUT STD_LOGIC;
                     signal phyMii0_TxEr : OUT STD_LOGIC;
@@ -16886,10 +16886,10 @@ end component niosII_openMac_reset_clk25Meg_domain_synch_module;
                 signal internal_out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_pcp_clk :  STD_LOGIC;
                 signal internal_phasedone_from_the_altpll_0 :  STD_LOGIC;
-                signal internal_phy0_MiiClk_from_the_powerlink_0 :  STD_LOGIC;
-                signal internal_phy0_MiiRst_n_from_the_powerlink_0 :  STD_LOGIC;
-                signal internal_phy1_MiiClk_from_the_powerlink_0 :  STD_LOGIC;
-                signal internal_phy1_MiiRst_n_from_the_powerlink_0 :  STD_LOGIC;
+                signal internal_phy0_Rst_n_from_the_powerlink_0 :  STD_LOGIC;
+                signal internal_phy0_SMIClk_from_the_powerlink_0 :  STD_LOGIC;
+                signal internal_phy1_Rst_n_from_the_powerlink_0 :  STD_LOGIC;
+                signal internal_phy1_SMIClk_from_the_powerlink_0 :  STD_LOGIC;
                 signal internal_phyMii0_TxDat_from_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal internal_phyMii0_TxEn_from_the_powerlink_0 :  STD_LOGIC;
                 signal internal_phyMii0_TxEr_from_the_powerlink_0 :  STD_LOGIC;
@@ -18887,12 +18887,12 @@ begin
       mac_readdata => powerlink_0_MAC_REG_readdata,
       mbf_readdata => powerlink_0_MAC_BUF_readdata,
       pcp_readdata => powerlink_0_PDI_PCP_readdata,
-      phy0_MiiClk => internal_phy0_MiiClk_from_the_powerlink_0,
-      phy0_MiiDat => phy0_MiiDat_to_and_from_the_powerlink_0,
-      phy0_MiiRst_n => internal_phy0_MiiRst_n_from_the_powerlink_0,
-      phy1_MiiClk => internal_phy1_MiiClk_from_the_powerlink_0,
-      phy1_MiiDat => phy1_MiiDat_to_and_from_the_powerlink_0,
-      phy1_MiiRst_n => internal_phy1_MiiRst_n_from_the_powerlink_0,
+      phy0_Rst_n => internal_phy0_Rst_n_from_the_powerlink_0,
+      phy0_SMIClk => internal_phy0_SMIClk_from_the_powerlink_0,
+      phy0_SMIDat => phy0_SMIDat_to_and_from_the_powerlink_0,
+      phy1_Rst_n => internal_phy1_Rst_n_from_the_powerlink_0,
+      phy1_SMIClk => internal_phy1_SMIClk_from_the_powerlink_0,
+      phy1_SMIDat => phy1_SMIDat_to_and_from_the_powerlink_0,
       phyMii0_TxDat => internal_phyMii0_TxDat_from_the_powerlink_0,
       phyMii0_TxEn => internal_phyMii0_TxEn_from_the_powerlink_0,
       phyMii0_TxEr => internal_phyMii0_TxEr_from_the_powerlink_0,
@@ -19447,13 +19447,13 @@ begin
   --vhdl renameroo for output signals
   phasedone_from_the_altpll_0 <= internal_phasedone_from_the_altpll_0;
   --vhdl renameroo for output signals
-  phy0_MiiClk_from_the_powerlink_0 <= internal_phy0_MiiClk_from_the_powerlink_0;
+  phy0_Rst_n_from_the_powerlink_0 <= internal_phy0_Rst_n_from_the_powerlink_0;
   --vhdl renameroo for output signals
-  phy0_MiiRst_n_from_the_powerlink_0 <= internal_phy0_MiiRst_n_from_the_powerlink_0;
+  phy0_SMIClk_from_the_powerlink_0 <= internal_phy0_SMIClk_from_the_powerlink_0;
   --vhdl renameroo for output signals
-  phy1_MiiClk_from_the_powerlink_0 <= internal_phy1_MiiClk_from_the_powerlink_0;
+  phy1_Rst_n_from_the_powerlink_0 <= internal_phy1_Rst_n_from_the_powerlink_0;
   --vhdl renameroo for output signals
-  phy1_MiiRst_n_from_the_powerlink_0 <= internal_phy1_MiiRst_n_from_the_powerlink_0;
+  phy1_SMIClk_from_the_powerlink_0 <= internal_phy1_SMIClk_from_the_powerlink_0;
   --vhdl renameroo for output signals
   phyMii0_TxDat_from_the_powerlink_0 <= internal_phyMii0_TxDat_from_the_powerlink_0;
   --vhdl renameroo for output signals
@@ -19559,12 +19559,12 @@ component niosII_openMac is
 
                  -- the_powerlink_0
                     signal ap_irq_from_the_powerlink_0 : OUT STD_LOGIC;
-                    signal phy0_MiiClk_from_the_powerlink_0 : OUT STD_LOGIC;
-                    signal phy0_MiiDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
-                    signal phy0_MiiRst_n_from_the_powerlink_0 : OUT STD_LOGIC;
-                    signal phy1_MiiClk_from_the_powerlink_0 : OUT STD_LOGIC;
-                    signal phy1_MiiDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
-                    signal phy1_MiiRst_n_from_the_powerlink_0 : OUT STD_LOGIC;
+                    signal phy0_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
+                    signal phy0_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
+                    signal phy0_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
+                    signal phy1_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
+                    signal phy1_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
+                    signal phy1_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
                     signal phyMii0_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii0_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii0_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
@@ -19683,12 +19683,12 @@ end component sdram_0_test_component;
                 signal out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal pcp_clk :  STD_LOGIC;
                 signal phasedone_from_the_altpll_0 :  STD_LOGIC;
-                signal phy0_MiiClk_from_the_powerlink_0 :  STD_LOGIC;
-                signal phy0_MiiDat_to_and_from_the_powerlink_0 :  STD_LOGIC;
-                signal phy0_MiiRst_n_from_the_powerlink_0 :  STD_LOGIC;
-                signal phy1_MiiClk_from_the_powerlink_0 :  STD_LOGIC;
-                signal phy1_MiiDat_to_and_from_the_powerlink_0 :  STD_LOGIC;
-                signal phy1_MiiRst_n_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy0_Rst_n_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy0_SMIClk_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy0_SMIDat_to_and_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy1_Rst_n_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy1_SMIClk_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy1_SMIDat_to_and_from_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii0_RxClk_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii0_RxDat_to_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal phyMii0_RxDv_to_the_powerlink_0 :  STD_LOGIC;
@@ -19760,12 +19760,12 @@ begin
       out_port_from_the_status_led_pio => out_port_from_the_status_led_pio,
       pcp_clk => pcp_clk,
       phasedone_from_the_altpll_0 => phasedone_from_the_altpll_0,
-      phy0_MiiClk_from_the_powerlink_0 => phy0_MiiClk_from_the_powerlink_0,
-      phy0_MiiDat_to_and_from_the_powerlink_0 => phy0_MiiDat_to_and_from_the_powerlink_0,
-      phy0_MiiRst_n_from_the_powerlink_0 => phy0_MiiRst_n_from_the_powerlink_0,
-      phy1_MiiClk_from_the_powerlink_0 => phy1_MiiClk_from_the_powerlink_0,
-      phy1_MiiDat_to_and_from_the_powerlink_0 => phy1_MiiDat_to_and_from_the_powerlink_0,
-      phy1_MiiRst_n_from_the_powerlink_0 => phy1_MiiRst_n_from_the_powerlink_0,
+      phy0_Rst_n_from_the_powerlink_0 => phy0_Rst_n_from_the_powerlink_0,
+      phy0_SMIClk_from_the_powerlink_0 => phy0_SMIClk_from_the_powerlink_0,
+      phy0_SMIDat_to_and_from_the_powerlink_0 => phy0_SMIDat_to_and_from_the_powerlink_0,
+      phy1_Rst_n_from_the_powerlink_0 => phy1_Rst_n_from_the_powerlink_0,
+      phy1_SMIClk_from_the_powerlink_0 => phy1_SMIClk_from_the_powerlink_0,
+      phy1_SMIDat_to_and_from_the_powerlink_0 => phy1_SMIDat_to_and_from_the_powerlink_0,
       phyMii0_TxDat_from_the_powerlink_0 => phyMii0_TxDat_from_the_powerlink_0,
       phyMii0_TxEn_from_the_powerlink_0 => phyMii0_TxEn_from_the_powerlink_0,
       phyMii0_TxEr_from_the_powerlink_0 => phyMii0_TxEr_from_the_powerlink_0,
