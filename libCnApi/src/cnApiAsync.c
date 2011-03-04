@@ -41,11 +41,12 @@ This module contains functions for the asynchronous transfer in the CN API libra
 // asynchronous messages
 tLinkPdosReq *pAsycMsgLinkPdoReqAp_g;
 
-static tAsyncMsg			*pAsyncTxAdrs_l;
-static WORD					wAsyncTxSize_l;
-static tAsyncMsg			*pAsyncRxAdrs_l;
-static WORD					wAsyncRxSize_l;
-static BYTE					bReqId_l;						///< saved request Id of request
+static tAsyncMsg		*pAsyncTxAdrs_l;
+static WORD				wAsyncTxSize_l;
+static tAsyncMsg		*pAsyncRxAdrs_l;
+static WORD				wAsyncRxSize_l;
+static BYTE				bReqId_l = 0;		///< asynchronous msg counter
+static BYTE             bReqSeqnc = 0;      ///< CreateObjLinks sequence counter of split message
 
 #ifdef CN_API_USING_SPI
 /* shadow variables - copys of DPRAM */
@@ -401,8 +402,8 @@ CnApi_doCreateObjLinksReq() executes a createObjectLinks Request command.
 int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 {
 	int					iStatus;
-	tCreateObjLksReq	createObjLinksReq;                ///< local message storage
-	tCreateObjLksResp	createObjLinksResp;               ///< local message storage
+	tCreateObjLksReq	createObjLinksReq;            ///< local message storage
+	tCreateObjLksResp	createObjLinksResp;           ///< local message storage
 	WORD				wCreateObjLinksRespLen;
 	BOOL				fReady = FALSE;
 	BYTE				bChannel;
@@ -422,12 +423,20 @@ int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 
 	while (wCurObjs > 0)
 	{
+	    // check if PCP restriction is not exceeded
+        if (OBJ_CREATE_LINKS_REQ_MAX_SEQ < bReqSeqnc)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Linkable objects limited to %d! Linking stopped!\n", MAX_LINKABLE_OBJCS);
+            return ERROR;
+        }
+
 		/* build up CreateObjReq */
 		memset (&createObjLinksReq, 0x00, sizeof(createObjLinksReq));
 		createObjLinksReq.m_wNumObjs = wCurObjs;
-
 		createObjLinksReq.m_bCmd = kAsyncCmdCreateObjLinksReq;
 		createObjLinksReq.m_bReqId = ++bReqId_l;
+		bReqSeqnc++;
+
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Creating %d objects\n", wCurObjs);
 		if ((iStatus = CnApi_sendAsync(kAsyncChannelInternal, (tAsyncIntChan *)&createObjLinksReq, sizeof(createObjLinksReq),
 									   (char *)pObj, wCurObjs * sizeof(tCnApiObjId))) != kAsyncSendStatusOk)

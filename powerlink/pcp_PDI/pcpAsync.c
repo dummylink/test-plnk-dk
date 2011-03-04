@@ -12,9 +12,6 @@
 
 /******************************************************************************/
 /* includes */
-
-/******************************************************************************/
-/* defines */
 #include "global.h"
 #include "Debug.h"
 
@@ -27,6 +24,10 @@
 #include <unistd.h> // for usleep()
 
 #include <string.h>
+
+/******************************************************************************/
+/* defines */
+#define OBJ_CRT_LNKS_BLKS       OBJ_CREATE_LINKS_REQ_MAX_SEQ+1
 
 /******************************************************************************/
 /* typedefs */
@@ -43,7 +44,8 @@ tLinkPdosReq *pAsycMsgLinkPdoReq_g;
 /* local variables */
 static  tAsyncMsg * pAsyncSendBuf;
 static  tAsyncMsg * pAsyncRecvBuf;
-char   *pObjData   = NULL;
+static  BYTE      * pObjData[OBJ_CRT_LNKS_BLKS] = {NULL};
+static  BYTE        bReqSeqnc = 0;        ///< sequence counter of split message
 
 /******************************************************************************/
 /* function declarations */
@@ -276,12 +278,24 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 	/* all objects exist -> link them to HEAP */
 	if (pCreateObjLinksResp_p->m_wStatus == kCnApiStatusOk)
 	{
-		/* allocate memory in HEAP */
-	    if (pObjData != NULL)
-	    {
-	        free(pObjData); ///< memory has been allocated before! overwrite it...
+	    if (pCreateObjLinksReq_p->m_bReqId == FST_OBJ_CRT_INDICATOR)
+	    {// asynchronous message counter 2 indicates a AP restart (workaround)
+	        bReqSeqnc = 0;
 	    }
-		if ((pObjData = malloc(iSize)) == NULL)
+
+	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO ,"Sequence: %d \n", bReqSeqnc);
+	    if (bReqSeqnc > OBJ_CREATE_LINKS_REQ_MAX_SEQ)
+	    {
+	        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Invalid sequence %d!\n", bReqSeqnc);
+	        goto exit;
+	    }
+
+		/* allocate memory in HEAP */
+	    if (pObjData[bReqSeqnc] != NULL)
+	    {
+	        free(pObjData[bReqSeqnc]); ///< memory has been allocated before! overwrite it...
+	    }
+		if ((pObjData[bReqSeqnc] = malloc(iSize)) == NULL)
 		{
 		    /* prepare response msg */
 			DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Couldn't allocate memory for objects!\n");
@@ -291,7 +305,7 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 		{
 			/* link objects to allocated HEAP memory */
 			pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
-			pData = pObjData;
+			pData = pObjData[bReqSeqnc];
 
             for (i = 0; i < wNumObjs; i++, pObjId++)
 			{
@@ -332,6 +346,7 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 			}
 		}
 	}
+	bReqSeqnc++;
 
 	/* setup response msg header */
 	pCreateObjLinksResp_p->m_bCmd = kAsyncCmdCreateObjLinksResp;

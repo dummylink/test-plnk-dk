@@ -25,11 +25,9 @@
 /******************************************************************************/
 /* defines */
 /* equals number of mapped objects, if memory-chaining is not applied */
-#if defined RPDO512BYTE_TPDO1000BYTE
- #define		PDO_COPY_TBL_ELEMENTS		250 // TODO: equal num of objects?
-#else
- #define		PDO_COPY_TBL_ELEMENTS		100 // TODO: equal num of objects?
-#endif
+#define	PDO_COPY_TBL_ELEMENTS	MAX_MAPPABLE_OBJECTS   ///< max copy table elements per PDO
+//TODO: this is a restriction to be indicated in xdd! (max nr. of mappable objects)
+
 /******************************************************************************/
 /* typedefs */
 typedef struct sPdoCopyTblEntry {

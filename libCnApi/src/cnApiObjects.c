@@ -22,9 +22,6 @@ This module implements the object access functions of the CN API library.
 
 /******************************************************************************/
 /* defines */
-/* Entries for CreatObjLinks command. If exceeded, the command will be split. */
-#define		OBJ_CREATE_LINKS_MSG_MAX_ENTRIES				100
-
 
 /******************************************************************************/
 /* typedefs */
@@ -204,7 +201,7 @@ must exist in the PCPs object dictionary to be created.
 *******************************************************************************/
 void CnApi_createObjectLinks(void)
 {
-	tCnApiObjId 		objId[OBJ_CREATE_LINKS_MSG_MAX_ENTRIES];
+	tCnApiObjId 		objId[OBJ_CREATE_LINKS_REQ_MAX_ENTRIES];
 	register int		i;
 	tCnApiObjId			*pObjId;
 
@@ -216,16 +213,17 @@ void CnApi_createObjectLinks(void)
 	{
 		pObjId++;
 		i++;
-		if (i == OBJ_CREATE_LINKS_MSG_MAX_ENTRIES)
+		/* Entries for CreatObjLinks command. If exceeded, the command will be split. */
+		if (i == OBJ_CREATE_LINKS_REQ_MAX_ENTRIES)
 		{
 			/* no more objects do fit in the message, therefore execute create command */
-			CnApi_doCreateObjLinksReq(objId, i);
+			if(CnApi_doCreateObjLinksReq(objId, i) != OK) return;
 			i = 0;
 			pObjId = objId;
 		}
 	}
 
-	if (i < OBJ_CREATE_LINKS_MSG_MAX_ENTRIES)
+	if (i < OBJ_CREATE_LINKS_REQ_MAX_ENTRIES)
 	{
 		/* there a some objects leftover to be created, let's create them now */
 		CnApi_doCreateObjLinksReq(objId, i);

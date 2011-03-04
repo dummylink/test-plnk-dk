@@ -26,7 +26,7 @@
 /******************************************************************************/
 /* defines */
 /* equals number of mapped objects, if memory-chaining is not applied */
-#define		PDO_COPY_TBL_ELEMENTS		100  //TODO: delete / replace define
+#define	PDO_COPY_TBL_ELEMENTS	MAX_MAPPABLE_OBJECTS  ///< max copy table elements per PDO
 
 /******************************************************************************/
 /* typedefs */
