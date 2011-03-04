@@ -270,7 +270,6 @@ int CnApi_initSpiMaster
 		{
 			goto exit;
 		}
-		//DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nRx Byte: 0x%02X", PdiSpiInstance_l.m_rxBuffer[0]);
 
 		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP3)
 		{

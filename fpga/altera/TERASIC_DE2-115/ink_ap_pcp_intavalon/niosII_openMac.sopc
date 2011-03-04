@@ -441,6 +441,22 @@
          type = "long";
       }
    }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
    element remote_update_cycloneiii_0.s1
    {
       datum _lockedAddress
@@ -454,19 +470,19 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element outport_ap.s1
    {
       datum baseAddress
       {
-         value = "8224";
+         value = "2080";
          type = "long";
       }
    }
-   element inport_ap.s1
+   element benchmark_pio.s1
    {
       datum baseAddress
       {
-         value = "2096";
+         value = "8256";
          type = "long";
       }
    }
@@ -483,35 +499,11 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "8256";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2080";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8304";
+         value = "268435456";
          type = "long";
       }
    }
@@ -528,19 +520,27 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element node_switch_pio.s1
    {
       datum baseAddress
       {
-         value = "16777216";
+         value = "8304";
          type = "long";
       }
    }
-   element sdram_0.s1
+   element system_timer_ap.s1
    {
       datum baseAddress
       {
-         value = "268435456";
+         value = "2048";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2096";
          type = "long";
       }
    }
@@ -674,8 +674,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="4254143293" />
- <parameter name="timeStamp" value="1298886742717" />
+ <parameter name="systemHash" value="5298142967" />
+ <parameter name="timeStamp" value="1299241475831" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1214,7 +1214,7 @@
   <parameter name="clkRateEth" value="0" />
   <parameter name="clkRate50" value="50000000" />
   <parameter name="clkRatePcp" value="90000000" />
-  <parameter name="configPowerlink" value="CN with AP" />
+  <parameter name="configPowerlink">CN with Processor Interface</parameter>
   <parameter name="configApInterface" value="Avalon" />
   <parameter name="configApParallelInterface" value="8bit" />
   <parameter name="configApParSigs" value="High Active" />
@@ -1232,6 +1232,7 @@
   <parameter name="asyncTxBufSize" value="1518" />
   <parameter name="asyncRxBufSize" value="1518" />
   <parameter name="phyIF" value="MII" />
+  <parameter name="packetLoc" value="DPRAM" />
   <parameter name="validSet" value="1" />
   <parameter name="macTxBuf" value="1514" />
   <parameter name="macRxBuf" value="1514" />

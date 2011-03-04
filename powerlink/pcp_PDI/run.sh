@@ -68,7 +68,7 @@ fi
 #######################################
 ### Program the FPGA and run the SW ###
 nios2-configure-sof -C ${SOF_DIR} --cable USB-Blaster[USB-0]
-nios2-download -C ${PCP_ELF_DIR} --cpu_name=pcp_cpu epl.elf --go --cable USB-Blaster[USB-0]
+nios2-download -C ${PCP_ELF_DIR} --cpu_name=pcp_cpu --instance 1 epl.elf --go --cable USB-Blaster[USB-0]
 
 
 # Open Terminal
@@ -76,7 +76,7 @@ if [ -z "$TERMINAL" ]
 	then
 		echo " "	
 	else
-	nios2-terminal --cable USB-Blaster[USB-0]
+	nios2-terminal --instance 1 --cable USB-Blaster[USB-0]
 fi	
 #######################################
 
