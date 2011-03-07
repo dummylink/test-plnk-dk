@@ -1,4 +1,4 @@
-# SDC file for POWERLINK Slave reference design
+NK Slave reference design
 
 # constrain JTAG
 create_clock -period 10MHz {altera_reserved_tck}
@@ -12,10 +12,10 @@ derive_pll_clocks -create_base_clocks
 derive_clock_uncertainty
 
 # generated clocks (out of pll in SOPC) stored as variable
-set pcp_clk 	inst|the_altpll_0|sd1|pll7|clk[2]
+set pcp_clk 	inst|the_altpll_0|sd1|pll7|clk[1]
 set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
 set remote_clk	inst|the_altpll_0|sd1|pll7|clk[4]
-set clk100		inst|the_altpll_0|sd1|pll7|clk[1]
+set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
 set ap_clk		inst|the_altpll_0|sd1|pll7|clk[3]
 
 
