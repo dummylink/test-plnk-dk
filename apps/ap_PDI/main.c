@@ -79,7 +79,7 @@ BYTE			digitalOut[NUM_OUTPUT_OBJS];					///< The values of the digital output pi
 /* forward declarations */
 void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *pMac_p);
 void workInputOutput(void);
-int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycleNum);
+int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
 
 #ifdef CN_API_USING_SPI
 int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p);
@@ -148,11 +148,11 @@ int main (void)
 #ifdef USE_POLLING_MODE
     CnApi_disableSyncInt();
 #else
-    /* initialize PCP interrupt handler, minCycle = 2000 us, maxCycle = 65535 us (max. val. for WORD), maxCycleNum = 10 */
+    /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us , maxCycleNum = 10 */
     #ifdef CN_API_USING_SPI
-    initInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 65535, 10);  ///< local AP IRQ is enabled here
+    initInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 100000, 10);  ///< local AP IRQ is enabled here
     #else
-    initInterrupt(POWERLINK_0_IRQ, 1000, 65535, 10);
+    initInterrupt(POWERLINK_0_IRQ, 1000, 100000, 10);
     #endif /* CN_API_USING_SPI */
 
 #endif /* USE_POLLING_MODE */
@@ -317,16 +317,16 @@ will be initialized, the interrupt handler will be connected and the interrupt
 will be enabled.
 
 \param	irq					Interrupt number of synchronous interrupt (from BSP)
-\param	wMinCycleTime_p		The minimum cycle time for the interrupt
-\param	wMaxCycleTime_p		The maximum cycle time for the interrupt
+\param	dwMinCycleTime_p		The minimum cycle time for the interrupt
+\param	dwMaxCycleTime_p		The maximum cycle time for the interrupt
 \param	bMaxCycleNum_p		The maximum number of POWERLINK cycles allowed between two interrupts
 
 \return	OK, or ERROR if interrupt couldn't be connected
 *******************************************************************************/
 #ifndef USE_POLLING_MODE
-int initInterrupt(int irq, WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycleNum_p)
+int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum_p)
 {
-	CnApi_initSyncInt(wMinCycleTime_p, wMaxCycleTime_p, bMaxCycleNum_p);
+	CnApi_initSyncInt(dwMinCycleTime_p, dwMaxCycleTime_p, bMaxCycleNum_p);
 
 	/* register interrupt handler */
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT

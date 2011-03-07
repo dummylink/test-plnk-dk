@@ -640,11 +640,11 @@ void Gi_calcSyncIntPeriod(void)
 		return;
 	}
 
-	iNumCycles = (pCtrlReg_g->m_wMinCycleTime + uiCycleTime - 1) / uiCycleTime;	/* do it this way to round up integer division! */
+	iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;	/* do it this way to round up integer division! */
 	iSyncPeriod = iNumCycles * uiCycleTime;
 
 	DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%d --> syncPeriod=%d\n",
-			       uiCycleTime, pCtrlReg_g->m_wMinCycleTime, iSyncPeriod);
+			       uiCycleTime, pCtrlReg_g->m_dwMinCycleTime, iSyncPeriod);
 
 	if (iNumCycles > pCtrlReg_g->m_bMaxCylceNum)
 	{
@@ -653,7 +653,7 @@ void Gi_calcSyncIntPeriod(void)
 		return;
 	}
 
-	if (iSyncPeriod > pCtrlReg_g->m_wMaxCycleTime)
+	if (iSyncPeriod > pCtrlReg_g->m_dwMaxCycleTime)
 	{
 	    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
@@ -661,7 +661,7 @@ void Gi_calcSyncIntPeriod(void)
 		iSyncIntCycle_g = 0;
 		return;
 	}
-    if (iSyncPeriod < pCtrlReg_g->m_wMinCycleTime)
+    if (iSyncPeriod < pCtrlReg_g->m_dwMinCycleTime)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 

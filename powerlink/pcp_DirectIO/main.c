@@ -487,9 +487,9 @@ void InitPortConfiguration (char *p_portIsOutput)
 
 	/* read port configuration input pins */
 	memcpy((BYTE *) &portconf, LATCHED_IOPORT_CFG, 1);
-	portconf = ~portconf;
+	portconf = (~portconf) & 0x0f;
 
-	PRINTF1("\nPort configuration register value (only last digit matters) = %X \n", portconf);
+	PRINTF1("\nPort configuration register value = %#1X \n", portconf);
 
 	for (iCnt = 0; iCnt <= 3; iCnt++)
 	{

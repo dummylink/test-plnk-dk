@@ -163,21 +163,21 @@ CnApi_initSyncInt() is used to initialize the synchronization interrupt used by
 the PCP to inform the AP that process data must be transfered. The cycle timing
 of the synchronization will be calculated depending on the given parameters.
 
-\param  wMinCycleTime_p     minimum cycle time
-\param  wMaxCycleTime_p     maximum cycle time
+\param  dwMinCycleTime_p     minimum cycle time
+\param  dwMaxCycleTime_p     maximum cycle time
 \param  bMaxCycleNum_p      maximum number of POWERLINK cycles until a synchronization
                             interrupt must occur
 *******************************************************************************/
-void CnApi_initSyncInt(WORD wMinCycleTime_p, WORD wMaxCycleTime_p, BYTE bMaxCycleNum_p)
+void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum_p)
 {
     /* initialize interrupt cycle timing registers */
-    pCtrlReg_g->m_wMinCycleTime = wMinCycleTime_p;
-    pCtrlReg_g->m_wMaxCycleTime = wMaxCycleTime_p;
+    pCtrlReg_g->m_dwMinCycleTime = dwMinCycleTime_p;
+    pCtrlReg_g->m_dwMaxCycleTime = dwMaxCycleTime_p;
     pCtrlReg_g->m_bMaxCylceNum = bMaxCycleNum_p;
 
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_write(PCP_CTRLREG_MINCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMinCycleTime), (BYTE*) &pCtrlReg_g->m_wMinCycleTime); ///< update pcp register
-    CnApi_Spi_write(PCP_CTRLREG_MAXCYCT_OFFSET, sizeof(pCtrlReg_g->m_wMaxCycleTime), (BYTE*) &pCtrlReg_g->m_wMaxCycleTime); ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_MINCYCT_OFFSET, sizeof(pCtrlReg_g->m_dwMinCycleTime), (BYTE*) &pCtrlReg_g->m_dwMinCycleTime); ///< update pcp register
+    CnApi_Spi_write(PCP_CTRLREG_MAXCYCT_OFFSET, sizeof(pCtrlReg_g->m_dwMaxCycleTime), (BYTE*) &pCtrlReg_g->m_dwMaxCycleTime); ///< update pcp register
     CnApi_Spi_write(PCP_CTRLREG_MAXCYCNUM_OFFSET, sizeof(pCtrlReg_g->m_bMaxCylceNum), (BYTE*) &pCtrlReg_g->m_bMaxCylceNum); ///< update pcp register
 #endif
 }
