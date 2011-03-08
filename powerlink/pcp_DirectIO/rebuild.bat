@@ -70,6 +70,7 @@
 @ if not exist "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" goto errorQ
 @
 @ set SOPC_BUILDER_PATH_100=%SOPC_KIT_NIOS2%+%SOPC_BUILDER_PATH_100%
+@ set SOPC_BUILDER_PATH_101=%SOPC_KIT_NIOS2%+%SOPC_BUILDER_PATH_101%
 @ if not exist "%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" goto errorQ
 @ if not exist "%SOPC_KIT_NIOS2%\nios2_sdk_shell_bashrc" goto errorN
 @ goto run_bash
