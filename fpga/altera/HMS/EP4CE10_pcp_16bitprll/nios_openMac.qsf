@@ -1,0 +1,220 @@
+################################################################################################################
+#general
+set_global_assignment -name DEVICE Auto
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name TOP_LEVEL_ENTITY nios_pll
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 9.1
+set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "11:02:17 SEPTEMBER 13,2010"
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+#pin assignments
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_CE_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_OE_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_WE_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EXT_CLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EPCS_SDO
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EPCS_SCE
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EPCS_DCLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EPCS_DATA0
+
+#others
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP "-40"
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCS16
+set_global_assignment -name STRATIXIII_UPDATE_MODE REMOTE
+set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
+set_global_assignment -name OUTPUT_IO_TIMING_ENDPOINT "NEAR END"
+set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN "6 ns"
+set_global_assignment -name VHDL_FILE sevsegEncode.vhd
+set_global_assignment -name BDF_FILE nios_pll.bdf
+set_global_assignment -name SDC_FILE nios_openMac.SDC
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name SYNCHRONIZER_IDENTIFICATION AUTO
+
+#set_global_assignment -name MISC_FILE nios_openMac.dpf
+set_global_assignment -name QIP_FILE niosII_openMac.qip
+
+
+################################################################################################################
+
+
+set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios/nios_openMac.dpf"
+set_global_assignment -name ENABLE_LOGIC_ANALYZER_INTERFACE ON
+set_global_assignment -name USE_LOGIC_ANALYZER_INTERFACE_FILE ../nios2_openmac_dpram_multinios/benchmark.lai
+set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE benchmark.lai
+set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/nios2_openmac_SPI_multinios/nios_openMac.dpf"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
+set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
+set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE ../nios2_openmac_dpram_multinios/benchmark.lai
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_MOSI
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_SEL_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_0
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_2
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_3
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_5
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_1
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_4
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_6
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to altera_reserved_lai_0_7
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_CLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_MISO
+set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/fpga/altera/TERASIC_DE2-115/nios2_openmac_SPI_multinios/nios_openMac.dpf"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-STATED WITH WEAK PULL-UP"
+set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/ink_pcp_SPI/nios_openMac.dpf"
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name DEVICE_MIGRATION_LIST "EP4CE10U14I7,EP4CE6U14I7"
+set_global_assignment -name MISC_FILE "c:/Projects/ink_pcp_SPI/nios_openMac.dpf"
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[19] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[18] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[17] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[16] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[15] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[14] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[13] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[12] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[11] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[10] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[9] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[8] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[7] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[6] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[5] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[4] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[3] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[2] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[1] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_BE_n[1] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_BE_n[0] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_CE_n -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[15] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[14] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[13] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[12] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[11] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[10] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[9] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[8] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[7] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[6] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[5] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[4] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[3] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[2] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[1] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_DQ[0] -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_OE_n -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_WE_n -section_id PCP_SRAM
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER EPCS_DATA0 -section_id PCP_FLASH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER EPCS_DCLK -section_id PCP_FLASH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER EPCS_SCE -section_id PCP_FLASH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER EPCS_SDO -section_id PCP_FLASH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER EXT_CLK -section_id PCP_CLK_IN
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER LEDG[0] -section_id PCP_STAT_ERR_LED
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER LEDG[1] -section_id PCP_STAT_ERR_LED
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[0] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[1] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[2] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[3] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[4] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[5] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[6] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER NODE_SWITCH[7] -section_id PCP_NODE_SWITCH
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[0] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[1] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[2] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[3] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[4] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[5] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[6] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[7] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[8] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[9] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[10] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[11] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[12] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[13] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[14] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_ADDR[15] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_BE[0] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_BE[1] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_BUSY -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_CS -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[0] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[1] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[2] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[3] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[4] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[5] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[6] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[7] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[8] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[9] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[10] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[11] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[12] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[13] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[14] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_DATA[15] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_GPIO[0] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_GPIO[1] -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_RD -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PDI_WRITE -section_id PCP_PDI
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_MDC -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_MDIO -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_RESET_n -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_RXDV -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_RXD[0] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_RXD[1] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_TXD[0] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_TXD[1] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_TXEN -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_MDC -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_MDIO -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_RESET_n -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_RXDV -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_RXD[0] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_RXD[1] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_TXD[0] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_TXD[1] -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_TXEN -section_id PCP_PHYS
+set_global_assignment -name MISC_FILE "c:/Work/Temp/ink_pcp_SPI/nios_openMac.dpf"
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PCP_SRAM
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PCP_FLASH
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PCP_CLK_IN
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PCP_STAT_ERR_LED
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PCP_NODE_SWITCH
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PCP_PDI
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PCP_PHYS
+set_location_assignment EDGE_BOTTOM -to PCP_SRAM
+set_location_assignment PIN_M2 -to EXT_CLK
+set_location_assignment PIN_H2 -to EPCS_DATA0
+set_location_assignment PIN_H1 -to EPCS_DCLK
+set_location_assignment PIN_D2 -to EPCS_SCE
+set_location_assignment PIN_C1 -to EPCS_SDO
+set_location_assignment EDGE_BOTTOM -to PCP_STAT_ERR_LED
+set_location_assignment EDGE_BOTTOM -to PCP_NODE_SWITCH
+set_location_assignment EDGE_TOP -to PCP_PDI
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SYNC_IRQ_OUT
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SYNC_IRQ_OUT -section_id PCP_PDI
+set_location_assignment EDGE_TOP -to SYNC_IRQ_OUT
+set_location_assignment EDGE_RIGHT -to PCP_PHYS
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PHY1_RXD[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PHY1_RXD[1]
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
