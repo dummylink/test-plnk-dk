@@ -573,13 +573,15 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
         DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "setup PDO Descriptor %d : DIR:%d BufferNum:%d numObjs:%d\n"
                 ,pLinkPdoReq_p->m_bDescrCnt, bDirection_p, pPdoDescHeader->m_bBufferNum, pPdoDescHeader->m_bEntryCnt);
 
+		// Uncomment the next 2 lines to reactivate the copy table optimization. Temporary disabled for worst-case measurements.
+		// OptimizeCpyTbl (pCopyTbl); //Optimize copy table entries
+		// DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Num Entries After Optimization: %d\n", pCopyTbl->bNumOfEntries_m);
+
 		/* prepare for next PDO */
 		wPdoDescSize = sizeof(tPdoDescHeader) + (bAddedDecrEntries * sizeof(tPdoDescEntry));
 		pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) (pPdoDescHeader) + wPdoDescSize); ///< increment PDO descriptor count of Link PDO Request
 		*pCurrentDescrOffset_p += wPdoDescSize;
 		bApiBufferNum++;   ///< increment DPRAM PDO buffer number of this direction
-		OptimizeCpyTbl (pCopyTbl); //Optimize copy table entries
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Num Entries After Optimization: %d\n", pCopyTbl->bNumOfEntries_m);
 		pCopyTbl++;        ///< choose copy table of next PDO
 	}
 
