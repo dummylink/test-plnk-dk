@@ -1,4 +1,4 @@
-NK Slave reference design
+# SDC file for POWERLINK Slave reference design
 
 # constrain JTAG
 create_clock -period 10MHz {altera_reserved_tck}

@@ -27,7 +27,7 @@
    {
       datum baseAddress
       {
-         value = "8256";
+         value = "8272";
          type = "long";
       }
    }
@@ -69,7 +69,7 @@
       }
       datum baseAddress
       {
-         value = "8272";
+         value = "8288";
          type = "long";
       }
    }
@@ -239,7 +239,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
    }
@@ -303,45 +303,11 @@
          type = "boolean";
       }
    }
-   element onchip_memory_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
    element node_switch_pio.s1
    {
       datum baseAddress
       {
          value = "8256";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
          type = "long";
       }
    }
@@ -358,11 +324,45 @@
          type = "long";
       }
    }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
    element status_led_pio.s1
    {
       datum baseAddress
       {
          value = "8224";
+         type = "long";
+      }
+   }
+   element onchip_memory_pcp.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
          type = "long";
       }
    }
@@ -429,8 +429,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-13404057998" />
- <parameter name="timeStamp" value="1298913508364" />
+ <parameter name="systemHash" value="-11021947742" />
+ <parameter name="timeStamp" value="1299493812538" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -632,7 +632,7 @@
  <module
    kind="altera_avalon_pio"
    version="10.0"
-   enabled="0"
+   enabled="1"
    name="node_switch_pio">
   <parameter name="bitClearingEdgeCapReg" value="false" />
   <parameter name="bitModifyingOutReg" value="false" />
@@ -844,6 +844,7 @@
   <parameter name="asyncTxBufSize" value="1514" />
   <parameter name="asyncRxBufSize" value="1514" />
   <parameter name="phyIF" value="RMII" />
+  <parameter name="packetLoc" value="DPRAM" />
   <parameter name="validSet" value="10" />
   <parameter name="macTxBuf" value="1514" />
   <parameter name="macRxBuf" value="1514" />
@@ -941,7 +942,7 @@
    start="clock_crossing_0.m1"
    end="jtag_uart_0.avalon_jtag_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2050" />
+  <parameter name="baseAddress" value="0x2060" />
  </connection>
  <connection
    kind="avalon"
@@ -1091,7 +1092,7 @@
    start="clock_crossing_0.m1"
    end="powerlink_0.MAC_CMP">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2040" />
+  <parameter name="baseAddress" value="0x2050" />
  </connection>
  <connection
    kind="avalon"

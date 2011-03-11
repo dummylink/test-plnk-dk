@@ -277,14 +277,6 @@
          type = "boolean";
       }
    }
-   element ap_cpu.jtag_debug_module
-   {
-      datum baseAddress
-      {
-         value = "4096";
-         type = "long";
-      }
-   }
    element pcp_cpu.jtag_debug_module
    {
       datum _lockedAddress
@@ -295,6 +287,14 @@
       datum baseAddress
       {
          value = "6144";
+         type = "long";
+      }
+   }
+   element ap_cpu.jtag_debug_module
+   {
+      datum baseAddress
+      {
+         value = "4096";
          type = "long";
       }
    }
@@ -443,6 +443,46 @@
          type = "boolean";
       }
    }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8256";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
+   element sdram_0.s1
+   {
+      datum baseAddress
+      {
+         value = "33554432";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2080";
+         type = "long";
+      }
+   }
+   element system_timer_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
    element inport_ap.s1
    {
       datum baseAddress
@@ -451,11 +491,24 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
+   element onchip_memory_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
    {
       datum baseAddress
       {
-         value = "8256";
+         value = "8320";
          type = "long";
       }
    }
@@ -469,22 +522,6 @@
       datum baseAddress
       {
          value = "8192";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2080";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8320";
          type = "long";
       }
    }
@@ -506,43 +543,6 @@
       datum baseAddress
       {
          value = "2048";
-         type = "long";
-      }
-   }
-   element onchip_memory_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum baseAddress
-      {
-         value = "33554432";
          type = "long";
       }
    }
@@ -663,8 +663,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="8762430220" />
- <parameter name="timeStamp" value="1298912972932" />
+ <parameter name="systemHash" value="10625328742" />
+ <parameter name="timeStamp" value="1299500425391" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1204,14 +1204,18 @@
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone III" />
  </module>
  <module kind="powerlink" version="1.0" enabled="1" name="powerlink_0">
-  <parameter name="configPowerlink" value="CN with AP" />
+  <parameter name="clkRateEth" value="100000000" />
+  <parameter name="clkRate50" value="50000000" />
+  <parameter name="clkRatePcp" value="90000000" />
+  <parameter name="configPowerlink">CN with Processor Interface</parameter>
   <parameter name="configApInterface" value="Avalon" />
   <parameter name="configApParallelInterface" value="8bit" />
   <parameter name="configApParSigs" value="High Active" />
   <parameter name="configApParOutSigs" value="High Active" />
-  <parameter name="configApParEndian" value="Little" />
+  <parameter name="configApEndian" value="Little" />
   <parameter name="configApSpi_CPOL" value="0" />
   <parameter name="configApSpi_CPHA" value="0" />
+  <parameter name="configApSpi_IRQ" value="High Active" />
   <parameter name="rpdoNum" value="3" />
   <parameter name="rpdo0size" value="80" />
   <parameter name="rpdo1size" value="90" />
@@ -1221,12 +1225,11 @@
   <parameter name="asyncTxBufSize" value="1518" />
   <parameter name="asyncRxBufSize" value="1518" />
   <parameter name="phyIF" value="RMII" />
-  <parameter name="iTpdoObjNumber_g" value="100" />
-  <parameter name="iRpdoObjNumber_g" value="100" />
-  <parameter name="AUTO_PCP_CLK_CLOCK_RATE" value="90000000" />
+  <parameter name="packetLoc" value="DPRAM" />
+  <parameter name="validSet" value="1" />
+  <parameter name="macTxBuf" value="1514" />
+  <parameter name="macRxBuf" value="1514" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="50000000" />
-  <parameter name="AUTO_CLKETH_CLOCK_RATE" value="100000000" />
-  <parameter name="AUTO_CLK50MEG_CLOCK_RATE" value="50000000" />
  </module>
  <module kind="altera_avalon_pio" version="10.0" enabled="1" name="outport_ap">
   <parameter name="bitClearingEdgeCapReg" value="false" />

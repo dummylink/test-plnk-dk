@@ -334,37 +334,19 @@
          type = "boolean";
       }
    }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
    element node_switch_pio.s1
    {
       datum baseAddress
       {
          value = "2304";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element onchip_memory_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
          type = "long";
       }
    }
@@ -381,6 +363,19 @@
          type = "long";
       }
    }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
    element clock_crossing_0.s1
    {
       datum baseAddress
@@ -389,11 +384,16 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element onchip_memory_0.s1
    {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
       datum baseAddress
       {
-         value = "8224";
+         value = "8192";
          type = "long";
       }
    }
@@ -478,8 +478,8 @@
  <parameter name="hdlLanguage" value="VHDL" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-7424969490" />
- <parameter name="timeStamp" value="1298912061225" />
+ <parameter name="systemHash" value="-6380969816" />
+ <parameter name="timeStamp" value="1299498398449" />
  <module kind="clock_source" version="10.0" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -876,7 +876,7 @@
   <parameter name="clkRateEth" value="100000000" />
   <parameter name="clkRate50" value="50000000" />
   <parameter name="clkRatePcp" value="90000000" />
-  <parameter name="configPowerlink" value="CN with AP" />
+  <parameter name="configPowerlink">CN with Processor Interface</parameter>
   <parameter name="configApInterface" value="SPI" />
   <parameter name="configApParallelInterface" value="8bit" />
   <parameter name="configApParSigs" value="High Active" />
@@ -894,6 +894,7 @@
   <parameter name="asyncTxBufSize" value="1518" />
   <parameter name="asyncRxBufSize" value="1518" />
   <parameter name="phyIF" value="RMII" />
+  <parameter name="packetLoc" value="DPRAM" />
   <parameter name="validSet" value="1" />
   <parameter name="macTxBuf" value="1514" />
   <parameter name="macRxBuf" value="1514" />

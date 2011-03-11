@@ -575,3 +575,12 @@ set_global_assignment -name MISC_FILE "c:/Work/Backup/systec_pcp_SPI/nios_openMa
 set_global_assignment -name BDF_FILE TEMP_lookup_EBV_PINS.bdf
 set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/SYSTEC_ECUcore-EP3C/systec_pcp_SPI/nios_openMac.dpf"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name MISC_FILE "C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/SYSTEC_ECUcore-EP3C/systec_pcp_SPI/nios_openMac.dpf"
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to vETH0_RXD_in[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to phy1_rx_crsdv
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to vETH1_RXD_in[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to vETH1_RXD_in[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to phy1_rx_d[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to phy1_rx_d[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to phy0_rx_d[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to phy0_rx_d[0]

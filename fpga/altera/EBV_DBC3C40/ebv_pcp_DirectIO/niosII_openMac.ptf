@@ -596,7 +596,7 @@ SYSTEM niosII_openMac
             }
             Entry jtag_uart_0/avalon_jtag_slave
             {
-               address = "0x01002050";
+               address = "0x01002060";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -606,9 +606,15 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry powerlink_0/MAC_CMP
+            Entry node_switch_pio/s1
             {
                address = "0x01002040";
+               span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry powerlink_0/MAC_CMP
+            {
+               address = "0x01002050";
                span = "0x00000010";
                is_bridge = "0";
             }
@@ -2094,9 +2100,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002050";
+               Offset_Address = "0x00002060";
             }
-            Base_Address = "0x01002050";
+            Base_Address = "0x01002060";
             Address_Group = "0";
          }
       }
@@ -2622,7 +2628,7 @@ SYSTEM niosII_openMac
             }
             Entry jtag_uart_0/avalon_jtag_slave
             {
-               address = "0x00002050";
+               address = "0x00002060";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -2632,9 +2638,15 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry powerlink_0/MAC_CMP
+            Entry node_switch_pio/s1
             {
                address = "0x00002040";
+               span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry powerlink_0/MAC_CMP
+            {
+               address = "0x00002050";
                span = "0x00000010";
                is_bridge = "0";
             }
@@ -3152,6 +3164,149 @@ SYSTEM niosII_openMac
          Precompiled_Simulation_Library_Files = "";
          Simulation_HDL_Files = "";
          Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/status_led_pio.vhd";
+         Synthesis_Only_Files = "";
+      }
+   }
+   MODULE node_switch_pio
+   {
+      SLAVE s1
+      {
+         PORT_WIRING 
+         {
+            PORT clk
+            {
+               type = "clk";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT reset_n
+            {
+               type = "reset_n";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT address
+            {
+               type = "address";
+               width = "2";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT readdata
+            {
+               type = "readdata";
+               width = "8";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+         }
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Write_Wait_States = "0cycles";
+            Read_Wait_States = "1cycles";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
+            Is_Printable_Device = "0";
+            Address_Alignment = "native";
+            Well_Behaved_Waitrequest = "0";
+            Is_Nonvolatile_Storage = "0";
+            Read_Latency = "0";
+            Is_Memory_Device = "0";
+            Maximum_Pending_Read_Transactions = "0";
+            Minimum_Uninterrupted_Run_Length = "1";
+            Accepts_Internal_Connections = "1";
+            Write_Latency = "0";
+            Is_Flash = "0";
+            Data_Width = "8";
+            Address_Width = "2";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            MASTERED_BY clock_crossing_0/m1
+            {
+               priority = "1";
+               Offset_Address = "0x00002040";
+            }
+            Base_Address = "0x01002040";
+            Has_IRQ = "0";
+            Address_Group = "0";
+            Is_Readable = "1";
+            Is_Writable = "0";
+         }
+      }
+      PORT_WIRING 
+      {
+         PORT in_port
+         {
+            type = "export";
+            width = "8";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT out_port
+         {
+            direction = "output";
+            Is_Enabled = "0";
+            width = "8";
+         }
+         PORT bidir_port
+         {
+            direction = "inout";
+            Is_Enabled = "0";
+            width = "8";
+         }
+      }
+      class = "altera_avalon_pio";
+      class_version = "7.08100";
+      SYSTEM_BUILDER_INFO 
+      {
+         Is_Enabled = "1";
+         Instantiate_In_System_Module = "1";
+         Wire_Test_Bench_Values = "1";
+         Top_Level_Ports_Are_Enumerated = "1";
+         Clock_Source = "clk50";
+         Has_Clock = "1";
+         Date_Modified = "";
+         View 
+         {
+            MESSAGES 
+            {
+            }
+            Settings_Summary = " 8-bit PIO using <br>
+					
+					 input pins with edge type NONE and interrupt source NONE
+					";
+         }
+      }
+      WIZARD_SCRIPT_ARGUMENTS 
+      {
+         Do_Test_Bench_Wiring = "0";
+         Driven_Sim_Value = "0";
+         has_tri = "0";
+         has_out = "0";
+         has_in = "1";
+         capture = "0";
+         Data_Width = "8";
+         reset_value = "0";
+         edge_type = "NONE";
+         irq_type = "NONE";
+         bit_clearing_edge_register = "0";
+         bit_modifying_output_register = "0";
+      }
+      HDL_INFO 
+      {
+         Precompiled_Simulation_Library_Files = "";
+         Simulation_HDL_Files = "";
+         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/node_switch_pio.vhd";
          Synthesis_Only_Files = "";
       }
    }
@@ -3681,42 +3836,42 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiClk
+         PORT phy1_SMIClk
          {
             type = "export";
             width = "1";
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiDat
+         PORT phy1_SMIDat
          {
             type = "export";
             width = "1";
             direction = "inout";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiRst_n
+         PORT phy1_Rst_n
          {
             type = "export";
             width = "1";
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy0_MiiClk
+         PORT phy0_SMIClk
          {
             type = "export";
             width = "1";
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy0_MiiDat
+         PORT phy0_SMIDat
          {
             type = "export";
             width = "1";
             direction = "inout";
             Is_Enabled = "1";
          }
-         PORT phy0_MiiRst_n
+         PORT phy0_Rst_n
          {
             type = "export";
             width = "1";
@@ -3832,9 +3987,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002040";
+               Offset_Address = "0x00002050";
             }
-            Base_Address = "0x01002040";
+            Base_Address = "0x01002050";
             Address_Group = "1";
          }
       }
@@ -4058,7 +4213,7 @@ SYSTEM niosII_openMac
       }
       HDL_INFO 
       {
-         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/POWERLINK/src/powerlink.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_par.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_dpr.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_tripleVBufLogic.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenFILTER.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenHUB.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_AvalonIF.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DPR_Altera.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_PHYMI.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/rmii2mii.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/portio.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi_sreg.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_spi.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
+         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/POWERLINK/src/powerlink.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_par.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_dpr.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_tripleVBufLogic.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenFILTER.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenHUB.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_AvalonIF.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DPR_Altera.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DMAFifo.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_PHYMI.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/rmii2mii.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/portio.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi_sreg.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_spi.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -4071,6 +4226,7 @@ SYSTEM niosII_openMac
          MACTXBUFSIZE = "6816";
          PDIRPDOS = "3";
          PDITPDOS = "1";
+         PKTLOC = "0";
       }
    }
 }

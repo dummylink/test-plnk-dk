@@ -1,11 +1,12 @@
 ################################################################################################################
 #general
-set_global_assignment -name DEVICE Auto
+set_global_assignment -name DEVICE EP4CE10U14I7
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name TOP_LEVEL_ENTITY nios_pll
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 9.1
-set_global_assignment -name LAST_QUARTUS_VERSION "10.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "10.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "11:02:17 SEPTEMBER 13,2010"
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 256
 set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
@@ -49,9 +50,8 @@ set_global_assignment -name QIP_FILE niosII_openMac.qip
 
 
 set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/nios2_openmac_dpram_multinios/nios_openMac.dpf"
-set_global_assignment -name ENABLE_LOGIC_ANALYZER_INTERFACE ON
+set_global_assignment -name ENABLE_LOGIC_ANALYZER_INTERFACE OFF
 set_global_assignment -name USE_LOGIC_ANALYZER_INTERFACE_FILE ../nios2_openmac_dpram_multinios/benchmark.lai
-set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE benchmark.lai
 set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/nios2_openmac_SPI_multinios/nios_openMac.dpf"
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
@@ -74,6 +74,8 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_MISO
 set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/fpga/altera/TERASIC_DE2-115/nios2_openmac_SPI_multinios/nios_openMac.dpf"
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-STATED WITH WEAK PULL-UP"
 set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/ink_pcp_SPI/nios_openMac.dpf"
+set_global_assignment -name DEVICE_FILTER_PACKAGE UFBGA
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 7
 set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
@@ -217,4 +219,5 @@ set_location_assignment EDGE_TOP -to SYNC_IRQ_OUT
 set_location_assignment EDGE_RIGHT -to PCP_PHYS
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PHY1_RXD[0]
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PHY1_RXD[1]
+set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/HMS/EP4CE10_pcp_16bitprll/nios_openMac.dpf"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

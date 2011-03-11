@@ -1905,7 +1905,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/onchip_memory_0.hex 1298913067 ";
+         contents_info = "";
       }
       SIMULATION 
       {
@@ -5324,7 +5324,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>0A481310</b>    (unique ID tag) <br> <b>4D6BD6CD</b> (timestamp: Mon Feb 28, 2011 @6:09 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>7951A66A</b>    (unique ID tag) <br> <b>4D74CD89</b> (timestamp: Mon Mar 7, 2011 @1:20 PM)";
             MESSAGES 
             {
             }
@@ -5332,8 +5332,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "172495632u";
-         timestamp = "1298912973u";
+         id = "2035394154u";
+         timestamp = "1299500425u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5342,7 +5342,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000900 --id=172495632 --timestamp=1298912973";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000900 --id=2035394154 --timestamp=1299500425";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6277,42 +6277,42 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiClk
+         PORT phy1_SMIClk
          {
             type = "export";
             width = "1";
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiDat
+         PORT phy1_SMIDat
          {
             type = "export";
             width = "1";
             direction = "inout";
             Is_Enabled = "1";
          }
-         PORT phy1_MiiRst_n
+         PORT phy1_Rst_n
          {
             type = "export";
             width = "1";
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy0_MiiClk
+         PORT phy0_SMIClk
          {
             type = "export";
             width = "1";
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy0_MiiDat
+         PORT phy0_SMIDat
          {
             type = "export";
             width = "1";
             direction = "inout";
             Is_Enabled = "1";
          }
-         PORT phy0_MiiRst_n
+         PORT phy0_Rst_n
          {
             type = "export";
             width = "1";
@@ -6661,21 +6661,20 @@ SYSTEM niosII_openMac
       }
       HDL_INFO 
       {
-         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/POWERLINK/src/powerlink.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_par.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_dpr.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_tripleVBufLogic.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenFILTER.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenHUB.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_AvalonIF.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DPR_Altera.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_PHYMI.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/rmii2mii.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/portio.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi_sreg.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_spi.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
+         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/POWERLINK/src/powerlink.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_par.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_dpr.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_tripleVBufLogic.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenFILTER.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenHUB.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_AvalonIF.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DPR_Altera.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_DMAFifo.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/OpenMAC_PHYMI.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/rmii2mii.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/portio.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/spi_sreg.vhd,__PROJECT_DIRECTORY__/POWERLINK/src/pdi_spi.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         CONFIG = "CN with AP";
-         CONFIGAPIF = "Avalon";
-         MACBUFSIZE = "12676";
+         CONFIG = "4";
+         CONFIGAPENDIAN = "0";
+         MACBUFSIZE = "16160";
          MACRXBUFFERS = "6";
          MACRXBUFSIZE = "9192";
-         MACTXBUFFERS = "6";
-         MACTXBUFSIZE = "3484";
-         PDIRPDOOBJ = "100";
+         MACTXBUFFERS = "12";
+         MACTXBUFSIZE = "6968";
          PDIRPDOS = "3";
-         PDITPDOOBJ = "100";
          PDITPDOS = "1";
+         PKTLOC = "0";
       }
    }
    MODULE outport_ap
