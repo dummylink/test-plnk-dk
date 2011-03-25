@@ -4,7 +4,7 @@ editor if you plan to continue editing the block that represents it in
 the Block Editor! File corruption is VERY likely to occur.
 */
 /*
-Copyright (C) 1991-2010 Altera Corporation
+Copyright (C) 1991-2011 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
 and other software and tools, and its AMPP partner logic 
 functions, and any output files from any of the foregoing 
@@ -1093,30 +1093,30 @@ applicable agreement for further details.
 	(port
 		(pt 496 368)
 		(output)
-		(text "phy0_MiiClk_from_the_powerlink_0 " (rect 0 0 204 14)(font "Arial" (font_size 8)))
-		(text "phy0_MiiClk_from_the_powerlink_0 " (rect 297 361 501 375)(font "Arial" (font_size 8)))
+		(text "phy0_Rst_n_from_the_powerlink_0 " (rect 0 0 206 14)(font "Arial" (font_size 8)))
+		(text "phy0_Rst_n_from_the_powerlink_0 " (rect 300 361 506 375)(font "Arial" (font_size 8)))
 		(line (pt 480 368)(pt 496 368))
 	)
 	(port
-		(pt 496 400)
+		(pt 496 384)
 		(output)
-		(text "phy0_MiiRst_n_from_the_powerlink_0 " (rect 0 0 220 14)(font "Arial" (font_size 8)))
-		(text "phy0_MiiRst_n_from_the_powerlink_0 " (rect 285 393 505 407)(font "Arial" (font_size 8)))
-		(line (pt 480 400)(pt 496 400))
+		(text "phy0_SMIClk_from_the_powerlink_0 " (rect 0 0 210 14)(font "Arial" (font_size 8)))
+		(text "phy0_SMIClk_from_the_powerlink_0 " (rect 293 377 503 391)(font "Arial" (font_size 8)))
+		(line (pt 480 384)(pt 496 384))
 	)
 	(port
 		(pt 496 416)
 		(output)
-		(text "phy1_MiiClk_from_the_powerlink_0 " (rect 0 0 204 14)(font "Arial" (font_size 8)))
-		(text "phy1_MiiClk_from_the_powerlink_0 " (rect 297 409 501 423)(font "Arial" (font_size 8)))
+		(text "phy1_Rst_n_from_the_powerlink_0 " (rect 0 0 206 14)(font "Arial" (font_size 8)))
+		(text "phy1_Rst_n_from_the_powerlink_0 " (rect 300 409 506 423)(font "Arial" (font_size 8)))
 		(line (pt 480 416)(pt 496 416))
 	)
 	(port
-		(pt 496 448)
+		(pt 496 432)
 		(output)
-		(text "phy1_MiiRst_n_from_the_powerlink_0 " (rect 0 0 220 14)(font "Arial" (font_size 8)))
-		(text "phy1_MiiRst_n_from_the_powerlink_0 " (rect 285 441 505 455)(font "Arial" (font_size 8)))
-		(line (pt 480 448)(pt 496 448))
+		(text "phy1_SMIClk_from_the_powerlink_0 " (rect 0 0 210 14)(font "Arial" (font_size 8)))
+		(text "phy1_SMIClk_from_the_powerlink_0 " (rect 293 425 503 439)(font "Arial" (font_size 8)))
+		(line (pt 480 432)(pt 496 432))
 	)
 	(port
 		(pt 496 464)
@@ -1224,18 +1224,18 @@ applicable agreement for further details.
 		(line (pt 480 304)(pt 496 304)(line_width 3))
 	)
 	(port
-		(pt 496 384)
+		(pt 496 400)
 		(bidir)
-		(text "phy0_MiiDat_to_and_from_the_powerlink_0 " (rect 0 0 252 14)(font "Arial" (font_size 8)))
-		(text "phy0_MiiDat_to_and_from_the_powerlink_0 " (rect 256 377 508 391)(font "Arial" (font_size 8)))
-		(line (pt 480 384)(pt 496 384))
+		(text "phy0_SMIDat_to_and_from_the_powerlink_0 " (rect 0 0 258 14)(font "Arial" (font_size 8)))
+		(text "phy0_SMIDat_to_and_from_the_powerlink_0 " (rect 252 393 510 407)(font "Arial" (font_size 8)))
+		(line (pt 480 400)(pt 496 400))
 	)
 	(port
-		(pt 496 432)
+		(pt 496 448)
 		(bidir)
-		(text "phy1_MiiDat_to_and_from_the_powerlink_0 " (rect 0 0 252 14)(font "Arial" (font_size 8)))
-		(text "phy1_MiiDat_to_and_from_the_powerlink_0 " (rect 256 425 508 439)(font "Arial" (font_size 8)))
-		(line (pt 480 432)(pt 496 432))
+		(text "phy1_SMIDat_to_and_from_the_powerlink_0 " (rect 0 0 258 14)(font "Arial" (font_size 8)))
+		(text "phy1_SMIDat_to_and_from_the_powerlink_0 " (rect 252 441 510 455)(font "Arial" (font_size 8)))
+		(line (pt 480 448)(pt 496 448))
 	)
 	(port
 		(pt 496 592)
