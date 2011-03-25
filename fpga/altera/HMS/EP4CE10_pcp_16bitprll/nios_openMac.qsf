@@ -1,6 +1,6 @@
 ################################################################################################################
 #general
-set_global_assignment -name DEVICE EP4CE10U14I7
+set_global_assignment -name DEVICE EP4CE6U14I7
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name TOP_LEVEL_ENTITY nios_pll
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 9.1
@@ -81,7 +81,6 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
-set_global_assignment -name DEVICE_MIGRATION_LIST "EP4CE10U14I7,EP4CE6U14I7"
 set_global_assignment -name MISC_FILE "c:/Projects/ink_pcp_SPI/nios_openMac.dpf"
 set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[19] -section_id PCP_SRAM
 set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SRAM_ADDR[18] -section_id PCP_SRAM
