@@ -58,8 +58,8 @@ This header file contains definitions for the CN API.
  #define PCP_CTRLREG_ERROR_OFFSET            offsetof(tPcpCtrlReg, m_bError)         //0x05
  #define PCP_CTRLREG_CMD_OFFSET              offsetof(tPcpCtrlReg, m_bCommand)       //0x06
  #define PCP_CTRLREG_STATE_OFFSET            offsetof(tPcpCtrlReg, m_bState)         //0x07
- #define PCP_CTRLREG_MAXCYCT_OFFSET          offsetof(tPcpCtrlReg, m_wMaxCycleTime)  //0x08
- #define PCP_CTRLREG_MINCYCT_OFFSET          offsetof(tPcpCtrlReg, m_wMinCycleTime)  //0x0A
+ #define PCP_CTRLREG_MAXCYCT_OFFSET          offsetof(tPcpCtrlReg, m_dwMaxCycleTime) //0x08
+ #define PCP_CTRLREG_MINCYCT_OFFSET          offsetof(tPcpCtrlReg, m_dwMinCycleTime) //0x0A
  #define PCP_CTRLREG_CYCCRCT_OFFSET          offsetof(tPcpCtrlReg, m_wCycleCorrect)  //0x0C
  #define PCP_CTRLREG_CYCERR_OFFSET           offsetof(tPcpCtrlReg, m_bCycleError)    //0x0E
  #define PCP_CTRLREG_MAXCYCNUM_OFFSET        offsetof(tPcpCtrlReg, m_bMaxCylceNum)   //0x0F
