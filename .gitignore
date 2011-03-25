@@ -1,0 +1,19 @@
+#===============================================================================
+# POWERLINK CN Development Kit (CNDK) - .gitignore file for GIT Repository
+#===============================================================================
+
+#new (unversioned) files to be ignored
+*
+
+#new (unversiond) files NOT to be ignored
+!.gitignore
+
+#new (unversioned) folders to be ignored
+obj/
+bsp/
+incremental_db/
+temp/
+
+
+
+
