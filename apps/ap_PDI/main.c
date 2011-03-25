@@ -30,7 +30,9 @@ a dual ported RAM (DPRAM) area.
 
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
+#ifdef CN_API_USING_SPI
 #include "altera_avalon_spi.h"
+#endif
 #include "alt_types.h"
 #include <sys/alt_cache.h>
 #include <sys/alt_irq.h>
