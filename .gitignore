@@ -3,7 +3,8 @@
 #===============================================================================
 
 #new (unversioned) files to be ignored
-*
+*.*
+Makefile
 
 #new (unversiond) files NOT to be ignored
 !.gitignore
