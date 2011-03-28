@@ -427,7 +427,7 @@ proc my_validation_callback {} {
 	# tx buffer header (header + packet length)
 	set macTxHd			[expr  0 + $macPktLength]
 	# rx buffer header (header + packet length)
-	set macRxHd 		[expr 12 + $macPktLength]
+	set macRxHd 		[expr 26 + $macPktLength]
 	# max rx buffers
 	set macRxBuffers 	16
 	# max tx buffers
