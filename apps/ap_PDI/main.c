@@ -26,12 +26,12 @@ a dual ported RAM (DPRAM) area.
 #include "cnApiGlobal.h"     // global definitions
 #include "cnApi.h"
 #include "cnApiDebug.h"
-#include "cnApiPdiSpi.h"
 
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
 #ifdef CN_API_USING_SPI
 #include "altera_avalon_spi.h"
+#include "cnApiPdiSpi.h"
 #endif
 #include "alt_types.h"
 #include <sys/alt_cache.h>
@@ -56,9 +56,9 @@ a dual ported RAM (DPRAM) area.
 /*----------------------------------------------------------------------------*/
 
 #ifndef CN_API_USING_SPI
-    #define PDI_DPRAM_BASE_AP POWERLINK_0_BASE                      ///< from system.h
+    #define PDI_DPRAM_BASE_AP POWERLINK_0_PDI_AP_BASE           ///< from system.h
 #else
-    #define PDI_DPRAM_BASE_AP 0x00                                  ///< no base address necessary
+    #define PDI_DPRAM_BASE_AP 0x00                              ///< no base address necessary
 #endif /* CN_API_USING_SPI */
 
 
