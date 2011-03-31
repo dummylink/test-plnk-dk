@@ -14,7 +14,6 @@ derive_clock_uncertainty
 # generated clocks (out of pll in SOPC) stored as variable
 set pcp_clk 	inst|the_altpll_0|sd1|pll7|clk[1]
 set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-set sdram_clk 	inst|the_altpll_0|sd1|pll7|clk[3]
 set remote_clk	inst|the_altpll_0|sd1|pll7|clk[4]
 set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
 
@@ -23,42 +22,20 @@ set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
 set_clock_groups -asynchronous 	-group [get_clocks $remote_clk] \
 											-group [get_clocks $pcp_clk] \
 											-group [get_clocks $clk50] \
-											-group [get_clocks ext_clk] \
-											-group [get_clocks $clk100]
-
-# sram
-set_max_delay 2 -from [get_ports {data[*]}] -to [get_registers *]
-set_min_delay 0 -from [get_ports {data[*]}] -to [get_registers *]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {data[*]}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {data[*]}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {adr[*]}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {adr[*]}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {noe}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {noe}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {nwe}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {nwe}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {nbe[*]}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {nbe[*]}]
-
-set_max_delay 5.5 -from [get_registers *] -to [get_ports {sram_ncs}]
-set_min_delay 0 -from [get_registers *] -to [get_ports {sram_ncs}]
+											-group [get_clocks $clk100] \
+											-group [get_clocks EXT_CLK] \
 
 # phy
-set_input_delay -clock $clk50 -max 12 [get_ports {phy0_rx_crsdv phy0_rx_d[*]}]
-set_input_delay -clock $clk50 -min 4 [get_ports {phy0_rx_crsdv phy0_rx_d[*]}]
+set_input_delay -clock $clk50 -max 12 [get_ports {PHY0_RXDV PHY0_RXD[*]}]
+set_input_delay -clock $clk50 -min 4 [get_ports {PHY0_RXDV PHY0_RXD[*]}]
 
-set_input_delay -clock $clk50 -max 12 [get_ports {phy1_rx_crsdv phy1_rx_d[*]}]
-set_input_delay -clock $clk50 -min 4 [get_ports {phy1_rx_crsdv phy1_rx_d[*]}]
+set_input_delay -clock $clk50 -max 12 [get_ports {PHY1_RXDV PHY1_RXD[*]}]
+set_input_delay -clock $clk50 -min 4 [get_ports {PHY1_RXDV PHY1_RXD[*]}]
 
-set_output_delay -clock $clk50 -max 8 [get_ports {phy0_tx_en phy0_tx_d[*]}]
-set_output_delay -clock $clk50 -min 4 [get_ports {phy0_tx_en phy0_tx_d[*]}]
+set_output_delay -clock $clk50 -max 8 [get_ports {PHY0_TXEN PHY0_TXD[*]}]
+set_output_delay -clock $clk50 -min 4 [get_ports {PHY0_TXEN PHY0_TXD[*]}]
 
-set_output_delay -clock $clk50 -max 8 [get_ports {phy1_tx_en phy1_tx_d[*]}]
-set_output_delay -clock $clk50 -min 4 [get_ports {phy1_tx_en phy1_tx_d[*]}]
+set_output_delay -clock $clk50 -max 8 [get_ports {PHY1_TXEN PHY1_TXD[*]}]
+set_output_delay -clock $clk50 -min 4 [get_ports {PHY1_TXEN PHY1_TXD[*]}]
 
 set_multicycle_path -from [get_clocks $clk100] -to [get_clocks $clk50] -setup -start 2
