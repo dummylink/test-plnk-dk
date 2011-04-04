@@ -656,6 +656,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_granted_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_lcd_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_granted_niosII_openMac_clock_3_in : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_sdram_0_s1 : IN STD_LOGIC;
@@ -665,6 +666,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_qualified_request_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_lcd_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_sdram_0_s1 : IN STD_LOGIC;
@@ -675,6 +677,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_read_data_valid_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_lcd_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_sdram_0_s1 : IN STD_LOGIC;
@@ -685,6 +688,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_requests_inport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_lcd_control_slave : IN STD_LOGIC;
+                 signal ap_cpu_data_master_requests_niosII_openMac_clock_3_in : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_outport_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_powerlink_0_PDI_AP : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_sdram_0_s1 : IN STD_LOGIC;
@@ -697,6 +701,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal d1_inport_ap_s1_end_xfer : IN STD_LOGIC;
                  signal d1_jtag_uart_1_avalon_jtag_slave_end_xfer : IN STD_LOGIC;
                  signal d1_lcd_control_slave_end_xfer : IN STD_LOGIC;
+                 signal d1_niosII_openMac_clock_3_in_end_xfer : IN STD_LOGIC;
                  signal d1_outport_ap_s1_end_xfer : IN STD_LOGIC;
                  signal d1_powerlink_0_PDI_AP_end_xfer : IN STD_LOGIC;
                  signal d1_sdram_0_s1_end_xfer : IN STD_LOGIC;
@@ -709,6 +714,8 @@ entity ap_cpu_data_master_arbitrator is
                  signal lcd_control_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                  signal lcd_control_slave_wait_counter_eq_0 : IN STD_LOGIC;
                  signal lcd_control_slave_wait_counter_eq_1 : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal niosII_openMac_clock_3_in_waitrequest_from_sa : IN STD_LOGIC;
                  signal outport_ap_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (23 DOWNTO 0);
                  signal powerlink_0_PDI_AP_irq_from_sa : IN STD_LOGIC;
                  signal powerlink_0_PDI_AP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -746,13 +753,13 @@ begin
   --cascaded wait assignment, which is an e_assign
   ap_cpu_data_master_run <= (r_0 AND r_1) AND r_2;
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic((((((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_requests_outport_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP OR NOT ap_cpu_data_master_requests_powerlink_0_PDI_AP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_PDI_AP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_data_master_qualified_request_sdram_0_s1 OR ap_cpu_data_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_data_master_requests_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_sdram_0_s1 OR NOT ap_cpu_data_master_qualified_request_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_data_master_read) OR ((ap_cpu_data_master_read_data_valid_sdram_0_s1 AND ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT sdram_0_s1_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_requests_sysid_control_slave)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_sysid_control_slave OR NOT ap_cpu_data_master_qualified_request_sysid_control_slave)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
+  r_1 <= Vector_To_Std_Logic((((((((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in OR NOT ap_cpu_data_master_requests_niosII_openMac_clock_3_in)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_3_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_3_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_requests_outport_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP OR NOT ap_cpu_data_master_requests_powerlink_0_PDI_AP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_PDI_AP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_data_master_qualified_request_sdram_0_s1 OR ap_cpu_data_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_data_master_requests_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_sdram_0_s1 OR NOT ap_cpu_data_master_qualified_request_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_data_master_read) OR ((ap_cpu_data_master_read_data_valid_sdram_0_s1 AND ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT sdram_0_s1_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_requests_sysid_control_slave)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_sysid_control_slave OR NOT ap_cpu_data_master_qualified_request_sysid_control_slave)))))));
   --r_2 master_run cascaded wait assignment, which is an e_assign
-  r_2 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_requests_system_timer_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
+  r_2 <= Vector_To_Std_Logic(((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_requests_system_timer_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_ap_cpu_data_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(ap_cpu_data_master_address(28)) & A_ToStdLogicVector(std_logic'('0')) & ap_cpu_data_master_address(26 DOWNTO 0));
   --ap_cpu/data_master readdata mux, which is an e_mux
-  ap_cpu_data_master_readdata <= (((((((((A_REP(NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_inport_ap_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (inport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_lcd_control_slave, 32) OR (std_logic_vector'("000000000000000000000000") & (lcd_control_slave_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_outport_ap_s1, 32) OR (std_logic_vector'("00000000") & (outport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_powerlink_0_PDI_AP, 32) OR powerlink_0_PDI_AP_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_sysid_control_slave, 32) OR sysid_control_slave_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_system_timer_ap_s1, 32) OR (std_logic_vector'("0000000000000000") & (system_timer_ap_s1_readdata_from_sa))));
+  ap_cpu_data_master_readdata <= ((((((((((A_REP(NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_inport_ap_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (inport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_lcd_control_slave, 32) OR (std_logic_vector'("000000000000000000000000") & (lcd_control_slave_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_3_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_outport_ap_s1, 32) OR (std_logic_vector'("00000000") & (outport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_powerlink_0_PDI_AP, 32) OR powerlink_0_PDI_AP_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_sysid_control_slave, 32) OR sysid_control_slave_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_system_timer_ap_s1, 32) OR (std_logic_vector'("0000000000000000") & (system_timer_ap_s1_readdata_from_sa))));
   --actual waitrequest port, which is an e_register
   process (clk, reset_n)
   begin
@@ -776,7 +783,7 @@ begin
   end process;
 
   --registered readdata mux, which is an e_mux
-  p1_registered_ap_cpu_data_master_readdata <= ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR jtag_uart_1_avalon_jtag_slave_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR sdram_0_s1_readdata_from_sa));
+  p1_registered_ap_cpu_data_master_readdata <= (((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR jtag_uart_1_avalon_jtag_slave_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_3_in, 32) OR niosII_openMac_clock_3_in_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR sdram_0_s1_readdata_from_sa));
   --irq assign, which is an e_assign
   ap_cpu_data_master_irq <= Std_Logic_Vector'(A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(jtag_uart_1_avalon_jtag_slave_irq_from_sa) & A_ToStdLogicVector(system_timer_ap_s1_irq_from_sa) & A_ToStdLogicVector(powerlink_0_PDI_AP_irq_from_sa) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')));
   --vhdl renameroo for output signals
@@ -1031,7 +1038,7 @@ begin
   benchmark_pio_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_benchmark_pio_s1);
   --assign benchmark_pio_s1_readdata_from_sa = benchmark_pio_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   benchmark_pio_s1_readdata_from_sa <= benchmark_pio_s1_readdata;
-  internal_clock_crossing_0_m1_requests_benchmark_pio_s1 <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("10000001000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_benchmark_pio_s1 <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("10000000100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --benchmark_pio_s1_arb_share_counter set values, which is an e_mux
   benchmark_pio_s1_arb_share_set_values <= std_logic_vector'("01");
   --benchmark_pio_s1_non_bursting_master_requests mux, which is an e_mux
@@ -2939,14 +2946,12 @@ entity clock_crossing_0_m1_arbitrator is
                  signal clock_crossing_0_m1_granted_node_switch_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_granted_powerlink_0_MAC_CMP : IN STD_LOGIC;
                  signal clock_crossing_0_m1_granted_powerlink_0_MAC_REG : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_granted_status_led_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_granted_system_timer_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_qualified_request_benchmark_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave : IN STD_LOGIC;
                  signal clock_crossing_0_m1_qualified_request_node_switch_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP : IN STD_LOGIC;
                  signal clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_qualified_request_status_led_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_qualified_request_system_timer_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_read_data_valid_benchmark_pio_s1 : IN STD_LOGIC;
@@ -2954,14 +2959,12 @@ entity clock_crossing_0_m1_arbitrator is
                  signal clock_crossing_0_m1_read_data_valid_node_switch_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP : IN STD_LOGIC;
                  signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_read_data_valid_status_led_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_read_data_valid_system_timer_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_requests_benchmark_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave : IN STD_LOGIC;
                  signal clock_crossing_0_m1_requests_node_switch_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_requests_powerlink_0_MAC_CMP : IN STD_LOGIC;
                  signal clock_crossing_0_m1_requests_powerlink_0_MAC_REG : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_requests_status_led_pio_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_requests_system_timer_s1 : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -2970,7 +2973,6 @@ entity clock_crossing_0_m1_arbitrator is
                  signal d1_node_switch_pio_s1_end_xfer : IN STD_LOGIC;
                  signal d1_powerlink_0_MAC_CMP_end_xfer : IN STD_LOGIC;
                  signal d1_powerlink_0_MAC_REG_end_xfer : IN STD_LOGIC;
-                 signal d1_status_led_pio_s1_end_xfer : IN STD_LOGIC;
                  signal d1_system_timer_s1_end_xfer : IN STD_LOGIC;
                  signal jtag_uart_0_avalon_jtag_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal jtag_uart_0_avalon_jtag_slave_waitrequest_from_sa : IN STD_LOGIC;
@@ -2978,7 +2980,6 @@ entity clock_crossing_0_m1_arbitrator is
                  signal powerlink_0_MAC_CMP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal powerlink_0_MAC_REG_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal reset_n : IN STD_LOGIC;
-                 signal status_led_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal system_timer_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 
               -- outputs:
@@ -3020,15 +3021,18 @@ architecture europa of clock_crossing_0_m1_arbitrator is
                 signal pre_flush_clock_crossing_0_m1_readdatavalid :  STD_LOGIC;
                 signal r_0 :  STD_LOGIC;
                 signal r_1 :  STD_LOGIC;
+                signal r_2 :  STD_LOGIC;
 
 begin
 
   --r_0 master_run cascaded wait assignment, which is an e_assign
   r_0 <= Vector_To_Std_Logic((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_benchmark_pio_s1 OR NOT clock_crossing_0_m1_requests_benchmark_pio_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_benchmark_pio_s1 OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_benchmark_pio_s1_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_benchmark_pio_s1 OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave OR NOT clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave OR NOT ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_0_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave OR NOT ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_0_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))))))))));
   --cascaded wait assignment, which is an e_assign
-  clock_crossing_0_m1_run <= r_0 AND r_1;
+  clock_crossing_0_m1_run <= (r_0 AND r_1) AND r_2;
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic((((((((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_node_switch_pio_s1 OR NOT clock_crossing_0_m1_requests_node_switch_pio_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_node_switch_pio_s1 OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_node_switch_pio_s1_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_node_switch_pio_s1 OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP OR NOT clock_crossing_0_m1_requests_powerlink_0_MAC_CMP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_CMP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG OR (((clock_crossing_0_m1_write AND NOT(or_reduce(clock_crossing_0_m1_byteenable_powerlink_0_MAC_REG))) AND internal_clock_crossing_0_m1_dbs_address(1)))) OR NOT clock_crossing_0_m1_requests_powerlink_0_MAC_REG)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG OR NOT clock_crossing_0_m1_read)))) OR ((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_REG_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_clock_crossing_0_m1_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG OR NOT clock_crossing_0_m1_write)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_clock_crossing_0_m1_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_status_led_pio_s1 OR NOT clock_crossing_0_m1_requests_status_led_pio_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_status_led_pio_s1 OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_status_led_pio_s1_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_status_led_pio_s1 OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_system_timer_s1 OR NOT clock_crossing_0_m1_requests_system_timer_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_system_timer_s1 OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_system_timer_s1_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_system_timer_s1 OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))));
+  r_1 <= Vector_To_Std_Logic((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_node_switch_pio_s1 OR NOT clock_crossing_0_m1_requests_node_switch_pio_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_node_switch_pio_s1 OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_node_switch_pio_s1_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_node_switch_pio_s1 OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP OR NOT clock_crossing_0_m1_requests_powerlink_0_MAC_CMP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_CMP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG OR (((clock_crossing_0_m1_write AND NOT(or_reduce(clock_crossing_0_m1_byteenable_powerlink_0_MAC_REG))) AND internal_clock_crossing_0_m1_dbs_address(1)))) OR NOT clock_crossing_0_m1_requests_powerlink_0_MAC_REG)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG OR NOT clock_crossing_0_m1_read)))) OR ((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_REG_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_clock_crossing_0_m1_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG OR NOT clock_crossing_0_m1_write)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_clock_crossing_0_m1_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))));
+  --r_2 master_run cascaded wait assignment, which is an e_assign
+  r_2 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((clock_crossing_0_m1_qualified_request_system_timer_s1 OR NOT clock_crossing_0_m1_requests_system_timer_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_system_timer_s1 OR NOT clock_crossing_0_m1_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_system_timer_s1_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_system_timer_s1 OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_clock_crossing_0_m1_address_to_slave <= clock_crossing_0_m1_address(13 DOWNTO 0);
   --clock_crossing_0_m1_read_but_no_slave_selected assignment, which is an e_register
@@ -3043,13 +3047,13 @@ begin
   end process;
 
   --some slave is getting selected, which is an e_mux
-  clock_crossing_0_m1_is_granted_some_slave <= (((((clock_crossing_0_m1_granted_benchmark_pio_s1 OR clock_crossing_0_m1_granted_jtag_uart_0_avalon_jtag_slave) OR clock_crossing_0_m1_granted_node_switch_pio_s1) OR clock_crossing_0_m1_granted_powerlink_0_MAC_CMP) OR clock_crossing_0_m1_granted_powerlink_0_MAC_REG) OR clock_crossing_0_m1_granted_status_led_pio_s1) OR clock_crossing_0_m1_granted_system_timer_s1;
+  clock_crossing_0_m1_is_granted_some_slave <= ((((clock_crossing_0_m1_granted_benchmark_pio_s1 OR clock_crossing_0_m1_granted_jtag_uart_0_avalon_jtag_slave) OR clock_crossing_0_m1_granted_node_switch_pio_s1) OR clock_crossing_0_m1_granted_powerlink_0_MAC_CMP) OR clock_crossing_0_m1_granted_powerlink_0_MAC_REG) OR clock_crossing_0_m1_granted_system_timer_s1;
   --latent slave read data valids which may be flushed, which is an e_mux
   pre_flush_clock_crossing_0_m1_readdatavalid <= std_logic'('0');
   --latent slave read data valid which is not flushed, which is an e_mux
-  clock_crossing_0_m1_readdatavalid <= (((((((((((((((((((clock_crossing_0_m1_read_but_no_slave_selected OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_benchmark_pio_s1) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_jtag_uart_0_avalon_jtag_slave) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_node_switch_pio_s1) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR ((clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG AND dbs_counter_overflow))) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_status_led_pio_s1) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_system_timer_s1;
+  clock_crossing_0_m1_readdatavalid <= ((((((((((((((((clock_crossing_0_m1_read_but_no_slave_selected OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_benchmark_pio_s1) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_jtag_uart_0_avalon_jtag_slave) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_node_switch_pio_s1) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR ((clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG AND dbs_counter_overflow))) OR clock_crossing_0_m1_read_but_no_slave_selected) OR pre_flush_clock_crossing_0_m1_readdatavalid) OR clock_crossing_0_m1_read_data_valid_system_timer_s1;
   --clock_crossing_0/m1 readdata mux, which is an e_mux
-  clock_crossing_0_m1_readdata <= (((((((A_REP(NOT ((clock_crossing_0_m1_qualified_request_benchmark_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000") & (benchmark_pio_s1_readdata_from_sa)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave AND clock_crossing_0_m1_read)) , 32) OR jtag_uart_0_avalon_jtag_slave_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_node_switch_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000") & (node_switch_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP AND clock_crossing_0_m1_read)) , 32) OR powerlink_0_MAC_CMP_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG AND clock_crossing_0_m1_read)) , 32) OR Std_Logic_Vector'(powerlink_0_MAC_REG_readdata_from_sa(15 DOWNTO 0) & dbs_16_reg_segment_0)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_status_led_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000000000") & (status_led_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_system_timer_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("0000000000000000") & (system_timer_s1_readdata_from_sa))));
+  clock_crossing_0_m1_readdata <= ((((((A_REP(NOT ((clock_crossing_0_m1_qualified_request_benchmark_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000") & (benchmark_pio_s1_readdata_from_sa)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave AND clock_crossing_0_m1_read)) , 32) OR jtag_uart_0_avalon_jtag_slave_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_node_switch_pio_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("000000000000000000000000") & (node_switch_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP AND clock_crossing_0_m1_read)) , 32) OR powerlink_0_MAC_CMP_readdata_from_sa))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG AND clock_crossing_0_m1_read)) , 32) OR Std_Logic_Vector'(powerlink_0_MAC_REG_readdata_from_sa(15 DOWNTO 0) & dbs_16_reg_segment_0)))) AND ((A_REP(NOT ((clock_crossing_0_m1_qualified_request_system_timer_s1 AND clock_crossing_0_m1_read)) , 32) OR (std_logic_vector'("0000000000000000") & (system_timer_s1_readdata_from_sa))));
   --actual waitrequest port, which is an e_assign
   internal_clock_crossing_0_m1_waitrequest <= NOT clock_crossing_0_m1_run;
   --latent max counter, which is an e_register
@@ -4021,7 +4025,7 @@ begin
   jtag_uart_0_avalon_jtag_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave);
   --assign jtag_uart_0_avalon_jtag_slave_readdata_from_sa = jtag_uart_0_avalon_jtag_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_0_avalon_jtag_slave_readdata_from_sa <= jtag_uart_0_avalon_jtag_slave_readdata;
-  internal_clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("10000010000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("10000001100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --assign jtag_uart_0_avalon_jtag_slave_dataavailable_from_sa = jtag_uart_0_avalon_jtag_slave_dataavailable so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_0_avalon_jtag_slave_dataavailable_from_sa <= jtag_uart_0_avalon_jtag_slave_dataavailable;
   --assign jtag_uart_0_avalon_jtag_slave_readyfordata_from_sa = jtag_uart_0_avalon_jtag_slave_readyfordata so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -4997,13 +5001,16 @@ architecture europa of niosII_openMac_clock_0_out_arbitrator is
                 signal niosII_openMac_clock_0_out_write_last_time :  STD_LOGIC;
                 signal niosII_openMac_clock_0_out_writedata_last_time :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal r_1 :  STD_LOGIC;
+                signal r_2 :  STD_LOGIC;
 
 begin
 
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic(((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_0_out_qualified_request_sysid_control_slave OR NOT niosII_openMac_clock_0_out_requests_sysid_control_slave)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_0_out_granted_sysid_control_slave OR NOT niosII_openMac_clock_0_out_qualified_request_sysid_control_slave)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_0_out_qualified_request_sysid_control_slave OR NOT niosII_openMac_clock_0_out_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_sysid_control_slave_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_0_out_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_0_out_qualified_request_sysid_control_slave OR NOT niosII_openMac_clock_0_out_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_0_out_write)))))))));
+  r_1 <= Vector_To_Std_Logic((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_0_out_qualified_request_sysid_control_slave OR NOT niosII_openMac_clock_0_out_requests_sysid_control_slave)))))));
   --cascaded wait assignment, which is an e_assign
-  niosII_openMac_clock_0_out_run <= r_1;
+  niosII_openMac_clock_0_out_run <= r_1 AND r_2;
+  --r_2 master_run cascaded wait assignment, which is an e_assign
+  r_2 <= Vector_To_Std_Logic((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_0_out_granted_sysid_control_slave OR NOT niosII_openMac_clock_0_out_qualified_request_sysid_control_slave))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_0_out_qualified_request_sysid_control_slave OR NOT niosII_openMac_clock_0_out_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_sysid_control_slave_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_0_out_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_0_out_qualified_request_sysid_control_slave OR NOT niosII_openMac_clock_0_out_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_0_out_write)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_niosII_openMac_clock_0_out_address_to_slave <= niosII_openMac_clock_0_out_address;
   --niosII_openMac_clock_0/out readdata mux, which is an e_mux
@@ -6151,6 +6158,916 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
+entity niosII_openMac_clock_3_in_arbitrator is 
+        port (
+              -- inputs:
+                 signal ap_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
+                 signal ap_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                 signal ap_cpu_data_master_read : IN STD_LOGIC;
+                 signal ap_cpu_data_master_waitrequest : IN STD_LOGIC;
+                 signal ap_cpu_data_master_write : IN STD_LOGIC;
+                 signal ap_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal clk : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_endofpacket : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal niosII_openMac_clock_3_in_waitrequest : IN STD_LOGIC;
+                 signal reset_n : IN STD_LOGIC;
+
+              -- outputs:
+                 signal ap_cpu_data_master_granted_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_requests_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                 signal d1_niosII_openMac_clock_3_in_end_xfer : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_address : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal niosII_openMac_clock_3_in_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+                 signal niosII_openMac_clock_3_in_endofpacket_from_sa : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_nativeaddress : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal niosII_openMac_clock_3_in_read : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal niosII_openMac_clock_3_in_reset_n : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_waitrequest_from_sa : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_write : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_in_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+              );
+end entity niosII_openMac_clock_3_in_arbitrator;
+
+
+architecture europa of niosII_openMac_clock_3_in_arbitrator is
+                signal ap_cpu_data_master_arbiterlock :  STD_LOGIC;
+                signal ap_cpu_data_master_arbiterlock2 :  STD_LOGIC;
+                signal ap_cpu_data_master_continuerequest :  STD_LOGIC;
+                signal ap_cpu_data_master_saved_grant_niosII_openMac_clock_3_in :  STD_LOGIC;
+                signal d1_reasons_to_wait :  STD_LOGIC;
+                signal enable_nonzero_assertions :  STD_LOGIC;
+                signal end_xfer_arb_share_counter_term_niosII_openMac_clock_3_in :  STD_LOGIC;
+                signal in_a_read_cycle :  STD_LOGIC;
+                signal in_a_write_cycle :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_requests_niosII_openMac_clock_3_in :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_3_in_waitrequest_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_allgrants :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_allow_new_arb_cycle :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_any_bursting_master_saved_grant :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_any_continuerequest :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_arb_counter_enable :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_arb_share_counter :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_arb_share_counter_next_value :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_arb_share_set_values :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_beginbursttransfer_internal :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_begins_xfer :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_end_xfer :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_firsttransfer :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_grant_vector :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_in_a_read_cycle :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_in_a_write_cycle :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_master_qreq_vector :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_non_bursting_master_requests :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_reg_firsttransfer :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_slavearbiterlockenable :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_slavearbiterlockenable2 :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_unreg_firsttransfer :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_waits_for_read :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_waits_for_write :  STD_LOGIC;
+                signal wait_for_niosII_openMac_clock_3_in_counter :  STD_LOGIC;
+
+begin
+
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_reasons_to_wait <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      d1_reasons_to_wait <= NOT niosII_openMac_clock_3_in_end_xfer;
+    end if;
+
+  end process;
+
+  niosII_openMac_clock_3_in_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in);
+  --assign niosII_openMac_clock_3_in_readdata_from_sa = niosII_openMac_clock_3_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  niosII_openMac_clock_3_in_readdata_from_sa <= niosII_openMac_clock_3_in_readdata;
+  internal_ap_cpu_data_master_requests_niosII_openMac_clock_3_in <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 14) & std_logic_vector'("00000000000000")) = std_logic_vector'("00000000000010000000000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  --assign niosII_openMac_clock_3_in_waitrequest_from_sa = niosII_openMac_clock_3_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
+  internal_niosII_openMac_clock_3_in_waitrequest_from_sa <= niosII_openMac_clock_3_in_waitrequest;
+  --niosII_openMac_clock_3_in_arb_share_counter set values, which is an e_mux
+  niosII_openMac_clock_3_in_arb_share_set_values <= std_logic'('1');
+  --niosII_openMac_clock_3_in_non_bursting_master_requests mux, which is an e_mux
+  niosII_openMac_clock_3_in_non_bursting_master_requests <= internal_ap_cpu_data_master_requests_niosII_openMac_clock_3_in;
+  --niosII_openMac_clock_3_in_any_bursting_master_saved_grant mux, which is an e_mux
+  niosII_openMac_clock_3_in_any_bursting_master_saved_grant <= std_logic'('0');
+  --niosII_openMac_clock_3_in_arb_share_counter_next_value assignment, which is an e_assign
+  niosII_openMac_clock_3_in_arb_share_counter_next_value <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(niosII_openMac_clock_3_in_firsttransfer) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_3_in_arb_share_set_values))) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(niosII_openMac_clock_3_in_arb_share_counter) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_3_in_arb_share_counter))) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))));
+  --niosII_openMac_clock_3_in_allgrants all slave grants, which is an e_mux
+  niosII_openMac_clock_3_in_allgrants <= niosII_openMac_clock_3_in_grant_vector;
+  --niosII_openMac_clock_3_in_end_xfer assignment, which is an e_assign
+  niosII_openMac_clock_3_in_end_xfer <= NOT ((niosII_openMac_clock_3_in_waits_for_read OR niosII_openMac_clock_3_in_waits_for_write));
+  --end_xfer_arb_share_counter_term_niosII_openMac_clock_3_in arb share counter enable term, which is an e_assign
+  end_xfer_arb_share_counter_term_niosII_openMac_clock_3_in <= niosII_openMac_clock_3_in_end_xfer AND (((NOT niosII_openMac_clock_3_in_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
+  --niosII_openMac_clock_3_in_arb_share_counter arbitration counter enable, which is an e_assign
+  niosII_openMac_clock_3_in_arb_counter_enable <= ((end_xfer_arb_share_counter_term_niosII_openMac_clock_3_in AND niosII_openMac_clock_3_in_allgrants)) OR ((end_xfer_arb_share_counter_term_niosII_openMac_clock_3_in AND NOT niosII_openMac_clock_3_in_non_bursting_master_requests));
+  --niosII_openMac_clock_3_in_arb_share_counter counter, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      niosII_openMac_clock_3_in_arb_share_counter <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      if std_logic'(niosII_openMac_clock_3_in_arb_counter_enable) = '1' then 
+        niosII_openMac_clock_3_in_arb_share_counter <= niosII_openMac_clock_3_in_arb_share_counter_next_value;
+      end if;
+    end if;
+
+  end process;
+
+  --niosII_openMac_clock_3_in_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      niosII_openMac_clock_3_in_slavearbiterlockenable <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      if std_logic'((((niosII_openMac_clock_3_in_master_qreq_vector AND end_xfer_arb_share_counter_term_niosII_openMac_clock_3_in)) OR ((end_xfer_arb_share_counter_term_niosII_openMac_clock_3_in AND NOT niosII_openMac_clock_3_in_non_bursting_master_requests)))) = '1' then 
+        niosII_openMac_clock_3_in_slavearbiterlockenable <= niosII_openMac_clock_3_in_arb_share_counter_next_value;
+      end if;
+    end if;
+
+  end process;
+
+  --ap_cpu/data_master niosII_openMac_clock_3/in arbiterlock, which is an e_assign
+  ap_cpu_data_master_arbiterlock <= niosII_openMac_clock_3_in_slavearbiterlockenable AND ap_cpu_data_master_continuerequest;
+  --niosII_openMac_clock_3_in_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  niosII_openMac_clock_3_in_slavearbiterlockenable2 <= niosII_openMac_clock_3_in_arb_share_counter_next_value;
+  --ap_cpu/data_master niosII_openMac_clock_3/in arbiterlock2, which is an e_assign
+  ap_cpu_data_master_arbiterlock2 <= niosII_openMac_clock_3_in_slavearbiterlockenable2 AND ap_cpu_data_master_continuerequest;
+  --niosII_openMac_clock_3_in_any_continuerequest at least one master continues requesting, which is an e_assign
+  niosII_openMac_clock_3_in_any_continuerequest <= std_logic'('1');
+  --ap_cpu_data_master_continuerequest continued request, which is an e_assign
+  ap_cpu_data_master_continuerequest <= std_logic'('1');
+  internal_ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in <= internal_ap_cpu_data_master_requests_niosII_openMac_clock_3_in AND NOT ((((ap_cpu_data_master_read AND (NOT ap_cpu_data_master_waitrequest))) OR (((NOT ap_cpu_data_master_waitrequest) AND ap_cpu_data_master_write))));
+  --niosII_openMac_clock_3_in_writedata mux, which is an e_mux
+  niosII_openMac_clock_3_in_writedata <= ap_cpu_data_master_writedata;
+  --assign niosII_openMac_clock_3_in_endofpacket_from_sa = niosII_openMac_clock_3_in_endofpacket so that symbol knows where to group signals which may go to master only, which is an e_assign
+  niosII_openMac_clock_3_in_endofpacket_from_sa <= niosII_openMac_clock_3_in_endofpacket;
+  --master is always granted when requested
+  internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in <= internal_ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in;
+  --ap_cpu/data_master saved-grant niosII_openMac_clock_3/in, which is an e_assign
+  ap_cpu_data_master_saved_grant_niosII_openMac_clock_3_in <= internal_ap_cpu_data_master_requests_niosII_openMac_clock_3_in;
+  --allow new arb cycle for niosII_openMac_clock_3/in, which is an e_assign
+  niosII_openMac_clock_3_in_allow_new_arb_cycle <= std_logic'('1');
+  --placeholder chosen master
+  niosII_openMac_clock_3_in_grant_vector <= std_logic'('1');
+  --placeholder vector of master qualified-requests
+  niosII_openMac_clock_3_in_master_qreq_vector <= std_logic'('1');
+  --niosII_openMac_clock_3_in_reset_n assignment, which is an e_assign
+  niosII_openMac_clock_3_in_reset_n <= reset_n;
+  --niosII_openMac_clock_3_in_firsttransfer first transaction, which is an e_assign
+  niosII_openMac_clock_3_in_firsttransfer <= A_WE_StdLogic((std_logic'(niosII_openMac_clock_3_in_begins_xfer) = '1'), niosII_openMac_clock_3_in_unreg_firsttransfer, niosII_openMac_clock_3_in_reg_firsttransfer);
+  --niosII_openMac_clock_3_in_unreg_firsttransfer first transaction, which is an e_assign
+  niosII_openMac_clock_3_in_unreg_firsttransfer <= NOT ((niosII_openMac_clock_3_in_slavearbiterlockenable AND niosII_openMac_clock_3_in_any_continuerequest));
+  --niosII_openMac_clock_3_in_reg_firsttransfer first transaction, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      niosII_openMac_clock_3_in_reg_firsttransfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      if std_logic'(niosII_openMac_clock_3_in_begins_xfer) = '1' then 
+        niosII_openMac_clock_3_in_reg_firsttransfer <= niosII_openMac_clock_3_in_unreg_firsttransfer;
+      end if;
+    end if;
+
+  end process;
+
+  --niosII_openMac_clock_3_in_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  niosII_openMac_clock_3_in_beginbursttransfer_internal <= niosII_openMac_clock_3_in_begins_xfer;
+  --niosII_openMac_clock_3_in_read assignment, which is an e_mux
+  niosII_openMac_clock_3_in_read <= internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in AND ap_cpu_data_master_read;
+  --niosII_openMac_clock_3_in_write assignment, which is an e_mux
+  niosII_openMac_clock_3_in_write <= internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in AND ap_cpu_data_master_write;
+  --niosII_openMac_clock_3_in_address mux, which is an e_mux
+  niosII_openMac_clock_3_in_address <= ap_cpu_data_master_address_to_slave (13 DOWNTO 0);
+  --slaveid niosII_openMac_clock_3_in_nativeaddress nativeaddress mux, which is an e_mux
+  niosII_openMac_clock_3_in_nativeaddress <= A_EXT (A_SRL(ap_cpu_data_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")), 12);
+  --d1_niosII_openMac_clock_3_in_end_xfer register, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_niosII_openMac_clock_3_in_end_xfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      d1_niosII_openMac_clock_3_in_end_xfer <= niosII_openMac_clock_3_in_end_xfer;
+    end if;
+
+  end process;
+
+  --niosII_openMac_clock_3_in_waits_for_read in a cycle, which is an e_mux
+  niosII_openMac_clock_3_in_waits_for_read <= niosII_openMac_clock_3_in_in_a_read_cycle AND internal_niosII_openMac_clock_3_in_waitrequest_from_sa;
+  --niosII_openMac_clock_3_in_in_a_read_cycle assignment, which is an e_assign
+  niosII_openMac_clock_3_in_in_a_read_cycle <= internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in AND ap_cpu_data_master_read;
+  --in_a_read_cycle assignment, which is an e_mux
+  in_a_read_cycle <= niosII_openMac_clock_3_in_in_a_read_cycle;
+  --niosII_openMac_clock_3_in_waits_for_write in a cycle, which is an e_mux
+  niosII_openMac_clock_3_in_waits_for_write <= niosII_openMac_clock_3_in_in_a_write_cycle AND internal_niosII_openMac_clock_3_in_waitrequest_from_sa;
+  --niosII_openMac_clock_3_in_in_a_write_cycle assignment, which is an e_assign
+  niosII_openMac_clock_3_in_in_a_write_cycle <= internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in AND ap_cpu_data_master_write;
+  --in_a_write_cycle assignment, which is an e_mux
+  in_a_write_cycle <= niosII_openMac_clock_3_in_in_a_write_cycle;
+  wait_for_niosII_openMac_clock_3_in_counter <= std_logic'('0');
+  --niosII_openMac_clock_3_in_byteenable byte enable port mux, which is an e_mux
+  niosII_openMac_clock_3_in_byteenable <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (ap_cpu_data_master_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))), 4);
+  --vhdl renameroo for output signals
+  ap_cpu_data_master_granted_niosII_openMac_clock_3_in <= internal_ap_cpu_data_master_granted_niosII_openMac_clock_3_in;
+  --vhdl renameroo for output signals
+  ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in <= internal_ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in;
+  --vhdl renameroo for output signals
+  ap_cpu_data_master_requests_niosII_openMac_clock_3_in <= internal_ap_cpu_data_master_requests_niosII_openMac_clock_3_in;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_3_in_waitrequest_from_sa <= internal_niosII_openMac_clock_3_in_waitrequest_from_sa;
+--synthesis translate_off
+    --niosII_openMac_clock_3/in enable non-zero assertions, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        enable_nonzero_assertions <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        enable_nonzero_assertions <= std_logic'('1');
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+library std;
+use std.textio.all;
+
+entity niosII_openMac_clock_3_out_arbitrator is 
+        port (
+              -- inputs:
+                 signal clk : IN STD_LOGIC;
+                 signal d1_powerlink_0_MAC_BUF_end_xfer : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_address : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal niosII_openMac_clock_3_out_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                 signal niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_read : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_write : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal powerlink_0_MAC_BUF_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal powerlink_0_MAC_BUF_wait_counter_eq_0 : IN STD_LOGIC;
+                 signal reset_n : IN STD_LOGIC;
+
+              -- outputs:
+                 signal niosII_openMac_clock_3_out_address_to_slave : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal niosII_openMac_clock_3_out_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal niosII_openMac_clock_3_out_reset_n : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_waitrequest : OUT STD_LOGIC
+              );
+end entity niosII_openMac_clock_3_out_arbitrator;
+
+
+architecture europa of niosII_openMac_clock_3_out_arbitrator is
+                signal active_and_waiting_last_time :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_3_out_address_to_slave :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal internal_niosII_openMac_clock_3_out_waitrequest :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_address_last_time :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_byteenable_last_time :  STD_LOGIC_VECTOR (3 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_read_last_time :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_run :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_write_last_time :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_writedata_last_time :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal r_1 :  STD_LOGIC;
+
+begin
+
+  --r_1 master_run cascaded wait assignment, which is an e_assign
+  r_1 <= Vector_To_Std_Logic(((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF OR NOT niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF OR NOT niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF OR NOT niosII_openMac_clock_3_out_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((powerlink_0_MAC_BUF_wait_counter_eq_0 AND NOT d1_powerlink_0_MAC_BUF_end_xfer)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_3_out_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF OR NOT niosII_openMac_clock_3_out_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_3_out_write)))))))));
+  --cascaded wait assignment, which is an e_assign
+  niosII_openMac_clock_3_out_run <= r_1;
+  --optimize select-logic by passing only those address bits which matter.
+  internal_niosII_openMac_clock_3_out_address_to_slave <= niosII_openMac_clock_3_out_address;
+  --niosII_openMac_clock_3/out readdata mux, which is an e_mux
+  niosII_openMac_clock_3_out_readdata <= powerlink_0_MAC_BUF_readdata_from_sa;
+  --actual waitrequest port, which is an e_assign
+  internal_niosII_openMac_clock_3_out_waitrequest <= NOT niosII_openMac_clock_3_out_run;
+  --niosII_openMac_clock_3_out_reset_n assignment, which is an e_assign
+  niosII_openMac_clock_3_out_reset_n <= reset_n;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_3_out_address_to_slave <= internal_niosII_openMac_clock_3_out_address_to_slave;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_3_out_waitrequest <= internal_niosII_openMac_clock_3_out_waitrequest;
+--synthesis translate_off
+    --niosII_openMac_clock_3_out_address check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_3_out_address_last_time <= std_logic_vector'("00000000000000");
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_3_out_address_last_time <= niosII_openMac_clock_3_out_address;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3/out waited last time, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        active_and_waiting_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        active_and_waiting_last_time <= internal_niosII_openMac_clock_3_out_waitrequest AND ((niosII_openMac_clock_3_out_read OR niosII_openMac_clock_3_out_write));
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_address matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line26 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((niosII_openMac_clock_3_out_address /= niosII_openMac_clock_3_out_address_last_time))))) = '1' then 
+          write(write_line26, now);
+          write(write_line26, string'(": "));
+          write(write_line26, string'("niosII_openMac_clock_3_out_address did not heed wait!!!"));
+          write(output, write_line26.all);
+          deallocate (write_line26);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_byteenable check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_3_out_byteenable_last_time <= std_logic_vector'("0000");
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_3_out_byteenable_last_time <= niosII_openMac_clock_3_out_byteenable;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_byteenable matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line27 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((niosII_openMac_clock_3_out_byteenable /= niosII_openMac_clock_3_out_byteenable_last_time))))) = '1' then 
+          write(write_line27, now);
+          write(write_line27, string'(": "));
+          write(write_line27, string'("niosII_openMac_clock_3_out_byteenable did not heed wait!!!"));
+          write(output, write_line27.all);
+          deallocate (write_line27);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_read check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_3_out_read_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_3_out_read_last_time <= niosII_openMac_clock_3_out_read;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_read matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line28 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(niosII_openMac_clock_3_out_read) /= std_logic'(niosII_openMac_clock_3_out_read_last_time)))))) = '1' then 
+          write(write_line28, now);
+          write(write_line28, string'(": "));
+          write(write_line28, string'("niosII_openMac_clock_3_out_read did not heed wait!!!"));
+          write(output, write_line28.all);
+          deallocate (write_line28);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_write check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_3_out_write_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_3_out_write_last_time <= niosII_openMac_clock_3_out_write;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_write matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line29 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(niosII_openMac_clock_3_out_write) /= std_logic'(niosII_openMac_clock_3_out_write_last_time)))))) = '1' then 
+          write(write_line29, now);
+          write(write_line29, string'(": "));
+          write(write_line29, string'("niosII_openMac_clock_3_out_write did not heed wait!!!"));
+          write(output, write_line29.all);
+          deallocate (write_line29);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_writedata check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_3_out_writedata_last_time <= std_logic_vector'("00000000000000000000000000000000");
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_3_out_writedata_last_time <= niosII_openMac_clock_3_out_writedata;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_3_out_writedata matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line30 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'(((active_and_waiting_last_time AND to_std_logic(((niosII_openMac_clock_3_out_writedata /= niosII_openMac_clock_3_out_writedata_last_time)))) AND niosII_openMac_clock_3_out_write)) = '1' then 
+          write(write_line30, now);
+          write(write_line30, string'(": "));
+          write(write_line30, string'("niosII_openMac_clock_3_out_writedata did not heed wait!!!"));
+          write(output, write_line30.all);
+          deallocate (write_line30);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity niosII_openMac_clock_4_in_arbitrator is 
+        port (
+              -- inputs:
+                 signal clk : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_endofpacket : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_readdata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal niosII_openMac_clock_4_in_waitrequest : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal reset_n : IN STD_LOGIC;
+
+              -- outputs:
+                 signal d1_niosII_openMac_clock_4_in_end_xfer : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_address : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
+                 signal niosII_openMac_clock_4_in_byteenable : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal niosII_openMac_clock_4_in_endofpacket_from_sa : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_nativeaddress : OUT STD_LOGIC_VECTOR (19 DOWNTO 0);
+                 signal niosII_openMac_clock_4_in_read : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_readdata_from_sa : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal niosII_openMac_clock_4_in_reset_n : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_waitrequest_from_sa : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_write : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_writedata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in : OUT STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in : OUT STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in : OUT STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in : OUT STD_LOGIC
+              );
+end entity niosII_openMac_clock_4_in_arbitrator;
+
+
+architecture europa of niosII_openMac_clock_4_in_arbitrator is
+                signal d1_reasons_to_wait :  STD_LOGIC;
+                signal enable_nonzero_assertions :  STD_LOGIC;
+                signal in_a_read_cycle :  STD_LOGIC;
+                signal in_a_write_cycle :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_4_in_waitrequest_from_sa :  STD_LOGIC;
+                signal internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal internal_powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_allow_new_arb_cycle :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_any_continuerequest :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_beginbursttransfer_internal :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_begins_xfer :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_end_xfer :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_firsttransfer :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_grant_vector :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_in_a_read_cycle :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_in_a_write_cycle :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_master_qreq_vector :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_reg_firsttransfer :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_slavearbiterlockenable :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_unreg_firsttransfer :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_waits_for_read :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_waits_for_write :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_continuerequest :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_saved_grant_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal saved_chosen_master_btw_powerlink_0_MAC_DMA_and_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal wait_for_niosII_openMac_clock_4_in_counter :  STD_LOGIC;
+
+begin
+
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_reasons_to_wait <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      d1_reasons_to_wait <= NOT niosII_openMac_clock_4_in_end_xfer;
+    end if;
+
+  end process;
+
+  niosII_openMac_clock_4_in_begins_xfer <= NOT d1_reasons_to_wait AND (internal_powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in);
+  --assign niosII_openMac_clock_4_in_readdata_from_sa = niosII_openMac_clock_4_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  niosII_openMac_clock_4_in_readdata_from_sa <= niosII_openMac_clock_4_in_readdata;
+  internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in <= to_std_logic(((Std_Logic_Vector'(powerlink_0_MAC_DMA_address_to_slave(29 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("000000010000000000000000000000")))) AND ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n));
+  --assign niosII_openMac_clock_4_in_waitrequest_from_sa = niosII_openMac_clock_4_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
+  internal_niosII_openMac_clock_4_in_waitrequest_from_sa <= niosII_openMac_clock_4_in_waitrequest;
+  --dummy niosII_openMac_clock_4_in_slavearbiterlockenable, which is an e_assign
+  niosII_openMac_clock_4_in_slavearbiterlockenable <= std_logic'('0');
+  --niosII_openMac_clock_4_in_any_continuerequest at least one master continues requesting, which is an e_assign
+  niosII_openMac_clock_4_in_any_continuerequest <= std_logic'('1');
+  --powerlink_0_MAC_DMA_continuerequest continued request, which is an e_assign
+  powerlink_0_MAC_DMA_continuerequest <= std_logic'('1');
+  internal_powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in <= internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in;
+  --niosII_openMac_clock_4_in_writedata mux, which is an e_mux
+  niosII_openMac_clock_4_in_writedata <= powerlink_0_MAC_DMA_writedata;
+  --assign niosII_openMac_clock_4_in_endofpacket_from_sa = niosII_openMac_clock_4_in_endofpacket so that symbol knows where to group signals which may go to master only, which is an e_assign
+  niosII_openMac_clock_4_in_endofpacket_from_sa <= niosII_openMac_clock_4_in_endofpacket;
+  --master is always granted when requested
+  internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in <= internal_powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in;
+  --powerlink_0/MAC_DMA saved-grant niosII_openMac_clock_4/in, which is an e_assign
+  powerlink_0_MAC_DMA_saved_grant_niosII_openMac_clock_4_in <= internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in;
+  --saved chosen master btw powerlink_0/MAC_DMA and niosII_openMac_clock_4/in, which is an e_assign
+  saved_chosen_master_btw_powerlink_0_MAC_DMA_and_niosII_openMac_clock_4_in <= internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in;
+  --allow new arb cycle for niosII_openMac_clock_4/in, which is an e_assign
+  niosII_openMac_clock_4_in_allow_new_arb_cycle <= std_logic'('1');
+  --placeholder chosen master
+  niosII_openMac_clock_4_in_grant_vector <= std_logic'('1');
+  --placeholder vector of master qualified-requests
+  niosII_openMac_clock_4_in_master_qreq_vector <= std_logic'('1');
+  --niosII_openMac_clock_4_in_reset_n assignment, which is an e_assign
+  niosII_openMac_clock_4_in_reset_n <= reset_n;
+  --niosII_openMac_clock_4_in_end_xfer assignment, which is an e_assign
+  niosII_openMac_clock_4_in_end_xfer <= NOT ((niosII_openMac_clock_4_in_waits_for_read OR niosII_openMac_clock_4_in_waits_for_write));
+  --niosII_openMac_clock_4_in_firsttransfer first transaction, which is an e_assign
+  niosII_openMac_clock_4_in_firsttransfer <= A_WE_StdLogic((std_logic'(niosII_openMac_clock_4_in_begins_xfer) = '1'), niosII_openMac_clock_4_in_unreg_firsttransfer, niosII_openMac_clock_4_in_reg_firsttransfer);
+  --niosII_openMac_clock_4_in_unreg_firsttransfer first transaction, which is an e_assign
+  niosII_openMac_clock_4_in_unreg_firsttransfer <= NOT ((niosII_openMac_clock_4_in_slavearbiterlockenable AND niosII_openMac_clock_4_in_any_continuerequest));
+  --niosII_openMac_clock_4_in_reg_firsttransfer first transaction, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      niosII_openMac_clock_4_in_reg_firsttransfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      if std_logic'(niosII_openMac_clock_4_in_begins_xfer) = '1' then 
+        niosII_openMac_clock_4_in_reg_firsttransfer <= niosII_openMac_clock_4_in_unreg_firsttransfer;
+      end if;
+    end if;
+
+  end process;
+
+  --niosII_openMac_clock_4_in_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  niosII_openMac_clock_4_in_beginbursttransfer_internal <= niosII_openMac_clock_4_in_begins_xfer;
+  --niosII_openMac_clock_4_in_read assignment, which is an e_mux
+  niosII_openMac_clock_4_in_read <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in AND NOT powerlink_0_MAC_DMA_read_n;
+  --niosII_openMac_clock_4_in_write assignment, which is an e_mux
+  niosII_openMac_clock_4_in_write <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in AND NOT powerlink_0_MAC_DMA_write_n;
+  --niosII_openMac_clock_4_in_address mux, which is an e_mux
+  niosII_openMac_clock_4_in_address <= powerlink_0_MAC_DMA_address_to_slave (20 DOWNTO 0);
+  --slaveid niosII_openMac_clock_4_in_nativeaddress nativeaddress mux, which is an e_mux
+  niosII_openMac_clock_4_in_nativeaddress <= A_EXT (A_SRL(powerlink_0_MAC_DMA_address_to_slave,std_logic_vector'("00000000000000000000000000000001")), 20);
+  --d1_niosII_openMac_clock_4_in_end_xfer register, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_niosII_openMac_clock_4_in_end_xfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      d1_niosII_openMac_clock_4_in_end_xfer <= niosII_openMac_clock_4_in_end_xfer;
+    end if;
+
+  end process;
+
+  --niosII_openMac_clock_4_in_waits_for_read in a cycle, which is an e_mux
+  niosII_openMac_clock_4_in_waits_for_read <= niosII_openMac_clock_4_in_in_a_read_cycle AND internal_niosII_openMac_clock_4_in_waitrequest_from_sa;
+  --niosII_openMac_clock_4_in_in_a_read_cycle assignment, which is an e_assign
+  niosII_openMac_clock_4_in_in_a_read_cycle <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in AND NOT powerlink_0_MAC_DMA_read_n;
+  --in_a_read_cycle assignment, which is an e_mux
+  in_a_read_cycle <= niosII_openMac_clock_4_in_in_a_read_cycle;
+  --niosII_openMac_clock_4_in_waits_for_write in a cycle, which is an e_mux
+  niosII_openMac_clock_4_in_waits_for_write <= niosII_openMac_clock_4_in_in_a_write_cycle AND internal_niosII_openMac_clock_4_in_waitrequest_from_sa;
+  --niosII_openMac_clock_4_in_in_a_write_cycle assignment, which is an e_assign
+  niosII_openMac_clock_4_in_in_a_write_cycle <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in AND NOT powerlink_0_MAC_DMA_write_n;
+  --in_a_write_cycle assignment, which is an e_mux
+  in_a_write_cycle <= niosII_openMac_clock_4_in_in_a_write_cycle;
+  wait_for_niosII_openMac_clock_4_in_counter <= std_logic'('0');
+  --niosII_openMac_clock_4_in_byteenable byte enable port mux, which is an e_mux
+  niosII_openMac_clock_4_in_byteenable <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in)) = '1'), (std_logic_vector'("000000000000000000000000000000") & (NOT powerlink_0_MAC_DMA_byteenable_n)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))), 2);
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_4_in_waitrequest_from_sa <= internal_niosII_openMac_clock_4_in_waitrequest_from_sa;
+  --vhdl renameroo for output signals
+  powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in;
+  --vhdl renameroo for output signals
+  powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in <= internal_powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in;
+  --vhdl renameroo for output signals
+  powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in <= internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in;
+--synthesis translate_off
+    --niosII_openMac_clock_4/in enable non-zero assertions, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        enable_nonzero_assertions <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        enable_nonzero_assertions <= std_logic'('1');
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+library std;
+use std.textio.all;
+
+entity niosII_openMac_clock_4_out_arbitrator is 
+        port (
+              -- inputs:
+                 signal clk : IN STD_LOGIC;
+                 signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
+                 signal incoming_data_to_and_from_the_sram_0 : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_address : IN STD_LOGIC_VECTOR (20 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_granted_sram_0_s0 : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_qualified_request_sram_0_s0 : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_read : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_requests_sram_0_s0 : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_write : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal reset_n : IN STD_LOGIC;
+
+              -- outputs:
+                 signal niosII_openMac_clock_4_out_address_to_slave : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_reset_n : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_waitrequest : OUT STD_LOGIC
+              );
+end entity niosII_openMac_clock_4_out_arbitrator;
+
+
+architecture europa of niosII_openMac_clock_4_out_arbitrator is
+                signal active_and_waiting_last_time :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_4_out_address_to_slave :  STD_LOGIC_VECTOR (20 DOWNTO 0);
+                signal internal_niosII_openMac_clock_4_out_waitrequest :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_address_last_time :  STD_LOGIC_VECTOR (20 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_byteenable_last_time :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_read_last_time :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_run :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_write_last_time :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_writedata_last_time :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal r_2 :  STD_LOGIC;
+
+begin
+
+  --r_2 master_run cascaded wait assignment, which is an e_assign
+  r_2 <= Vector_To_Std_Logic(((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((niosII_openMac_clock_4_out_qualified_request_sram_0_s0 OR niosII_openMac_clock_4_out_read_data_valid_sram_0_s0) OR NOT niosII_openMac_clock_4_out_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_4_out_granted_sram_0_s0 OR NOT niosII_openMac_clock_4_out_qualified_request_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT niosII_openMac_clock_4_out_qualified_request_sram_0_s0 OR NOT niosII_openMac_clock_4_out_read) OR ((niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 AND niosII_openMac_clock_4_out_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_4_out_qualified_request_sram_0_s0 OR NOT ((niosII_openMac_clock_4_out_read OR niosII_openMac_clock_4_out_write)))))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_4_out_read OR niosII_openMac_clock_4_out_write)))))))))));
+  --cascaded wait assignment, which is an e_assign
+  niosII_openMac_clock_4_out_run <= r_2;
+  --optimize select-logic by passing only those address bits which matter.
+  internal_niosII_openMac_clock_4_out_address_to_slave <= niosII_openMac_clock_4_out_address;
+  --niosII_openMac_clock_4/out readdata mux, which is an e_mux
+  niosII_openMac_clock_4_out_readdata <= incoming_data_to_and_from_the_sram_0;
+  --actual waitrequest port, which is an e_assign
+  internal_niosII_openMac_clock_4_out_waitrequest <= NOT niosII_openMac_clock_4_out_run;
+  --niosII_openMac_clock_4_out_reset_n assignment, which is an e_assign
+  niosII_openMac_clock_4_out_reset_n <= reset_n;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_4_out_address_to_slave <= internal_niosII_openMac_clock_4_out_address_to_slave;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_4_out_waitrequest <= internal_niosII_openMac_clock_4_out_waitrequest;
+--synthesis translate_off
+    --niosII_openMac_clock_4_out_address check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_4_out_address_last_time <= std_logic_vector'("000000000000000000000");
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_4_out_address_last_time <= niosII_openMac_clock_4_out_address;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4/out waited last time, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        active_and_waiting_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        active_and_waiting_last_time <= internal_niosII_openMac_clock_4_out_waitrequest AND ((niosII_openMac_clock_4_out_read OR niosII_openMac_clock_4_out_write));
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_address matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line31 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((niosII_openMac_clock_4_out_address /= niosII_openMac_clock_4_out_address_last_time))))) = '1' then 
+          write(write_line31, now);
+          write(write_line31, string'(": "));
+          write(write_line31, string'("niosII_openMac_clock_4_out_address did not heed wait!!!"));
+          write(output, write_line31.all);
+          deallocate (write_line31);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_byteenable check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_4_out_byteenable_last_time <= std_logic_vector'("00");
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_4_out_byteenable_last_time <= niosII_openMac_clock_4_out_byteenable;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_byteenable matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line32 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((niosII_openMac_clock_4_out_byteenable /= niosII_openMac_clock_4_out_byteenable_last_time))))) = '1' then 
+          write(write_line32, now);
+          write(write_line32, string'(": "));
+          write(write_line32, string'("niosII_openMac_clock_4_out_byteenable did not heed wait!!!"));
+          write(output, write_line32.all);
+          deallocate (write_line32);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_read check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_4_out_read_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_4_out_read_last_time <= niosII_openMac_clock_4_out_read;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_read matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line33 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(niosII_openMac_clock_4_out_read) /= std_logic'(niosII_openMac_clock_4_out_read_last_time)))))) = '1' then 
+          write(write_line33, now);
+          write(write_line33, string'(": "));
+          write(write_line33, string'("niosII_openMac_clock_4_out_read did not heed wait!!!"));
+          write(output, write_line33.all);
+          deallocate (write_line33);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_write check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_4_out_write_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_4_out_write_last_time <= niosII_openMac_clock_4_out_write;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_write matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line34 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(niosII_openMac_clock_4_out_write) /= std_logic'(niosII_openMac_clock_4_out_write_last_time)))))) = '1' then 
+          write(write_line34, now);
+          write(write_line34, string'(": "));
+          write(write_line34, string'("niosII_openMac_clock_4_out_write did not heed wait!!!"));
+          write(output, write_line34.all);
+          deallocate (write_line34);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_writedata check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        niosII_openMac_clock_4_out_writedata_last_time <= std_logic_vector'("0000000000000000");
+      elsif clk'event and clk = '1' then
+        niosII_openMac_clock_4_out_writedata_last_time <= niosII_openMac_clock_4_out_writedata;
+      end if;
+
+    end process;
+
+    --niosII_openMac_clock_4_out_writedata matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line35 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'(((active_and_waiting_last_time AND to_std_logic(((niosII_openMac_clock_4_out_writedata /= niosII_openMac_clock_4_out_writedata_last_time)))) AND niosII_openMac_clock_4_out_write)) = '1' then 
+          write(write_line35, now);
+          write(write_line35, string'(": "));
+          write(write_line35, string'("niosII_openMac_clock_4_out_writedata did not heed wait!!!"));
+          write(output, write_line35.all);
+          deallocate (write_line35);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
 entity node_switch_pio_s1_arbitrator is 
         port (
               -- inputs:
@@ -6229,7 +7146,7 @@ begin
   node_switch_pio_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_node_switch_pio_s1);
   --assign node_switch_pio_s1_readdata_from_sa = node_switch_pio_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   node_switch_pio_s1_readdata_from_sa <= node_switch_pio_s1_readdata;
-  internal_clock_crossing_0_m1_requests_node_switch_pio_s1 <= ((to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000001110000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))) AND clock_crossing_0_m1_read;
+  internal_clock_crossing_0_m1_requests_node_switch_pio_s1 <= ((to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000001010000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))) AND clock_crossing_0_m1_read;
   --node_switch_pio_s1_arb_share_counter set values, which is an e_mux
   node_switch_pio_s1_arb_share_set_values <= std_logic_vector'("01");
   --node_switch_pio_s1_non_bursting_master_requests mux, which is an e_mux
@@ -6356,425 +7273,6 @@ begin
         enable_nonzero_assertions <= std_logic'('0');
       elsif clk'event and clk = '1' then
         enable_nonzero_assertions <= std_logic'('1');
-      end if;
-
-    end process;
-
---synthesis translate_on
-
-end europa;
-
-
-
--- turn off superfluous VHDL processor warnings 
--- altera message_level Level1 
--- altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-library altera;
-use altera.altera_europa_support_lib.all;
-
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
-
-library std;
-use std.textio.all;
-
-entity onchip_memory_0_s1_arbitrator is 
-        port (
-              -- inputs:
-                 signal clk : IN STD_LOGIC;
-                 signal onchip_memory_0_s1_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-                 signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
-                 signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
-                 signal pcp_cpu_data_master_read : IN STD_LOGIC;
-                 signal pcp_cpu_data_master_waitrequest : IN STD_LOGIC;
-                 signal pcp_cpu_data_master_write : IN STD_LOGIC;
-                 signal pcp_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-                 signal pcp_cpu_instruction_master_address_to_slave : IN STD_LOGIC_VECTOR (22 DOWNTO 0);
-                 signal pcp_cpu_instruction_master_latency_counter : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-                 signal pcp_cpu_instruction_master_read : IN STD_LOGIC;
-                 signal reset_n : IN STD_LOGIC;
-
-              -- outputs:
-                 signal d1_onchip_memory_0_s1_end_xfer : OUT STD_LOGIC;
-                 signal onchip_memory_0_s1_address : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-                 signal onchip_memory_0_s1_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
-                 signal onchip_memory_0_s1_chipselect : OUT STD_LOGIC;
-                 signal onchip_memory_0_s1_clken : OUT STD_LOGIC;
-                 signal onchip_memory_0_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-                 signal onchip_memory_0_s1_write : OUT STD_LOGIC;
-                 signal onchip_memory_0_s1_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-                 signal pcp_cpu_data_master_granted_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal pcp_cpu_data_master_requests_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal pcp_cpu_instruction_master_granted_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal pcp_cpu_instruction_master_requests_onchip_memory_0_s1 : OUT STD_LOGIC;
-                 signal registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : OUT STD_LOGIC
-              );
-end entity onchip_memory_0_s1_arbitrator;
-
-
-architecture europa of onchip_memory_0_s1_arbitrator is
-                signal d1_reasons_to_wait :  STD_LOGIC;
-                signal enable_nonzero_assertions :  STD_LOGIC;
-                signal end_xfer_arb_share_counter_term_onchip_memory_0_s1 :  STD_LOGIC;
-                signal in_a_read_cycle :  STD_LOGIC;
-                signal in_a_write_cycle :  STD_LOGIC;
-                signal internal_pcp_cpu_data_master_granted_onchip_memory_0_s1 :  STD_LOGIC;
-                signal internal_pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 :  STD_LOGIC;
-                signal internal_pcp_cpu_data_master_requests_onchip_memory_0_s1 :  STD_LOGIC;
-                signal internal_pcp_cpu_instruction_master_granted_onchip_memory_0_s1 :  STD_LOGIC;
-                signal internal_pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 :  STD_LOGIC;
-                signal internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1 :  STD_LOGIC;
-                signal last_cycle_pcp_cpu_data_master_granted_slave_onchip_memory_0_s1 :  STD_LOGIC;
-                signal last_cycle_pcp_cpu_instruction_master_granted_slave_onchip_memory_0_s1 :  STD_LOGIC;
-                signal onchip_memory_0_s1_allgrants :  STD_LOGIC;
-                signal onchip_memory_0_s1_allow_new_arb_cycle :  STD_LOGIC;
-                signal onchip_memory_0_s1_any_bursting_master_saved_grant :  STD_LOGIC;
-                signal onchip_memory_0_s1_any_continuerequest :  STD_LOGIC;
-                signal onchip_memory_0_s1_arb_addend :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_arb_counter_enable :  STD_LOGIC;
-                signal onchip_memory_0_s1_arb_share_counter :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_arb_share_counter_next_value :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_arb_share_set_values :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_arb_winner :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_arbitration_holdoff_internal :  STD_LOGIC;
-                signal onchip_memory_0_s1_beginbursttransfer_internal :  STD_LOGIC;
-                signal onchip_memory_0_s1_begins_xfer :  STD_LOGIC;
-                signal onchip_memory_0_s1_chosen_master_double_vector :  STD_LOGIC_VECTOR (3 DOWNTO 0);
-                signal onchip_memory_0_s1_chosen_master_rot_left :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_end_xfer :  STD_LOGIC;
-                signal onchip_memory_0_s1_firsttransfer :  STD_LOGIC;
-                signal onchip_memory_0_s1_grant_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_in_a_read_cycle :  STD_LOGIC;
-                signal onchip_memory_0_s1_in_a_write_cycle :  STD_LOGIC;
-                signal onchip_memory_0_s1_master_qreq_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_non_bursting_master_requests :  STD_LOGIC;
-                signal onchip_memory_0_s1_reg_firsttransfer :  STD_LOGIC;
-                signal onchip_memory_0_s1_saved_chosen_master_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal onchip_memory_0_s1_slavearbiterlockenable :  STD_LOGIC;
-                signal onchip_memory_0_s1_slavearbiterlockenable2 :  STD_LOGIC;
-                signal onchip_memory_0_s1_unreg_firsttransfer :  STD_LOGIC;
-                signal onchip_memory_0_s1_waits_for_read :  STD_LOGIC;
-                signal onchip_memory_0_s1_waits_for_write :  STD_LOGIC;
-                signal p1_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register :  STD_LOGIC;
-                signal p1_pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register :  STD_LOGIC;
-                signal pcp_cpu_data_master_arbiterlock :  STD_LOGIC;
-                signal pcp_cpu_data_master_arbiterlock2 :  STD_LOGIC;
-                signal pcp_cpu_data_master_continuerequest :  STD_LOGIC;
-                signal pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register :  STD_LOGIC;
-                signal pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register_in :  STD_LOGIC;
-                signal pcp_cpu_data_master_saved_grant_onchip_memory_0_s1 :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_arbiterlock :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_arbiterlock2 :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_continuerequest :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register_in :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_saved_grant_onchip_memory_0_s1 :  STD_LOGIC;
-                signal shifted_address_to_onchip_memory_0_s1_from_pcp_cpu_data_master :  STD_LOGIC_VECTOR (24 DOWNTO 0);
-                signal shifted_address_to_onchip_memory_0_s1_from_pcp_cpu_instruction_master :  STD_LOGIC_VECTOR (22 DOWNTO 0);
-                signal wait_for_onchip_memory_0_s1_counter :  STD_LOGIC;
-
-begin
-
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      d1_reasons_to_wait <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      d1_reasons_to_wait <= NOT onchip_memory_0_s1_end_xfer;
-    end if;
-
-  end process;
-
-  onchip_memory_0_s1_begins_xfer <= NOT d1_reasons_to_wait AND ((internal_pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 OR internal_pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1));
-  --assign onchip_memory_0_s1_readdata_from_sa = onchip_memory_0_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  onchip_memory_0_s1_readdata_from_sa <= onchip_memory_0_s1_readdata;
-  internal_pcp_cpu_data_master_requests_onchip_memory_0_s1 <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 10) & std_logic_vector'("0000000000")) = std_logic_vector'("0000000000010000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
-  --registered rdv signal_name registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 assignment, which is an e_assign
-  registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 <= pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register_in;
-  --onchip_memory_0_s1_arb_share_counter set values, which is an e_mux
-  onchip_memory_0_s1_arb_share_set_values <= std_logic_vector'("01");
-  --onchip_memory_0_s1_non_bursting_master_requests mux, which is an e_mux
-  onchip_memory_0_s1_non_bursting_master_requests <= ((internal_pcp_cpu_data_master_requests_onchip_memory_0_s1 OR internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1) OR internal_pcp_cpu_data_master_requests_onchip_memory_0_s1) OR internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1;
-  --onchip_memory_0_s1_any_bursting_master_saved_grant mux, which is an e_mux
-  onchip_memory_0_s1_any_bursting_master_saved_grant <= std_logic'('0');
-  --onchip_memory_0_s1_arb_share_counter_next_value assignment, which is an e_assign
-  onchip_memory_0_s1_arb_share_counter_next_value <= A_EXT (A_WE_StdLogicVector((std_logic'(onchip_memory_0_s1_firsttransfer) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (onchip_memory_0_s1_arb_share_set_values)) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(or_reduce(onchip_memory_0_s1_arb_share_counter)) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (onchip_memory_0_s1_arb_share_counter)) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))), 2);
-  --onchip_memory_0_s1_allgrants all slave grants, which is an e_mux
-  onchip_memory_0_s1_allgrants <= (((or_reduce(onchip_memory_0_s1_grant_vector)) OR (or_reduce(onchip_memory_0_s1_grant_vector))) OR (or_reduce(onchip_memory_0_s1_grant_vector))) OR (or_reduce(onchip_memory_0_s1_grant_vector));
-  --onchip_memory_0_s1_end_xfer assignment, which is an e_assign
-  onchip_memory_0_s1_end_xfer <= NOT ((onchip_memory_0_s1_waits_for_read OR onchip_memory_0_s1_waits_for_write));
-  --end_xfer_arb_share_counter_term_onchip_memory_0_s1 arb share counter enable term, which is an e_assign
-  end_xfer_arb_share_counter_term_onchip_memory_0_s1 <= onchip_memory_0_s1_end_xfer AND (((NOT onchip_memory_0_s1_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
-  --onchip_memory_0_s1_arb_share_counter arbitration counter enable, which is an e_assign
-  onchip_memory_0_s1_arb_counter_enable <= ((end_xfer_arb_share_counter_term_onchip_memory_0_s1 AND onchip_memory_0_s1_allgrants)) OR ((end_xfer_arb_share_counter_term_onchip_memory_0_s1 AND NOT onchip_memory_0_s1_non_bursting_master_requests));
-  --onchip_memory_0_s1_arb_share_counter counter, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      onchip_memory_0_s1_arb_share_counter <= std_logic_vector'("00");
-    elsif clk'event and clk = '1' then
-      if std_logic'(onchip_memory_0_s1_arb_counter_enable) = '1' then 
-        onchip_memory_0_s1_arb_share_counter <= onchip_memory_0_s1_arb_share_counter_next_value;
-      end if;
-    end if;
-
-  end process;
-
-  --onchip_memory_0_s1_slavearbiterlockenable slave enables arbiterlock, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      onchip_memory_0_s1_slavearbiterlockenable <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      if std_logic'((((or_reduce(onchip_memory_0_s1_master_qreq_vector) AND end_xfer_arb_share_counter_term_onchip_memory_0_s1)) OR ((end_xfer_arb_share_counter_term_onchip_memory_0_s1 AND NOT onchip_memory_0_s1_non_bursting_master_requests)))) = '1' then 
-        onchip_memory_0_s1_slavearbiterlockenable <= or_reduce(onchip_memory_0_s1_arb_share_counter_next_value);
-      end if;
-    end if;
-
-  end process;
-
-  --pcp_cpu/data_master onchip_memory_0/s1 arbiterlock, which is an e_assign
-  pcp_cpu_data_master_arbiterlock <= onchip_memory_0_s1_slavearbiterlockenable AND pcp_cpu_data_master_continuerequest;
-  --onchip_memory_0_s1_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  onchip_memory_0_s1_slavearbiterlockenable2 <= or_reduce(onchip_memory_0_s1_arb_share_counter_next_value);
-  --pcp_cpu/data_master onchip_memory_0/s1 arbiterlock2, which is an e_assign
-  pcp_cpu_data_master_arbiterlock2 <= onchip_memory_0_s1_slavearbiterlockenable2 AND pcp_cpu_data_master_continuerequest;
-  --pcp_cpu/instruction_master onchip_memory_0/s1 arbiterlock, which is an e_assign
-  pcp_cpu_instruction_master_arbiterlock <= onchip_memory_0_s1_slavearbiterlockenable AND pcp_cpu_instruction_master_continuerequest;
-  --pcp_cpu/instruction_master onchip_memory_0/s1 arbiterlock2, which is an e_assign
-  pcp_cpu_instruction_master_arbiterlock2 <= onchip_memory_0_s1_slavearbiterlockenable2 AND pcp_cpu_instruction_master_continuerequest;
-  --pcp_cpu/instruction_master granted onchip_memory_0/s1 last time, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      last_cycle_pcp_cpu_instruction_master_granted_slave_onchip_memory_0_s1 <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      last_cycle_pcp_cpu_instruction_master_granted_slave_onchip_memory_0_s1 <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(pcp_cpu_instruction_master_saved_grant_onchip_memory_0_s1) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'(((onchip_memory_0_s1_arbitration_holdoff_internal OR NOT internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1))) = '1'), std_logic_vector'("00000000000000000000000000000000"), (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(last_cycle_pcp_cpu_instruction_master_granted_slave_onchip_memory_0_s1))))));
-    end if;
-
-  end process;
-
-  --pcp_cpu_instruction_master_continuerequest continued request, which is an e_mux
-  pcp_cpu_instruction_master_continuerequest <= last_cycle_pcp_cpu_instruction_master_granted_slave_onchip_memory_0_s1 AND internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1;
-  --onchip_memory_0_s1_any_continuerequest at least one master continues requesting, which is an e_mux
-  onchip_memory_0_s1_any_continuerequest <= pcp_cpu_instruction_master_continuerequest OR pcp_cpu_data_master_continuerequest;
-  internal_pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 <= internal_pcp_cpu_data_master_requests_onchip_memory_0_s1 AND NOT (((((pcp_cpu_data_master_read AND (pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register))) OR (((NOT pcp_cpu_data_master_waitrequest) AND pcp_cpu_data_master_write))) OR pcp_cpu_instruction_master_arbiterlock));
-  --pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register_in mux for readlatency shift register, which is an e_mux
-  pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register_in <= ((internal_pcp_cpu_data_master_granted_onchip_memory_0_s1 AND pcp_cpu_data_master_read) AND NOT onchip_memory_0_s1_waits_for_read) AND NOT (pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register);
-  --shift register p1 pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register in if flush, otherwise shift left, which is an e_mux
-  p1_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register <= Vector_To_Std_Logic(Std_Logic_Vector'(A_ToStdLogicVector(pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register) & A_ToStdLogicVector(pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register_in)));
-  --pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register for remembering which master asked for a fixed latency read, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register <= p1_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register;
-    end if;
-
-  end process;
-
-  --local readdatavalid pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1, which is an e_mux
-  pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 <= pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1_shift_register;
-  --onchip_memory_0_s1_writedata mux, which is an e_mux
-  onchip_memory_0_s1_writedata <= pcp_cpu_data_master_writedata;
-  --mux onchip_memory_0_s1_clken, which is an e_mux
-  onchip_memory_0_s1_clken <= std_logic'('1');
-  internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1 <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_instruction_master_address_to_slave(22 DOWNTO 10) & std_logic_vector'("0000000000")) = std_logic_vector'("00000000010000000000000")))) AND (pcp_cpu_instruction_master_read))) AND pcp_cpu_instruction_master_read;
-  --pcp_cpu/data_master granted onchip_memory_0/s1 last time, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      last_cycle_pcp_cpu_data_master_granted_slave_onchip_memory_0_s1 <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      last_cycle_pcp_cpu_data_master_granted_slave_onchip_memory_0_s1 <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(pcp_cpu_data_master_saved_grant_onchip_memory_0_s1) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'(((onchip_memory_0_s1_arbitration_holdoff_internal OR NOT internal_pcp_cpu_data_master_requests_onchip_memory_0_s1))) = '1'), std_logic_vector'("00000000000000000000000000000000"), (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(last_cycle_pcp_cpu_data_master_granted_slave_onchip_memory_0_s1))))));
-    end if;
-
-  end process;
-
-  --pcp_cpu_data_master_continuerequest continued request, which is an e_mux
-  pcp_cpu_data_master_continuerequest <= last_cycle_pcp_cpu_data_master_granted_slave_onchip_memory_0_s1 AND internal_pcp_cpu_data_master_requests_onchip_memory_0_s1;
-  internal_pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 <= internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1 AND NOT ((((pcp_cpu_instruction_master_read AND to_std_logic(((std_logic_vector'("00000000000000000000000000000001")<(std_logic_vector'("000000000000000000000000000000") & (pcp_cpu_instruction_master_latency_counter))))))) OR pcp_cpu_data_master_arbiterlock));
-  --pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register_in mux for readlatency shift register, which is an e_mux
-  pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register_in <= (internal_pcp_cpu_instruction_master_granted_onchip_memory_0_s1 AND pcp_cpu_instruction_master_read) AND NOT onchip_memory_0_s1_waits_for_read;
-  --shift register p1 pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register in if flush, otherwise shift left, which is an e_mux
-  p1_pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register <= Vector_To_Std_Logic(Std_Logic_Vector'(A_ToStdLogicVector(pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register) & A_ToStdLogicVector(pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register_in)));
-  --pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register for remembering which master asked for a fixed latency read, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register <= p1_pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register;
-    end if;
-
-  end process;
-
-  --local readdatavalid pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1, which is an e_mux
-  pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 <= pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1_shift_register;
-  --allow new arb cycle for onchip_memory_0/s1, which is an e_assign
-  onchip_memory_0_s1_allow_new_arb_cycle <= NOT pcp_cpu_data_master_arbiterlock AND NOT pcp_cpu_instruction_master_arbiterlock;
-  --pcp_cpu/instruction_master assignment into master qualified-requests vector for onchip_memory_0/s1, which is an e_assign
-  onchip_memory_0_s1_master_qreq_vector(0) <= internal_pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1;
-  --pcp_cpu/instruction_master grant onchip_memory_0/s1, which is an e_assign
-  internal_pcp_cpu_instruction_master_granted_onchip_memory_0_s1 <= onchip_memory_0_s1_grant_vector(0);
-  --pcp_cpu/instruction_master saved-grant onchip_memory_0/s1, which is an e_assign
-  pcp_cpu_instruction_master_saved_grant_onchip_memory_0_s1 <= onchip_memory_0_s1_arb_winner(0) AND internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1;
-  --pcp_cpu/data_master assignment into master qualified-requests vector for onchip_memory_0/s1, which is an e_assign
-  onchip_memory_0_s1_master_qreq_vector(1) <= internal_pcp_cpu_data_master_qualified_request_onchip_memory_0_s1;
-  --pcp_cpu/data_master grant onchip_memory_0/s1, which is an e_assign
-  internal_pcp_cpu_data_master_granted_onchip_memory_0_s1 <= onchip_memory_0_s1_grant_vector(1);
-  --pcp_cpu/data_master saved-grant onchip_memory_0/s1, which is an e_assign
-  pcp_cpu_data_master_saved_grant_onchip_memory_0_s1 <= onchip_memory_0_s1_arb_winner(1) AND internal_pcp_cpu_data_master_requests_onchip_memory_0_s1;
-  --onchip_memory_0/s1 chosen-master double-vector, which is an e_assign
-  onchip_memory_0_s1_chosen_master_double_vector <= A_EXT (((std_logic_vector'("0") & ((onchip_memory_0_s1_master_qreq_vector & onchip_memory_0_s1_master_qreq_vector))) AND (((std_logic_vector'("0") & (Std_Logic_Vector'(NOT onchip_memory_0_s1_master_qreq_vector & NOT onchip_memory_0_s1_master_qreq_vector))) + (std_logic_vector'("000") & (onchip_memory_0_s1_arb_addend))))), 4);
-  --stable onehot encoding of arb winner
-  onchip_memory_0_s1_arb_winner <= A_WE_StdLogicVector((std_logic'(((onchip_memory_0_s1_allow_new_arb_cycle AND or_reduce(onchip_memory_0_s1_grant_vector)))) = '1'), onchip_memory_0_s1_grant_vector, onchip_memory_0_s1_saved_chosen_master_vector);
-  --saved onchip_memory_0_s1_grant_vector, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      onchip_memory_0_s1_saved_chosen_master_vector <= std_logic_vector'("00");
-    elsif clk'event and clk = '1' then
-      if std_logic'(onchip_memory_0_s1_allow_new_arb_cycle) = '1' then 
-        onchip_memory_0_s1_saved_chosen_master_vector <= A_WE_StdLogicVector((std_logic'(or_reduce(onchip_memory_0_s1_grant_vector)) = '1'), onchip_memory_0_s1_grant_vector, onchip_memory_0_s1_saved_chosen_master_vector);
-      end if;
-    end if;
-
-  end process;
-
-  --onehot encoding of chosen master
-  onchip_memory_0_s1_grant_vector <= Std_Logic_Vector'(A_ToStdLogicVector(((onchip_memory_0_s1_chosen_master_double_vector(1) OR onchip_memory_0_s1_chosen_master_double_vector(3)))) & A_ToStdLogicVector(((onchip_memory_0_s1_chosen_master_double_vector(0) OR onchip_memory_0_s1_chosen_master_double_vector(2)))));
-  --onchip_memory_0/s1 chosen master rotated left, which is an e_assign
-  onchip_memory_0_s1_chosen_master_rot_left <= A_EXT (A_WE_StdLogicVector((((A_SLL(onchip_memory_0_s1_arb_winner,std_logic_vector'("00000000000000000000000000000001")))) /= std_logic_vector'("00")), (std_logic_vector'("000000000000000000000000000000") & ((A_SLL(onchip_memory_0_s1_arb_winner,std_logic_vector'("00000000000000000000000000000001"))))), std_logic_vector'("00000000000000000000000000000001")), 2);
-  --onchip_memory_0/s1's addend for next-master-grant
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      onchip_memory_0_s1_arb_addend <= std_logic_vector'("01");
-    elsif clk'event and clk = '1' then
-      if std_logic'(or_reduce(onchip_memory_0_s1_grant_vector)) = '1' then 
-        onchip_memory_0_s1_arb_addend <= A_WE_StdLogicVector((std_logic'(onchip_memory_0_s1_end_xfer) = '1'), onchip_memory_0_s1_chosen_master_rot_left, onchip_memory_0_s1_grant_vector);
-      end if;
-    end if;
-
-  end process;
-
-  onchip_memory_0_s1_chipselect <= internal_pcp_cpu_data_master_granted_onchip_memory_0_s1 OR internal_pcp_cpu_instruction_master_granted_onchip_memory_0_s1;
-  --onchip_memory_0_s1_firsttransfer first transaction, which is an e_assign
-  onchip_memory_0_s1_firsttransfer <= A_WE_StdLogic((std_logic'(onchip_memory_0_s1_begins_xfer) = '1'), onchip_memory_0_s1_unreg_firsttransfer, onchip_memory_0_s1_reg_firsttransfer);
-  --onchip_memory_0_s1_unreg_firsttransfer first transaction, which is an e_assign
-  onchip_memory_0_s1_unreg_firsttransfer <= NOT ((onchip_memory_0_s1_slavearbiterlockenable AND onchip_memory_0_s1_any_continuerequest));
-  --onchip_memory_0_s1_reg_firsttransfer first transaction, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      onchip_memory_0_s1_reg_firsttransfer <= std_logic'('1');
-    elsif clk'event and clk = '1' then
-      if std_logic'(onchip_memory_0_s1_begins_xfer) = '1' then 
-        onchip_memory_0_s1_reg_firsttransfer <= onchip_memory_0_s1_unreg_firsttransfer;
-      end if;
-    end if;
-
-  end process;
-
-  --onchip_memory_0_s1_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  onchip_memory_0_s1_beginbursttransfer_internal <= onchip_memory_0_s1_begins_xfer;
-  --onchip_memory_0_s1_arbitration_holdoff_internal arbitration_holdoff, which is an e_assign
-  onchip_memory_0_s1_arbitration_holdoff_internal <= onchip_memory_0_s1_begins_xfer AND onchip_memory_0_s1_firsttransfer;
-  --onchip_memory_0_s1_write assignment, which is an e_mux
-  onchip_memory_0_s1_write <= internal_pcp_cpu_data_master_granted_onchip_memory_0_s1 AND pcp_cpu_data_master_write;
-  shifted_address_to_onchip_memory_0_s1_from_pcp_cpu_data_master <= pcp_cpu_data_master_address_to_slave;
-  --onchip_memory_0_s1_address mux, which is an e_mux
-  onchip_memory_0_s1_address <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_onchip_memory_0_s1)) = '1'), (A_SRL(shifted_address_to_onchip_memory_0_s1_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010"))), (std_logic_vector'("00") & ((A_SRL(shifted_address_to_onchip_memory_0_s1_from_pcp_cpu_instruction_master,std_logic_vector'("00000000000000000000000000000010")))))), 8);
-  shifted_address_to_onchip_memory_0_s1_from_pcp_cpu_instruction_master <= pcp_cpu_instruction_master_address_to_slave;
-  --d1_onchip_memory_0_s1_end_xfer register, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      d1_onchip_memory_0_s1_end_xfer <= std_logic'('1');
-    elsif clk'event and clk = '1' then
-      d1_onchip_memory_0_s1_end_xfer <= onchip_memory_0_s1_end_xfer;
-    end if;
-
-  end process;
-
-  --onchip_memory_0_s1_waits_for_read in a cycle, which is an e_mux
-  onchip_memory_0_s1_waits_for_read <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(onchip_memory_0_s1_in_a_read_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
-  --onchip_memory_0_s1_in_a_read_cycle assignment, which is an e_assign
-  onchip_memory_0_s1_in_a_read_cycle <= ((internal_pcp_cpu_data_master_granted_onchip_memory_0_s1 AND pcp_cpu_data_master_read)) OR ((internal_pcp_cpu_instruction_master_granted_onchip_memory_0_s1 AND pcp_cpu_instruction_master_read));
-  --in_a_read_cycle assignment, which is an e_mux
-  in_a_read_cycle <= onchip_memory_0_s1_in_a_read_cycle;
-  --onchip_memory_0_s1_waits_for_write in a cycle, which is an e_mux
-  onchip_memory_0_s1_waits_for_write <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(onchip_memory_0_s1_in_a_write_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
-  --onchip_memory_0_s1_in_a_write_cycle assignment, which is an e_assign
-  onchip_memory_0_s1_in_a_write_cycle <= internal_pcp_cpu_data_master_granted_onchip_memory_0_s1 AND pcp_cpu_data_master_write;
-  --in_a_write_cycle assignment, which is an e_mux
-  in_a_write_cycle <= onchip_memory_0_s1_in_a_write_cycle;
-  wait_for_onchip_memory_0_s1_counter <= std_logic'('0');
-  --onchip_memory_0_s1_byteenable byte enable port mux, which is an e_mux
-  onchip_memory_0_s1_byteenable <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_onchip_memory_0_s1)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (pcp_cpu_data_master_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))), 4);
-  --vhdl renameroo for output signals
-  pcp_cpu_data_master_granted_onchip_memory_0_s1 <= internal_pcp_cpu_data_master_granted_onchip_memory_0_s1;
-  --vhdl renameroo for output signals
-  pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 <= internal_pcp_cpu_data_master_qualified_request_onchip_memory_0_s1;
-  --vhdl renameroo for output signals
-  pcp_cpu_data_master_requests_onchip_memory_0_s1 <= internal_pcp_cpu_data_master_requests_onchip_memory_0_s1;
-  --vhdl renameroo for output signals
-  pcp_cpu_instruction_master_granted_onchip_memory_0_s1 <= internal_pcp_cpu_instruction_master_granted_onchip_memory_0_s1;
-  --vhdl renameroo for output signals
-  pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 <= internal_pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1;
-  --vhdl renameroo for output signals
-  pcp_cpu_instruction_master_requests_onchip_memory_0_s1 <= internal_pcp_cpu_instruction_master_requests_onchip_memory_0_s1;
---synthesis translate_off
-    --onchip_memory_0/s1 enable non-zero assertions, which is an e_register
-    process (clk, reset_n)
-    begin
-      if reset_n = '0' then
-        enable_nonzero_assertions <= std_logic'('0');
-      elsif clk'event and clk = '1' then
-        enable_nonzero_assertions <= std_logic'('1');
-      end if;
-
-    end process;
-
-    --grant signals are active simultaneously, which is an e_process
-    process (clk)
-    VARIABLE write_line26 : line;
-    begin
-      if clk'event and clk = '1' then
-        if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_data_master_granted_onchip_memory_0_s1))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_instruction_master_granted_onchip_memory_0_s1))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line26, now);
-          write(write_line26, string'(": "));
-          write(write_line26, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line26.all);
-          deallocate (write_line26);
-          assert false report "VHDL STOP" severity failure;
-        end if;
-      end if;
-
-    end process;
-
-    --saved_grant signals are active simultaneously, which is an e_process
-    process (clk)
-    VARIABLE write_line27 : line;
-    begin
-      if clk'event and clk = '1' then
-        if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_saved_grant_onchip_memory_0_s1))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_saved_grant_onchip_memory_0_s1))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line27, now);
-          write(write_line27, string'(": "));
-          write(write_line27, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line27.all);
-          deallocate (write_line27);
-          assert false report "VHDL STOP" severity failure;
-        end if;
       end if;
 
     end process;
@@ -7370,15 +7868,15 @@ begin
 
     --grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line28 : line;
+    VARIABLE write_line36 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line28, now);
-          write(write_line28, string'(": "));
-          write(write_line28, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line28.all);
-          deallocate (write_line28);
+          write(write_line36, now);
+          write(write_line36, string'(": "));
+          write(write_line36, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line36.all);
+          deallocate (write_line36);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -7387,15 +7885,15 @@ begin
 
     --saved_grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line29 : line;
+    VARIABLE write_line37 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_saved_grant_pcp_cpu_jtag_debug_module))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_saved_grant_pcp_cpu_jtag_debug_module))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line29, now);
-          write(write_line29, string'(": "));
-          write(write_line29, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line29.all);
-          deallocate (write_line29);
+          write(write_line37, now);
+          write(write_line37, string'(": "));
+          write(write_line37, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line37.all);
+          deallocate (write_line37);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -7663,10 +8161,10 @@ entity pcp_cpu_data_master_arbitrator is
                  signal d1_niosII_openMac_clock_0_in_end_xfer : IN STD_LOGIC;
                  signal d1_niosII_openMac_clock_1_in_end_xfer : IN STD_LOGIC;
                  signal d1_niosII_openMac_clock_2_in_end_xfer : IN STD_LOGIC;
-                 signal d1_onchip_memory_0_s1_end_xfer : IN STD_LOGIC;
                  signal d1_pcp_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
                  signal d1_powerlink_0_MAC_BUF_end_xfer : IN STD_LOGIC;
                  signal d1_powerlink_0_PDI_PCP_end_xfer : IN STD_LOGIC;
+                 signal d1_tc_i_mem_pcp_s1_end_xfer : IN STD_LOGIC;
                  signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
                  signal epcs_flash_controller_0_epcs_control_port_irq_from_sa : IN STD_LOGIC;
                  signal epcs_flash_controller_0_epcs_control_port_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -7678,7 +8176,6 @@ entity pcp_cpu_data_master_arbitrator is
                  signal niosII_openMac_clock_1_in_waitrequest_from_sa : IN STD_LOGIC;
                  signal niosII_openMac_clock_2_in_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal niosII_openMac_clock_2_in_waitrequest_from_sa : IN STD_LOGIC;
-                 signal onchip_memory_0_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal pcp_clk : IN STD_LOGIC;
                  signal pcp_clk_reset_n : IN STD_LOGIC;
                  signal pcp_cpu_data_master_address : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
@@ -7688,21 +8185,21 @@ entity pcp_cpu_data_master_arbitrator is
                  signal pcp_cpu_data_master_granted_niosII_openMac_clock_0_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_granted_niosII_openMac_clock_1_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_granted_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                 signal pcp_cpu_data_master_granted_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_data_master_granted_powerlink_0_MAC_BUF : IN STD_LOGIC;
                  signal pcp_cpu_data_master_granted_powerlink_0_PDI_PCP : IN STD_LOGIC;
                  signal pcp_cpu_data_master_granted_sram_0_s0 : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_clock_crossing_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_0_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_1_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                 signal pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP : IN STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_sram_0_s0 : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1_shift_register : IN STD_LOGIC;
@@ -7710,21 +8207,21 @@ entity pcp_cpu_data_master_arbitrator is
                  signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_0_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_1_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                 signal pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_powerlink_0_PDI_PCP : IN STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_clock_crossing_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_niosII_openMac_clock_0_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_niosII_openMac_clock_1_in : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                 signal pcp_cpu_data_master_requests_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_powerlink_0_MAC_BUF : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_powerlink_0_PDI_PCP : IN STD_LOGIC;
                  signal pcp_cpu_data_master_requests_sram_0_s0 : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                  signal pcp_cpu_data_master_write : IN STD_LOGIC;
                  signal pcp_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal pcp_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -7734,10 +8231,11 @@ entity pcp_cpu_data_master_arbitrator is
                  signal powerlink_0_MAC_REG_irq_from_sa : IN STD_LOGIC;
                  signal powerlink_0_PDI_PCP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal powerlink_0_PDI_PCP_wait_counter_eq_0 : IN STD_LOGIC;
-                 signal registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
+                 signal registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                  signal reset_n : IN STD_LOGIC;
                  signal system_timer_s1_irq_from_sa : IN STD_LOGIC;
+                 signal tc_i_mem_pcp_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 
               -- outputs:
                  signal pcp_cpu_data_master_address_to_slave : OUT STD_LOGIC_VECTOR (24 DOWNTO 0);
@@ -7830,9 +8328,9 @@ begin
   --cascaded wait assignment, which is an e_assign
   pcp_cpu_data_master_run <= (r_0 AND r_1) AND r_2;
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic((((((((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_read OR pcp_cpu_data_master_write))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 OR registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1) OR NOT pcp_cpu_data_master_requests_onchip_memory_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_onchip_memory_0_s1 OR NOT pcp_cpu_data_master_qualified_request_onchip_memory_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 OR NOT pcp_cpu_data_master_read) OR ((registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 OR NOT ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_requests_powerlink_0_MAC_BUF)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_BUF_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_requests_powerlink_0_PDI_PCP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_PDI_PCP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))));
+  r_1 <= Vector_To_Std_Logic((((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_read OR pcp_cpu_data_master_write))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_requests_powerlink_0_MAC_BUF)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_BUF_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_requests_powerlink_0_PDI_PCP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_PDI_PCP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))));
   --r_2 master_run cascaded wait assignment, which is an e_assign
-  r_2 <= Vector_To_Std_Logic(((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((((pcp_cpu_data_master_qualified_request_sram_0_s0 OR ((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND internal_pcp_cpu_data_master_dbs_address(1)))) OR (((pcp_cpu_data_master_write AND NOT(or_reduce(pcp_cpu_data_master_byteenable_sram_0_s0))) AND internal_pcp_cpu_data_master_dbs_address(1)))) OR NOT pcp_cpu_data_master_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_sram_0_s0 OR NOT pcp_cpu_data_master_qualified_request_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_read) OR (((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND (internal_pcp_cpu_data_master_dbs_address(1))) AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_write)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_pcp_cpu_data_master_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))));
+  r_2 <= Vector_To_Std_Logic(((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 OR registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1) OR NOT pcp_cpu_data_master_requests_tc_i_mem_pcp_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 OR NOT pcp_cpu_data_master_read) OR ((registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 OR NOT ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((((pcp_cpu_data_master_qualified_request_sram_0_s0 OR ((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND internal_pcp_cpu_data_master_dbs_address(1)))) OR (((pcp_cpu_data_master_write AND NOT(or_reduce(pcp_cpu_data_master_byteenable_sram_0_s0))) AND internal_pcp_cpu_data_master_dbs_address(1)))) OR NOT pcp_cpu_data_master_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_sram_0_s0 OR NOT pcp_cpu_data_master_qualified_request_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_read) OR (((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND (internal_pcp_cpu_data_master_dbs_address(1))) AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_write)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_pcp_cpu_data_master_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_pcp_cpu_data_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(pcp_cpu_data_master_address(24)) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(pcp_cpu_data_master_address(22)) & A_ToStdLogicVector(std_logic'('0')) & pcp_cpu_data_master_address(20 DOWNTO 0));
   --unpredictable registered wait state incoming data, which is an e_register
@@ -7849,7 +8347,7 @@ begin
   --registered readdata mux, which is an e_mux
   p1_registered_pcp_cpu_data_master_readdata <= ((((A_REP(NOT pcp_cpu_data_master_requests_clock_crossing_0_s1, 32) OR clock_crossing_0_s1_readdata_from_sa)) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_0_in, 32) OR niosII_openMac_clock_0_in_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_1_in, 32) OR niosII_openMac_clock_1_in_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_2_in, 32) OR niosII_openMac_clock_2_in_readdata_from_sa));
   --pcp_cpu/data_master readdata mux, which is an e_mux
-  pcp_cpu_data_master_readdata <= ((((((((((A_REP(NOT pcp_cpu_data_master_requests_clock_crossing_0_s1, 32) OR registered_pcp_cpu_data_master_readdata)) AND ((A_REP(NOT pcp_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port, 32) OR epcs_flash_controller_0_epcs_control_port_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_0_in, 32) OR registered_pcp_cpu_data_master_readdata))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_1_in, 32) OR registered_pcp_cpu_data_master_readdata))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_2_in, 32) OR registered_pcp_cpu_data_master_readdata))) AND ((A_REP(NOT pcp_cpu_data_master_requests_onchip_memory_0_s1, 32) OR onchip_memory_0_s1_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module, 32) OR pcp_cpu_jtag_debug_module_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_powerlink_0_MAC_BUF, 32) OR powerlink_0_MAC_BUF_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_powerlink_0_PDI_PCP, 32) OR powerlink_0_PDI_PCP_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_sram_0_s0, 32) OR Std_Logic_Vector'(incoming_data_to_and_from_the_sram_0(15 DOWNTO 0) & dbs_16_reg_segment_0)));
+  pcp_cpu_data_master_readdata <= ((((((((((A_REP(NOT pcp_cpu_data_master_requests_clock_crossing_0_s1, 32) OR registered_pcp_cpu_data_master_readdata)) AND ((A_REP(NOT pcp_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port, 32) OR epcs_flash_controller_0_epcs_control_port_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_0_in, 32) OR registered_pcp_cpu_data_master_readdata))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_1_in, 32) OR registered_pcp_cpu_data_master_readdata))) AND ((A_REP(NOT pcp_cpu_data_master_requests_niosII_openMac_clock_2_in, 32) OR registered_pcp_cpu_data_master_readdata))) AND ((A_REP(NOT pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module, 32) OR pcp_cpu_jtag_debug_module_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_powerlink_0_MAC_BUF, 32) OR powerlink_0_MAC_BUF_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_powerlink_0_PDI_PCP, 32) OR powerlink_0_PDI_PCP_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_tc_i_mem_pcp_s1, 32) OR tc_i_mem_pcp_s1_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_data_master_requests_sram_0_s0, 32) OR Std_Logic_Vector'(incoming_data_to_and_from_the_sram_0(15 DOWNTO 0) & dbs_16_reg_segment_0)));
   --actual waitrequest port, which is an e_register
   process (clk, reset_n)
   begin
@@ -7989,28 +8487,22 @@ entity pcp_cpu_instruction_master_arbitrator is
               -- inputs:
                  signal clk : IN STD_LOGIC;
                  signal d1_epcs_flash_controller_0_epcs_control_port_end_xfer : IN STD_LOGIC;
-                 signal d1_onchip_memory_0_s1_end_xfer : IN STD_LOGIC;
                  signal d1_pcp_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
                  signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
                  signal epcs_flash_controller_0_epcs_control_port_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal incoming_data_to_and_from_the_sram_0 : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-                 signal onchip_memory_0_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal pcp_cpu_instruction_master_address : IN STD_LOGIC_VECTOR (22 DOWNTO 0);
                  signal pcp_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                 signal pcp_cpu_instruction_master_granted_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_granted_sram_0_s0 : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                 signal pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_qualified_request_sram_0_s0 : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_read : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_read_data_valid_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                 signal pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_read_data_valid_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_requests_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                 signal pcp_cpu_instruction_master_requests_onchip_memory_0_s1 : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_requests_sram_0_s0 : IN STD_LOGIC;
                  signal pcp_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -8064,7 +8556,7 @@ begin
   --cascaded wait assignment, which is an e_assign
   pcp_cpu_instruction_master_run <= (r_0 AND r_1) AND r_2;
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 OR NOT pcp_cpu_instruction_master_requests_onchip_memory_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_onchip_memory_0_s1 OR NOT pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 OR NOT pcp_cpu_instruction_master_read)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_pcp_cpu_jtag_debug_module_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))));
+  r_1 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_pcp_cpu_jtag_debug_module_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))));
   --r_2 master_run cascaded wait assignment, which is an e_assign
   r_2 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_instruction_master_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_sram_0_s0 OR NOT pcp_cpu_instruction_master_qualified_request_sram_0_s0)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_instruction_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_pcp_cpu_instruction_master_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))));
   --optimize select-logic by passing only those address bits which matter.
@@ -8081,13 +8573,13 @@ begin
   end process;
 
   --some slave is getting selected, which is an e_mux
-  pcp_cpu_instruction_master_is_granted_some_slave <= ((pcp_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port OR pcp_cpu_instruction_master_granted_onchip_memory_0_s1) OR pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module) OR pcp_cpu_instruction_master_granted_sram_0_s0;
+  pcp_cpu_instruction_master_is_granted_some_slave <= (pcp_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port OR pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module) OR pcp_cpu_instruction_master_granted_sram_0_s0;
   --latent slave read data valids which may be flushed, which is an e_mux
-  pre_flush_pcp_cpu_instruction_master_readdatavalid <= pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 OR ((pcp_cpu_instruction_master_read_data_valid_sram_0_s0 AND dbs_rdv_counter_overflow));
+  pre_flush_pcp_cpu_instruction_master_readdatavalid <= pcp_cpu_instruction_master_read_data_valid_sram_0_s0 AND dbs_rdv_counter_overflow;
   --latent slave read data valid which is not flushed, which is an e_mux
-  pcp_cpu_instruction_master_readdatavalid <= ((((((((pcp_cpu_instruction_master_read_but_no_slave_selected OR pre_flush_pcp_cpu_instruction_master_readdatavalid) OR pcp_cpu_instruction_master_read_data_valid_epcs_flash_controller_0_epcs_control_port) OR pcp_cpu_instruction_master_read_but_no_slave_selected) OR pre_flush_pcp_cpu_instruction_master_readdatavalid) OR pcp_cpu_instruction_master_read_but_no_slave_selected) OR pre_flush_pcp_cpu_instruction_master_readdatavalid) OR pcp_cpu_instruction_master_read_data_valid_pcp_cpu_jtag_debug_module) OR pcp_cpu_instruction_master_read_but_no_slave_selected) OR pre_flush_pcp_cpu_instruction_master_readdatavalid;
+  pcp_cpu_instruction_master_readdatavalid <= ((((((pcp_cpu_instruction_master_read_but_no_slave_selected OR pre_flush_pcp_cpu_instruction_master_readdatavalid) OR pcp_cpu_instruction_master_read_data_valid_epcs_flash_controller_0_epcs_control_port) OR pcp_cpu_instruction_master_read_but_no_slave_selected) OR pre_flush_pcp_cpu_instruction_master_readdatavalid) OR pcp_cpu_instruction_master_read_data_valid_pcp_cpu_jtag_debug_module) OR pcp_cpu_instruction_master_read_but_no_slave_selected) OR pre_flush_pcp_cpu_instruction_master_readdatavalid;
   --pcp_cpu/instruction_master readdata mux, which is an e_mux
-  pcp_cpu_instruction_master_readdata <= ((((A_REP(NOT ((pcp_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port AND pcp_cpu_instruction_master_read)) , 32) OR epcs_flash_controller_0_epcs_control_port_readdata_from_sa)) AND ((A_REP(NOT pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1, 32) OR onchip_memory_0_s1_readdata_from_sa))) AND ((A_REP(NOT ((pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module AND pcp_cpu_instruction_master_read)) , 32) OR pcp_cpu_jtag_debug_module_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_instruction_master_read_data_valid_sram_0_s0, 32) OR Std_Logic_Vector'(incoming_data_to_and_from_the_sram_0(15 DOWNTO 0) & dbs_latent_16_reg_segment_0)));
+  pcp_cpu_instruction_master_readdata <= (((A_REP(NOT ((pcp_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port AND pcp_cpu_instruction_master_read)) , 32) OR epcs_flash_controller_0_epcs_control_port_readdata_from_sa)) AND ((A_REP(NOT ((pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module AND pcp_cpu_instruction_master_read)) , 32) OR pcp_cpu_jtag_debug_module_readdata_from_sa))) AND ((A_REP(NOT pcp_cpu_instruction_master_read_data_valid_sram_0_s0, 32) OR Std_Logic_Vector'(incoming_data_to_and_from_the_sram_0(15 DOWNTO 0) & dbs_latent_16_reg_segment_0)));
   --actual waitrequest port, which is an e_assign
   internal_pcp_cpu_instruction_master_waitrequest <= NOT pcp_cpu_instruction_master_run;
   --latent max counter, which is an e_register
@@ -8104,7 +8596,7 @@ begin
   --latency counter load mux, which is an e_mux
   p1_pcp_cpu_instruction_master_latency_counter <= A_EXT (A_WE_StdLogicVector((std_logic'(((pcp_cpu_instruction_master_run AND pcp_cpu_instruction_master_read))) = '1'), (std_logic_vector'("0000000000000000000000000000000") & (latency_load_value)), A_WE_StdLogicVector((((internal_pcp_cpu_instruction_master_latency_counter)) /= std_logic_vector'("00")), ((std_logic_vector'("0000000000000000000000000000000") & (internal_pcp_cpu_instruction_master_latency_counter)) - std_logic_vector'("000000000000000000000000000000001")), std_logic_vector'("000000000000000000000000000000000"))), 2);
   --read latency load values, which is an e_mux
-  latency_load_value <= A_EXT (((((std_logic_vector'("000000000000000000000000000000") & (A_REP(pcp_cpu_instruction_master_requests_onchip_memory_0_s1, 2))) AND std_logic_vector'("00000000000000000000000000000001"))) OR (((std_logic_vector'("000000000000000000000000000000") & (A_REP(pcp_cpu_instruction_master_requests_sram_0_s0, 2))) AND std_logic_vector'("00000000000000000000000000000010")))), 2);
+  latency_load_value <= A_EXT (((std_logic_vector'("000000000000000000000000000000") & (A_REP(pcp_cpu_instruction_master_requests_sram_0_s0, 2))) AND std_logic_vector'("00000000000000000000000000000010")), 2);
   --input to latent dbs-16 stored 0, which is an e_mux
   p1_dbs_latent_16_reg_segment_0 <= incoming_data_to_and_from_the_sram_0;
   --dbs register for latent dbs-16 segment 0, which is an e_register
@@ -8197,15 +8689,15 @@ begin
 
     --pcp_cpu_instruction_master_address matches last port_name, which is an e_process
     process (clk)
-    VARIABLE write_line30 : line;
+    VARIABLE write_line38 : line;
     begin
       if clk'event and clk = '1' then
         if std_logic'((active_and_waiting_last_time AND to_std_logic(((pcp_cpu_instruction_master_address /= pcp_cpu_instruction_master_address_last_time))))) = '1' then 
-          write(write_line30, now);
-          write(write_line30, string'(": "));
-          write(write_line30, string'("pcp_cpu_instruction_master_address did not heed wait!!!"));
-          write(output, write_line30.all);
-          deallocate (write_line30);
+          write(write_line38, now);
+          write(write_line38, string'(": "));
+          write(write_line38, string'("pcp_cpu_instruction_master_address did not heed wait!!!"));
+          write(output, write_line38.all);
+          deallocate (write_line38);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -8225,15 +8717,15 @@ begin
 
     --pcp_cpu_instruction_master_read matches last port_name, which is an e_process
     process (clk)
-    VARIABLE write_line31 : line;
+    VARIABLE write_line39 : line;
     begin
       if clk'event and clk = '1' then
         if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(pcp_cpu_instruction_master_read) /= std_logic'(pcp_cpu_instruction_master_read_last_time)))))) = '1' then 
-          write(write_line31, now);
-          write(write_line31, string'(": "));
-          write(write_line31, string'("pcp_cpu_instruction_master_read did not heed wait!!!"));
-          write(output, write_line31.all);
-          deallocate (write_line31);
+          write(write_line39, now);
+          write(write_line39, string'(": "));
+          write(write_line39, string'("pcp_cpu_instruction_master_read did not heed wait!!!"));
+          write(output, write_line39.all);
+          deallocate (write_line39);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -8258,10 +8750,164 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
+library std;
+use std.textio.all;
+
+entity pcp_cpu_tightly_coupled_instruction_master_0_arbitrator is 
+        port (
+              -- inputs:
+                 signal clk : IN STD_LOGIC;
+                 signal d1_tc_i_mem_pcp_s2_end_xfer : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_clken : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_read : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                 signal reset_n : IN STD_LOGIC;
+                 signal tc_i_mem_pcp_s2_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+              -- outputs:
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_latency_counter : OUT STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid : OUT STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_waitrequest : OUT STD_LOGIC
+              );
+end entity pcp_cpu_tightly_coupled_instruction_master_0_arbitrator;
+
+
+architecture europa of pcp_cpu_tightly_coupled_instruction_master_0_arbitrator is
+                signal active_and_waiting_last_time :  STD_LOGIC;
+                signal internal_pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal internal_pcp_cpu_tightly_coupled_instruction_master_0_waitrequest :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_address_last_time :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal pcp_cpu_tightly_coupled_instruction_master_0_read_last_time :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_run :  STD_LOGIC;
+                signal pre_flush_pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid :  STD_LOGIC;
+                signal r_2 :  STD_LOGIC;
+
+begin
+
+  --r_2 master_run cascaded wait assignment, which is an e_assign
+  r_2 <= Vector_To_Std_Logic((std_logic_vector'("00000000000000000000000000000001") AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 OR NOT (pcp_cpu_tightly_coupled_instruction_master_0_read))))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((pcp_cpu_tightly_coupled_instruction_master_0_read))))))))));
+  --cascaded wait assignment, which is an e_assign
+  pcp_cpu_tightly_coupled_instruction_master_0_run <= r_2;
+  --optimize select-logic by passing only those address bits which matter.
+  internal_pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave <= Std_Logic_Vector'(std_logic_vector'("11") & pcp_cpu_tightly_coupled_instruction_master_0_address(9 DOWNTO 0));
+  --latent slave read data valids which may be flushed, which is an e_mux
+  pre_flush_pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid <= pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2;
+  --latent slave read data valid which is not flushed, which is an e_mux
+  pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid <= Vector_To_Std_Logic((std_logic_vector'("00000000000000000000000000000000") OR (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pre_flush_pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid)))));
+  --pcp_cpu/tightly_coupled_instruction_master_0 readdata mux, which is an e_mux
+  pcp_cpu_tightly_coupled_instruction_master_0_readdata <= tc_i_mem_pcp_s2_readdata_from_sa;
+  --actual waitrequest port, which is an e_assign
+  internal_pcp_cpu_tightly_coupled_instruction_master_0_waitrequest <= NOT pcp_cpu_tightly_coupled_instruction_master_0_run;
+  --latent max counter, which is an e_assign
+  pcp_cpu_tightly_coupled_instruction_master_0_latency_counter <= std_logic'('0');
+  --vhdl renameroo for output signals
+  pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave <= internal_pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave;
+  --vhdl renameroo for output signals
+  pcp_cpu_tightly_coupled_instruction_master_0_waitrequest <= internal_pcp_cpu_tightly_coupled_instruction_master_0_waitrequest;
+--synthesis translate_off
+    --pcp_cpu_tightly_coupled_instruction_master_0_address check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        pcp_cpu_tightly_coupled_instruction_master_0_address_last_time <= std_logic_vector'("000000000000");
+      elsif clk'event and clk = '1' then
+        pcp_cpu_tightly_coupled_instruction_master_0_address_last_time <= pcp_cpu_tightly_coupled_instruction_master_0_address;
+      end if;
+
+    end process;
+
+    --pcp_cpu/tightly_coupled_instruction_master_0 waited last time, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        active_and_waiting_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        active_and_waiting_last_time <= internal_pcp_cpu_tightly_coupled_instruction_master_0_waitrequest AND (pcp_cpu_tightly_coupled_instruction_master_0_read);
+      end if;
+
+    end process;
+
+    --pcp_cpu_tightly_coupled_instruction_master_0_address matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line40 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((pcp_cpu_tightly_coupled_instruction_master_0_address /= pcp_cpu_tightly_coupled_instruction_master_0_address_last_time))))) = '1' then 
+          write(write_line40, now);
+          write(write_line40, string'(": "));
+          write(write_line40, string'("pcp_cpu_tightly_coupled_instruction_master_0_address did not heed wait!!!"));
+          write(output, write_line40.all);
+          deallocate (write_line40);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --pcp_cpu_tightly_coupled_instruction_master_0_read check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        pcp_cpu_tightly_coupled_instruction_master_0_read_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        pcp_cpu_tightly_coupled_instruction_master_0_read_last_time <= pcp_cpu_tightly_coupled_instruction_master_0_read;
+      end if;
+
+    end process;
+
+    --pcp_cpu_tightly_coupled_instruction_master_0_read matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line41 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(pcp_cpu_tightly_coupled_instruction_master_0_read) /= std_logic'(pcp_cpu_tightly_coupled_instruction_master_0_read_last_time)))))) = '1' then 
+          write(write_line41, now);
+          write(write_line41, string'(": "));
+          write(write_line41, string'("pcp_cpu_tightly_coupled_instruction_master_0_read did not heed wait!!!"));
+          write(output, write_line41.all);
+          deallocate (write_line41);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+library std;
+use std.textio.all;
+
 entity powerlink_0_MAC_BUF_arbitrator is 
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal niosII_openMac_clock_3_out_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                 signal niosII_openMac_clock_3_out_read : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_write : IN STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
                  signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal pcp_cpu_data_master_read : IN STD_LOGIC;
@@ -8273,11 +8919,15 @@ entity powerlink_0_MAC_BUF_arbitrator is
 
               -- outputs:
                  signal d1_powerlink_0_MAC_BUF_end_xfer : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                  signal pcp_cpu_data_master_granted_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                  signal pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                  signal pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                  signal pcp_cpu_data_master_requests_powerlink_0_MAC_BUF : OUT STD_LOGIC;
-                 signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
+                 signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
                  signal powerlink_0_MAC_BUF_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal powerlink_0_MAC_BUF_chipselect : OUT STD_LOGIC;
                  signal powerlink_0_MAC_BUF_read_n : OUT STD_LOGIC;
@@ -8296,10 +8946,19 @@ architecture europa of powerlink_0_MAC_BUF_arbitrator is
                 signal end_xfer_arb_share_counter_term_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal in_a_read_cycle :  STD_LOGIC;
                 signal in_a_write_cycle :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal internal_powerlink_0_MAC_BUF_wait_counter_eq_0 :  STD_LOGIC;
+                signal last_cycle_niosII_openMac_clock_3_out_granted_slave_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal last_cycle_pcp_cpu_data_master_granted_slave_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_arbiterlock :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_arbiterlock2 :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_continuerequest :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_saved_grant_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal pcp_cpu_data_master_arbiterlock :  STD_LOGIC;
                 signal pcp_cpu_data_master_arbiterlock2 :  STD_LOGIC;
                 signal pcp_cpu_data_master_continuerequest :  STD_LOGIC;
@@ -8308,27 +8967,34 @@ architecture europa of powerlink_0_MAC_BUF_arbitrator is
                 signal powerlink_0_MAC_BUF_allow_new_arb_cycle :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_any_bursting_master_saved_grant :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_any_continuerequest :  STD_LOGIC;
+                signal powerlink_0_MAC_BUF_arb_addend :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_arb_counter_enable :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_arb_share_counter :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_arb_share_counter_next_value :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_arb_share_set_values :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal powerlink_0_MAC_BUF_arb_winner :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal powerlink_0_MAC_BUF_arbitration_holdoff_internal :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_beginbursttransfer_internal :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_begins_xfer :  STD_LOGIC;
+                signal powerlink_0_MAC_BUF_chosen_master_double_vector :  STD_LOGIC_VECTOR (3 DOWNTO 0);
+                signal powerlink_0_MAC_BUF_chosen_master_rot_left :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_counter_load_value :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_end_xfer :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_firsttransfer :  STD_LOGIC;
-                signal powerlink_0_MAC_BUF_grant_vector :  STD_LOGIC;
+                signal powerlink_0_MAC_BUF_grant_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_in_a_read_cycle :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_in_a_write_cycle :  STD_LOGIC;
-                signal powerlink_0_MAC_BUF_master_qreq_vector :  STD_LOGIC;
+                signal powerlink_0_MAC_BUF_master_qreq_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_non_bursting_master_requests :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_reg_firsttransfer :  STD_LOGIC;
+                signal powerlink_0_MAC_BUF_saved_chosen_master_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_slavearbiterlockenable :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_slavearbiterlockenable2 :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_unreg_firsttransfer :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_wait_counter :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_waits_for_read :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_waits_for_write :  STD_LOGIC;
+                signal shifted_address_to_powerlink_0_MAC_BUF_from_niosII_openMac_clock_3_out :  STD_LOGIC_VECTOR (13 DOWNTO 0);
                 signal shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master :  STD_LOGIC_VECTOR (24 DOWNTO 0);
                 signal wait_for_powerlink_0_MAC_BUF_counter :  STD_LOGIC;
 
@@ -8344,20 +9010,20 @@ begin
 
   end process;
 
-  powerlink_0_MAC_BUF_begins_xfer <= NOT d1_reasons_to_wait AND (internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF);
+  powerlink_0_MAC_BUF_begins_xfer <= NOT d1_reasons_to_wait AND ((internal_niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF OR internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF));
   --assign powerlink_0_MAC_BUF_readdata_from_sa = powerlink_0_MAC_BUF_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_MAC_BUF_readdata_from_sa <= powerlink_0_MAC_BUF_readdata;
-  internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("0000000001000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF <= Vector_To_Std_Logic(((std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_3_out_read OR niosII_openMac_clock_3_out_write)))))));
   --powerlink_0_MAC_BUF_arb_share_counter set values, which is an e_mux
   powerlink_0_MAC_BUF_arb_share_set_values <= std_logic_vector'("01");
   --powerlink_0_MAC_BUF_non_bursting_master_requests mux, which is an e_mux
-  powerlink_0_MAC_BUF_non_bursting_master_requests <= internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF;
+  powerlink_0_MAC_BUF_non_bursting_master_requests <= ((internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF OR internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF) OR internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF) OR internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF;
   --powerlink_0_MAC_BUF_any_bursting_master_saved_grant mux, which is an e_mux
   powerlink_0_MAC_BUF_any_bursting_master_saved_grant <= std_logic'('0');
   --powerlink_0_MAC_BUF_arb_share_counter_next_value assignment, which is an e_assign
   powerlink_0_MAC_BUF_arb_share_counter_next_value <= A_EXT (A_WE_StdLogicVector((std_logic'(powerlink_0_MAC_BUF_firsttransfer) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (powerlink_0_MAC_BUF_arb_share_set_values)) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(or_reduce(powerlink_0_MAC_BUF_arb_share_counter)) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (powerlink_0_MAC_BUF_arb_share_counter)) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))), 2);
   --powerlink_0_MAC_BUF_allgrants all slave grants, which is an e_mux
-  powerlink_0_MAC_BUF_allgrants <= powerlink_0_MAC_BUF_grant_vector;
+  powerlink_0_MAC_BUF_allgrants <= (((or_reduce(powerlink_0_MAC_BUF_grant_vector)) OR (or_reduce(powerlink_0_MAC_BUF_grant_vector))) OR (or_reduce(powerlink_0_MAC_BUF_grant_vector))) OR (or_reduce(powerlink_0_MAC_BUF_grant_vector));
   --powerlink_0_MAC_BUF_end_xfer assignment, which is an e_assign
   powerlink_0_MAC_BUF_end_xfer <= NOT ((powerlink_0_MAC_BUF_waits_for_read OR powerlink_0_MAC_BUF_waits_for_write));
   --end_xfer_arb_share_counter_term_powerlink_0_MAC_BUF arb share counter enable term, which is an e_assign
@@ -8383,39 +9049,107 @@ begin
     if reset_n = '0' then
       powerlink_0_MAC_BUF_slavearbiterlockenable <= std_logic'('0');
     elsif clk'event and clk = '1' then
-      if std_logic'((((powerlink_0_MAC_BUF_master_qreq_vector AND end_xfer_arb_share_counter_term_powerlink_0_MAC_BUF)) OR ((end_xfer_arb_share_counter_term_powerlink_0_MAC_BUF AND NOT powerlink_0_MAC_BUF_non_bursting_master_requests)))) = '1' then 
+      if std_logic'((((or_reduce(powerlink_0_MAC_BUF_master_qreq_vector) AND end_xfer_arb_share_counter_term_powerlink_0_MAC_BUF)) OR ((end_xfer_arb_share_counter_term_powerlink_0_MAC_BUF AND NOT powerlink_0_MAC_BUF_non_bursting_master_requests)))) = '1' then 
         powerlink_0_MAC_BUF_slavearbiterlockenable <= or_reduce(powerlink_0_MAC_BUF_arb_share_counter_next_value);
       end if;
     end if;
 
   end process;
 
-  --pcp_cpu/data_master powerlink_0/MAC_BUF arbiterlock, which is an e_assign
-  pcp_cpu_data_master_arbiterlock <= powerlink_0_MAC_BUF_slavearbiterlockenable AND pcp_cpu_data_master_continuerequest;
+  --niosII_openMac_clock_3/out powerlink_0/MAC_BUF arbiterlock, which is an e_assign
+  niosII_openMac_clock_3_out_arbiterlock <= powerlink_0_MAC_BUF_slavearbiterlockenable AND niosII_openMac_clock_3_out_continuerequest;
   --powerlink_0_MAC_BUF_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
   powerlink_0_MAC_BUF_slavearbiterlockenable2 <= or_reduce(powerlink_0_MAC_BUF_arb_share_counter_next_value);
+  --niosII_openMac_clock_3/out powerlink_0/MAC_BUF arbiterlock2, which is an e_assign
+  niosII_openMac_clock_3_out_arbiterlock2 <= powerlink_0_MAC_BUF_slavearbiterlockenable2 AND niosII_openMac_clock_3_out_continuerequest;
+  --pcp_cpu/data_master powerlink_0/MAC_BUF arbiterlock, which is an e_assign
+  pcp_cpu_data_master_arbiterlock <= powerlink_0_MAC_BUF_slavearbiterlockenable AND pcp_cpu_data_master_continuerequest;
   --pcp_cpu/data_master powerlink_0/MAC_BUF arbiterlock2, which is an e_assign
   pcp_cpu_data_master_arbiterlock2 <= powerlink_0_MAC_BUF_slavearbiterlockenable2 AND pcp_cpu_data_master_continuerequest;
-  --powerlink_0_MAC_BUF_any_continuerequest at least one master continues requesting, which is an e_assign
-  powerlink_0_MAC_BUF_any_continuerequest <= std_logic'('1');
-  --pcp_cpu_data_master_continuerequest continued request, which is an e_assign
-  pcp_cpu_data_master_continuerequest <= std_logic'('1');
-  internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF <= internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF AND NOT (((NOT pcp_cpu_data_master_waitrequest) AND pcp_cpu_data_master_write));
+  --pcp_cpu/data_master granted powerlink_0/MAC_BUF last time, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      last_cycle_pcp_cpu_data_master_granted_slave_powerlink_0_MAC_BUF <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      last_cycle_pcp_cpu_data_master_granted_slave_powerlink_0_MAC_BUF <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(pcp_cpu_data_master_saved_grant_powerlink_0_MAC_BUF) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'(((powerlink_0_MAC_BUF_arbitration_holdoff_internal OR NOT internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF))) = '1'), std_logic_vector'("00000000000000000000000000000000"), (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(last_cycle_pcp_cpu_data_master_granted_slave_powerlink_0_MAC_BUF))))));
+    end if;
+
+  end process;
+
+  --pcp_cpu_data_master_continuerequest continued request, which is an e_mux
+  pcp_cpu_data_master_continuerequest <= last_cycle_pcp_cpu_data_master_granted_slave_powerlink_0_MAC_BUF AND internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF;
+  --powerlink_0_MAC_BUF_any_continuerequest at least one master continues requesting, which is an e_mux
+  powerlink_0_MAC_BUF_any_continuerequest <= pcp_cpu_data_master_continuerequest OR niosII_openMac_clock_3_out_continuerequest;
+  internal_niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF <= internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF AND NOT (pcp_cpu_data_master_arbiterlock);
   --powerlink_0_MAC_BUF_writedata mux, which is an e_mux
-  powerlink_0_MAC_BUF_writedata <= pcp_cpu_data_master_writedata;
-  --master is always granted when requested
-  internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF <= internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF;
-  --pcp_cpu/data_master saved-grant powerlink_0/MAC_BUF, which is an e_assign
-  pcp_cpu_data_master_saved_grant_powerlink_0_MAC_BUF <= internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF;
+  powerlink_0_MAC_BUF_writedata <= A_WE_StdLogicVector((std_logic'((internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF)) = '1'), niosII_openMac_clock_3_out_writedata, pcp_cpu_data_master_writedata);
+  internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 14) & std_logic_vector'("00000000000000")) = std_logic_vector'("0000000010000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  --niosII_openMac_clock_3/out granted powerlink_0/MAC_BUF last time, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      last_cycle_niosII_openMac_clock_3_out_granted_slave_powerlink_0_MAC_BUF <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      last_cycle_niosII_openMac_clock_3_out_granted_slave_powerlink_0_MAC_BUF <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(niosII_openMac_clock_3_out_saved_grant_powerlink_0_MAC_BUF) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'(((powerlink_0_MAC_BUF_arbitration_holdoff_internal OR NOT internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF))) = '1'), std_logic_vector'("00000000000000000000000000000000"), (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(last_cycle_niosII_openMac_clock_3_out_granted_slave_powerlink_0_MAC_BUF))))));
+    end if;
+
+  end process;
+
+  --niosII_openMac_clock_3_out_continuerequest continued request, which is an e_mux
+  niosII_openMac_clock_3_out_continuerequest <= last_cycle_niosII_openMac_clock_3_out_granted_slave_powerlink_0_MAC_BUF AND internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF;
+  internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF <= internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF AND NOT (((((NOT pcp_cpu_data_master_waitrequest) AND pcp_cpu_data_master_write)) OR niosII_openMac_clock_3_out_arbiterlock));
   --allow new arb cycle for powerlink_0/MAC_BUF, which is an e_assign
-  powerlink_0_MAC_BUF_allow_new_arb_cycle <= std_logic'('1');
-  --placeholder chosen master
-  powerlink_0_MAC_BUF_grant_vector <= std_logic'('1');
-  --placeholder vector of master qualified-requests
-  powerlink_0_MAC_BUF_master_qreq_vector <= std_logic'('1');
+  powerlink_0_MAC_BUF_allow_new_arb_cycle <= NOT niosII_openMac_clock_3_out_arbiterlock AND NOT pcp_cpu_data_master_arbiterlock;
+  --pcp_cpu/data_master assignment into master qualified-requests vector for powerlink_0/MAC_BUF, which is an e_assign
+  powerlink_0_MAC_BUF_master_qreq_vector(0) <= internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF;
+  --pcp_cpu/data_master grant powerlink_0/MAC_BUF, which is an e_assign
+  internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF <= powerlink_0_MAC_BUF_grant_vector(0);
+  --pcp_cpu/data_master saved-grant powerlink_0/MAC_BUF, which is an e_assign
+  pcp_cpu_data_master_saved_grant_powerlink_0_MAC_BUF <= powerlink_0_MAC_BUF_arb_winner(0) AND internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF;
+  --niosII_openMac_clock_3/out assignment into master qualified-requests vector for powerlink_0/MAC_BUF, which is an e_assign
+  powerlink_0_MAC_BUF_master_qreq_vector(1) <= internal_niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF;
+  --niosII_openMac_clock_3/out grant powerlink_0/MAC_BUF, which is an e_assign
+  internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF <= powerlink_0_MAC_BUF_grant_vector(1);
+  --niosII_openMac_clock_3/out saved-grant powerlink_0/MAC_BUF, which is an e_assign
+  niosII_openMac_clock_3_out_saved_grant_powerlink_0_MAC_BUF <= powerlink_0_MAC_BUF_arb_winner(1) AND internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF;
+  --powerlink_0/MAC_BUF chosen-master double-vector, which is an e_assign
+  powerlink_0_MAC_BUF_chosen_master_double_vector <= A_EXT (((std_logic_vector'("0") & ((powerlink_0_MAC_BUF_master_qreq_vector & powerlink_0_MAC_BUF_master_qreq_vector))) AND (((std_logic_vector'("0") & (Std_Logic_Vector'(NOT powerlink_0_MAC_BUF_master_qreq_vector & NOT powerlink_0_MAC_BUF_master_qreq_vector))) + (std_logic_vector'("000") & (powerlink_0_MAC_BUF_arb_addend))))), 4);
+  --stable onehot encoding of arb winner
+  powerlink_0_MAC_BUF_arb_winner <= A_WE_StdLogicVector((std_logic'(((powerlink_0_MAC_BUF_allow_new_arb_cycle AND or_reduce(powerlink_0_MAC_BUF_grant_vector)))) = '1'), powerlink_0_MAC_BUF_grant_vector, powerlink_0_MAC_BUF_saved_chosen_master_vector);
+  --saved powerlink_0_MAC_BUF_grant_vector, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      powerlink_0_MAC_BUF_saved_chosen_master_vector <= std_logic_vector'("00");
+    elsif clk'event and clk = '1' then
+      if std_logic'(powerlink_0_MAC_BUF_allow_new_arb_cycle) = '1' then 
+        powerlink_0_MAC_BUF_saved_chosen_master_vector <= A_WE_StdLogicVector((std_logic'(or_reduce(powerlink_0_MAC_BUF_grant_vector)) = '1'), powerlink_0_MAC_BUF_grant_vector, powerlink_0_MAC_BUF_saved_chosen_master_vector);
+      end if;
+    end if;
+
+  end process;
+
+  --onehot encoding of chosen master
+  powerlink_0_MAC_BUF_grant_vector <= Std_Logic_Vector'(A_ToStdLogicVector(((powerlink_0_MAC_BUF_chosen_master_double_vector(1) OR powerlink_0_MAC_BUF_chosen_master_double_vector(3)))) & A_ToStdLogicVector(((powerlink_0_MAC_BUF_chosen_master_double_vector(0) OR powerlink_0_MAC_BUF_chosen_master_double_vector(2)))));
+  --powerlink_0/MAC_BUF chosen master rotated left, which is an e_assign
+  powerlink_0_MAC_BUF_chosen_master_rot_left <= A_EXT (A_WE_StdLogicVector((((A_SLL(powerlink_0_MAC_BUF_arb_winner,std_logic_vector'("00000000000000000000000000000001")))) /= std_logic_vector'("00")), (std_logic_vector'("000000000000000000000000000000") & ((A_SLL(powerlink_0_MAC_BUF_arb_winner,std_logic_vector'("00000000000000000000000000000001"))))), std_logic_vector'("00000000000000000000000000000001")), 2);
+  --powerlink_0/MAC_BUF's addend for next-master-grant
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      powerlink_0_MAC_BUF_arb_addend <= std_logic_vector'("01");
+    elsif clk'event and clk = '1' then
+      if std_logic'(or_reduce(powerlink_0_MAC_BUF_grant_vector)) = '1' then 
+        powerlink_0_MAC_BUF_arb_addend <= A_WE_StdLogicVector((std_logic'(powerlink_0_MAC_BUF_end_xfer) = '1'), powerlink_0_MAC_BUF_chosen_master_rot_left, powerlink_0_MAC_BUF_grant_vector);
+      end if;
+    end if;
+
+  end process;
+
   --~powerlink_0_MAC_BUF_reset assignment, which is an e_assign
   powerlink_0_MAC_BUF_reset <= NOT reset_n;
-  powerlink_0_MAC_BUF_chipselect <= internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF;
+  powerlink_0_MAC_BUF_chipselect <= internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF OR internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF;
   --powerlink_0_MAC_BUF_firsttransfer first transaction, which is an e_assign
   powerlink_0_MAC_BUF_firsttransfer <= A_WE_StdLogic((std_logic'(powerlink_0_MAC_BUF_begins_xfer) = '1'), powerlink_0_MAC_BUF_unreg_firsttransfer, powerlink_0_MAC_BUF_reg_firsttransfer);
   --powerlink_0_MAC_BUF_unreg_firsttransfer first transaction, which is an e_assign
@@ -8435,13 +9169,16 @@ begin
 
   --powerlink_0_MAC_BUF_beginbursttransfer_internal begin burst transfer, which is an e_assign
   powerlink_0_MAC_BUF_beginbursttransfer_internal <= powerlink_0_MAC_BUF_begins_xfer;
+  --powerlink_0_MAC_BUF_arbitration_holdoff_internal arbitration_holdoff, which is an e_assign
+  powerlink_0_MAC_BUF_arbitration_holdoff_internal <= powerlink_0_MAC_BUF_begins_xfer AND powerlink_0_MAC_BUF_firsttransfer;
   --~powerlink_0_MAC_BUF_read_n assignment, which is an e_mux
-  powerlink_0_MAC_BUF_read_n <= NOT ((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_read));
+  powerlink_0_MAC_BUF_read_n <= NOT ((((internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF AND niosII_openMac_clock_3_out_read)) OR ((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_read))));
   --~powerlink_0_MAC_BUF_write_n assignment, which is an e_mux
-  powerlink_0_MAC_BUF_write_n <= NOT ((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_write));
-  shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master <= pcp_cpu_data_master_address_to_slave;
+  powerlink_0_MAC_BUF_write_n <= NOT ((((internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF AND niosII_openMac_clock_3_out_write)) OR ((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_write))));
+  shifted_address_to_powerlink_0_MAC_BUF_from_niosII_openMac_clock_3_out <= niosII_openMac_clock_3_out_address_to_slave;
   --powerlink_0_MAC_BUF_address mux, which is an e_mux
-  powerlink_0_MAC_BUF_address <= A_EXT (A_SRL(shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")), 13);
+  powerlink_0_MAC_BUF_address <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF)) = '1'), (std_logic_vector'("00000000000") & ((A_SRL(shifted_address_to_powerlink_0_MAC_BUF_from_niosII_openMac_clock_3_out,std_logic_vector'("00000000000000000000000000000010"))))), (A_SRL(shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")))), 12);
+  shifted_address_to_powerlink_0_MAC_BUF_from_pcp_cpu_data_master <= pcp_cpu_data_master_address_to_slave;
   --d1_powerlink_0_MAC_BUF_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
@@ -8456,13 +9193,13 @@ begin
   --powerlink_0_MAC_BUF_waits_for_read in a cycle, which is an e_mux
   powerlink_0_MAC_BUF_waits_for_read <= powerlink_0_MAC_BUF_in_a_read_cycle AND wait_for_powerlink_0_MAC_BUF_counter;
   --powerlink_0_MAC_BUF_in_a_read_cycle assignment, which is an e_assign
-  powerlink_0_MAC_BUF_in_a_read_cycle <= internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_read;
+  powerlink_0_MAC_BUF_in_a_read_cycle <= ((internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF AND niosII_openMac_clock_3_out_read)) OR ((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_read));
   --in_a_read_cycle assignment, which is an e_mux
   in_a_read_cycle <= powerlink_0_MAC_BUF_in_a_read_cycle;
   --powerlink_0_MAC_BUF_waits_for_write in a cycle, which is an e_mux
   powerlink_0_MAC_BUF_waits_for_write <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(powerlink_0_MAC_BUF_in_a_write_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
   --powerlink_0_MAC_BUF_in_a_write_cycle assignment, which is an e_assign
-  powerlink_0_MAC_BUF_in_a_write_cycle <= internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_write;
+  powerlink_0_MAC_BUF_in_a_write_cycle <= ((internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF AND niosII_openMac_clock_3_out_write)) OR ((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF AND pcp_cpu_data_master_write));
   --in_a_write_cycle assignment, which is an e_mux
   in_a_write_cycle <= powerlink_0_MAC_BUF_in_a_write_cycle;
   internal_powerlink_0_MAC_BUF_wait_counter_eq_0 <= to_std_logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(powerlink_0_MAC_BUF_wait_counter))) = std_logic_vector'("00000000000000000000000000000000")));
@@ -8479,7 +9216,13 @@ begin
   powerlink_0_MAC_BUF_counter_load_value <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(((powerlink_0_MAC_BUF_in_a_read_cycle AND powerlink_0_MAC_BUF_begins_xfer))) = '1'), std_logic_vector'("000000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'((NOT internal_powerlink_0_MAC_BUF_wait_counter_eq_0)) = '1'), ((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(powerlink_0_MAC_BUF_wait_counter))) - std_logic_vector'("000000000000000000000000000000001")), std_logic_vector'("000000000000000000000000000000000"))));
   wait_for_powerlink_0_MAC_BUF_counter <= powerlink_0_MAC_BUF_begins_xfer OR NOT internal_powerlink_0_MAC_BUF_wait_counter_eq_0;
   --powerlink_0_MAC_BUF_byteenable byte enable port mux, which is an e_mux
-  powerlink_0_MAC_BUF_byteenable <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (pcp_cpu_data_master_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))), 4);
+  powerlink_0_MAC_BUF_byteenable <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (niosII_openMac_clock_3_out_byteenable)), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (pcp_cpu_data_master_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001")))), 4);
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF <= internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF <= internal_niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF <= internal_niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF;
   --vhdl renameroo for output signals
   pcp_cpu_data_master_granted_powerlink_0_MAC_BUF <= internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF;
   --vhdl renameroo for output signals
@@ -8496,6 +9239,40 @@ begin
         enable_nonzero_assertions <= std_logic'('0');
       elsif clk'event and clk = '1' then
         enable_nonzero_assertions <= std_logic'('1');
+      end if;
+
+    end process;
+
+    --grant signals are active simultaneously, which is an e_process
+    process (clk)
+    VARIABLE write_line42 : line;
+    begin
+      if clk'event and clk = '1' then
+        if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_data_master_granted_powerlink_0_MAC_BUF))))))>std_logic_vector'("00000000000000000000000000000001") then 
+          write(write_line42, now);
+          write(write_line42, string'(": "));
+          write(write_line42, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line42.all);
+          deallocate (write_line42);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --saved_grant signals are active simultaneously, which is an e_process
+    process (clk)
+    VARIABLE write_line43 : line;
+    begin
+      if clk'event and clk = '1' then
+        if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_3_out_saved_grant_powerlink_0_MAC_BUF))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_saved_grant_powerlink_0_MAC_BUF))))))>std_logic_vector'("00000000000000000000000000000001") then 
+          write(write_line43, now);
+          write(write_line43, string'(": "));
+          write(write_line43, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line43.all);
+          deallocate (write_line43);
+          assert false report "VHDL STOP" severity failure;
+        end if;
       end if;
 
     end process;
@@ -8604,7 +9381,7 @@ begin
   powerlink_0_MAC_CMP_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP);
   --assign powerlink_0_MAC_CMP_readdata_from_sa = powerlink_0_MAC_CMP_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_MAC_CMP_readdata_from_sa <= powerlink_0_MAC_CMP_readdata;
-  internal_clock_crossing_0_m1_requests_powerlink_0_MAC_CMP <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000001100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_powerlink_0_MAC_CMP <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000001000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --powerlink_0_MAC_CMP_arb_share_counter set values, which is an e_mux
   powerlink_0_MAC_CMP_arb_share_set_values <= std_logic_vector'("01");
   --powerlink_0_MAC_CMP_non_bursting_master_requests mux, which is an e_mux
@@ -9369,7 +10146,7 @@ begin
   powerlink_0_PDI_PCP_begins_xfer <= NOT d1_reasons_to_wait AND (internal_pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP);
   --assign powerlink_0_PDI_PCP_readdata_from_sa = powerlink_0_PDI_PCP_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_PDI_PCP_readdata_from_sa <= powerlink_0_PDI_PCP_readdata;
-  internal_pcp_cpu_data_master_requests_powerlink_0_PDI_PCP <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("0000000010000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  internal_pcp_cpu_data_master_requests_powerlink_0_PDI_PCP <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("0000000001000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
   --powerlink_0_PDI_PCP_arb_share_counter set values, which is an e_mux
   powerlink_0_PDI_PCP_arb_share_set_values <= std_logic_vector'("01");
   --powerlink_0_PDI_PCP_non_bursting_master_requests mux, which is an e_mux
@@ -9516,6 +10293,233 @@ begin
         enable_nonzero_assertions <= std_logic'('0');
       elsif clk'event and clk = '1' then
         enable_nonzero_assertions <= std_logic'('1');
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+library std;
+use std.textio.all;
+
+entity powerlink_0_MAC_DMA_arbitrator is 
+        port (
+              -- inputs:
+                 signal clk : IN STD_LOGIC;
+                 signal d1_niosII_openMac_clock_4_in_end_xfer : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_in_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal niosII_openMac_clock_4_in_waitrequest_from_sa : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
+                 signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal reset_n : IN STD_LOGIC;
+
+              -- outputs:
+                 signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_waitrequest : OUT STD_LOGIC
+              );
+end entity powerlink_0_MAC_DMA_arbitrator;
+
+
+architecture europa of powerlink_0_MAC_DMA_arbitrator is
+                signal active_and_waiting_last_time :  STD_LOGIC;
+                signal internal_powerlink_0_MAC_DMA_address_to_slave :  STD_LOGIC_VECTOR (29 DOWNTO 0);
+                signal internal_powerlink_0_MAC_DMA_waitrequest :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_address_last_time :  STD_LOGIC_VECTOR (29 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_byteenable_n_last_time :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_read_n_last_time :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_run :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_write_n_last_time :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_writedata_last_time :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal r_1 :  STD_LOGIC;
+
+begin
+
+  --r_1 master_run cascaded wait assignment, which is an e_assign
+  r_1 <= Vector_To_Std_Logic(((std_logic_vector'("00000000000000000000000000000001") AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in OR NOT ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_4_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in OR NOT ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_4_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))))))));
+  --cascaded wait assignment, which is an e_assign
+  powerlink_0_MAC_DMA_run <= r_1;
+  --optimize select-logic by passing only those address bits which matter.
+  internal_powerlink_0_MAC_DMA_address_to_slave <= Std_Logic_Vector'(std_logic_vector'("000000010") & powerlink_0_MAC_DMA_address(20 DOWNTO 0));
+  --powerlink_0/MAC_DMA readdata mux, which is an e_mux
+  powerlink_0_MAC_DMA_readdata <= niosII_openMac_clock_4_in_readdata_from_sa;
+  --actual waitrequest port, which is an e_assign
+  internal_powerlink_0_MAC_DMA_waitrequest <= NOT powerlink_0_MAC_DMA_run;
+  --vhdl renameroo for output signals
+  powerlink_0_MAC_DMA_address_to_slave <= internal_powerlink_0_MAC_DMA_address_to_slave;
+  --vhdl renameroo for output signals
+  powerlink_0_MAC_DMA_waitrequest <= internal_powerlink_0_MAC_DMA_waitrequest;
+--synthesis translate_off
+    --powerlink_0_MAC_DMA_address check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        powerlink_0_MAC_DMA_address_last_time <= std_logic_vector'("000000000000000000000000000000");
+      elsif clk'event and clk = '1' then
+        powerlink_0_MAC_DMA_address_last_time <= powerlink_0_MAC_DMA_address;
+      end if;
+
+    end process;
+
+    --powerlink_0/MAC_DMA waited last time, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        active_and_waiting_last_time <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        active_and_waiting_last_time <= internal_powerlink_0_MAC_DMA_waitrequest AND ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n));
+      end if;
+
+    end process;
+
+    --powerlink_0_MAC_DMA_address matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line44 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((powerlink_0_MAC_DMA_address /= powerlink_0_MAC_DMA_address_last_time))))) = '1' then 
+          write(write_line44, now);
+          write(write_line44, string'(": "));
+          write(write_line44, string'("powerlink_0_MAC_DMA_address did not heed wait!!!"));
+          write(output, write_line44.all);
+          deallocate (write_line44);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --~powerlink_0_MAC_DMA_byteenable_n check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        powerlink_0_MAC_DMA_byteenable_n_last_time <= A_EXT (NOT std_logic_vector'("00000000000000000000000000000000"), 2);
+      elsif clk'event and clk = '1' then
+        powerlink_0_MAC_DMA_byteenable_n_last_time <= powerlink_0_MAC_DMA_byteenable_n;
+      end if;
+
+    end process;
+
+    --~powerlink_0_MAC_DMA_byteenable_n matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line45 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((NOT powerlink_0_MAC_DMA_byteenable_n /= NOT powerlink_0_MAC_DMA_byteenable_n_last_time))))) = '1' then 
+          write(write_line45, now);
+          write(write_line45, string'(": "));
+          write(write_line45, string'("~powerlink_0_MAC_DMA_byteenable_n did not heed wait!!!"));
+          write(output, write_line45.all);
+          deallocate (write_line45);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --~powerlink_0_MAC_DMA_read_n check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        powerlink_0_MAC_DMA_read_n_last_time <= Vector_To_Std_Logic(NOT std_logic_vector'("00000000000000000000000000000000"));
+      elsif clk'event and clk = '1' then
+        powerlink_0_MAC_DMA_read_n_last_time <= powerlink_0_MAC_DMA_read_n;
+      end if;
+
+    end process;
+
+    --~powerlink_0_MAC_DMA_read_n matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line46 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(NOT powerlink_0_MAC_DMA_read_n) /= std_logic'(NOT powerlink_0_MAC_DMA_read_n_last_time)))))) = '1' then 
+          write(write_line46, now);
+          write(write_line46, string'(": "));
+          write(write_line46, string'("~powerlink_0_MAC_DMA_read_n did not heed wait!!!"));
+          write(output, write_line46.all);
+          deallocate (write_line46);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --~powerlink_0_MAC_DMA_write_n check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        powerlink_0_MAC_DMA_write_n_last_time <= Vector_To_Std_Logic(NOT std_logic_vector'("00000000000000000000000000000000"));
+      elsif clk'event and clk = '1' then
+        powerlink_0_MAC_DMA_write_n_last_time <= powerlink_0_MAC_DMA_write_n;
+      end if;
+
+    end process;
+
+    --~powerlink_0_MAC_DMA_write_n matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line47 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(NOT powerlink_0_MAC_DMA_write_n) /= std_logic'(NOT powerlink_0_MAC_DMA_write_n_last_time)))))) = '1' then 
+          write(write_line47, now);
+          write(write_line47, string'(": "));
+          write(write_line47, string'("~powerlink_0_MAC_DMA_write_n did not heed wait!!!"));
+          write(output, write_line47.all);
+          deallocate (write_line47);
+          assert false report "VHDL STOP" severity failure;
+        end if;
+      end if;
+
+    end process;
+
+    --powerlink_0_MAC_DMA_writedata check against wait, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        powerlink_0_MAC_DMA_writedata_last_time <= std_logic_vector'("0000000000000000");
+      elsif clk'event and clk = '1' then
+        powerlink_0_MAC_DMA_writedata_last_time <= powerlink_0_MAC_DMA_writedata;
+      end if;
+
+    end process;
+
+    --powerlink_0_MAC_DMA_writedata matches last port_name, which is an e_process
+    process (clk)
+    VARIABLE write_line48 : line;
+    begin
+      if clk'event and clk = '1' then
+        if std_logic'(((active_and_waiting_last_time AND to_std_logic(((powerlink_0_MAC_DMA_writedata /= powerlink_0_MAC_DMA_writedata_last_time)))) AND NOT powerlink_0_MAC_DMA_write_n)) = '1' then 
+          write(write_line48, now);
+          write(write_line48, string'(": "));
+          write(write_line48, string'("powerlink_0_MAC_DMA_writedata did not heed wait!!!"));
+          write(output, write_line48.all);
+          deallocate (write_line48);
+          assert false report "VHDL STOP" severity failure;
+        end if;
       end if;
 
     end process;
@@ -10909,15 +11913,15 @@ begin
 
     --grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line32 : line;
+    VARIABLE write_line49 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_ap_cpu_data_master_granted_sdram_0_s1))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_ap_cpu_instruction_master_granted_sdram_0_s1))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line32, now);
-          write(write_line32, string'(": "));
-          write(write_line32, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line32.all);
-          deallocate (write_line32);
+          write(write_line49, now);
+          write(write_line49, string'(": "));
+          write(write_line49, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line49.all);
+          deallocate (write_line49);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -10926,253 +11930,17 @@ begin
 
     --saved_grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line33 : line;
+    VARIABLE write_line50 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_saved_grant_sdram_0_s1))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(ap_cpu_instruction_master_saved_grant_sdram_0_s1))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line33, now);
-          write(write_line33, string'(": "));
-          write(write_line33, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line33.all);
-          deallocate (write_line33);
+          write(write_line50, now);
+          write(write_line50, string'(": "));
+          write(write_line50, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line50.all);
+          deallocate (write_line50);
           assert false report "VHDL STOP" severity failure;
         end if;
-      end if;
-
-    end process;
-
---synthesis translate_on
-
-end europa;
-
-
-
--- turn off superfluous VHDL processor warnings 
--- altera message_level Level1 
--- altera message_off 10034 10035 10036 10037 10230 10240 10030 
-
-library altera;
-use altera.altera_europa_support_lib.all;
-
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
-
-entity status_led_pio_s1_arbitrator is 
-        port (
-              -- inputs:
-                 signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
-                 signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
-                 signal clock_crossing_0_m1_read : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_write : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-                 signal reset_n : IN STD_LOGIC;
-                 signal status_led_pio_s1_readdata : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-
-              -- outputs:
-                 signal clock_crossing_0_m1_granted_status_led_pio_s1 : OUT STD_LOGIC;
-                 signal clock_crossing_0_m1_qualified_request_status_led_pio_s1 : OUT STD_LOGIC;
-                 signal clock_crossing_0_m1_read_data_valid_status_led_pio_s1 : OUT STD_LOGIC;
-                 signal clock_crossing_0_m1_requests_status_led_pio_s1 : OUT STD_LOGIC;
-                 signal d1_status_led_pio_s1_end_xfer : OUT STD_LOGIC;
-                 signal status_led_pio_s1_address : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
-                 signal status_led_pio_s1_chipselect : OUT STD_LOGIC;
-                 signal status_led_pio_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-                 signal status_led_pio_s1_reset_n : OUT STD_LOGIC;
-                 signal status_led_pio_s1_write_n : OUT STD_LOGIC;
-                 signal status_led_pio_s1_writedata : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
-              );
-end entity status_led_pio_s1_arbitrator;
-
-
-architecture europa of status_led_pio_s1_arbitrator is
-                signal clock_crossing_0_m1_arbiterlock :  STD_LOGIC;
-                signal clock_crossing_0_m1_arbiterlock2 :  STD_LOGIC;
-                signal clock_crossing_0_m1_continuerequest :  STD_LOGIC;
-                signal clock_crossing_0_m1_saved_grant_status_led_pio_s1 :  STD_LOGIC;
-                signal d1_reasons_to_wait :  STD_LOGIC;
-                signal enable_nonzero_assertions :  STD_LOGIC;
-                signal end_xfer_arb_share_counter_term_status_led_pio_s1 :  STD_LOGIC;
-                signal in_a_read_cycle :  STD_LOGIC;
-                signal in_a_write_cycle :  STD_LOGIC;
-                signal internal_clock_crossing_0_m1_granted_status_led_pio_s1 :  STD_LOGIC;
-                signal internal_clock_crossing_0_m1_qualified_request_status_led_pio_s1 :  STD_LOGIC;
-                signal internal_clock_crossing_0_m1_requests_status_led_pio_s1 :  STD_LOGIC;
-                signal status_led_pio_s1_allgrants :  STD_LOGIC;
-                signal status_led_pio_s1_allow_new_arb_cycle :  STD_LOGIC;
-                signal status_led_pio_s1_any_bursting_master_saved_grant :  STD_LOGIC;
-                signal status_led_pio_s1_any_continuerequest :  STD_LOGIC;
-                signal status_led_pio_s1_arb_counter_enable :  STD_LOGIC;
-                signal status_led_pio_s1_arb_share_counter :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal status_led_pio_s1_arb_share_counter_next_value :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal status_led_pio_s1_arb_share_set_values :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal status_led_pio_s1_beginbursttransfer_internal :  STD_LOGIC;
-                signal status_led_pio_s1_begins_xfer :  STD_LOGIC;
-                signal status_led_pio_s1_end_xfer :  STD_LOGIC;
-                signal status_led_pio_s1_firsttransfer :  STD_LOGIC;
-                signal status_led_pio_s1_grant_vector :  STD_LOGIC;
-                signal status_led_pio_s1_in_a_read_cycle :  STD_LOGIC;
-                signal status_led_pio_s1_in_a_write_cycle :  STD_LOGIC;
-                signal status_led_pio_s1_master_qreq_vector :  STD_LOGIC;
-                signal status_led_pio_s1_non_bursting_master_requests :  STD_LOGIC;
-                signal status_led_pio_s1_reg_firsttransfer :  STD_LOGIC;
-                signal status_led_pio_s1_slavearbiterlockenable :  STD_LOGIC;
-                signal status_led_pio_s1_slavearbiterlockenable2 :  STD_LOGIC;
-                signal status_led_pio_s1_unreg_firsttransfer :  STD_LOGIC;
-                signal status_led_pio_s1_waits_for_read :  STD_LOGIC;
-                signal status_led_pio_s1_waits_for_write :  STD_LOGIC;
-                signal wait_for_status_led_pio_s1_counter :  STD_LOGIC;
-
-begin
-
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      d1_reasons_to_wait <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      d1_reasons_to_wait <= NOT status_led_pio_s1_end_xfer;
-    end if;
-
-  end process;
-
-  status_led_pio_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_status_led_pio_s1);
-  --assign status_led_pio_s1_readdata_from_sa = status_led_pio_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
-  status_led_pio_s1_readdata_from_sa <= status_led_pio_s1_readdata;
-  internal_clock_crossing_0_m1_requests_status_led_pio_s1 <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("10000000100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
-  --status_led_pio_s1_arb_share_counter set values, which is an e_mux
-  status_led_pio_s1_arb_share_set_values <= std_logic_vector'("01");
-  --status_led_pio_s1_non_bursting_master_requests mux, which is an e_mux
-  status_led_pio_s1_non_bursting_master_requests <= internal_clock_crossing_0_m1_requests_status_led_pio_s1;
-  --status_led_pio_s1_any_bursting_master_saved_grant mux, which is an e_mux
-  status_led_pio_s1_any_bursting_master_saved_grant <= std_logic'('0');
-  --status_led_pio_s1_arb_share_counter_next_value assignment, which is an e_assign
-  status_led_pio_s1_arb_share_counter_next_value <= A_EXT (A_WE_StdLogicVector((std_logic'(status_led_pio_s1_firsttransfer) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (status_led_pio_s1_arb_share_set_values)) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(or_reduce(status_led_pio_s1_arb_share_counter)) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (status_led_pio_s1_arb_share_counter)) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))), 2);
-  --status_led_pio_s1_allgrants all slave grants, which is an e_mux
-  status_led_pio_s1_allgrants <= status_led_pio_s1_grant_vector;
-  --status_led_pio_s1_end_xfer assignment, which is an e_assign
-  status_led_pio_s1_end_xfer <= NOT ((status_led_pio_s1_waits_for_read OR status_led_pio_s1_waits_for_write));
-  --end_xfer_arb_share_counter_term_status_led_pio_s1 arb share counter enable term, which is an e_assign
-  end_xfer_arb_share_counter_term_status_led_pio_s1 <= status_led_pio_s1_end_xfer AND (((NOT status_led_pio_s1_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
-  --status_led_pio_s1_arb_share_counter arbitration counter enable, which is an e_assign
-  status_led_pio_s1_arb_counter_enable <= ((end_xfer_arb_share_counter_term_status_led_pio_s1 AND status_led_pio_s1_allgrants)) OR ((end_xfer_arb_share_counter_term_status_led_pio_s1 AND NOT status_led_pio_s1_non_bursting_master_requests));
-  --status_led_pio_s1_arb_share_counter counter, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      status_led_pio_s1_arb_share_counter <= std_logic_vector'("00");
-    elsif clk'event and clk = '1' then
-      if std_logic'(status_led_pio_s1_arb_counter_enable) = '1' then 
-        status_led_pio_s1_arb_share_counter <= status_led_pio_s1_arb_share_counter_next_value;
-      end if;
-    end if;
-
-  end process;
-
-  --status_led_pio_s1_slavearbiterlockenable slave enables arbiterlock, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      status_led_pio_s1_slavearbiterlockenable <= std_logic'('0');
-    elsif clk'event and clk = '1' then
-      if std_logic'((((status_led_pio_s1_master_qreq_vector AND end_xfer_arb_share_counter_term_status_led_pio_s1)) OR ((end_xfer_arb_share_counter_term_status_led_pio_s1 AND NOT status_led_pio_s1_non_bursting_master_requests)))) = '1' then 
-        status_led_pio_s1_slavearbiterlockenable <= or_reduce(status_led_pio_s1_arb_share_counter_next_value);
-      end if;
-    end if;
-
-  end process;
-
-  --clock_crossing_0/m1 status_led_pio/s1 arbiterlock, which is an e_assign
-  clock_crossing_0_m1_arbiterlock <= status_led_pio_s1_slavearbiterlockenable AND clock_crossing_0_m1_continuerequest;
-  --status_led_pio_s1_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
-  status_led_pio_s1_slavearbiterlockenable2 <= or_reduce(status_led_pio_s1_arb_share_counter_next_value);
-  --clock_crossing_0/m1 status_led_pio/s1 arbiterlock2, which is an e_assign
-  clock_crossing_0_m1_arbiterlock2 <= status_led_pio_s1_slavearbiterlockenable2 AND clock_crossing_0_m1_continuerequest;
-  --status_led_pio_s1_any_continuerequest at least one master continues requesting, which is an e_assign
-  status_led_pio_s1_any_continuerequest <= std_logic'('1');
-  --clock_crossing_0_m1_continuerequest continued request, which is an e_assign
-  clock_crossing_0_m1_continuerequest <= std_logic'('1');
-  internal_clock_crossing_0_m1_qualified_request_status_led_pio_s1 <= internal_clock_crossing_0_m1_requests_status_led_pio_s1 AND NOT ((clock_crossing_0_m1_read AND to_std_logic((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_latency_counter))) /= std_logic_vector'("00000000000000000000000000000000"))))));
-  --local readdatavalid clock_crossing_0_m1_read_data_valid_status_led_pio_s1, which is an e_mux
-  clock_crossing_0_m1_read_data_valid_status_led_pio_s1 <= (internal_clock_crossing_0_m1_granted_status_led_pio_s1 AND clock_crossing_0_m1_read) AND NOT status_led_pio_s1_waits_for_read;
-  --status_led_pio_s1_writedata mux, which is an e_mux
-  status_led_pio_s1_writedata <= clock_crossing_0_m1_writedata (1 DOWNTO 0);
-  --master is always granted when requested
-  internal_clock_crossing_0_m1_granted_status_led_pio_s1 <= internal_clock_crossing_0_m1_qualified_request_status_led_pio_s1;
-  --clock_crossing_0/m1 saved-grant status_led_pio/s1, which is an e_assign
-  clock_crossing_0_m1_saved_grant_status_led_pio_s1 <= internal_clock_crossing_0_m1_requests_status_led_pio_s1;
-  --allow new arb cycle for status_led_pio/s1, which is an e_assign
-  status_led_pio_s1_allow_new_arb_cycle <= std_logic'('1');
-  --placeholder chosen master
-  status_led_pio_s1_grant_vector <= std_logic'('1');
-  --placeholder vector of master qualified-requests
-  status_led_pio_s1_master_qreq_vector <= std_logic'('1');
-  --status_led_pio_s1_reset_n assignment, which is an e_assign
-  status_led_pio_s1_reset_n <= reset_n;
-  status_led_pio_s1_chipselect <= internal_clock_crossing_0_m1_granted_status_led_pio_s1;
-  --status_led_pio_s1_firsttransfer first transaction, which is an e_assign
-  status_led_pio_s1_firsttransfer <= A_WE_StdLogic((std_logic'(status_led_pio_s1_begins_xfer) = '1'), status_led_pio_s1_unreg_firsttransfer, status_led_pio_s1_reg_firsttransfer);
-  --status_led_pio_s1_unreg_firsttransfer first transaction, which is an e_assign
-  status_led_pio_s1_unreg_firsttransfer <= NOT ((status_led_pio_s1_slavearbiterlockenable AND status_led_pio_s1_any_continuerequest));
-  --status_led_pio_s1_reg_firsttransfer first transaction, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      status_led_pio_s1_reg_firsttransfer <= std_logic'('1');
-    elsif clk'event and clk = '1' then
-      if std_logic'(status_led_pio_s1_begins_xfer) = '1' then 
-        status_led_pio_s1_reg_firsttransfer <= status_led_pio_s1_unreg_firsttransfer;
-      end if;
-    end if;
-
-  end process;
-
-  --status_led_pio_s1_beginbursttransfer_internal begin burst transfer, which is an e_assign
-  status_led_pio_s1_beginbursttransfer_internal <= status_led_pio_s1_begins_xfer;
-  --~status_led_pio_s1_write_n assignment, which is an e_mux
-  status_led_pio_s1_write_n <= NOT ((internal_clock_crossing_0_m1_granted_status_led_pio_s1 AND clock_crossing_0_m1_write));
-  --status_led_pio_s1_address mux, which is an e_mux
-  status_led_pio_s1_address <= clock_crossing_0_m1_nativeaddress (2 DOWNTO 0);
-  --d1_status_led_pio_s1_end_xfer register, which is an e_register
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      d1_status_led_pio_s1_end_xfer <= std_logic'('1');
-    elsif clk'event and clk = '1' then
-      d1_status_led_pio_s1_end_xfer <= status_led_pio_s1_end_xfer;
-    end if;
-
-  end process;
-
-  --status_led_pio_s1_waits_for_read in a cycle, which is an e_mux
-  status_led_pio_s1_waits_for_read <= status_led_pio_s1_in_a_read_cycle AND status_led_pio_s1_begins_xfer;
-  --status_led_pio_s1_in_a_read_cycle assignment, which is an e_assign
-  status_led_pio_s1_in_a_read_cycle <= internal_clock_crossing_0_m1_granted_status_led_pio_s1 AND clock_crossing_0_m1_read;
-  --in_a_read_cycle assignment, which is an e_mux
-  in_a_read_cycle <= status_led_pio_s1_in_a_read_cycle;
-  --status_led_pio_s1_waits_for_write in a cycle, which is an e_mux
-  status_led_pio_s1_waits_for_write <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(status_led_pio_s1_in_a_write_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
-  --status_led_pio_s1_in_a_write_cycle assignment, which is an e_assign
-  status_led_pio_s1_in_a_write_cycle <= internal_clock_crossing_0_m1_granted_status_led_pio_s1 AND clock_crossing_0_m1_write;
-  --in_a_write_cycle assignment, which is an e_mux
-  in_a_write_cycle <= status_led_pio_s1_in_a_write_cycle;
-  wait_for_status_led_pio_s1_counter <= std_logic'('0');
-  --vhdl renameroo for output signals
-  clock_crossing_0_m1_granted_status_led_pio_s1 <= internal_clock_crossing_0_m1_granted_status_led_pio_s1;
-  --vhdl renameroo for output signals
-  clock_crossing_0_m1_qualified_request_status_led_pio_s1 <= internal_clock_crossing_0_m1_qualified_request_status_led_pio_s1;
-  --vhdl renameroo for output signals
-  clock_crossing_0_m1_requests_status_led_pio_s1 <= internal_clock_crossing_0_m1_requests_status_led_pio_s1;
---synthesis translate_off
-    --status_led_pio/s1 enable non-zero assertions, which is an e_register
-    process (clk, reset_n)
-    begin
-      if reset_n = '0' then
-        enable_nonzero_assertions <= std_logic'('0');
-      elsif clk'event and clk = '1' then
-        enable_nonzero_assertions <= std_logic'('1');
       end if;
 
     end process;
@@ -11506,15 +12274,15 @@ begin
 
     --grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line34 : line;
+    VARIABLE write_line51 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_ap_cpu_data_master_granted_sysid_control_slave))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_niosII_openMac_clock_0_out_granted_sysid_control_slave))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line34, now);
-          write(write_line34, string'(": "));
-          write(write_line34, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line34.all);
-          deallocate (write_line34);
+          write(write_line51, now);
+          write(write_line51, string'(": "));
+          write(write_line51, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line51.all);
+          deallocate (write_line51);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -11523,15 +12291,15 @@ begin
 
     --saved_grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line35 : line;
+    VARIABLE write_line52 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_saved_grant_sysid_control_slave))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_0_out_saved_grant_sysid_control_slave))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line35, now);
-          write(write_line35, string'(": "));
-          write(write_line35, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line35.all);
-          deallocate (write_line35);
+          write(write_line52, now);
+          write(write_line52, string'(": "));
+          write(write_line52, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line52.all);
+          deallocate (write_line52);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12035,6 +12803,529 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
+entity tc_i_mem_pcp_s1_arbitrator is 
+        port (
+              -- inputs:
+                 signal clk : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
+                 signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                 signal pcp_cpu_data_master_read : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_waitrequest : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_write : IN STD_LOGIC;
+                 signal pcp_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal reset_n : IN STD_LOGIC;
+                 signal tc_i_mem_pcp_s1_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+              -- outputs:
+                 signal d1_tc_i_mem_pcp_s1_end_xfer : OUT STD_LOGIC;
+                 signal pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                 signal pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                 signal pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                 signal pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                 signal registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s1_address : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal tc_i_mem_pcp_s1_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+                 signal tc_i_mem_pcp_s1_chipselect : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s1_clken : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal tc_i_mem_pcp_s1_reset : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s1_write : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s1_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+              );
+end entity tc_i_mem_pcp_s1_arbitrator;
+
+
+architecture europa of tc_i_mem_pcp_s1_arbitrator is
+                signal d1_reasons_to_wait :  STD_LOGIC;
+                signal enable_nonzero_assertions :  STD_LOGIC;
+                signal end_xfer_arb_share_counter_term_tc_i_mem_pcp_s1 :  STD_LOGIC;
+                signal in_a_read_cycle :  STD_LOGIC;
+                signal in_a_write_cycle :  STD_LOGIC;
+                signal internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 :  STD_LOGIC;
+                signal internal_pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 :  STD_LOGIC;
+                signal internal_pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 :  STD_LOGIC;
+                signal p1_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register :  STD_LOGIC;
+                signal pcp_cpu_data_master_arbiterlock :  STD_LOGIC;
+                signal pcp_cpu_data_master_arbiterlock2 :  STD_LOGIC;
+                signal pcp_cpu_data_master_continuerequest :  STD_LOGIC;
+                signal pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register :  STD_LOGIC;
+                signal pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register_in :  STD_LOGIC;
+                signal pcp_cpu_data_master_saved_grant_tc_i_mem_pcp_s1 :  STD_LOGIC;
+                signal shifted_address_to_tc_i_mem_pcp_s1_from_pcp_cpu_data_master :  STD_LOGIC_VECTOR (24 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_allgrants :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_allow_new_arb_cycle :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_any_bursting_master_saved_grant :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_any_continuerequest :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_arb_counter_enable :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_arb_share_counter :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_arb_share_counter_next_value :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_arb_share_set_values :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_beginbursttransfer_internal :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_begins_xfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_end_xfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_firsttransfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_grant_vector :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_in_a_read_cycle :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_in_a_write_cycle :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_master_qreq_vector :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_non_bursting_master_requests :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_reg_firsttransfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_slavearbiterlockenable :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_slavearbiterlockenable2 :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_unreg_firsttransfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_waits_for_read :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_waits_for_write :  STD_LOGIC;
+                signal wait_for_tc_i_mem_pcp_s1_counter :  STD_LOGIC;
+
+begin
+
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_reasons_to_wait <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      d1_reasons_to_wait <= NOT tc_i_mem_pcp_s1_end_xfer;
+    end if;
+
+  end process;
+
+  tc_i_mem_pcp_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1);
+  --assign tc_i_mem_pcp_s1_readdata_from_sa = tc_i_mem_pcp_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  tc_i_mem_pcp_s1_readdata_from_sa <= tc_i_mem_pcp_s1_readdata;
+  internal_pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 10) & std_logic_vector'("0000000000")) = std_logic_vector'("0000000000000110000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  --registered rdv signal_name registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 assignment, which is an e_assign
+  registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 <= pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register_in;
+  --tc_i_mem_pcp_s1_arb_share_counter set values, which is an e_mux
+  tc_i_mem_pcp_s1_arb_share_set_values <= std_logic_vector'("01");
+  --tc_i_mem_pcp_s1_non_bursting_master_requests mux, which is an e_mux
+  tc_i_mem_pcp_s1_non_bursting_master_requests <= internal_pcp_cpu_data_master_requests_tc_i_mem_pcp_s1;
+  --tc_i_mem_pcp_s1_any_bursting_master_saved_grant mux, which is an e_mux
+  tc_i_mem_pcp_s1_any_bursting_master_saved_grant <= std_logic'('0');
+  --tc_i_mem_pcp_s1_arb_share_counter_next_value assignment, which is an e_assign
+  tc_i_mem_pcp_s1_arb_share_counter_next_value <= A_EXT (A_WE_StdLogicVector((std_logic'(tc_i_mem_pcp_s1_firsttransfer) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (tc_i_mem_pcp_s1_arb_share_set_values)) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(or_reduce(tc_i_mem_pcp_s1_arb_share_counter)) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (tc_i_mem_pcp_s1_arb_share_counter)) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))), 2);
+  --tc_i_mem_pcp_s1_allgrants all slave grants, which is an e_mux
+  tc_i_mem_pcp_s1_allgrants <= tc_i_mem_pcp_s1_grant_vector;
+  --tc_i_mem_pcp_s1_end_xfer assignment, which is an e_assign
+  tc_i_mem_pcp_s1_end_xfer <= NOT ((tc_i_mem_pcp_s1_waits_for_read OR tc_i_mem_pcp_s1_waits_for_write));
+  --end_xfer_arb_share_counter_term_tc_i_mem_pcp_s1 arb share counter enable term, which is an e_assign
+  end_xfer_arb_share_counter_term_tc_i_mem_pcp_s1 <= tc_i_mem_pcp_s1_end_xfer AND (((NOT tc_i_mem_pcp_s1_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
+  --tc_i_mem_pcp_s1_arb_share_counter arbitration counter enable, which is an e_assign
+  tc_i_mem_pcp_s1_arb_counter_enable <= ((end_xfer_arb_share_counter_term_tc_i_mem_pcp_s1 AND tc_i_mem_pcp_s1_allgrants)) OR ((end_xfer_arb_share_counter_term_tc_i_mem_pcp_s1 AND NOT tc_i_mem_pcp_s1_non_bursting_master_requests));
+  --tc_i_mem_pcp_s1_arb_share_counter counter, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      tc_i_mem_pcp_s1_arb_share_counter <= std_logic_vector'("00");
+    elsif clk'event and clk = '1' then
+      if std_logic'(tc_i_mem_pcp_s1_arb_counter_enable) = '1' then 
+        tc_i_mem_pcp_s1_arb_share_counter <= tc_i_mem_pcp_s1_arb_share_counter_next_value;
+      end if;
+    end if;
+
+  end process;
+
+  --tc_i_mem_pcp_s1_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      tc_i_mem_pcp_s1_slavearbiterlockenable <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      if std_logic'((((tc_i_mem_pcp_s1_master_qreq_vector AND end_xfer_arb_share_counter_term_tc_i_mem_pcp_s1)) OR ((end_xfer_arb_share_counter_term_tc_i_mem_pcp_s1 AND NOT tc_i_mem_pcp_s1_non_bursting_master_requests)))) = '1' then 
+        tc_i_mem_pcp_s1_slavearbiterlockenable <= or_reduce(tc_i_mem_pcp_s1_arb_share_counter_next_value);
+      end if;
+    end if;
+
+  end process;
+
+  --pcp_cpu/data_master tc_i_mem_pcp/s1 arbiterlock, which is an e_assign
+  pcp_cpu_data_master_arbiterlock <= tc_i_mem_pcp_s1_slavearbiterlockenable AND pcp_cpu_data_master_continuerequest;
+  --tc_i_mem_pcp_s1_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  tc_i_mem_pcp_s1_slavearbiterlockenable2 <= or_reduce(tc_i_mem_pcp_s1_arb_share_counter_next_value);
+  --pcp_cpu/data_master tc_i_mem_pcp/s1 arbiterlock2, which is an e_assign
+  pcp_cpu_data_master_arbiterlock2 <= tc_i_mem_pcp_s1_slavearbiterlockenable2 AND pcp_cpu_data_master_continuerequest;
+  --tc_i_mem_pcp_s1_any_continuerequest at least one master continues requesting, which is an e_assign
+  tc_i_mem_pcp_s1_any_continuerequest <= std_logic'('1');
+  --pcp_cpu_data_master_continuerequest continued request, which is an e_assign
+  pcp_cpu_data_master_continuerequest <= std_logic'('1');
+  internal_pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 <= internal_pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 AND NOT ((((pcp_cpu_data_master_read AND (pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register))) OR (((NOT pcp_cpu_data_master_waitrequest) AND pcp_cpu_data_master_write))));
+  --pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register_in mux for readlatency shift register, which is an e_mux
+  pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register_in <= ((internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 AND pcp_cpu_data_master_read) AND NOT tc_i_mem_pcp_s1_waits_for_read) AND NOT (pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register);
+  --shift register p1 pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register in if flush, otherwise shift left, which is an e_mux
+  p1_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register <= Vector_To_Std_Logic(Std_Logic_Vector'(A_ToStdLogicVector(pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register) & A_ToStdLogicVector(pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register_in)));
+  --pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register for remembering which master asked for a fixed latency read, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register <= p1_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register;
+    end if;
+
+  end process;
+
+  --local readdatavalid pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1, which is an e_mux
+  pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 <= pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1_shift_register;
+  --tc_i_mem_pcp_s1_writedata mux, which is an e_mux
+  tc_i_mem_pcp_s1_writedata <= pcp_cpu_data_master_writedata;
+  --mux tc_i_mem_pcp_s1_clken, which is an e_mux
+  tc_i_mem_pcp_s1_clken <= std_logic'('1');
+  --master is always granted when requested
+  internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 <= internal_pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1;
+  --pcp_cpu/data_master saved-grant tc_i_mem_pcp/s1, which is an e_assign
+  pcp_cpu_data_master_saved_grant_tc_i_mem_pcp_s1 <= internal_pcp_cpu_data_master_requests_tc_i_mem_pcp_s1;
+  --allow new arb cycle for tc_i_mem_pcp/s1, which is an e_assign
+  tc_i_mem_pcp_s1_allow_new_arb_cycle <= std_logic'('1');
+  --placeholder chosen master
+  tc_i_mem_pcp_s1_grant_vector <= std_logic'('1');
+  --placeholder vector of master qualified-requests
+  tc_i_mem_pcp_s1_master_qreq_vector <= std_logic'('1');
+  --~tc_i_mem_pcp_s1_reset assignment, which is an e_assign
+  tc_i_mem_pcp_s1_reset <= NOT reset_n;
+  tc_i_mem_pcp_s1_chipselect <= internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1;
+  --tc_i_mem_pcp_s1_firsttransfer first transaction, which is an e_assign
+  tc_i_mem_pcp_s1_firsttransfer <= A_WE_StdLogic((std_logic'(tc_i_mem_pcp_s1_begins_xfer) = '1'), tc_i_mem_pcp_s1_unreg_firsttransfer, tc_i_mem_pcp_s1_reg_firsttransfer);
+  --tc_i_mem_pcp_s1_unreg_firsttransfer first transaction, which is an e_assign
+  tc_i_mem_pcp_s1_unreg_firsttransfer <= NOT ((tc_i_mem_pcp_s1_slavearbiterlockenable AND tc_i_mem_pcp_s1_any_continuerequest));
+  --tc_i_mem_pcp_s1_reg_firsttransfer first transaction, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      tc_i_mem_pcp_s1_reg_firsttransfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      if std_logic'(tc_i_mem_pcp_s1_begins_xfer) = '1' then 
+        tc_i_mem_pcp_s1_reg_firsttransfer <= tc_i_mem_pcp_s1_unreg_firsttransfer;
+      end if;
+    end if;
+
+  end process;
+
+  --tc_i_mem_pcp_s1_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  tc_i_mem_pcp_s1_beginbursttransfer_internal <= tc_i_mem_pcp_s1_begins_xfer;
+  --tc_i_mem_pcp_s1_write assignment, which is an e_mux
+  tc_i_mem_pcp_s1_write <= internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 AND pcp_cpu_data_master_write;
+  shifted_address_to_tc_i_mem_pcp_s1_from_pcp_cpu_data_master <= pcp_cpu_data_master_address_to_slave;
+  --tc_i_mem_pcp_s1_address mux, which is an e_mux
+  tc_i_mem_pcp_s1_address <= A_EXT (A_SRL(shifted_address_to_tc_i_mem_pcp_s1_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")), 8);
+  --d1_tc_i_mem_pcp_s1_end_xfer register, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_tc_i_mem_pcp_s1_end_xfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      d1_tc_i_mem_pcp_s1_end_xfer <= tc_i_mem_pcp_s1_end_xfer;
+    end if;
+
+  end process;
+
+  --tc_i_mem_pcp_s1_waits_for_read in a cycle, which is an e_mux
+  tc_i_mem_pcp_s1_waits_for_read <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(tc_i_mem_pcp_s1_in_a_read_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
+  --tc_i_mem_pcp_s1_in_a_read_cycle assignment, which is an e_assign
+  tc_i_mem_pcp_s1_in_a_read_cycle <= internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 AND pcp_cpu_data_master_read;
+  --in_a_read_cycle assignment, which is an e_mux
+  in_a_read_cycle <= tc_i_mem_pcp_s1_in_a_read_cycle;
+  --tc_i_mem_pcp_s1_waits_for_write in a cycle, which is an e_mux
+  tc_i_mem_pcp_s1_waits_for_write <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(tc_i_mem_pcp_s1_in_a_write_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
+  --tc_i_mem_pcp_s1_in_a_write_cycle assignment, which is an e_assign
+  tc_i_mem_pcp_s1_in_a_write_cycle <= internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 AND pcp_cpu_data_master_write;
+  --in_a_write_cycle assignment, which is an e_mux
+  in_a_write_cycle <= tc_i_mem_pcp_s1_in_a_write_cycle;
+  wait_for_tc_i_mem_pcp_s1_counter <= std_logic'('0');
+  --tc_i_mem_pcp_s1_byteenable byte enable port mux, which is an e_mux
+  tc_i_mem_pcp_s1_byteenable <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1)) = '1'), (std_logic_vector'("0000000000000000000000000000") & (pcp_cpu_data_master_byteenable)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))), 4);
+  --vhdl renameroo for output signals
+  pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 <= internal_pcp_cpu_data_master_granted_tc_i_mem_pcp_s1;
+  --vhdl renameroo for output signals
+  pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 <= internal_pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1;
+  --vhdl renameroo for output signals
+  pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 <= internal_pcp_cpu_data_master_requests_tc_i_mem_pcp_s1;
+--synthesis translate_off
+    --tc_i_mem_pcp/s1 enable non-zero assertions, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        enable_nonzero_assertions <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        enable_nonzero_assertions <= std_logic'('1');
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity tc_i_mem_pcp_s2_arbitrator is 
+        port (
+              -- inputs:
+                 signal clk : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_clken : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_latency_counter : IN STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_read : IN STD_LOGIC;
+                 signal reset_n : IN STD_LOGIC;
+                 signal tc_i_mem_pcp_s2_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+              -- outputs:
+                 signal d1_tc_i_mem_pcp_s2_end_xfer : OUT STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                 signal pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s2_address : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                 signal tc_i_mem_pcp_s2_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+                 signal tc_i_mem_pcp_s2_chipselect : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s2_clken : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s2_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal tc_i_mem_pcp_s2_reset : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s2_write : OUT STD_LOGIC;
+                 signal tc_i_mem_pcp_s2_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+              );
+end entity tc_i_mem_pcp_s2_arbitrator;
+
+
+architecture europa of tc_i_mem_pcp_s2_arbitrator is
+                signal d1_reasons_to_wait :  STD_LOGIC;
+                signal enable_nonzero_assertions :  STD_LOGIC;
+                signal end_xfer_arb_share_counter_term_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal in_a_read_cycle :  STD_LOGIC;
+                signal in_a_write_cycle :  STD_LOGIC;
+                signal internal_pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal internal_pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal internal_pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal p1_pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_arbiterlock :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_arbiterlock2 :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_continuerequest :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register_in :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_saved_grant_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal shifted_address_to_tc_i_mem_pcp_s2_from_pcp_cpu_tightly_coupled_instruction_master_0 :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal tc_i_mem_pcp_s2_allgrants :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_allow_new_arb_cycle :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_any_bursting_master_saved_grant :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_any_continuerequest :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_arb_counter_enable :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_arb_share_counter :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_arb_share_counter_next_value :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_arb_share_set_values :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_beginbursttransfer_internal :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_begins_xfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_end_xfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_firsttransfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_grant_vector :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_in_a_read_cycle :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_in_a_write_cycle :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_master_qreq_vector :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_non_bursting_master_requests :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_reg_firsttransfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_slavearbiterlockenable :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_slavearbiterlockenable2 :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_unreg_firsttransfer :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_waits_for_read :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_waits_for_write :  STD_LOGIC;
+                signal wait_for_tc_i_mem_pcp_s2_counter :  STD_LOGIC;
+
+begin
+
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_reasons_to_wait <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      d1_reasons_to_wait <= NOT tc_i_mem_pcp_s2_end_xfer;
+    end if;
+
+  end process;
+
+  tc_i_mem_pcp_s2_begins_xfer <= NOT d1_reasons_to_wait AND (internal_pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2);
+  --assign tc_i_mem_pcp_s2_readdata_from_sa = tc_i_mem_pcp_s2_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  tc_i_mem_pcp_s2_readdata_from_sa <= tc_i_mem_pcp_s2_readdata;
+  internal_pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave(11 DOWNTO 10) & std_logic_vector'("0000000000")) = std_logic_vector'("110000000000")))) AND (pcp_cpu_tightly_coupled_instruction_master_0_read))) AND pcp_cpu_tightly_coupled_instruction_master_0_read;
+  --tc_i_mem_pcp_s2_arb_share_counter set values, which is an e_mux
+  tc_i_mem_pcp_s2_arb_share_set_values <= std_logic'('1');
+  --tc_i_mem_pcp_s2_non_bursting_master_requests mux, which is an e_mux
+  tc_i_mem_pcp_s2_non_bursting_master_requests <= internal_pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2;
+  --tc_i_mem_pcp_s2_any_bursting_master_saved_grant mux, which is an e_mux
+  tc_i_mem_pcp_s2_any_bursting_master_saved_grant <= std_logic'('0');
+  --tc_i_mem_pcp_s2_arb_share_counter_next_value assignment, which is an e_assign
+  tc_i_mem_pcp_s2_arb_share_counter_next_value <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(tc_i_mem_pcp_s2_firsttransfer) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(tc_i_mem_pcp_s2_arb_share_set_values))) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(tc_i_mem_pcp_s2_arb_share_counter) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(tc_i_mem_pcp_s2_arb_share_counter))) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))));
+  --tc_i_mem_pcp_s2_allgrants all slave grants, which is an e_mux
+  tc_i_mem_pcp_s2_allgrants <= tc_i_mem_pcp_s2_grant_vector;
+  --tc_i_mem_pcp_s2_end_xfer assignment, which is an e_assign
+  tc_i_mem_pcp_s2_end_xfer <= NOT ((tc_i_mem_pcp_s2_waits_for_read OR tc_i_mem_pcp_s2_waits_for_write));
+  --end_xfer_arb_share_counter_term_tc_i_mem_pcp_s2 arb share counter enable term, which is an e_assign
+  end_xfer_arb_share_counter_term_tc_i_mem_pcp_s2 <= tc_i_mem_pcp_s2_end_xfer AND (((NOT tc_i_mem_pcp_s2_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
+  --tc_i_mem_pcp_s2_arb_share_counter arbitration counter enable, which is an e_assign
+  tc_i_mem_pcp_s2_arb_counter_enable <= ((end_xfer_arb_share_counter_term_tc_i_mem_pcp_s2 AND tc_i_mem_pcp_s2_allgrants)) OR ((end_xfer_arb_share_counter_term_tc_i_mem_pcp_s2 AND NOT tc_i_mem_pcp_s2_non_bursting_master_requests));
+  --tc_i_mem_pcp_s2_arb_share_counter counter, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      tc_i_mem_pcp_s2_arb_share_counter <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      if std_logic'(tc_i_mem_pcp_s2_arb_counter_enable) = '1' then 
+        tc_i_mem_pcp_s2_arb_share_counter <= tc_i_mem_pcp_s2_arb_share_counter_next_value;
+      end if;
+    end if;
+
+  end process;
+
+  --tc_i_mem_pcp_s2_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      tc_i_mem_pcp_s2_slavearbiterlockenable <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      if std_logic'((((tc_i_mem_pcp_s2_master_qreq_vector AND end_xfer_arb_share_counter_term_tc_i_mem_pcp_s2)) OR ((end_xfer_arb_share_counter_term_tc_i_mem_pcp_s2 AND NOT tc_i_mem_pcp_s2_non_bursting_master_requests)))) = '1' then 
+        tc_i_mem_pcp_s2_slavearbiterlockenable <= tc_i_mem_pcp_s2_arb_share_counter_next_value;
+      end if;
+    end if;
+
+  end process;
+
+  --pcp_cpu/tightly_coupled_instruction_master_0 tc_i_mem_pcp/s2 arbiterlock, which is an e_assign
+  pcp_cpu_tightly_coupled_instruction_master_0_arbiterlock <= tc_i_mem_pcp_s2_slavearbiterlockenable AND pcp_cpu_tightly_coupled_instruction_master_0_continuerequest;
+  --tc_i_mem_pcp_s2_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  tc_i_mem_pcp_s2_slavearbiterlockenable2 <= tc_i_mem_pcp_s2_arb_share_counter_next_value;
+  --pcp_cpu/tightly_coupled_instruction_master_0 tc_i_mem_pcp/s2 arbiterlock2, which is an e_assign
+  pcp_cpu_tightly_coupled_instruction_master_0_arbiterlock2 <= tc_i_mem_pcp_s2_slavearbiterlockenable2 AND pcp_cpu_tightly_coupled_instruction_master_0_continuerequest;
+  --tc_i_mem_pcp_s2_any_continuerequest at least one master continues requesting, which is an e_assign
+  tc_i_mem_pcp_s2_any_continuerequest <= std_logic'('1');
+  --pcp_cpu_tightly_coupled_instruction_master_0_continuerequest continued request, which is an e_assign
+  pcp_cpu_tightly_coupled_instruction_master_0_continuerequest <= std_logic'('1');
+  internal_pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 <= internal_pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2;
+  --pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register_in mux for readlatency shift register, which is an e_mux
+  pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register_in <= (internal_pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 AND pcp_cpu_tightly_coupled_instruction_master_0_read) AND NOT tc_i_mem_pcp_s2_waits_for_read;
+  --shift register p1 pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register in if flush, otherwise shift left, which is an e_mux
+  p1_pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register <= Vector_To_Std_Logic(Std_Logic_Vector'(A_ToStdLogicVector(pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register) & A_ToStdLogicVector(pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register_in)));
+  --pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register for remembering which master asked for a fixed latency read, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register <= p1_pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register;
+    end if;
+
+  end process;
+
+  --local readdatavalid pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2, which is an e_mux
+  pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 <= pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2_shift_register;
+  --mux tc_i_mem_pcp_s2_clken, which is an e_mux
+  tc_i_mem_pcp_s2_clken <= A_WE_StdLogic((std_logic'((internal_pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2)) = '1'), pcp_cpu_tightly_coupled_instruction_master_0_clken, std_logic'('1'));
+  --master is always granted when requested
+  internal_pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 <= internal_pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2;
+  --pcp_cpu/tightly_coupled_instruction_master_0 saved-grant tc_i_mem_pcp/s2, which is an e_assign
+  pcp_cpu_tightly_coupled_instruction_master_0_saved_grant_tc_i_mem_pcp_s2 <= internal_pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2;
+  --allow new arb cycle for tc_i_mem_pcp/s2, which is an e_assign
+  tc_i_mem_pcp_s2_allow_new_arb_cycle <= std_logic'('1');
+  --placeholder chosen master
+  tc_i_mem_pcp_s2_grant_vector <= std_logic'('1');
+  --placeholder vector of master qualified-requests
+  tc_i_mem_pcp_s2_master_qreq_vector <= std_logic'('1');
+  --~tc_i_mem_pcp_s2_reset assignment, which is an e_assign
+  tc_i_mem_pcp_s2_reset <= NOT reset_n;
+  tc_i_mem_pcp_s2_chipselect <= internal_pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2;
+  --tc_i_mem_pcp_s2_firsttransfer first transaction, which is an e_assign
+  tc_i_mem_pcp_s2_firsttransfer <= A_WE_StdLogic((std_logic'(tc_i_mem_pcp_s2_begins_xfer) = '1'), tc_i_mem_pcp_s2_unreg_firsttransfer, tc_i_mem_pcp_s2_reg_firsttransfer);
+  --tc_i_mem_pcp_s2_unreg_firsttransfer first transaction, which is an e_assign
+  tc_i_mem_pcp_s2_unreg_firsttransfer <= NOT ((tc_i_mem_pcp_s2_slavearbiterlockenable AND tc_i_mem_pcp_s2_any_continuerequest));
+  --tc_i_mem_pcp_s2_reg_firsttransfer first transaction, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      tc_i_mem_pcp_s2_reg_firsttransfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      if std_logic'(tc_i_mem_pcp_s2_begins_xfer) = '1' then 
+        tc_i_mem_pcp_s2_reg_firsttransfer <= tc_i_mem_pcp_s2_unreg_firsttransfer;
+      end if;
+    end if;
+
+  end process;
+
+  --tc_i_mem_pcp_s2_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  tc_i_mem_pcp_s2_beginbursttransfer_internal <= tc_i_mem_pcp_s2_begins_xfer;
+  --tc_i_mem_pcp_s2_write assignment, which is an e_mux
+  tc_i_mem_pcp_s2_write <= std_logic'('0');
+  shifted_address_to_tc_i_mem_pcp_s2_from_pcp_cpu_tightly_coupled_instruction_master_0 <= pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave;
+  --tc_i_mem_pcp_s2_address mux, which is an e_mux
+  tc_i_mem_pcp_s2_address <= A_EXT (A_SRL(shifted_address_to_tc_i_mem_pcp_s2_from_pcp_cpu_tightly_coupled_instruction_master_0,std_logic_vector'("00000000000000000000000000000010")), 8);
+  --d1_tc_i_mem_pcp_s2_end_xfer register, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_tc_i_mem_pcp_s2_end_xfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      d1_tc_i_mem_pcp_s2_end_xfer <= tc_i_mem_pcp_s2_end_xfer;
+    end if;
+
+  end process;
+
+  --tc_i_mem_pcp_s2_waits_for_read in a cycle, which is an e_mux
+  tc_i_mem_pcp_s2_waits_for_read <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(tc_i_mem_pcp_s2_in_a_read_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
+  --tc_i_mem_pcp_s2_in_a_read_cycle assignment, which is an e_assign
+  tc_i_mem_pcp_s2_in_a_read_cycle <= internal_pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 AND pcp_cpu_tightly_coupled_instruction_master_0_read;
+  --in_a_read_cycle assignment, which is an e_mux
+  in_a_read_cycle <= tc_i_mem_pcp_s2_in_a_read_cycle;
+  --tc_i_mem_pcp_s2_waits_for_write in a cycle, which is an e_mux
+  tc_i_mem_pcp_s2_waits_for_write <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(tc_i_mem_pcp_s2_in_a_write_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
+  --tc_i_mem_pcp_s2_in_a_write_cycle assignment, which is an e_assign
+  tc_i_mem_pcp_s2_in_a_write_cycle <= std_logic'('0');
+  --in_a_write_cycle assignment, which is an e_mux
+  in_a_write_cycle <= tc_i_mem_pcp_s2_in_a_write_cycle;
+  wait_for_tc_i_mem_pcp_s2_counter <= std_logic'('0');
+  --tc_i_mem_pcp_s2_byteenable byte enable port mux, which is an e_mux
+  tc_i_mem_pcp_s2_byteenable <= A_EXT (-SIGNED(std_logic_vector'("00000000000000000000000000000001")), 4);
+  --vhdl renameroo for output signals
+  pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 <= internal_pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2;
+  --vhdl renameroo for output signals
+  pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 <= internal_pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2;
+  --vhdl renameroo for output signals
+  pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 <= internal_pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2;
+--synthesis translate_off
+    --tc_i_mem_pcp/s2 enable non-zero assertions, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        enable_nonzero_assertions <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        enable_nonzero_assertions <= std_logic'('1');
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
 library std;
 use std.textio.all;
 
@@ -12042,6 +13333,11 @@ entity tri_state_bridge_0_avalon_slave_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_address_to_slave : IN STD_LOGIC_VECTOR (20 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_read : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_write : IN STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
                  signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal pcp_cpu_data_master_dbs_address : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -12063,6 +13359,10 @@ entity tri_state_bridge_0_avalon_slave_arbitrator is
                  signal d1_tri_state_bridge_0_avalon_slave_end_xfer : OUT STD_LOGIC;
                  signal data_to_and_from_the_sram_0 : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal incoming_data_to_and_from_the_sram_0 : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                 signal niosII_openMac_clock_4_out_granted_sram_0_s0 : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_qualified_request_sram_0_s0 : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 : OUT STD_LOGIC;
+                 signal niosII_openMac_clock_4_out_requests_sram_0_s0 : OUT STD_LOGIC;
                  signal oe_n_to_the_sram_0 : OUT STD_LOGIC;
                  signal pcp_cpu_data_master_byteenable_sram_0_s0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal pcp_cpu_data_master_granted_sram_0_s0 : OUT STD_LOGIC;
@@ -12087,6 +13387,9 @@ architecture europa of tri_state_bridge_0_avalon_slave_arbitrator is
                 signal end_xfer_arb_share_counter_term_tri_state_bridge_0_avalon_slave :  STD_LOGIC;
                 signal in_a_read_cycle :  STD_LOGIC;
                 signal in_a_write_cycle :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_4_out_granted_sram_0_s0 :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_4_out_qualified_request_sram_0_s0 :  STD_LOGIC;
+                signal internal_niosII_openMac_clock_4_out_requests_sram_0_s0 :  STD_LOGIC;
                 signal internal_pcp_cpu_data_master_byteenable_sram_0_s0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_pcp_cpu_data_master_granted_sram_0_s0 :  STD_LOGIC;
                 signal internal_pcp_cpu_data_master_qualified_request_sram_0_s0 :  STD_LOGIC;
@@ -12094,12 +13397,20 @@ architecture europa of tri_state_bridge_0_avalon_slave_arbitrator is
                 signal internal_pcp_cpu_instruction_master_granted_sram_0_s0 :  STD_LOGIC;
                 signal internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0 :  STD_LOGIC;
                 signal internal_pcp_cpu_instruction_master_requests_sram_0_s0 :  STD_LOGIC;
+                signal last_cycle_niosII_openMac_clock_4_out_granted_slave_sram_0_s0 :  STD_LOGIC;
                 signal last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 :  STD_LOGIC;
                 signal last_cycle_pcp_cpu_instruction_master_granted_slave_sram_0_s0 :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_arbiterlock :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_arbiterlock2 :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_continuerequest :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register_in :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_saved_grant_sram_0_s0 :  STD_LOGIC;
                 signal outgoing_data_to_and_from_the_sram_0 :  STD_LOGIC_VECTOR (15 DOWNTO 0);
                 signal p1_addr_to_the_sram_0 :  STD_LOGIC_VECTOR (20 DOWNTO 0);
                 signal p1_be_n_to_the_sram_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal p1_ce_n_to_the_sram_0 :  STD_LOGIC;
+                signal p1_niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal p1_oe_n_to_the_sram_0 :  STD_LOGIC;
                 signal p1_pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal p1_pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register :  STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -12128,25 +13439,25 @@ architecture europa of tri_state_bridge_0_avalon_slave_arbitrator is
                 signal tri_state_bridge_0_avalon_slave_allow_new_arb_cycle :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_any_bursting_master_saved_grant :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_any_continuerequest :  STD_LOGIC;
-                signal tri_state_bridge_0_avalon_slave_arb_addend :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tri_state_bridge_0_avalon_slave_arb_addend :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal tri_state_bridge_0_avalon_slave_arb_counter_enable :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_arb_share_counter :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal tri_state_bridge_0_avalon_slave_arb_share_counter_next_value :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal tri_state_bridge_0_avalon_slave_arb_share_set_values :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal tri_state_bridge_0_avalon_slave_arb_winner :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tri_state_bridge_0_avalon_slave_arb_winner :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal tri_state_bridge_0_avalon_slave_arbitration_holdoff_internal :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_beginbursttransfer_internal :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_begins_xfer :  STD_LOGIC;
-                signal tri_state_bridge_0_avalon_slave_chosen_master_double_vector :  STD_LOGIC_VECTOR (3 DOWNTO 0);
-                signal tri_state_bridge_0_avalon_slave_chosen_master_rot_left :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tri_state_bridge_0_avalon_slave_chosen_master_double_vector :  STD_LOGIC_VECTOR (5 DOWNTO 0);
+                signal tri_state_bridge_0_avalon_slave_chosen_master_rot_left :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal tri_state_bridge_0_avalon_slave_end_xfer :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_firsttransfer :  STD_LOGIC;
-                signal tri_state_bridge_0_avalon_slave_grant_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal tri_state_bridge_0_avalon_slave_master_qreq_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tri_state_bridge_0_avalon_slave_grant_vector :  STD_LOGIC_VECTOR (2 DOWNTO 0);
+                signal tri_state_bridge_0_avalon_slave_master_qreq_vector :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal tri_state_bridge_0_avalon_slave_non_bursting_master_requests :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_read_pending :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_reg_firsttransfer :  STD_LOGIC;
-                signal tri_state_bridge_0_avalon_slave_saved_chosen_master_vector :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal tri_state_bridge_0_avalon_slave_saved_chosen_master_vector :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal tri_state_bridge_0_avalon_slave_slavearbiterlockenable :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_slavearbiterlockenable2 :  STD_LOGIC;
                 signal tri_state_bridge_0_avalon_slave_unreg_firsttransfer :  STD_LOGIC;
@@ -12174,8 +13485,8 @@ begin
 
   end process;
 
-  tri_state_bridge_0_avalon_slave_begins_xfer <= NOT d1_reasons_to_wait AND ((internal_pcp_cpu_data_master_qualified_request_sram_0_s0 OR internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0));
-  internal_pcp_cpu_data_master_requests_sram_0_s0 <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("0010000000000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  tri_state_bridge_0_avalon_slave_begins_xfer <= NOT d1_reasons_to_wait AND (((internal_niosII_openMac_clock_4_out_qualified_request_sram_0_s0 OR internal_pcp_cpu_data_master_qualified_request_sram_0_s0) OR internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0));
+  internal_niosII_openMac_clock_4_out_requests_sram_0_s0 <= Vector_To_Std_Logic(((std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_4_out_read OR niosII_openMac_clock_4_out_write)))))));
   --~ce_n_to_the_sram_0 of type chipselect to ~p1_ce_n_to_the_sram_0, which is an e_register
   process (clk, reset_n)
   begin
@@ -12190,18 +13501,16 @@ begin
   tri_state_bridge_0_avalon_slave_write_pending <= std_logic'('0');
   --tri_state_bridge_0/avalon_slave read pending calc, which is an e_assign
   tri_state_bridge_0_avalon_slave_read_pending <= std_logic'('0');
-  --registered rdv signal_name registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 assignment, which is an e_assign
-  registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 <= pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register(0);
   --tri_state_bridge_0_avalon_slave_arb_share_counter set values, which is an e_mux
-  tri_state_bridge_0_avalon_slave_arb_share_set_values <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_instruction_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_instruction_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), std_logic_vector'("00000000000000000000000000000001"))))), 2);
+  tri_state_bridge_0_avalon_slave_arb_share_set_values <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_instruction_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_instruction_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_instruction_master_granted_sram_0_s0)) = '1'), std_logic_vector'("00000000000000000000000000000010"), std_logic_vector'("00000000000000000000000000000001"))))))), 2);
   --tri_state_bridge_0_avalon_slave_non_bursting_master_requests mux, which is an e_mux
-  tri_state_bridge_0_avalon_slave_non_bursting_master_requests <= ((internal_pcp_cpu_data_master_requests_sram_0_s0 OR internal_pcp_cpu_instruction_master_requests_sram_0_s0) OR internal_pcp_cpu_data_master_requests_sram_0_s0) OR internal_pcp_cpu_instruction_master_requests_sram_0_s0;
+  tri_state_bridge_0_avalon_slave_non_bursting_master_requests <= (((((((internal_niosII_openMac_clock_4_out_requests_sram_0_s0 OR internal_pcp_cpu_data_master_requests_sram_0_s0) OR internal_pcp_cpu_instruction_master_requests_sram_0_s0) OR internal_niosII_openMac_clock_4_out_requests_sram_0_s0) OR internal_pcp_cpu_data_master_requests_sram_0_s0) OR internal_pcp_cpu_instruction_master_requests_sram_0_s0) OR internal_niosII_openMac_clock_4_out_requests_sram_0_s0) OR internal_pcp_cpu_data_master_requests_sram_0_s0) OR internal_pcp_cpu_instruction_master_requests_sram_0_s0;
   --tri_state_bridge_0_avalon_slave_any_bursting_master_saved_grant mux, which is an e_mux
   tri_state_bridge_0_avalon_slave_any_bursting_master_saved_grant <= std_logic'('0');
   --tri_state_bridge_0_avalon_slave_arb_share_counter_next_value assignment, which is an e_assign
   tri_state_bridge_0_avalon_slave_arb_share_counter_next_value <= A_EXT (A_WE_StdLogicVector((std_logic'(tri_state_bridge_0_avalon_slave_firsttransfer) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (tri_state_bridge_0_avalon_slave_arb_share_set_values)) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(or_reduce(tri_state_bridge_0_avalon_slave_arb_share_counter)) = '1'), (((std_logic_vector'("0000000000000000000000000000000") & (tri_state_bridge_0_avalon_slave_arb_share_counter)) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))), 2);
   --tri_state_bridge_0_avalon_slave_allgrants all slave grants, which is an e_mux
-  tri_state_bridge_0_avalon_slave_allgrants <= (((or_reduce(tri_state_bridge_0_avalon_slave_grant_vector)) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector));
+  tri_state_bridge_0_avalon_slave_allgrants <= ((((((((or_reduce(tri_state_bridge_0_avalon_slave_grant_vector)) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector))) OR (or_reduce(tri_state_bridge_0_avalon_slave_grant_vector));
   --tri_state_bridge_0_avalon_slave_end_xfer assignment, which is an e_assign
   tri_state_bridge_0_avalon_slave_end_xfer <= NOT ((sram_0_s0_waits_for_read OR sram_0_s0_waits_for_write));
   --end_xfer_arb_share_counter_term_tri_state_bridge_0_avalon_slave arb share counter enable term, which is an e_assign
@@ -12234,12 +13543,31 @@ begin
 
   end process;
 
-  --pcp_cpu/data_master tri_state_bridge_0/avalon_slave arbiterlock, which is an e_assign
-  pcp_cpu_data_master_arbiterlock <= tri_state_bridge_0_avalon_slave_slavearbiterlockenable AND pcp_cpu_data_master_continuerequest;
+  --niosII_openMac_clock_4/out tri_state_bridge_0/avalon_slave arbiterlock, which is an e_assign
+  niosII_openMac_clock_4_out_arbiterlock <= tri_state_bridge_0_avalon_slave_slavearbiterlockenable AND niosII_openMac_clock_4_out_continuerequest;
   --tri_state_bridge_0_avalon_slave_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
   tri_state_bridge_0_avalon_slave_slavearbiterlockenable2 <= or_reduce(tri_state_bridge_0_avalon_slave_arb_share_counter_next_value);
+  --niosII_openMac_clock_4/out tri_state_bridge_0/avalon_slave arbiterlock2, which is an e_assign
+  niosII_openMac_clock_4_out_arbiterlock2 <= tri_state_bridge_0_avalon_slave_slavearbiterlockenable2 AND niosII_openMac_clock_4_out_continuerequest;
+  --pcp_cpu/data_master tri_state_bridge_0/avalon_slave arbiterlock, which is an e_assign
+  pcp_cpu_data_master_arbiterlock <= tri_state_bridge_0_avalon_slave_slavearbiterlockenable AND pcp_cpu_data_master_continuerequest;
   --pcp_cpu/data_master tri_state_bridge_0/avalon_slave arbiterlock2, which is an e_assign
   pcp_cpu_data_master_arbiterlock2 <= tri_state_bridge_0_avalon_slave_slavearbiterlockenable2 AND pcp_cpu_data_master_continuerequest;
+  --pcp_cpu/data_master granted sram_0/s0 last time, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(pcp_cpu_data_master_saved_grant_sram_0_s0) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'(((tri_state_bridge_0_avalon_slave_arbitration_holdoff_internal OR NOT internal_pcp_cpu_data_master_requests_sram_0_s0))) = '1'), std_logic_vector'("00000000000000000000000000000000"), (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0))))));
+    end if;
+
+  end process;
+
+  --pcp_cpu_data_master_continuerequest continued request, which is an e_mux
+  pcp_cpu_data_master_continuerequest <= ((last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 AND internal_pcp_cpu_data_master_requests_sram_0_s0)) OR ((last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 AND internal_pcp_cpu_data_master_requests_sram_0_s0));
+  --tri_state_bridge_0_avalon_slave_any_continuerequest at least one master continues requesting, which is an e_mux
+  tri_state_bridge_0_avalon_slave_any_continuerequest <= ((((pcp_cpu_data_master_continuerequest OR pcp_cpu_instruction_master_continuerequest) OR niosII_openMac_clock_4_out_continuerequest) OR pcp_cpu_instruction_master_continuerequest) OR niosII_openMac_clock_4_out_continuerequest) OR pcp_cpu_data_master_continuerequest;
   --pcp_cpu/instruction_master tri_state_bridge_0/avalon_slave arbiterlock, which is an e_assign
   pcp_cpu_instruction_master_arbiterlock <= tri_state_bridge_0_avalon_slave_slavearbiterlockenable AND pcp_cpu_instruction_master_continuerequest;
   --pcp_cpu/instruction_master tri_state_bridge_0/avalon_slave arbiterlock2, which is an e_assign
@@ -12256,27 +13584,25 @@ begin
   end process;
 
   --pcp_cpu_instruction_master_continuerequest continued request, which is an e_mux
-  pcp_cpu_instruction_master_continuerequest <= last_cycle_pcp_cpu_instruction_master_granted_slave_sram_0_s0 AND internal_pcp_cpu_instruction_master_requests_sram_0_s0;
-  --tri_state_bridge_0_avalon_slave_any_continuerequest at least one master continues requesting, which is an e_mux
-  tri_state_bridge_0_avalon_slave_any_continuerequest <= pcp_cpu_instruction_master_continuerequest OR pcp_cpu_data_master_continuerequest;
-  internal_pcp_cpu_data_master_qualified_request_sram_0_s0 <= internal_pcp_cpu_data_master_requests_sram_0_s0 AND NOT (((((pcp_cpu_data_master_read AND (((tri_state_bridge_0_avalon_slave_write_pending OR (tri_state_bridge_0_avalon_slave_read_pending)) OR (or_reduce(pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register)))))) OR ((((((NOT pcp_cpu_data_master_waitrequest OR tri_state_bridge_0_avalon_slave_read_pending) OR pcp_cpu_data_master_no_byte_enables_and_last_term) OR NOT(or_reduce(internal_pcp_cpu_data_master_byteenable_sram_0_s0)))) AND pcp_cpu_data_master_write))) OR pcp_cpu_instruction_master_arbiterlock));
-  --pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register_in mux for readlatency shift register, which is an e_mux
-  pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register_in <= ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_read) AND NOT sram_0_s0_waits_for_read) AND NOT (or_reduce(pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register));
-  --shift register p1 pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register in if flush, otherwise shift left, which is an e_mux
-  p1_pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register <= A_EXT ((pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register & A_ToStdLogicVector(pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register_in)), 2);
-  --pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register for remembering which master asked for a fixed latency read, which is an e_register
+  pcp_cpu_instruction_master_continuerequest <= ((last_cycle_pcp_cpu_instruction_master_granted_slave_sram_0_s0 AND internal_pcp_cpu_instruction_master_requests_sram_0_s0)) OR ((last_cycle_pcp_cpu_instruction_master_granted_slave_sram_0_s0 AND internal_pcp_cpu_instruction_master_requests_sram_0_s0));
+  internal_niosII_openMac_clock_4_out_qualified_request_sram_0_s0 <= internal_niosII_openMac_clock_4_out_requests_sram_0_s0 AND NOT ((((((niosII_openMac_clock_4_out_read AND (((tri_state_bridge_0_avalon_slave_write_pending OR (tri_state_bridge_0_avalon_slave_read_pending)) OR (or_reduce(niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register)))))) OR (((tri_state_bridge_0_avalon_slave_read_pending) AND niosII_openMac_clock_4_out_write))) OR pcp_cpu_data_master_arbiterlock) OR pcp_cpu_instruction_master_arbiterlock));
+  --niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register_in mux for readlatency shift register, which is an e_mux
+  niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register_in <= ((internal_niosII_openMac_clock_4_out_granted_sram_0_s0 AND niosII_openMac_clock_4_out_read) AND NOT sram_0_s0_waits_for_read) AND NOT (or_reduce(niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register));
+  --shift register p1 niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register in if flush, otherwise shift left, which is an e_mux
+  p1_niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register <= A_EXT ((niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register & A_ToStdLogicVector(niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register_in)), 2);
+  --niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register for remembering which master asked for a fixed latency read, which is an e_register
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register <= std_logic_vector'("00");
+      niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register <= std_logic_vector'("00");
     elsif clk'event and clk = '1' then
-      pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register <= p1_pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register;
+      niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register <= p1_niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register;
     end if;
 
   end process;
 
-  --local readdatavalid pcp_cpu_data_master_read_data_valid_sram_0_s0, which is an e_mux
-  pcp_cpu_data_master_read_data_valid_sram_0_s0 <= pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register(1);
+  --local readdatavalid niosII_openMac_clock_4_out_read_data_valid_sram_0_s0, which is an e_mux
+  niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 <= niosII_openMac_clock_4_out_read_data_valid_sram_0_s0_shift_register(1);
   --data_to_and_from_the_sram_0 register, which is an e_register
   process (clk, reset_n)
   begin
@@ -12289,9 +13615,9 @@ begin
   end process;
 
   --sram_0_s0_with_write_latency assignment, which is an e_assign
-  sram_0_s0_with_write_latency <= in_a_write_cycle AND ((internal_pcp_cpu_data_master_qualified_request_sram_0_s0 OR internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0));
+  sram_0_s0_with_write_latency <= in_a_write_cycle AND (((internal_niosII_openMac_clock_4_out_qualified_request_sram_0_s0 OR internal_pcp_cpu_data_master_qualified_request_sram_0_s0) OR internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0));
   --time to write the data, which is an e_mux
-  time_to_write <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'((sram_0_s0_with_write_latency)) = '1'), std_logic_vector'("00000000000000000000000000000001"), std_logic_vector'("00000000000000000000000000000000")));
+  time_to_write <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'((sram_0_s0_with_write_latency)) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'((sram_0_s0_with_write_latency)) = '1'), std_logic_vector'("00000000000000000000000000000001"), std_logic_vector'("00000000000000000000000000000000"))));
   --d1_outgoing_data_to_and_from_the_sram_0 register, which is an e_register
   process (clk, reset_n)
   begin
@@ -12317,22 +13643,43 @@ begin
   --d1_outgoing_data_to_and_from_the_sram_0 tristate driver, which is an e_assign
   data_to_and_from_the_sram_0 <= A_WE_StdLogicVector((std_logic'((d1_in_a_write_cycle)) = '1'), d1_outgoing_data_to_and_from_the_sram_0, A_REP(std_logic'('Z'), 16));
   --outgoing_data_to_and_from_the_sram_0 mux, which is an e_mux
-  outgoing_data_to_and_from_the_sram_0 <= pcp_cpu_data_master_dbs_write_16;
-  internal_pcp_cpu_instruction_master_requests_sram_0_s0 <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_instruction_master_address_to_slave(22 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("10000000000000000000000")))) AND (pcp_cpu_instruction_master_read))) AND pcp_cpu_instruction_master_read;
-  --pcp_cpu/data_master granted sram_0/s0 last time, which is an e_register
+  outgoing_data_to_and_from_the_sram_0 <= A_WE_StdLogicVector((std_logic'((internal_niosII_openMac_clock_4_out_granted_sram_0_s0)) = '1'), niosII_openMac_clock_4_out_writedata, pcp_cpu_data_master_dbs_write_16);
+  internal_pcp_cpu_data_master_requests_sram_0_s0 <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(24 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("0010000000000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  --registered rdv signal_name registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 assignment, which is an e_assign
+  registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 <= pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register(0);
+  --niosII_openMac_clock_4/out granted sram_0/s0 last time, which is an e_register
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 <= std_logic'('0');
+      last_cycle_niosII_openMac_clock_4_out_granted_slave_sram_0_s0 <= std_logic'('0');
     elsif clk'event and clk = '1' then
-      last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(pcp_cpu_data_master_saved_grant_sram_0_s0) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'(((tri_state_bridge_0_avalon_slave_arbitration_holdoff_internal OR NOT internal_pcp_cpu_data_master_requests_sram_0_s0))) = '1'), std_logic_vector'("00000000000000000000000000000000"), (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0))))));
+      last_cycle_niosII_openMac_clock_4_out_granted_slave_sram_0_s0 <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(niosII_openMac_clock_4_out_saved_grant_sram_0_s0) = '1'), std_logic_vector'("00000000000000000000000000000001"), A_WE_StdLogicVector((std_logic'(((tri_state_bridge_0_avalon_slave_arbitration_holdoff_internal OR NOT internal_niosII_openMac_clock_4_out_requests_sram_0_s0))) = '1'), std_logic_vector'("00000000000000000000000000000000"), (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(last_cycle_niosII_openMac_clock_4_out_granted_slave_sram_0_s0))))));
     end if;
 
   end process;
 
-  --pcp_cpu_data_master_continuerequest continued request, which is an e_mux
-  pcp_cpu_data_master_continuerequest <= last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 AND internal_pcp_cpu_data_master_requests_sram_0_s0;
-  internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0 <= internal_pcp_cpu_instruction_master_requests_sram_0_s0 AND NOT ((((pcp_cpu_instruction_master_read AND (((tri_state_bridge_0_avalon_slave_write_pending OR (tri_state_bridge_0_avalon_slave_read_pending)) OR to_std_logic(((std_logic_vector'("00000000000000000000000000000010")<(std_logic_vector'("000000000000000000000000000000") & (pcp_cpu_instruction_master_latency_counter))))))))) OR pcp_cpu_data_master_arbiterlock));
+  --niosII_openMac_clock_4_out_continuerequest continued request, which is an e_mux
+  niosII_openMac_clock_4_out_continuerequest <= ((last_cycle_niosII_openMac_clock_4_out_granted_slave_sram_0_s0 AND internal_niosII_openMac_clock_4_out_requests_sram_0_s0)) OR ((last_cycle_niosII_openMac_clock_4_out_granted_slave_sram_0_s0 AND internal_niosII_openMac_clock_4_out_requests_sram_0_s0));
+  internal_pcp_cpu_data_master_qualified_request_sram_0_s0 <= internal_pcp_cpu_data_master_requests_sram_0_s0 AND NOT ((((((pcp_cpu_data_master_read AND (((tri_state_bridge_0_avalon_slave_write_pending OR (tri_state_bridge_0_avalon_slave_read_pending)) OR (or_reduce(pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register)))))) OR ((((((NOT pcp_cpu_data_master_waitrequest OR tri_state_bridge_0_avalon_slave_read_pending) OR pcp_cpu_data_master_no_byte_enables_and_last_term) OR NOT(or_reduce(internal_pcp_cpu_data_master_byteenable_sram_0_s0)))) AND pcp_cpu_data_master_write))) OR niosII_openMac_clock_4_out_arbiterlock) OR pcp_cpu_instruction_master_arbiterlock));
+  --pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register_in mux for readlatency shift register, which is an e_mux
+  pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register_in <= ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_read) AND NOT sram_0_s0_waits_for_read) AND NOT (or_reduce(pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register));
+  --shift register p1 pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register in if flush, otherwise shift left, which is an e_mux
+  p1_pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register <= A_EXT ((pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register & A_ToStdLogicVector(pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register_in)), 2);
+  --pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register for remembering which master asked for a fixed latency read, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register <= std_logic_vector'("00");
+    elsif clk'event and clk = '1' then
+      pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register <= p1_pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register;
+    end if;
+
+  end process;
+
+  --local readdatavalid pcp_cpu_data_master_read_data_valid_sram_0_s0, which is an e_mux
+  pcp_cpu_data_master_read_data_valid_sram_0_s0 <= pcp_cpu_data_master_read_data_valid_sram_0_s0_shift_register(1);
+  internal_pcp_cpu_instruction_master_requests_sram_0_s0 <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_instruction_master_address_to_slave(22 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("10000000000000000000000")))) AND (pcp_cpu_instruction_master_read))) AND pcp_cpu_instruction_master_read;
+  internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0 <= internal_pcp_cpu_instruction_master_requests_sram_0_s0 AND NOT (((((pcp_cpu_instruction_master_read AND (((tri_state_bridge_0_avalon_slave_write_pending OR (tri_state_bridge_0_avalon_slave_read_pending)) OR to_std_logic(((std_logic_vector'("00000000000000000000000000000010")<(std_logic_vector'("000000000000000000000000000000") & (pcp_cpu_instruction_master_latency_counter))))))))) OR niosII_openMac_clock_4_out_arbiterlock) OR pcp_cpu_data_master_arbiterlock));
   --pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register_in mux for readlatency shift register, which is an e_mux
   pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register_in <= (internal_pcp_cpu_instruction_master_granted_sram_0_s0 AND pcp_cpu_instruction_master_read) AND NOT sram_0_s0_waits_for_read;
   --shift register p1 pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register in if flush, otherwise shift left, which is an e_mux
@@ -12351,7 +13698,7 @@ begin
   --local readdatavalid pcp_cpu_instruction_master_read_data_valid_sram_0_s0, which is an e_mux
   pcp_cpu_instruction_master_read_data_valid_sram_0_s0 <= pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register(1);
   --allow new arb cycle for tri_state_bridge_0/avalon_slave, which is an e_assign
-  tri_state_bridge_0_avalon_slave_allow_new_arb_cycle <= NOT pcp_cpu_data_master_arbiterlock AND NOT pcp_cpu_instruction_master_arbiterlock;
+  tri_state_bridge_0_avalon_slave_allow_new_arb_cycle <= (NOT niosII_openMac_clock_4_out_arbiterlock AND NOT pcp_cpu_data_master_arbiterlock) AND NOT pcp_cpu_instruction_master_arbiterlock;
   --pcp_cpu/instruction_master assignment into master qualified-requests vector for sram_0/s0, which is an e_assign
   tri_state_bridge_0_avalon_slave_master_qreq_vector(0) <= internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0;
   --pcp_cpu/instruction_master grant sram_0/s0, which is an e_assign
@@ -12364,15 +13711,21 @@ begin
   internal_pcp_cpu_data_master_granted_sram_0_s0 <= tri_state_bridge_0_avalon_slave_grant_vector(1);
   --pcp_cpu/data_master saved-grant sram_0/s0, which is an e_assign
   pcp_cpu_data_master_saved_grant_sram_0_s0 <= tri_state_bridge_0_avalon_slave_arb_winner(1) AND internal_pcp_cpu_data_master_requests_sram_0_s0;
+  --niosII_openMac_clock_4/out assignment into master qualified-requests vector for sram_0/s0, which is an e_assign
+  tri_state_bridge_0_avalon_slave_master_qreq_vector(2) <= internal_niosII_openMac_clock_4_out_qualified_request_sram_0_s0;
+  --niosII_openMac_clock_4/out grant sram_0/s0, which is an e_assign
+  internal_niosII_openMac_clock_4_out_granted_sram_0_s0 <= tri_state_bridge_0_avalon_slave_grant_vector(2);
+  --niosII_openMac_clock_4/out saved-grant sram_0/s0, which is an e_assign
+  niosII_openMac_clock_4_out_saved_grant_sram_0_s0 <= tri_state_bridge_0_avalon_slave_arb_winner(2) AND internal_niosII_openMac_clock_4_out_requests_sram_0_s0;
   --tri_state_bridge_0/avalon_slave chosen-master double-vector, which is an e_assign
-  tri_state_bridge_0_avalon_slave_chosen_master_double_vector <= A_EXT (((std_logic_vector'("0") & ((tri_state_bridge_0_avalon_slave_master_qreq_vector & tri_state_bridge_0_avalon_slave_master_qreq_vector))) AND (((std_logic_vector'("0") & (Std_Logic_Vector'(NOT tri_state_bridge_0_avalon_slave_master_qreq_vector & NOT tri_state_bridge_0_avalon_slave_master_qreq_vector))) + (std_logic_vector'("000") & (tri_state_bridge_0_avalon_slave_arb_addend))))), 4);
+  tri_state_bridge_0_avalon_slave_chosen_master_double_vector <= A_EXT (((std_logic_vector'("0") & ((tri_state_bridge_0_avalon_slave_master_qreq_vector & tri_state_bridge_0_avalon_slave_master_qreq_vector))) AND (((std_logic_vector'("0") & (Std_Logic_Vector'(NOT tri_state_bridge_0_avalon_slave_master_qreq_vector & NOT tri_state_bridge_0_avalon_slave_master_qreq_vector))) + (std_logic_vector'("0000") & (tri_state_bridge_0_avalon_slave_arb_addend))))), 6);
   --stable onehot encoding of arb winner
   tri_state_bridge_0_avalon_slave_arb_winner <= A_WE_StdLogicVector((std_logic'(((tri_state_bridge_0_avalon_slave_allow_new_arb_cycle AND or_reduce(tri_state_bridge_0_avalon_slave_grant_vector)))) = '1'), tri_state_bridge_0_avalon_slave_grant_vector, tri_state_bridge_0_avalon_slave_saved_chosen_master_vector);
   --saved tri_state_bridge_0_avalon_slave_grant_vector, which is an e_register
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      tri_state_bridge_0_avalon_slave_saved_chosen_master_vector <= std_logic_vector'("00");
+      tri_state_bridge_0_avalon_slave_saved_chosen_master_vector <= std_logic_vector'("000");
     elsif clk'event and clk = '1' then
       if std_logic'(tri_state_bridge_0_avalon_slave_allow_new_arb_cycle) = '1' then 
         tri_state_bridge_0_avalon_slave_saved_chosen_master_vector <= A_WE_StdLogicVector((std_logic'(or_reduce(tri_state_bridge_0_avalon_slave_grant_vector)) = '1'), tri_state_bridge_0_avalon_slave_grant_vector, tri_state_bridge_0_avalon_slave_saved_chosen_master_vector);
@@ -12382,14 +13735,14 @@ begin
   end process;
 
   --onehot encoding of chosen master
-  tri_state_bridge_0_avalon_slave_grant_vector <= Std_Logic_Vector'(A_ToStdLogicVector(((tri_state_bridge_0_avalon_slave_chosen_master_double_vector(1) OR tri_state_bridge_0_avalon_slave_chosen_master_double_vector(3)))) & A_ToStdLogicVector(((tri_state_bridge_0_avalon_slave_chosen_master_double_vector(0) OR tri_state_bridge_0_avalon_slave_chosen_master_double_vector(2)))));
+  tri_state_bridge_0_avalon_slave_grant_vector <= Std_Logic_Vector'(A_ToStdLogicVector(((tri_state_bridge_0_avalon_slave_chosen_master_double_vector(2) OR tri_state_bridge_0_avalon_slave_chosen_master_double_vector(5)))) & A_ToStdLogicVector(((tri_state_bridge_0_avalon_slave_chosen_master_double_vector(1) OR tri_state_bridge_0_avalon_slave_chosen_master_double_vector(4)))) & A_ToStdLogicVector(((tri_state_bridge_0_avalon_slave_chosen_master_double_vector(0) OR tri_state_bridge_0_avalon_slave_chosen_master_double_vector(3)))));
   --tri_state_bridge_0/avalon_slave chosen master rotated left, which is an e_assign
-  tri_state_bridge_0_avalon_slave_chosen_master_rot_left <= A_EXT (A_WE_StdLogicVector((((A_SLL(tri_state_bridge_0_avalon_slave_arb_winner,std_logic_vector'("00000000000000000000000000000001")))) /= std_logic_vector'("00")), (std_logic_vector'("000000000000000000000000000000") & ((A_SLL(tri_state_bridge_0_avalon_slave_arb_winner,std_logic_vector'("00000000000000000000000000000001"))))), std_logic_vector'("00000000000000000000000000000001")), 2);
+  tri_state_bridge_0_avalon_slave_chosen_master_rot_left <= A_EXT (A_WE_StdLogicVector((((A_SLL(tri_state_bridge_0_avalon_slave_arb_winner,std_logic_vector'("00000000000000000000000000000001")))) /= std_logic_vector'("000")), (std_logic_vector'("00000000000000000000000000000") & ((A_SLL(tri_state_bridge_0_avalon_slave_arb_winner,std_logic_vector'("00000000000000000000000000000001"))))), std_logic_vector'("00000000000000000000000000000001")), 3);
   --tri_state_bridge_0/avalon_slave's addend for next-master-grant
   process (clk, reset_n)
   begin
     if reset_n = '0' then
-      tri_state_bridge_0_avalon_slave_arb_addend <= std_logic_vector'("01");
+      tri_state_bridge_0_avalon_slave_arb_addend <= std_logic_vector'("001");
     elsif clk'event and clk = '1' then
       if std_logic'(or_reduce(tri_state_bridge_0_avalon_slave_grant_vector)) = '1' then 
         tri_state_bridge_0_avalon_slave_arb_addend <= A_WE_StdLogicVector((std_logic'(tri_state_bridge_0_avalon_slave_end_xfer) = '1'), tri_state_bridge_0_avalon_slave_chosen_master_rot_left, tri_state_bridge_0_avalon_slave_grant_vector);
@@ -12411,7 +13764,7 @@ begin
 
   --~p1_oe_n_to_the_sram_0 assignment, which is an e_mux
   p1_oe_n_to_the_sram_0 <= NOT sram_0_s0_in_a_read_cycle;
-  p1_ce_n_to_the_sram_0 <= NOT ((internal_pcp_cpu_data_master_granted_sram_0_s0 OR internal_pcp_cpu_instruction_master_granted_sram_0_s0));
+  p1_ce_n_to_the_sram_0 <= NOT (((internal_niosII_openMac_clock_4_out_granted_sram_0_s0 OR internal_pcp_cpu_data_master_granted_sram_0_s0) OR internal_pcp_cpu_instruction_master_granted_sram_0_s0));
   --tri_state_bridge_0_avalon_slave_firsttransfer first transaction, which is an e_assign
   tri_state_bridge_0_avalon_slave_firsttransfer <= A_WE_StdLogic((std_logic'(tri_state_bridge_0_avalon_slave_begins_xfer) = '1'), tri_state_bridge_0_avalon_slave_unreg_firsttransfer, tri_state_bridge_0_avalon_slave_reg_firsttransfer);
   --tri_state_bridge_0_avalon_slave_unreg_firsttransfer first transaction, which is an e_assign
@@ -12456,7 +13809,7 @@ begin
   end process;
 
   --~p1_we_n_to_the_sram_0 assignment, which is an e_mux
-  p1_we_n_to_the_sram_0 <= NOT ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write));
+  p1_we_n_to_the_sram_0 <= NOT ((((internal_niosII_openMac_clock_4_out_granted_sram_0_s0 AND niosII_openMac_clock_4_out_write)) OR ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write))));
   --addr_to_the_sram_0 of type address to p1_addr_to_the_sram_0, which is an e_register
   process (clk, reset_n)
   begin
@@ -12469,7 +13822,7 @@ begin
   end process;
 
   --p1_addr_to_the_sram_0 mux, which is an e_mux
-  p1_addr_to_the_sram_0 <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), (Std_Logic_Vector'(A_SRL(pcp_cpu_data_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_data_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0')))), (std_logic_vector'("00") & ((Std_Logic_Vector'(A_SRL(pcp_cpu_instruction_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_instruction_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0'))))))), 21);
+  p1_addr_to_the_sram_0 <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_niosII_openMac_clock_4_out_granted_sram_0_s0)) = '1'), (std_logic_vector'("000000") & (niosII_openMac_clock_4_out_address_to_slave)), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), (Std_Logic_Vector'(A_SRL(pcp_cpu_data_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_data_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0')))), (std_logic_vector'("00") & ((Std_Logic_Vector'(A_SRL(pcp_cpu_instruction_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_instruction_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0')))))))), 21);
   --d1_tri_state_bridge_0_avalon_slave_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
@@ -12484,20 +13837,26 @@ begin
   --sram_0_s0_waits_for_read in a cycle, which is an e_mux
   sram_0_s0_waits_for_read <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(sram_0_s0_in_a_read_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
   --sram_0_s0_in_a_read_cycle assignment, which is an e_assign
-  sram_0_s0_in_a_read_cycle <= ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_read)) OR ((internal_pcp_cpu_instruction_master_granted_sram_0_s0 AND pcp_cpu_instruction_master_read));
+  sram_0_s0_in_a_read_cycle <= (((internal_niosII_openMac_clock_4_out_granted_sram_0_s0 AND niosII_openMac_clock_4_out_read)) OR ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_read))) OR ((internal_pcp_cpu_instruction_master_granted_sram_0_s0 AND pcp_cpu_instruction_master_read));
   --in_a_read_cycle assignment, which is an e_mux
   in_a_read_cycle <= sram_0_s0_in_a_read_cycle;
   --sram_0_s0_waits_for_write in a cycle, which is an e_mux
   sram_0_s0_waits_for_write <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(sram_0_s0_in_a_write_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
   --sram_0_s0_in_a_write_cycle assignment, which is an e_assign
-  sram_0_s0_in_a_write_cycle <= internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write;
+  sram_0_s0_in_a_write_cycle <= ((internal_niosII_openMac_clock_4_out_granted_sram_0_s0 AND niosII_openMac_clock_4_out_write)) OR ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write));
   --in_a_write_cycle assignment, which is an e_mux
   in_a_write_cycle <= sram_0_s0_in_a_write_cycle;
   wait_for_sram_0_s0_counter <= std_logic'('0');
   --~p1_be_n_to_the_sram_0 byte enable port mux, which is an e_mux
-  p1_be_n_to_the_sram_0 <= A_EXT (NOT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), (std_logic_vector'("000000000000000000000000000000") & (internal_pcp_cpu_data_master_byteenable_sram_0_s0)), -SIGNED(std_logic_vector'("00000000000000000000000000000001")))), 2);
+  p1_be_n_to_the_sram_0 <= A_EXT (NOT (A_WE_StdLogicVector((std_logic'((internal_niosII_openMac_clock_4_out_granted_sram_0_s0)) = '1'), (std_logic_vector'("000000000000000000000000000000") & (niosII_openMac_clock_4_out_byteenable)), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), (std_logic_vector'("000000000000000000000000000000") & (internal_pcp_cpu_data_master_byteenable_sram_0_s0)), -SIGNED(std_logic_vector'("00000000000000000000000000000001"))))), 2);
   (pcp_cpu_data_master_byteenable_sram_0_s0_segment_1(1), pcp_cpu_data_master_byteenable_sram_0_s0_segment_1(0), pcp_cpu_data_master_byteenable_sram_0_s0_segment_0(1), pcp_cpu_data_master_byteenable_sram_0_s0_segment_0(0)) <= pcp_cpu_data_master_byteenable;
   internal_pcp_cpu_data_master_byteenable_sram_0_s0 <= A_WE_StdLogicVector((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_dbs_address(1)))) = std_logic_vector'("00000000000000000000000000000000"))), pcp_cpu_data_master_byteenable_sram_0_s0_segment_0, pcp_cpu_data_master_byteenable_sram_0_s0_segment_1);
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_4_out_granted_sram_0_s0 <= internal_niosII_openMac_clock_4_out_granted_sram_0_s0;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_4_out_qualified_request_sram_0_s0 <= internal_niosII_openMac_clock_4_out_qualified_request_sram_0_s0;
+  --vhdl renameroo for output signals
+  niosII_openMac_clock_4_out_requests_sram_0_s0 <= internal_niosII_openMac_clock_4_out_requests_sram_0_s0;
   --vhdl renameroo for output signals
   pcp_cpu_data_master_byteenable_sram_0_s0 <= internal_pcp_cpu_data_master_byteenable_sram_0_s0;
   --vhdl renameroo for output signals
@@ -12526,15 +13885,15 @@ begin
 
     --grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line36 : line;
+    VARIABLE write_line53 : line;
     begin
       if clk'event and clk = '1' then
-        if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_data_master_granted_sram_0_s0))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_instruction_master_granted_sram_0_s0))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line36, now);
-          write(write_line36, string'(": "));
-          write(write_line36, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line36.all);
-          deallocate (write_line36);
+        if (std_logic_vector'("00000000000000000000000000000") & (((std_logic_vector'("0") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_niosII_openMac_clock_4_out_granted_sram_0_s0))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_data_master_granted_sram_0_s0)))))) + (std_logic_vector'("00") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_instruction_master_granted_sram_0_s0))))))>std_logic_vector'("00000000000000000000000000000001") then 
+          write(write_line53, now);
+          write(write_line53, string'(": "));
+          write(write_line53, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line53.all);
+          deallocate (write_line53);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12543,15 +13902,15 @@ begin
 
     --saved_grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line37 : line;
+    VARIABLE write_line54 : line;
     begin
       if clk'event and clk = '1' then
-        if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_saved_grant_sram_0_s0))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_saved_grant_sram_0_s0))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line37, now);
-          write(write_line37, string'(": "));
-          write(write_line37, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line37.all);
-          deallocate (write_line37);
+        if (std_logic_vector'("00000000000000000000000000000") & (((std_logic_vector'("0") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_4_out_saved_grant_sram_0_s0))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_saved_grant_sram_0_s0)))))) + (std_logic_vector'("00") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_saved_grant_sram_0_s0))))))>std_logic_vector'("00000000000000000000000000000001") then 
+          write(write_line54, now);
+          write(write_line54, string'(": "));
+          write(write_line54, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line54.all);
+          deallocate (write_line54);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12873,12 +14232,19 @@ entity niosII_openMac is
                  signal out_port_from_the_outport_ap : OUT STD_LOGIC_VECTOR (23 DOWNTO 0);
 
               -- the_powerlink_0
+                 signal led_error_from_the_powerlink_0 : OUT STD_LOGIC;
+                 signal led_opt_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal led_phyAct_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal led_phyLink_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal led_status_from_the_powerlink_0 : OUT STD_LOGIC;
                  signal phy0_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
                  signal phy0_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
                  signal phy0_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
+                 signal phy0_link_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phy1_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
                  signal phy1_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
                  signal phy1_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
+                 signal phy1_link_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii0_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii0_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal phyMii0_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
@@ -12904,9 +14270,6 @@ entity niosII_openMac is
                  signal zs_dqm_from_the_sdram_0 : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal zs_ras_n_from_the_sdram_0 : OUT STD_LOGIC;
                  signal zs_we_n_from_the_sdram_0 : OUT STD_LOGIC;
-
-              -- the_status_led_pio
-                 signal out_port_from_the_status_led_pio : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
 
               -- the_tri_state_bridge_0_avalon_slave
                  signal addr_to_the_sram_0 : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
@@ -13016,6 +14379,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_granted_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_lcd_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_granted_niosII_openMac_clock_3_in : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_sdram_0_s1 : IN STD_LOGIC;
@@ -13025,6 +14389,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_qualified_request_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_lcd_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_sdram_0_s1 : IN STD_LOGIC;
@@ -13035,6 +14400,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_read_data_valid_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_lcd_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_sdram_0_s1 : IN STD_LOGIC;
@@ -13045,6 +14411,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_requests_inport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_lcd_control_slave : IN STD_LOGIC;
+                    signal ap_cpu_data_master_requests_niosII_openMac_clock_3_in : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_outport_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_powerlink_0_PDI_AP : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_sdram_0_s1 : IN STD_LOGIC;
@@ -13057,6 +14424,7 @@ component ap_cpu_data_master_arbitrator is
                     signal d1_inport_ap_s1_end_xfer : IN STD_LOGIC;
                     signal d1_jtag_uart_1_avalon_jtag_slave_end_xfer : IN STD_LOGIC;
                     signal d1_lcd_control_slave_end_xfer : IN STD_LOGIC;
+                    signal d1_niosII_openMac_clock_3_in_end_xfer : IN STD_LOGIC;
                     signal d1_outport_ap_s1_end_xfer : IN STD_LOGIC;
                     signal d1_powerlink_0_PDI_AP_end_xfer : IN STD_LOGIC;
                     signal d1_sdram_0_s1_end_xfer : IN STD_LOGIC;
@@ -13069,6 +14437,8 @@ component ap_cpu_data_master_arbitrator is
                     signal lcd_control_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal lcd_control_slave_wait_counter_eq_0 : IN STD_LOGIC;
                     signal lcd_control_slave_wait_counter_eq_1 : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal niosII_openMac_clock_3_in_waitrequest_from_sa : IN STD_LOGIC;
                     signal outport_ap_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (23 DOWNTO 0);
                     signal powerlink_0_PDI_AP_irq_from_sa : IN STD_LOGIC;
                     signal powerlink_0_PDI_AP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -13243,14 +14613,12 @@ component clock_crossing_0_m1_arbitrator is
                     signal clock_crossing_0_m1_granted_node_switch_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_granted_powerlink_0_MAC_CMP : IN STD_LOGIC;
                     signal clock_crossing_0_m1_granted_powerlink_0_MAC_REG : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_granted_status_led_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_granted_system_timer_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_qualified_request_benchmark_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave : IN STD_LOGIC;
                     signal clock_crossing_0_m1_qualified_request_node_switch_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP : IN STD_LOGIC;
                     signal clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_qualified_request_status_led_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_qualified_request_system_timer_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_read_data_valid_benchmark_pio_s1 : IN STD_LOGIC;
@@ -13258,14 +14626,12 @@ component clock_crossing_0_m1_arbitrator is
                     signal clock_crossing_0_m1_read_data_valid_node_switch_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP : IN STD_LOGIC;
                     signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_read_data_valid_status_led_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_read_data_valid_system_timer_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_requests_benchmark_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave : IN STD_LOGIC;
                     signal clock_crossing_0_m1_requests_node_switch_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_requests_powerlink_0_MAC_CMP : IN STD_LOGIC;
                     signal clock_crossing_0_m1_requests_powerlink_0_MAC_REG : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_requests_status_led_pio_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_requests_system_timer_s1 : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -13274,7 +14640,6 @@ component clock_crossing_0_m1_arbitrator is
                     signal d1_node_switch_pio_s1_end_xfer : IN STD_LOGIC;
                     signal d1_powerlink_0_MAC_CMP_end_xfer : IN STD_LOGIC;
                     signal d1_powerlink_0_MAC_REG_end_xfer : IN STD_LOGIC;
-                    signal d1_status_led_pio_s1_end_xfer : IN STD_LOGIC;
                     signal d1_system_timer_s1_end_xfer : IN STD_LOGIC;
                     signal jtag_uart_0_avalon_jtag_slave_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal jtag_uart_0_avalon_jtag_slave_waitrequest_from_sa : IN STD_LOGIC;
@@ -13282,7 +14647,6 @@ component clock_crossing_0_m1_arbitrator is
                     signal powerlink_0_MAC_CMP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal powerlink_0_MAC_REG_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal reset_n : IN STD_LOGIC;
-                    signal status_led_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal system_timer_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 
                  -- outputs:
@@ -13861,6 +15225,184 @@ component niosII_openMac_clock_2 is
                  );
 end component niosII_openMac_clock_2;
 
+component niosII_openMac_clock_3_in_arbitrator is 
+           port (
+                 -- inputs:
+                    signal ap_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
+                    signal ap_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal ap_cpu_data_master_read : IN STD_LOGIC;
+                    signal ap_cpu_data_master_waitrequest : IN STD_LOGIC;
+                    signal ap_cpu_data_master_write : IN STD_LOGIC;
+                    signal ap_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal clk : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_endofpacket : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal niosII_openMac_clock_3_in_waitrequest : IN STD_LOGIC;
+                    signal reset_n : IN STD_LOGIC;
+
+                 -- outputs:
+                    signal ap_cpu_data_master_granted_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_requests_niosII_openMac_clock_3_in : OUT STD_LOGIC;
+                    signal d1_niosII_openMac_clock_3_in_end_xfer : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_address : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal niosII_openMac_clock_3_in_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal niosII_openMac_clock_3_in_endofpacket_from_sa : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_nativeaddress : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal niosII_openMac_clock_3_in_read : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal niosII_openMac_clock_3_in_reset_n : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_waitrequest_from_sa : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_write : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_in_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+                 );
+end component niosII_openMac_clock_3_in_arbitrator;
+
+component niosII_openMac_clock_3_out_arbitrator is 
+           port (
+                 -- inputs:
+                    signal clk : IN STD_LOGIC;
+                    signal d1_powerlink_0_MAC_BUF_end_xfer : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_address : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal niosII_openMac_clock_3_out_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_read : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_write : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal powerlink_0_MAC_BUF_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal powerlink_0_MAC_BUF_wait_counter_eq_0 : IN STD_LOGIC;
+                    signal reset_n : IN STD_LOGIC;
+
+                 -- outputs:
+                    signal niosII_openMac_clock_3_out_address_to_slave : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal niosII_openMac_clock_3_out_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal niosII_openMac_clock_3_out_reset_n : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_waitrequest : OUT STD_LOGIC
+                 );
+end component niosII_openMac_clock_3_out_arbitrator;
+
+component niosII_openMac_clock_3 is 
+           port (
+                 -- inputs:
+                    signal master_clk : IN STD_LOGIC;
+                    signal master_endofpacket : IN STD_LOGIC;
+                    signal master_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal master_reset_n : IN STD_LOGIC;
+                    signal master_waitrequest : IN STD_LOGIC;
+                    signal slave_address : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal slave_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal slave_clk : IN STD_LOGIC;
+                    signal slave_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal slave_read : IN STD_LOGIC;
+                    signal slave_reset_n : IN STD_LOGIC;
+                    signal slave_write : IN STD_LOGIC;
+                    signal slave_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+                 -- outputs:
+                    signal master_address : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal master_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal master_nativeaddress : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal master_read : OUT STD_LOGIC;
+                    signal master_write : OUT STD_LOGIC;
+                    signal master_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal slave_endofpacket : OUT STD_LOGIC;
+                    signal slave_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal slave_waitrequest : OUT STD_LOGIC
+                 );
+end component niosII_openMac_clock_3;
+
+component niosII_openMac_clock_4_in_arbitrator is 
+           port (
+                 -- inputs:
+                    signal clk : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_endofpacket : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_readdata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal niosII_openMac_clock_4_in_waitrequest : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal reset_n : IN STD_LOGIC;
+
+                 -- outputs:
+                    signal d1_niosII_openMac_clock_4_in_end_xfer : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_address : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
+                    signal niosII_openMac_clock_4_in_byteenable : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal niosII_openMac_clock_4_in_endofpacket_from_sa : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_nativeaddress : OUT STD_LOGIC_VECTOR (19 DOWNTO 0);
+                    signal niosII_openMac_clock_4_in_read : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_readdata_from_sa : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal niosII_openMac_clock_4_in_reset_n : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_waitrequest_from_sa : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_write : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_writedata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in : OUT STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in : OUT STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in : OUT STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in : OUT STD_LOGIC
+                 );
+end component niosII_openMac_clock_4_in_arbitrator;
+
+component niosII_openMac_clock_4_out_arbitrator is 
+           port (
+                 -- inputs:
+                    signal clk : IN STD_LOGIC;
+                    signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
+                    signal incoming_data_to_and_from_the_sram_0 : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_address : IN STD_LOGIC_VECTOR (20 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_granted_sram_0_s0 : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_qualified_request_sram_0_s0 : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_read : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_requests_sram_0_s0 : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_write : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal reset_n : IN STD_LOGIC;
+
+                 -- outputs:
+                    signal niosII_openMac_clock_4_out_address_to_slave : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_reset_n : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_waitrequest : OUT STD_LOGIC
+                 );
+end component niosII_openMac_clock_4_out_arbitrator;
+
+component niosII_openMac_clock_4 is 
+           port (
+                 -- inputs:
+                    signal master_clk : IN STD_LOGIC;
+                    signal master_endofpacket : IN STD_LOGIC;
+                    signal master_readdata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal master_reset_n : IN STD_LOGIC;
+                    signal master_waitrequest : IN STD_LOGIC;
+                    signal slave_address : IN STD_LOGIC_VECTOR (20 DOWNTO 0);
+                    signal slave_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal slave_clk : IN STD_LOGIC;
+                    signal slave_nativeaddress : IN STD_LOGIC_VECTOR (19 DOWNTO 0);
+                    signal slave_read : IN STD_LOGIC;
+                    signal slave_reset_n : IN STD_LOGIC;
+                    signal slave_write : IN STD_LOGIC;
+                    signal slave_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+
+                 -- outputs:
+                    signal master_address : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
+                    signal master_byteenable : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal master_nativeaddress : OUT STD_LOGIC_VECTOR (19 DOWNTO 0);
+                    signal master_read : OUT STD_LOGIC;
+                    signal master_write : OUT STD_LOGIC;
+                    signal master_writedata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal slave_endofpacket : OUT STD_LOGIC;
+                    signal slave_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal slave_waitrequest : OUT STD_LOGIC
+                 );
+end component niosII_openMac_clock_4;
+
 component node_switch_pio_s1_arbitrator is 
            port (
                  -- inputs:
@@ -13897,59 +15439,6 @@ component node_switch_pio is
                     signal readdata : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
                  );
 end component node_switch_pio;
-
-component onchip_memory_0_s1_arbitrator is 
-           port (
-                 -- inputs:
-                    signal clk : IN STD_LOGIC;
-                    signal onchip_memory_0_s1_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-                    signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
-                    signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
-                    signal pcp_cpu_data_master_read : IN STD_LOGIC;
-                    signal pcp_cpu_data_master_waitrequest : IN STD_LOGIC;
-                    signal pcp_cpu_data_master_write : IN STD_LOGIC;
-                    signal pcp_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-                    signal pcp_cpu_instruction_master_address_to_slave : IN STD_LOGIC_VECTOR (22 DOWNTO 0);
-                    signal pcp_cpu_instruction_master_latency_counter : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-                    signal pcp_cpu_instruction_master_read : IN STD_LOGIC;
-                    signal reset_n : IN STD_LOGIC;
-
-                 -- outputs:
-                    signal d1_onchip_memory_0_s1_end_xfer : OUT STD_LOGIC;
-                    signal onchip_memory_0_s1_address : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-                    signal onchip_memory_0_s1_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
-                    signal onchip_memory_0_s1_chipselect : OUT STD_LOGIC;
-                    signal onchip_memory_0_s1_clken : OUT STD_LOGIC;
-                    signal onchip_memory_0_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-                    signal onchip_memory_0_s1_write : OUT STD_LOGIC;
-                    signal onchip_memory_0_s1_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-                    signal pcp_cpu_data_master_granted_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal pcp_cpu_data_master_requests_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal pcp_cpu_instruction_master_granted_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal pcp_cpu_instruction_master_requests_onchip_memory_0_s1 : OUT STD_LOGIC;
-                    signal registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : OUT STD_LOGIC
-                 );
-end component onchip_memory_0_s1_arbitrator;
-
-component onchip_memory_0 is 
-           port (
-                 -- inputs:
-                    signal address : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-                    signal byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
-                    signal chipselect : IN STD_LOGIC;
-                    signal clk : IN STD_LOGIC;
-                    signal clken : IN STD_LOGIC;
-                    signal write : IN STD_LOGIC;
-                    signal writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-
-                 -- outputs:
-                    signal readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-                 );
-end component onchip_memory_0;
 
 component outport_ap_s1_arbitrator is 
            port (
@@ -14046,10 +15535,10 @@ component pcp_cpu_data_master_arbitrator is
                     signal d1_niosII_openMac_clock_0_in_end_xfer : IN STD_LOGIC;
                     signal d1_niosII_openMac_clock_1_in_end_xfer : IN STD_LOGIC;
                     signal d1_niosII_openMac_clock_2_in_end_xfer : IN STD_LOGIC;
-                    signal d1_onchip_memory_0_s1_end_xfer : IN STD_LOGIC;
                     signal d1_pcp_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
                     signal d1_powerlink_0_MAC_BUF_end_xfer : IN STD_LOGIC;
                     signal d1_powerlink_0_PDI_PCP_end_xfer : IN STD_LOGIC;
+                    signal d1_tc_i_mem_pcp_s1_end_xfer : IN STD_LOGIC;
                     signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
                     signal epcs_flash_controller_0_epcs_control_port_irq_from_sa : IN STD_LOGIC;
                     signal epcs_flash_controller_0_epcs_control_port_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -14061,7 +15550,6 @@ component pcp_cpu_data_master_arbitrator is
                     signal niosII_openMac_clock_1_in_waitrequest_from_sa : IN STD_LOGIC;
                     signal niosII_openMac_clock_2_in_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal niosII_openMac_clock_2_in_waitrequest_from_sa : IN STD_LOGIC;
-                    signal onchip_memory_0_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal pcp_clk : IN STD_LOGIC;
                     signal pcp_clk_reset_n : IN STD_LOGIC;
                     signal pcp_cpu_data_master_address : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
@@ -14071,21 +15559,21 @@ component pcp_cpu_data_master_arbitrator is
                     signal pcp_cpu_data_master_granted_niosII_openMac_clock_0_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_granted_niosII_openMac_clock_1_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_granted_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                    signal pcp_cpu_data_master_granted_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_data_master_granted_powerlink_0_MAC_BUF : IN STD_LOGIC;
                     signal pcp_cpu_data_master_granted_powerlink_0_PDI_PCP : IN STD_LOGIC;
                     signal pcp_cpu_data_master_granted_sram_0_s0 : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_clock_crossing_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_0_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_1_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                    signal pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP : IN STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_sram_0_s0 : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1_shift_register : IN STD_LOGIC;
@@ -14093,21 +15581,21 @@ component pcp_cpu_data_master_arbitrator is
                     signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_0_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_1_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                    signal pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_powerlink_0_PDI_PCP : IN STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_clock_crossing_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_niosII_openMac_clock_0_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_niosII_openMac_clock_1_in : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                    signal pcp_cpu_data_master_requests_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_powerlink_0_MAC_BUF : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_powerlink_0_PDI_PCP : IN STD_LOGIC;
                     signal pcp_cpu_data_master_requests_sram_0_s0 : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                     signal pcp_cpu_data_master_write : IN STD_LOGIC;
                     signal pcp_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal pcp_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -14117,10 +15605,11 @@ component pcp_cpu_data_master_arbitrator is
                     signal powerlink_0_MAC_REG_irq_from_sa : IN STD_LOGIC;
                     signal powerlink_0_PDI_PCP_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal powerlink_0_PDI_PCP_wait_counter_eq_0 : IN STD_LOGIC;
-                    signal registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
+                    signal registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : IN STD_LOGIC;
                     signal reset_n : IN STD_LOGIC;
                     signal system_timer_s1_irq_from_sa : IN STD_LOGIC;
+                    signal tc_i_mem_pcp_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 
                  -- outputs:
                     signal pcp_cpu_data_master_address_to_slave : OUT STD_LOGIC_VECTOR (24 DOWNTO 0);
@@ -14138,28 +15627,22 @@ component pcp_cpu_instruction_master_arbitrator is
                  -- inputs:
                     signal clk : IN STD_LOGIC;
                     signal d1_epcs_flash_controller_0_epcs_control_port_end_xfer : IN STD_LOGIC;
-                    signal d1_onchip_memory_0_s1_end_xfer : IN STD_LOGIC;
                     signal d1_pcp_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
                     signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
                     signal epcs_flash_controller_0_epcs_control_port_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal incoming_data_to_and_from_the_sram_0 : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-                    signal onchip_memory_0_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal pcp_cpu_instruction_master_address : IN STD_LOGIC_VECTOR (22 DOWNTO 0);
                     signal pcp_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                    signal pcp_cpu_instruction_master_granted_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_granted_sram_0_s0 : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                    signal pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_qualified_request_sram_0_s0 : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_read : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_read_data_valid_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                    signal pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_read_data_valid_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_requests_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
-                    signal pcp_cpu_instruction_master_requests_onchip_memory_0_s1 : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_requests_sram_0_s0 : IN STD_LOGIC;
                     signal pcp_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -14175,6 +15658,30 @@ component pcp_cpu_instruction_master_arbitrator is
                  );
 end component pcp_cpu_instruction_master_arbitrator;
 
+component pcp_cpu_tightly_coupled_instruction_master_0_arbitrator is 
+           port (
+                 -- inputs:
+                    signal clk : IN STD_LOGIC;
+                    signal d1_tc_i_mem_pcp_s2_end_xfer : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_clken : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_read : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 : IN STD_LOGIC;
+                    signal reset_n : IN STD_LOGIC;
+                    signal tc_i_mem_pcp_s2_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+                 -- outputs:
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_latency_counter : OUT STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid : OUT STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_waitrequest : OUT STD_LOGIC
+                 );
+end component pcp_cpu_tightly_coupled_instruction_master_0_arbitrator;
+
 component pcp_cpu is 
            port (
                  -- inputs:
@@ -14185,6 +15692,9 @@ component pcp_cpu is
                     signal i_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal i_readdatavalid : IN STD_LOGIC;
                     signal i_waitrequest : IN STD_LOGIC;
+                    signal icm0_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal icm0_readdatavalid : IN STD_LOGIC;
+                    signal icm0_waitrequest : IN STD_LOGIC;
                     signal jtag_debug_module_address : IN STD_LOGIC_VECTOR (8 DOWNTO 0);
                     signal jtag_debug_module_begintransfer : IN STD_LOGIC;
                     signal jtag_debug_module_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
@@ -14202,6 +15712,9 @@ component pcp_cpu is
                     signal d_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal i_address : OUT STD_LOGIC_VECTOR (22 DOWNTO 0);
                     signal i_read : OUT STD_LOGIC;
+                    signal icm0_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal icm0_clken : OUT STD_LOGIC;
+                    signal icm0_read : OUT STD_LOGIC;
                     signal jtag_debug_module_debugaccess_to_roms : OUT STD_LOGIC;
                     signal jtag_debug_module_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal jtag_debug_module_resetrequest : OUT STD_LOGIC
@@ -14212,6 +15725,11 @@ component powerlink_0_MAC_BUF_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal niosII_openMac_clock_3_out_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal niosII_openMac_clock_3_out_read : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_write : IN STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
                     signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal pcp_cpu_data_master_read : IN STD_LOGIC;
@@ -14223,11 +15741,15 @@ component powerlink_0_MAC_BUF_arbitrator is
 
                  -- outputs:
                     signal d1_powerlink_0_MAC_BUF_end_xfer : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                     signal pcp_cpu_data_master_granted_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                     signal pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                     signal pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF : OUT STD_LOGIC;
                     signal pcp_cpu_data_master_requests_powerlink_0_MAC_BUF : OUT STD_LOGIC;
-                    signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
+                    signal powerlink_0_MAC_BUF_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
                     signal powerlink_0_MAC_BUF_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal powerlink_0_MAC_BUF_chipselect : OUT STD_LOGIC;
                     signal powerlink_0_MAC_BUF_read_n : OUT STD_LOGIC;
@@ -14366,6 +15888,31 @@ component powerlink_0_PDI_PCP_arbitrator is
                  );
 end component powerlink_0_PDI_PCP_arbitrator;
 
+component powerlink_0_MAC_DMA_arbitrator is 
+           port (
+                 -- inputs:
+                    signal clk : IN STD_LOGIC;
+                    signal d1_niosII_openMac_clock_4_in_end_xfer : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_in_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal niosII_openMac_clock_4_in_waitrequest_from_sa : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
+                    signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal reset_n : IN STD_LOGIC;
+
+                 -- outputs:
+                    signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_waitrequest : OUT STD_LOGIC
+                 );
+end component powerlink_0_MAC_DMA_arbitrator;
+
 component powerlink_0 is 
            port (
                  -- inputs:
@@ -14378,13 +15925,15 @@ component powerlink_0 is
                     signal clk50 : IN STD_LOGIC;
                     signal clkAp : IN STD_LOGIC;
                     signal clkPcp : IN STD_LOGIC;
+                    signal m_readdata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal m_waitrequest : IN STD_LOGIC;
                     signal mac_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
                     signal mac_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal mac_chipselect : IN STD_LOGIC;
                     signal mac_read_n : IN STD_LOGIC;
                     signal mac_write_n : IN STD_LOGIC;
                     signal mac_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-                    signal mbf_address : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
+                    signal mbf_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
                     signal mbf_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal mbf_chipselect : IN STD_LOGIC;
                     signal mbf_read_n : IN STD_LOGIC;
@@ -14396,6 +15945,8 @@ component powerlink_0 is
                     signal pcp_read : IN STD_LOGIC;
                     signal pcp_write : IN STD_LOGIC;
                     signal pcp_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal phy0_link : IN STD_LOGIC;
+                    signal phy1_link : IN STD_LOGIC;
                     signal phyMii0_RxClk : IN STD_LOGIC;
                     signal phyMii0_RxDat : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii0_RxDv : IN STD_LOGIC;
@@ -14416,6 +15967,17 @@ component powerlink_0 is
                  -- outputs:
                     signal ap_irq : OUT STD_LOGIC;
                     signal ap_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal led_error : OUT STD_LOGIC;
+                    signal led_opt : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal led_phyAct : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal led_phyLink : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal led_status : OUT STD_LOGIC;
+                    signal m_address : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal m_arbiterlock : OUT STD_LOGIC;
+                    signal m_byteenable_n : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal m_read_n : OUT STD_LOGIC;
+                    signal m_write_n : OUT STD_LOGIC;
+                    signal m_writedata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal mac_irq : OUT STD_LOGIC;
                     signal mac_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal mbf_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -14553,50 +16115,6 @@ component sdram_0 is
                  );
 end component sdram_0;
 
-component status_led_pio_s1_arbitrator is 
-           port (
-                 -- inputs:
-                    signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
-                    signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
-                    signal clock_crossing_0_m1_read : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_write : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-                    signal reset_n : IN STD_LOGIC;
-                    signal status_led_pio_s1_readdata : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-
-                 -- outputs:
-                    signal clock_crossing_0_m1_granted_status_led_pio_s1 : OUT STD_LOGIC;
-                    signal clock_crossing_0_m1_qualified_request_status_led_pio_s1 : OUT STD_LOGIC;
-                    signal clock_crossing_0_m1_read_data_valid_status_led_pio_s1 : OUT STD_LOGIC;
-                    signal clock_crossing_0_m1_requests_status_led_pio_s1 : OUT STD_LOGIC;
-                    signal d1_status_led_pio_s1_end_xfer : OUT STD_LOGIC;
-                    signal status_led_pio_s1_address : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
-                    signal status_led_pio_s1_chipselect : OUT STD_LOGIC;
-                    signal status_led_pio_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-                    signal status_led_pio_s1_reset_n : OUT STD_LOGIC;
-                    signal status_led_pio_s1_write_n : OUT STD_LOGIC;
-                    signal status_led_pio_s1_writedata : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
-                 );
-end component status_led_pio_s1_arbitrator;
-
-component status_led_pio is 
-           port (
-                 -- inputs:
-                    signal address : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
-                    signal chipselect : IN STD_LOGIC;
-                    signal clk : IN STD_LOGIC;
-                    signal reset_n : IN STD_LOGIC;
-                    signal write_n : IN STD_LOGIC;
-                    signal writedata : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-
-                 -- outputs:
-                    signal out_port : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-                    signal readdata : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
-                 );
-end component status_led_pio;
-
 component sysid_control_slave_arbitrator is 
            port (
                  -- inputs:
@@ -14730,10 +16248,100 @@ component system_timer_ap is
                  );
 end component system_timer_ap;
 
+component tc_i_mem_pcp_s1_arbitrator is 
+           port (
+                 -- inputs:
+                    signal clk : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
+                    signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal pcp_cpu_data_master_read : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_waitrequest : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_write : IN STD_LOGIC;
+                    signal pcp_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal reset_n : IN STD_LOGIC;
+                    signal tc_i_mem_pcp_s1_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+                 -- outputs:
+                    signal d1_tc_i_mem_pcp_s1_end_xfer : OUT STD_LOGIC;
+                    signal pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                    signal pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                    signal pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                    signal pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                    signal registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s1_address : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal tc_i_mem_pcp_s1_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal tc_i_mem_pcp_s1_chipselect : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s1_clken : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal tc_i_mem_pcp_s1_reset : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s1_write : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s1_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+                 );
+end component tc_i_mem_pcp_s1_arbitrator;
+
+component tc_i_mem_pcp_s2_arbitrator is 
+           port (
+                 -- inputs:
+                    signal clk : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_clken : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_latency_counter : IN STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_read : IN STD_LOGIC;
+                    signal reset_n : IN STD_LOGIC;
+                    signal tc_i_mem_pcp_s2_readdata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+                 -- outputs:
+                    signal d1_tc_i_mem_pcp_s2_end_xfer : OUT STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                    signal pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s2_address : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal tc_i_mem_pcp_s2_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal tc_i_mem_pcp_s2_chipselect : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s2_clken : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s2_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal tc_i_mem_pcp_s2_reset : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s2_write : OUT STD_LOGIC;
+                    signal tc_i_mem_pcp_s2_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+                 );
+end component tc_i_mem_pcp_s2_arbitrator;
+
+component tc_i_mem_pcp is 
+           port (
+                 -- inputs:
+                    signal address : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal address2 : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+                    signal byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal byteenable2 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
+                    signal chipselect : IN STD_LOGIC;
+                    signal chipselect2 : IN STD_LOGIC;
+                    signal clk : IN STD_LOGIC;
+                    signal clk2 : IN STD_LOGIC;
+                    signal clken : IN STD_LOGIC;
+                    signal clken2 : IN STD_LOGIC;
+                    signal reset : IN STD_LOGIC;
+                    signal reset2 : IN STD_LOGIC;
+                    signal write : IN STD_LOGIC;
+                    signal write2 : IN STD_LOGIC;
+                    signal writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal writedata2 : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+                 -- outputs:
+                    signal readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal readdata2 : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+                 );
+end component tc_i_mem_pcp;
+
 component tri_state_bridge_0_avalon_slave_arbitrator is 
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_address_to_slave : IN STD_LOGIC_VECTOR (20 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_read : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_write : IN STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal pcp_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (24 DOWNTO 0);
                     signal pcp_cpu_data_master_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal pcp_cpu_data_master_dbs_address : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -14755,6 +16363,10 @@ component tri_state_bridge_0_avalon_slave_arbitrator is
                     signal d1_tri_state_bridge_0_avalon_slave_end_xfer : OUT STD_LOGIC;
                     signal data_to_and_from_the_sram_0 : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal incoming_data_to_and_from_the_sram_0 : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+                    signal niosII_openMac_clock_4_out_granted_sram_0_s0 : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_qualified_request_sram_0_s0 : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 : OUT STD_LOGIC;
+                    signal niosII_openMac_clock_4_out_requests_sram_0_s0 : OUT STD_LOGIC;
                     signal oe_n_to_the_sram_0 : OUT STD_LOGIC;
                     signal pcp_cpu_data_master_byteenable_sram_0_s0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal pcp_cpu_data_master_granted_sram_0_s0 : OUT STD_LOGIC;
@@ -14839,6 +16451,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_granted_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_lcd_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_granted_niosII_openMac_clock_3_in :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_sdram_0_s1 :  STD_LOGIC;
@@ -14849,6 +16462,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_qualified_request_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_lcd_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_sdram_0_s1 :  STD_LOGIC;
@@ -14859,6 +16473,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_read_data_valid_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_lcd_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_sdram_0_s1 :  STD_LOGIC;
@@ -14870,6 +16485,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_requests_inport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_lcd_control_slave :  STD_LOGIC;
+                signal ap_cpu_data_master_requests_niosII_openMac_clock_3_in :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_outport_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_powerlink_0_PDI_AP :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_sdram_0_s1 :  STD_LOGIC;
@@ -14926,7 +16542,6 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clock_crossing_0_m1_granted_node_switch_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_granted_powerlink_0_MAC_CMP :  STD_LOGIC;
                 signal clock_crossing_0_m1_granted_powerlink_0_MAC_REG :  STD_LOGIC;
-                signal clock_crossing_0_m1_granted_status_led_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_granted_system_timer_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_latency_counter :  STD_LOGIC;
                 signal clock_crossing_0_m1_nativeaddress :  STD_LOGIC_VECTOR (11 DOWNTO 0);
@@ -14935,7 +16550,6 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clock_crossing_0_m1_qualified_request_node_switch_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP :  STD_LOGIC;
                 signal clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG :  STD_LOGIC;
-                signal clock_crossing_0_m1_qualified_request_status_led_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_qualified_request_system_timer_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_read :  STD_LOGIC;
                 signal clock_crossing_0_m1_read_data_valid_benchmark_pio_s1 :  STD_LOGIC;
@@ -14943,7 +16557,6 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clock_crossing_0_m1_read_data_valid_node_switch_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP :  STD_LOGIC;
                 signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG :  STD_LOGIC;
-                signal clock_crossing_0_m1_read_data_valid_status_led_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_read_data_valid_system_timer_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal clock_crossing_0_m1_readdatavalid :  STD_LOGIC;
@@ -14952,7 +16565,6 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clock_crossing_0_m1_requests_node_switch_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_requests_powerlink_0_MAC_CMP :  STD_LOGIC;
                 signal clock_crossing_0_m1_requests_powerlink_0_MAC_REG :  STD_LOGIC;
-                signal clock_crossing_0_m1_requests_status_led_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_requests_system_timer_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_reset_n :  STD_LOGIC;
                 signal clock_crossing_0_m1_waitrequest :  STD_LOGIC;
@@ -14984,8 +16596,9 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal d1_niosII_openMac_clock_0_in_end_xfer :  STD_LOGIC;
                 signal d1_niosII_openMac_clock_1_in_end_xfer :  STD_LOGIC;
                 signal d1_niosII_openMac_clock_2_in_end_xfer :  STD_LOGIC;
+                signal d1_niosII_openMac_clock_3_in_end_xfer :  STD_LOGIC;
+                signal d1_niosII_openMac_clock_4_in_end_xfer :  STD_LOGIC;
                 signal d1_node_switch_pio_s1_end_xfer :  STD_LOGIC;
-                signal d1_onchip_memory_0_s1_end_xfer :  STD_LOGIC;
                 signal d1_outport_ap_s1_end_xfer :  STD_LOGIC;
                 signal d1_pcp_cpu_jtag_debug_module_end_xfer :  STD_LOGIC;
                 signal d1_powerlink_0_MAC_BUF_end_xfer :  STD_LOGIC;
@@ -14995,10 +16608,11 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal d1_powerlink_0_PDI_PCP_end_xfer :  STD_LOGIC;
                 signal d1_remote_update_cycloneiii_0_s1_end_xfer :  STD_LOGIC;
                 signal d1_sdram_0_s1_end_xfer :  STD_LOGIC;
-                signal d1_status_led_pio_s1_end_xfer :  STD_LOGIC;
                 signal d1_sysid_control_slave_end_xfer :  STD_LOGIC;
                 signal d1_system_timer_ap_s1_end_xfer :  STD_LOGIC;
                 signal d1_system_timer_s1_end_xfer :  STD_LOGIC;
+                signal d1_tc_i_mem_pcp_s1_end_xfer :  STD_LOGIC;
+                signal d1_tc_i_mem_pcp_s2_end_xfer :  STD_LOGIC;
                 signal d1_tri_state_bridge_0_avalon_slave_end_xfer :  STD_LOGIC;
                 signal epcs_flash_controller_0_epcs_control_port_address :  STD_LOGIC_VECTOR (8 DOWNTO 0);
                 signal epcs_flash_controller_0_epcs_control_port_chipselect :  STD_LOGIC;
@@ -15030,11 +16644,15 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal internal_clk25 :  STD_LOGIC;
                 signal internal_clk50 :  STD_LOGIC;
                 signal internal_dclk_from_the_epcs_flash_controller_0 :  STD_LOGIC;
+                signal internal_led_error_from_the_powerlink_0 :  STD_LOGIC;
+                signal internal_led_opt_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal internal_led_phyAct_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal internal_led_phyLink_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal internal_led_status_from_the_powerlink_0 :  STD_LOGIC;
                 signal internal_locked_from_the_altpll_0 :  STD_LOGIC;
                 signal internal_oe_n_to_the_sram_0 :  STD_LOGIC;
                 signal internal_out_port_from_the_benchmark_pio :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal internal_out_port_from_the_outport_ap :  STD_LOGIC_VECTOR (23 DOWNTO 0);
-                signal internal_out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_pcp_clk :  STD_LOGIC;
                 signal internal_phasedone_from_the_altpll_0 :  STD_LOGIC;
                 signal internal_phy0_Rst_n_from_the_powerlink_0 :  STD_LOGIC;
@@ -15187,18 +16805,66 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal niosII_openMac_clock_2_out_waitrequest :  STD_LOGIC;
                 signal niosII_openMac_clock_2_out_write :  STD_LOGIC;
                 signal niosII_openMac_clock_2_out_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal niosII_openMac_clock_3_in_address :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal niosII_openMac_clock_3_in_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
+                signal niosII_openMac_clock_3_in_endofpacket :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_endofpacket_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_nativeaddress :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal niosII_openMac_clock_3_in_read :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal niosII_openMac_clock_3_in_readdata_from_sa :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal niosII_openMac_clock_3_in_reset_n :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_waitrequest :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_waitrequest_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_write :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_address :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_address_to_slave :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_endofpacket :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_nativeaddress :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_read :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_reset_n :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_waitrequest :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_write :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal niosII_openMac_clock_4_in_address :  STD_LOGIC_VECTOR (20 DOWNTO 0);
+                signal niosII_openMac_clock_4_in_byteenable :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal niosII_openMac_clock_4_in_endofpacket :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_endofpacket_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_nativeaddress :  STD_LOGIC_VECTOR (19 DOWNTO 0);
+                signal niosII_openMac_clock_4_in_read :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_readdata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal niosII_openMac_clock_4_in_readdata_from_sa :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal niosII_openMac_clock_4_in_reset_n :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_waitrequest :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_waitrequest_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_write :  STD_LOGIC;
+                signal niosII_openMac_clock_4_in_writedata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_address :  STD_LOGIC_VECTOR (20 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_address_to_slave :  STD_LOGIC_VECTOR (20 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_byteenable :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_endofpacket :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_granted_sram_0_s0 :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_nativeaddress :  STD_LOGIC_VECTOR (19 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_qualified_request_sram_0_s0 :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_read :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_readdata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal niosII_openMac_clock_4_out_requests_sram_0_s0 :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_reset_n :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_waitrequest :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_write :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_writedata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
                 signal node_switch_pio_s1_address :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal node_switch_pio_s1_readdata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal node_switch_pio_s1_readdata_from_sa :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal node_switch_pio_s1_reset_n :  STD_LOGIC;
-                signal onchip_memory_0_s1_address :  STD_LOGIC_VECTOR (7 DOWNTO 0);
-                signal onchip_memory_0_s1_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
-                signal onchip_memory_0_s1_chipselect :  STD_LOGIC;
-                signal onchip_memory_0_s1_clken :  STD_LOGIC;
-                signal onchip_memory_0_s1_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal onchip_memory_0_s1_readdata_from_sa :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal onchip_memory_0_s1_write :  STD_LOGIC;
-                signal onchip_memory_0_s1_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal out_clk_altpll_0_c0 :  STD_LOGIC;
                 signal out_clk_altpll_0_c1 :  STD_LOGIC;
                 signal out_clk_altpll_0_c2 :  STD_LOGIC;
@@ -15224,11 +16890,11 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal pcp_cpu_data_master_granted_niosII_openMac_clock_0_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_granted_niosII_openMac_clock_1_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_granted_niosII_openMac_clock_2_in :  STD_LOGIC;
-                signal pcp_cpu_data_master_granted_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_data_master_granted_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal pcp_cpu_data_master_granted_powerlink_0_PDI_PCP :  STD_LOGIC;
                 signal pcp_cpu_data_master_granted_sram_0_s0 :  STD_LOGIC;
+                signal pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_irq :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal pcp_cpu_data_master_no_byte_enables_and_last_term :  STD_LOGIC;
                 signal pcp_cpu_data_master_qualified_request_clock_crossing_0_s1 :  STD_LOGIC;
@@ -15236,11 +16902,11 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_0_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_1_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_qualified_request_niosII_openMac_clock_2_in :  STD_LOGIC;
-                signal pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP :  STD_LOGIC;
                 signal pcp_cpu_data_master_qualified_request_sram_0_s0 :  STD_LOGIC;
+                signal pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_read :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1_shift_register :  STD_LOGIC;
@@ -15248,22 +16914,22 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_0_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_1_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_2_in :  STD_LOGIC;
-                signal pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_powerlink_0_PDI_PCP :  STD_LOGIC;
                 signal pcp_cpu_data_master_read_data_valid_sram_0_s0 :  STD_LOGIC;
+                signal pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal pcp_cpu_data_master_requests_clock_crossing_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_niosII_openMac_clock_0_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_niosII_openMac_clock_1_in :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_niosII_openMac_clock_2_in :  STD_LOGIC;
-                signal pcp_cpu_data_master_requests_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_powerlink_0_MAC_BUF :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_powerlink_0_PDI_PCP :  STD_LOGIC;
                 signal pcp_cpu_data_master_requests_sram_0_s0 :  STD_LOGIC;
+                signal pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 :  STD_LOGIC;
                 signal pcp_cpu_data_master_waitrequest :  STD_LOGIC;
                 signal pcp_cpu_data_master_write :  STD_LOGIC;
                 signal pcp_cpu_data_master_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -15271,23 +16937,19 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal pcp_cpu_instruction_master_address_to_slave :  STD_LOGIC_VECTOR (22 DOWNTO 0);
                 signal pcp_cpu_instruction_master_dbs_address :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal pcp_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_granted_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_granted_sram_0_s0 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_latency_counter :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal pcp_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_qualified_request_sram_0_s0 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_read :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_read_data_valid_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_read_data_valid_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_read_data_valid_sram_0_s0 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal pcp_cpu_instruction_master_readdatavalid :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_requests_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
-                signal pcp_cpu_instruction_master_requests_onchip_memory_0_s1 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_requests_sram_0_s0 :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_waitrequest :  STD_LOGIC;
@@ -15303,7 +16965,19 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal pcp_cpu_jtag_debug_module_resetrequest_from_sa :  STD_LOGIC;
                 signal pcp_cpu_jtag_debug_module_write :  STD_LOGIC;
                 signal pcp_cpu_jtag_debug_module_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal powerlink_0_MAC_BUF_address :  STD_LOGIC_VECTOR (12 DOWNTO 0);
+                signal pcp_cpu_tightly_coupled_instruction_master_0_address :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal pcp_cpu_tightly_coupled_instruction_master_0_clken :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_latency_counter :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_read :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 :  STD_LOGIC;
+                signal pcp_cpu_tightly_coupled_instruction_master_0_waitrequest :  STD_LOGIC;
+                signal powerlink_0_MAC_BUF_address :  STD_LOGIC_VECTOR (11 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal powerlink_0_MAC_BUF_chipselect :  STD_LOGIC;
                 signal powerlink_0_MAC_BUF_read_n :  STD_LOGIC;
@@ -15323,6 +16997,19 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal powerlink_0_MAC_CMP_readdata_from_sa :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal powerlink_0_MAC_CMP_write_n :  STD_LOGIC;
                 signal powerlink_0_MAC_CMP_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_address :  STD_LOGIC_VECTOR (29 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_address_to_slave :  STD_LOGIC_VECTOR (29 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_arbiterlock :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_byteenable_n :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_read_n :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_readdata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_waitrequest :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_write_n :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_writedata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
                 signal powerlink_0_MAC_REG_address :  STD_LOGIC_VECTOR (11 DOWNTO 0);
                 signal powerlink_0_MAC_REG_byteenable_n :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_REG_chipselect :  STD_LOGIC;
@@ -15354,8 +17041,8 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal powerlink_0_PDI_PCP_wait_counter_eq_0 :  STD_LOGIC;
                 signal powerlink_0_PDI_PCP_write :  STD_LOGIC;
                 signal powerlink_0_PDI_PCP_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 :  STD_LOGIC;
                 signal registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 :  STD_LOGIC;
+                signal registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 :  STD_LOGIC;
                 signal remote_update_cycloneiii_0_s1_address :  STD_LOGIC_VECTOR (5 DOWNTO 0);
                 signal remote_update_cycloneiii_0_s1_chipselect :  STD_LOGIC;
                 signal remote_update_cycloneiii_0_s1_read :  STD_LOGIC;
@@ -15379,13 +17066,6 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal sdram_0_s1_waitrequest_from_sa :  STD_LOGIC;
                 signal sdram_0_s1_write_n :  STD_LOGIC;
                 signal sdram_0_s1_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal status_led_pio_s1_address :  STD_LOGIC_VECTOR (2 DOWNTO 0);
-                signal status_led_pio_s1_chipselect :  STD_LOGIC;
-                signal status_led_pio_s1_readdata :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal status_led_pio_s1_readdata_from_sa :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal status_led_pio_s1_reset_n :  STD_LOGIC;
-                signal status_led_pio_s1_write_n :  STD_LOGIC;
-                signal status_led_pio_s1_writedata :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal sysid_control_slave_address :  STD_LOGIC;
                 signal sysid_control_slave_clock :  STD_LOGIC;
                 signal sysid_control_slave_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -15409,6 +17089,24 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal system_timer_s1_reset_n :  STD_LOGIC;
                 signal system_timer_s1_write_n :  STD_LOGIC;
                 signal system_timer_s1_writedata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_address :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_chipselect :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_clken :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_readdata_from_sa :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal tc_i_mem_pcp_s1_reset :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_write :  STD_LOGIC;
+                signal tc_i_mem_pcp_s1_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal tc_i_mem_pcp_s2_address :  STD_LOGIC_VECTOR (7 DOWNTO 0);
+                signal tc_i_mem_pcp_s2_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
+                signal tc_i_mem_pcp_s2_chipselect :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_clken :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal tc_i_mem_pcp_s2_readdata_from_sa :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal tc_i_mem_pcp_s2_reset :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_write :  STD_LOGIC;
+                signal tc_i_mem_pcp_s2_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
 
 begin
 
@@ -15516,6 +17214,7 @@ begin
       ap_cpu_data_master_granted_inport_ap_s1 => ap_cpu_data_master_granted_inport_ap_s1,
       ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_granted_jtag_uart_1_avalon_jtag_slave,
       ap_cpu_data_master_granted_lcd_control_slave => ap_cpu_data_master_granted_lcd_control_slave,
+      ap_cpu_data_master_granted_niosII_openMac_clock_3_in => ap_cpu_data_master_granted_niosII_openMac_clock_3_in,
       ap_cpu_data_master_granted_outport_ap_s1 => ap_cpu_data_master_granted_outport_ap_s1,
       ap_cpu_data_master_granted_powerlink_0_PDI_AP => ap_cpu_data_master_granted_powerlink_0_PDI_AP,
       ap_cpu_data_master_granted_sdram_0_s1 => ap_cpu_data_master_granted_sdram_0_s1,
@@ -15525,6 +17224,7 @@ begin
       ap_cpu_data_master_qualified_request_inport_ap_s1 => ap_cpu_data_master_qualified_request_inport_ap_s1,
       ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave,
       ap_cpu_data_master_qualified_request_lcd_control_slave => ap_cpu_data_master_qualified_request_lcd_control_slave,
+      ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in => ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in,
       ap_cpu_data_master_qualified_request_outport_ap_s1 => ap_cpu_data_master_qualified_request_outport_ap_s1,
       ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP => ap_cpu_data_master_qualified_request_powerlink_0_PDI_AP,
       ap_cpu_data_master_qualified_request_sdram_0_s1 => ap_cpu_data_master_qualified_request_sdram_0_s1,
@@ -15535,6 +17235,7 @@ begin
       ap_cpu_data_master_read_data_valid_inport_ap_s1 => ap_cpu_data_master_read_data_valid_inport_ap_s1,
       ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_read_data_valid_jtag_uart_1_avalon_jtag_slave,
       ap_cpu_data_master_read_data_valid_lcd_control_slave => ap_cpu_data_master_read_data_valid_lcd_control_slave,
+      ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in => ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in,
       ap_cpu_data_master_read_data_valid_outport_ap_s1 => ap_cpu_data_master_read_data_valid_outport_ap_s1,
       ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP => ap_cpu_data_master_read_data_valid_powerlink_0_PDI_AP,
       ap_cpu_data_master_read_data_valid_sdram_0_s1 => ap_cpu_data_master_read_data_valid_sdram_0_s1,
@@ -15545,6 +17246,7 @@ begin
       ap_cpu_data_master_requests_inport_ap_s1 => ap_cpu_data_master_requests_inport_ap_s1,
       ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave => ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave,
       ap_cpu_data_master_requests_lcd_control_slave => ap_cpu_data_master_requests_lcd_control_slave,
+      ap_cpu_data_master_requests_niosII_openMac_clock_3_in => ap_cpu_data_master_requests_niosII_openMac_clock_3_in,
       ap_cpu_data_master_requests_outport_ap_s1 => ap_cpu_data_master_requests_outport_ap_s1,
       ap_cpu_data_master_requests_powerlink_0_PDI_AP => ap_cpu_data_master_requests_powerlink_0_PDI_AP,
       ap_cpu_data_master_requests_sdram_0_s1 => ap_cpu_data_master_requests_sdram_0_s1,
@@ -15557,6 +17259,7 @@ begin
       d1_inport_ap_s1_end_xfer => d1_inport_ap_s1_end_xfer,
       d1_jtag_uart_1_avalon_jtag_slave_end_xfer => d1_jtag_uart_1_avalon_jtag_slave_end_xfer,
       d1_lcd_control_slave_end_xfer => d1_lcd_control_slave_end_xfer,
+      d1_niosII_openMac_clock_3_in_end_xfer => d1_niosII_openMac_clock_3_in_end_xfer,
       d1_outport_ap_s1_end_xfer => d1_outport_ap_s1_end_xfer,
       d1_powerlink_0_PDI_AP_end_xfer => d1_powerlink_0_PDI_AP_end_xfer,
       d1_sdram_0_s1_end_xfer => d1_sdram_0_s1_end_xfer,
@@ -15569,6 +17272,8 @@ begin
       lcd_control_slave_readdata_from_sa => lcd_control_slave_readdata_from_sa,
       lcd_control_slave_wait_counter_eq_0 => lcd_control_slave_wait_counter_eq_0,
       lcd_control_slave_wait_counter_eq_1 => lcd_control_slave_wait_counter_eq_1,
+      niosII_openMac_clock_3_in_readdata_from_sa => niosII_openMac_clock_3_in_readdata_from_sa,
+      niosII_openMac_clock_3_in_waitrequest_from_sa => niosII_openMac_clock_3_in_waitrequest_from_sa,
       outport_ap_s1_readdata_from_sa => outport_ap_s1_readdata_from_sa,
       powerlink_0_PDI_AP_irq_from_sa => powerlink_0_PDI_AP_irq_from_sa,
       powerlink_0_PDI_AP_readdata_from_sa => powerlink_0_PDI_AP_readdata_from_sa,
@@ -15735,14 +17440,12 @@ begin
       clock_crossing_0_m1_granted_node_switch_pio_s1 => clock_crossing_0_m1_granted_node_switch_pio_s1,
       clock_crossing_0_m1_granted_powerlink_0_MAC_CMP => clock_crossing_0_m1_granted_powerlink_0_MAC_CMP,
       clock_crossing_0_m1_granted_powerlink_0_MAC_REG => clock_crossing_0_m1_granted_powerlink_0_MAC_REG,
-      clock_crossing_0_m1_granted_status_led_pio_s1 => clock_crossing_0_m1_granted_status_led_pio_s1,
       clock_crossing_0_m1_granted_system_timer_s1 => clock_crossing_0_m1_granted_system_timer_s1,
       clock_crossing_0_m1_qualified_request_benchmark_pio_s1 => clock_crossing_0_m1_qualified_request_benchmark_pio_s1,
       clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave => clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave,
       clock_crossing_0_m1_qualified_request_node_switch_pio_s1 => clock_crossing_0_m1_qualified_request_node_switch_pio_s1,
       clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP => clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP,
       clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG => clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG,
-      clock_crossing_0_m1_qualified_request_status_led_pio_s1 => clock_crossing_0_m1_qualified_request_status_led_pio_s1,
       clock_crossing_0_m1_qualified_request_system_timer_s1 => clock_crossing_0_m1_qualified_request_system_timer_s1,
       clock_crossing_0_m1_read => clock_crossing_0_m1_read,
       clock_crossing_0_m1_read_data_valid_benchmark_pio_s1 => clock_crossing_0_m1_read_data_valid_benchmark_pio_s1,
@@ -15750,14 +17453,12 @@ begin
       clock_crossing_0_m1_read_data_valid_node_switch_pio_s1 => clock_crossing_0_m1_read_data_valid_node_switch_pio_s1,
       clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP => clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_CMP,
       clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG => clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG,
-      clock_crossing_0_m1_read_data_valid_status_led_pio_s1 => clock_crossing_0_m1_read_data_valid_status_led_pio_s1,
       clock_crossing_0_m1_read_data_valid_system_timer_s1 => clock_crossing_0_m1_read_data_valid_system_timer_s1,
       clock_crossing_0_m1_requests_benchmark_pio_s1 => clock_crossing_0_m1_requests_benchmark_pio_s1,
       clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave => clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave,
       clock_crossing_0_m1_requests_node_switch_pio_s1 => clock_crossing_0_m1_requests_node_switch_pio_s1,
       clock_crossing_0_m1_requests_powerlink_0_MAC_CMP => clock_crossing_0_m1_requests_powerlink_0_MAC_CMP,
       clock_crossing_0_m1_requests_powerlink_0_MAC_REG => clock_crossing_0_m1_requests_powerlink_0_MAC_REG,
-      clock_crossing_0_m1_requests_status_led_pio_s1 => clock_crossing_0_m1_requests_status_led_pio_s1,
       clock_crossing_0_m1_requests_system_timer_s1 => clock_crossing_0_m1_requests_system_timer_s1,
       clock_crossing_0_m1_write => clock_crossing_0_m1_write,
       clock_crossing_0_m1_writedata => clock_crossing_0_m1_writedata,
@@ -15766,7 +17467,6 @@ begin
       d1_node_switch_pio_s1_end_xfer => d1_node_switch_pio_s1_end_xfer,
       d1_powerlink_0_MAC_CMP_end_xfer => d1_powerlink_0_MAC_CMP_end_xfer,
       d1_powerlink_0_MAC_REG_end_xfer => d1_powerlink_0_MAC_REG_end_xfer,
-      d1_status_led_pio_s1_end_xfer => d1_status_led_pio_s1_end_xfer,
       d1_system_timer_s1_end_xfer => d1_system_timer_s1_end_xfer,
       jtag_uart_0_avalon_jtag_slave_readdata_from_sa => jtag_uart_0_avalon_jtag_slave_readdata_from_sa,
       jtag_uart_0_avalon_jtag_slave_waitrequest_from_sa => jtag_uart_0_avalon_jtag_slave_waitrequest_from_sa,
@@ -15774,7 +17474,6 @@ begin
       powerlink_0_MAC_CMP_readdata_from_sa => powerlink_0_MAC_CMP_readdata_from_sa,
       powerlink_0_MAC_REG_readdata_from_sa => powerlink_0_MAC_REG_readdata_from_sa,
       reset_n => clk50_reset_n,
-      status_led_pio_s1_readdata_from_sa => status_led_pio_s1_readdata_from_sa,
       system_timer_s1_readdata_from_sa => system_timer_s1_readdata_from_sa
     );
 
@@ -16300,6 +17999,172 @@ begin
     );
 
 
+  --the_niosII_openMac_clock_3_in, which is an e_instance
+  the_niosII_openMac_clock_3_in : niosII_openMac_clock_3_in_arbitrator
+    port map(
+      ap_cpu_data_master_granted_niosII_openMac_clock_3_in => ap_cpu_data_master_granted_niosII_openMac_clock_3_in,
+      ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in => ap_cpu_data_master_qualified_request_niosII_openMac_clock_3_in,
+      ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in => ap_cpu_data_master_read_data_valid_niosII_openMac_clock_3_in,
+      ap_cpu_data_master_requests_niosII_openMac_clock_3_in => ap_cpu_data_master_requests_niosII_openMac_clock_3_in,
+      d1_niosII_openMac_clock_3_in_end_xfer => d1_niosII_openMac_clock_3_in_end_xfer,
+      niosII_openMac_clock_3_in_address => niosII_openMac_clock_3_in_address,
+      niosII_openMac_clock_3_in_byteenable => niosII_openMac_clock_3_in_byteenable,
+      niosII_openMac_clock_3_in_endofpacket_from_sa => niosII_openMac_clock_3_in_endofpacket_from_sa,
+      niosII_openMac_clock_3_in_nativeaddress => niosII_openMac_clock_3_in_nativeaddress,
+      niosII_openMac_clock_3_in_read => niosII_openMac_clock_3_in_read,
+      niosII_openMac_clock_3_in_readdata_from_sa => niosII_openMac_clock_3_in_readdata_from_sa,
+      niosII_openMac_clock_3_in_reset_n => niosII_openMac_clock_3_in_reset_n,
+      niosII_openMac_clock_3_in_waitrequest_from_sa => niosII_openMac_clock_3_in_waitrequest_from_sa,
+      niosII_openMac_clock_3_in_write => niosII_openMac_clock_3_in_write,
+      niosII_openMac_clock_3_in_writedata => niosII_openMac_clock_3_in_writedata,
+      ap_cpu_data_master_address_to_slave => ap_cpu_data_master_address_to_slave,
+      ap_cpu_data_master_byteenable => ap_cpu_data_master_byteenable,
+      ap_cpu_data_master_read => ap_cpu_data_master_read,
+      ap_cpu_data_master_waitrequest => ap_cpu_data_master_waitrequest,
+      ap_cpu_data_master_write => ap_cpu_data_master_write,
+      ap_cpu_data_master_writedata => ap_cpu_data_master_writedata,
+      clk => internal_clk50,
+      niosII_openMac_clock_3_in_endofpacket => niosII_openMac_clock_3_in_endofpacket,
+      niosII_openMac_clock_3_in_readdata => niosII_openMac_clock_3_in_readdata,
+      niosII_openMac_clock_3_in_waitrequest => niosII_openMac_clock_3_in_waitrequest,
+      reset_n => clk50_reset_n
+    );
+
+
+  --the_niosII_openMac_clock_3_out, which is an e_instance
+  the_niosII_openMac_clock_3_out : niosII_openMac_clock_3_out_arbitrator
+    port map(
+      niosII_openMac_clock_3_out_address_to_slave => niosII_openMac_clock_3_out_address_to_slave,
+      niosII_openMac_clock_3_out_readdata => niosII_openMac_clock_3_out_readdata,
+      niosII_openMac_clock_3_out_reset_n => niosII_openMac_clock_3_out_reset_n,
+      niosII_openMac_clock_3_out_waitrequest => niosII_openMac_clock_3_out_waitrequest,
+      clk => internal_pcp_clk,
+      d1_powerlink_0_MAC_BUF_end_xfer => d1_powerlink_0_MAC_BUF_end_xfer,
+      niosII_openMac_clock_3_out_address => niosII_openMac_clock_3_out_address,
+      niosII_openMac_clock_3_out_byteenable => niosII_openMac_clock_3_out_byteenable,
+      niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF,
+      niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF,
+      niosII_openMac_clock_3_out_read => niosII_openMac_clock_3_out_read,
+      niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF,
+      niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF,
+      niosII_openMac_clock_3_out_write => niosII_openMac_clock_3_out_write,
+      niosII_openMac_clock_3_out_writedata => niosII_openMac_clock_3_out_writedata,
+      powerlink_0_MAC_BUF_readdata_from_sa => powerlink_0_MAC_BUF_readdata_from_sa,
+      powerlink_0_MAC_BUF_wait_counter_eq_0 => powerlink_0_MAC_BUF_wait_counter_eq_0,
+      reset_n => pcp_clk_reset_n
+    );
+
+
+  --the_niosII_openMac_clock_3, which is an e_ptf_instance
+  the_niosII_openMac_clock_3 : niosII_openMac_clock_3
+    port map(
+      master_address => niosII_openMac_clock_3_out_address,
+      master_byteenable => niosII_openMac_clock_3_out_byteenable,
+      master_nativeaddress => niosII_openMac_clock_3_out_nativeaddress,
+      master_read => niosII_openMac_clock_3_out_read,
+      master_write => niosII_openMac_clock_3_out_write,
+      master_writedata => niosII_openMac_clock_3_out_writedata,
+      slave_endofpacket => niosII_openMac_clock_3_in_endofpacket,
+      slave_readdata => niosII_openMac_clock_3_in_readdata,
+      slave_waitrequest => niosII_openMac_clock_3_in_waitrequest,
+      master_clk => internal_pcp_clk,
+      master_endofpacket => niosII_openMac_clock_3_out_endofpacket,
+      master_readdata => niosII_openMac_clock_3_out_readdata,
+      master_reset_n => niosII_openMac_clock_3_out_reset_n,
+      master_waitrequest => niosII_openMac_clock_3_out_waitrequest,
+      slave_address => niosII_openMac_clock_3_in_address,
+      slave_byteenable => niosII_openMac_clock_3_in_byteenable,
+      slave_clk => internal_clk50,
+      slave_nativeaddress => niosII_openMac_clock_3_in_nativeaddress,
+      slave_read => niosII_openMac_clock_3_in_read,
+      slave_reset_n => niosII_openMac_clock_3_in_reset_n,
+      slave_write => niosII_openMac_clock_3_in_write,
+      slave_writedata => niosII_openMac_clock_3_in_writedata
+    );
+
+
+  --the_niosII_openMac_clock_4_in, which is an e_instance
+  the_niosII_openMac_clock_4_in : niosII_openMac_clock_4_in_arbitrator
+    port map(
+      d1_niosII_openMac_clock_4_in_end_xfer => d1_niosII_openMac_clock_4_in_end_xfer,
+      niosII_openMac_clock_4_in_address => niosII_openMac_clock_4_in_address,
+      niosII_openMac_clock_4_in_byteenable => niosII_openMac_clock_4_in_byteenable,
+      niosII_openMac_clock_4_in_endofpacket_from_sa => niosII_openMac_clock_4_in_endofpacket_from_sa,
+      niosII_openMac_clock_4_in_nativeaddress => niosII_openMac_clock_4_in_nativeaddress,
+      niosII_openMac_clock_4_in_read => niosII_openMac_clock_4_in_read,
+      niosII_openMac_clock_4_in_readdata_from_sa => niosII_openMac_clock_4_in_readdata_from_sa,
+      niosII_openMac_clock_4_in_reset_n => niosII_openMac_clock_4_in_reset_n,
+      niosII_openMac_clock_4_in_waitrequest_from_sa => niosII_openMac_clock_4_in_waitrequest_from_sa,
+      niosII_openMac_clock_4_in_write => niosII_openMac_clock_4_in_write,
+      niosII_openMac_clock_4_in_writedata => niosII_openMac_clock_4_in_writedata,
+      powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in,
+      powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in,
+      powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in,
+      powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in,
+      clk => internal_clk50,
+      niosII_openMac_clock_4_in_endofpacket => niosII_openMac_clock_4_in_endofpacket,
+      niosII_openMac_clock_4_in_readdata => niosII_openMac_clock_4_in_readdata,
+      niosII_openMac_clock_4_in_waitrequest => niosII_openMac_clock_4_in_waitrequest,
+      powerlink_0_MAC_DMA_address_to_slave => powerlink_0_MAC_DMA_address_to_slave,
+      powerlink_0_MAC_DMA_byteenable_n => powerlink_0_MAC_DMA_byteenable_n,
+      powerlink_0_MAC_DMA_read_n => powerlink_0_MAC_DMA_read_n,
+      powerlink_0_MAC_DMA_write_n => powerlink_0_MAC_DMA_write_n,
+      powerlink_0_MAC_DMA_writedata => powerlink_0_MAC_DMA_writedata,
+      reset_n => clk50_reset_n
+    );
+
+
+  --the_niosII_openMac_clock_4_out, which is an e_instance
+  the_niosII_openMac_clock_4_out : niosII_openMac_clock_4_out_arbitrator
+    port map(
+      niosII_openMac_clock_4_out_address_to_slave => niosII_openMac_clock_4_out_address_to_slave,
+      niosII_openMac_clock_4_out_readdata => niosII_openMac_clock_4_out_readdata,
+      niosII_openMac_clock_4_out_reset_n => niosII_openMac_clock_4_out_reset_n,
+      niosII_openMac_clock_4_out_waitrequest => niosII_openMac_clock_4_out_waitrequest,
+      clk => internal_pcp_clk,
+      d1_tri_state_bridge_0_avalon_slave_end_xfer => d1_tri_state_bridge_0_avalon_slave_end_xfer,
+      incoming_data_to_and_from_the_sram_0 => incoming_data_to_and_from_the_sram_0,
+      niosII_openMac_clock_4_out_address => niosII_openMac_clock_4_out_address,
+      niosII_openMac_clock_4_out_byteenable => niosII_openMac_clock_4_out_byteenable,
+      niosII_openMac_clock_4_out_granted_sram_0_s0 => niosII_openMac_clock_4_out_granted_sram_0_s0,
+      niosII_openMac_clock_4_out_qualified_request_sram_0_s0 => niosII_openMac_clock_4_out_qualified_request_sram_0_s0,
+      niosII_openMac_clock_4_out_read => niosII_openMac_clock_4_out_read,
+      niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 => niosII_openMac_clock_4_out_read_data_valid_sram_0_s0,
+      niosII_openMac_clock_4_out_requests_sram_0_s0 => niosII_openMac_clock_4_out_requests_sram_0_s0,
+      niosII_openMac_clock_4_out_write => niosII_openMac_clock_4_out_write,
+      niosII_openMac_clock_4_out_writedata => niosII_openMac_clock_4_out_writedata,
+      reset_n => pcp_clk_reset_n
+    );
+
+
+  --the_niosII_openMac_clock_4, which is an e_ptf_instance
+  the_niosII_openMac_clock_4 : niosII_openMac_clock_4
+    port map(
+      master_address => niosII_openMac_clock_4_out_address,
+      master_byteenable => niosII_openMac_clock_4_out_byteenable,
+      master_nativeaddress => niosII_openMac_clock_4_out_nativeaddress,
+      master_read => niosII_openMac_clock_4_out_read,
+      master_write => niosII_openMac_clock_4_out_write,
+      master_writedata => niosII_openMac_clock_4_out_writedata,
+      slave_endofpacket => niosII_openMac_clock_4_in_endofpacket,
+      slave_readdata => niosII_openMac_clock_4_in_readdata,
+      slave_waitrequest => niosII_openMac_clock_4_in_waitrequest,
+      master_clk => internal_pcp_clk,
+      master_endofpacket => niosII_openMac_clock_4_out_endofpacket,
+      master_readdata => niosII_openMac_clock_4_out_readdata,
+      master_reset_n => niosII_openMac_clock_4_out_reset_n,
+      master_waitrequest => niosII_openMac_clock_4_out_waitrequest,
+      slave_address => niosII_openMac_clock_4_in_address,
+      slave_byteenable => niosII_openMac_clock_4_in_byteenable,
+      slave_clk => internal_clk50,
+      slave_nativeaddress => niosII_openMac_clock_4_in_nativeaddress,
+      slave_read => niosII_openMac_clock_4_in_read,
+      slave_reset_n => niosII_openMac_clock_4_in_reset_n,
+      slave_write => niosII_openMac_clock_4_in_write,
+      slave_writedata => niosII_openMac_clock_4_in_writedata
+    );
+
+
   --the_node_switch_pio_s1, which is an e_instance
   the_node_switch_pio_s1 : node_switch_pio_s1_arbitrator
     port map(
@@ -16330,55 +18195,6 @@ begin
       clk => internal_clk50,
       in_port => in_port_to_the_node_switch_pio,
       reset_n => node_switch_pio_s1_reset_n
-    );
-
-
-  --the_onchip_memory_0_s1, which is an e_instance
-  the_onchip_memory_0_s1 : onchip_memory_0_s1_arbitrator
-    port map(
-      d1_onchip_memory_0_s1_end_xfer => d1_onchip_memory_0_s1_end_xfer,
-      onchip_memory_0_s1_address => onchip_memory_0_s1_address,
-      onchip_memory_0_s1_byteenable => onchip_memory_0_s1_byteenable,
-      onchip_memory_0_s1_chipselect => onchip_memory_0_s1_chipselect,
-      onchip_memory_0_s1_clken => onchip_memory_0_s1_clken,
-      onchip_memory_0_s1_readdata_from_sa => onchip_memory_0_s1_readdata_from_sa,
-      onchip_memory_0_s1_write => onchip_memory_0_s1_write,
-      onchip_memory_0_s1_writedata => onchip_memory_0_s1_writedata,
-      pcp_cpu_data_master_granted_onchip_memory_0_s1 => pcp_cpu_data_master_granted_onchip_memory_0_s1,
-      pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 => pcp_cpu_data_master_qualified_request_onchip_memory_0_s1,
-      pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 => pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1,
-      pcp_cpu_data_master_requests_onchip_memory_0_s1 => pcp_cpu_data_master_requests_onchip_memory_0_s1,
-      pcp_cpu_instruction_master_granted_onchip_memory_0_s1 => pcp_cpu_instruction_master_granted_onchip_memory_0_s1,
-      pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 => pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1,
-      pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 => pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1,
-      pcp_cpu_instruction_master_requests_onchip_memory_0_s1 => pcp_cpu_instruction_master_requests_onchip_memory_0_s1,
-      registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 => registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1,
-      clk => internal_pcp_clk,
-      onchip_memory_0_s1_readdata => onchip_memory_0_s1_readdata,
-      pcp_cpu_data_master_address_to_slave => pcp_cpu_data_master_address_to_slave,
-      pcp_cpu_data_master_byteenable => pcp_cpu_data_master_byteenable,
-      pcp_cpu_data_master_read => pcp_cpu_data_master_read,
-      pcp_cpu_data_master_waitrequest => pcp_cpu_data_master_waitrequest,
-      pcp_cpu_data_master_write => pcp_cpu_data_master_write,
-      pcp_cpu_data_master_writedata => pcp_cpu_data_master_writedata,
-      pcp_cpu_instruction_master_address_to_slave => pcp_cpu_instruction_master_address_to_slave,
-      pcp_cpu_instruction_master_latency_counter => pcp_cpu_instruction_master_latency_counter,
-      pcp_cpu_instruction_master_read => pcp_cpu_instruction_master_read,
-      reset_n => pcp_clk_reset_n
-    );
-
-
-  --the_onchip_memory_0, which is an e_ptf_instance
-  the_onchip_memory_0 : onchip_memory_0
-    port map(
-      readdata => onchip_memory_0_s1_readdata,
-      address => onchip_memory_0_s1_address,
-      byteenable => onchip_memory_0_s1_byteenable,
-      chipselect => onchip_memory_0_s1_chipselect,
-      clk => internal_pcp_clk,
-      clken => onchip_memory_0_s1_clken,
-      write => onchip_memory_0_s1_write,
-      writedata => onchip_memory_0_s1_writedata
     );
 
 
@@ -16478,10 +18294,10 @@ begin
       d1_niosII_openMac_clock_0_in_end_xfer => d1_niosII_openMac_clock_0_in_end_xfer,
       d1_niosII_openMac_clock_1_in_end_xfer => d1_niosII_openMac_clock_1_in_end_xfer,
       d1_niosII_openMac_clock_2_in_end_xfer => d1_niosII_openMac_clock_2_in_end_xfer,
-      d1_onchip_memory_0_s1_end_xfer => d1_onchip_memory_0_s1_end_xfer,
       d1_pcp_cpu_jtag_debug_module_end_xfer => d1_pcp_cpu_jtag_debug_module_end_xfer,
       d1_powerlink_0_MAC_BUF_end_xfer => d1_powerlink_0_MAC_BUF_end_xfer,
       d1_powerlink_0_PDI_PCP_end_xfer => d1_powerlink_0_PDI_PCP_end_xfer,
+      d1_tc_i_mem_pcp_s1_end_xfer => d1_tc_i_mem_pcp_s1_end_xfer,
       d1_tri_state_bridge_0_avalon_slave_end_xfer => d1_tri_state_bridge_0_avalon_slave_end_xfer,
       epcs_flash_controller_0_epcs_control_port_irq_from_sa => epcs_flash_controller_0_epcs_control_port_irq_from_sa,
       epcs_flash_controller_0_epcs_control_port_readdata_from_sa => epcs_flash_controller_0_epcs_control_port_readdata_from_sa,
@@ -16493,7 +18309,6 @@ begin
       niosII_openMac_clock_1_in_waitrequest_from_sa => niosII_openMac_clock_1_in_waitrequest_from_sa,
       niosII_openMac_clock_2_in_readdata_from_sa => niosII_openMac_clock_2_in_readdata_from_sa,
       niosII_openMac_clock_2_in_waitrequest_from_sa => niosII_openMac_clock_2_in_waitrequest_from_sa,
-      onchip_memory_0_s1_readdata_from_sa => onchip_memory_0_s1_readdata_from_sa,
       pcp_clk => internal_pcp_clk,
       pcp_clk_reset_n => pcp_clk_reset_n,
       pcp_cpu_data_master_address => pcp_cpu_data_master_address,
@@ -16503,21 +18318,21 @@ begin
       pcp_cpu_data_master_granted_niosII_openMac_clock_0_in => pcp_cpu_data_master_granted_niosII_openMac_clock_0_in,
       pcp_cpu_data_master_granted_niosII_openMac_clock_1_in => pcp_cpu_data_master_granted_niosII_openMac_clock_1_in,
       pcp_cpu_data_master_granted_niosII_openMac_clock_2_in => pcp_cpu_data_master_granted_niosII_openMac_clock_2_in,
-      pcp_cpu_data_master_granted_onchip_memory_0_s1 => pcp_cpu_data_master_granted_onchip_memory_0_s1,
       pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module => pcp_cpu_data_master_granted_pcp_cpu_jtag_debug_module,
       pcp_cpu_data_master_granted_powerlink_0_MAC_BUF => pcp_cpu_data_master_granted_powerlink_0_MAC_BUF,
       pcp_cpu_data_master_granted_powerlink_0_PDI_PCP => pcp_cpu_data_master_granted_powerlink_0_PDI_PCP,
       pcp_cpu_data_master_granted_sram_0_s0 => pcp_cpu_data_master_granted_sram_0_s0,
+      pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 => pcp_cpu_data_master_granted_tc_i_mem_pcp_s1,
       pcp_cpu_data_master_qualified_request_clock_crossing_0_s1 => pcp_cpu_data_master_qualified_request_clock_crossing_0_s1,
       pcp_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port => pcp_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port,
       pcp_cpu_data_master_qualified_request_niosII_openMac_clock_0_in => pcp_cpu_data_master_qualified_request_niosII_openMac_clock_0_in,
       pcp_cpu_data_master_qualified_request_niosII_openMac_clock_1_in => pcp_cpu_data_master_qualified_request_niosII_openMac_clock_1_in,
       pcp_cpu_data_master_qualified_request_niosII_openMac_clock_2_in => pcp_cpu_data_master_qualified_request_niosII_openMac_clock_2_in,
-      pcp_cpu_data_master_qualified_request_onchip_memory_0_s1 => pcp_cpu_data_master_qualified_request_onchip_memory_0_s1,
       pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module => pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module,
       pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF => pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF,
       pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP => pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP,
       pcp_cpu_data_master_qualified_request_sram_0_s0 => pcp_cpu_data_master_qualified_request_sram_0_s0,
+      pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 => pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1,
       pcp_cpu_data_master_read => pcp_cpu_data_master_read,
       pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1 => pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1,
       pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1_shift_register => pcp_cpu_data_master_read_data_valid_clock_crossing_0_s1_shift_register,
@@ -16525,21 +18340,21 @@ begin
       pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_0_in => pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_0_in,
       pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_1_in => pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_1_in,
       pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_2_in => pcp_cpu_data_master_read_data_valid_niosII_openMac_clock_2_in,
-      pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 => pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1,
       pcp_cpu_data_master_read_data_valid_pcp_cpu_jtag_debug_module => pcp_cpu_data_master_read_data_valid_pcp_cpu_jtag_debug_module,
       pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF => pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF,
       pcp_cpu_data_master_read_data_valid_powerlink_0_PDI_PCP => pcp_cpu_data_master_read_data_valid_powerlink_0_PDI_PCP,
       pcp_cpu_data_master_read_data_valid_sram_0_s0 => pcp_cpu_data_master_read_data_valid_sram_0_s0,
+      pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 => pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1,
       pcp_cpu_data_master_requests_clock_crossing_0_s1 => pcp_cpu_data_master_requests_clock_crossing_0_s1,
       pcp_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port => pcp_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port,
       pcp_cpu_data_master_requests_niosII_openMac_clock_0_in => pcp_cpu_data_master_requests_niosII_openMac_clock_0_in,
       pcp_cpu_data_master_requests_niosII_openMac_clock_1_in => pcp_cpu_data_master_requests_niosII_openMac_clock_1_in,
       pcp_cpu_data_master_requests_niosII_openMac_clock_2_in => pcp_cpu_data_master_requests_niosII_openMac_clock_2_in,
-      pcp_cpu_data_master_requests_onchip_memory_0_s1 => pcp_cpu_data_master_requests_onchip_memory_0_s1,
       pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module => pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module,
       pcp_cpu_data_master_requests_powerlink_0_MAC_BUF => pcp_cpu_data_master_requests_powerlink_0_MAC_BUF,
       pcp_cpu_data_master_requests_powerlink_0_PDI_PCP => pcp_cpu_data_master_requests_powerlink_0_PDI_PCP,
       pcp_cpu_data_master_requests_sram_0_s0 => pcp_cpu_data_master_requests_sram_0_s0,
+      pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 => pcp_cpu_data_master_requests_tc_i_mem_pcp_s1,
       pcp_cpu_data_master_write => pcp_cpu_data_master_write,
       pcp_cpu_data_master_writedata => pcp_cpu_data_master_writedata,
       pcp_cpu_jtag_debug_module_readdata_from_sa => pcp_cpu_jtag_debug_module_readdata_from_sa,
@@ -16549,10 +18364,11 @@ begin
       powerlink_0_MAC_REG_irq_from_sa => powerlink_0_MAC_REG_irq_from_sa,
       powerlink_0_PDI_PCP_readdata_from_sa => powerlink_0_PDI_PCP_readdata_from_sa,
       powerlink_0_PDI_PCP_wait_counter_eq_0 => powerlink_0_PDI_PCP_wait_counter_eq_0,
-      registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1 => registered_pcp_cpu_data_master_read_data_valid_onchip_memory_0_s1,
       registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 => registered_pcp_cpu_data_master_read_data_valid_sram_0_s0,
+      registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 => registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1,
       reset_n => pcp_clk_reset_n,
-      system_timer_s1_irq_from_sa => system_timer_s1_irq_from_sa
+      system_timer_s1_irq_from_sa => system_timer_s1_irq_from_sa,
+      tc_i_mem_pcp_s1_readdata_from_sa => tc_i_mem_pcp_s1_readdata_from_sa
     );
 
 
@@ -16567,32 +18383,48 @@ begin
       pcp_cpu_instruction_master_waitrequest => pcp_cpu_instruction_master_waitrequest,
       clk => internal_pcp_clk,
       d1_epcs_flash_controller_0_epcs_control_port_end_xfer => d1_epcs_flash_controller_0_epcs_control_port_end_xfer,
-      d1_onchip_memory_0_s1_end_xfer => d1_onchip_memory_0_s1_end_xfer,
       d1_pcp_cpu_jtag_debug_module_end_xfer => d1_pcp_cpu_jtag_debug_module_end_xfer,
       d1_tri_state_bridge_0_avalon_slave_end_xfer => d1_tri_state_bridge_0_avalon_slave_end_xfer,
       epcs_flash_controller_0_epcs_control_port_readdata_from_sa => epcs_flash_controller_0_epcs_control_port_readdata_from_sa,
       incoming_data_to_and_from_the_sram_0 => incoming_data_to_and_from_the_sram_0,
-      onchip_memory_0_s1_readdata_from_sa => onchip_memory_0_s1_readdata_from_sa,
       pcp_cpu_instruction_master_address => pcp_cpu_instruction_master_address,
       pcp_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port => pcp_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port,
-      pcp_cpu_instruction_master_granted_onchip_memory_0_s1 => pcp_cpu_instruction_master_granted_onchip_memory_0_s1,
       pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module => pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module,
       pcp_cpu_instruction_master_granted_sram_0_s0 => pcp_cpu_instruction_master_granted_sram_0_s0,
       pcp_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port => pcp_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port,
-      pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1 => pcp_cpu_instruction_master_qualified_request_onchip_memory_0_s1,
       pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module => pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module,
       pcp_cpu_instruction_master_qualified_request_sram_0_s0 => pcp_cpu_instruction_master_qualified_request_sram_0_s0,
       pcp_cpu_instruction_master_read => pcp_cpu_instruction_master_read,
       pcp_cpu_instruction_master_read_data_valid_epcs_flash_controller_0_epcs_control_port => pcp_cpu_instruction_master_read_data_valid_epcs_flash_controller_0_epcs_control_port,
-      pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1 => pcp_cpu_instruction_master_read_data_valid_onchip_memory_0_s1,
       pcp_cpu_instruction_master_read_data_valid_pcp_cpu_jtag_debug_module => pcp_cpu_instruction_master_read_data_valid_pcp_cpu_jtag_debug_module,
       pcp_cpu_instruction_master_read_data_valid_sram_0_s0 => pcp_cpu_instruction_master_read_data_valid_sram_0_s0,
       pcp_cpu_instruction_master_requests_epcs_flash_controller_0_epcs_control_port => pcp_cpu_instruction_master_requests_epcs_flash_controller_0_epcs_control_port,
-      pcp_cpu_instruction_master_requests_onchip_memory_0_s1 => pcp_cpu_instruction_master_requests_onchip_memory_0_s1,
       pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module => pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module,
       pcp_cpu_instruction_master_requests_sram_0_s0 => pcp_cpu_instruction_master_requests_sram_0_s0,
       pcp_cpu_jtag_debug_module_readdata_from_sa => pcp_cpu_jtag_debug_module_readdata_from_sa,
       reset_n => pcp_clk_reset_n
+    );
+
+
+  --the_pcp_cpu_tightly_coupled_instruction_master_0, which is an e_instance
+  the_pcp_cpu_tightly_coupled_instruction_master_0 : pcp_cpu_tightly_coupled_instruction_master_0_arbitrator
+    port map(
+      pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave => pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave,
+      pcp_cpu_tightly_coupled_instruction_master_0_latency_counter => pcp_cpu_tightly_coupled_instruction_master_0_latency_counter,
+      pcp_cpu_tightly_coupled_instruction_master_0_readdata => pcp_cpu_tightly_coupled_instruction_master_0_readdata,
+      pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid => pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid,
+      pcp_cpu_tightly_coupled_instruction_master_0_waitrequest => pcp_cpu_tightly_coupled_instruction_master_0_waitrequest,
+      clk => internal_pcp_clk,
+      d1_tc_i_mem_pcp_s2_end_xfer => d1_tc_i_mem_pcp_s2_end_xfer,
+      pcp_cpu_tightly_coupled_instruction_master_0_address => pcp_cpu_tightly_coupled_instruction_master_0_address,
+      pcp_cpu_tightly_coupled_instruction_master_0_clken => pcp_cpu_tightly_coupled_instruction_master_0_clken,
+      pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2,
+      pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2,
+      pcp_cpu_tightly_coupled_instruction_master_0_read => pcp_cpu_tightly_coupled_instruction_master_0_read,
+      pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2,
+      pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2,
+      reset_n => pcp_clk_reset_n,
+      tc_i_mem_pcp_s2_readdata_from_sa => tc_i_mem_pcp_s2_readdata_from_sa
     );
 
 
@@ -16606,6 +18438,9 @@ begin
       d_writedata => pcp_cpu_data_master_writedata,
       i_address => pcp_cpu_instruction_master_address,
       i_read => pcp_cpu_instruction_master_read,
+      icm0_address => pcp_cpu_tightly_coupled_instruction_master_0_address,
+      icm0_clken => pcp_cpu_tightly_coupled_instruction_master_0_clken,
+      icm0_read => pcp_cpu_tightly_coupled_instruction_master_0_read,
       jtag_debug_module_debugaccess_to_roms => pcp_cpu_data_master_debugaccess,
       jtag_debug_module_readdata => pcp_cpu_jtag_debug_module_readdata,
       jtag_debug_module_resetrequest => pcp_cpu_jtag_debug_module_resetrequest,
@@ -16616,6 +18451,9 @@ begin
       i_readdata => pcp_cpu_instruction_master_readdata,
       i_readdatavalid => pcp_cpu_instruction_master_readdatavalid,
       i_waitrequest => pcp_cpu_instruction_master_waitrequest,
+      icm0_readdata => pcp_cpu_tightly_coupled_instruction_master_0_readdata,
+      icm0_readdatavalid => pcp_cpu_tightly_coupled_instruction_master_0_readdatavalid,
+      icm0_waitrequest => pcp_cpu_tightly_coupled_instruction_master_0_waitrequest,
       jtag_debug_module_address => pcp_cpu_jtag_debug_module_address,
       jtag_debug_module_begintransfer => pcp_cpu_jtag_debug_module_begintransfer,
       jtag_debug_module_byteenable => pcp_cpu_jtag_debug_module_byteenable,
@@ -16631,6 +18469,10 @@ begin
   the_powerlink_0_MAC_BUF : powerlink_0_MAC_BUF_arbitrator
     port map(
       d1_powerlink_0_MAC_BUF_end_xfer => d1_powerlink_0_MAC_BUF_end_xfer,
+      niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_granted_powerlink_0_MAC_BUF,
+      niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_qualified_request_powerlink_0_MAC_BUF,
+      niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_read_data_valid_powerlink_0_MAC_BUF,
+      niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF => niosII_openMac_clock_3_out_requests_powerlink_0_MAC_BUF,
       pcp_cpu_data_master_granted_powerlink_0_MAC_BUF => pcp_cpu_data_master_granted_powerlink_0_MAC_BUF,
       pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF => pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF,
       pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF => pcp_cpu_data_master_read_data_valid_powerlink_0_MAC_BUF,
@@ -16645,6 +18487,11 @@ begin
       powerlink_0_MAC_BUF_write_n => powerlink_0_MAC_BUF_write_n,
       powerlink_0_MAC_BUF_writedata => powerlink_0_MAC_BUF_writedata,
       clk => internal_pcp_clk,
+      niosII_openMac_clock_3_out_address_to_slave => niosII_openMac_clock_3_out_address_to_slave,
+      niosII_openMac_clock_3_out_byteenable => niosII_openMac_clock_3_out_byteenable,
+      niosII_openMac_clock_3_out_read => niosII_openMac_clock_3_out_read,
+      niosII_openMac_clock_3_out_write => niosII_openMac_clock_3_out_write,
+      niosII_openMac_clock_3_out_writedata => niosII_openMac_clock_3_out_writedata,
       pcp_cpu_data_master_address_to_slave => pcp_cpu_data_master_address_to_slave,
       pcp_cpu_data_master_byteenable => pcp_cpu_data_master_byteenable,
       pcp_cpu_data_master_read => pcp_cpu_data_master_read,
@@ -16775,11 +18622,45 @@ begin
     );
 
 
+  --the_powerlink_0_MAC_DMA, which is an e_instance
+  the_powerlink_0_MAC_DMA : powerlink_0_MAC_DMA_arbitrator
+    port map(
+      powerlink_0_MAC_DMA_address_to_slave => powerlink_0_MAC_DMA_address_to_slave,
+      powerlink_0_MAC_DMA_readdata => powerlink_0_MAC_DMA_readdata,
+      powerlink_0_MAC_DMA_waitrequest => powerlink_0_MAC_DMA_waitrequest,
+      clk => internal_clk50,
+      d1_niosII_openMac_clock_4_in_end_xfer => d1_niosII_openMac_clock_4_in_end_xfer,
+      niosII_openMac_clock_4_in_readdata_from_sa => niosII_openMac_clock_4_in_readdata_from_sa,
+      niosII_openMac_clock_4_in_waitrequest_from_sa => niosII_openMac_clock_4_in_waitrequest_from_sa,
+      powerlink_0_MAC_DMA_address => powerlink_0_MAC_DMA_address,
+      powerlink_0_MAC_DMA_byteenable_n => powerlink_0_MAC_DMA_byteenable_n,
+      powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_granted_niosII_openMac_clock_4_in,
+      powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_4_in,
+      powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_4_in,
+      powerlink_0_MAC_DMA_read_n => powerlink_0_MAC_DMA_read_n,
+      powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in => powerlink_0_MAC_DMA_requests_niosII_openMac_clock_4_in,
+      powerlink_0_MAC_DMA_write_n => powerlink_0_MAC_DMA_write_n,
+      powerlink_0_MAC_DMA_writedata => powerlink_0_MAC_DMA_writedata,
+      reset_n => clk50_reset_n
+    );
+
+
   --the_powerlink_0, which is an e_ptf_instance
   the_powerlink_0 : powerlink_0
     port map(
       ap_irq => powerlink_0_PDI_AP_irq,
       ap_readdata => powerlink_0_PDI_AP_readdata,
+      led_error => internal_led_error_from_the_powerlink_0,
+      led_opt => internal_led_opt_from_the_powerlink_0,
+      led_phyAct => internal_led_phyAct_from_the_powerlink_0,
+      led_phyLink => internal_led_phyLink_from_the_powerlink_0,
+      led_status => internal_led_status_from_the_powerlink_0,
+      m_address => powerlink_0_MAC_DMA_address,
+      m_arbiterlock => powerlink_0_MAC_DMA_arbiterlock,
+      m_byteenable_n => powerlink_0_MAC_DMA_byteenable_n,
+      m_read_n => powerlink_0_MAC_DMA_read_n,
+      m_write_n => powerlink_0_MAC_DMA_write_n,
+      m_writedata => powerlink_0_MAC_DMA_writedata,
       mac_irq => powerlink_0_MAC_REG_irq,
       mac_readdata => powerlink_0_MAC_REG_readdata,
       mbf_readdata => powerlink_0_MAC_BUF_readdata,
@@ -16807,6 +18688,8 @@ begin
       clk50 => internal_clk50,
       clkAp => internal_clk50,
       clkPcp => internal_pcp_clk,
+      m_readdata => powerlink_0_MAC_DMA_readdata,
+      m_waitrequest => powerlink_0_MAC_DMA_waitrequest,
       mac_address => powerlink_0_MAC_REG_address,
       mac_byteenable_n => powerlink_0_MAC_REG_byteenable_n,
       mac_chipselect => powerlink_0_MAC_REG_chipselect,
@@ -16825,6 +18708,8 @@ begin
       pcp_read => powerlink_0_PDI_PCP_read,
       pcp_write => powerlink_0_PDI_PCP_write,
       pcp_writedata => powerlink_0_PDI_PCP_writedata,
+      phy0_link => phy0_link_to_the_powerlink_0,
+      phy1_link => phy1_link_to_the_powerlink_0,
       phyMii0_RxClk => phyMii0_RxClk_to_the_powerlink_0,
       phyMii0_RxDat => phyMii0_RxDat_to_the_powerlink_0,
       phyMii0_RxDv => phyMii0_RxDv_to_the_powerlink_0,
@@ -16952,46 +18837,6 @@ begin
     );
 
 
-  --the_status_led_pio_s1, which is an e_instance
-  the_status_led_pio_s1 : status_led_pio_s1_arbitrator
-    port map(
-      clock_crossing_0_m1_granted_status_led_pio_s1 => clock_crossing_0_m1_granted_status_led_pio_s1,
-      clock_crossing_0_m1_qualified_request_status_led_pio_s1 => clock_crossing_0_m1_qualified_request_status_led_pio_s1,
-      clock_crossing_0_m1_read_data_valid_status_led_pio_s1 => clock_crossing_0_m1_read_data_valid_status_led_pio_s1,
-      clock_crossing_0_m1_requests_status_led_pio_s1 => clock_crossing_0_m1_requests_status_led_pio_s1,
-      d1_status_led_pio_s1_end_xfer => d1_status_led_pio_s1_end_xfer,
-      status_led_pio_s1_address => status_led_pio_s1_address,
-      status_led_pio_s1_chipselect => status_led_pio_s1_chipselect,
-      status_led_pio_s1_readdata_from_sa => status_led_pio_s1_readdata_from_sa,
-      status_led_pio_s1_reset_n => status_led_pio_s1_reset_n,
-      status_led_pio_s1_write_n => status_led_pio_s1_write_n,
-      status_led_pio_s1_writedata => status_led_pio_s1_writedata,
-      clk => internal_clk50,
-      clock_crossing_0_m1_address_to_slave => clock_crossing_0_m1_address_to_slave,
-      clock_crossing_0_m1_latency_counter => clock_crossing_0_m1_latency_counter,
-      clock_crossing_0_m1_nativeaddress => clock_crossing_0_m1_nativeaddress,
-      clock_crossing_0_m1_read => clock_crossing_0_m1_read,
-      clock_crossing_0_m1_write => clock_crossing_0_m1_write,
-      clock_crossing_0_m1_writedata => clock_crossing_0_m1_writedata,
-      reset_n => clk50_reset_n,
-      status_led_pio_s1_readdata => status_led_pio_s1_readdata
-    );
-
-
-  --the_status_led_pio, which is an e_ptf_instance
-  the_status_led_pio : status_led_pio
-    port map(
-      out_port => internal_out_port_from_the_status_led_pio,
-      readdata => status_led_pio_s1_readdata,
-      address => status_led_pio_s1_address,
-      chipselect => status_led_pio_s1_chipselect,
-      clk => internal_clk50,
-      reset_n => status_led_pio_s1_reset_n,
-      write_n => status_led_pio_s1_write_n,
-      writedata => status_led_pio_s1_writedata
-    );
-
-
   --the_sysid_control_slave, which is an e_instance
   the_sysid_control_slave : sysid_control_slave_arbitrator
     port map(
@@ -17113,6 +18958,85 @@ begin
     );
 
 
+  --the_tc_i_mem_pcp_s1, which is an e_instance
+  the_tc_i_mem_pcp_s1 : tc_i_mem_pcp_s1_arbitrator
+    port map(
+      d1_tc_i_mem_pcp_s1_end_xfer => d1_tc_i_mem_pcp_s1_end_xfer,
+      pcp_cpu_data_master_granted_tc_i_mem_pcp_s1 => pcp_cpu_data_master_granted_tc_i_mem_pcp_s1,
+      pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1 => pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s1,
+      pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 => pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1,
+      pcp_cpu_data_master_requests_tc_i_mem_pcp_s1 => pcp_cpu_data_master_requests_tc_i_mem_pcp_s1,
+      registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1 => registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s1,
+      tc_i_mem_pcp_s1_address => tc_i_mem_pcp_s1_address,
+      tc_i_mem_pcp_s1_byteenable => tc_i_mem_pcp_s1_byteenable,
+      tc_i_mem_pcp_s1_chipselect => tc_i_mem_pcp_s1_chipselect,
+      tc_i_mem_pcp_s1_clken => tc_i_mem_pcp_s1_clken,
+      tc_i_mem_pcp_s1_readdata_from_sa => tc_i_mem_pcp_s1_readdata_from_sa,
+      tc_i_mem_pcp_s1_reset => tc_i_mem_pcp_s1_reset,
+      tc_i_mem_pcp_s1_write => tc_i_mem_pcp_s1_write,
+      tc_i_mem_pcp_s1_writedata => tc_i_mem_pcp_s1_writedata,
+      clk => internal_pcp_clk,
+      pcp_cpu_data_master_address_to_slave => pcp_cpu_data_master_address_to_slave,
+      pcp_cpu_data_master_byteenable => pcp_cpu_data_master_byteenable,
+      pcp_cpu_data_master_read => pcp_cpu_data_master_read,
+      pcp_cpu_data_master_waitrequest => pcp_cpu_data_master_waitrequest,
+      pcp_cpu_data_master_write => pcp_cpu_data_master_write,
+      pcp_cpu_data_master_writedata => pcp_cpu_data_master_writedata,
+      reset_n => pcp_clk_reset_n,
+      tc_i_mem_pcp_s1_readdata => tc_i_mem_pcp_s1_readdata
+    );
+
+
+  --the_tc_i_mem_pcp_s2, which is an e_instance
+  the_tc_i_mem_pcp_s2 : tc_i_mem_pcp_s2_arbitrator
+    port map(
+      d1_tc_i_mem_pcp_s2_end_xfer => d1_tc_i_mem_pcp_s2_end_xfer,
+      pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_granted_tc_i_mem_pcp_s2,
+      pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_qualified_request_tc_i_mem_pcp_s2,
+      pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_read_data_valid_tc_i_mem_pcp_s2,
+      pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2 => pcp_cpu_tightly_coupled_instruction_master_0_requests_tc_i_mem_pcp_s2,
+      tc_i_mem_pcp_s2_address => tc_i_mem_pcp_s2_address,
+      tc_i_mem_pcp_s2_byteenable => tc_i_mem_pcp_s2_byteenable,
+      tc_i_mem_pcp_s2_chipselect => tc_i_mem_pcp_s2_chipselect,
+      tc_i_mem_pcp_s2_clken => tc_i_mem_pcp_s2_clken,
+      tc_i_mem_pcp_s2_readdata_from_sa => tc_i_mem_pcp_s2_readdata_from_sa,
+      tc_i_mem_pcp_s2_reset => tc_i_mem_pcp_s2_reset,
+      tc_i_mem_pcp_s2_write => tc_i_mem_pcp_s2_write,
+      tc_i_mem_pcp_s2_writedata => tc_i_mem_pcp_s2_writedata,
+      clk => internal_pcp_clk,
+      pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave => pcp_cpu_tightly_coupled_instruction_master_0_address_to_slave,
+      pcp_cpu_tightly_coupled_instruction_master_0_clken => pcp_cpu_tightly_coupled_instruction_master_0_clken,
+      pcp_cpu_tightly_coupled_instruction_master_0_latency_counter => pcp_cpu_tightly_coupled_instruction_master_0_latency_counter,
+      pcp_cpu_tightly_coupled_instruction_master_0_read => pcp_cpu_tightly_coupled_instruction_master_0_read,
+      reset_n => pcp_clk_reset_n,
+      tc_i_mem_pcp_s2_readdata => tc_i_mem_pcp_s2_readdata
+    );
+
+
+  --the_tc_i_mem_pcp, which is an e_ptf_instance
+  the_tc_i_mem_pcp : tc_i_mem_pcp
+    port map(
+      readdata => tc_i_mem_pcp_s1_readdata,
+      readdata2 => tc_i_mem_pcp_s2_readdata,
+      address => tc_i_mem_pcp_s1_address,
+      address2 => tc_i_mem_pcp_s2_address,
+      byteenable => tc_i_mem_pcp_s1_byteenable,
+      byteenable2 => tc_i_mem_pcp_s2_byteenable,
+      chipselect => tc_i_mem_pcp_s1_chipselect,
+      chipselect2 => tc_i_mem_pcp_s2_chipselect,
+      clk => internal_pcp_clk,
+      clk2 => internal_pcp_clk,
+      clken => tc_i_mem_pcp_s1_clken,
+      clken2 => tc_i_mem_pcp_s2_clken,
+      reset => tc_i_mem_pcp_s1_reset,
+      reset2 => tc_i_mem_pcp_s2_reset,
+      write => tc_i_mem_pcp_s1_write,
+      write2 => tc_i_mem_pcp_s2_write,
+      writedata => tc_i_mem_pcp_s1_writedata,
+      writedata2 => tc_i_mem_pcp_s2_writedata
+    );
+
+
   --the_tri_state_bridge_0_avalon_slave, which is an e_instance
   the_tri_state_bridge_0_avalon_slave : tri_state_bridge_0_avalon_slave_arbitrator
     port map(
@@ -17122,6 +19046,10 @@ begin
       d1_tri_state_bridge_0_avalon_slave_end_xfer => d1_tri_state_bridge_0_avalon_slave_end_xfer,
       data_to_and_from_the_sram_0 => data_to_and_from_the_sram_0,
       incoming_data_to_and_from_the_sram_0 => incoming_data_to_and_from_the_sram_0,
+      niosII_openMac_clock_4_out_granted_sram_0_s0 => niosII_openMac_clock_4_out_granted_sram_0_s0,
+      niosII_openMac_clock_4_out_qualified_request_sram_0_s0 => niosII_openMac_clock_4_out_qualified_request_sram_0_s0,
+      niosII_openMac_clock_4_out_read_data_valid_sram_0_s0 => niosII_openMac_clock_4_out_read_data_valid_sram_0_s0,
+      niosII_openMac_clock_4_out_requests_sram_0_s0 => niosII_openMac_clock_4_out_requests_sram_0_s0,
       oe_n_to_the_sram_0 => internal_oe_n_to_the_sram_0,
       pcp_cpu_data_master_byteenable_sram_0_s0 => pcp_cpu_data_master_byteenable_sram_0_s0,
       pcp_cpu_data_master_granted_sram_0_s0 => pcp_cpu_data_master_granted_sram_0_s0,
@@ -17135,6 +19063,11 @@ begin
       registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 => registered_pcp_cpu_data_master_read_data_valid_sram_0_s0,
       we_n_to_the_sram_0 => internal_we_n_to_the_sram_0,
       clk => internal_pcp_clk,
+      niosII_openMac_clock_4_out_address_to_slave => niosII_openMac_clock_4_out_address_to_slave,
+      niosII_openMac_clock_4_out_byteenable => niosII_openMac_clock_4_out_byteenable,
+      niosII_openMac_clock_4_out_read => niosII_openMac_clock_4_out_read,
+      niosII_openMac_clock_4_out_write => niosII_openMac_clock_4_out_write,
+      niosII_openMac_clock_4_out_writedata => niosII_openMac_clock_4_out_writedata,
       pcp_cpu_data_master_address_to_slave => pcp_cpu_data_master_address_to_slave,
       pcp_cpu_data_master_byteenable => pcp_cpu_data_master_byteenable,
       pcp_cpu_data_master_dbs_address => pcp_cpu_data_master_dbs_address,
@@ -17205,6 +19138,10 @@ begin
   niosII_openMac_clock_1_out_endofpacket <= std_logic'('0');
   --niosII_openMac_clock_2_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
   niosII_openMac_clock_2_out_endofpacket <= std_logic'('0');
+  --niosII_openMac_clock_3_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
+  niosII_openMac_clock_3_out_endofpacket <= std_logic'('0');
+  --niosII_openMac_clock_4_out_endofpacket of type endofpacket does not connect to anything so wire it to default (0)
+  niosII_openMac_clock_4_out_endofpacket <= std_logic'('0');
   --sysid_control_slave_clock of type clock does not connect to anything so wire it to default (0)
   sysid_control_slave_clock <= std_logic'('0');
   --vhdl renameroo for output signals
@@ -17226,6 +19163,16 @@ begin
   --vhdl renameroo for output signals
   dclk_from_the_epcs_flash_controller_0 <= internal_dclk_from_the_epcs_flash_controller_0;
   --vhdl renameroo for output signals
+  led_error_from_the_powerlink_0 <= internal_led_error_from_the_powerlink_0;
+  --vhdl renameroo for output signals
+  led_opt_from_the_powerlink_0 <= internal_led_opt_from_the_powerlink_0;
+  --vhdl renameroo for output signals
+  led_phyAct_from_the_powerlink_0 <= internal_led_phyAct_from_the_powerlink_0;
+  --vhdl renameroo for output signals
+  led_phyLink_from_the_powerlink_0 <= internal_led_phyLink_from_the_powerlink_0;
+  --vhdl renameroo for output signals
+  led_status_from_the_powerlink_0 <= internal_led_status_from_the_powerlink_0;
+  --vhdl renameroo for output signals
   locked_from_the_altpll_0 <= internal_locked_from_the_altpll_0;
   --vhdl renameroo for output signals
   oe_n_to_the_sram_0 <= internal_oe_n_to_the_sram_0;
@@ -17233,8 +19180,6 @@ begin
   out_port_from_the_benchmark_pio <= internal_out_port_from_the_benchmark_pio;
   --vhdl renameroo for output signals
   out_port_from_the_outport_ap <= internal_out_port_from_the_outport_ap;
-  --vhdl renameroo for output signals
-  out_port_from_the_status_led_pio <= internal_out_port_from_the_status_led_pio;
   --vhdl renameroo for output signals
   pcp_clk <= internal_pcp_clk;
   --vhdl renameroo for output signals
@@ -17346,12 +19291,19 @@ component niosII_openMac is
                     signal out_port_from_the_outport_ap : OUT STD_LOGIC_VECTOR (23 DOWNTO 0);
 
                  -- the_powerlink_0
+                    signal led_error_from_the_powerlink_0 : OUT STD_LOGIC;
+                    signal led_opt_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal led_phyAct_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal led_phyLink_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal led_status_from_the_powerlink_0 : OUT STD_LOGIC;
                     signal phy0_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
                     signal phy0_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
                     signal phy0_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
+                    signal phy0_link_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phy1_Rst_n_from_the_powerlink_0 : OUT STD_LOGIC;
                     signal phy1_SMIClk_from_the_powerlink_0 : OUT STD_LOGIC;
                     signal phy1_SMIDat_to_and_from_the_powerlink_0 : INOUT STD_LOGIC;
+                    signal phy1_link_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii0_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii0_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii0_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
@@ -17377,9 +19329,6 @@ component niosII_openMac is
                     signal zs_dqm_from_the_sdram_0 : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal zs_ras_n_from_the_sdram_0 : OUT STD_LOGIC;
                     signal zs_we_n_from_the_sdram_0 : OUT STD_LOGIC;
-
-                 -- the_status_led_pio
-                    signal out_port_from_the_status_led_pio : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
 
                  -- the_tri_state_bridge_0_avalon_slave
                     signal addr_to_the_sram_0 : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
@@ -17436,6 +19385,11 @@ end component sdram_0_test_component;
                 signal jtag_uart_0_avalon_jtag_slave_readyfordata_from_sa :  STD_LOGIC;
                 signal jtag_uart_1_avalon_jtag_slave_dataavailable_from_sa :  STD_LOGIC;
                 signal jtag_uart_1_avalon_jtag_slave_readyfordata_from_sa :  STD_LOGIC;
+                signal led_error_from_the_powerlink_0 :  STD_LOGIC;
+                signal led_opt_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal led_phyAct_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal led_phyLink_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal led_status_from_the_powerlink_0 :  STD_LOGIC;
                 signal locked_from_the_altpll_0 :  STD_LOGIC;
                 signal niosII_openMac_clock_0_in_endofpacket_from_sa :  STD_LOGIC;
                 signal niosII_openMac_clock_0_out_endofpacket :  STD_LOGIC;
@@ -17444,18 +19398,25 @@ end component sdram_0_test_component;
                 signal niosII_openMac_clock_1_out_nativeaddress :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal niosII_openMac_clock_2_in_endofpacket_from_sa :  STD_LOGIC;
                 signal niosII_openMac_clock_2_out_endofpacket :  STD_LOGIC;
+                signal niosII_openMac_clock_3_in_endofpacket_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_endofpacket :  STD_LOGIC;
+                signal niosII_openMac_clock_3_out_nativeaddress :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal niosII_openMac_clock_4_in_endofpacket_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_endofpacket :  STD_LOGIC;
+                signal niosII_openMac_clock_4_out_nativeaddress :  STD_LOGIC_VECTOR (19 DOWNTO 0);
                 signal oe_n_to_the_sram_0 :  STD_LOGIC;
                 signal out_port_from_the_benchmark_pio :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal out_port_from_the_outport_ap :  STD_LOGIC_VECTOR (23 DOWNTO 0);
-                signal out_port_from_the_status_led_pio :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal pcp_clk :  STD_LOGIC;
                 signal phasedone_from_the_altpll_0 :  STD_LOGIC;
                 signal phy0_Rst_n_from_the_powerlink_0 :  STD_LOGIC;
                 signal phy0_SMIClk_from_the_powerlink_0 :  STD_LOGIC;
                 signal phy0_SMIDat_to_and_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy0_link_to_the_powerlink_0 :  STD_LOGIC;
                 signal phy1_Rst_n_from_the_powerlink_0 :  STD_LOGIC;
                 signal phy1_SMIClk_from_the_powerlink_0 :  STD_LOGIC;
                 signal phy1_SMIDat_to_and_from_the_powerlink_0 :  STD_LOGIC;
+                signal phy1_link_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii0_RxClk_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii0_RxDat_to_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal phyMii0_RxDv_to_the_powerlink_0 :  STD_LOGIC;
@@ -17470,6 +19431,7 @@ end component sdram_0_test_component;
                 signal phyMii1_TxDat_from_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal phyMii1_TxEn_from_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii1_TxEr_from_the_powerlink_0 :  STD_LOGIC;
+                signal powerlink_0_MAC_DMA_arbiterlock :  STD_LOGIC;
                 signal reset_n :  STD_LOGIC;
                 signal sce_from_the_epcs_flash_controller_0 :  STD_LOGIC;
                 signal sdo_from_the_epcs_flash_controller_0 :  STD_LOGIC;
@@ -17509,11 +19471,15 @@ begin
       clk50 => clk50,
       data_to_and_from_the_sram_0 => data_to_and_from_the_sram_0,
       dclk_from_the_epcs_flash_controller_0 => dclk_from_the_epcs_flash_controller_0,
+      led_error_from_the_powerlink_0 => led_error_from_the_powerlink_0,
+      led_opt_from_the_powerlink_0 => led_opt_from_the_powerlink_0,
+      led_phyAct_from_the_powerlink_0 => led_phyAct_from_the_powerlink_0,
+      led_phyLink_from_the_powerlink_0 => led_phyLink_from_the_powerlink_0,
+      led_status_from_the_powerlink_0 => led_status_from_the_powerlink_0,
       locked_from_the_altpll_0 => locked_from_the_altpll_0,
       oe_n_to_the_sram_0 => oe_n_to_the_sram_0,
       out_port_from_the_benchmark_pio => out_port_from_the_benchmark_pio,
       out_port_from_the_outport_ap => out_port_from_the_outport_ap,
-      out_port_from_the_status_led_pio => out_port_from_the_status_led_pio,
       pcp_clk => pcp_clk,
       phasedone_from_the_altpll_0 => phasedone_from_the_altpll_0,
       phy0_Rst_n_from_the_powerlink_0 => phy0_Rst_n_from_the_powerlink_0,
@@ -17544,6 +19510,8 @@ begin
       data0_to_the_epcs_flash_controller_0 => data0_to_the_epcs_flash_controller_0,
       in_port_to_the_inport_ap => in_port_to_the_inport_ap,
       in_port_to_the_node_switch_pio => in_port_to_the_node_switch_pio,
+      phy0_link_to_the_powerlink_0 => phy0_link_to_the_powerlink_0,
+      phy1_link_to_the_powerlink_0 => phy1_link_to_the_powerlink_0,
       phyMii0_RxClk_to_the_powerlink_0 => phyMii0_RxClk_to_the_powerlink_0,
       phyMii0_RxDat_to_the_powerlink_0 => phyMii0_RxDat_to_the_powerlink_0,
       phyMii0_RxDv_to_the_powerlink_0 => phyMii0_RxDv_to_the_powerlink_0,
