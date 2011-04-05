@@ -97,8 +97,8 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 #endif
 
 	/* initialize asynchronous transfer functions */
-	CnApi_initAsync((tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBufAoffs), pCtrlReg_g->m_wTxAsyncBufSize,
-					(tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAoffs), pCtrlReg_g->m_wRxAsyncBufSize);
+	CnApi_initAsync((tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBuf0Aoffs), pCtrlReg_g->m_wTxAsyncBuf0Size,
+					(tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf0Aoffs), pCtrlReg_g->m_wRxAsyncBuf0Size);
 
 	/* initialize PDO transfer functions */
 	iStatus = CnApi_initPdo();
@@ -217,7 +217,7 @@ FUNC_ENTRYACT(kApStatePreop2)
     /* read PDO descriptors */
 #ifdef CN_API_USING_SPI
     /* update local shadow message buffer */
-        CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, pCtrlReg_g->m_wRxAsyncBufSize, (BYTE*) pAsycMsgLinkPdoReqAp_g);
+        CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, pCtrlReg_g->m_wRxAsyncBuf0Size, (BYTE*) pAsycMsgLinkPdoReqAp_g);
 #endif /* CN_API_USING_SPI */
 
     if(pAsycMsgLinkPdoReqAp_g->m_bCmd == kAsyncCmdLinkPdosReq) //check if message is present

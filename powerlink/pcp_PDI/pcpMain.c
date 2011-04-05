@@ -53,7 +53,6 @@ static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 /******************************************************************************/
 /* forward declarations */
 int openPowerlink(void);
-static void setLed(BYTE bType_p, BOOL fOn_p);
 
 /**
 ********************************************************************************
@@ -104,8 +103,8 @@ int main (void)
 
     initStateMachine();
     Gi_init();
-    Gi_initAsync((tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBufAoffs),
-    		     (tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBufAoffs));
+    Gi_initAsync((tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBuf0Aoffs),
+    		     (tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBuf0Aoffs));
     iRet = Gi_initPdo();
     if (iRet != OK )
     {
@@ -441,10 +440,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         	switch (pEventArg_p->m_Led.m_LedType)
             {
                 case kEplLedTypeStatus:
-                	setLed(kEplLedTypeStatus, pEventArg_p->m_Led.m_fOn);
+                	Gi_controlLED(kEplLedTypeStatus, pEventArg_p->m_Led.m_fOn);
                     break;
                 case kEplLedTypeError:
-                	setLed(kEplLedTypeError, pEventArg_p->m_Led.m_fOn);
+                    Gi_controlLED(kEplLedTypeError, pEventArg_p->m_Led.m_fOn);
                     break;
                 default:
                     break;
@@ -486,7 +485,7 @@ tEplKernel PUBLIC AppCbSync(void)
 
     /* check if interrupts are enabled */
 
-    if ((pCtrlReg_g->m_bSyncMode & CNAPI_SYNC_MODE_IR_EN) &&
+    if ((pCtrlReg_g->m_wSyncIrqControl & (1 << SYNC_IRQ_SYNC_MODE)) &&
         (iSyncIntCycle_g != 0)                            &&
         (getPcpState()== kPcpStateOperational)               )
     {
@@ -514,7 +513,7 @@ getCommandFromAp() gets the command from the application processor(AP).
 *******************************************************************************/
 BYTE getCommandFromAp(void)
 {
-	return pCtrlReg_g->m_bCommand;
+	return pCtrlReg_g->m_wCommand;
 }
 
 /**
@@ -523,7 +522,7 @@ BYTE getCommandFromAp(void)
 *******************************************************************************/
 void storePcpState(BYTE bState_p)
 {
-	pCtrlReg_g->m_bState = bState_p;
+	pCtrlReg_g->m_wState = bState_p;
 }
 
 /**
@@ -532,7 +531,7 @@ void storePcpState(BYTE bState_p)
 *******************************************************************************/
 BYTE getPcpState(void)
 {
-	return pCtrlReg_g->m_bState;
+	return pCtrlReg_g->m_wState;
 }
 
 /**
@@ -572,8 +571,9 @@ void Gi_init(void)
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;	   ///< set address of control register - equals DPRAM base address
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
-    pCtrlReg_g->m_bError = 0x00;	                   ///< no error
-    pCtrlReg_g->m_bState = 0xff; 	                   ///< set invalid PCP state
+    pCtrlReg_g->m_wEventType = 0x00;	               ///< invalid event TODO: structure
+    pCtrlReg_g->m_wEventArg = 0x00;                    ///< invalid event argument TODO: structure
+    pCtrlReg_g->m_wState = 0xff; 	                   ///< set invalid PCP state
 }
 
 /**
@@ -596,7 +596,7 @@ void Gi_shutdown(void)
 void Gi_initSyncInt(void)
 {
 	// enable IRQ and set mode to "IR generation by SW"
-    pCtrlReg_g->m_bSyncIrqControl = (1 << SYNC_IRQ_ENABLE); // & (0 << SYNC_IRQ_MODE);
+    pCtrlReg_g->m_wSyncIrqControl = (1 << SYNC_IRQ_ENABLE); // & (0 << SYNC_IRQ_MODE);
 }
 
 /**
@@ -605,11 +605,11 @@ void Gi_initSyncInt(void)
 *******************************************************************************/
 void Gi_getSyncIntModeFlags(void)
 {
-    BYTE bSyncModeFlags;
+    WORD wSyncModeFlags;
 
-    bSyncModeFlags = pCtrlReg_g->m_bSyncMode;
+    wSyncModeFlags = pCtrlReg_g->m_wSyncIrqControl;
 
-    if(bSyncModeFlags &= CNAPI_SYNC_MODE_IR_EN)
+    if(wSyncModeFlags &= (1 << SYNC_IRQ_SYNC_MODE))
     {
         fIrqSyncMode_g = TRUE;  ///< Sync IR is enabled
     }
@@ -635,7 +635,7 @@ void Gi_calcSyncIntPeriod(void)
 	EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
 	if (EplRet != kEplSuccessful)
 	{
-		pCtrlReg_g->m_bCycleError = kCnApiSyncCycleError;
+	    Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -643,12 +643,12 @@ void Gi_calcSyncIntPeriod(void)
 	iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;	/* do it this way to round up integer division! */
 	iSyncPeriod = iNumCycles * uiCycleTime;
 
-	DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%d --> syncPeriod=%d\n",
+	DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%lu --> syncPeriod=%d\n",
 			       uiCycleTime, pCtrlReg_g->m_dwMinCycleTime, iSyncPeriod);
 
-	if (iNumCycles > pCtrlReg_g->m_bMaxCylceNum)
+	if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
 	{
-		pCtrlReg_g->m_bCycleError = kCnApiSyncCycleError;
+	    Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -657,7 +657,7 @@ void Gi_calcSyncIntPeriod(void)
 	{
 	    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
-		pCtrlReg_g->m_bCycleError = kCnApiSyncCycleError;
+	    Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -665,12 +665,12 @@ void Gi_calcSyncIntPeriod(void)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
-        pCtrlReg_g->m_bCycleError = kCnApiSyncCycleError;
+        Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
         iSyncIntCycle_g = 0;
         return;
     }
 
-	pCtrlReg_g->m_bCycleError = kCnApiSyncCycleOk;
+    Gi_throwAsyncEvent(kPcpPdiInformation, kPcpSyncCycleOk);
 	iSyncIntCycle_g = iNumCycles;
 	pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
 
@@ -684,7 +684,7 @@ void Gi_calcSyncIntPeriod(void)
 void Gi_generateSyncInt(void)
 {
 	/* Throw interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_bSyncIrqControl |= (1 << SYNC_IRQ_SET); //set `set` bit to high
+    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_SET); //set `set` bit to high
 	return;
 }
 
@@ -695,7 +695,7 @@ void Gi_generateSyncInt(void)
 void Gi_disableSyncInt(void)
 {
 	/* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_bSyncIrqControl &= !(1 << SYNC_IRQ_ENABLE); // set enable bit to low
+    pCtrlReg_g->m_wSyncIrqControl &= !(1 << SYNC_IRQ_ENABLE); // set enable bit to low
 	return;
 }
 
@@ -706,39 +706,68 @@ void Gi_disableSyncInt(void)
 void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
 {
 	/* set timer value by writing to the SYNC_IRQ_TIMER_VALUE_REGISTER */
-    pCtrlReg_g->m_dwPcpIrqTimerValue = uiTimeValue;
-	pCtrlReg_g->m_bSyncIrqControl |= (1 << SYNC_IRQ_MODE); ///< set mode bit to high -> HW assertion
+    // pCtrlReg_g->m_dwPcpIrqTimerValue = uiTimeValue; TODO: This is not in PDI, but in openMAC (2nd timer)! Check doku.
+	pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_MODE); ///< set mode bit to high -> HW assertion
 	return;
 }
 
 /**
-********************************************************************************
-\brief	generate sync interrupt
-*******************************************************************************/
-static void setLed(BYTE bType_p, BOOL fOn_p)
-{
-	BYTE		bitMask;
+ ********************************************************************************
+ \brief	set event and related argument in PCP control register to inform AP
+ \param	wEventType_p    event type (e.g. state change, error, ...)
+ \param wArg_p          event argument (e.g. NmtState, error code ...)
 
-	switch (bType_p)
-	{
-	case kEplLedTypeStatus:
-		bitMask = 1;
-		break;
-	case kEplLedTypeError:
-		bitMask = 2;
-		break;
-	default:
-		bitMask = 0;
-		break;
-	}
+ This function fills the event related PCP PDI register with an AP known value,
+ and informs the AP this way about occured events. The AP has to acknowledge
+ an event after reading out the registers.
+ According to the Asynchronous IRQ configuration register, the PCP might assert
+ an IR signal in case of an event.
+ *******************************************************************************/
+void Gi_throwAsyncEvent(WORD wEventType_p, WORD wArg_p)
+{
+    pCtrlReg_g->m_wEventType = wEventType_p;
+    pCtrlReg_g->m_wEventArg = wArg_p;
+
+    //TODO: assert IR
+}
+
+/**
+********************************************************************************
+\brief	control LED outputs of POWERLINK IP core
+*******************************************************************************/
+void Gi_controlLED(BYTE bType_p, BOOL bOn_p)
+{
+    WORD        wRegisterBitNum;
+
+    switch (bType_p)
+        {
+        case kEplLedTypeStatus:
+            wRegisterBitNum = LED_STATUS;
+            break;
+        case kEplLedTypeError:
+            wRegisterBitNum = LED_ERROR;
+            break;
+        default:
+            wRegisterBitNum = 0;
+            goto exit;
+        }
+
+    if (bOn_p)  //activate LED output
+    {
+        pCtrlReg_g->m_wLedControl |= (1 << wRegisterBitNum);
+    }
+    else        // deactive LED output
+    {
+        pCtrlReg_g->m_wLedControl &= ~(1 << wRegisterBitNum);
+    }
+
+exit:
+    return;
+}
 
 #ifdef STATUS_LED_PIO_BASE
-	if (fOn_p)
-		IOWR_ALTERA_AVALON_PIO_CLEAR_BITS(STATUS_LED_PIO_BASE, bitMask);
-	else
-		IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, bitMask);
+#warning Deprecated! Deactivate in SOPC-Builder!
 #endif
-}
 
 /* EOF */
 /*********************************************************************************/

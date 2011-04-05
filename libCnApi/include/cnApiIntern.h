@@ -25,14 +25,38 @@ This header file contains internal definitions for the CN API.
 /* defines */
 #define	MAX_ASYNC_TIMEOUT	500	    ///< timeout counter for asynchronous transfers
 
-/* synchronization mode register definitions */
-#define	CNAPI_SYNC_MODE_IR_EN	 0x80
 
-/* defines for sync IRQ for PCP only */
-#define SYNC_IRQ_ENABLE 7
-#define SYNC_IRQ_MODE	6
-#define SYNC_IRQ_SET	0
-#define SYNC_IRQ_TIMER_VALUE_REG_OFFSET 0x34 ///< Register offset of PCP -> AP timer value register for "timer delay mode" //TODO: replace with struct member
+/* defines for SYNC_IRQ_CTRL for AP only */
+#define SYNC_IRQ_ACK    0
+/* defines for SYNC_IRQ_CTRL for AP and PCP */
+#define SYNC_IRQ_SYNC_MODE      15  ///< AP sets desired synchronization mode (IR = 1, polling=0),
+                                    ///< PCP reads the mode (PCP RO register)
+/* defines for SYNC_IRQ_CTRL for PCP only */
+#define SYNC_IRQ_SET    0       ///< assert IR signal
+#define SYNC_IRQ_MODE   6       ///< mode: SW set (0) or HW triggered (1)
+#define SYNC_IRQ_ENABLE 7       ///< IR signal enable
+
+/* defines for ASYNC_IRQ_CTRL for AP only */
+#define ASYNC_IRQ_EN    15
+
+/* defines for EVENT_ACK */
+#define EVT_GENERIC     0
+#define EVT_PHY0_LINK   6
+#define EVT_PHY1_LINK   7
+
+/* defines for LED_CNTRL */
+#define LED_STATUS      0
+#define LED_ERROR       1
+#define LED_PHY0_LINK   2
+#define LED_PHY0_ACT    3
+#define LED_PHY1_LINK   4
+#define LED_PHY1_ACT    5
+#define LED_OPTION_0    6
+#define LED_OPTION_1    7
+
+/* defines for LED_CNFG */
+#define LED_FORCE_EN0       ///< Bit pattern has to be set to enable LED forcing by SW
+
 
 /******************************************************************************/
 /* function declarations */

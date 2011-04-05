@@ -83,7 +83,7 @@ static BOOL checkApCommand(BYTE cmd_p)
 	{
 		if (cmd_p != kApCmdReboot) ///< reset AP command will take place in state 'kPcpStateBooted'
 		{
-		    pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
+		    pCtrlReg_g->m_wCommand = kApCmdNone;	///< reset AP command
 		}
 
 		return TRUE;
@@ -128,10 +128,11 @@ FUNC_ENTRYACT(kPcpStateBooted)
 		asm("NOP;");
 	}
 
-	pCtrlReg_g->m_bCommand = kApCmdNone;	///< reset AP command
+	pCtrlReg_g->m_wCommand = kApCmdNone;	///< reset AP command
 	pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
 
-	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xef); ///< set "bootup LED"
+
+	//Gi_controlLED(kEplLedTypeTestAll, TRUE); ///< set "bootup LED"
 
 	///< if this is not the first boot: shutdown POWERLINK first
 	if(fPLisInitalized_g == TRUE)
@@ -212,7 +213,7 @@ FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreop1)
 {
-	IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xff); ///< reset "bootup LED"
+    //Gi_controlLED(kEplLedTypeTestAll, FALSE);        ///< reset "bootup LED"
 	storePcpState(kPcpStatePreop1);
 }
 /*----------------------------------------------------------------------------*/
