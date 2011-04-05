@@ -207,12 +207,6 @@ SYSTEM niosII_openMac
                span = "0x00000800";
                is_bridge = "0";
             }
-            Entry onchip_memory_pcp/s1
-            {
-               address = "0x00002000";
-               span = "0x00000400";
-               is_bridge = "0";
-            }
             Entry sram_0/s0
             {
                address = "0x00400000";
@@ -577,12 +571,6 @@ SYSTEM niosII_openMac
                span = "0x00000800";
                is_bridge = "0";
             }
-            Entry onchip_memory_pcp/s1
-            {
-               address = "0x00002000";
-               span = "0x00000400";
-               is_bridge = "0";
-            }
             Entry sram_0/s0
             {
                address = "0x00400000";
@@ -657,8 +645,8 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_BUF
             {
-               address = "0x00004000";
-               span = "0x00004000";
+               address = "0x00002000";
+               span = "0x00002000";
                is_bridge = "0";
             }
             Entry powerlink_0/SMP
@@ -671,6 +659,94 @@ SYSTEM niosII_openMac
             {
                address = "0x00000900";
                span = "0x00000010";
+               is_bridge = "0";
+            }
+            Entry tc_i_mem_pcp/s2
+            {
+               address = "0x00000c00";
+               span = "0x00000400";
+               is_bridge = "0";
+            }
+         }
+      }
+      MASTER tightly_coupled_instruction_master_0
+      {
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Is_Asynchronous = "0";
+            DBS_Big_Endian = "0";
+            Adapts_To = "";
+            Do_Stream_Reads = "0";
+            Do_Stream_Writes = "0";
+            Max_Address_Width = "32";
+            Data_Width = "32";
+            Address_Width = "12";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            Is_Instruction_Master = "1";
+            Has_IRQ = "0";
+            Connection_Limit = "1";
+            Is_Channel = "1";
+         }
+         PORT_WIRING 
+         {
+            PORT icm0_address
+            {
+               type = "address";
+               width = "12";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT icm0_read
+            {
+               type = "read";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT icm0_readdata
+            {
+               type = "readdata";
+               width = "32";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT icm0_readdatavalid
+            {
+               type = "readdatavalid";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT icm0_waitrequest
+            {
+               type = "waitrequest";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT icm0_clken
+            {
+               type = "clken";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+         }
+         MEMORY_MAP 
+         {
+            Entry tc_i_mem_pcp/s1
+            {
+               address = "0x00000c00";
+               span = "0x00000400";
                is_bridge = "0";
             }
          }
@@ -691,9 +767,9 @@ SYSTEM niosII_openMac
          cache_icache_line_size = "32";
          cache_icache_ram_block_type = "AUTO";
          cache_icache_bursts = "0";
-         num_tightly_coupled_instruction_masters = "0";
-         gui_num_tightly_coupled_instruction_masters = "0";
-         gui_include_tightly_coupled_instruction_masters = "0";
+         num_tightly_coupled_instruction_masters = "1";
+         gui_num_tightly_coupled_instruction_masters = "1";
+         gui_include_tightly_coupled_instruction_masters = "1";
          debug_level = "2";
          include_oci = "1";
          oci_num_xbrk = "0";
@@ -764,7 +840,7 @@ SYSTEM niosII_openMac
          gui_hardware_multiply_setting = "embedded_mul_fast_le_shift";
          reset_slave = "epcs_flash_controller_0/epcs_control_port";
          break_slave = "pcp_cpu/jtag_debug_module";
-         exc_slave = "onchip_memory_pcp/s1";
+         exc_slave = "tc_i_mem_pcp/s1";
          reset_offset = "0x00000000";
          break_offset = "0x00000020";
          exc_offset = "0x00000020";
@@ -918,26 +994,6 @@ SYSTEM niosII_openMac
          Simulation_HDL_Files = "";
          Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/pcp_cpu_test_bench.vhd, __PROJECT_DIRECTORY__/pcp_cpu_mult_cell.vhd, __PROJECT_DIRECTORY__/pcp_cpu_oci_test_bench.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_tck.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_sysclk.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_wrapper.vhd, __PROJECT_DIRECTORY__/pcp_cpu.vhd";
          Synthesis_Only_Files = "";
-      }
-      MASTER tightly_coupled_instruction_master_0
-      {
-         PORT_WIRING 
-         {
-         }
-         SYSTEM_BUILDER_INFO 
-         {
-            Register_Incoming_Signals = "0";
-            Bus_Type = "avalon";
-            Data_Width = "32";
-            Max_Address_Width = "31";
-            Address_Width = "8";
-            Is_Instruction_Master = "1";
-            Has_IRQ = "0";
-            Is_Enabled = "0";
-            Is_Big_Endian = "0";
-            Connection_Limit = "1";
-            Is_Channel = "1";
-         }
       }
       MASTER tightly_coupled_instruction_master_1
       {
@@ -1186,310 +1242,346 @@ SYSTEM niosII_openMac
             SIGNAL aaf
             {
                format = "Logic";
-               name = "clk";
+               name = "icm0_readdata";
                radix = "hexadecimal";
             }
             SIGNAL aag
             {
                format = "Logic";
-               name = "reset_n";
+               name = "icm0_waitrequest";
                radix = "hexadecimal";
             }
             SIGNAL aah
             {
                format = "Logic";
-               name = "d_readdata";
+               name = "icm0_readdatavalid";
                radix = "hexadecimal";
             }
             SIGNAL aai
             {
                format = "Logic";
-               name = "d_waitrequest";
+               name = "icm0_address";
                radix = "hexadecimal";
             }
             SIGNAL aaj
             {
                format = "Logic";
-               name = "d_irq";
+               name = "icm0_read";
                radix = "hexadecimal";
             }
             SIGNAL aak
             {
                format = "Logic";
-               name = "d_address";
+               name = "icm0_clken";
                radix = "hexadecimal";
             }
             SIGNAL aal
             {
                format = "Logic";
-               name = "d_byteenable";
+               name = "clk";
                radix = "hexadecimal";
             }
             SIGNAL aam
             {
                format = "Logic";
-               name = "d_read";
+               name = "reset_n";
                radix = "hexadecimal";
             }
             SIGNAL aan
             {
                format = "Logic";
-               name = "d_write";
+               name = "d_readdata";
                radix = "hexadecimal";
             }
             SIGNAL aao
             {
                format = "Logic";
-               name = "d_writedata";
+               name = "d_waitrequest";
                radix = "hexadecimal";
             }
             SIGNAL aap
             {
-               format = "Divider";
-               name = "base pipeline";
-               radix = "";
+               format = "Logic";
+               name = "d_irq";
+               radix = "hexadecimal";
             }
             SIGNAL aaq
             {
                format = "Logic";
-               name = "clk";
+               name = "d_address";
                radix = "hexadecimal";
             }
             SIGNAL aar
             {
                format = "Logic";
-               name = "reset_n";
+               name = "d_byteenable";
                radix = "hexadecimal";
             }
             SIGNAL aas
             {
                format = "Logic";
-               name = "M_stall";
+               name = "d_read";
                radix = "hexadecimal";
             }
             SIGNAL aat
             {
                format = "Logic";
-               name = "F_pcb_nxt";
+               name = "d_write";
                radix = "hexadecimal";
             }
             SIGNAL aau
             {
                format = "Logic";
-               name = "F_pcb";
+               name = "d_writedata";
                radix = "hexadecimal";
             }
             SIGNAL aav
             {
-               format = "Logic";
-               name = "D_pcb";
-               radix = "hexadecimal";
+               format = "Divider";
+               name = "base pipeline";
+               radix = "";
             }
             SIGNAL aaw
             {
                format = "Logic";
-               name = "E_pcb";
+               name = "clk";
                radix = "hexadecimal";
             }
             SIGNAL aax
             {
                format = "Logic";
-               name = "M_pcb";
+               name = "reset_n";
                radix = "hexadecimal";
             }
             SIGNAL aay
             {
                format = "Logic";
-               name = "W_pcb";
+               name = "M_stall";
                radix = "hexadecimal";
             }
             SIGNAL aaz
             {
                format = "Logic";
-               name = "F_vinst";
-               radix = "ascii";
+               name = "F_pcb_nxt";
+               radix = "hexadecimal";
             }
             SIGNAL aba
             {
                format = "Logic";
-               name = "D_vinst";
-               radix = "ascii";
+               name = "F_pcb";
+               radix = "hexadecimal";
             }
             SIGNAL abb
             {
                format = "Logic";
-               name = "E_vinst";
-               radix = "ascii";
+               name = "D_pcb";
+               radix = "hexadecimal";
             }
             SIGNAL abc
             {
                format = "Logic";
-               name = "M_vinst";
-               radix = "ascii";
+               name = "E_pcb";
+               radix = "hexadecimal";
             }
             SIGNAL abd
             {
                format = "Logic";
-               name = "W_vinst";
-               radix = "ascii";
+               name = "M_pcb";
+               radix = "hexadecimal";
             }
             SIGNAL abe
             {
                format = "Logic";
-               name = "F_inst_ram_hit";
+               name = "W_pcb";
                radix = "hexadecimal";
             }
             SIGNAL abf
             {
                format = "Logic";
-               name = "F_iw_valid";
-               radix = "hexadecimal";
+               name = "F_vinst";
+               radix = "ascii";
             }
             SIGNAL abg
             {
                format = "Logic";
-               name = "F_issue";
-               radix = "hexadecimal";
+               name = "D_vinst";
+               radix = "ascii";
             }
             SIGNAL abh
             {
                format = "Logic";
-               name = "F_kill";
-               radix = "hexadecimal";
+               name = "E_vinst";
+               radix = "ascii";
             }
             SIGNAL abi
             {
                format = "Logic";
-               name = "D_kill";
-               radix = "hexadecimal";
+               name = "M_vinst";
+               radix = "ascii";
             }
             SIGNAL abj
             {
                format = "Logic";
-               name = "D_refetch";
-               radix = "hexadecimal";
+               name = "W_vinst";
+               radix = "ascii";
             }
             SIGNAL abk
             {
                format = "Logic";
-               name = "D_issue";
+               name = "F_inst_ram_hit";
                radix = "hexadecimal";
             }
             SIGNAL abl
             {
                format = "Logic";
-               name = "D_valid";
+               name = "F_iw_valid";
                radix = "hexadecimal";
             }
             SIGNAL abm
             {
                format = "Logic";
-               name = "E_valid";
+               name = "F_issue";
                radix = "hexadecimal";
             }
             SIGNAL abn
             {
                format = "Logic";
-               name = "M_valid";
+               name = "F_kill";
                radix = "hexadecimal";
             }
             SIGNAL abo
             {
                format = "Logic";
-               name = "W_valid";
+               name = "D_kill";
                radix = "hexadecimal";
             }
             SIGNAL abp
             {
                format = "Logic";
-               name = "W_wr_dst_reg";
+               name = "D_refetch";
                radix = "hexadecimal";
             }
             SIGNAL abq
             {
                format = "Logic";
-               name = "W_dst_regnum";
+               name = "D_issue";
                radix = "hexadecimal";
             }
             SIGNAL abr
             {
                format = "Logic";
-               name = "W_wr_data";
+               name = "D_valid";
                radix = "hexadecimal";
             }
             SIGNAL abs
             {
                format = "Logic";
-               name = "F_en";
+               name = "E_valid";
                radix = "hexadecimal";
             }
             SIGNAL abt
             {
                format = "Logic";
-               name = "D_en";
+               name = "M_valid";
                radix = "hexadecimal";
             }
             SIGNAL abu
             {
                format = "Logic";
-               name = "E_en";
+               name = "W_valid";
                radix = "hexadecimal";
             }
             SIGNAL abv
             {
                format = "Logic";
-               name = "M_en";
+               name = "W_wr_dst_reg";
                radix = "hexadecimal";
             }
             SIGNAL abw
             {
                format = "Logic";
-               name = "F_iw";
+               name = "W_dst_regnum";
                radix = "hexadecimal";
             }
             SIGNAL abx
             {
                format = "Logic";
-               name = "D_iw";
+               name = "W_wr_data";
                radix = "hexadecimal";
             }
             SIGNAL aby
             {
                format = "Logic";
-               name = "E_iw";
+               name = "F_en";
                radix = "hexadecimal";
             }
             SIGNAL abz
             {
                format = "Logic";
-               name = "E_valid_prior_to_hbreak";
+               name = "D_en";
                radix = "hexadecimal";
             }
             SIGNAL aca
             {
                format = "Logic";
-               name = "M_pipe_flush_nxt";
+               name = "E_en";
                radix = "hexadecimal";
             }
             SIGNAL acb
             {
                format = "Logic";
-               name = "M_pipe_flush_baddr_nxt";
+               name = "M_en";
                radix = "hexadecimal";
             }
             SIGNAL acc
             {
                format = "Logic";
-               name = "M_status_reg_pie";
+               name = "F_iw";
                radix = "hexadecimal";
             }
             SIGNAL acd
             {
                format = "Logic";
-               name = "M_ienable_reg";
+               name = "D_iw";
                radix = "hexadecimal";
             }
             SIGNAL ace
+            {
+               format = "Logic";
+               name = "E_iw";
+               radix = "hexadecimal";
+            }
+            SIGNAL acf
+            {
+               format = "Logic";
+               name = "E_valid_prior_to_hbreak";
+               radix = "hexadecimal";
+            }
+            SIGNAL acg
+            {
+               format = "Logic";
+               name = "M_pipe_flush_nxt";
+               radix = "hexadecimal";
+            }
+            SIGNAL ach
+            {
+               format = "Logic";
+               name = "M_pipe_flush_baddr_nxt";
+               radix = "hexadecimal";
+            }
+            SIGNAL aci
+            {
+               format = "Logic";
+               name = "M_status_reg_pie";
+               radix = "hexadecimal";
+            }
+            SIGNAL acj
+            {
+               format = "Logic";
+               name = "M_ienable_reg";
+               radix = "hexadecimal";
+            }
+            SIGNAL ack
             {
                format = "Logic";
                name = "intr_req";
@@ -1540,6 +1632,12 @@ SYSTEM niosII_openMac
                Base_Address = "N/A";
             }
             MASTERED_BY pcp_cpu/data_master
+            {
+               priority = "1";
+               Offset_Address = "N/A";
+               Base_Address = "N/A";
+            }
+            MASTERED_BY powerlink_0/MAC_DMA
             {
                priority = "1";
                Offset_Address = "N/A";
@@ -1609,7 +1707,7 @@ SYSTEM niosII_openMac
          }
       }
    }
-   MODULE onchip_memory_pcp
+   MODULE tc_i_mem_pcp
    {
       SLAVE s1
       {
@@ -1710,17 +1808,127 @@ SYSTEM niosII_openMac
             Always_Burst_Max_Burst = "0";
             Is_Big_Endian = "0";
             Is_Enabled = "1";
+            Clock_Source = "clk_pcp";
+            Has_Clock = "1";
+            MASTERED_BY pcp_cpu/tightly_coupled_instruction_master_0
+            {
+               priority = "1";
+               Offset_Address = "0x00000c00";
+            }
+            Base_Address = "0x00000c00";
+            Address_Group = "0";
+            Has_IRQ = "0";
+            Is_Channel = "1";
+            Is_Writable = "1";
+         }
+      }
+      SLAVE s2
+      {
+         PORT_WIRING 
+         {
+            PORT clk2
+            {
+               type = "clk";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT reset2
+            {
+               type = "reset";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT address2
+            {
+               type = "address";
+               width = "8";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT chipselect2
+            {
+               type = "chipselect";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT clken2
+            {
+               type = "clken";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+               default_value = "1'b1";
+            }
+            PORT readdata2
+            {
+               type = "readdata";
+               width = "32";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT write2
+            {
+               type = "write";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT writedata2
+            {
+               type = "writedata";
+               width = "32";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT byteenable2
+            {
+               type = "byteenable";
+               width = "4";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+         }
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Write_Wait_States = "0cycles";
+            Read_Wait_States = "0cycles";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
+            Is_Printable_Device = "0";
+            Address_Alignment = "dynamic";
+            Well_Behaved_Waitrequest = "0";
+            Is_Nonvolatile_Storage = "0";
+            Address_Span = "1024";
+            Read_Latency = "1";
+            Is_Memory_Device = "1";
+            Maximum_Pending_Read_Transactions = "0";
+            Minimum_Uninterrupted_Run_Length = "1";
+            Accepts_Internal_Connections = "1";
+            Write_Latency = "0";
+            Is_Flash = "0";
+            Data_Width = "32";
+            Address_Width = "8";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00002000";
+               Offset_Address = "0x00000c00";
             }
-            MASTERED_BY pcp_cpu/instruction_master
-            {
-               priority = "1";
-               Offset_Address = "0x00002000";
-            }
-            Base_Address = "0x00002000";
+            Clock_Source = "clk_pcp";
+            Has_Clock = "1";
+            Base_Address = "0x00000c00";
             Address_Group = "0";
             Has_IRQ = "0";
             Is_Channel = "1";
@@ -1736,11 +1944,11 @@ SYSTEM niosII_openMac
       {
          allow_mram_sim_contents_only_file = "0";
          ram_block_type = "AUTO";
-         init_contents_file = "onchip_memory_pcp";
+         init_contents_file = "tc_i_mem_pcp";
          non_default_init_file_enabled = "0";
          gui_ram_block_type = "Automatic";
          Writeable = "1";
-         dual_port = "0";
+         dual_port = "1";
          Size_Value = "1024";
          Size_Multiple = "1";
          use_shallow_mem_blocks = "0";
@@ -1753,7 +1961,7 @@ SYSTEM niosII_openMac
          {
             TARGET delete_placeholder_warning
             {
-               onchip_memory_pcp 
+               tc_i_mem_pcp 
                {
                   Command1 = "rm -f $(SIMDIR)/contents_file_warning.txt";
                   Is_Phony = "1";
@@ -1762,17 +1970,17 @@ SYSTEM niosII_openMac
             }
             TARGET hex
             {
-               onchip_memory_pcp 
+               tc_i_mem_pcp 
                {
                   Command1 = "@echo Post-processing to create $(notdir $@)";
-                  Command2 = "elf2hex $(ELF) 0x00002000 0x23FF --width=32 $(QUARTUS_PROJECT_DIR)/onchip_memory_pcp.hex --create-lanes=0 ";
+                  Command2 = "elf2hex $(ELF) 0x00000c00 0xFFF --width=32 $(QUARTUS_PROJECT_DIR)/tc_i_mem_pcp.hex --create-lanes=0 ";
                   Dependency = "$(ELF)";
-                  Target_File = "$(QUARTUS_PROJECT_DIR)/onchip_memory_pcp.hex";
+                  Target_File = "$(QUARTUS_PROJECT_DIR)/tc_i_mem_pcp.hex";
                }
             }
             TARGET sim
             {
-               onchip_memory_pcp 
+               tc_i_mem_pcp 
                {
                   Command1 = "if [ ! -d $(SIMDIR) ]; then mkdir $(SIMDIR) ; fi";
                   Command2 = "@echo Hardware simulation is not enabled for the target SOPC Builder system. Skipping creation of hardware simulation model contents and simulation symbol files. \\(Note: This does not affect the instruction set simulator.\\)";
@@ -1820,6 +2028,38 @@ SYSTEM niosII_openMac
                radix = "hexadecimal";
                conditional = "1";
             }
+            SIGNAL g
+            {
+               name = "chipselect2";
+               conditional = "1";
+            }
+            SIGNAL i
+            {
+               name = "address2";
+               radix = "hexadecimal";
+            }
+            SIGNAL j
+            {
+               name = "byteenable2";
+               radix = "binary";
+               conditional = "1";
+            }
+            SIGNAL k
+            {
+               name = "readdata2";
+               radix = "hexadecimal";
+            }
+            SIGNAL h
+            {
+               name = "write2";
+               conditional = "1";
+            }
+            SIGNAL l
+            {
+               name = "writedata2";
+               radix = "hexadecimal";
+               conditional = "1";
+            }
          }
       }
       SYSTEM_BUILDER_INFO 
@@ -1829,8 +2069,7 @@ SYSTEM niosII_openMac
          Is_Enabled = "1";
          Default_Module_Name = "onchip_memory";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk_pcp";
-         Has_Clock = "1";
+         Clock_Source = "clk_0";
          View 
          {
             MESSAGES 
@@ -1844,31 +2083,8 @@ SYSTEM niosII_openMac
       {
          Precompiled_Simulation_Library_Files = "";
          Simulation_HDL_Files = "";
-         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/onchip_memory_pcp.vhd";
+         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/tc_i_mem_pcp.vhd";
          Synthesis_Only_Files = "";
-      }
-      SLAVE s2
-      {
-         PORT_WIRING 
-         {
-         }
-         SYSTEM_BUILDER_INFO 
-         {
-            Bus_Type = "avalon";
-            Is_Memory_Device = "1";
-            Address_Group = "0";
-            Address_Alignment = "dynamic";
-            Address_Width = "8";
-            Data_Width = "32";
-            Has_IRQ = "0";
-            Read_Wait_States = "0";
-            Write_Wait_States = "0";
-            Address_Span = "1024";
-            Read_Latency = "1";
-            Is_Channel = "1";
-            Is_Enabled = "0";
-            Is_Writable = "1";
-         }
       }
       PORT_WIRING 
       {
@@ -3417,7 +3633,7 @@ SYSTEM niosII_openMac
             PORT mbf_address
             {
                type = "address";
-               width = "12";
+               width = "11";
                direction = "input";
                Is_Enabled = "1";
             }
@@ -3447,7 +3663,7 @@ SYSTEM niosII_openMac
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
             Is_Nonvolatile_Storage = "0";
-            Address_Span = "16384";
+            Address_Span = "8192";
             Read_Latency = "0";
             Is_Memory_Device = "0";
             Maximum_Pending_Read_Transactions = "0";
@@ -3456,7 +3672,7 @@ SYSTEM niosII_openMac
             Write_Latency = "0";
             Is_Flash = "0";
             Data_Width = "32";
-            Address_Width = "12";
+            Address_Width = "11";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -3469,11 +3685,11 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00004000";
+               Offset_Address = "0x00002000";
             }
             Clock_Source = "clk_pcp";
             Has_Clock = "1";
-            Base_Address = "0x00004000";
+            Base_Address = "0x00002000";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
             {
@@ -3865,6 +4081,100 @@ SYSTEM niosII_openMac
             }
          }
       }
+      MASTER MAC_DMA
+      {
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Is_Asynchronous = "0";
+            DBS_Big_Endian = "0";
+            Adapts_To = "";
+            Do_Stream_Reads = "0";
+            Do_Stream_Writes = "0";
+            Max_Address_Width = "32";
+            Data_Width = "16";
+            Address_Width = "30";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            Clock_Source = "clk50";
+            Has_Clock = "1";
+         }
+         PORT_WIRING 
+         {
+            PORT m_read_n
+            {
+               type = "read_n";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT m_write_n
+            {
+               type = "write_n";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT m_byteenable_n
+            {
+               type = "byteenable_n";
+               width = "2";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT m_address
+            {
+               type = "address";
+               width = "30";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT m_writedata
+            {
+               type = "writedata";
+               width = "16";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+            PORT m_readdata
+            {
+               type = "readdata";
+               width = "16";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT m_waitrequest
+            {
+               type = "waitrequest";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT m_arbiterlock
+            {
+               type = "arbiterlock";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+         }
+         MEMORY_MAP 
+         {
+            Entry sram_0/s0
+            {
+               address = "0x00400000";
+               span = "0x00200000";
+               is_bridge = "0";
+            }
+         }
+      }
       SLAVE MAC_REG
       {
          SYSTEM_BUILDER_INFO 
@@ -3998,14 +4308,15 @@ SYSTEM niosII_openMac
       {
          CONFIG = "0";
          CONFIGAPENDIAN = "0";
-         MACBUFSIZE = "16112";
-         MACRXBUFFERS = "6";
-         MACRXBUFSIZE = "9216";
+         FPGAREV = "32";
+         MACBUFSIZE = "6896";
+         MACRXBUFFERS = "16";
+         MACRXBUFSIZE = "0";
          MACTXBUFFERS = "12";
          MACTXBUFSIZE = "6896";
          PDIRPDOS = "3";
          PDITPDOS = "1";
-         PKTLOC = "0";
+         PKTLOC = "2";
       }
    }
    MODULE sram_0

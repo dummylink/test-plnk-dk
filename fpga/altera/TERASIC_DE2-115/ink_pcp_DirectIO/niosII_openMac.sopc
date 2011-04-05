@@ -6,7 +6,7 @@
    {
       datum baseAddress
       {
-         value = "16384";
+         value = "8192";
          type = "long";
       }
    }
@@ -256,24 +256,6 @@
          type = "boolean";
       }
    }
-   element onchip_memory_pcp
-   {
-      datum _sortIndex
-      {
-         value = "2";
-         type = "int";
-      }
-      datum megawizard_uipreferences
-      {
-         value = "{}";
-         type = "String";
-      }
-      datum sopceditor_expanded
-      {
-         value = "0";
-         type = "boolean";
-      }
-   }
    element pcp_cpu
    {
       datum _sortIndex
@@ -283,7 +265,7 @@
       }
       datum megawizard_uipreferences
       {
-         value = "{output_language=VHDL, output_directory=C:\\Work\\RepositoryWORK\\openPOWERLINK_CNDK\\fpga\\altera\\TERASIC_DE2-115\\nios2_openmac_SimpleLatchedIO}";
+         value = "{}";
          type = "String";
       }
    }
@@ -329,14 +311,6 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8256";
-         type = "long";
-      }
-   }
    element node_switch_pio.s1
    {
       datum baseAddress
@@ -345,15 +319,23 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element clock_crossing_0.s1
    {
       datum baseAddress
       {
-         value = "8224";
+         value = "16777216";
          type = "long";
       }
    }
-   element onchip_memory_pcp.s1
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8256";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s1
    {
       datum _lockedAddress
       {
@@ -362,15 +344,20 @@
       }
       datum baseAddress
       {
-         value = "8192";
+         value = "3072";
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element remote_update_cycloneiii_0.s1
    {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
       datum baseAddress
       {
-         value = "16777216";
+         value = "2048";
          type = "long";
       }
    }
@@ -387,16 +374,19 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
+   element status_led_pio.s1
    {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
       datum baseAddress
       {
-         value = "2048";
+         value = "8224";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s2
+   {
+      datum baseAddress
+      {
+         value = "3072";
          type = "long";
       }
    }
@@ -449,6 +439,24 @@
          type = "boolean";
       }
    }
+   element tc_i_mem_pcp
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+      datum megawizard_uipreferences
+      {
+         value = "{}";
+         type = "String";
+      }
+      datum sopceditor_expanded
+      {
+         value = "1";
+         type = "boolean";
+      }
+   }
    element tri_state_bridge_0
    {
       datum _sortIndex
@@ -479,8 +487,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-5422056495" />
- <parameter name="timeStamp" value="1301069363129" />
+ <parameter name="systemHash" value="10676240355" />
+ <parameter name="timeStamp" value="1302010417292" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -495,8 +503,8 @@
   <parameter name="tightlyCoupledInstructionMaster2AddrWidth" value="1" />
   <parameter name="tightlyCoupledInstructionMaster1MapParam" value="" />
   <parameter name="tightlyCoupledInstructionMaster1AddrWidth" value="1" />
-  <parameter name="tightlyCoupledInstructionMaster0MapParam" value="" />
-  <parameter name="tightlyCoupledInstructionMaster0AddrWidth" value="1" />
+  <parameter name="tightlyCoupledInstructionMaster0MapParam"><![CDATA[<address-map><slave name='tc_i_mem_pcp.s1' start='0xC00' end='0x1000' /></address-map>]]></parameter>
+  <parameter name="tightlyCoupledInstructionMaster0AddrWidth" value="12" />
   <parameter name="tightlyCoupledDataMaster3MapParam" value="" />
   <parameter name="tightlyCoupledDataMaster3AddrWidth" value="1" />
   <parameter name="tightlyCoupledDataMaster2MapParam" value="" />
@@ -556,14 +564,14 @@
   <parameter name="mmu_TLBMissExcOffset" value="0" />
   <parameter name="manuallyAssignCpuID" value="false" />
   <parameter name="internalIrqMaskSystemInfo" value="107" />
-  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='onchip_memory_pcp.s1' start='0x2000' end='0x2400' /><slave name='sram_0.s0' start='0x400000' end='0x600000' /></address-map>]]></parameter>
+  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='sram_0.s0' start='0x400000' end='0x600000' /></address-map>]]></parameter>
   <parameter name="instAddrWidth" value="23" />
   <parameter name="impl" value="Small" />
   <parameter name="icache_size" value="_512" />
   <parameter name="icache_ramBlockType" value="Automatic" />
-  <parameter name="icache_numTCIM" value="_0" />
+  <parameter name="icache_numTCIM" value="_1" />
   <parameter name="icache_burstType" value="None" />
-  <parameter name="exceptionSlave">onchip_memory_pcp.s1</parameter>
+  <parameter name="exceptionSlave" value="tc_i_mem_pcp.s1" />
   <parameter name="exceptionOffset" value="32" />
   <parameter name="deviceFeaturesSystemInfo">M512_MEMORY 0 M4K_MEMORY 0 M9K_MEMORY 1 M20K_MEMORY 0 M144K_MEMORY 0 MRAM_MEMORY 0 MLAB_MEMORY 0 ESB 0 EPCS 1 DSP 0 EMUL 1 HARDCOPY 0 LVDS_IO 1 ADDRESS_STALL 1 TRANSCEIVER_3G_BLOCK 0 TRANSCEIVER_6G_BLOCK 0 DSP_SHIFTER_BLOCK 0</parameter>
   <parameter name="deviceFamilyName" value="Cyclone IV E" />
@@ -580,7 +588,7 @@
   <parameter name="dcache_numTCDM" value="_0" />
   <parameter name="dcache_lineSize" value="_32" />
   <parameter name="dcache_bursts" value="false" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='lcd.control_slave' start='0x900' end='0x910' /><slave name='powerlink_0.SMP' start='0x918' end='0x920' /><slave name='powerlink_0.SMP' start='0x918' end='0x920' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='onchip_memory_pcp.s1' start='0x2000' end='0x2400' /><slave name='powerlink_0.MAC_BUF' start='0x4000' end='0x8000' /><slave name='sram_0.s0' start='0x400000' end='0x600000' /><slave name='powerlink_0.MAC_REG' start='0x1000000' end='0x1002000' /><slave name='system_timer.s1' start='0x1002000' end='0x1002020' /><slave name='status_led_pio.s1' start='0x1002020' end='0x1002040' /><slave name='benchmark_pio.s1' start='0x1002040' end='0x1002060' /><slave name='node_switch_pio.s1' start='0x1002060' end='0x1002070' /><slave name='powerlink_0.MAC_CMP' start='0x1002070' end='0x1002080' /><slave name='altpll_0.pll_slave' start='0x1002080' end='0x1002090' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x1002090' end='0x1002098' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='lcd.control_slave' start='0x900' end='0x910' /><slave name='powerlink_0.SMP' start='0x918' end='0x920' /><slave name='powerlink_0.SMP' start='0x918' end='0x920' /><slave name='tc_i_mem_pcp.s2' start='0xC00' end='0x1000' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='powerlink_0.MAC_BUF' start='0x2000' end='0x4000' /><slave name='sram_0.s0' start='0x400000' end='0x600000' /><slave name='powerlink_0.MAC_REG' start='0x1000000' end='0x1002000' /><slave name='system_timer.s1' start='0x1002000' end='0x1002020' /><slave name='status_led_pio.s1' start='0x1002020' end='0x1002040' /><slave name='benchmark_pio.s1' start='0x1002040' end='0x1002060' /><slave name='node_switch_pio.s1' start='0x1002060' end='0x1002070' /><slave name='powerlink_0.MAC_CMP' start='0x1002070' end='0x1002080' /><slave name='altpll_0.pll_slave' start='0x1002080' end='0x1002090' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x1002090' end='0x1002098' /></address-map>]]></parameter>
   <parameter name="dataAddrWidth" value="25" />
   <parameter name="customInstSlavesSystemInfo" value="&lt;info/&gt;" />
   <parameter name="cpuReset" value="false" />
@@ -600,14 +608,14 @@
    kind="altera_avalon_onchip_memory2"
    version="10.1"
    enabled="1"
-   name="onchip_memory_pcp">
+   name="tc_i_mem_pcp">
   <parameter name="allowInSystemMemoryContentEditor" value="false" />
   <parameter name="blockType" value="AUTO" />
   <parameter name="dataWidth" value="32" />
   <parameter name="deviceFamily" value="Cyclone IV E" />
-  <parameter name="dualPort" value="false" />
+  <parameter name="dualPort" value="true" />
   <parameter name="initMemContent" value="true" />
-  <parameter name="initializationFileName" value="onchip_memory_pcp" />
+  <parameter name="initializationFileName" value="tc_i_mem_pcp" />
   <parameter name="instanceID" value="NONE" />
   <parameter name="memorySize" value="1024" />
   <parameter name="readDuringWriteMode" value="DONT_CARE" />
@@ -720,6 +728,7 @@
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone IV E" />
  </module>
  <module kind="powerlink" version="1.0" enabled="1" name="powerlink_0">
+  <parameter name="iFpgaRev_g" value="32" />
   <parameter name="clkRateEth" value="0" />
   <parameter name="clkRate50" value="50000000" />
   <parameter name="clkRatePcp" value="90000000" />
@@ -738,10 +747,10 @@
   <parameter name="rpdo2size" value="1" />
   <parameter name="tpdoNum" value="1" />
   <parameter name="tpdo0size" value="1" />
-  <parameter name="asyncTxBufSize" value="1514" />
-  <parameter name="asyncRxBufSize" value="1514" />
+  <parameter name="asyncBuf1Size" value="1514" />
+  <parameter name="asyncBuf2Size" value="1514" />
   <parameter name="phyIF" value="MII" />
-  <parameter name="packetLoc">TX and RX into DPRAM</parameter>
+  <parameter name="packetLoc">TX into DPRAM and RX over Avalon Master</parameter>
   <parameter name="validSet" value="10" />
   <parameter name="macTxBuf" value="1514" />
   <parameter name="macRxBuf" value="1514" />
@@ -954,27 +963,11 @@
   <parameter name="baseAddress" value="0x1800" />
  </connection>
  <connection
-   kind="avalon"
-   version="10.1"
-   start="pcp_cpu.data_master"
-   end="onchip_memory_pcp.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2000" />
- </connection>
- <connection
    kind="interrupt"
    version="10.1"
    start="pcp_cpu.d_irq"
    end="jtag_uart_0.irq">
   <parameter name="irqNumber" value="5" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="pcp_cpu.instruction_master"
-   end="onchip_memory_pcp.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2000" />
  </connection>
  <connection
    kind="avalon"
@@ -1090,7 +1083,7 @@
    start="pcp_cpu.data_master"
    end="powerlink_0.MAC_BUF">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x4000" />
+  <parameter name="baseAddress" value="0x2000" />
  </connection>
  <connection
    kind="avalon"
@@ -1153,13 +1146,8 @@
  <connection
    kind="clock"
    version="10.1"
-   start="altpll_0.c0"
-   end="powerlink_0.clk50meg" />
- <connection
-   kind="clock"
-   version="10.1"
    start="altpll_0.c2"
-   end="onchip_memory_pcp.clk1" />
+   end="tc_i_mem_pcp.clk1" />
  <connection kind="clock" version="10.1" start="altpll_0.c2" end="pcp_cpu.clk" />
  <connection
    kind="clock"
@@ -1225,4 +1213,38 @@
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x2040" />
  </connection>
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="powerlink_0.MAC_DMA"
+   end="tri_state_bridge_0.avalon_slave">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+ </connection>
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c0"
+   end="powerlink_0.clk50meg" />
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="pcp_cpu.tightly_coupled_instruction_master_0"
+   end="tc_i_mem_pcp.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0c00" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="pcp_cpu.data_master"
+   end="tc_i_mem_pcp.s2">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0c00" />
+ </connection>
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c2"
+   end="tc_i_mem_pcp.clk2" />
 </system>
