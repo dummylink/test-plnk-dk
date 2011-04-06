@@ -197,7 +197,7 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "32";
-            Address_Width = "23";
+            Address_Width = "26";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -490,7 +490,7 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "32";
-            Address_Width = "25";
+            Address_Width = "26";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "1";
             Register_Outgoing_Signals = "0";
@@ -518,7 +518,7 @@ SYSTEM niosII_openMac
             PORT d_address
             {
                type = "address";
-               width = "25";
+               width = "26";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -673,7 +673,7 @@ SYSTEM niosII_openMac
             }
             Entry tc_i_mem_pcp/s1
             {
-               address = "0x00000c00";
+               address = "0x02000000";
                span = "0x00000400";
                is_bridge = "0";
             }
@@ -691,7 +691,7 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "32";
-            Address_Width = "12";
+            Address_Width = "26";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -711,7 +711,7 @@ SYSTEM niosII_openMac
             PORT icm0_address
             {
                type = "address";
-               width = "12";
+               width = "26";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -755,7 +755,7 @@ SYSTEM niosII_openMac
          {
             Entry tc_i_mem_pcp/s2
             {
-               address = "0x00000c00";
+               address = "0x02000000";
                span = "0x00000400";
                is_bridge = "0";
             }
@@ -865,8 +865,8 @@ SYSTEM niosII_openMac
          dont_overwrite_cpuid = "1";
          allow_legacy_sdk = "1";
          legacy_sdk_support = "1";
-         inst_addr_width = "23";
-         data_addr_width = "25";
+         inst_addr_width = "26";
+         data_addr_width = "26";
          CPU_Architecture = "nios2";
          cache_icache_burst_type = "none";
          oci_sync_depth = "2";
@@ -1823,9 +1823,9 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000c00";
+               Offset_Address = "0x02000000";
             }
-            Base_Address = "0x00000c00";
+            Base_Address = "0x02000000";
             Address_Group = "0";
             Has_IRQ = "0";
             Is_Channel = "1";
@@ -1940,9 +1940,9 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/tightly_coupled_instruction_master_0
             {
                priority = "1";
-               Offset_Address = "0x00000c00";
+               Offset_Address = "0x02000000";
             }
-            Base_Address = "0x00000c00";
+            Base_Address = "0x02000000";
             Address_Group = "0";
             Has_IRQ = "0";
             Is_Channel = "1";
@@ -1983,7 +1983,7 @@ SYSTEM niosII_openMac
                tc_i_mem_pcp 
                {
                   Command1 = "@echo Post-processing to create $(notdir $@)";
-                  Command2 = "elf2hex $(ELF) 0x00000c00 0xFFF --width=32 $(QUARTUS_PROJECT_DIR)/tc_i_mem_pcp.hex --create-lanes=0 ";
+                  Command2 = "elf2hex $(ELF) 0x02000000 0x20003FF --width=32 $(QUARTUS_PROJECT_DIR)/tc_i_mem_pcp.hex --create-lanes=0 ";
                   Dependency = "$(ELF)";
                   Target_File = "$(QUARTUS_PROJECT_DIR)/tc_i_mem_pcp.hex";
                }
@@ -5270,7 +5270,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4D99E225</b> (timestamp: Mon Apr 4, 2011 @5:22 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4D9C71FB</b> (timestamp: Wed Apr 6, 2011 @4:00 PM)";
             MESSAGES 
             {
             }
@@ -5279,7 +5279,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1301930533u";
+         timestamp = "1302098427u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5288,7 +5288,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=0 --timestamp=1301930533";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=0 --timestamp=1302098427";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

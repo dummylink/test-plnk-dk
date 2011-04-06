@@ -431,23 +431,7 @@
          type = "long";
       }
    }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8272";
-         type = "long";
-      }
-   }
    element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8224";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
    {
       datum baseAddress
       {
@@ -459,20 +443,12 @@
    {
       datum _lockedAddress
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "3072";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2080";
+         value = "33554432";
          type = "long";
       }
    }
@@ -489,19 +465,11 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element outport_ap.s1
    {
       datum baseAddress
       {
-         value = "16777216";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2048";
+         value = "2080";
          type = "long";
       }
    }
@@ -534,11 +502,48 @@
          type = "long";
       }
    }
-   element tc_i_mem_pcp.s2
+   element system_timer_ap.s1
    {
       datum baseAddress
       {
-         value = "3072";
+         value = "2048";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8272";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s2
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "33554432";
          type = "long";
       }
    }
@@ -693,8 +698,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-2422076675" />
- <parameter name="timeStamp" value="1301930533011" />
+ <parameter name="systemHash" value="-2774000766" />
+ <parameter name="timeStamp" value="1302098426812" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -709,8 +714,8 @@
   <parameter name="tightlyCoupledInstructionMaster2AddrWidth" value="1" />
   <parameter name="tightlyCoupledInstructionMaster1MapParam" value="" />
   <parameter name="tightlyCoupledInstructionMaster1AddrWidth" value="1" />
-  <parameter name="tightlyCoupledInstructionMaster0MapParam"><![CDATA[<address-map><slave name='tc_i_mem_pcp.s2' start='0xC00' end='0x1000' /></address-map>]]></parameter>
-  <parameter name="tightlyCoupledInstructionMaster0AddrWidth" value="12" />
+  <parameter name="tightlyCoupledInstructionMaster0MapParam"><![CDATA[<address-map><slave name='tc_i_mem_pcp.s2' start='0x2000000' end='0x2000400' /></address-map>]]></parameter>
+  <parameter name="tightlyCoupledInstructionMaster0AddrWidth" value="26" />
   <parameter name="tightlyCoupledDataMaster3MapParam" value="" />
   <parameter name="tightlyCoupledDataMaster3AddrWidth" value="1" />
   <parameter name="tightlyCoupledDataMaster2MapParam" value="" />
@@ -794,8 +799,8 @@
   <parameter name="dcache_numTCDM" value="_0" />
   <parameter name="dcache_lineSize" value="_32" />
   <parameter name="dcache_bursts" value="false" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='altpll_0.pll_slave' start='0x900' end='0x910' /><slave name='sysid.control_slave' start='0x910' end='0x918' /><slave name='tc_i_mem_pcp.s1' start='0xC00' end='0x1000' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='powerlink_0.PDI_PCP' start='0x8000' end='0x10000' /><slave name='powerlink_0.MAC_BUF' start='0x10000' end='0x14000' /><slave name='powerlink_0.MAC_BUF' start='0x10000' end='0x14000' /><slave name='sram_0.s0' start='0x400000' end='0x600000' /><slave name='powerlink_0.MAC_REG' start='0x1000000' end='0x1002000' /><slave name='system_timer.s1' start='0x1002000' end='0x1002020' /><slave name='benchmark_pio.s1' start='0x1002020' end='0x1002040' /><slave name='powerlink_0.MAC_CMP' start='0x1002040' end='0x1002050' /><slave name='node_switch_pio.s1' start='0x1002050' end='0x1002060' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x1002060' end='0x1002068' /></address-map>]]></parameter>
-  <parameter name="dataAddrWidth" value="25" />
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='altpll_0.pll_slave' start='0x900' end='0x910' /><slave name='sysid.control_slave' start='0x910' end='0x918' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='powerlink_0.PDI_PCP' start='0x8000' end='0x10000' /><slave name='powerlink_0.MAC_BUF' start='0x10000' end='0x14000' /><slave name='powerlink_0.MAC_BUF' start='0x10000' end='0x14000' /><slave name='sram_0.s0' start='0x400000' end='0x600000' /><slave name='powerlink_0.MAC_REG' start='0x1000000' end='0x1002000' /><slave name='system_timer.s1' start='0x1002000' end='0x1002020' /><slave name='benchmark_pio.s1' start='0x1002020' end='0x1002040' /><slave name='powerlink_0.MAC_CMP' start='0x1002040' end='0x1002050' /><slave name='node_switch_pio.s1' start='0x1002050' end='0x1002060' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x1002060' end='0x1002068' /><slave name='tc_i_mem_pcp.s1' start='0x2000000' end='0x2000400' /></address-map>]]></parameter>
+  <parameter name="dataAddrWidth" value="26" />
   <parameter name="customInstSlavesSystemInfo" value="&lt;info/&gt;" />
   <parameter name="cpuReset" value="false" />
   <parameter name="cpuID" value="0" />
@@ -1741,7 +1746,7 @@
    start="pcp_cpu.data_master"
    end="tc_i_mem_pcp.s1">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0c00" />
+  <parameter name="baseAddress" value="0x02000000" />
  </connection>
  <connection
    kind="avalon"
@@ -1749,7 +1754,7 @@
    start="pcp_cpu.tightly_coupled_instruction_master_0"
    end="tc_i_mem_pcp.s2">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0c00" />
+  <parameter name="baseAddress" value="0x02000000" />
  </connection>
  <connection
    kind="avalon"
