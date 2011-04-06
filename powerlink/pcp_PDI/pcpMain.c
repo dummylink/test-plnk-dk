@@ -119,6 +119,7 @@ int main (void)
     IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
 #endif
 
+
     /***** Starting main state machine *****/
     resetStateMachine();
     while (stateMachineIsRunning())
@@ -728,7 +729,9 @@ void Gi_throwAsyncEvent(WORD wEventType_p, WORD wArg_p)
     pCtrlReg_g->m_wEventType = wEventType_p;
     pCtrlReg_g->m_wEventArg = wArg_p;
 
-    //TODO: assert IR
+    /* set GE bit to signal event to AP; If desired by AP,
+     *  an IR signal will be asserted in addition */
+    pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
 }
 
 /**
@@ -747,8 +750,23 @@ void Gi_controlLED(BYTE bType_p, BOOL bOn_p)
         case kEplLedTypeError:
             wRegisterBitNum = LED_ERROR;
             break;
+        case kEplLedTypeTestAll:
+            /* This case if for testing the LEDs */
+            /* enable forcing for all LEDs */
+            pCtrlReg_g->m_wLedConfig = 0xffff;
+            if (bOn_p)  //activate LED output
+            {
+                pCtrlReg_g->m_wLedControl = 0xffff; // switch on all LEDs
+            }
+            else       // deactive LED output
+            {
+                pCtrlReg_g->m_wLedControl = 0x0000; // switch off all LEDs
+
+                /* disable forcing all LEDs except status and error LED (default register value) */
+                pCtrlReg_g->m_wLedConfig = 0x0003;
+            }
+            goto exit;
         default:
-            wRegisterBitNum = 0;
             goto exit;
         }
 
@@ -766,7 +784,7 @@ exit:
 }
 
 #ifdef STATUS_LED_PIO_BASE
-#warning Deprecated! Deactivate in SOPC-Builder!
+#warning Deprecated! Deactivate STATUS_LED_PIO_BASE in SOPC-Builder!
 #endif
 
 /* EOF */

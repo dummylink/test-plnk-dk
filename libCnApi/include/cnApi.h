@@ -52,6 +52,7 @@ This header file contains definitions for the CN API.
 
 /* Control Register Offsets, used for SPI */
 #ifdef CN_API_USING_SPI
+#error: SPI is not yet updated to new version! //TODO: UPDATE!
  #define PCP_CTRLREG_START_ADR               0x00
  #define PCP_CTRLREG_MAGIC_OFFSET            offsetof(tPcpCtrlReg, m_dwMagic)        //0x00
  #define PCP_CTRLREG_SYNMD_OFFSET            offsetof(tPcpCtrlReg, m_bSyncMode)      //0x04
@@ -364,6 +365,13 @@ typedef enum eSynFlag {
 	kMsgBufWriteOnly = 0x00,
 	kMsgBufReadOnly = 0x01
 } tSynFlag;
+
+typedef enum
+{
+//    kEplLedTypeStatus   = 0x00, //already defined in openPOWERLINK stack
+//    kEplLedTypeError    = 0x01, //already defined in openPOWERLINK stack
+    kEplLedTypeTestAll  = 0x02,
+} tPcpPdiLedType;
 
 /******************************************************************************/
 /* definitions for PDO transfer functions */

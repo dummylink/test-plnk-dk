@@ -177,7 +177,7 @@ int main (void)
 
 
     	/* wait until next period */
-    	//usleep(100);		               ///< wait 100 us to simulate a task behavior
+        //usleep(100);                     ///< wait 100 us to simulate a task behavior
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/

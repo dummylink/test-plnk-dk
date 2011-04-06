@@ -45,6 +45,8 @@ This header file contains internal definitions for the CN API.
 #define EVT_PHY1_LINK   7
 
 /* defines for LED_CNTRL */
+/* bit pattern has to be set in LED_CNFG to enable LED forcing by SW
+for AP and PCP. AP forcing overwrites any other LED signal value settings. */
 #define LED_STATUS      0
 #define LED_ERROR       1
 #define LED_PHY0_LINK   2
@@ -54,8 +56,8 @@ This header file contains internal definitions for the CN API.
 #define LED_OPTION_0    6
 #define LED_OPTION_1    7
 
-/* defines for LED_CNFG */
-#define LED_FORCE_EN0       ///< Bit pattern has to be set to enable LED forcing by SW
+/* defines for  */
+#define LED_FORCE_EN0
 
 
 /******************************************************************************/
