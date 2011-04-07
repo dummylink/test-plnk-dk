@@ -183,7 +183,7 @@ int CnApi_initPdo(void)
 #if (TPDO_CHANNELS_MAX >= 1)
     aTPdosPdi_l[0].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxPdo0BufAoffs);
     aTPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wTxPdo0BufSize;
-    aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_bTxPdo0Ack);
+    aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wTxPdo0Ack);
     #ifdef CN_API_USING_SPI
     aTPdosPdi_l[0].dwSpiBufOffs_m = PCP_CTRLREG_TPDO0_OFST_OFFSET;
     aTPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_TPDOACK_OFFSET;
@@ -194,7 +194,7 @@ int CnApi_initPdo(void)
 #if (RPDO_CHANNELS_MAX >= 1)
     aRPdosPdi_l[0].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo0BufAoffs);
     aRPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wRxPdo0BufSize;
-    aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_bRxPdo0Ack);
+    aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo0Ack);
     #ifdef CN_API_USING_SPI
     aRPdosPdi_l[0].dwSpiBufOffs_m = PCP_CTRLREG_RPDO0_OFST_OFFSET;
     aRPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_RPDO0ACK_OFFSET;
@@ -204,7 +204,7 @@ int CnApi_initPdo(void)
 #if (RPDO_CHANNELS_MAX >= 2)
     aRPdosPdi_l[1].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo1BufAoffs);
     aRPdosPdi_l[1].wSize_m = pCtrlReg_g->m_wRxPdo1BufSize;
-    aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_g->m_bRxPdo1Ack);
+    aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo1Ack);
     #ifdef CN_API_USING_SPI
     aRPdosPdi_l[1].dwSpiBufOffs_m = PCP_CTRLREG_RPDO1_OFST_OFFSET;
     aRPdosPdi_l[1].wSpiAckOffs_m = PCP_CTRLREG_RPDO1ACK_OFFSET;
@@ -214,7 +214,7 @@ int CnApi_initPdo(void)
 #if (RPDO_CHANNELS_MAX >= 3)
     aRPdosPdi_l[2].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo2BufAoffs);
     aRPdosPdi_l[2].wSize_m = pCtrlReg_g->m_wRxPdo2BufSize;
-    aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_g->m_bRxPdo2Ack);
+    aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo2Ack);
     #ifdef CN_API_USING_SPI
     aRPdosPdi_l[2].dwSpiBufOffs_m = PCP_CTRLREG_RPDO2_OFST_OFFSET;
     aRPdosPdi_l[2].wSpiAckOffs_m = PCP_CTRLREG_RPDO2ACK_OFFSET;
@@ -258,10 +258,10 @@ for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
 
 #ifdef CN_API_USING_SPI
     /* shadow variable - copy of DPRAM */
-    pAsycMsgLinkPdoReqAp_g = malloc(pCtrlReg_g->m_wRxAsyncBufSize); //TODO: change to static as soon as asyn state machine is implemented.
+    pAsycMsgLinkPdoReqAp_g = malloc(pCtrlReg_g->m_wRxAsyncBuf0Size); //TODO: change to static as soon as asyn state machine is implemented.
 #else
     //TODO: this is direct link to buffer, change to local message buffer
-    pAsycMsgLinkPdoReqAp_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBufAoffs);
+    pAsycMsgLinkPdoReqAp_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
 #endif /* CN_API_USING_SPI */
 
     return OK;

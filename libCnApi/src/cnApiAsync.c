@@ -416,7 +416,7 @@ int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 	DEBUG_FUNC;
 
 	/* calculate maximum number of objects which can be created in one createObjLinksReq Call */
-	wMaxObjs = (pCtrlReg_g->m_wTxAsyncBufSize - sizeof(createObjLinksReq)) / sizeof(tCnApiObjId);
+	wMaxObjs = (pCtrlReg_g->m_wTxAsyncBuf0Size - sizeof(createObjLinksReq)) / sizeof(tCnApiObjId);
 	wCurObjs = (wNumObjs_p > wMaxObjs) ? wMaxObjs : wNumObjs_p;
 	pObj = pObjList_p;
 	wReqObjs = 0;
@@ -533,7 +533,7 @@ int CnApi_doWriteObjReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p)
 	DEBUG_FUNC;
 
 	/* calculate maximum number of objects which can be created in one createObjLinksReq Call */
-	wMaxObjs = (pCtrlReg_g->m_wTxAsyncBufSize - sizeof(writeObjReq)) / sizeof(tCnApiObjId);
+	wMaxObjs = (pCtrlReg_g->m_wTxAsyncBuf0Size - sizeof(writeObjReq)) / sizeof(tCnApiObjId);
 	wCurObjs = (wNumObjs_p > wMaxObjs) ? wMaxObjs : wNumObjs_p;
 	pObj = pObjList_p;
 	wReqObjs = 0;
