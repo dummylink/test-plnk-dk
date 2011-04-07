@@ -24,7 +24,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EPCS_DCLK
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EPCS_DATA0
 
 #others
-set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP "-40"
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
@@ -214,9 +214,156 @@ set_location_assignment EDGE_BOTTOM -to PCP_NODE_SWITCH
 set_location_assignment EDGE_TOP -to PCP_PDI
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SYNC_IRQ_OUT
 set_global_assignment -name ASSIGNMENT_GROUP_MEMBER SYNC_IRQ_OUT -section_id PCP_PDI
-set_location_assignment EDGE_TOP -to SYNC_IRQ_OUT
+set_location_assignment PIN_A7 -to SYNC_IRQ_OUT
 set_location_assignment EDGE_RIGHT -to PCP_PHYS
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PHY1_RXD[0]
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PHY1_RXD[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to PHY1_RXD[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to PHY1_RXD[1]
 set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/HMS/EP4CE10_pcp_16bitprll/nios_openMac.dpf"
+set_global_assignment -name MISC_FILE "C:/Projects/HMS/7655/EP4CE10_pcp_16bitprll/nios_openMac.dpf"
+set_location_assignment PIN_P16 -to SRAM_ADDR[1]
+set_location_assignment PIN_R13 -to SRAM_BE_n[1]
+set_location_assignment PIN_T14 -to SRAM_BE_n[0]
+set_location_assignment PIN_P15 -to SRAM_ADDR[2]
+set_location_assignment PIN_N16 -to SRAM_ADDR[3]
+set_location_assignment PIN_R14 -to SRAM_ADDR[4]
+set_location_assignment PIN_P14 -to SRAM_ADDR[5]
+set_location_assignment PIN_M12 -to SRAM_ADDR[6]
+set_location_assignment PIN_L12 -to SRAM_ADDR[7]
+set_location_assignment PIN_M11 -to SRAM_ADDR[8]
+set_location_assignment PIN_R6 -to SRAM_ADDR[9]
+set_location_assignment PIN_N6 -to SRAM_ADDR[10]
+set_location_assignment PIN_M6 -to SRAM_ADDR[11]
+set_location_assignment PIN_L6 -to SRAM_ADDR[12]
+set_location_assignment PIN_N8 -to SRAM_ADDR[13]
+set_location_assignment PIN_M8 -to SRAM_ADDR[14]
+set_location_assignment PIN_N9 -to SRAM_ADDR[15]
+set_location_assignment PIN_M9 -to SRAM_ADDR[16]
+set_location_assignment PIN_L10 -to SRAM_ADDR[17]
+set_location_assignment PIN_N11 -to SRAM_ADDR[18]
+set_location_assignment PIN_T6 -to SRAM_ADDR[19]
+set_location_assignment PIN_T13 -to SRAM_DQ[0]
+set_location_assignment PIN_T11 -to SRAM_DQ[1]
+set_location_assignment PIN_R11 -to SRAM_DQ[2]
+set_location_assignment PIN_P11 -to SRAM_DQ[3]
+set_location_assignment PIN_T9 -to SRAM_DQ[4]
+set_location_assignment PIN_R9 -to SRAM_DQ[5]
+set_location_assignment PIN_T8 -to SRAM_DQ[6]
+set_location_assignment PIN_R8 -to SRAM_DQ[7]
+set_location_assignment PIN_N13 -to SRAM_DQ[8]
+set_location_assignment PIN_K12 -to SRAM_DQ[9]
+set_location_assignment PIN_K11 -to SRAM_DQ[10]
+set_location_assignment PIN_L11 -to SRAM_DQ[11]
+set_location_assignment PIN_K10 -to SRAM_DQ[12]
+set_location_assignment PIN_L9 -to SRAM_DQ[13]
+set_location_assignment PIN_K9 -to SRAM_DQ[14]
+set_location_assignment PIN_K8 -to SRAM_DQ[15]
+set_location_assignment PIN_N14 -to SRAM_CE_n
+set_location_assignment PIN_R16 -to SRAM_OE_n
+set_location_assignment PIN_L8 -to SRAM_WE_n
+set_location_assignment PIN_F13 -to LEDG[0]
+set_location_assignment PIN_D14 -to LEDG[1]
+set_location_assignment PIN_G5 -to PDI_ADDR[0]
+set_location_assignment PIN_E5 -to PDI_ADDR[1]
+set_location_assignment PIN_F5 -to PDI_ADDR[2]
+set_location_assignment PIN_D16 -to PDI_ADDR[3]
+set_location_assignment PIN_K1 -to PDI_ADDR[4]
+set_location_assignment PIN_E8 -to PDI_ADDR[5]
+set_location_assignment PIN_A5 -to PDI_ADDR[6]
+set_location_assignment PIN_L16 -to PDI_ADDR[7]
+set_location_assignment PIN_D8 -to PDI_ADDR[8]
+set_location_assignment PIN_E9 -to PDI_ADDR[9]
+set_location_assignment PIN_J1 -to PDI_ADDR[10]
+set_location_assignment PIN_F16 -to PDI_ADDR[11]
+set_location_assignment PIN_N15 -to PDI_ADDR[12]
+set_location_assignment PIN_L15 -to PDI_ADDR[13]
+set_location_assignment PIN_D6 -to PDI_ADDR[14]
+set_location_assignment PIN_D11 -to PDI_ADDR[15]
+set_location_assignment PIN_B14 -to PDI_BE[1]
+set_location_assignment PIN_G1 -to PDI_BE[0]
+set_location_assignment PIN_A12 -to PDI_CS
+set_location_assignment PIN_C11 -to PDI_WRITE
+set_location_assignment PIN_A6 -to PDI_GPIO[0]
+set_location_assignment PIN_B4 -to PDI_GPIO[1]
+set_location_assignment PIN_D9 -to PDI_DATA[0]
+set_location_assignment PIN_B11 -to PDI_DATA[1]
+set_location_assignment PIN_B13 -to PDI_DATA[2]
+set_location_assignment PIN_A11 -to PDI_DATA[3]
+set_location_assignment PIN_A13 -to PDI_DATA[4]
+set_location_assignment PIN_B12 -to PDI_DATA[5]
+set_location_assignment PIN_F1 -to PDI_DATA[6]
+set_location_assignment PIN_C9 -to PDI_DATA[7]
+set_location_assignment PIN_A8 -to PDI_DATA[8]
+set_location_assignment PIN_B9 -to PDI_DATA[9]
+set_location_assignment PIN_E7 -to PDI_DATA[10]
+set_location_assignment PIN_C6 -to PDI_DATA[11]
+set_location_assignment PIN_D1 -to PDI_DATA[12]
+set_location_assignment PIN_B7 -to PDI_DATA[13]
+set_location_assignment PIN_A9 -to PDI_DATA[14]
+set_location_assignment PIN_B10 -to PDI_DATA[15]
+set_location_assignment PIN_D15 -to PHY0_MDC
+set_location_assignment PIN_C15 -to PHY0_MDIO
+set_location_assignment PIN_A15 -to PHY0_RESET_n
+set_location_assignment PIN_K16 -to PHY0_RXD[1]
+set_location_assignment PIN_J16 -to PHY0_RXD[0]
+set_location_assignment PIN_B16 -to PHY0_RXDV
+set_location_assignment PIN_G15 -to PHY0_TXD[1]
+set_location_assignment PIN_J15 -to PHY0_TXD[0]
+set_location_assignment PIN_K15 -to PHY0_TXEN
+set_location_assignment PIN_J2 -to PHY1_MDC
+set_location_assignment PIN_K2 -to PHY1_MDIO
+set_location_assignment PIN_G2 -to PHY1_RESET_n
+set_location_assignment PIN_A3 -to PHY1_RXD[1]
+set_location_assignment PIN_A2 -to PHY1_RXD[0]
+set_location_assignment PIN_L2 -to PHY1_RXDV
+set_location_assignment PIN_B3 -to PHY1_TXD[1]
+set_location_assignment PIN_C3 -to PHY1_TXD[0]
+set_location_assignment PIN_D3 -to PHY1_TXEN
+set_location_assignment PIN_A10 -to PDI_RD
+set_location_assignment PIN_R1 -to SW_BENCHMARK_PCP_OUT[0]
+set_location_assignment PIN_P2 -to SW_BENCHMARK_PCP_OUT[1]
+set_location_assignment PIN_T2 -to SW_BENCHMARK_PCP_OUT[2]
+set_location_assignment PIN_T3 -to SW_BENCHMARK_PCP_OUT[3]
+set_location_assignment PIN_A14 -to PHY0_LED_LINK
+set_location_assignment PIN_F2 -to PHY1_LED_LINK
+set_location_assignment PIN_T5 -to H_LED1_LED5
+set_location_assignment PIN_R5 -to H_LED2_LED6
+set_location_assignment PIN_T4 -to H_LED4_LED8
+set_location_assignment PIN_F15 -to LED1A
+set_location_assignment PIN_N1 -to LED4A
+set_location_assignment PIN_R4 -to H_LED3_LED7
+set_location_assignment PIN_P1 -to LED3A
+set_location_assignment PIN_N2 -to LED3B
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to PHY1_RXDV
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to PHY1_TXD[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to PHY1_TXD[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to PHY1_TXEN
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[19]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[18]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[17]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[16]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[14]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[12]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[11]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[10]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[9]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[8]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[7]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[6]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[5]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_ADDR[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_BE_n[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_BE_n[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_CE_n
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_DQ[15]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_DQ[14]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to SRAM_DQ[13]
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY0_LED_LINK -section_id PCP_PHYS
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER PHY1_LED_LINK -section_id PCP_PHYS
+set_location_assignment PIN_A4 -to ASYNC_IRQ_OUT
+set_global_assignment -name ASSIGNMENT_GROUP_MEMBER ASYNC_IRQ_OUT -section_id PCP_PDI
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

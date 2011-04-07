@@ -25,7 +25,7 @@ set_clock_groups -asynchronous 	-group [get_clocks $remote_clk] \
 											-group [get_clocks $clk100] \
 											-group [get_clocks EXT_CLK] \
 
-# phy
+# rmii phy
 set_input_delay -clock $clk50 -max 12 [get_ports {PHY0_RXDV PHY0_RXD[*]}]
 set_input_delay -clock $clk50 -min 4 [get_ports {PHY0_RXDV PHY0_RXD[*]}]
 

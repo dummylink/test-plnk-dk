@@ -3,16 +3,11 @@
 set_global_assignment -name SDC_FILE [file join $::quartus(qip_path) pcp_cpu.sdc]
 set_global_assignment -name SOURCE_FILE [file join $::quartus(qip_path) pcp_cpu.ocp]
 # tri_state_bridge_0
-# onchip_memory_0
+# tc_i_mem_pcp
 # jtag_uart_0
 # system_timer
 # clock_crossing_0
-# status_led_pio
-# node_switch_pio
 # sysid
-# altpll_0
-set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_altpll/altera_avalon_altpll_hw.tcl]
-set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) altpll_0.vhd]
 # epcs_flash_controller_0
 # remote_update_cycloneiii_0
 set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_remote_update_cycloneiii/altera_avalon_remote_update_cycloneiii_hw.tcl]
@@ -42,7 +37,10 @@ set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) powerlink_
 # sram_0
 set_global_assignment -name TCL_FILE [file join $::quartus(qip_path) custom_PCB/IS61WV51216BLL_10TLI_hw.tcl]
 # benchmark_pio
+# altpll_0
+set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_altpll/altera_avalon_altpll_hw.tcl]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) altpll_0.vhd]
 # null
 set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 002314DCCB6C0000012EC814A846 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0018E73510F10000012F2F3EC147 
  
