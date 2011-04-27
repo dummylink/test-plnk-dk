@@ -4,7 +4,7 @@
 
 # List of include directories for -I compiler option (-I added when used).
 # Includes the BSP.
-ALT_INCLUDE_DIRS := ../../include ../../utils 
+ALT_INCLUDE_DIRS := ${PWD}/../../include ../../utils 
 
 # Define path to the root of the BSP.
 BSP_ROOT_DIR := ../../../apps/ap_PDI/bsp
@@ -97,6 +97,7 @@ LIB_NAME := CnApi
 # Paths to C, C++, and assembly source files.
 C_SRCS += ../../src/cnApi.c
 C_SRCS += ../../src/cnApiAsync.c
+C_SRCS += ../../src/cnApiAsyncSm.c
 C_SRCS += ../../src/cnApiObjects.c
 C_SRCS += ../../src/cnApiPdo.c
 C_SRCS += ../../src/cnApiStateMachine.c
