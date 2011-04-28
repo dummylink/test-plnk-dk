@@ -131,7 +131,7 @@ FUNC_ENTRYACT(kPcpStateBooted)
 	pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
 
 
-	//Gi_controlLED(kEplLedTypeTestAll, TRUE); ///< set "bootup LED"
+	Gi_controlLED(kEplLedTypeTestAll, TRUE); ///< set "bootup indicator LEDs"
 
 	///< if this is not the first boot: shutdown POWERLINK first
 	if(fPLisInitalized_g == TRUE)
@@ -209,7 +209,7 @@ FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreop1)
 {
-    //Gi_controlLED(kEplLedTypeTestAll, FALSE);        ///< reset "bootup LED"
+    Gi_controlLED(kEplLedTypeTestAll, FALSE);        ///< reset "bootup LED" //TODO: status/error LED does not work without this test
 	storePcpState(kPcpStatePreop1);
 }
 /*----------------------------------------------------------------------------*/
