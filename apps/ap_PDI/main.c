@@ -26,6 +26,7 @@ a dual ported RAM (DPRAM) area.
 #include "cnApiGlobal.h"     // global definitions
 #include "cnApi.h"
 #include "cnApiDebug.h"
+#include "cnApiAsync.h"
 
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
@@ -109,7 +110,7 @@ int main (void)
 
     TRACE("\n\nInitialize CN API functions...");
 
-    nodeId = DEFAULT_NODEID;    ///< in case you dont want to use Node Id switches, use a diffenrent value then 0x00
+    nodeId = DEFAULT_NODEID;    ///< in case you dont want to use Node Id switches, use a different value then 0x00
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				///< initialize POWERLINK parameters
 
     status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  ///< initialize and start the CN API
@@ -162,6 +163,7 @@ int main (void)
     /* Start periodic main loop */
     TRACE("API example is running...\n");
 	CnApi_activateApStateMachine();
+	CnApiAsync_initStateMachine();
 
 	/* main program loop */
 	/* TODO: implement exit of application! */
@@ -175,6 +177,7 @@ int main (void)
         workInputOutput();                 ///< update the PCB's inputs and outputs
         /*--- TASK 1: END   ---*/
 
+        CnApiAsync_updateStateMachine();
 
     	/* wait until next period */
         //usleep(100);                     ///< wait 100 us to simulate a task behavior

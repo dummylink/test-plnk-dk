@@ -19,6 +19,7 @@ application processor (AP).
 /* includes */
 #include "cnApi.h"
 #include "cnApiIntern.h"
+#include "cnApiAsync.h"
 #include "stateMachine.h"
 #include "cnApiPdiSpi.h"
 
@@ -89,6 +90,7 @@ FUNC_EVT(kApStateReadyToInit, kApStateError, 1)
 FUNC_ENTRYACT(kApStateReadyToInit)
 {
 	int		iStatus;
+	tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
 	DEBUG_FUNC;
 
 #ifdef CN_API_USING_SPI
@@ -97,23 +99,30 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 #endif
 
 	/* initialize asynchronous transfer functions */
-	CnApi_initAsync((tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBuf0Aoffs), pCtrlReg_g->m_wTxAsyncBuf0Size,
-					(tAsyncMsg *)(pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf0Aoffs), pCtrlReg_g->m_wRxAsyncBuf0Size);
+    iStatus = CnApiAsync_init();
+    if (iStatus != OK)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_init() failed!\n");
+    }
 
 	/* initialize PDO transfer functions */
 	iStatus = CnApi_initPdo();
 	if (iStatus != OK)
 	{
-	    DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApi_initPdo() failed!!\n");
+	    DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApi_initPdo() failed!\n");
+	    return;
 	}
 
-	iStatus = CnApi_doInitPcpReq();
+	AsyncRet = CnApiAsync_postMsg(kPdiAsyncMsgIntInitPcpReq,
+                                  NULL,
+                                  NULL,
+                                  CnApi_pfnCbInitPcpRespFinished);
 
-	DEBUG_TRACE2(DEBUG_LVL_10, "%s: status:%d\n", __func__, iStatus);
-	if (iStatus == OK)
-	{
-		CnApi_setApCommand(kApCmdInit);
-	}
+    if (AsyncRet != kPdiAsyncStatusSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "InitPcpReq failed!\n");
+        return;
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kApStateReadyToInit)
@@ -141,7 +150,7 @@ FUNC_ENTRYACT(kApStateInit)
 {
 	/* object creation and initialization */
 	CnApi_createObjectLinks();
-	CnApi_setApCommand(kApCmdPreop);
+
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kApStateInit)
@@ -213,36 +222,11 @@ FUNC_ENTRYACT(kApStatePreop2)
 	/* TODO: prepare for READY_TO_OPERATE */
 	//TRACE("***Calling Callback to prepare ready to operate!!***\n");
 
-	/* TODO: DO THIS IN Cb FUNCION */
-    /* read PDO descriptors */
-#ifdef CN_API_USING_SPI
-    /* update local shadow message buffer */
-        CnApi_Spi_read(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, pCtrlReg_g->m_wRxAsyncBuf0Size, (BYTE*) pAsycMsgLinkPdoReqAp_g);
-#endif /* CN_API_USING_SPI */
-
-    if(pAsycMsgLinkPdoReqAp_g->m_bCmd == kAsyncCmdLinkPdosReq) //check if message is present
-    {
-        CnApi_handleLinkPdosReq(pAsycMsgLinkPdoReqAp_g);
-    }
-    else
-    {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\n%s: LinkPdosReq not present -> Take old descriptors!\n", __func__);
-    }
-    /* TODO: DO THIS IN Cb FUNCION */
-
-
-    pAsycMsgLinkPdoReqAp_g->m_bCmd = 0x00; //reset cmd to inform PCP that message was received.
-#ifdef CN_API_USING_SPI
-    // "acknowledge" meassage //TODO: This is just a temporary solution
-    CnApi_Spi_write(PCP_CTRLREG_RX_ASYNC_OFST_OFFSET, sizeof(tLinkPdosReq), (BYTE*) pAsycMsgLinkPdoReqAp_g);
-#endif /* CN_API_USING_SPI */
-
-
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kApStatePreop2)
 {
-    CnApi_setApCommand(kApCmdReadyToOperate);
+
 }
 
 /*============================================================================*/
@@ -327,7 +311,7 @@ static void stateChange(BYTE current, BYTE target)
 	currentIdx = current + 2;
 	targetIdx = target + 2;
 
-	TRACE2("STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+	TRACE2("CNAPI STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
 }
 
 /******************************************************************************/

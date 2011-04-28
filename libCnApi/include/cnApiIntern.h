@@ -19,6 +19,7 @@ This header file contains internal definitions for the CN API.
 /******************************************************************************/
 /* includes */
 #include "cnApiDebug.h"
+#include "cnApiAsync.h"
 #include "cnApiGlobal.h"            ///< global definitions
 
 /******************************************************************************/
@@ -62,7 +63,7 @@ for AP and PCP. AP forcing overwrites any other LED signal value settings. */
 
 /******************************************************************************/
 /* function declarations */
-extern BYTE CnApi_getPcpState(void);
+//extern BYTE CnApi_getPcpState(void);
 extern DWORD CnApi_getPcpMagic(void);
 extern void CnApi_setApCommand(BYTE bCmd_p);
 extern void CnApi_initApStateMachine(void);
@@ -75,18 +76,6 @@ extern int CnApi_getNextObject(tCnApiObjId *pObjId);
 extern void CnApi_createObjectLinks(void);
 extern int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen, BYTE* p_data, BOOL sync);
 
-/* functions for asynchronous transfers */
-extern void CnApi_initAsync(tAsyncMsg *pAsyncTxAdrs_p, WORD wAsyncTxSize_p,
-					 tAsyncMsg *pAsyncRxAdrs_p, WORD wAsyncRxSize_p);
-extern BYTE CnApi_checkAsyncSyncFlag(BYTE bDirection_p);
-extern tAsyncSendStatus CnApi_sendAsync(BYTE bChannel_p, tAsyncIntChan *pData_p, WORD wLen_p,
-		            char *pPayload_p, WORD wPayloadLen_p);
-extern tAsyncSendStatus CnApi_receiveAsync(BYTE *pChannel_p, tAsyncIntChan *pData_p, WORD *pLen_p);
-extern void CnApi_setupAsyncCall(BYTE bCmd_p, tAsyncIntChan *pInitPcpReq_p, WORD wReqLen_p,
-					tAsyncIntChan *pInitPcpResp_p, WORD *pRespLen_p);
-extern int CnApi_processAsyncCall(void);
-extern int CnApi_doInitPcpReq(void);
-extern int CnApi_doCreateObjLinksReq(tCnApiObjId *pObjList_p, WORD wNumObjs_p);
 
 /* functions for interrupt synchronization */
 extern DWORD CnApi_getSyncIntPeriod(void);

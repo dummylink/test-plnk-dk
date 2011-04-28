@@ -254,16 +254,6 @@ for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
     }
 }
 
-
-
-#ifdef CN_API_USING_SPI
-    /* shadow variable - copy of DPRAM */
-    pAsycMsgLinkPdoReqAp_g = malloc(pCtrlReg_g->m_wRxAsyncBuf0Size); //TODO: change to static as soon as asyn state machine is implemented.
-#else
-    //TODO: this is direct link to buffer, change to local message buffer
-    pAsycMsgLinkPdoReqAp_g = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
-#endif /* CN_API_USING_SPI */
-
     return OK;
 exit:
     return ERROR;
@@ -271,58 +261,99 @@ exit:
 
 /**
 ********************************************************************************
-\brief  handle an LinkPdosReq command from AP
+\brief  handle an LinkPdosReq command from PCP
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
 
-This function allocates memory and links it to the DPRAM by the given
-and set up response
+This function sets up the mapping connection PCP PDI <-> local Objects
 *******************************************************************************/
-void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p) //TODO: move to Async
+tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+                                        BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
-    register int    iCnt;
-    WORD            wNumDescr;
-    tPdoDescHeader  *pPdoDescHeader; ///< ptr to descriptor
+    register int        iCnt;
+    WORD                wNumDescr;
+    tPdoDescHeader *    pPdoDescHeader;         ///< ptr to descriptor
+    tLinkPdosReq *      pLinkPdosReq = NULL;    ///< ptr to message (Rx)
+    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
 
-    /* get numbers of descriptors in this message */
-    wNumDescr = pLinkPdosReq_p->m_bDescrCnt;
-
-    /* get pointer to  first descriptor */
-    pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdosReq_p + sizeof(tLinkPdosReq));
-
-    /** check if LinkPdosReq command is present */
-    if(pLinkPdosReq_p->m_bCmd != kAsyncCmdLinkPdosReq)
+    /* check message descriptor */
+    if (pMsgDescr_p == NULL)
     {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "No LinkPdosRequest present!\n");
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
         goto exit;
     }
 
-    /* check if mapping version has changed */
-    if(pLinkPdosReq_p->m_bDescrVers == wPdoMappingVersion_l)
+    /* verify all buffer pointers we intend to use */
+    if (pRxMsgBuffer_p == NULL)
     {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* assign buffer payload addresses */
+    pLinkPdosReq = (tLinkPdosReq *) pRxMsgBuffer_p;    // Rx buffer
+
+    /* handle Rx Message */
+    /* get numbers of descriptors in this message */
+    wNumDescr = pLinkPdosReq->m_bDescrCnt;
+
+    /* get pointer to  first descriptor */
+    pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdosReq + sizeof(tLinkPdosReq));
+
+    /* check if mapping version has changed */
+    if(pLinkPdosReq->m_bDescrVers == wPdoMappingVersion_l)
+    {/* no mapping necessary */
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Descriptor Version %d still valid. \n", wPdoMappingVersion_l);
         goto exit;
     }
     else
-    {
-        wPdoMappingVersion_l = pLinkPdosReq_p->m_bDescrVers;
-        DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "New Descriptor Version: %d. Contains %d PDO descriptors.\n"
-                ,wPdoMappingVersion_l, wNumDescr);
+    {/* new mapping */
+
+        wPdoMappingVersion_l = pLinkPdosReq->m_bDescrVers;
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "New Descriptor Version: %d. Contains %d PDO descriptors.\n",
+                     wPdoMappingVersion_l, wNumDescr);
+
+        /* read all descriptors and setup the corresponding copy tables */
+        for (iCnt = 0; iCnt < wNumDescr; ++iCnt)
+        {
+            CnApi_readPdoDesc(pPdoDescHeader);
+
+            /* get pointer to next descriptor */
+            pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
+                             (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry)));
+        }
     }
 
-   /* read all descriptors and setup the corresponding copy tables */
-    for (iCnt = 0; iCnt < wNumDescr; ++iCnt)
-    {
-        CnApi_readPdoDesc(pPdoDescHeader);
-
-        /* get pointer to next descriptor */
-        pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
-                         (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry)));
+    exit:
+    if (Ret == kPdiAsyncStatusSuccessful)
+    { /* assign call back */
+        pMsgDescr_p->pfnTransferFinished_m = CnApi_pfnCbLinkPdosReqFinished;
     }
-
-exit:
-    return;
+        return Ret;
 }
+
+
+/**
+ ********************************************************************************
+ \brief call back function, invoked if handleLinkPdosReq has finished
+ \param  pMsgDescr_p         pointer to asynchronous message descriptor
+ \return Ret                 tPdiAsyncStatus value
+
+ This function triggers an CMD_READY_TO_OPERATE which will be sent to the PCP
+
+ *******************************************************************************/
+tPdiAsyncStatus CnApi_pfnCbLinkPdosReqFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
+{
+    CnApi_setApCommand(kApCmdReadyToOperate);
+
+    return kPdiAsyncStatusSuccessful;
+}
+
 
 /**
 ********************************************************************************

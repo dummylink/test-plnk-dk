@@ -155,6 +155,13 @@ typedef struct sCnApiObjId {
 	BYTE		m_bNumEntries;
 } tCnApiObjId;
 
+typedef struct sCnApiObjCreateObjLinksHdl {
+    WORD                wNumCreateObjs_m; ///< number of objects to be created
+    WORD                wCurObjs_m; ///< current number of objects to be created
+    WORD                wReqObjs_m; ///< already created (=linked) objects
+    tCnApiObjId *       pObj_m;     ///< pointer to current object entry
+} tCnApiObjCreateObjLinksHdl;
+
 
 // TODO: not used, do we need it?
 typedef struct sCnApiReadQueue{
@@ -162,6 +169,7 @@ typedef struct sCnApiReadQueue{
 	tCnApiObjId 		*pObjectId;
 } tCnApiReadQueue;
 
+//TODO: needed?
 typedef enum eProcType {
 	kProcTypeAp,
 	kProcTypePcp
@@ -169,203 +177,6 @@ typedef enum eProcType {
 
 
 /******************************************************************************/
-/* definitions for asynchronous transfer functions */
-
-
-typedef enum eAsyncTxState {
-    kAsyncTxStateReady,             ///< asynchronous tx service is ready to use
-    kAsyncTxStateBusy,              ///< asynchronous tx is processing
-    kAsyncTxStatePending,           ///< asynchronous tx is waiting to be fetched
-    kAsyncTxStateStopped            ///< asynchronous transmission has not been fetched in time
-} tAsyncTxState;
-
-typedef enum eAsyncRxState {
-    kAsyncRxStateReady,             ///< asynchronous rx service is ready to use
-    kAsyncRxStateBusy,              ///< asynchronous rx is processing
-    kAsyncRxStatePending,           ///< asynchronous rx is waiting for data
-    kAsyncRxStateStopped            ///< no tx data could be fetched in time
-} tAsyncRxState;
-
-/**
- * \brief constants for asynchronous transfer channels
- */
-typedef enum eAsyncChannel {
-	kAsyncChannelInternal = 0x00,
-	kAsyncChannelSdo = 0x01
-} tAsyncChannel;
-
-/**
- * \brief enumeration for asynchronous commands
- */
-typedef enum eAsyncCmd {
-	kAsyncCmdInitPcpReq = 0x01,
-	kAsyncCmdCreateObjLinksReq,
-	kAsyncCmdWriteObjReq,
-	kAsyncCmdReadObjReq,
-	kAsyncCmdInitPcpResp = 0x80,
-	kAsyncCmdCreateObjLinksResp,
-	kAsyncCmdLinkPdosReq,
-	kAsyncCmdWriteObjResp,
-	kAsyncCmdReadObjResp
-} tAsyncCmd;
-
-/**
- * \brief enumeration for asynchronous call status values
- */
-typedef enum eAsyncCallStatus {
-	kAsyncCallStatusPending = 1,			///< asynchronous call is still pending
-	kAsyncCallStatusReady = 0,				///< asynchronous call was successfull
-	kAsyncCallStatusSendError = -1,			///< sending request failed
-	kAsyncCallStatusRespError = -2,			///< response timeout, no response from PCP
-	kAsyncCallStatusChannelError = -3,		///< message received contained wrong channel
-	kAsyncCallStatusReqIdError = -4,		///< message received contained wrong request Id
-	kAsyncCallStatusTimeout = -5			///< asynchronous call timeout
-} tAsyncCallStatus;
-
-/**
- * \brief enumeration for asynchronous send status values
- */
-typedef enum eAsyncSendStatus{
-	kAsyncSendStatusOk = 0,					///< Ok, no error!
-	kAsyncSendStatusBufFull = 1,			///< message buffer is full
-	kAsyncSendStatusBufEmpty = 2,			///< message buffer is empty
-	kAsyncSendStatusDataTooLong = -1		///< data too long for message buffer
-} tAsyncSendStatus;
-
-/**
- * \brief structure for InitPcpReq command
- */
-typedef struct sInitPcpReq {
-	BYTE					m_bCmd;
-	BYTE					m_bReqId;
-	BYTE					m_abMac[6];
-	DWORD					m_dwRevision;
-	DWORD					m_dwSerialNum;
-	DWORD					m_dwVendorId;
-	DWORD					m_dwProductCode;
-	DWORD					m_dwDeviceType;
-	DWORD					m_dwFeatureFlags;
-	DWORD					m_dwNodeId;
-	WORD					m_wIsoTxMaxPayload;
-	WORD					m_wIsoRxMaxPayload;
-	DWORD					m_dwPresMaxLatency;
-	DWORD					m_dwAsendMaxLatency;
-} tInitPcpReq;
-
-/**
- * \brief structure for InitPcpResp command
- */
-typedef struct sInitPcpResp {
-	BYTE					m_bCmd;
-	BYTE					m_bReqId;
-	WORD					m_wStatus;
-} tInitPcpResp;
-
-/**
- * \brief structure for CreateObjReq command
- */
-typedef struct sCreateObjReq {
-	BYTE					m_bCmd;
-	BYTE					m_bReqId;
-	WORD					m_wNumObjs;
-} tCreateObjLksReq;
-
-/**
- * \brief structure for CreateObjResp command
- */
-typedef struct sCreateObjResp {
-	BYTE					m_bCmd;
-	BYTE					m_bReqId;
-	WORD					m_wStatus;
-	WORD					m_wErrIndex;
-	BYTE					m_bErrSubindex;
-} tCreateObjLksResp;
-
-typedef struct sLinkPdosReq {
-    BYTE                    m_bCmd;
-    BYTE                    m_reserved;
-    BYTE                    m_bDescrCnt;
-    BYTE                    m_bDescrVers;
-} tLinkPdosReq;
-
-/**
- * \brief structure for WriteObjReq command
- */
-typedef struct sWriteObjReq {
-	BYTE					m_bCmd;
-	BYTE					m_bReqId;
-	WORD					m_wNumObjs;
-} tWriteObjReq;
-
-/**
- * \brief structure for WriteObjResp command
- */
-
-typedef struct sWriteObjResp {
-	BYTE					m_bCmd;
-	BYTE					m_bReqId;
-	WORD					m_wStatus;
-	WORD					m_wErrIndex;
-	BYTE					m_bErrSubindex;
-} tWriteObjResp;
-
-/**
- * \brief structure for internal channel header
- */
-typedef struct sAsyncIntHeader {
-	BYTE					m_bCmd;
-	BYTE					m_bReqId;
-} tAsyncIntHeader;
-
-/**
- * \brief structure for internal channel
- */
-typedef union uAsyncIntChan {
-	tAsyncIntHeader			m_intHeader;
-	tInitPcpReq				m_initPcpReq;
-	tInitPcpResp			m_initPcpResp;
-	tCreateObjLksReq		m_createObjLinksReq;
-	tCreateObjLksResp		m_createObjLinksResp;
-	tLinkPdosReq            m_linkPdosReq;
-	tWriteObjReq			m_writeObjReq;
-	tWriteObjResp			m_writeObjResp;
-} tAsyncIntChan;
-
-typedef union uAsyncData {
-	tAsyncIntChan			m_intChan;
-} tAsyncChan;
-
-/**
- * \brief Structure definition for asynchronous transfer buffer header
- */
-typedef struct sAsyncMsgHeader {
-	BYTE					m_bSync;
-	BYTE					m_bChannel;
-	WORD					m_wFrgmtLen;
-	DWORD                   m_dwStreamLen;
-} tAsyncMsgHeader;
-
-typedef struct sAsyncMsg {
-	tAsyncMsgHeader			m_header;
-	tAsyncChan				m_chan;
-} tAsyncMsg;
-
-/**
- * \brief constants for asynchronous transfer direction
- */
-typedef enum eAsyncDir {
-	kCnApiDirReceive,
-	kCnApiDirTransmit
-} tCnApiDir;
-
-/**
- * \brief constants for SYN flags
- */
-typedef enum eSynFlag {
-	kMsgBufWriteOnly = 0x00,
-	kMsgBufReadOnly = 0x01
-} tSynFlag;
-
 typedef enum
 {
 //    kEplLedTypeStatus   = 0x00, //already defined in openPOWERLINK stack
@@ -463,7 +274,6 @@ typedef enum { //TODO: define state "none?" - adapt docu for correct values!
 *
 * tPcpCtrlReg defines the PCP control registers.
 */
-
 struct sPcpControlReg {
 	volatile DWORD			m_dwMagic;             ///< magic number indicating correct PCP PDI memory start address
 	volatile WORD           m_wFpgaRev;            ///< Revision of FPGA design (POWERLINK PDI)
@@ -539,9 +349,6 @@ sRPdoBuffer { ///< used to group buffer structure infos from control register
 extern tCnApiInitParm		*pInitParm_g;		// pointer to POWERLINK init parameters
 extern tPcpCtrlReg			*pCtrlReg_g;		// pointer to PCP control registers
 
-// asynchronous messages
-extern tLinkPdosReq *pAsycMsgLinkPdoReqAp_g;
-
 /******************************************************************************/
 /* function declarations */
 extern tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p);
@@ -553,9 +360,10 @@ extern void CnApi_enableSyncInt(void);
 extern void CnApi_disableSyncInt(void);
 extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p);
-void CnApi_handleLinkPdosReq(tLinkPdosReq *pLinkPdosReq_p);
 extern void CnApi_cleanupObjects(void);
 extern void CnApi_transferPdo(void);
+
+extern BYTE CnApi_getPcpState(void); //TODO: put back to cnApiIntern.h
 
 extern int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p); //SPI Master Tx Handler
 extern int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p); //SPI MASTER Rx Handler

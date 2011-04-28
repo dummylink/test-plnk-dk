@@ -254,9 +254,6 @@ for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
                                             __func__, wCnt, (unsigned int)aRPdosPdi_l[wCnt].pAdrs_m, aRPdosPdi_l[wCnt].wSize_m);
     }
 }
-    //TODO: this is direct link to buffer, change to local message buffer
-    pAsycMsgLinkPdoReq_g = (tLinkPdosReq*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
-
     /* allocate memory for PCP object-links table */
 	iRet = Gi_createPcpObjLinksTbl((DWORD) MAX_NUM_LINKED_OBJ_PCP);
     if(iRet != OK)

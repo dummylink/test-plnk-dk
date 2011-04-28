@@ -19,6 +19,7 @@ This module implements the object access functions of the CN API library.
 #include "cnApiIntern.h"
 
 #include <malloc.h>
+#include <string.h>
 
 /******************************************************************************/
 /* defines */
@@ -35,6 +36,8 @@ static tObjTbl		*pObjTbl_l;
 static DWORD		dwNumVarLinks_l; ///< Number local link assignments
 static DWORD		dwMaxLinkEntries_l;
 static DWORD		dwSelectObj_l;
+static tCnApiObjId  aObjLinkTbl_l[MAX_LINKABLE_OBJCS];
+static tCnApiObjCreateObjLinksHdl CreateObjLinksHdl_l; ///< command handle
 
 /******************************************************************************/
 /* function declarations */
@@ -181,7 +184,7 @@ int CnApi_getNextObject(tCnApiObjId *pObjId)
 
 	pObjId->m_wIndex = pCurrentObj->m_wIndex;
 	pObjId->m_bSubIndex = pCurrentObj->m_bSubIndex;
-	pObjId->m_bNumEntries = 1;
+	pObjId->m_bNumEntries = 1; //TODO: for now fixed to one (no arrays).
 
 	dwSelectObj_l++;
 
@@ -201,33 +204,46 @@ must exist in the PCPs object dictionary to be created.
 *******************************************************************************/
 void CnApi_createObjectLinks(void)
 {
-	tCnApiObjId 		objId[OBJ_CREATE_LINKS_REQ_MAX_ENTRIES];
-	register int		i;
+    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
+	register WORD		wCnt;
 	tCnApiObjId			*pObjId;
 
-	i = 0;
-	pObjId = objId;
+	wCnt = 0;
+	pObjId = aObjLinkTbl_l;
 
 	CnApi_resetObjectSelector();
-	while (CnApi_getNextObject(pObjId) != 0)
+	while (CnApi_getNextObject(pObjId) != 0) //write entry to object link table
 	{
 		pObjId++;
-		i++;
+		wCnt++;
 		/* Entries for CreatObjLinks command. If exceeded, the command will be split. */
-		if (i == OBJ_CREATE_LINKS_REQ_MAX_ENTRIES)
-		{
-			/* no more objects do fit in the message, therefore execute create command */
-			if(CnApi_doCreateObjLinksReq(objId, i) != OK) return;
-			i = 0;
-			pObjId = objId;
+		if (wCnt > MAX_LINKABLE_OBJCS)
+		{ /* check if PCP restriction is not exceeded */
+	        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Linkable objects limited to %d! Linking stopped!\n", MAX_LINKABLE_OBJCS);
+	        return; //TODO: handle error
 		}
 	}
 
-	if (i < OBJ_CREATE_LINKS_REQ_MAX_ENTRIES)
+	if (wCnt <= MAX_LINKABLE_OBJCS)
 	{
-		/* there a some objects leftover to be created, let's create them now */
-		CnApi_doCreateObjLinksReq(objId, i);
+
+        /* prepare message */
+	    memset(&CreateObjLinksHdl_l, 0x00, sizeof(CreateObjLinksHdl_l)); //reset message handle
+	    CreateObjLinksHdl_l.pObj_m = aObjLinkTbl_l;  // assign link list to be processed
+	    CreateObjLinksHdl_l.wNumCreateObjs_m = wCnt;       // set number of objects to be created
+
+	    /* send message */
+        Ret = CnApiAsync_postMsg(kPdiAsyncMsgIntCreateObjLinksReq,
+                                 (BYTE *) &CreateObjLinksHdl_l,
+                                 NULL,
+                                 CnApi_pfnCbCreateObjLinksRespFinished);
+
+        if (Ret != kPdiAsyncStatusSuccessful)
+        {
+            return;
+        }
 	}
+
 }
 
 /**

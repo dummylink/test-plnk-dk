@@ -114,6 +114,7 @@ pcpAsync.c \
 pcpPdo.c \
 pcpStateMachine.c \
 ${OBJDICTDIR}/Objdict.c \
+${LIBAPIDIR}/src/cnApiAsyncSm.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \

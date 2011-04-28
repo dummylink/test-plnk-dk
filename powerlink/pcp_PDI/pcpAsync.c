@@ -16,6 +16,7 @@
 #include "Debug.h"
 
 #include "cnApi.h"
+#include "cnApiAsync.h"
 #include "pcp.h"
 
 #include "Epl.h"
@@ -34,26 +35,34 @@
 
 /******************************************************************************/
 /* external variable declarations */
+tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
+tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 
 /******************************************************************************/
 /* global variables */
 
-// asynchronous messages
-tLinkPdosReq *pAsycMsgLinkPdoReq_g;
-
 /* local variables */
-static  tAsyncMsg * pAsyncSendBuf;
-static  tAsyncMsg * pAsyncRecvBuf;
+//static  tAsyncMsg * pAsyncSendBuf;
+//static  tAsyncMsg * pAsyncRecvBuf;
 static  BYTE      * pObjData[OBJ_CRT_LNKS_BLKS] = {NULL};
 static  BYTE        bReqSeqnc = 0;        ///< sequence counter of split message
 
 /******************************************************************************/
 /* function declarations */
-static void handleInitPcpReq(tInitPcpReq *pInitPcpReq_p, tInitPcpResp *pInitPcpResp_p);
-static void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjLksResp *pCreateObjLinksResp_p);
+
+static tPdiAsyncStatus cnApiAsync_handleInitPcpReq(struct sPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+                                                    BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+                                                           BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
+static tPdiAsyncStatus cnApiAsync_handleWriteObjReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
+static tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+                                                 BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
+
 
 /******************************************************************************/
 /* private functions */
+static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void);
 
 /******************************************************************************/
 /* functions */
@@ -62,173 +71,285 @@ static void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCre
 ********************************************************************************
 \brief	initialize asynchronous functions
 *******************************************************************************/
-int Gi_initAsync(tAsyncMsg *pAsyncSendBuf_p, tAsyncMsg *pAsyncRecvBuf_p)
+int CnApiAsync_init(void)
 {
-	pAsyncSendBuf = pAsyncSendBuf_p;
-	pAsyncRecvBuf = pAsyncRecvBuf_p;
+    register WORD wCnt;
+    tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-    if ((pAsyncSendBuf == NULL)              ||
-        (pAsyncRecvBuf == NULL)              ||
-        (pCtrlReg_g->m_wTxAsyncBuf0Size == 0) ||
-        (pCtrlReg_g->m_wRxAsyncBuf0Size == 0)   )
+    /* Attention: control register is seen for AP point of view -> PCP Tx is AP Rx and vice versa! */
+    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
+    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBuf0Aoffs);
+    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
+
+    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBuf1Aoffs);
+    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBuf1Aoffs);
+    aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
+
+    for (wCnt = 0; wCnt < PDI_ASYNC_CHANNELS_MAX; ++wCnt)
     {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s: initializing async PCP PDI failed!\n\n", __func__);
+        if ((aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m == NULL)                                        ||
+            (aPcpPdiAsyncTxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader) == 0)   ||
+            (aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m == NULL)                                        ||
+            (aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader)== 0)      )
+        {
+            DEBUG_TRACE2(DEBUG_LVL_09, "\nError in %s: initializing Async PDI Buffer %d failed!\n", __func__, wCnt);
+            goto exit;
+        }
+        else
+        {
+            DEBUG_TRACE4(DEBUG_LVL_11, "%s: TX Async Buffer %d: adrs. %08x (max payload %d)\n",
+                         __func__, wCnt,(unsigned int)aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m,
+                         aPcpPdiAsyncTxMsgBuffer_g[wCnt].wMaxPayload_m);
+            DEBUG_TRACE4(DEBUG_LVL_11, "%s: RX Async Buffer %d: adrs. %08x (max payload %d)\n",
+                         __func__, wCnt,(unsigned int)aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m,
+                         aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m);
+            /* reset headers */
+            memset(aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m, 0 ,sizeof(tAsyncMsg));
+            memset(aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m, 0 ,sizeof(tAsyncMsg));
+
+            /* free buffers */
+            aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m->m_header.m_bSync = kMsgBufWriteOnly;
+            aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m->m_header.m_bSync = kMsgBufWriteOnly;
+        }
+    }
+
+    Ret = CnApiAsync_initInternalMsgs();
+    if (Ret != kPdiAsyncStatusSuccessful)
+    {
         goto exit;
     }
-    else
+
+    Ret = CnApiAsync_finishMsgInit();
+    if (Ret != kPdiAsyncStatusSuccessful)
     {
-        DEBUG_LVL_CNAPI_INFO_TRACE3("%s: Async Tx buffer adrs. %08x (size %d)\n",
-                                            __func__, (unsigned int)pAsyncSendBuf, pCtrlReg_g->m_wTxAsyncBuf0Size);
-        DEBUG_LVL_CNAPI_INFO_TRACE3("%s: Async Rx buffer adrs. %08x (size %d)\n",
-                                            __func__, (unsigned int)pAsyncRecvBuf, pCtrlReg_g->m_wRxAsyncBuf0Size);
+        goto exit;
     }
 
-    memset(pAsyncSendBuf, 0 ,sizeof(tAsyncMsg)); ///> reset Headers
-    memset(pAsyncRecvBuf, 0 ,sizeof(tAsyncMsg));
-
-    pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly; ///> free buffers
-    pAsyncRecvBuf->m_header.m_bSync = kMsgBufWriteOnly;
-
+    return OK;
 exit:
-	return 0;
+    return ERROR;
 }
+
 
 /**
 ********************************************************************************
-\brief	poll for asynchronous messages
+\brief  initialize asynchronous messages using the internal channel
+\return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-void Gi_pollAsync(void)
+tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 {
-	BYTE		bMsgType;
-	int         iWait = 0;
+    tPcpPdiAsyncDir Dir;
+    tPcpPdiAsyncMsgBufDescr * pPdiBuf = NULL;
+    tPdiAsyncTransferType TfrTyp;
+    tAsyncChannel ChanType_p;
+    tPcpStates * pNmtList = NULL;
+    WORD wTout = 0;
+    tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-	//DEBUG_FUNC;
+    /* Rx messages */
+    Dir = kCnApiDirReceive;
+    pPdiBuf = &aPcpPdiAsyncRxMsgBuffer_g[0];
 
-	/* check if there is an asynchronous message from the AP */
-	if (pAsyncSendBuf->m_header.m_bSync != kMsgBufReadOnly)
-		return;                                                       ///< no message
+    TfrTyp = kPdiAsyncTrfTypeDirectAccess;
+    ChanType_p = kAsyncChannelInternal;
+    pNmtList = NULL;
+    wTout = 100;
 
-    /* check if response buffer is free */
-    if (pAsyncRecvBuf->m_header.m_bSync != kMsgBufWriteOnly)
-        return;                                                       ///< buffer occupied, can not setup response
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpReq, Dir, cnApiAsync_handleInitPcpReq, pPdiBuf,
+                              kPdiAsyncMsgIntInitPcpResp, TfrTyp, ChanType_p, pNmtList, wTout);
 
-	if (pAsyncSendBuf->m_header.m_bChannel != kAsyncChannelInternal)
-	{
-		/* SDO channel received. Ignore!!! */
-		pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly;
-		return;                                                       ///< no  internal message
-	}
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-	bMsgType = pAsyncSendBuf->m_chan.m_intChan.m_intHeader.m_bCmd;
+    CnApiAsync_initMsg(kPdiAsyncMsgIntCreateObjLinksReq, Dir, cnApiAsync_handleCreateObjLinksReq, pPdiBuf,
+                        kPdiAsyncMsgIntCreateObjLinksResp, TfrTyp, ChanType_p, pNmtList, wTout);
 
-	/* handle the internal channel message and set up response */
-	switch (bMsgType)
-	{
-	case kAsyncCmdInitPcpReq:
-		handleInitPcpReq(&pAsyncSendBuf->m_chan.m_intChan.m_initPcpReq, &pAsyncRecvBuf->m_chan.m_intChan.m_initPcpResp);
-		break;
-	case kAsyncCmdCreateObjLinksReq:
-		handleCreateObjLinksReq(&pAsyncSendBuf->m_chan.m_intChan.m_createObjLinksReq, &pAsyncRecvBuf->m_chan.m_intChan.m_createObjLinksResp);
-		break;
-	case kAsyncCmdWriteObjReq:
-		break;
-	default:
-		break;
-	}
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-	pAsyncSendBuf->m_header.m_bSync = kMsgBufWriteOnly;		/* reset sync flag -> free async buffer for AP access */
+    CnApiAsync_initMsg(kPdiAsyncMsgIntWriteObjReq, Dir, cnApiAsync_handleWriteObjReq, pPdiBuf,
+                        kPdiAsyncMsgIntWriteObjResp, TfrTyp, ChanType_p, pNmtList, wTout);
 
-	/* prepare async msg header */
-	switch (bMsgType)
-	{
-	case kAsyncCmdInitPcpReq:
-		pAsyncRecvBuf->m_header.m_wFrgmtLen = sizeof(tInitPcpResp);
-		break;
-	case kAsyncCmdCreateObjLinksReq:
-		pAsyncRecvBuf->m_header.m_wFrgmtLen = sizeof(tCreateObjLksResp);
-		break;
-	case kAsyncCmdWriteObjReq:
-		break;
-	default:
-		break;
-	}
-	/* set channel and sync flag */
-	pAsyncRecvBuf->m_header.m_bChannel = kAsyncChannelInternal;
-	pAsyncRecvBuf->m_header.m_bSync = kMsgBufReadOnly; ///< activate response
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    /* wait to ensure AP response */
-    while(pAsyncRecvBuf->m_header.m_bSync == kMsgBufReadOnly)
-    {
-       iWait++;
-       if (iWait >= 100)
-       {   /* can not write to buffer, it is not freed */
-           DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: AP does not respond!\n");
-           return;
-       }
-       usleep(1000);
-    }
-    //TODO: additional AP -> PCP IR Signal would prevent this while loop
+    //TODO: make handle: cnApiAsync_initMsg(kPdiAsyncMsgIntReadObjReq, Dir, ...);
+    //if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
+    /* Tx messages */
+    Dir = kCnApiDirTransmit;
+    pPdiBuf = &aPcpPdiAsyncTxMsgBuffer_g[0];
+
+    CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, NULL, pPdiBuf,
+                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+
+    CnApiAsync_initMsg(kPdiAsyncMsgIntCreateObjLinksResp, Dir, NULL, pPdiBuf,
+                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+
+    CnApiAsync_initMsg(kPdiAsyncMsgIntWriteObjResp, Dir, NULL, pPdiBuf,
+                       kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+
+    CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosReq, Dir, cnApiAsync_doLinkPdosReq, pPdiBuf,
+                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+
+exit:
+    return Ret;
 }
-
 
 /**
 ********************************************************************************
 \brief	handle an initPcpReq and set up response
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-void handleInitPcpReq(tInitPcpReq *pInitPcpReq_p, tInitPcpResp *pInitPcpResp_p)
+tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+                                             BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
-	tCnApiInitParm 		*pInitParm = &initParm_g;
+	tCnApiInitParm *	pInitParm = &initParm_g;
+	tInitPcpReq *       pInitPcpReq = NULL;        ///< pointer to request message (Rx)
+	tInitPcpResp *      pInitPcpResp = NULL;       ///< pointer to response message (Tx)
+	tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
 
 	DEBUG_FUNC;
 
+    /* check message descriptor */
+    if (pMsgDescr_p == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+    /* check response message assignment */
+    if (pMsgDescr_p->pRespMsgDescr_m == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* verify all buffer pointers we intend to use */
+    if ((pRxMsgBuffer_p == NULL) || (pTxMsgBuffer_p == NULL))
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* check if expected Tx message size exceeds the buffer */
+    if ( sizeof(tInitPcpResp) > dwMaxTxBufSize_p)
+    {
+        /* reject transfer, because direct access can not be processed */
+        Ret = kPdiAsyncStatusDataTooLong;
+        goto exit;
+    }
+
+    /* assign buffer payload addresses */
+    pInitPcpReq = (tInitPcpReq *)pRxMsgBuffer_p;       // Rx buffer
+    pInitPcpResp = (tInitPcpResp *) pTxMsgBuffer_p;    // Tx buffer
+
+     /* handle Rx Message */
 	/* store data from InitPcpReq */
-	memcpy (pInitParm->m_abMac, pInitPcpReq_p->m_abMac,
-			sizeof(pInitPcpReq_p->m_abMac));
-	pInitParm->m_dwDeviceType = pInitPcpReq_p->m_dwDeviceType;
-	pInitParm->m_dwFeatureFlags = pInitPcpReq_p->m_dwFeatureFlags;
-	pInitParm->m_bNodeId = pInitPcpReq_p->m_dwNodeId;
-	pInitParm->m_dwRevision = pInitPcpReq_p->m_dwRevision;
-	pInitParm->m_dwSerialNum = pInitPcpReq_p->m_dwSerialNum;
-	pInitParm->m_dwVendorId = pInitPcpReq_p->m_dwVendorId;
-	pInitParm->m_dwProductCode = pInitPcpReq_p->m_dwProductCode;
-	pInitParm->m_dwAsendMaxLatency = pInitPcpReq_p->m_dwAsendMaxLatency;
-	pInitParm->m_dwPresMaxLatency = pInitPcpReq_p->m_dwPresMaxLatency;
-	pInitParm->m_wIsoRxMaxPayload = pInitPcpReq_p->m_wIsoRxMaxPayload;
-	pInitParm->m_wIsoTxMaxPayload = pInitPcpReq_p->m_wIsoTxMaxPayload;
+	memcpy (pInitParm->m_abMac, pInitPcpReq->m_abMac,
+			sizeof(pInitPcpReq->m_abMac));
+	pInitParm->m_dwDeviceType = pInitPcpReq->m_dwDeviceType;
+	pInitParm->m_dwFeatureFlags = pInitPcpReq->m_dwFeatureFlags;
+	pInitParm->m_bNodeId = pInitPcpReq->m_dwNodeId;
+	pInitParm->m_dwRevision = pInitPcpReq->m_dwRevision;
+	pInitParm->m_dwSerialNum = pInitPcpReq->m_dwSerialNum;
+	pInitParm->m_dwVendorId = pInitPcpReq->m_dwVendorId;
+	pInitParm->m_dwProductCode = pInitPcpReq->m_dwProductCode;
+	pInitParm->m_dwAsendMaxLatency = pInitPcpReq->m_dwAsendMaxLatency;
+	pInitParm->m_dwPresMaxLatency = pInitPcpReq->m_dwPresMaxLatency;
+	pInitParm->m_wIsoRxMaxPayload = pInitPcpReq->m_wIsoRxMaxPayload;
+	pInitParm->m_wIsoTxMaxPayload = pInitPcpReq->m_wIsoTxMaxPayload;
 
 	/* setup response */
-	pInitPcpResp_p->m_bCmd = kAsyncCmdInitPcpResp;
-	pInitPcpResp_p->m_bReqId = pInitPcpReq_p->m_bReqId;
-	pInitPcpResp_p->m_wStatus = kCnApiStatusOk;
+	pInitPcpResp->m_bReqId = pInitPcpReq->m_bReqId;
+	pInitPcpResp->m_wStatus = kCnApiStatusOk;
+
+    /* update size values of message descriptors */
+    pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tInitPcpResp); // sent size
+
+exit:
+    return Ret;
 }
 
 /**
 ********************************************************************************
 \brief	handle an createObjLinksReq
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
 
 This function allocates memory and links objects to HEAP.
 Furthermore it sets up a response.
 *******************************************************************************/
-void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjLksResp *pCreateObjLinksResp_p)
+tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+                                        BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
 	register int 	i;
 	WORD			wNumObjs;
-	tCnApiObjId		*pObjId;
+	tCnApiObjId *	pObjId;
 	int				iSize, iEntrySize;
 	unsigned int	uiVarEntries;
 	tEplKernel		EplRet;
-	char            *pData;
+	char *          pData;
 	unsigned int	uiSubindex;
-	tObjTbl         *pObjLinksTable;
+	tObjTbl *       pObjLinksTable;
+	tCreateObjLksReq * pCreateObjLinksReq = NULL;       ///< pointer to request message (Rx)
+	tCreateObjLksResp * pCreateObjLinksResp = NULL;     ///< pointer to response message (Tx)
+	tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
 
 	DEBUG_FUNC;
 
-	wNumObjs = pCreateObjLinksReq_p->m_wNumObjs;
-	pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
+	/* check message descriptor */
+	if (pMsgDescr_p == NULL)
+	{
+	    Ret = kPdiAsyncStatusInvalidInstanceParam;
+	    goto exit;
+	}
+	/* check response message assignment */
+	if (pMsgDescr_p->pRespMsgDescr_m == NULL)
+	{
+	    Ret = kPdiAsyncStatusInvalidInstanceParam;
+	    goto exit;
+	}
+
+    /* verify all buffer pointers we intend to use */
+    if ((pRxMsgBuffer_p == NULL) || (pTxMsgBuffer_p == NULL))
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+	/* check if expected Tx message size exceeds the buffer */
+	if ( sizeof(tCreateObjLksResp) > dwMaxTxBufSize_p)
+	{
+	    /* reject transfer, because direct access can not be processed */
+	    Ret = kPdiAsyncStatusDataTooLong;
+	    goto exit;
+	}
+
+	/* assign buffer payload addresses */
+	pCreateObjLinksReq = (tCreateObjLksReq *) pRxMsgBuffer_p;       // Rx buffer
+	pCreateObjLinksResp = (tCreateObjLksResp *) pTxMsgBuffer_p;      // Tx buffer
+
+    /* handle Rx Message */
+	/*----------------------------------------------------------------------------*/
+	wNumObjs = pCreateObjLinksReq->m_wNumObjs;
+	pObjId = (tCnApiObjId *)(pCreateObjLinksReq + 1);
 	pObjLinksTable = pPcpLinkedObjs_g + dwApObjLinkEntries_g;
 
-	pCreateObjLinksResp_p->m_wStatus = kCnApiStatusOk;
+	pCreateObjLinksResp->m_wStatus = kCnApiStatusOk;
 
 	/* check if objects are existing and count data size for HEAP allocation */
 	iSize = 0;
@@ -237,21 +358,24 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 		if (pObjId->m_bSubIndex == 0) ///< indicator of subindex chain msg -> check whole index
 		{
 			/* get size of objects for the whole subindex chain */
-			for (uiSubindex = 1; uiSubindex <= pObjId->m_bNumEntries; uiSubindex++) //TODO: does it make sense to start with Subindex 0 for DomainObject or Arrayobject e.g?
-			{
+			for (uiSubindex = 1; uiSubindex <= pObjId->m_bNumEntries; uiSubindex++)
+			{//TODO: does it make sense to start with Subindex 0 for DomainObject or Arrayobject e.g?
 				// read local entry size (defined in objdict.h)
 				iEntrySize = EplObdGetDataSize(pObjId->m_wIndex, uiSubindex);
 				if (iEntrySize == 0x00)
 				{
 					// invalid entry size (maybe object doesn't exist or entry of type DOMAIN is empty)
 				    /* prepare response msg */
-					pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
-					pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
-					pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
+				    /*----------------------------------------------------------------------------*/
+					pCreateObjLinksResp->m_wStatus = kCnApiStatusObjectNotExist;
+					pCreateObjLinksResp->m_wErrIndex = pObjId->m_wIndex;
+					pCreateObjLinksResp->m_bErrSubindex = pObjId->m_bSubIndex;
+					/*----------------------------------------------------------------------------*/
 
 		            DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
 		                         "No Objects will be linked!\n", __func__, pObjId->m_wIndex, pObjId->m_bSubIndex);
 		            wNumObjs = 0; ///< skip object linking
+		            Ret = kPdiAsyncStatusInvalidOperation;
 		            break;
 				}
 				iSize += iEntrySize;
@@ -263,12 +387,15 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 			{
 				// invalid entry size (maybe object doesn't exist or entry of type DOMAIN is empty)
 			    /* prepare response msg */
-				pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
-				pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
-				pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
+			    /*----------------------------------------------------------------------------*/
+				pCreateObjLinksResp->m_wStatus = kCnApiStatusObjectNotExist;
+				pCreateObjLinksResp->m_wErrIndex = pObjId->m_wIndex;
+				pCreateObjLinksResp->m_bErrSubindex = pObjId->m_bSubIndex;
+				/*----------------------------------------------------------------------------*/
 				DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
                              "No Objects will be linked!\n", __func__, pObjId->m_wIndex, pObjId->m_bSubIndex);
 				wNumObjs = 0; ///< skip object linking
+				Ret = kPdiAsyncStatusInvalidOperation;
 				break;
 			}
 			iSize += iEntrySize;
@@ -276,9 +403,9 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 	}
 
 	/* all objects exist -> link them to HEAP */
-	if (pCreateObjLinksResp_p->m_wStatus == kCnApiStatusOk)
+	if (pCreateObjLinksResp->m_wStatus == kCnApiStatusOk)
 	{
-	    if (pCreateObjLinksReq_p->m_bReqId == FST_OBJ_CRT_INDICATOR)
+	    if (pCreateObjLinksReq->m_bReqId == FST_OBJ_CRT_INDICATOR)
 	    {// asynchronous message counter 2 indicates a AP restart (workaround)
 	        bReqSeqnc = 0;
 	    }
@@ -287,6 +414,7 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 	    if (bReqSeqnc > OBJ_CREATE_LINKS_REQ_MAX_SEQ)
 	    {
 	        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Invalid sequence %d!\n", bReqSeqnc);
+	        Ret = kPdiAsyncStatusInvalidMessage;
 	        goto exit;
 	    }
 
@@ -298,13 +426,17 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 		if ((pObjData[bReqSeqnc] = malloc(iSize)) == NULL)
 		{
 		    /* prepare response msg */
+			/*----------------------------------------------------------------------------*/
+			pCreateObjLinksResp->m_wStatus = kCnApiStatusAllocationFailed;
+			/*----------------------------------------------------------------------------*/
 			DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Couldn't allocate memory for objects!\n");
-			pCreateObjLinksResp_p->m_wStatus = kCnApiStatusAllocationFailed;
+			Ret = kPdiAsyncStatusNoResource;
 		}
+
 		else
 		{
 			/* link objects to allocated HEAP memory */
-			pObjId = (tCnApiObjId *)(pCreateObjLinksReq_p + 1);
+			pObjId = (tCnApiObjId *)(pCreateObjLinksReq + 1);
 			pData = pObjData[bReqSeqnc];
 
             for (i = 0; i < wNumObjs; i++, pObjId++)
@@ -313,6 +445,7 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
                 if (dwApObjLinkEntries_g > MAX_NUM_LINKED_OBJ_PCP)
                 {
                   DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "Object link table (size %d) exceeded! Linking stopped!\n", MAX_NUM_LINKED_OBJ_PCP);
+                  Ret = kPdiAsyncStatusNoResource;
                   goto exit;
                 }
 
@@ -325,10 +458,13 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 				if (EplRet != kEplSuccessful)
 				{
 				    /* prepare response msg */
+					/*----------------------------------------------------------------------------*/
+					pCreateObjLinksResp->m_wStatus = kCnApiStatusObjectNotExist;
+					pCreateObjLinksResp->m_wErrIndex = pObjId->m_wIndex;
+					pCreateObjLinksResp->m_bErrSubindex = pObjId->m_bSubIndex;
+					/*----------------------------------------------------------------------------*/
 					DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
-					pCreateObjLinksResp_p->m_wStatus = kCnApiStatusObjectNotExist;
-					pCreateObjLinksResp_p->m_wErrIndex = pObjId->m_wIndex;
-					pCreateObjLinksResp_p->m_bErrSubindex = pObjId->m_bSubIndex;
+					Ret = kPdiAsyncStatusInvalidOperation;
 					break;
 				}
 
@@ -349,27 +485,146 @@ void handleCreateObjLinksReq(tCreateObjLksReq *pCreateObjLinksReq_p, tCreateObjL
 	bReqSeqnc++;
 
 	/* setup response msg header */
-	pCreateObjLinksResp_p->m_bCmd = kAsyncCmdCreateObjLinksResp;
-	pCreateObjLinksResp_p->m_bReqId = pCreateObjLinksReq_p->m_bReqId;
+	/*----------------------------------------------------------------------------*/
+	pCreateObjLinksResp->m_bReqId = pCreateObjLinksReq->m_bReqId;
+	/*----------------------------------------------------------------------------*/
+
+	/* update size values of message descriptors */
+	pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tCreateObjLksResp);     // sent size
 
 exit:
-    return;
+    Ret = kPdiAsyncStatusSuccessful; // Response message has to be delivered -> fake everything is ok
+    return Ret;
 }
 
 /**
 ********************************************************************************
 \brief	handle an writeObjReq
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-void handleWriteObjReq(tAsyncIntChan *pCreateObjLinksReq_p, tAsyncIntChan *pCreateObjLinksResp_p)
+tPdiAsyncStatus cnApiAsync_handleWriteObjReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+                                  BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p        )
 {
+
+	tWriteObjReq *     pWriteObjReq = NULL;
+	tWriteObjResp *    pWriteObjResp = NULL;
+    tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
+
 	DEBUG_FUNC;
 
-	/* setup response */
+	/* check message descriptor */
+	if (pMsgDescr_p == NULL)
+	{
+	    Ret = kPdiAsyncStatusInvalidInstanceParam;
+	    goto exit;
+	}
+	/* check response message assignment */
+	if (pMsgDescr_p->pRespMsgDescr_m == NULL)
+	{
+	    Ret = kPdiAsyncStatusInvalidInstanceParam;
+	    goto exit;
+	}
 
+    /* verify all buffer pointers we intend to use */
+    if ((pRxMsgBuffer_p == NULL) || (pTxMsgBuffer_p == NULL))
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+	/* check if expected Tx message size exceeds the buffer */
+	if ( sizeof(tWriteObjResp) > dwMaxTxBufSize_p)
+	{
+	    /* reject transfer, because direct access can not be processed */
+	    Ret = kPdiAsyncStatusDataTooLong;
+	    goto exit;
+	}
+
+	/* assign buffer payload addresses */
+	pWriteObjReq =  (tWriteObjReq *)pRxMsgBuffer_p;       // Rx buffer
+	pWriteObjResp = (tWriteObjResp *) pTxMsgBuffer_p;     // Tx buffer
+
+	/* setup response */
+	/*----------------------------------------------------------------------------*/
+	// TODO: actual function
+	/*----------------------------------------------------------------------------*/
+
+    /* update size values of message descriptors */
+    pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tWriteObjResp);     // sent size
+
+exit:
+    return Ret;
 }
 
 
+/**
+********************************************************************************
+\brief  handle an tLinkPdosReq
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
+*******************************************************************************/
+tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
+                                       BYTE* pRxMsgBuffer_p, DWORD dwMaxTxBufSize_p        )
+{
 
+    tLinkPdosReq *      pLinkPdosReq = NULL;
+    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
+    WORD wCurDescrPayloadOffset = 0;
+
+    DEBUG_FUNC;
+
+    /* check message descriptor */
+    if (pMsgDescr_p == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* verify all buffer pointers we intend to use */
+    if (pTxMsgBuffer_p == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* check if expected Tx message size exceeds the buffer */
+    if ( sizeof(tLinkPdosReq) > dwMaxTxBufSize_p) //TODO: estimated size?? max mapp objects??
+    {
+        /* reject transfer, because direct access can not be processed */
+        Ret = kPdiAsyncStatusDataTooLong;
+        goto exit;
+    }
+
+    /* assign buffer payload addresses */
+    pLinkPdosReq = (tLinkPdosReq *) pTxMsgBuffer_p;      // Tx buffer
+
+    /* setup Tx message */
+    /*----------------------------------------------------------------------------*/
+    /* Prepare PDO descriptor message for AP */
+
+    pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
+
+    Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
+    Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
+
+    pLinkPdosReq->m_bDescrVers++; ///< increase descriptor version number
+
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d\n", pLinkPdosReq->m_bDescrVers);
+    /*----------------------------------------------------------------------------*/
+
+    /* update size values of message descriptors */
+    pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset;     // sent size
+
+exit:
+    return Ret;
+}
 
 
 /* END-OF-FILE */

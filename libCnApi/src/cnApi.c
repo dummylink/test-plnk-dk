@@ -96,7 +96,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 #ifdef CN_API_USING_SPI
         CnApi_Spi_read(PCP_CTRLREG_MAGIC_OFFSET, sizeof(pCtrlReg_g->m_dwMagic), (BYTE*) &pCtrlReg_g->m_dwMagic);
 #endif
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08x ..", pCtrlReg_g->m_dwMagic);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..", pCtrlReg_g->m_dwMagic);
         if(PCP_MAGIC == pCtrlReg_g->m_dwMagic)
         {
             fPcpPresent = TRUE;

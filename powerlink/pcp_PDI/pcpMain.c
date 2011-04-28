@@ -26,6 +26,7 @@
 #include "pcp.h"
 #include "cnApi.h"
 #include "cnApiIntern.h"
+#include "cnApiAsync.h"
 #include "pcpStateMachine.h"
 
 /******************************************************************************/
@@ -91,6 +92,7 @@ char * getNmtState (tEplNmtState state)
 int main (void)
 {
     int iRet= OK;
+    tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
 
 	/* flush all caches */
     alt_icache_flush_all();
@@ -103,8 +105,21 @@ int main (void)
 
     initStateMachine();
     Gi_init();
-    Gi_initAsync((tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBuf0Aoffs),
-    		     (tAsyncMsg *)(PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBuf0Aoffs));
+    iRet = CnApiAsync_init();
+    if (iRet != OK )
+    {
+        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
+        //TODO: set error flag at Cntrl Reg
+        goto exit;
+    }
+
+    AsyncRet = CnApiAsync_finishMsgInit();
+    if (AsyncRet != kPdiAsyncStatusSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_09, "cnApiAsync_finishMsgInit() FAILED!\n");
+        goto exit;
+    }
+
     iRet = Gi_initPdo();
     if (iRet != OK )
     {
@@ -122,8 +137,11 @@ int main (void)
 
     /***** Starting main state machine *****/
     resetStateMachine();
+    CnApiAsync_initStateMachine();
+
     while (stateMachineIsRunning())
     {
+        CnApiAsync_updateStateMachine(); //TODO: Process in User-Callback Event!
     	EplApiProcess();
     	updateStateMachine();
     	//usleep(100);		                   ///< wait 100 us//TODO: use this value ?
@@ -275,8 +293,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 		                     tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
 {
 	tEplKernel          EplRet = kEplSuccessful;
-    WORD wCurDescrPayloadOffset = 0; ///< TODO: put this var to Async or pdo module
-    tLinkPdosReq *pLinkPdosReq; //TODO: Replace with local message buffer (queue)
 
     /* check if NMT_GS_OFF is reached */
     switch (EventType_p)
@@ -309,30 +325,19 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtCsPreOperational2:
                 {
                 	setPowerlinkEvent(kPowerlinkEventEnterPreop2);
-               		EplRet = kEplReject;
+
+                	CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
+
+               		EplRet = kEplReject; // prevent automatic change to kEplNmtCsReadyToOperate
                 	break;
                 }
 
                 case kEplNmtCsReadyToOperate:
                 {
-                    setPowerlinkEvent(kPowerlinkEventkEnterReadyToOperate);
                 	break;
                 }
                 case kEplNmtGsResetConfiguration:
                 {
-                    /* Prepare PDO descriptor message for AP */
-                    //TODO: use local message structure for this message (not directly in Async Buffer)
-                    pLinkPdosReq = pAsycMsgLinkPdoReq_g;
-                    pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter //TODO: do this in initialization
-
-                    Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
-                    Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
-
-                    pLinkPdosReq->m_bDescrVers++; ///< increase descriptor version number
-                    pLinkPdosReq->m_bCmd = kAsyncCmdLinkPdosReq;
-
-                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d\n", pLinkPdosReq->m_bDescrVers);
-
                     break;
                 }
                 case kEplNmtGsInitialising:

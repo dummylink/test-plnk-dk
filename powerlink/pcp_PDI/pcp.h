@@ -18,6 +18,7 @@ DETAILED_DESCRIPTION_OF_FILE
 /* includes */
 #include "system.h"
 #include "cnApi.h"
+#include "cnApiAsync.h"
 #include "Debug.h"
 
 /******************************************************************************/
@@ -50,8 +51,6 @@ extern BOOL            fIrqSyncMode_g;    ///< synchronization mode flag
 extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp side according to AP message
 extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp side
 
-extern tLinkPdosReq *pAsycMsgLinkPdoReq_g; ///< Asynchronous PDI Message
-
 /******************************************************************************/
 /* function declarations */
 extern BYTE getCommandFromAp(void);
@@ -64,7 +63,7 @@ extern int startPowerlink(void);
 extern void Gi_init(void);
 void Gi_shutdown(void);
 
-extern int Gi_initAsync(tAsyncMsg *pAsyncSendBuf_p, tAsyncMsg *pAsyncRecvBuf_p);
+extern int Gi_initAsync(void);
 extern void Gi_pollAsync(void);
 
 extern int Gi_initPdo(void);
