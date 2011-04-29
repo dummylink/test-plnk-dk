@@ -80,7 +80,7 @@ extern void Gi_generateSyncInt(void);
 extern void Gi_disableSyncInt(void);
 extern void Gi_SetTimerSyncInt(UINT32 uiTimeValue);
 
-extern void Gi_throwAsyncEvent(WORD wEventType_p, WORD wArg_p);
+extern void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p);
 
 extern void Gi_controlLED(BYTE bType_p, BOOL bOn_p);
 

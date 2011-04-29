@@ -19,6 +19,7 @@ POWERLINK CN generic interface.
 #include "pcpStateMachine.h"
 #include "stateMachine.h"
 #include "cnApi.h"
+#include "cnApiEvent.h"
 #include "pcp.h"
 
 #include "system.h"
@@ -80,7 +81,7 @@ static BOOL checkApCommand(BYTE cmd_p)
 {
 	if (getCommandFromAp() == cmd_p)
 	{
-		if (cmd_p != kApCmdReboot) ///< reset AP command will take place in state 'kPcpStateBooted'
+		if (cmd_p != kApCmdReboot) // reset AP command will take place in state 'kPcpStateBooted'
 		{
 		    pCtrlReg_g->m_wCommand = kApCmdNone;	///< reset AP command
 		}
@@ -122,24 +123,25 @@ static BOOL checkEvent(void)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateBooted)
 {
-	while(!checkApCommand(kApCmdReboot)) 	///< AP has to start bootup procedure
+	while(!checkApCommand(kApCmdReboot)) 	// AP has to start bootup procedure
 	{
 		asm("NOP;");
 	}
 
-	pCtrlReg_g->m_wCommand = kApCmdNone;	///< reset AP command
+	pCtrlReg_g->m_wCommand = kApCmdNone;	// reset AP command
 	pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
 
 
-	Gi_controlLED(kEplLedTypeTestAll, TRUE); ///< set "bootup indicator LEDs"
+	Gi_controlLED(kEplLedTypeTestAll, TRUE); // set "bootup indicator LEDs"
 
 	///< if this is not the first boot: shutdown POWERLINK first
 	if(fPLisInitalized_g == TRUE)
 	{
-		EplNmtuNmtEvent(kEplNmtEventSwitchOff); ///< shutdown and cleanup POWERLINK
+		EplNmtuNmtEvent(kEplNmtEventSwitchOff); // shutdown and cleanup POWERLINK
 	    fPLisInitalized_g = FALSE;
 	}
 	storePcpState(kPcpStateBooted);
+	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateBooted);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateBooted)
@@ -151,7 +153,7 @@ FUNC_DOACT(kPcpStateBooted)
 	if (checkApCommand(kApCmdInit))
 	{
 		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
-		if(fPLisInitalized_g == FALSE) ///< POWERLINK is not initialized yet
+		if(fPLisInitalized_g == FALSE) // POWERLINK is not initialized yet
 		{
 			iStatus = initPowerlink(&initParm_g);
 		}
@@ -164,7 +166,7 @@ FUNC_DOACT(kPcpStateBooted)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateBooted,kPcpStateInit,1)
 {
-	return checkEvent(); 					///< Transition, if event occured
+	return checkEvent(); 					// Transition, if event occured
 }
 
 /*============================================================================*/
@@ -173,6 +175,7 @@ FUNC_EVT(kPcpStateBooted,kPcpStateInit,1)
 FUNC_ENTRYACT(kPcpStateInit)
 {
 	storePcpState(kPcpStateInit);
+	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateInit);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateInit)
@@ -209,8 +212,9 @@ FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreop1)
 {
-    Gi_controlLED(kEplLedTypeTestAll, FALSE);        ///< reset "bootup LED" //TODO: status/error LED does not work without this test
+    Gi_controlLED(kEplLedTypeTestAll, FALSE); // reset "bootup LED" //TODO: status/error LED does not work without this test
 	storePcpState(kPcpStatePreop1);
+	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStatePreop1);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStatePreop1)
@@ -249,6 +253,7 @@ FUNC_ENTRYACT(kPcpStatePreop2)
     }
 
 	storePcpState(kPcpStatePreop2);
+	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStatePreop2);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStatePreop2)
@@ -286,6 +291,7 @@ FUNC_ENTRYACT(kPcpStateReadyToOperate)
 {
     EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate); // trigger NMT state change
 	storePcpState(kPcpStateReadyToOperate);
+	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateReadyToOperate);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateReadyToOperate)
@@ -313,6 +319,7 @@ FUNC_EVT(kPcpStateReadyToOperate,kPcpStateBooted,1)
 FUNC_ENTRYACT(kPcpStateOperational)
 {
 	storePcpState(kPcpStateOperational);
+	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateOperational);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateOperational)

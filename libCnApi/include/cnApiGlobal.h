@@ -125,6 +125,17 @@ This file has to be included before other include files.
 	#define	OK		0
 #endif
 
+/*----------------------------------------------------------------------------*/
+/* byte-align structures */
+#ifdef _MSC_VER
+#    pragma pack( push, packing )
+#    pragma pack( 1 )
+#    define PACK_STRUCT
+#elif defined( __GNUC__ )
+#    define PACK_STRUCT    __attribute__((packed))
+#else
+#    error you must byte-align these structures with the appropriate compiler directives
+#endif
 
 #endif  // #ifndef _CNAPI_GLOBAL_H_
 

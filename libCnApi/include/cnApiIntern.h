@@ -38,7 +38,9 @@ This header file contains internal definitions for the CN API.
 #define SYNC_IRQ_ENABLE 7       ///< IR signal enable
 
 /* defines for ASYNC_IRQ_CTRL for AP only */
-#define ASYNC_IRQ_EN    15
+#define ASYNC_IRQ_PEND  0
+#define ASYNC_IRQ_EN   15
+
 
 /* defines for EVENT_ACK */
 #define EVT_GENERIC     0
@@ -56,9 +58,6 @@ for AP and PCP. AP forcing overwrites any other LED signal value settings. */
 #define LED_PHY1_ACT    5
 #define LED_OPTION_0    6
 #define LED_OPTION_1    7
-
-/* defines for  */
-#define LED_FORCE_EN0
 
 
 /******************************************************************************/

@@ -1148,7 +1148,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     /* deactivate active messages */
     if (bActivTxMsg_l != INVALID_ELEMENT)
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Tx message type: %d\n",
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Tx message type: %d\n",
                      aPdiAsyncTxMsgs[bActivTxMsg_l].MsgType_m);
         /* set invalid */
         aPdiAsyncTxMsgs[bActivTxMsg_l].fMsgValid_m = FALSE;
@@ -1157,7 +1157,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
     if (bActivRxMsg_l != INVALID_ELEMENT)
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Rx message type: %d\n",
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Rx message type: %d\n",
                      aPdiAsyncRxMsgs[bActivRxMsg_l].MsgType_m);
 
         confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
@@ -1167,7 +1167,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         bActivRxMsg_l = INVALID_ELEMENT;
     }
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "%s status: %s\n",
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s status: %s\n",
                                 __func__, getStrgCurError(ErrorHistory_l));
 
     /* free buffers */
@@ -1216,7 +1216,7 @@ static void stateChange(BYTE current, BYTE target)
     currentIdx = current + 2;
     targetIdx = target + 2;
 
-    DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "\nASYCN STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ASYNC_INFO, "\nASYCN STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
 }
 
 /******************************************************************************/
@@ -1583,7 +1583,7 @@ exit:
 ********************************************************************************
 \brief  initialize state machine
 ******************************************************************************/
-void CnApiAsync_initStateMachine(void)
+void CnApi_activateAsyncStateMachine(void)
 {
     DEBUG_FUNC;
 
@@ -1643,7 +1643,7 @@ void CnApiAsync_initStateMachine(void)
 ********************************************************************************
 \brief  activate state machine
 *******************************************************************************/
-void CnApiAsync_resetStateMachine(void)
+void CnApi_resetAsyncStateMachine(void)
 {
     DEBUG_FUNC;
 
@@ -1675,7 +1675,7 @@ void CnApiAsync_resetStateMachine(void)
 ********************************************************************************
 \brief  update state machine
 *******************************************************************************/
-BOOL CnApiAsync_updateStateMachine(void)
+BOOL CnApi_processAsyncStateMachine(void)
 {
     return sm_update(&PdiAsyncStateMachine_l);
 }
@@ -1684,7 +1684,7 @@ BOOL CnApiAsync_updateStateMachine(void)
 ********************************************************************************
 \brief  check if state machine is running
 *******************************************************************************/
-BOOL CnApiAsync_checkStateMachineRunning(void)
+BOOL CnApi_checkAsyncStateMachineRunning(void)
 {
     if (sm_getState(&PdiAsyncStateMachine_l) != STATE_FINAL)
         return TRUE;

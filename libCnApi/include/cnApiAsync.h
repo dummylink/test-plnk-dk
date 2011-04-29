@@ -9,7 +9,7 @@
 
 \file       cnApiAsync.h
 
-\brief      {BRIEF DESCRIPTION OF THE FILE}
+\brief      header file for asynchronous communication AP <-> PCP
 
 \author     hoggerm
 
@@ -18,12 +18,6 @@
 \since      29.03.2011
 
 \version    {REVISION NUMBER}
-
-\note       (optional) {NAME OF HEAD PROJECT}
-
-\note       (optional) {PREPROCESSOR SWITCHES, BUILD ENVIRONMENT, COMPLIANCE}
-
-{DETAILED DESCRIPTION OF THE FILE}
 
 *******************************************************************************/
 #ifndef CNAPIASYNC_H_
@@ -97,8 +91,8 @@ typedef enum {
  * \brief constants for asynchronous transfer channels
  */
 typedef enum eAsyncChannel {
-    kAsyncChannelInternal = 0x00,
-    kAsyncChannelSdo = 0x01
+    kAsyncChannelInternal = 0x01,
+    kAsyncChannelSdo = 0x02
 } tAsyncChannel;
 
 /**
@@ -309,13 +303,13 @@ typedef struct sPdiAsyncParam {
 typedef struct sPdiAsyncMsgDescr {
     tPdiAsyncMsgType        MsgType_m;           ///< type of the message
     BOOL                    fMsgValid_m;         ///< flag indicating a valid (= "completed transfer" for Rx "to be processed" for Tx) message payload
-    DWORD                   dwMsgSize_m;        ///< size of message payload
-    DWORD                   dwPendTranfSize_m;    ///< size of data which has not been transfered yet
+    DWORD                   dwMsgSize_m;         ///< size of message payload
+    DWORD                   dwPendTranfSize_m;   ///< size of data which has not been transfered yet
     tPdiAsyncMsgHdl         MsgHdl_m;            ///< message handler
     tPdiAsyncCbTransferFinished pfnTransferFinished_m; ///< user call back function, invoked when transfer has finished
     BYTE *                  pUserHdl_m;          ///< optional user handle
-    tPcpPdiAsyncMsgBufDescr * pPdiBuffer_m;        ///< pointer to utilized PDI asynchronous one-way buffer
-    struct sPdiAsyncMsgDescr * pRespMsgDescr_m;     ///< pointer to descriptor of response message
+    tPcpPdiAsyncMsgBufDescr * pPdiBuffer_m;      ///< pointer to utilized PDI asynchronous one-way buffer
+    struct sPdiAsyncMsgDescr * pRespMsgDescr_m;  ///< pointer to descriptor of response message
     tPdiAsyncTransferType   TransfType_m;        ///< TRUE = Buffered transfer, FALSE = Direct access
     tPdiAsyncMsgParam       Param_m;             ///< message parameter
 } tPdiAsyncMsgDescr;
@@ -356,10 +350,10 @@ extern tPdiAsyncStatus CnApiAsync_postMsg(
                        tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
                        tPdiAsyncCbTransferFinished pfnCbRespMsg_p);
 
-extern void CnApiAsync_initStateMachine(void);
-extern void CnApiAsync_resetStateMachine(void);
-extern BOOL CnApiAsync_updateStateMachine(void);
-extern BOOL CnApiAsync_checkStateMachineRunning(void);
+extern void CnApi_activateAsyncStateMachine(void);
+extern void CnApi_resetAsyncStateMachine(void);
+extern BOOL CnApi_processAsyncStateMachine(void);
+extern BOOL CnApi_checkAsyncStateMachineRunning(void);
 
 /* functions for asynchronous transfers */
 extern tPdiAsyncStatus CnApi_doInitPcpReq(

@@ -12,7 +12,6 @@
 
 This header file contains definitions for the CN API.
 *******************************************************************************/
-
 #ifndef CNAPI_H_
 #define CNAPI_H_
 
@@ -122,21 +121,6 @@ typedef enum {
 	kCnApiSyncCycleError				///< sync interrupt cycle error
 } tCnApiCycleStatus;
 
-//TODO: comments!
-typedef enum {
-    kPcpPdiStateChange,
-    kPcpPdiInformation,
-    kPcpPdiInitError,
-    kPcpPdiProcessingError,
-} tPcpPdiEvent;
-
-typedef enum {
-    kPcpSyncCycleError
-} tPcpPdiInitError;
-
-typedef enum {
-    kPcpSyncCycleOk
-} tPcpPdiInformation;
 /**
  * \brief enumeration with valid AP commands
  */
@@ -244,7 +228,7 @@ typedef struct sCnApiInitParm {
 } tCnApiInitParm;
 
 /* definitions for AP state machine, transitions and states */
-typedef enum {
+typedef enum eApStates{
 	kApStateBooted = 0,
 	kApStateReadyToInit,
 	kApStateInit,
@@ -257,14 +241,14 @@ typedef enum {
 } tApStates;
 
 /* definitions for PCP state machine, transitions and states */
-typedef enum { //TODO: define state "none?" - adapt docu for correct values!
-	kPcpStateBooted = 0,
-	kPcpStateInit,
-	kPcpStatePreop1,
-	kPcpStatePreop2,
-	kPcpStateReadyToOperate,
-	kPcpStateOperational,
-	kNumPcpStates
+typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct values!
+	kPcpStateBooted = 0x00,
+	kPcpStateInit = 0x01,
+	kPcpStatePreop1 = 0x02,
+	kPcpStatePreop2 = 0x03,
+	kPcpStateReadyToOperate = 0x04,
+	kPcpStateOperational = 0x05,
+	kNumPcpStates = 0x06,
 } tPcpStates;
 
 /******************************************************************************/
@@ -321,7 +305,7 @@ struct sPcpControlReg {
     volatile DWORD          dwRerserved10;
     volatile WORD           m_wLedControl;         ///< Powerlink IP-core Led output control register
     volatile WORD           m_wLedConfig;          ///< Powerlink IP-core Led output configuration register
-}__attribute__((__packed__));
+} PACK_STRUCT ;
 
 typedef struct sPcpControlReg tPcpCtrlReg;
 
@@ -346,8 +330,8 @@ sRPdoBuffer { ///< used to group buffer structure infos from control register
 
 /******************************************************************************/
 /* global variables */
-extern tCnApiInitParm		*pInitParm_g;		// pointer to POWERLINK init parameters
-extern tPcpCtrlReg			*pCtrlReg_g;		// pointer to PCP control registers
+extern tCnApiInitParm *     pInitParm_g;    // pointer to POWERLINK init parameters
+extern tPcpCtrlReg *        pCtrlReg_g;		// pointer to PCP control registers
 
 /******************************************************************************/
 /* function declarations */

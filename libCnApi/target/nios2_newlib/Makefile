@@ -98,6 +98,7 @@ LIB_NAME := CnApi
 C_SRCS += ../../src/cnApi.c
 C_SRCS += ../../src/cnApiAsync.c
 C_SRCS += ../../src/cnApiAsyncSm.c
+C_SRCS += ../../src/cnApiEvent.c
 C_SRCS += ../../src/cnApiObjects.c
 C_SRCS += ../../src/cnApiPdo.c
 C_SRCS += ../../src/cnApiStateMachine.c
@@ -124,7 +125,7 @@ LIB_ASFLAGS_USER :=
 LIB_ARCHIVER_FLAGS := -src
 
 # List of library specific include directories
-LIB_INCLUDE_DIRS :=
+LIB_INCLUDE_DIRS := ../../include/openPOWERLINK
 
 # Pre- and post- processor settings.
 BUILD_PRE_PROCESS :=

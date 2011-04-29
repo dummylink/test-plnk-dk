@@ -24,10 +24,10 @@
 #include <unistd.h>
 
 #include "pcp.h"
-#include "cnApi.h"
-#include "cnApiIntern.h"
-#include "cnApiAsync.h"
 #include "pcpStateMachine.h"
+
+#include "cnApiIntern.h"
+#include "cnApiEvent.h"
 
 /******************************************************************************/
 
@@ -35,6 +35,8 @@
 // in OBJDICT.C by define EPL_OBD_INIT_RAM_NAME. Use this function name to define
 // this function prototype here. If you want to use more than one Epl
 // instances then the function name of each object dictionary has to differ.
+
+
 
 tEplKernel PUBLIC  EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
 tEplKernel PUBLIC AppCbSync(void);
@@ -54,6 +56,7 @@ static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 /******************************************************************************/
 /* forward declarations */
 int openPowerlink(void);
+extern void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p);
 
 /**
 ********************************************************************************
@@ -108,6 +111,7 @@ int main (void)
     iRet = CnApiAsync_init();
     if (iRet != OK )
     {
+        Gi_throwPdiEvent(0, 0);
         DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
         //TODO: set error flag at Cntrl Reg
         goto exit;
@@ -116,6 +120,7 @@ int main (void)
     AsyncRet = CnApiAsync_finishMsgInit();
     if (AsyncRet != kPdiAsyncStatusSuccessful)
     {
+        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpInitFailed);
         DEBUG_TRACE0(DEBUG_LVL_09, "cnApiAsync_finishMsgInit() FAILED!\n");
         goto exit;
     }
@@ -123,6 +128,7 @@ int main (void)
     iRet = Gi_initPdo();
     if (iRet != OK )
     {
+        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpInitFailed);
         DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
         //TODO: set error flag at Cntrl Reg
         goto exit;
@@ -137,11 +143,11 @@ int main (void)
 
     /***** Starting main state machine *****/
     resetStateMachine();
-    CnApiAsync_initStateMachine();
+    CnApi_activateAsyncStateMachine();
 
     while (stateMachineIsRunning())
     {
-        CnApiAsync_updateStateMachine(); //TODO: Process in User-Callback Event!
+        CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
     	EplApiProcess();
     	updateStateMachine();
     	//usleep(100);		                   ///< wait 100 us//TODO: use this value ?
@@ -305,6 +311,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         	                            getNmtState(pEventArg_p->m_NmtStateChange.m_NewNmtState),
         	                            pEventArg_p->m_NmtStateChange.m_NmtEvent);
 
+        	//Gi_throwPdiEvent(kPcpPdiEventNmtStateChange, pEventArg_p->m_NmtStateChange.m_NewNmtState);
+
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
             {
                 case kEplNmtGsOff:
@@ -413,6 +421,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     __func__,
                     pEventArg_p->m_InternalError.m_EventSource,
                     pEventArg_p->m_InternalError.m_EplError);
+
+            Gi_throwPdiEvent(kPcpPdiEventCriticalStackError, pEventArg_p->m_InternalError.m_EplError);
+
             // check additional argument
             switch (pEventArg_p->m_InternalError.m_EventSource)
             {
@@ -443,6 +454,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         case kEplApiEventLed:
         {   // status or error LED shall be changed
 
+            //Gi_throwPdiEvent(kPcpPdiEventStackLed, pEventArg_p->m_Led.m_LedType);
+
         	switch (pEventArg_p->m_Led.m_LedType)
             {
                 case kEplLedTypeStatus:
@@ -454,6 +467,12 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 default:
                     break;
             }
+            break;
+        }
+
+        case kEplApiEventHistoryEntry:
+        {
+            Gi_throwPdiEvent(kPcpPdiEventHistoryEntry, pEventArg_p->m_ErrHistoryEntry.m_wErrorCode);
             break;
         }
 
@@ -641,7 +660,7 @@ void Gi_calcSyncIntPeriod(void)
 	EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
 	if (EplRet != kEplSuccessful)
 	{
-	    Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
+	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -654,7 +673,7 @@ void Gi_calcSyncIntPeriod(void)
 
 	if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
 	{
-	    Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
+	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -663,7 +682,7 @@ void Gi_calcSyncIntPeriod(void)
 	{
 	    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
-	    Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
+	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -671,12 +690,12 @@ void Gi_calcSyncIntPeriod(void)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
-        Gi_throwAsyncEvent(kPcpPdiInitError, kPcpSyncCycleError);
+        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
         iSyncIntCycle_g = 0;
         return;
     }
 
-    Gi_throwAsyncEvent(kPcpPdiInformation, kPcpSyncCycleOk);
+    // Gi_throwPdiEvent(kPcpPdiEventInformation, kPcpSyncCycleOk);
 	iSyncIntCycle_g = iNumCycles;
 	pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
 
@@ -724,19 +743,33 @@ void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
  \param wArg_p          event argument (e.g. NmtState, error code ...)
 
  This function fills the event related PCP PDI register with an AP known value,
- and informs the AP this way about occured events. The AP has to acknowledge
+ and informs the AP this way about occurred events. The AP has to acknowledge
  an event after reading out the registers.
  According to the Asynchronous IRQ configuration register, the PCP might assert
  an IR signal in case of an event.
  *******************************************************************************/
-void Gi_throwAsyncEvent(WORD wEventType_p, WORD wArg_p)
+void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
 {
-    pCtrlReg_g->m_wEventType = wEventType_p;
-    pCtrlReg_g->m_wEventArg = wArg_p;
+    WORD wEventAck;
 
-    /* set GE bit to signal event to AP; If desired by AP,
-     *  an IR signal will be asserted in addition */
-    pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+    wEventAck = pCtrlReg_g->m_wEventAck;
+
+    /* check if previous event has been confirmed by AP */
+    if ((wEventAck & (1 << EVT_GENERIC)) == 0)
+    { //confirmed -> set event
+
+        pCtrlReg_g->m_wEventType = wEventType_p;
+        pCtrlReg_g->m_wEventArg = wArg_p;
+
+        /* set GE bit to signal event to AP; If desired by AP,
+         *  an IR signal will be asserted in addition */
+        pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+    }
+    else // not confirmed -> do not overwrite
+    {
+       //TODO: store in event history
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow!\n", __func__);
+    }
 }
 
 /**

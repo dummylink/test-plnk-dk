@@ -27,6 +27,7 @@ a dual ported RAM (DPRAM) area.
 #include "cnApi.h"
 #include "cnApiDebug.h"
 #include "cnApiAsync.h"
+#include "cnApiEvent.h"
 
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
@@ -105,15 +106,15 @@ int main (void)
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
-    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); ///< set hex digits on Mercury-Board to indicate AP presence
-    usleep(1000000);		                                ///< wait 1 s, so you can see the LEDs
+    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); // set hex digits on Mercury-Board to indicate AP presence
+    usleep(1000000);		                                // wait 1 s, so you can see the LEDs
 
     TRACE("\n\nInitialize CN API functions...");
 
-    nodeId = DEFAULT_NODEID;    ///< in case you dont want to use Node Id switches, use a different value then 0x00
-    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				///< initialize POWERLINK parameters
+    nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
+    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				// initialize POWERLINK parameters
 
-    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  ///< initialize and start the CN API
+    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  // initialize and start the CN API
     if (status > 0)
     {
         TRACE1("\nERROR: CN API library could not be initialized (%d)\n", status);
@@ -139,17 +140,18 @@ int main (void)
      * - Number of linked objects must match NUM_OBJECTS !
      */
 	///< CnApi_linkObject(Index, SubIndex, size in bytes, ptr) 
-    CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);  ///< TPDO 0
+    CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);  // TPDO 0
     CnApi_linkObject(0x6000, 2, 1, &digitalIn[1]);
     CnApi_linkObject(0x6000, 3, 1, &digitalIn[2]);
     CnApi_linkObject(0x6000, 4, 1, &digitalIn[3]);
-    CnApi_linkObject(0x6200, 1, 1, &digitalOut[0]); ///< RPDO 0
+    CnApi_linkObject(0x6200, 1, 1, &digitalOut[0]); // RPDO 0
     CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
 #ifdef USE_POLLING_MODE
     CnApi_disableSyncInt();
+    CnApi_disableAsyncEventIRQ();
 #else
     /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us , maxCycleNum = 10 */
     #ifdef CN_API_USING_SPI
@@ -163,7 +165,7 @@ int main (void)
     /* Start periodic main loop */
     TRACE("API example is running...\n");
 	CnApi_activateApStateMachine();
-	CnApiAsync_initStateMachine();
+	CnApi_activateAsyncStateMachine();
 
 	/* main program loop */
 	/* TODO: implement exit of application! */
@@ -172,29 +174,32 @@ int main (void)
         /* Instead of this while loop, you can use your own (nonblocking) tasks ! */
 
         /*--- TASK 1: START ---*/
-    	CnApi_processApStateMachine();     ///< The AP state machine must be periodically updated
+        CnApi_processApStateMachine();     // The AP state machine must be periodically updated
     	//TODO: Implement Cbfunc "OperationalSyncCb"in statemachine?
-        workInputOutput();                 ///< update the PCB's inputs and outputs
+        workInputOutput();                 // update the PCB's inputs and outputs
         /*--- TASK 1: END   ---*/
 
-        CnApiAsync_updateStateMachine();
+        CnApi_processAsyncStateMachine();
 
     	/* wait until next period */
-        //usleep(100);                     ///< wait 100 us to simulate a task behavior
+        //usleep(100);                     // wait 100 us to simulate a task behavior
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/
     	if (CnApi_getPcpState() == kPcpStateOperational) //TODO: Alternatively implement Cbfunc in statemachine
     	{
-    	    CnApi_transferPdo();           ///< update linked variables
+    	    CnApi_transferPdo();           // update linked variables
     	}
         /*--- TASK 2: END   ---*/
+
+    	CnApi_pollAsyncEvent();            // check if PCP event occurred
 #endif /* USE_POLLING_MODE */
 
     }
 
     TRACE("shut down application...\n");
     CnApi_disableSyncInt();
+    CnApi_disableAsyncEventIRQ();
     CnApi_cleanupObjects();
     CnApi_exit();
 
@@ -273,6 +278,70 @@ void workInputOutput(void)
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, dwOutPort);
 }
 
+void CnApi_AppCbEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p, void * pUserArg_p)
+{
+    switch (wEventType_p)
+    {
+        case kPcpPdiEventUserDef:
+        {
+            break;
+        }
+        case kPcpPdiEventGenericError:
+                {
+                    switch (wEventArg_p.PcpError_m)
+                    {
+                        case kPcpInitFailed:
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"PCP Initialization failed!");
+                            break;
+                        }
+                        case kPcpGenErrAsyncComTimeout:
+                        case kPcpGenErrAsyncIntChanComError:
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Asynchronous communication error at PCP!");
+                            break;
+                        }
+                        case kPcpGenErrPhy0LinkLoss:
+                        case kPcpGenErrPhy1LinkLoss:
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Phy link lost!\n");
+                            // This might not be an issue as long as you have two phys.
+                            // Only the connection to MN might be critical.
+                            // If this link is lost -> PCP state change to PreOP1
+                            // Link loss at initialization of PCP is furthermore normal!
+
+                            break;
+                        }
+
+                        default:
+                        break;
+                    }
+
+                    break;
+                }
+
+        case kPcpPdiEventPcpStateChange:
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New PCP State: %d\n", wEventArg_p.NewPcpState_m);
+            break;
+        }
+
+        case kPcpPdiEventCriticalStackError:
+        case kPcpPdiEventStackWarning:
+        {
+
+            break;
+        }
+
+        case kPcpPdiEventHistoryEntry:
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Error history entry code: %#04x\n", wEventArg_p.wErrorHistoryCode_m);
+        }
+        default:
+        break;
+    }
+}
+
 /**
 ********************************************************************************
 \brief	synchronous interrupt handler
@@ -292,16 +361,16 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 {
 #ifdef CN_API_USING_SPI
     //TODO: ifdef not Avalon IF
-    alt_ic_irq_disable(0, SYNC_IRQ_FROM_PCP_IRQ);  ///< disable specific IRQ Number
+    alt_ic_irq_disable(0, SYNC_IRQ_FROM_PCP_IRQ);  // disable specific IRQ Number
 #endif
 
-	CnApi_transferPdo();		// Call CN API PDO transfer function
+	CnApi_transferPdo();		                   // Call CN API PDO transfer function
 
     /* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
     pCtrlReg_g->m_wSyncIrqControl = (1 << SYNC_IRQ_ACK);
 
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_wSyncIrqControl); ///< update pcp register
+    CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_wSyncIrqControl); // update pcp register
 #endif
 
 #ifdef CN_API_USING_SPI
@@ -309,7 +378,7 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
     workInputOutput();
     //TODO: this workaround is unnecessary, but otherwise it will not work! IR blocks while() loop somehow.
 
-    alt_ic_irq_enable(0, SYNC_IRQ_FROM_PCP_IRQ);  ///< enable specific IRQ Number
+    alt_ic_irq_enable(0, SYNC_IRQ_FROM_PCP_IRQ);  // enable specific IRQ Number
 #endif /* CN_API_USING_SPI */
 }
 #endif /* USE_POLLING_MODE */
@@ -349,12 +418,14 @@ int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE 
     /* enable interrupt from PCP to AP */
     //TODO: ifdef not Avalon IF
 #ifdef CN_API_USING_SPI
-    alt_ic_irq_enable(0, irq);  ///< enable specific IRQ Number
+    alt_ic_irq_enable(0, irq);      // enable specific IRQ Number
     IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_FROM_PCP_BASE, 0x01);
     //TODO: endif not Avalon IF
 #endif /* CN_API_USING_SPI */
 
-    CnApi_enableSyncInt();      ///< cause the PCP to set periodic IR's
+    CnApi_enableSyncInt();          // cause the PCP to set periodic IR's
+    CnApi_enableAsyncEventIRQ();    //enable asynchronous event IR's
+
 	return OK;
 }
 #endif /* USE_POLLING_MODE */
