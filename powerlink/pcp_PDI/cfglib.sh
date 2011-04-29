@@ -37,6 +37,9 @@ echo "/* This file is used for configuration of the Cn API Library.
 It is automatically build according to PCP system.h, every time
 a rebuild of the PCP software is executed. */
 
+#ifndef _CNAPICFG_H_
+#define _CNAPICFG_H_
+
 /* Defines for CN API Library */" > $OUT_FILE
 
 
@@ -51,9 +54,10 @@ case  $cnt  in
     0)
 	case $PCPDefineValue in
 		0) echo "#define CN_API_NOT_PRESENT" >> $OUT_FILE ;;
-		1) echo "#define CN_API_USING_8BIT" >> $OUT_FILE ;;	
-		2) echo "#define CN_API_USING_16BIT" >> $OUT_FILE ;;		
-		3) echo "#define CN_API_USING_SPI" >> $OUT_FILE ;;	
+		1) echo "#define CN_API_USING_8BIT" >> $OUT_FILE ;;
+		2) echo "#define CN_API_USING_16BIT" >> $OUT_FILE ;;
+		3) echo "#define CN_API_USING_SPI" >> $OUT_FILE ;;
+		4) echo "#define CN_API_INT_AVALON" >> $OUT_FILE ;;
 		*) echo "//INVALID_VALUE" >> $OUT_FILE ;;	
 	esac	
 	;;
@@ -85,6 +89,11 @@ esac
 	cnt=$((cnt + 1))
 	
 done
+
+echo "
+#endif /* _CNAPICFG_H_ */
+
+/* END-OF-FILE */" >> $OUT_FILE
 
 echo -e "Generating cnApiCfg.h done!\n"
 
