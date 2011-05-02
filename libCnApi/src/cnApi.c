@@ -217,11 +217,13 @@ CnApi_disableSyncInt() disables the synchronization interrupt at the PCP.
 *******************************************************************************/
 void CnApi_disableSyncInt(void)
 {
+    static WORD test = 0;
     /* enable interrupt from PCP */
 #ifdef CN_API_USING_SPI
     CnApi_Spi_readByte(PCP_CTRLREG_SYNMD_OFFSET, (BYTE*) &pCtrlReg_g->m_wSyncIrqControl); ///< update struct member, we do logic operation on it
 #endif
 
+    test &= ~(1 << SYNC_IRQ_SYNC_MODE);
     pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_SYNC_MODE);
 
 #ifdef CN_API_USING_SPI
