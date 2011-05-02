@@ -143,7 +143,7 @@ typedef struct sInitPcpReq {
     WORD                    m_wIsoRxMaxPayload;
     DWORD                   m_dwPresMaxLatency;
     DWORD                   m_dwAsendMaxLatency;
-} tInitPcpReq;
+} PACK_STRUCT tInitPcpReq;
 
 /**
  * \brief structure for InitPcpResp command
@@ -152,7 +152,7 @@ typedef struct sInitPcpResp {
 //    BYTE                    m_bCmd; //TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     WORD                    m_wStatus;
-} tInitPcpResp;
+} PACK_STRUCT tInitPcpResp;
 
 /**
  * \brief structure for CreateObjReq command
@@ -161,7 +161,7 @@ typedef struct sCreateObjReq {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     WORD                    m_wNumObjs;
-} tCreateObjLksReq;
+} PACK_STRUCT tCreateObjLksReq;
 
 /**
  * \brief structure for CreateObjResp command
@@ -172,14 +172,14 @@ typedef struct sCreateObjResp {
     WORD                    m_wStatus;
     WORD                    m_wErrIndex;
     BYTE                    m_bErrSubindex;
-} tCreateObjLksResp;
+} PACK_STRUCT tCreateObjLksResp;
 
 typedef struct sLinkPdosReq {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
 //    BYTE                    m_reserved;
     BYTE                    m_bDescrCnt;
     BYTE                    m_bDescrVers;
-} tLinkPdosReq; //TODO: use async buffers!
+} PACK_STRUCT tLinkPdosReq; //TODO: use async buffers!
 
 /**
  * \brief structure for WriteObjReq command
@@ -188,7 +188,7 @@ typedef struct sWriteObjReq {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     WORD                    m_wNumObjs;
-} tWriteObjReq;
+} PACK_STRUCT tWriteObjReq;
 
 /**
  * \brief structure for WriteObjResp command
@@ -200,7 +200,7 @@ typedef struct sWriteObjResp {
     WORD                    m_wStatus;
     WORD                    m_wErrIndex;
     BYTE                    m_bErrSubindex;
-} tWriteObjResp;
+} PACK_STRUCT tWriteObjResp;
 
 /**
  * \brief structure for internal channel header
@@ -208,7 +208,7 @@ typedef struct sWriteObjResp {
 typedef struct sAsyncIntHeader {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
-} tAsyncIntHeader;
+} PACK_STRUCT tAsyncIntHeader;
 
 /**
  * \brief Structure definition for asynchronous transfer buffer header
@@ -219,12 +219,12 @@ typedef struct sAsyncMsgHeader {
     BYTE                    m_bMsgType;
     WORD                    m_wFrgmtLen;
     DWORD                   m_dwStreamLen;
-} tAsyncPdiBufCtrlHeader;
+} PACK_STRUCT tAsyncPdiBufCtrlHeader;
 
 typedef struct sAsyncMsg {
     tAsyncPdiBufCtrlHeader  m_header;
     tAsyncChannel           m_chan;
-} tAsyncMsg;
+} PACK_STRUCT tAsyncMsg;
 
 /**
  * \brief descriptor of asynchronous message buffer
@@ -232,7 +232,7 @@ typedef struct sAsyncMsg {
 typedef struct sPcpPdiAsyncBufDescr {
   tAsyncMsg *  pAdr_m;
   WORD         wMaxPayload_m;
-} tPcpPdiAsyncMsgBufDescr;
+} PACK_STRUCT tPcpPdiAsyncMsgBufDescr;
 
 /**
  * \brief constants for asynchronous transfer direction
@@ -291,14 +291,14 @@ typedef tPdiAsyncStatus (* tPdiAsyncCbTransferFinished) (struct sPdiAsyncMsgDesc
 typedef struct sPdiAsyncMsgHdl {
     BYTE*                 pLclBuf_m;        ///< pointer to msg if local msg buffering is used
     tPdiAsyncBufHdlCb     pfnCbMsgHdl_m;    ///< or callback function for handling buffer (local or direct)
-} tPdiAsyncMsgHdl;
+} PACK_STRUCT tPdiAsyncMsgHdl;
 
 typedef struct sPdiAsyncParam {
     tAsyncChannel   ChanType_m;                 ///< type of channel the message belongs to
     tPcpStates      aNmtList_m[kNumPcpStates];  ///< valid NmtStates for this message
     //not used: tPdiAsMsgPrio   Prio_m;         ///< message priority
     WORD           wTimeout_m;                  ///< timeout value of message delivery or reception (if set to 0, wait forever)
-} tPdiAsyncMsgParam;
+} PACK_STRUCT tPdiAsyncMsgParam;
 
 typedef struct sPdiAsyncMsgDescr {
     tPdiAsyncMsgType        MsgType_m;           ///< type of the message
@@ -312,14 +312,14 @@ typedef struct sPdiAsyncMsgDescr {
     struct sPdiAsyncMsgDescr * pRespMsgDescr_m;  ///< pointer to descriptor of response message
     tPdiAsyncTransferType   TransfType_m;        ///< TRUE = Buffered transfer, FALSE = Direct access
     tPdiAsyncMsgParam       Param_m;             ///< message parameter
-} tPdiAsyncMsgDescr;
+} PACK_STRUCT tPdiAsyncMsgDescr;
 
 
 typedef struct sPdiAsyncMsgLink {
     tPdiAsyncMsgType    MsgType_m;           ///< type of origin message
     tPdiAsyncMsgType    RespMsgType_m;       ///< type of response message
     tPcpPdiAsyncDir     Direction_m;         ///< direction of origin message
-} tPdiAsyncMsgLink;
+} PACK_STRUCT tPdiAsyncMsgLink;
 
 /******************************************************************************/
 /* external variable declarations */

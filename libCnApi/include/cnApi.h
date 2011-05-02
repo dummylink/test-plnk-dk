@@ -110,7 +110,7 @@ typedef enum {
 	kCnApiStatusCommandNotAccepted 		///< command isn't accepted
 } tCnApiStatus;
 
-//TODO: delete next struct
+//TODO: delete next struct and do error handling in a different way
 /**
  * Valid status values of the PCP error register
  *
@@ -119,7 +119,7 @@ typedef enum {
 typedef enum {
 	kCnApiSyncCycleOk = 0,				///< sync interrupt cycle ok
 	kCnApiSyncCycleError				///< sync interrupt cycle error
-} tCnApiCycleStatus;
+} PACK_STRUCT tCnApiCycleStatus;
 
 /**
  * \brief enumeration with valid AP commands
@@ -137,21 +137,21 @@ typedef struct sCnApiObjId {
 	WORD		m_wIndex;
 	BYTE		m_bSubIndex;
 	BYTE		m_bNumEntries;
-} tCnApiObjId;
+} PACK_STRUCT tCnApiObjId;
 
 typedef struct sCnApiObjCreateObjLinksHdl {
     WORD                wNumCreateObjs_m; ///< number of objects to be created
     WORD                wCurObjs_m; ///< current number of objects to be created
     WORD                wReqObjs_m; ///< already created (=linked) objects
     tCnApiObjId *       pObj_m;     ///< pointer to current object entry
-} tCnApiObjCreateObjLinksHdl;
+} PACK_STRUCT tCnApiObjCreateObjLinksHdl;
 
 
 // TODO: not used, do we need it?
 typedef struct sCnApiReadQueue{
 	int					m_iNumElements;
 	tCnApiObjId 		*pObjectId;
-} tCnApiReadQueue;
+} PACK_STRUCT tCnApiReadQueue;
 
 //TODO: needed?
 typedef enum eProcType {
@@ -176,7 +176,7 @@ typedef struct sObjTbl {
 	BYTE			m_bSubIndex;
 	WORD			m_wSize;
 	char			*m_pData;
-} tObjTbl;
+} PACK_STRUCT tObjTbl;
 
 typedef enum ePdoDir {
    TPdo = 0x01, ///< Transmit PDO
@@ -187,13 +187,13 @@ typedef struct sPdoDescHeader {
 	WORD	   m_bEntryCnt;
 	BYTE       m_bPdoDir;
 	BYTE       m_bBufferNum;
-} tPdoDescHeader;
+} PACK_STRUCT tPdoDescHeader;
 
 typedef struct sPdoDesc {
 	WORD	m_wPdoIndex;
 	BYTE	m_bPdoSubIndex;
 	BYTE	m_bReserved;    // NumObjChain not used
-} tPdoDescEntry;
+} PACK_STRUCT tPdoDescEntry;
 
 #define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
 #define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
@@ -225,7 +225,7 @@ typedef struct sCnApiInitParm {
 	DWORD			m_dwPresMaxLatency;
 	DWORD			m_dwAsendMaxLatency;
 	DWORD			m_dwDpramBase;
-} tCnApiInitParm;
+} PACK_STRUCT tCnApiInitParm;
 
 /* definitions for AP state machine, transitions and states */
 typedef enum eApStates{
@@ -305,7 +305,7 @@ struct sPcpControlReg {
     volatile DWORD          dwRerserved10;
     volatile WORD           m_wLedControl;         ///< Powerlink IP-core Led output control register
     volatile WORD           m_wLedConfig;          ///< Powerlink IP-core Led output configuration register
-} PACK_STRUCT ;
+} PACK_STRUCT;
 
 typedef struct sPcpControlReg tPcpCtrlReg;
 
@@ -317,7 +317,7 @@ typedef struct sTPdoBuffer { ///< used to group buffer structure infos from cont
     DWORD   dwSpiBufOffs_m;
     WORD    wSpiAckOffs_m;
 #endif /* CN_API_USING_SPI */
-} tTPdoBuffer;
+} PACK_STRUCT tTPdoBuffer;
 
 typedef struct
 sRPdoBuffer { ///< used to group buffer structure infos from control register
@@ -326,7 +326,7 @@ sRPdoBuffer { ///< used to group buffer structure infos from control register
     BYTE    *pAck_m;
     DWORD   dwSpiBufOffs_m;
     WORD    wSpiAckOffs_m;
-} tRPdoBuffer;
+} PACK_STRUCT tRPdoBuffer;
 
 /******************************************************************************/
 /* global variables */
