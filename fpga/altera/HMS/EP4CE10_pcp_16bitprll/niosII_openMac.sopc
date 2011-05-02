@@ -298,30 +298,6 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8224";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "16777216";
-         type = "long";
-      }
-   }
    element tc_i_mem_pcp.s1
    {
       datum _lockedAddress
@@ -335,16 +311,19 @@
          type = "long";
       }
    }
-   element system_timer.s1
+   element node_switch_pio.s1
    {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
       datum baseAddress
       {
-         value = "8192";
+         value = "2304";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
          type = "long";
       }
    }
@@ -358,6 +337,27 @@
       datum baseAddress
       {
          value = "2048";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum baseAddress
+      {
+         value = "16777216";
+         type = "long";
+      }
+   }
+   element system_timer.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8192";
          type = "long";
       }
    }
@@ -471,8 +471,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="4436292338" />
- <parameter name="timeStamp" value="1302167726663" />
+ <parameter name="systemHash" value="4477379804" />
+ <parameter name="timeStamp" value="1304344382710" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -696,8 +696,7 @@
   <parameter name="clockFrequency" value="25000000" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone IV E" />
  </module>
- <module kind="powerlink" version="1.0" enabled="1" name="powerlink_0">
-  <parameter name="iFpgaRev_g" value="32" />
+ <module kind="powerlink" version="1.2" enabled="1" name="powerlink_0">
   <parameter name="clkRateEth" value="100000000" />
   <parameter name="clkRate50" value="50000000" />
   <parameter name="clkRatePcp" value="90000000" />
@@ -723,6 +722,8 @@
   <parameter name="validSet" value="1" />
   <parameter name="macTxBuf" value="1514" />
   <parameter name="macRxBuf" value="1514" />
+  <parameter name="mac2cmpTimer" value="false" />
+  <parameter name="mac2phys" value="true" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
  </module>
  <module kind="sram" version="1.0" enabled="1" name="sram_0">
