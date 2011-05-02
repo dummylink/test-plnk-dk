@@ -85,7 +85,7 @@ case  $cnt  in
 	;;
     4)
 	if [ "$PCPDefineValue" -gt "0" ]; then
-		echo "#define ${PATTERN[$cnt]}$PCPDefineValue" >> $OUT_FILE 
+		echo "#define PCP_PDI_REVISION $PCPDefineValue" >> $OUT_FILE 
 	else
 		echo "#define ${PATTERN[$cnt]} //INVALID" >> $OUT_FILE	
 	fi

@@ -315,7 +315,7 @@ BOOL CnApi_verifyPcpPdiRevision(void)
 //#endif
 
     /* verify if this compilation of CnApi library matches the current PCP PDI */
-    if (POWERLINK_0_MAC_BUF_FPGAREV != pCtrlReg_g->m_wPcpPdiRev)
+    if (PCP_PDI_REVISION != pCtrlReg_g->m_wPcpPdiRev)
     {
         return FALSE;
     }
