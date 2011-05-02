@@ -124,6 +124,14 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 #endif /* CN_API_USING_SPI */
     }
 
+    /* verify PDI revision */
+    if (!CnApi_verifyPcpPdiRevision())
+    {
+        /* this compilation does not match the accessed PCP PDI */
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: PCP PDI Revision doesn't match!\n");
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
 
     pCtrlReg_g->m_wState = 0xff;                                            ///< set invalid PCP state
     pCtrlReg_g->m_wCommand = kApCmdReboot;                                  ///< send reboot cmd to PCP
@@ -295,7 +303,27 @@ void CnApi_setApCommand(BYTE bCmd_p)
 #endif
 }
 
+/**
+********************************************************************************
+\brief  verifies the PCP PDI revision
+\retval FALSE if revision number differs, TRUE if it equals
+*******************************************************************************/
+BOOL CnApi_verifyPcpPdiRevision(void)
+{
+//#ifdef CN_API_USING_SPI
+//    CnApi_Spi_read(PCP_CTRLREG_STATE_OFFSET, (BYTE*) &pCtrlReg_g->m_wPcpPdiRev);    ///< update struct element
+//#endif
 
+    /* verify if this compilation of CnApi library matches the current PCP PDI */
+    if (POWERLINK_0_MAC_BUF_FPGAREV != pCtrlReg_g->m_wPcpPdiRev)
+    {
+        return FALSE;
+    }
+    else
+    {
+        return TRUE;
+    }
+}
 
 
 /* END-OF-FILE */

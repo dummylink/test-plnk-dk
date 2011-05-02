@@ -66,6 +66,7 @@ for AP and PCP. AP forcing overwrites any other LED signal value settings. */
 extern DWORD CnApi_getPcpMagic(void);
 extern void CnApi_setApCommand(BYTE bCmd_p);
 extern void CnApi_initApStateMachine(void);
+extern BOOL CnApi_verifyPcpPdiRevision(void);
 
 /* functions for object access */
 extern BOOL CnApi_setupMappedObjects(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p);

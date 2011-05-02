@@ -30,6 +30,7 @@ PATTERN[0]="POWERLINK_0_PDI_PCP_CONFIG "
 PATTERN[1]="POWERLINK_0_PDI_PCP_CONFIGAPENDIAN "
 PATTERN[2]="POWERLINK_0_PDI_PCP_PDIRPDOS "
 PATTERN[3]="POWERLINK_0_PDI_PCP_PDITPDOS "
+PATTERN[4]="POWERLINK_0_MAC_BUF_FPGAREV "
 
 ###################################################################
 
@@ -44,7 +45,7 @@ a rebuild of the PCP software is executed. */
 
 
 cnt=0
-while [ $cnt -lt 4 ] ; do
+while [ $cnt -lt 5 ] ; do
 	
 pattern=${PATTERN[$cnt]}
 PCPDefineValue=$(grep "$pattern" ${IN_FILE} | grep \#define | cut -d ' ' -f 3) #-d = delimiter (Space) -f= 3rd fragment is value of define
@@ -80,6 +81,13 @@ case  $cnt  in
 		echo "#define ${PATTERN[$cnt]}$PCPDefineValue" >> $OUT_FILE 
 	else
 		echo "#define ${PATTERN[$cnt]}0" >> $OUT_FILE
+	fi
+	;;
+    4)
+	if [ "$PCPDefineValue" -gt "0" ]; then
+		echo "#define ${PATTERN[$cnt]}$PCPDefineValue" >> $OUT_FILE 
+	else
+		echo "#define ${PATTERN[$cnt]} //INVALID" >> $OUT_FILE	
 	fi
 	;;	
     *)echo Not a valid loop count!
