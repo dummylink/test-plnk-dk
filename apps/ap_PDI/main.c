@@ -157,7 +157,7 @@ int main (void)
     #ifdef CN_API_USING_SPI
     initInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 100000, 10);  ///< local AP IRQ is enabled here
     #else
-    initInterrupt(POWERLINK_0_IRQ, 1000, 100000, 10);
+    initInterrupt(POWERLINK_0_PDI_AP_IRQ, 1000, 100000, 10);
     #endif /* CN_API_USING_SPI */
 
 #endif /* USE_POLLING_MODE */
@@ -367,7 +367,7 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 	CnApi_transferPdo();		                   // Call CN API PDO transfer function
 
     /* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
-    pCtrlReg_g->m_wSyncIrqControl = (1 << SYNC_IRQ_ACK);
+    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_ACK);
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_wSyncIrqControl); // update pcp register
@@ -401,6 +401,7 @@ will be enabled.
 int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum_p)
 {
 	CnApi_initSyncInt(dwMinCycleTime_p, dwMaxCycleTime_p, bMaxCycleNum_p);
+	CnApi_disableSyncInt();
 
 	/* register interrupt handler */
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
