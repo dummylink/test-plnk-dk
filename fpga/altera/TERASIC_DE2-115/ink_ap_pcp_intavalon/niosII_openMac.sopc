@@ -380,7 +380,7 @@
       }
       datum megawizard_uipreferences
       {
-         value = "{}";
+         value = "{output_language=VHDL, output_directory=C:\\Work\\RepositoryWORK\\openPOWERLINK_CNDK\\fpga\\altera\\TERASIC_DE2-115\\ink_ap_pcp_intavalon}";
          type = "String";
       }
       datum sopceditor_expanded
@@ -431,45 +431,11 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "8224";
-         type = "long";
-      }
-   }
-   element tc_i_mem_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "33554432";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2080";
+         value = "268435456";
          type = "long";
       }
    }
@@ -494,27 +460,40 @@
          type = "long";
       }
    }
-   element sdram_0.s1
-   {
-      datum baseAddress
-      {
-         value = "268435456";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
    element benchmark_pio.s1
    {
       datum baseAddress
       {
          value = "8224";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2080";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "33554432";
          type = "long";
       }
    }
@@ -531,6 +510,27 @@
       datum baseAddress
       {
          value = "16777216";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element system_timer_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2048";
          type = "long";
       }
    }
@@ -698,8 +698,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="-2774000766" />
- <parameter name="timeStamp" value="1302098426812" />
+ <parameter name="systemHash" value="-2732913300" />
+ <parameter name="timeStamp" value="1304336706318" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1271,8 +1271,7 @@
   <parameter name="clockFrequency" value="25000000" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone IV E" />
  </module>
- <module kind="powerlink" version="1.0" enabled="1" name="powerlink_0">
-  <parameter name="iFpgaRev_g" value="32" />
+ <module kind="powerlink" version="1.2" enabled="1" name="powerlink_0">
   <parameter name="clkRateEth" value="0" />
   <parameter name="clkRate50" value="50000000" />
   <parameter name="clkRatePcp" value="90000000" />
@@ -1298,6 +1297,8 @@
   <parameter name="validSet" value="1" />
   <parameter name="macTxBuf" value="1514" />
   <parameter name="macRxBuf" value="1514" />
+  <parameter name="mac2cmpTimer" value="false" />
+  <parameter name="mac2phys" value="true" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="50000000" />
  </module>
  <module kind="altera_avalon_pio" version="10.1" enabled="1" name="outport_ap">

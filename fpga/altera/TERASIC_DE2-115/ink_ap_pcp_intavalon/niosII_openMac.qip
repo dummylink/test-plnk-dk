@@ -52,5 +52,5 @@ set_global_assignment -name TCL_FILE [file join $::quartus(qip_path) DE2-115/IS6
 # benchmark_pio
 # null
 set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0018E73510F10000012F2B1D87D6 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 002314DCCB6C0000012FB08987C5 
  

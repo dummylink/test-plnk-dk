@@ -55,6 +55,9 @@
 --									Added/Changed: Asynchronous buffer 2x Ping-Pong
 -- 2011-04-04	V0.21	zelenkaj	parallel interface, sync moved to pdi_par
 --									minor: led_status is the official name
+-- 2011-04-26	V0.22	zelenkaj	generic for clock domain selection
+-- 2011-04-28	V0.23	zelenkaj	second cmp timer of openMAC is optinal by generic
+--									generic for second phy port of openMAC
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -65,6 +68,7 @@ use ieee.std_logic_unsigned.all;
 entity powerlink is
 	generic(
 	-- GENERAL GENERICS															--
+		genOnePdiClkDomain_g		:		boolean								:= false;
 		genPdi_g					:		boolean 							:= true;
 		genAvalonAp_g				:		boolean 							:= true;
 		genSimpleIO_g				:		boolean 							:= false;
@@ -76,6 +80,8 @@ entity powerlink is
 		useRmii_g					:		boolean								:= true; --use Rmii
 		useIntPacketBuf_g			:		boolean								:= true; --internal packet buffer
 		useRxIntPacketBuf_g			:		boolean								:= true; --rx buffer located in internal packet buffer
+		use2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer (used in PDI)
+		use2ndPhy_g					:		boolean 							:= true; --use second phy (introduces openHUB)
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
@@ -103,7 +109,7 @@ entity powerlink is
 	-- CLOCK / RESET PORTS
 		clk50 						: in 	std_logic; --RMII clk
 		clkEth 						: in 	std_logic; --Tx Reg clk
-		clkPcp 						: in 	std_logic; --pcp clk (
+		clkPcp 						: in 	std_logic; --pcp clk
 		clkAp 						: in 	std_logic; --ap clk
 		rstPcp 						: in 	std_logic; --rst from pcp side (ap + rmii + tx)
 		rstAp 						: in 	std_logic; --rst ap
@@ -277,10 +283,14 @@ architecture rtl of powerlink is
 	signal phyLink, phyAct			:		std_logic_vector(1 downto 0);
 	
 	signal led_s					:		std_logic_vector(7 downto 0);
+	
+	signal clkAp_s, rstAp_s			:		std_logic;
 begin
 	--general signals
 	rstPcp_n <= not rstPcp;
-	rstAp_n <= not rstAp;
+	rstAp_n <= not rstAp_s;
+	clkAp_s <= clkAp when genOnePdiClkDomain_g = FALSE else clkPcp;
+	rstAp_s <= rstAp when genOnePdiClkDomain_g = FALSE else rstPcp;
 	
 	phyLink <= phy1_link & phy0_link;
 	
@@ -301,6 +311,7 @@ begin
 		
 		theAvalonPdi : entity work.pdi
 			generic map (
+				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
 				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
@@ -316,8 +327,8 @@ begin
 			port map (
 				pcp_reset					=> rstPcp,
 				pcp_clk                  	=> clkPcp,
-				ap_reset					=> rstAp,
-				ap_clk						=> clkAp,
+				ap_reset					=> rstAp_s,
+				ap_clk						=> clkAp_s,
 				-- Avalon Slave Interface for PCP
 				pcp_chipselect              => pcp_chipselect,
 				pcp_read					=> pcp_read,
@@ -382,8 +393,8 @@ begin
 		
 		theParPort : entity work.pdi_par
 			generic map (
-			papDataWidth_g				=> papDataWidth_g,
-			papBigEnd_g					=> papBigEnd_g
+				papDataWidth_g				=> papDataWidth_g,
+				papBigEnd_g					=> papBigEnd_g
 			)
 			port map (
 			-- 8/16bit parallel
@@ -410,6 +421,7 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
+				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
 				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
@@ -514,6 +526,7 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
+				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
 				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
@@ -595,7 +608,9 @@ begin
 			iBufSizeLOG2_g			=> iBufSizeLOG2_g,
 			useRmii_g				=> useRmii_g,
 			useIntPacketBuf_g		=> useIntPacketBuf_g,
-			useRxIntPacketBuf_g		=> useRxIntPacketBuf_g
+			useRxIntPacketBuf_g		=> useRxIntPacketBuf_g,
+			use2ndCmpTimer_g		=> use2ndCmpTimer_g,
+			use2ndPhy_g				=> use2ndPhy_g
 		)
 		port map (
 			Reset_n					=> rstPcp_n,
@@ -671,10 +686,18 @@ begin
 	phy0_SMIClk <= smi_Clk;
 	phy0_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
 	phy0_Rst_n <= phy_nResetOut;
-	phy1_SMIClk <= smi_Clk;
-	phy1_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
-	phy1_Rst_n <= phy_nResetOut;
-	smi_Di <= phy0_SMIDat and phy1_SMIDat;
+	
+	gen2phySmi : if use2ndPhy_g generate
+		phy1_SMIClk <= smi_Clk;
+		phy1_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
+		phy1_Rst_n <= phy_nResetOut;
+		
+		smi_Di <= phy0_SMIDat and phy1_SMIDat;
+	end generate;
+	
+	nGen2phySmi : if not use2ndPhy_g generate
+		smi_Di <= phy0_SMIDat;
+	end generate;
 --
 ------------------------------------------------------------------------------------------------------------------------
 		

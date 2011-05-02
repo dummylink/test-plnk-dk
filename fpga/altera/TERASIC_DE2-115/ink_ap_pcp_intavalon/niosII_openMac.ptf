@@ -5270,7 +5270,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4D9C71FB</b> (timestamp: Wed Apr 6, 2011 @4:00 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4DBE9942</b> (timestamp: Mon May 2, 2011 @1:45 PM)";
             MESSAGES 
             {
             }
@@ -5279,7 +5279,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1302098427u";
+         timestamp = "1304336706u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5288,7 +5288,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=0 --timestamp=1302098427";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=0 --timestamp=1304336706";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6780,7 +6780,7 @@ SYSTEM niosII_openMac
       class = "no_legacy_module";
       class_version = "7.08101";
       gtf_class_name = "powerlink";
-      gtf_class_version = "1.0";
+      gtf_class_version = "1.2";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -6803,7 +6803,7 @@ SYSTEM niosII_openMac
       {
          CONFIG = "4";
          CONFIGAPENDIAN = "0";
-         FPGAREV = "32";
+         FPGAREV = "33";
          MACBUFSIZE = "9808";
          MACRXBUFFERS = "16";
          MACRXBUFSIZE = "0";
@@ -6811,6 +6811,7 @@ SYSTEM niosII_openMac
          MACTXBUFSIZE = "9808";
          PDIRPDOS = "3";
          PDITPDOS = "1";
+         PHYCNT = "2";
          PKTLOC = "2";
       }
    }
