@@ -62,11 +62,10 @@ typedef enum ePcpPdiEventType {
 //    kPcpPdiEventNmtStateChange,   ///< forwarded openPowerlink NMT state changes
     kPcpPdiEventCriticalStackError, ///< forwarded openPowerlink Stack Error
     kPcpPdiEventStackWarning,       ///< forwarded openPowerlink Stack Warning
-//    kPcpPdiEventStackLed,           ///< forwarded Powerlink event "LED change required"
     kPcpPdiEventHistoryEntry,       ///< forwarded Powerlink error history entry
 //    kPcpPdiEventBoot,             ///< not used
 //    kPcpPdiEventSdo,              ///< not used
-//    kPcpPdiEventObdAccess,        ///< not used
+    kPcpPdiEventObdAccess,        ///< not used
 } tPcpPdiEventType;
 
 typedef union {
@@ -76,7 +75,6 @@ typedef union {
     tPcpPdiEventGenericError PcpError_m;            ///< argument of kPcpPdiEventGenericError
     tEplNmtState             NewNmtState_m;         ///< argument of kPcpPdiEventNmtStateChange
     tEplKernel               PcpStackError_m;       ///< argument of kPcpPdiEventCriticalStackError
-//    tEplApiEventLed          Led_m;                 ///< argument of kPcpPdiEventStackLed
     WORD                     wErrorHistoryCode_m;          ///< argument of kPcpPdiEventHistoryEntry
 //    tEplApiEventBoot         Boot_m;              ///< argument of kPcpPdiEventBoot
 //    tEplSdoComFinished       Sdo_m;               ///< argument of kPcpPdiEventSdo
@@ -87,6 +85,16 @@ typedef struct {
     tPcpPdiEventType Typ_m;
     tPcpPdiEventArg  Arg_m;
 } tPcpPdiEvent;
+
+typedef enum eCnApiEventType {
+    kCnApiEventUserDef,            ///< user defined event
+    kCnApiEventError,       ///< general AP error
+//    kPcpPdiEventStackLed,           ///< forwarded Powerlink event "LED change required"
+//    kPcpPdiEventHistoryEntry,       ///< forwarded Powerlink error history entry
+//    kPcpPdiEventBoot,             ///< not used
+//    kPcpPdiEventSdo,              ///< not used
+    kCnApiEventObdAccess,        ///< not used
+} tCnApiEventType;
 
 /******************************************************************************/
 /* external variable declarations */

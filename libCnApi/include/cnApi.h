@@ -249,6 +249,7 @@ typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct 
 	kPcpStateReadyToOperate = 0x04,
 	kPcpStateOperational = 0x05,
 	kNumPcpStates = 0x06,
+	kPcpStateInvalid = 0x07,
 } tPcpStates;
 
 /******************************************************************************/
@@ -319,8 +320,7 @@ typedef struct sTPdoBuffer { ///< used to group buffer structure infos from cont
 #endif /* CN_API_USING_SPI */
 } PACK_STRUCT tTPdoBuffer;
 
-typedef struct
-sRPdoBuffer { ///< used to group buffer structure infos from control register
+typedef struct sRPdoBuffer { ///< used to group buffer structure infos from control register
     BYTE    *pAdrs_m;
     WORD    wSize_m;
     BYTE    *pAck_m;
