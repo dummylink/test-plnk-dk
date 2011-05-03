@@ -518,7 +518,7 @@ applicable agreement for further details.
 )
 (pin
 	(output)
-	(rect 1120 976 1296 992)
+	(rect 1120 880 1296 896)
 	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
 	(text "H_LED2_LED6" (rect 90 0 164 12)(font "Arial" ))
 	(pt 0 8)
@@ -649,6 +649,38 @@ applicable agreement for further details.
 	(rect 936 312 1112 328)
 	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
 	(text "ASYNC_IRQ_OUT" (rect 90 0 183 12)(font "Arial" ))
+	(pt 0 8)
+	(drawing
+		(line (pt 0 8)(pt 52 8))
+		(line (pt 52 4)(pt 78 4))
+		(line (pt 52 12)(pt 78 12))
+		(line (pt 52 12)(pt 52 4))
+		(line (pt 78 4)(pt 82 8))
+		(line (pt 82 8)(pt 78 12))
+		(line (pt 78 12)(pt 82 8))
+	)
+)
+(pin
+	(output)
+	(rect 1120 920 1296 936)
+	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
+	(text "LED2A" (rect 90 0 125 12)(font "Arial" ))
+	(pt 0 8)
+	(drawing
+		(line (pt 0 8)(pt 52 8))
+		(line (pt 52 4)(pt 78 4))
+		(line (pt 52 12)(pt 78 12))
+		(line (pt 52 12)(pt 52 4))
+		(line (pt 78 4)(pt 82 8))
+		(line (pt 82 8)(pt 78 12))
+		(line (pt 78 12)(pt 82 8))
+	)
+)
+(pin
+	(output)
+	(rect 1120 960 1296 976)
+	(text "OUTPUT" (rect 1 0 39 10)(font "Arial" (font_size 6)))
+	(text "LED2B" (rect 90 0 124 12)(font "Arial" ))
 	(pt 0 8)
 	(drawing
 		(line (pt 0 8)(pt 52 8))
@@ -1178,7 +1210,7 @@ applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 1056 968 1104 1000)
+	(rect 1056 872 1104 904)
 	(text "ALT_OUTBUF_TRI" (rect 1 0 81 10)(font "Arial" (font_size 6)))
 	(text "inst7" (rect 3 21 26 33)(font "Arial" ))
 	(port
@@ -1257,7 +1289,7 @@ applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 984 928 1048 976)
+	(rect 984 832 1048 880)
 	(text "XOR" (rect 1 0 21 10)(font "Arial" (font_size 6)))
 	(text "inst11" (rect 3 37 32 49)(font "Arial" ))
 	(port
@@ -1401,40 +1433,6 @@ applicable agreement for further details.
 		(line (pt 14 25)(pt 14 7))
 		(line (pt 14 25)(pt 32 16))
 		(line (pt 14 7)(pt 32 16))
-	)
-)
-(symbol
-	(rect 896 1032 928 1064)
-	(text "GND" (rect 8 16 29 26)(font "Arial" (font_size 6)))
-	(text "inst10" (rect 3 21 32 33)(font "Arial" )(invisible))
-	(port
-		(pt 16 0)
-		(output)
-		(text "1" (rect 18 0 23 12)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 18 0 23 12)(font "Courier New" (bold))(invisible))
-		(line (pt 16 8)(pt 16 0))
-	)
-	(drawing
-		(line (pt 8 8)(pt 16 16))
-		(line (pt 16 16)(pt 24 8))
-		(line (pt 8 8)(pt 24 8))
-	)
-)
-(symbol
-	(rect 864 1016 896 1048)
-	(text "GND" (rect 8 16 29 26)(font "Arial" (font_size 6)))
-	(text "inst12" (rect 3 21 32 33)(font "Arial" )(invisible))
-	(port
-		(pt 16 0)
-		(output)
-		(text "1" (rect 18 0 23 12)(font "Courier New" (bold))(invisible))
-		(text "1" (rect 18 0 23 12)(font "Courier New" (bold))(invisible))
-		(line (pt 16 8)(pt 16 0))
-	)
-	(drawing
-		(line (pt 8 8)(pt 16 16))
-		(line (pt 16 16)(pt 24 8))
-		(line (pt 8 8)(pt 24 8))
 	)
 )
 (symbol
@@ -1601,6 +1599,54 @@ applicable agreement for further details.
 		(arc (pt 31 37)(pt 30 12)(rect 18 12 43 37))
 	)
 )
+(symbol
+	(rect 1056 912 1104 944)
+	(text "ALT_OUTBUF" (rect 1 0 61 10)(font "Arial" (font_size 6)))
+	(text "inst10" (rect 3 21 32 33)(font "Arial" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "i" (rect 2 7 7 19)(font "Courier New" (bold))(invisible))
+		(text "i" (rect 2 7 7 19)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "o" (rect 32 7 37 19)(font "Courier New" (bold))(invisible))
+		(text "o" (rect 32 7 37 19)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
+(symbol
+	(rect 1056 952 1104 984)
+	(text "ALT_OUTBUF" (rect 1 0 61 10)(font "Arial" (font_size 6)))
+	(text "inst12" (rect 3 21 32 33)(font "Arial" ))
+	(port
+		(pt 0 16)
+		(input)
+		(text "i" (rect 2 7 7 19)(font "Courier New" (bold))(invisible))
+		(text "i" (rect 2 7 7 19)(font "Courier New" (bold))(invisible))
+		(line (pt 0 16)(pt 14 16))
+	)
+	(port
+		(pt 48 16)
+		(output)
+		(text "o" (rect 32 7 37 19)(font "Courier New" (bold))(invisible))
+		(text "o" (rect 32 7 37 19)(font "Courier New" (bold))(invisible))
+		(line (pt 32 16)(pt 48 16))
+	)
+	(drawing
+		(line (pt 14 25)(pt 14 7))
+		(line (pt 14 7)(pt 32 16))
+		(line (pt 14 25)(pt 32 16))
+	)
+)
 (connector
 	(pt 752 272)
 	(pt 936 272)
@@ -1762,16 +1808,16 @@ applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1120 984)
-	(pt 1104 984)
+	(pt 1120 888)
+	(pt 1104 888)
 )
 (connector
-	(pt 1080 968)
-	(pt 1080 952)
+	(pt 1080 872)
+	(pt 1080 856)
 )
 (connector
-	(pt 1080 952)
-	(pt 1048 952)
+	(pt 1080 856)
+	(pt 1048 856)
 )
 (connector
 	(pt 1056 1240)
@@ -1826,14 +1872,6 @@ applicable agreement for further details.
 	(pt 1120 1344)
 )
 (connector
-	(pt 1056 1096)
-	(pt 968 1096)
-)
-(connector
-	(pt 968 1056)
-	(pt 1056 1056)
-)
-(connector
 	(pt 952 1136)
 	(pt 1056 1136)
 )
@@ -1842,12 +1880,8 @@ applicable agreement for further details.
 	(pt 952 1032)
 )
 (connector
-	(pt 1056 984)
-	(pt 968 984)
-)
-(connector
-	(pt 968 944)
-	(pt 968 984)
+	(pt 1056 888)
+	(pt 968 888)
 )
 (connector
 	(pt 984 1200)
@@ -1876,34 +1910,6 @@ applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 912 1032)
-	(pt 952 1032)
-)
-(connector
-	(pt 952 1032)
-	(pt 984 1032)
-)
-(connector
-	(pt 880 1016)
-	(pt 968 1016)
-)
-(connector
-	(pt 968 1016)
-	(pt 984 1016)
-)
-(connector
-	(pt 968 1016)
-	(pt 968 1056)
-)
-(connector
-	(pt 968 1056)
-	(pt 968 1096)
-)
-(connector
-	(pt 968 944)
-	(pt 984 944)
-)
-(connector
 	(pt 952 1280)
 	(pt 952 1304)
 )
@@ -1924,16 +1930,6 @@ applicable agreement for further details.
 	(text "LED_STATUS" (rect 946 408 1014 420)(font "Arial" ))
 	(pt 752 416)
 	(pt 936 416)
-)
-(connector
-	(text "LED_ERROR" (rect 890 944 957 956)(font "Arial" ))
-	(pt 880 960)
-	(pt 984 960)
-)
-(connector
-	(text "LED_STATUS" (rect 890 928 958 940)(font "Arial" ))
-	(pt 880 944)
-	(pt 968 944)
 )
 (connector
 	(text "LED_LINK[1..0]" (rect 946 392 1023 404)(font "Arial" ))
@@ -2007,16 +2003,105 @@ applicable agreement for further details.
 	(pt 952 1280)
 	(pt 1080 1280)
 )
+(connector
+	(pt 952 1032)
+	(pt 984 1032)
+)
+(connector
+	(pt 1056 1096)
+	(pt 968 1096)
+)
+(connector
+	(pt 968 1056)
+	(pt 1056 1056)
+)
+(connector
+	(pt 968 1016)
+	(pt 968 1056)
+)
+(connector
+	(pt 968 1056)
+	(pt 968 1096)
+)
+(connector
+	(text "LED_OPTION[1]" (rect 698 1000 779 1012)(font "Arial" ))
+	(pt 688 1016)
+	(pt 968 1016)
+)
+(connector
+	(pt 968 1016)
+	(pt 984 1016)
+)
+(connector
+	(text "LED_OPTION[0]" (rect 698 1032 779 1044)(font "Arial" ))
+	(pt 688 1032)
+	(pt 952 1032)
+)
+(connector
+	(pt 1120 968)
+	(pt 1104 968)
+)
+(connector
+	(pt 1120 928)
+	(pt 1104 928)
+)
+(connector
+	(pt 1056 928)
+	(pt 968 928)
+)
+(connector
+	(pt 1056 968)
+	(pt 944 968)
+)
+(connector
+	(pt 944 968)
+	(pt 944 864)
+)
+(connector
+	(pt 968 848)
+	(pt 968 888)
+)
+(connector
+	(pt 968 888)
+	(pt 968 928)
+)
+(connector
+	(text "LED_ERROR" (rect 698 864 765 876)(font "Arial" ))
+	(pt 688 864)
+	(pt 944 864)
+)
+(connector
+	(pt 944 864)
+	(pt 984 864)
+)
+(connector
+	(text "LED_STATUS" (rect 698 832 766 844)(font "Arial" ))
+	(pt 688 848)
+	(pt 968 848)
+)
+(connector
+	(pt 968 848)
+	(pt 984 848)
+)
+(connector
+	(text "LED_OPTION[1..0]" (rect 946 360 1040 372)(font "Arial" ))
+	(pt 752 368)
+	(pt 936 368)
+	(bus)
+)
 (junction (pt 952 1032))
 (junction (pt 968 1056))
 (junction (pt 968 1016))
-(junction (pt 968 944))
 (junction (pt 952 1304))
 (junction (pt 952 1176))
 (junction (pt 952 1200))
 (junction (pt 952 1280))
+(junction (pt 968 888))
+(junction (pt 968 848))
+(junction (pt 944 864))
 (text "optional pins for SW measurements" (rect 936 200 1137 214)(font "Arial" (font_size 8)))
 (text "RMII Phys!" (rect 16 48 72 62)(font "Arial" (font_size 8)))
 (text "The same clk has to be connected externally to the" (rect 16 32 305 46)(font "Arial" (font_size 8)))
 (text "optional \"nBUSY\" or \"READY\" signal" (rect 760 424 965 438)(font "Arial" (font_size 8)))
 (text "NOTE: DO NOT CHANGE CRITICAL TIMING PATH PIN NAMES - they have to match the SDC-file!" (rect 768 104 1302 118)(font "Arial" (color 255 0 0)(font_size 8)))
+(text "LED_PHY_ACT is flashing with 6Hz if there is activity on the Phy. Otherwise, signal is low." (rect 1040 376 1554 390)(font "Arial" (font_size 8)))

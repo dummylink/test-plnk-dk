@@ -129,7 +129,7 @@ GND                          : D10       : gnd    :                   :         
 PDI_ADDR[15]                 : D11       : input  : 3.3-V LVTTL       :         : 7         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : D12       :        :                   :         : 7         :                
 VCCD_PLL2                    : D13       : power  :                   : 1.2V    :           :                
-RESERVED_INPUT_WITH_WEAK_PULLUP : D14       :        :                   :         : 7         :                
+LED2B                        : D14       : output : 3.3-V LVTTL       :         : 7         : Y              
 PHY0_MDC                     : D15       : output : 3.3-V LVTTL       :         : 6         : Y              
 PDI_ADDR[3]                  : D16       : input  : 3.3-V LVTTL       :         : 6         : Y              
 GND+                         : E1        :        :                   :         : 1         :                
@@ -160,7 +160,7 @@ RESERVED_INPUT_WITH_WEAK_PULLUP : F9        :        :                   :      
 RESERVED_INPUT_WITH_WEAK_PULLUP : F10       :        :                   :         : 7         :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : F11       :        :                   :         : 7         :                
 VCCA2                        : F12       : power  :                   : 2.5V    :           :                
-RESERVED_INPUT_WITH_WEAK_PULLUP : F13       :        :                   :         : 6         :                
+LED2A                        : F13       : output : 3.3-V LVTTL       :         : 6         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : F14       :        :                   :         : 6         :                
 LED1A                        : F15       : output : 3.3-V LVTTL       :         : 6         : Y              
 PDI_ADDR[11]                 : F16       : input  : 3.3-V LVTTL       :         : 6         : Y              
