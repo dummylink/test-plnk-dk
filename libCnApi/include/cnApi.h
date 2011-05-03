@@ -339,6 +339,7 @@ extern tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p);
 extern void CnApi_exit(void);
 extern void CnApi_activateApStateMachine(void);
 extern BOOL CnApi_processApStateMachine(void);
+extern void CnApi_enterApStateReadyToOperate();
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
 extern void CnApi_enableSyncInt(void);
 extern void CnApi_disableSyncInt(void);

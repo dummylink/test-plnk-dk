@@ -349,7 +349,8 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
  *******************************************************************************/
 tPdiAsyncStatus CnApi_pfnCbLinkPdosReqFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
 {
-    CnApi_setApCommand(kApCmdReadyToOperate);
+    /* trigger AP state machine change */
+    CnApi_enterApStateReadyToOperate();
 
     return kPdiAsyncStatusSuccessful;
 }

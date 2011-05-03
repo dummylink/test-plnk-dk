@@ -40,7 +40,8 @@ static tStateMachine		apStateMachine;
 static tState				apStates[kNumApState];
 static tTransition 			apTransitions[MAX_TRANSITIONS_PER_STATE * kNumApState];
 
-static BOOL					fErrorEvent;
+static BOOL					fErrorEvent = FALSE;
+static BOOL                 fEnterReadyToOperate = FALSE;
 
 
 char	*strStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INIT", "PREOP1",
@@ -189,16 +190,11 @@ FUNC_DOACT(kApStatePreop1)
 /*============================================================================*/
 FUNC_EVT(kApStatePreop2, kApStateReadyToOperate, 1)
 {
-	/* check for PCP state: PCP_READY_TO_OPERATE */
-	if (CnApi_getPcpState() == kPcpStateReadyToOperate)
+	/* check for event which triggers state change */
+	if (fEnterReadyToOperate == TRUE)
 	{
-		CnApi_setApCommand(kApCmdNone);
+	    fEnterReadyToOperate = FALSE;
 		return TRUE;
-	}
-	else if(CnApi_getPcpState() == kPcpStateOperational)
-	{
-	    CnApi_setApCommand(kApCmdNone);
-	    return TRUE;
 	}
 	else
 	{
@@ -258,7 +254,7 @@ FUNC_EVT(kApStateReadyToOperate, kApStatePreop1, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateReadyToOperate)
 {
-
+    CnApi_setApCommand(kApCmdReadyToOperate);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kApStateReadyToOperate)
@@ -388,6 +384,15 @@ CnApi_process() updates the state machine. It has be called periodically.
 BOOL CnApi_processApStateMachine(void)
 {
 	return sm_update(&apStateMachine);
+}
+
+/**
+********************************************************************************
+\brief  triggers a state machine change to READY_TO_OPERATE
+*******************************************************************************/
+void CnApi_enterApStateReadyToOperate()
+{
+    fEnterReadyToOperate = TRUE;
 }
 
 /* END-OF-FILE */
