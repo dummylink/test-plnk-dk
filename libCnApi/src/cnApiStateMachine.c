@@ -22,6 +22,7 @@ application processor (AP).
 #include "cnApiAsync.h"
 #include "stateMachine.h"
 #include "cnApiPdiSpi.h"
+#include "cnApiEvent.h"
 
 #include <string.h>
 
@@ -303,11 +304,16 @@ FUNC_ENTRYACT(kApStateError)
 static void stateChange(BYTE current, BYTE target)
 {
 	BYTE	currentIdx, targetIdx;
+    tCnApiEventArg CnApiEventArg;
 
 	currentIdx = current + 2;
 	targetIdx = target + 2;
 
 	TRACE2("CNAPI STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+
+	/* inform application */
+	CnApiEventArg.NewApState_m = (tApStates) target;
+    CnApi_AppCbEvent(kCnApiEventApStateChange, CnApiEventArg, NULL);
 }
 
 /******************************************************************************/

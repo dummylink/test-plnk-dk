@@ -36,7 +36,7 @@
 /******************************************************************************/
 /* function declarations */
 static void CnApi_getAsyncIRQEvent(void);
-static void CnApi_processEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p);
+static void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p);
 
 /******************************************************************************/
 /* private functions */
@@ -105,9 +105,9 @@ void CnApi_getAsyncIRQEvent(void)
         //TODO: create event queue -> for now: direct call
 
         Event.Typ_m = kPcpPdiEventGenericError;
-        Event.Arg_m.PcpError_m = kPcpGenErrPhy0LinkLoss;
+        Event.Arg_m.GenErr_m = kPcpGenErrPhy0LinkLoss;
 
-        CnApi_processEvent(Event.Typ_m, Event.Arg_m);
+        CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }
 
     if (wCtrlRegField & (1 << EVT_PHY1_LINK))
@@ -116,9 +116,9 @@ void CnApi_getAsyncIRQEvent(void)
         //TODO: create event queue -> for now: direct call
 
         Event.Typ_m = kPcpPdiEventGenericError;
-        Event.Arg_m.PcpError_m = kPcpGenErrPhy1LinkLoss;
+        Event.Arg_m.GenErr_m = kPcpGenErrPhy1LinkLoss;
 
-        CnApi_processEvent(Event.Typ_m, Event.Arg_m);
+        CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }
 
     if (wCtrlRegField & (1 << EVT_GENERIC))
@@ -129,7 +129,7 @@ void CnApi_getAsyncIRQEvent(void)
         Event.Typ_m = pCtrlReg_g->m_wEventType;
         Event.Arg_m.wVal_m = pCtrlReg_g->m_wEventArg;
 
-        CnApi_processEvent(Event.Typ_m, Event.Arg_m);
+        CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }
 
     /* if no event -> don't care and exit */
@@ -140,18 +140,41 @@ void CnApi_getAsyncIRQEvent(void)
     pCtrlReg_g->m_wEventAck = wCtrlRegField;
 }
 
-void CnApi_processEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p)
+void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p)
 {
     tPcpPdiEvent Event;
+    tCnApiEvent  CnApiEvent;            ///< forwarded to application
+    BOOL fInformApplication = FALSE;
 
     Event.Typ_m = wEventType_p;
     Event.Arg_m = wEventArg_p;
 
     switch (wEventType_p)
     {
-        case kPcpPdiEventUserDef:
         case kPcpPdiEventGenericError:
         {
+            CnApiEvent.Typ_m = kCnApiEventError;
+            CnApiEvent.Arg_m.CnApiError_m.ErrTyp_m = kCnApiEventErrorFromPcp;
+            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Typ_m = Event.Typ_m;
+            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Arg_m = Event.Arg_m;
+            fInformApplication = TRUE;
+
+            switch (wEventArg_p.GenErr_m)
+            {
+                case kPcpGenErrInitFailed:
+                case kPcpGenErrSyncCycleCalcError:
+                {
+                   //TODO: Stop further processing
+                   //DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: PCP Init failed!");
+                   break;
+                }
+                case kPcpGenErrAsyncComTimeout:
+                case kPcpGenErrAsyncIntChanComError:
+                case kPcpGenErrPhy0LinkLoss:
+                case kPcpGenErrPhy1LinkLoss:
+                default:
+                break;
+            }
             break;
         }
         case kPcpPdiEventPcpStateChange:
@@ -168,12 +191,23 @@ void CnApi_processEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg
         case kPcpPdiEventCriticalStackError:
         case kPcpPdiEventStackWarning:
         case kPcpPdiEventHistoryEntry:
+        {
+            CnApiEvent.Typ_m = kCnApiEventError;
+            CnApiEvent.Arg_m.CnApiError_m.ErrTyp_m = kCnApiEventErrorFromPcp;
+            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Typ_m = Event.Typ_m;
+            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Arg_m = Event.Arg_m;
+            fInformApplication = TRUE;
+
+            break;
+        }
         default:
         break;
     }
 
-    /* inform application */
-    CnApi_AppCbEvent(Event.Typ_m, Event.Arg_m, NULL);
+    if (fInformApplication == TRUE)
+    {    /* inform application */
+        CnApi_AppCbEvent(CnApiEvent.Typ_m, CnApiEvent.Arg_m, NULL);
+    }
 
 }
 

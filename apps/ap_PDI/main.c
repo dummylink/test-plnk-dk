@@ -278,67 +278,125 @@ void workInputOutput(void)
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, dwOutPort);
 }
 
-void CnApi_AppCbEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p, void * pUserArg_p)
+void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, void * pUserArg_p)
 {
-    switch (wEventType_p)
+
+    switch (EventType_p)
     {
-        case kPcpPdiEventUserDef:
-        {
-            break;
-        }
-        case kPcpPdiEventGenericError:
+            case kCnApiEventUserDef:
+            case kCnApiEventApStateChange:
+            {
+                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", EventArg_p.NewApState_m);
+
+                switch (EventArg_p.NewApState_m)
                 {
-                    switch (wEventArg_p.PcpError_m)
+                    case kApStateBooted:
+                    case kApStateReadyToInit:
+                    case kApStateInit:
+                    case kApStatePreop1:
+                    case kApStatePreop2:
+                        break;
+
+                    case kApStateReadyToOperate:
                     {
-                        case kPcpInitFailed:
-                        {
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"PCP Initialization failed!");
-                            break;
-                        }
-                        case kPcpGenErrAsyncComTimeout:
-                        case kPcpGenErrAsyncIntChanComError:
-                        {
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Asynchronous communication error at PCP!");
-                            break;
-                        }
-                        case kPcpGenErrPhy0LinkLoss:
-                        case kPcpGenErrPhy1LinkLoss:
-                        {
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Phy link lost!\n");
-                            // This might not be an issue as long as you have two phys.
-                            // Only the connection to MN might be critical.
-                            // If this link is lost -> PCP state change to PreOP1
-                            // Link loss at initialization of PCP is furthermore normal!
+                        // Do some preparation before READY_TO_OPERATE state is entered
 
-                            break;
-                        }
-
-                        default:
+                        //TODO: if reconfiguration is triggered by MN, this will be entered twice
+                        //      -> if application takes to long here, second state change is not recognized!
                         break;
                     }
 
+                    case kApStateOperational:
+                    case kApStateError:
+                    break;
+                    default:
                     break;
                 }
 
-        case kPcpPdiEventPcpStateChange:
-        {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New PCP State: %d\n", wEventArg_p.NewPcpState_m);
+
+                break;
+            }
+            case kCnApiEventError:
+            {
+                switch (EventArg_p.CnApiError_m.ErrTyp_m)
+                {
+                    case kCnApiEventErrorFromPcp:
+                    {
+                        switch (EventArg_p.CnApiError_m.ErrArg_m.PcpError_m.Typ_m)
+                        {
+                            case kPcpPdiEventGenericError:
+                            {
+                                switch (EventArg_p.CnApiError_m.ErrArg_m.PcpError_m.Arg_m.GenErr_m)
+                                {
+                                    case kPcpGenErrInitFailed:
+                                    case kPcpGenErrSyncCycleCalcError:
+                                    {
+                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: PCP Init failed!");
+                                        break;
+                                    }
+                                    case kPcpGenErrAsyncComTimeout:
+                                    case kPcpGenErrAsyncIntChanComError:
+                                    {
+                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Asynchronous communication error at PCP!");
+                                        break;
+                                    }
+                                    case kPcpGenErrPhy0LinkLoss:
+                                    case kPcpGenErrPhy1LinkLoss:
+                                    {
+                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Phy link lost!\n");
+                                        // This might not be an issue as long as you have two phys.
+                                        // Only the connection to MN might be critical.
+                                        // If this link is lost -> PCP state change to PreOP1
+                                        // Link loss at initialization of PCP is furthermore normal!
+
+                                        break;
+                                    }
+
+                                    case kPcpGenErrEventBuffOverflow:
+                                    {
+                                        // AP is too slow (or PCP buffer is too small)!
+                                        // -> AP will lose latest events from PCP
+                                    }
+                                    default:
+                                    break;
+                                }
+
+                                break;
+                            }
+
+                            case kPcpPdiEventCriticalStackError:
+                            case kPcpPdiEventStackWarning:
+                            {
+                                // PCP will stop processing or restart
+                                break;
+                            }
+
+                            case kPcpPdiEventHistoryEntry:
+                            {
+                                // PCP will change state, stop processing or restart
+                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Error history entry code: %#04x\n",
+                                EventArg_p.CnApiError_m.ErrArg_m.PcpError_m.Arg_m.wErrorHistoryCode_m);
+                                break;
+                            }
+
+                            default:
+                            break;
+                        }
+
+                        break;
+                    }
+
+                    case kCnApiEventErrorLcl:
+                    default:
+                    break;
+                }
+
+                break;
+            }
+            case kCnApiEventSdo:
+            case kCnApiEventObdAccess:
+            default:
             break;
-        }
-
-        case kPcpPdiEventCriticalStackError:
-        case kPcpPdiEventStackWarning:
-        {
-
-            break;
-        }
-
-        case kPcpPdiEventHistoryEntry:
-        {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Error history entry code: %#04x\n", wEventArg_p.wErrorHistoryCode_m);
-        }
-        default:
-        break;
     }
 }
 

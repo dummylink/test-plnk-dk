@@ -42,43 +42,34 @@
 /******************************************************************************/
 /* typedefs */
 
-/*----------------------------------------------------------------------------*/
-/* Generic PCP error codes
- * = arguments for kPcpPdiEventGenericError
- */
+/* PCP forwarded events */
 typedef enum ePcpPdiEventGenericError {
-    kPcpInitFailed,                 ///< initialization error of PCP
-    kPcpSyncCycleCalcError,         ///< synchronization interrupt cycle time calculation error
+    kPcpGenErrInitFailed,                 ///< initialization error of PCP
+    kPcpGenErrSyncCycleCalcError,         ///< synchronization interrupt cycle time calculation error
     kPcpGenErrAsyncComTimeout,      ///< asynchronous communication timed out
     kPcpGenErrAsyncIntChanComError, ///< asynchronous communication failed
     kPcpGenErrPhy0LinkLoss,         ///< PHY 0 lost its link
     kPcpGenErrPhy1LinkLoss,         ///< PHY 0 lost its link
+    kPcpGenErrEventBuffOverflow,    ///< PCP event buffer overflow -> AP handles events to slow!
 } tPcpPdiEventGenericError;
 
 typedef enum ePcpPdiEventType {
-    kPcpPdiEventUserDef,            ///< user defined event
     kPcpPdiEventGenericError,       ///< general PCP error
+    kPcpPdiEventGeneric,            ///< general PCP event
     kPcpPdiEventPcpStateChange,     ///< PCP state machine change
-//    kPcpPdiEventNmtStateChange,   ///< forwarded openPowerlink NMT state changes
-    kPcpPdiEventCriticalStackError, ///< forwarded openPowerlink Stack Error
-    kPcpPdiEventStackWarning,       ///< forwarded openPowerlink Stack Warning
-    kPcpPdiEventHistoryEntry,       ///< forwarded Powerlink error history entry
-//    kPcpPdiEventBoot,             ///< not used
-//    kPcpPdiEventSdo,              ///< not used
-    kPcpPdiEventObdAccess,        ///< not used
+//    kPcpPdiEventNmtStateChange,   ///< PCP forwarded openPowerlink NMT state changes
+    kPcpPdiEventCriticalStackError, ///< PCP forwarded openPowerlink Stack Error
+    kPcpPdiEventStackWarning,       ///< PCP forwarded openPowerlink Stack Warning
+    kPcpPdiEventHistoryEntry,       ///< PCP forwarded Powerlink error history entry
 } tPcpPdiEventType;
 
 typedef union {
     WORD                     wVal_m;                ///< general value with max size of this union
-    void *                   pUserArg_m;            ///< argument of kPcpPdiEventUserDef
     tPcpStates               NewPcpState_m;         ///< argument of kPcpPdiEventPcpStateChange
-    tPcpPdiEventGenericError PcpError_m;            ///< argument of kPcpPdiEventGenericError
+    tPcpPdiEventGenericError GenErr_m;              ///< argument of kPcpPdiEventGenericError
     tEplNmtState             NewNmtState_m;         ///< argument of kPcpPdiEventNmtStateChange
     tEplKernel               PcpStackError_m;       ///< argument of kPcpPdiEventCriticalStackError
-    WORD                     wErrorHistoryCode_m;          ///< argument of kPcpPdiEventHistoryEntry
-//    tEplApiEventBoot         Boot_m;              ///< argument of kPcpPdiEventBoot
-//    tEplSdoComFinished       Sdo_m;               ///< argument of kPcpPdiEventSdo
-//    tEplObdCbParam           ObdCbParam_m;        ///< argument of kPcpPdiEventObdAccess
+    WORD                     wErrorHistoryCode_m;   ///< argument of kPcpPdiEventHistoryEntry
 } tPcpPdiEventArg;
 
 typedef struct {
@@ -86,15 +77,45 @@ typedef struct {
     tPcpPdiEventArg  Arg_m;
 } tPcpPdiEvent;
 
+
+/* CN API events */
+
+typedef enum eCnApiEventErrorType{
+    kCnApiEventErrorFromPcp,  ///< error source is PCP PDI
+    kCnApiEventErrorLcl,      ///< error source is local function
+} tCnApiEventErrorType;
+
+typedef union {
+tPcpPdiEvent PcpError_m;
+//tCnApiRetCode cnApiError_m; //TODO: define general Ret Code
+} tCnApiEventErrorArg;
+
+typedef struct sCnApiEventError{
+    tCnApiEventErrorType ErrTyp_m;
+    tCnApiEventErrorArg  ErrArg_m; //TODO: delete
+} tCnApiEventError;
+
 typedef enum eCnApiEventType {
-    kCnApiEventUserDef,            ///< user defined event
-    kCnApiEventError,       ///< general AP error
-//    kPcpPdiEventStackLed,           ///< forwarded Powerlink event "LED change required"
-//    kPcpPdiEventHistoryEntry,       ///< forwarded Powerlink error history entry
-//    kPcpPdiEventBoot,             ///< not used
-//    kPcpPdiEventSdo,              ///< not used
-    kCnApiEventObdAccess,        ///< not used
+    kCnApiEventUserDef,           ///< user defined event
+    kCnApiEventApStateChange,     ///< AP state machine changed
+    kCnApiEventError,             ///< general CnApi error
+//    kCnApiEventHistoryEntry,    ///< local Cn Api error history entry
+    kCnApiEventSdo,              ///< not used
+    kCnApiEventObdAccess,         ///< not used
 } tCnApiEventType;
+
+typedef union {
+    void *                   pUserArg_m;          ///< argument of kCnApiEventUserDef
+    tApStates                NewApState_m;        ///< argument of kCnApiEventApStateChange
+    tCnApiEventError         CnApiError_m;        ///< argument of kCnApiEventError
+//    tEplSdoComFinished       Sdo_m;               ///< argument of kCnApiEventSdo
+//    tEplObdCbParam           ObdCbParam_m;        ///< argument of kCnApiEventObdAccess
+} tCnApiEventArg;
+
+typedef struct {
+    tCnApiEventType Typ_m;
+    tCnApiEventArg  Arg_m;
+} tCnApiEvent;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -110,7 +131,7 @@ extern void CnApi_disableAsyncEventIRQ(void);
 extern void CnApi_pollAsyncEvent(void);
 
 // IN from main.c
-extern void CnApi_AppCbEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p, void * pUserArg_p);
+extern void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, void * pUserArg_p);
 
 /******************************************************************************/
 /* private functions */

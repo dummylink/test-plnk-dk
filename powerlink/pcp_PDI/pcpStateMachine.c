@@ -81,7 +81,7 @@ static BOOL checkApCommand(BYTE cmd_p)
 {
 	if (getCommandFromAp() == cmd_p)
 	{
-		if (cmd_p != kApCmdReboot) // reset AP command will take place in state 'kPcpStateBooted'
+		if (cmd_p != kApCmdReset) // reset AP command will take place in state 'kPcpStateBooted'
 		{
 		    pCtrlReg_g->m_wCommand = kApCmdNone;	///< reset AP command
 		}
@@ -123,7 +123,7 @@ static BOOL checkEvent(void)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateBooted)
 {
-	while(!checkApCommand(kApCmdReboot)) 	// AP has to start bootup procedure
+	while(!checkApCommand(kApCmdReset)) 	// AP has to start bootup procedure
 	{
 		asm("NOP;");
 	}
@@ -204,7 +204,7 @@ FUNC_EVT(kPcpStateInit,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReboot);
+	return checkApCommand(kApCmdReset);
 }
 
 /*============================================================================*/
@@ -236,7 +236,7 @@ FUNC_EVT(kPcpStatePreop1,kPcpStatePreop2,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReboot);
+	return checkApCommand(kApCmdReset);
 }
 
 /*============================================================================*/
@@ -281,7 +281,7 @@ FUNC_EVT(kPcpStatePreop2,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReboot);
+	return checkApCommand(kApCmdReset);
 }
 
 /*============================================================================*/
@@ -310,7 +310,7 @@ FUNC_EVT(kPcpStateReadyToOperate,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateReadyToOperate,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReboot);
+	return checkApCommand(kApCmdReset);
 }
 
 /*============================================================================*/
@@ -333,7 +333,7 @@ FUNC_EVT(kPcpStateOperational,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReboot);
+	return checkApCommand(kApCmdReset);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,STATE_FINAL,1)

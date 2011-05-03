@@ -129,7 +129,7 @@ typedef enum {
 	kApCmdInit = 0,
 	kApCmdPreop = 1,
 	kApCmdReadyToOperate = 2,
-	kApCmdReboot = 3
+	kApCmdReset = 3
 } tApCmd;
 
 

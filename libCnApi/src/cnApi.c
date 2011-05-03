@@ -134,7 +134,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     }
 
     pCtrlReg_g->m_wState = 0xff;                                            ///< set invalid PCP state
-    pCtrlReg_g->m_wCommand = kApCmdReboot;                                  ///< send reboot cmd to PCP
+    pCtrlReg_g->m_wCommand = kApCmdReset;                                  ///< send reboot cmd to PCP
     //pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
 
 #ifdef CN_API_USING_SPI

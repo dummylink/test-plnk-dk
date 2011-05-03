@@ -120,7 +120,7 @@ int main (void)
     AsyncRet = CnApiAsync_finishMsgInit();
     if (AsyncRet != kPdiAsyncStatusSuccessful)
     {
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpInitFailed);
+        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
         DEBUG_TRACE0(DEBUG_LVL_09, "cnApiAsync_finishMsgInit() FAILED!\n");
         goto exit;
     }
@@ -128,7 +128,7 @@ int main (void)
     iRet = Gi_initPdo();
     if (iRet != OK )
     {
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpInitFailed);
+        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
         DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
         //TODO: set error flag at Cntrl Reg
         goto exit;
@@ -660,7 +660,7 @@ void Gi_calcSyncIntPeriod(void)
 	EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
 	if (EplRet != kEplSuccessful)
 	{
-	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
+	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -673,7 +673,7 @@ void Gi_calcSyncIntPeriod(void)
 
 	if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
 	{
-	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
+	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -682,7 +682,7 @@ void Gi_calcSyncIntPeriod(void)
 	{
 	    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
-	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
+	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -690,7 +690,7 @@ void Gi_calcSyncIntPeriod(void)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpSyncCycleCalcError);
+        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
         iSyncIntCycle_g = 0;
         return;
     }
