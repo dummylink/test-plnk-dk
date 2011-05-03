@@ -59,11 +59,27 @@ tEplKernel PUBLIC AppCbEvent(
     tEplApiEventArg*        pEventArg_p,   // IN: event argument (union)
     void GENERIC*           pUserArg_p);
 
+#ifdef LCD_BASE
+void LCD_printState(tEplNmtState NmtState_p);
+
+static char aStrNmtState_l[9][17] = {"INVALID         ",
+                                     "OFF             ",
+                                     "INITIALISATION  ",
+                                     "NOT ACTIVE      ",
+                                     "BASIC ETHERNET  ",
+                                     "PRE_OP1         ",
+                                     "PRE_OP2         ",
+                                     "READY_TO_OP     ",
+                                     "OPERATIONAL     "};
+#endif
+
 BYTE		portIsOutput[4];
 BYTE		digitalIn[4];
 BYTE		digitalOut[4];
 
 static BOOL     fShutdown_l = FALSE;
+
+
 
 /******************************************************************************/
 /* forward declarations */
@@ -260,6 +276,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
     {
         case kEplApiEventNmtStateChange:
         {
+            LCD_printState(pEventArg_p->m_NmtStateChange.m_NewNmtState);
+
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
             {
                 case kEplNmtGsOff:
@@ -323,8 +341,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     break;
                 case kEplNmtCsNotActive:
                     break;
-                    break;
-
                 case kEplNmtCsOperational:
                     break;
                 case kEplNmtMsOperational:
@@ -542,3 +558,34 @@ WORD GetNodeId (void)
 
 	return nodeId;
 }
+
+#ifdef LCD_BASE
+/**
+********************************************************************************
+\brief  writes NMT state to LCD display
+\param  NmtState_p  IN: current state machine value
+*******************************************************************************/
+void LCD_printState(tEplNmtState NmtState_p)
+{
+    LCD_Line2();
+    switch (NmtState_p)
+    {
+        case kEplNmtGsOff               : LCD_Show_Text(aStrNmtState_l[1]); break;
+        case kEplNmtGsInitialising      : LCD_Show_Text(aStrNmtState_l[2]); break;
+        case kEplNmtGsResetApplication  : LCD_Show_Text(aStrNmtState_l[2]); break;
+        case kEplNmtGsResetCommunication: LCD_Show_Text(aStrNmtState_l[2]); break;
+        case kEplNmtGsResetConfiguration: LCD_Show_Text(aStrNmtState_l[2]); break;
+        case kEplNmtCsNotActive         : LCD_Show_Text(aStrNmtState_l[3]); break;
+        case kEplNmtCsPreOperational1   : LCD_Show_Text(aStrNmtState_l[5]); break;
+        case kEplNmtCsStopped           : LCD_Show_Text(aStrNmtState_l[0]); break;
+        case kEplNmtCsPreOperational2   : LCD_Show_Text(aStrNmtState_l[6]); break;
+        case kEplNmtCsReadyToOperate    : LCD_Show_Text(aStrNmtState_l[7]); break;
+        case kEplNmtCsOperational       : LCD_Show_Text(aStrNmtState_l[8]); break;
+        case kEplNmtCsBasicEthernet     : LCD_Show_Text(aStrNmtState_l[4]); break;
+        default:
+        LCD_Show_Text(aStrNmtState_l[0]);
+        break;
+    }
+}
+#endif
+
