@@ -44,7 +44,7 @@ static BOOL					fEvent = FALSE;
 static tPowerlinkEvent		powerlinkEvent;
 
 
-char	*strStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "INIT", "PREOP1", "PREOP2", "READY_TO_OPERATE", "OPERATIONAL"};
+char	*strPcpStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "INIT", "PREOP1", "PREOP2", "READY_TO_OPERATE", "OPERATIONAL"};
 
 
 /******************************************************************************/
@@ -352,7 +352,7 @@ static void stateChange(BYTE current, BYTE target)
 	currentIdx = current + 2;
 	targetIdx = target + 2;
 
-	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "\nPCP STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+	DEBUG_TRACE2 (DEBUG_LVL_CNAPI_INFO, "\nPCP STATE: %s->%s\n", strPcpStateNames_l[currentIdx], strPcpStateNames_l[targetIdx]);
 }
 
 /******************************************************************************/

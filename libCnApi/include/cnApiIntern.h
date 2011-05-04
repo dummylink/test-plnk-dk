@@ -62,7 +62,7 @@ for AP and PCP. AP forcing overwrites any other LED signal value settings. */
 
 /******************************************************************************/
 /* function declarations */
-//extern BYTE CnApi_getPcpState(void);
+extern BYTE CnApi_getPcpState(void);
 extern DWORD CnApi_getPcpMagic(void);
 extern void CnApi_setApCommand(BYTE bCmd_p);
 extern void CnApi_initApStateMachine(void);
@@ -76,9 +76,6 @@ extern int CnApi_getNextObject(tCnApiObjId *pObjId);
 extern void CnApi_createObjectLinks(void);
 extern int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen, BYTE* p_data, BOOL sync);
 
-
-/* functions for interrupt synchronization */
-extern DWORD CnApi_getSyncIntPeriod(void);
 
 /* functions for PDO transfers */
 extern int CnApi_initPdo(void);

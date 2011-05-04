@@ -45,10 +45,10 @@ the Tx and Rx direction towards and from the AP is handled.
 
 // This state names must have the same order as the related constants
 // in tAsyncState! The two leading "INITIAL" and "FINAL" states are mandatory!
-static char * strStateNames_l[] = { "INITIAL", "FINAL", "ASYNC_WAIT",   \
-                                   "ASYNC_TX_BUSY", "ASYNC_TX_PENDING", \
-                                   "ASYNC_RX_BUSY", "ASYNC_RX_PENDING", \
-                                   "ASYNC_STOPPED"};
+char * strAsyncStateNames_l[] = { "INITIAL", "FINAL", "ASYNC_WAIT",
+                             "ASYNC_TX_BUSY", "ASYNC_TX_PENDING",
+                             "ASYNC_RX_BUSY", "ASYNC_RX_PENDING",
+                             "ASYNC_STOPPED"};
 /* state machine */
 static tStateMachine        PdiAsyncStateMachine_l;
 static tState               aPdiAsyncStates_l[kPdiNumAsyncStates];
@@ -1216,7 +1216,7 @@ static void stateChange(BYTE current, BYTE target)
     currentIdx = current + 2;
     targetIdx = target + 2;
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ASYNC_INFO, "\nASYCN STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ASYNC_INFO, "\nASYCN STATE: %s->%s\n", strAsyncStateNames_l[currentIdx], strAsyncStateNames_l[targetIdx]);
 }
 
 /******************************************************************************/

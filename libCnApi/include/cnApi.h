@@ -348,7 +348,8 @@ extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char 
 extern void CnApi_cleanupObjects(void);
 extern void CnApi_transferPdo(void);
 
-extern BYTE CnApi_getPcpState(void); //TODO: put back to cnApiIntern.h
+/* functions for interrupt synchronization */
+extern DWORD CnApi_getSyncIntPeriod(void);
 
 extern int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p); //SPI Master Tx Handler
 extern int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p); //SPI MASTER Rx Handler

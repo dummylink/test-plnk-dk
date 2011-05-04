@@ -151,6 +151,13 @@ void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEvent
 
     switch (wEventType_p)
     {
+        case kPcpPdiEventGeneric:
+        {
+            CnApiEvent.Typ_m = kCnApiEventPcp;
+            CnApiEvent.Arg_m.PcpEventGen_m = Event.Arg_m.Gen_m;
+            fInformApplication = TRUE;
+            break;
+        }
         case kPcpPdiEventGenericError:
         {
             CnApiEvent.Typ_m = kCnApiEventError;

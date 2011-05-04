@@ -43,6 +43,13 @@
 /* typedefs */
 
 /* PCP forwarded events */
+typedef enum ePcpPdiEventGeneric {
+    kPcpGenEventSyncCycleCalcSuccessful,         ///< synchronization interrupt cycle time calculation was successful
+} tPcpPdiEventGeneric;
+
+/**
+ * \brief enumeration with valid PcpPdi events
+ */
 typedef enum ePcpPdiEventGenericError {
     kPcpGenErrInitFailed,                 ///< initialization error of PCP
     kPcpGenErrSyncCycleCalcError,         ///< synchronization interrupt cycle time calculation error
@@ -54,8 +61,8 @@ typedef enum ePcpPdiEventGenericError {
 } tPcpPdiEventGenericError;
 
 typedef enum ePcpPdiEventType {
-    kPcpPdiEventGenericError,       ///< general PCP error
     kPcpPdiEventGeneric,            ///< general PCP event
+    kPcpPdiEventGenericError,       ///< general PCP error
     kPcpPdiEventPcpStateChange,     ///< PCP state machine change
 //    kPcpPdiEventNmtStateChange,   ///< PCP forwarded openPowerlink NMT state changes
     kPcpPdiEventCriticalStackError, ///< PCP forwarded openPowerlink Stack Error
@@ -63,11 +70,15 @@ typedef enum ePcpPdiEventType {
     kPcpPdiEventHistoryEntry,       ///< PCP forwarded Powerlink error history entry
 } tPcpPdiEventType;
 
+/**
+ * \brief union of valid PcpPdi event arguments
+ */
 typedef union {
     WORD                     wVal_m;                ///< general value with max size of this union
-    tPcpStates               NewPcpState_m;         ///< argument of kPcpPdiEventPcpStateChange
+    tPcpPdiEventGeneric      Gen_m;                 ///< argument of kPcpPdiEventGeneric
     tPcpPdiEventGenericError GenErr_m;              ///< argument of kPcpPdiEventGenericError
-    tEplNmtState             NewNmtState_m;         ///< argument of kPcpPdiEventNmtStateChange
+    tPcpStates               NewPcpState_m;         ///< argument of kPcpPdiEventPcpStateChange
+//    tEplNmtState             NewNmtState_m;         ///< argument of kPcpPdiEventNmtStateChange
     tEplKernel               PcpStackError_m;       ///< argument of kPcpPdiEventCriticalStackError
     WORD                     wErrorHistoryCode_m;   ///< argument of kPcpPdiEventHistoryEntry
 } tPcpPdiEventArg;
@@ -79,7 +90,6 @@ typedef struct {
 
 
 /* CN API events */
-
 typedef enum eCnApiEventErrorType{
     kCnApiEventErrorFromPcp,  ///< error source is PCP PDI
     kCnApiEventErrorLcl,      ///< error source is local function
@@ -95,21 +105,46 @@ typedef struct sCnApiEventError{
     tCnApiEventErrorArg  ErrArg_m; //TODO: delete
 } tCnApiEventError;
 
+typedef enum eCnApiEventTypeAsyncComm{
+    kCnApiEventTypeAsyncCommExtChanFinished,     ///< asynchronous communication with PCP has finished and external channel is now available again
+    kCnApiEventTypeAsyncCommExtChanMsgPresent,   ///< message from PCP is present in external channel
+    kCnApiEventTypeAsyncCommExtChanBusy,         ///< access to external channel has been denied because it is in use
+} tCnApiEventTypeAsyncComm;
+
+typedef struct sCnApiEventArgAsyncComm{
+// TODO
+} tCnApiEventArgAsyncComm;
+
+typedef struct sCnApiEventAsyncComm {
+    tCnApiEventTypeAsyncComm Typ_m;
+    tCnApiEventArgAsyncComm  Arg_m;
+} tCnApiEventAsyncComm;
+
+/**
+ * \brief enumeration with valid CnApi events
+ */
 typedef enum eCnApiEventType {
     kCnApiEventUserDef,           ///< user defined event
+    kCnApiEventPcp,               ///< generic event from PCP (all events except errors)
     kCnApiEventApStateChange,     ///< AP state machine changed
     kCnApiEventError,             ///< general CnApi error
-//    kCnApiEventHistoryEntry,    ///< local Cn Api error history entry
-    kCnApiEventSdo,              ///< not used
+//    kCnApiEventHistoryEntry,    ///< local CnApi error history entry
+    kCnApiEventSdo,               ///< not used
     kCnApiEventObdAccess,         ///< not used
+    kCnApiEventAsyncComm,      ///< asynchronous communication AP <-> PCP event
 } tCnApiEventType;
 
+/**
+ * \brief union of valid CnApi event arguments
+ */
 typedef union {
     void *                   pUserArg_m;          ///< argument of kCnApiEventUserDef
     tApStates                NewApState_m;        ///< argument of kCnApiEventApStateChange
+    tPcpPdiEventGeneric      PcpEventGen_m;       ///< argument of kCnApiEventPcp
     tCnApiEventError         CnApiError_m;        ///< argument of kCnApiEventError
 //    tEplSdoComFinished       Sdo_m;               ///< argument of kCnApiEventSdo
 //    tEplObdCbParam           ObdCbParam_m;        ///< argument of kCnApiEventObdAccess
+// tCnApiEventAsyncPcpComm     AsyncPcpComm_m;      ///< argument of kCnApiEventAsyncCommPcp
 } tCnApiEventArg;
 
 typedef struct {

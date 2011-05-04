@@ -45,7 +45,7 @@ static BOOL					fErrorEvent = FALSE;
 static BOOL                 fEnterReadyToOperate = FALSE;
 
 
-char	*strStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INIT", "PREOP1",
+char	*strCnApiStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INIT", "PREOP1",
 		                       "PREOP2", "READY_TO_OPERATE", "OPERATIONAL", "ERROR"};
 
 /******************************************************************************/
@@ -214,10 +214,6 @@ FUNC_EVT(kApStatePreop2, kApStatePreop1, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStatePreop2)
 {
-	TRACE1("\nINFO: Synchronization IR Period is %lu us.\n", CnApi_getSyncIntPeriod());
-
-	/* TODO: prepare for READY_TO_OPERATE */
-	//TRACE("***Calling Callback to prepare ready to operate!!***\n");
 
 }
 /*----------------------------------------------------------------------------*/
@@ -309,7 +305,7 @@ static void stateChange(BYTE current, BYTE target)
 	currentIdx = current + 2;
 	targetIdx = target + 2;
 
-	TRACE2("CNAPI STATE: %s->%s\n", strStateNames_l[currentIdx], strStateNames_l[targetIdx]);
+	TRACE2("CNAPI STATE: %s->%s\n", strCnApiStateNames_l[currentIdx], strCnApiStateNames_l[targetIdx]);
 
 	/* inform application */
 	CnApiEventArg.NewApState_m = (tApStates) target;

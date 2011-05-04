@@ -74,10 +74,11 @@ a dual ported RAM (DPRAM) area.
 
 /******************************************************************************/
 /* global variables */
-WORD			nodeId;											///< The node ID, which can overwrite the node switches if != 0x00
-BYTE 			abMacAddr_g[] = { MAC_ADDR };					///< The MAC address to be used
-BYTE			digitalIn[NUM_INPUT_OBJS];						///< The values of the digital input pins of the board will be stored here
-BYTE			digitalOut[NUM_OUTPUT_OBJS];					///< The values of the digital output pins of the board will be stored here
+static WORD			nodeId;											///< The node ID, which can overwrite the node switches if != 0x00
+static BYTE 	    abMacAddr_l[] = { MAC_ADDR };					///< The MAC address to be used
+static BYTE			digitalIn[NUM_INPUT_OBJS];						///< The values of the digital input pins of the board will be stored here
+static BYTE			digitalOut[NUM_OUTPUT_OBJS];					///< The values of the digital output pins of the board will be stored here
+static BOOL     fOperational_l = FALSE;                             ///< indicates AP Operation state
 
 /******************************************************************************/
 /* forward declarations */
@@ -112,7 +113,7 @@ int main (void)
     TRACE("\n\nInitialize CN API functions...");
 
     nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
-    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_g);				// initialize POWERLINK parameters
+    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_l);				// initialize POWERLINK parameters
 
     status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  // initialize and start the CN API
     if (status > 0)
@@ -186,7 +187,7 @@ int main (void)
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/
-    	if (CnApi_getPcpState() == kPcpStateOperational) //TODO: Alternatively implement Cbfunc in statemachine
+    	if (fOperational_l == TRUE)
     	{
     	    CnApi_transferPdo();           // update linked variables
     	}
@@ -288,8 +289,11 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
             {
                 DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", EventArg_p.NewApState_m);
 
+                fOperational_l = FALSE;
+
                 switch (EventArg_p.NewApState_m)
                 {
+
                     case kApStateBooted:
                     case kApStateReadyToInit:
                     case kApStateInit:
@@ -307,12 +311,31 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
                     }
 
                     case kApStateOperational:
+                    {
+                        fOperational_l = TRUE;
+                        break;
+                    }
                     case kApStateError:
                     break;
                     default:
                     break;
                 }
 
+
+                break;
+            }
+            case kCnApiEventPcp:
+            {
+                switch (EventArg_p.PcpEventGen_m)
+                {
+                    case kPcpGenEventSyncCycleCalcSuccessful:
+                    {
+                        TRACE1("\nINFO: Synchronization IR Period is %lu us.\n", CnApi_getSyncIntPeriod());
+                        break;
+                    }
+                    default:
+                    break;
+                }
 
                 break;
             }

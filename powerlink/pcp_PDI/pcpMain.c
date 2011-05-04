@@ -695,9 +695,9 @@ void Gi_calcSyncIntPeriod(void)
         return;
     }
 
-    // Gi_throwPdiEvent(kPcpPdiEventInformation, kPcpSyncCycleOk);
 	iSyncIntCycle_g = iNumCycles;
 	pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
+    Gi_throwPdiEvent(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
 	return;
 }
