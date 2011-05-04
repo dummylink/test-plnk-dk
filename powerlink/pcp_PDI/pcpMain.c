@@ -335,8 +335,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {
                 	setPowerlinkEvent(kPowerlinkEventEnterPreop2);
 
-                	CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
-
                		EplRet = kEplReject; // prevent automatic change to kEplNmtCsReadyToOperate
                 	break;
                 }
@@ -414,6 +412,22 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             break;
         }
 
+        case kEplApiEventRequestNmt:
+        {
+            switch (pEventArg_p->m_bNmtCmd)
+            {
+                /*MN sent NMT command EnableReadyToOperate */
+                case kEplNmtEventEnableReadyToOperate:
+                {
+                    CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
+                    break;
+                }
+
+                default:
+                break;
+            }
+            break;
+        }
         case kEplApiEventCriticalError:
         case kEplApiEventWarning:
         {   // error or warning occured within the stack or the application
