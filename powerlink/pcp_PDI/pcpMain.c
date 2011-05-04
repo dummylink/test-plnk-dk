@@ -327,6 +327,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtCsPreOperational1:
                 {
                     setPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
+
                     break;
                 }
 

@@ -1,12 +1,12 @@
 /**
 ********************************************************************************
-\file		main.c
+\file      main.c
 
-\brief		main module of Digital I/O CN application
+\brief     main module of Digital I/O CN application
 
-\author		Josef Baumgartner
+\author    baumgj
 
-\date		12.04.2010
+\date      12.04.2010
 
 (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 
@@ -68,17 +68,17 @@ a dual ported RAM (DPRAM) area.
 #define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects
 #define NUM_OBJECTS         (NUM_INPUT_OBJS + NUM_OUTPUT_OBJS)  ///< number of objects to be linked to the object dictionary
 
-#define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A			///< the MAC address to use for the CN
-#define IP_ADDR     0xc0a86401  								///< 192.168.100.1 // don't care the last byte!
-#define SUBNET_MASK 0xFFFFFF00  								///< netmask 255.255.255.0
+#define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
+#define IP_ADDR     0xc0a86401                                  ///< 192.168.100.1 // don't care the last byte!
+#define SUBNET_MASK 0xFFFFFF00                                  ///< netmask 255.255.255.0
 
 /******************************************************************************/
 /* global variables */
-static WORD			nodeId;											///< The node ID, which can overwrite the node switches if != 0x00
-static BYTE 	    abMacAddr_l[] = { MAC_ADDR };					///< The MAC address to be used
-static BYTE			digitalIn[NUM_INPUT_OBJS];						///< The values of the digital input pins of the board will be stored here
-static BYTE			digitalOut[NUM_OUTPUT_OBJS];					///< The values of the digital output pins of the board will be stored here
-static BOOL     fOperational_l = FALSE;                             ///< indicates AP Operation state
+static WORD     nodeId;                                         ///< The node ID, which can overwrite the node switches if != 0x00
+static BYTE     abMacAddr_l[] = { MAC_ADDR };                   ///< The MAC address to be used
+static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values of the digital input pins of the board will be stored here
+static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here
+static BOOL     fOperational_l = FALSE;                         ///< indicates AP Operation state
 
 /******************************************************************************/
 /* forward declarations */
@@ -101,8 +101,8 @@ APs state machine will be updated and input/output ports will be processed.
 *******************************************************************************/
 int main (void)
 {
-    tCnApiStatus		status;
-    tCnApiInitParm		initParm;
+    tCnApiStatus        status;
+    tCnApiInitParm      initParm;
 
     alt_icache_flush_all();
     alt_dcache_flush_all();
@@ -113,13 +113,13 @@ int main (void)
     TRACE("\n\nInitialize CN API functions...");
 
     nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
-    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_l);				// initialize POWERLINK parameters
+    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_l);             // initialize POWERLINK parameters
 
     status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  // initialize and start the CN API
     if (status > 0)
     {
         TRACE1("\nERROR: CN API library could not be initialized (%d)\n", status);
-		return -1;
+        return -1;
     }
     else
     {
@@ -132,7 +132,7 @@ int main (void)
     if (CnApi_initObjects(NUM_OBJECTS) < 0)
     {
         TRACE("ERROR: CN API library initObjects failed\n");
-    	return -1;
+        return -1;
     }
 
     /* connect local variables to object IDs
@@ -140,7 +140,7 @@ int main (void)
      * - datatype of variables must match with datatype of POWERLINK object dictionary !
      * - Number of linked objects must match NUM_OBJECTS !
      */
-	///< CnApi_linkObject(Index, SubIndex, size in bytes, ptr) 
+    ///< CnApi_linkObject(Index, SubIndex, size in bytes, ptr)
     CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);  // TPDO 0
     CnApi_linkObject(0x6000, 2, 1, &digitalIn[1]);
     CnApi_linkObject(0x6000, 3, 1, &digitalIn[2]);
@@ -176,24 +176,24 @@ int main (void)
 
         /*--- TASK 1: START ---*/
         CnApi_processApStateMachine();     // The AP state machine must be periodically updated
-    	//TODO: Implement Cbfunc "OperationalSyncCb"in statemachine?
+        //TODO: Implement Cbfunc "OperationalSyncCb"in statemachine?
         workInputOutput();                 // update the PCB's inputs and outputs
         /*--- TASK 1: END   ---*/
 
         CnApi_processAsyncStateMachine();
 
-    	/* wait until next period */
+        /* wait until next period */
         //usleep(100);                     // wait 100 us to simulate a task behavior
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/
-    	if (fOperational_l == TRUE)
-    	{
-    	    CnApi_transferPdo();           // update linked variables
-    	}
+        if (fOperational_l == TRUE)
+        {
+            CnApi_transferPdo();           // update linked variables
+        }
         /*--- TASK 2: END   ---*/
 
-    	CnApi_pollAsyncEvent();            // check if PCP event occurred
+        CnApi_pollAsyncEvent();            // check if PCP event occurred
 #endif /* USE_POLLING_MODE */
 
     }
@@ -214,26 +214,26 @@ int main (void)
 setPowerlinkInitValues() sets up the initialization values for the
 openPOWERLINK stack.
 
-\param	pInitParm_p			pointer to initialization parameter structure
-\param	bNodeId_p			node ID to use for CN
-\param	pMac_p				pointer to MAC address
+\param	pInitParm_p         pointer to initialization parameter structure
+\param	bNodeId_p           node ID to use for CN
+\param	pMac_p              pointer to MAC address
 *******************************************************************************/
 void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *pMac_p)
 {
-	pInitParm_p->m_bNodeId = bNodeId_p;
-	memcpy(pInitParm_p->m_abMac, pMac_p, sizeof(pInitParm_p->m_abMac));
-	pInitParm_p->m_dwDeviceType = -1;
-	pInitParm_p->m_dwVendorId = -1;
-	pInitParm_p->m_dwProductCode = -1;
-	pInitParm_p->m_dwRevision = -1;
-	pInitParm_p->m_dwSerialNum = -1;
-	pInitParm_p->m_dwFeatureFlags = -1;
-	pInitParm_p->m_wIsoTxMaxPayload = 256;
-	pInitParm_p->m_wIsoRxMaxPayload = 256;
-	pInitParm_p->m_dwPresMaxLatency = 2000;
-	pInitParm_p->m_dwAsendMaxLatency= 2000;
+    pInitParm_p->m_bNodeId = bNodeId_p;
+    memcpy(pInitParm_p->m_abMac, pMac_p, sizeof(pInitParm_p->m_abMac));
+    pInitParm_p->m_dwDeviceType = -1;
+    pInitParm_p->m_dwVendorId = -1;
+    pInitParm_p->m_dwProductCode = -1;
+    pInitParm_p->m_dwRevision = -1;
+    pInitParm_p->m_dwSerialNum = -1;
+    pInitParm_p->m_dwFeatureFlags = -1;
+    pInitParm_p->m_wIsoTxMaxPayload = 256;
+    pInitParm_p->m_wIsoRxMaxPayload = 256;
+    pInitParm_p->m_dwPresMaxLatency = 2000;
+    pInitParm_p->m_dwAsendMaxLatency= 2000;
 
-	pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;		//address of DPRAM area
+    pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;     //address of DPRAM area
 }
 
 
@@ -303,10 +303,12 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
 
                     case kApStateReadyToOperate:
                     {
-                        // Do some preparation before READY_TO_OPERATE state is entered
+                        /* Do some preparation before READY_TO_OPERATE state is entered */
 
-                        //TODO: if reconfiguration is triggered by MN, this will be entered twice
-                        //      -> if application takes to long here, second state change is not recognized!
+
+                        // Note: The application should not take longer for this preparation than
+                        // the timeout value of the Powerlink MN "MNTimeoutPreOp2_U32".
+                        // Otherwise the CN will not boot!
                         break;
                     }
 
