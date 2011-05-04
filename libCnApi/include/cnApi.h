@@ -98,7 +98,7 @@ This header file contains definitions for the CN API.
  * tCnApiStatus contains the status codes that could be returned by the API
  * functions.
  */
-typedef enum {
+typedef enum eCnApiStatus{
 	kCnApiStatusOk = 0,					///< Ok, no error!
 	kCnApiStatusError,					///< error
 	kCnApiStatusMsgBufFull,				///< message buffer is full
@@ -124,7 +124,7 @@ typedef enum {
 /**
  * \brief enumeration with valid AP commands
  */
-typedef enum {
+typedef enum eApCmd{
 	kApCmdNone = -1,
 	kApCmdInit = 0,
 	kApCmdPreop = 1,
@@ -161,8 +161,7 @@ typedef enum eProcType {
 
 
 /******************************************************************************/
-typedef enum
-{
+typedef enum ePcpPdiLedType {
 //    kEplLedTypeStatus   = 0x00, //already defined in openPOWERLINK stack
 //    kEplLedTypeError    = 0x01, //already defined in openPOWERLINK stack
     kEplLedTypeTestAll  = 0x02,
