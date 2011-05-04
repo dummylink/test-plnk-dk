@@ -1071,8 +1071,8 @@ applicable agreement for further details.
 	(port
 		(pt 480 608)
 		(output)
-		(text "addr_to_the_sram_0[19..0] " (rect 0 0 156 14)(font "Arial" (font_size 8)))
-		(text "addr_to_the_sram_0[19..0] " (rect 323 601 479 615)(font "Arial" (font_size 8)))
+		(text "addr_to_the_sram_0[18..0] " (rect 0 0 156 14)(font "Arial" (font_size 8)))
+		(text "addr_to_the_sram_0[18..0] " (rect 323 601 479 615)(font "Arial" (font_size 8)))
 		(line (pt 464 608)(pt 480 608)(line_width 3))
 	)
 	(port
@@ -1792,12 +1792,6 @@ applicable agreement for further details.
 	(pt 272 464)
 )
 (connector
-	(text "SRAM_ADDR[19..0]" (rect 754 640 854 652)(font "Arial" ))
-	(pt 752 656)
-	(pt 848 656)
-	(bus)
-)
-(connector
 	(pt 880 656)
 	(pt 936 656)
 	(bus)
@@ -2087,6 +2081,12 @@ applicable agreement for further details.
 	(text "LED_OPTION[1..0]" (rect 946 360 1040 372)(font "Arial" ))
 	(pt 752 368)
 	(pt 936 368)
+	(bus)
+)
+(connector
+	(text "SRAM_ADDR[18..0]" (rect 754 640 854 652)(font "Arial" ))
+	(pt 752 656)
+	(pt 848 656)
 	(bus)
 )
 (junction (pt 952 1032))

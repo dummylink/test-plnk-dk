@@ -321,8 +321,8 @@
 (port
 (pt 480 608)
 (output)
-(text "addr_to_the_sram_0[19..0] " (rect 0 0 130 16)(font "Arial" (font_size 8)))
-(text "addr_to_the_sram_0[19..0] " (rect 323 601 453 617)(font "Arial" (font_size 8)))
+(text "addr_to_the_sram_0[18..0] " (rect 0 0 130 16)(font "Arial" (font_size 8)))
+(text "addr_to_the_sram_0[18..0] " (rect 323 601 453 617)(font "Arial" (font_size 8)))
 (line (pt 464 608)(pt 480 608)(line_width 3))
 )
 (port
