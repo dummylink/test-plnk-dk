@@ -342,6 +342,7 @@ extern void CnApi_enterApStateReadyToOperate();
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
 extern void CnApi_enableSyncInt(void);
 extern void CnApi_disableSyncInt(void);
+extern void CnApi_ackSyncIrq(void);
 extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p);
 extern void CnApi_cleanupObjects(void);

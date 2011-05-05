@@ -457,8 +457,7 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 
 	CnApi_transferPdo();		                   // Call CN API PDO transfer function
 
-    /* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
-    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_ACK);
+	CnApi_ackSyncIrq();
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_wSyncIrqControl); // update pcp register

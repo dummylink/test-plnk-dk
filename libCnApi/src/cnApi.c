@@ -239,6 +239,16 @@ void CnApi_disableSyncInt(void)
 
 /**
 ********************************************************************************
+\brief  acknowledges synchronous IRQ form PCP
+*******************************************************************************/
+void CnApi_ackSyncIrq(void)
+{
+    /* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
+    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_ACK);
+}
+
+/**
+********************************************************************************
 \brief  get PCP state
 
 CnApi_getSyncIntPeriod() reads time of the periodic synchronization interrupt
