@@ -290,6 +290,12 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
 
                 fOperational_l = FALSE;
 
+#ifndef USE_POLLING_MODE
+                CnApi_disableSyncInt();    // disable synchronous IR signal of PCP
+                // Note: this is not really necessary, because this IR will only be triggered
+                // in PCP's OPERATIONAL state, but it disables the IRQs in any case.
+#endif /* USE_POLLING_MODE */
+
                 switch (EventArg_p.NewApState_m)
                 {
 
@@ -304,7 +310,6 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
                     {
                         /* Do some preparation before READY_TO_OPERATE state is entered */
 
-
                         // Note: The application should not take longer for this preparation than
                         // the timeout value of the Powerlink MN "MNTimeoutPreOp2_U32".
                         // Otherwise the CN will not boot!
@@ -314,6 +319,10 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
                     case kApStateOperational:
                     {
                         fOperational_l = TRUE;
+
+#ifndef USE_POLLING_MODE
+                        CnApi_enableSyncInt();    // enable synchronous IR signal of PCP
+#endif
                         break;
                     }
                     case kApStateError:
@@ -506,7 +515,7 @@ int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE 
     //TODO: endif not Avalon IF
 #endif /* CN_API_USING_SPI */
 
-    CnApi_enableSyncInt();          // cause the PCP to set periodic IR's
+    //CnApi_enableSyncInt();          // cause the PCP to set periodic IR's //TODO: enable in Operational
     CnApi_enableAsyncEventIRQ();    //enable asynchronous event IR's
 
 	return OK;

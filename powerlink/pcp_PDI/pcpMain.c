@@ -309,6 +309,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         	                            pEventArg_p->m_NmtStateChange.m_NmtEvent);
 
         	//Gi_throwPdiEvent(kPcpPdiEventNmtStateChange, pEventArg_p->m_NmtStateChange.m_NewNmtState);
+            if (pEventArg_p->m_NmtStateChange.m_NewNmtState =! kEplNmtCsOperational)
+            {
+                CnApi_disableSyncInt();
+            }
 
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
             {
@@ -528,9 +532,7 @@ tEplKernel PUBLIC AppCbSync(void)
 
     /* check if interrupts are enabled */
 
-    if (Gi_checkSyncIrqRequired() &&
-        (iSyncIntCycle_g != 0)                            &&
-        (getPcpState()== kPcpStateOperational)               )
+    if ((iSyncIntCycle_g != 0)) //TODO: enable PDI IRs in Operational, and disable for any other state
     {
 		if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
 		{
