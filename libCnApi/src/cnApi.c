@@ -199,7 +199,7 @@ CnApi_enableSyncInt() enables the synchronization interrupt at the PCP.
 void CnApi_enableSyncInt(void)
 {
 
-    pCtrlReg_g->m_wSyncIrqControl = (1 << SYNC_IRQ_ACK); ///< acknowledge interrupt, in case it is present
+    //TODO: delete: pCtrlReg_g->m_wSyncIrqControl = (1 << SYNC_IRQ_ACK); ///< acknowledge interrupt, in case it is present
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_wSyncIrqControl); ///< update pcp register

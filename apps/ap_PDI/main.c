@@ -140,7 +140,7 @@ int main (void)
      * - datatype of variables must match with datatype of POWERLINK object dictionary !
      * - Number of linked objects must match NUM_OBJECTS !
      */
-    ///< CnApi_linkObject(Index, SubIndex, size in bytes, ptr)
+    /* CnApi_linkObject(Index, SubIndex, size in bytes, ptr) */
     CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);  // TPDO 0
     CnApi_linkObject(0x6000, 2, 1, &digitalIn[1]);
     CnApi_linkObject(0x6000, 3, 1, &digitalIn[2]);
@@ -160,7 +160,6 @@ int main (void)
     #else
     initInterrupt(POWERLINK_0_PDI_AP_IRQ, 1000, 100000, 10);
     #endif /* CN_API_USING_SPI */
-
 #endif /* USE_POLLING_MODE */
 
     /* Start periodic main loop */
@@ -182,8 +181,6 @@ int main (void)
 
         CnApi_processAsyncStateMachine();
 
-        /* wait until next period */
-        //usleep(100);                     // wait 100 us to simulate a task behavior
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/

@@ -139,7 +139,6 @@ int main (void)
     IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
 #endif
 
-
     /***** Starting main state machine *****/
     resetStateMachine();
     CnApi_activateAsyncStateMachine();
@@ -149,7 +148,6 @@ int main (void)
         CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
     	EplApiProcess();
     	updateStateMachine();
-    	//usleep(100);		                   ///< wait 100 us//TODO: use this value ?
     }
 
     DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
@@ -638,9 +636,9 @@ void Gi_shutdown(void)
 
 /**
 ********************************************************************************
-\brief	initialize sync interrupt
+\brief	enable the synchronous PDI interrupt
 *******************************************************************************/
-void Gi_initSyncInt(void)
+void Gi_enableSyncInt(void)
 {
 
     //TODO: set HW triggered, if timer is present (system.h define)

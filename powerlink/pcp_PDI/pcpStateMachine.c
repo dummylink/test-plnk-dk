@@ -281,13 +281,6 @@ FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateReadyToOperate)
 {
-
-    /* enable the synchronization interrupt */
-    if(Gi_checkSyncIrqRequired())       ///< true if Sync IR is required by AP
-    {
-        Gi_initSyncInt();               ///< enable IR HW
-    }
-
     EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate); // trigger NMT state change
 	storePcpState(kPcpStateReadyToOperate);
 	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateReadyToOperate);
@@ -319,6 +312,12 @@ FUNC_ENTRYACT(kPcpStateOperational)
 {
 	storePcpState(kPcpStateOperational);
 	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateOperational);
+
+	/* enable the synchronization interrupt */
+    if(Gi_checkSyncIrqRequired())       ///< true if Sync IR is required by AP
+    {
+        Gi_enableSyncInt();               ///< enable IR HW
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateOperational)
