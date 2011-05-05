@@ -74,7 +74,7 @@ extern void Gi_writePdo(void);
 extern int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosReq *pLinkPdoReq_p);
 
 extern void Gi_initSyncInt(void);
-extern void Gi_getSyncIntModeFlags(void);
+extern BOOL Gi_checkSyncIrqRequired(void);
 extern void Gi_calcSyncIntPeriod(void);
 extern void Gi_generateSyncInt(void);
 extern void Gi_disableSyncInt(void);

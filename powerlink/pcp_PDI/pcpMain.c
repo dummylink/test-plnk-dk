@@ -50,7 +50,6 @@ tCnApiInitParm 	initParm_g;                ///< Powerlink initialization paramet
 BOOL 			fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 int				iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 
-BOOL            fIrqSyncMode_g = FALSE;    ///< synchronization mode flag
 static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 
 /******************************************************************************/
@@ -419,6 +418,12 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 /*MN sent NMT command EnableReadyToOperate */
                 case kEplNmtEventEnableReadyToOperate:
                 {
+                    /* setup the synchronization interrupt time period */
+                    if(Gi_checkSyncIrqRequired())       ///< true if Sync IR is required by AP
+                    {
+                        Gi_calcSyncIntPeriod();         ///< calculate multiple of cycles
+                    }
+
                     CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
                     break;
                 }
@@ -525,7 +530,7 @@ tEplKernel PUBLIC AppCbSync(void)
 
     /* check if interrupts are enabled */
 
-    if ((pCtrlReg_g->m_wSyncIrqControl & (1 << SYNC_IRQ_SYNC_MODE)) &&
+    if (Gi_checkSyncIrqRequired() &&
         (iSyncIntCycle_g != 0)                            &&
         (getPcpState()== kPcpStateOperational)               )
     {
@@ -614,6 +619,8 @@ void Gi_init(void)
     pCtrlReg_g->m_wEventType = 0x00;	               ///< invalid event TODO: structure
     pCtrlReg_g->m_wEventArg = 0x00;                    ///< invalid event argument TODO: structure
     pCtrlReg_g->m_wState = 0xff; 	                   ///< set invalid PCP state
+
+    Gi_disableSyncInt();
 }
 
 /**
@@ -635,27 +642,30 @@ void Gi_shutdown(void)
 *******************************************************************************/
 void Gi_initSyncInt(void)
 {
+
+    //TODO: set HW triggered, if timer is present (system.h define)
+
 	// enable IRQ and set mode to "IR generation by SW"
-    pCtrlReg_g->m_wSyncIrqControl = (1 << SYNC_IRQ_ENABLE); // & (0 << SYNC_IRQ_MODE);
+    pCtrlReg_g->m_wSyncIrqControl = ((1 << SYNC_IRQ_ENABLE) & ~(1 << SYNC_IRQ_MODE));
 }
 
 /**
 ********************************************************************************
 \brief  read control register sync mode flags
 *******************************************************************************/
-void Gi_getSyncIntModeFlags(void)
+BOOL Gi_checkSyncIrqRequired(void)
 {
     WORD wSyncModeFlags;
 
     wSyncModeFlags = pCtrlReg_g->m_wSyncIrqControl;
 
-    if(wSyncModeFlags &= (1 << SYNC_IRQ_SYNC_MODE))
+    if(wSyncModeFlags &= (1 << SYNC_IRQ_REQ))
     {
-        fIrqSyncMode_g = TRUE;  ///< Sync IR is enabled
+        return TRUE;  ///< Sync IR is required
     }
     else
     {
-        fIrqSyncMode_g = FALSE; ///< Sync IR is disabled -> AP applies polling
+        return FALSE; ///< Sync IR is not required -> AP applies polling
     }
 }
 
@@ -724,7 +734,7 @@ void Gi_calcSyncIntPeriod(void)
 void Gi_generateSyncInt(void)
 {
 	/* Throw interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_SET); //set `set` bit to high
+    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_SET); //set IRQ_SET bit to high
 	return;
 }
 
@@ -735,7 +745,7 @@ void Gi_generateSyncInt(void)
 void Gi_disableSyncInt(void)
 {
 	/* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_wSyncIrqControl &= !(1 << SYNC_IRQ_ENABLE); // set enable bit to low
+    pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_ENABLE); // set enable bit to low
 	return;
 }
 

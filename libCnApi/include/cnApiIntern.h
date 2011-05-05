@@ -30,7 +30,7 @@ This header file contains internal definitions for the CN API.
 /* defines for SYNC_IRQ_CTRL for AP only */
 #define SYNC_IRQ_ACK    0
 /* defines for SYNC_IRQ_CTRL for AP and PCP */
-#define SYNC_IRQ_SYNC_MODE      15  ///< AP sets desired synchronization mode (IR = 1, polling=0),
+#define SYNC_IRQ_REQ      15  ///< AP sets desired synchronization mode (IR = 1, polling=0),
                                     ///< PCP reads the mode (PCP RO register)
 /* defines for SYNC_IRQ_CTRL for PCP only */
 #define SYNC_IRQ_SET    0       ///< assert IR signal
