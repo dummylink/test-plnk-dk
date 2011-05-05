@@ -293,9 +293,9 @@ the user part (low priority).
 \retval	otherwise 			post error event to API layer
 *******************************************************************************/
 tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
-		                     tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
+                             tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
 {
-	tEplKernel          EplRet = kEplSuccessful;
+    tEplKernel          EplRet = kEplSuccessful;
 
     /* check if NMT_GS_OFF is reached */
     switch (EventType_p)
@@ -303,12 +303,13 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
         case kEplApiEventNmtStateChange:
         {
-        	DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "%s(%s) originating event = 0x%X\n",
-        	                            __func__,
-        	                            getNmtState(pEventArg_p->m_NmtStateChange.m_NewNmtState),
-        	                            pEventArg_p->m_NmtStateChange.m_NmtEvent);
+            DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "%s(%s) originating event = 0x%X\n",
+                                        __func__,
+                                        getNmtState(pEventArg_p->m_NmtStateChange.m_NewNmtState),
+                                        pEventArg_p->m_NmtStateChange.m_NmtEvent);
 
-        	//Gi_throwPdiEvent(kPcpPdiEventNmtStateChange, pEventArg_p->m_NmtStateChange.m_NewNmtState);
+            //Gi_throwPdiEvent(kPcpPdiEventNmtStateChange, pEventArg_p->m_NmtStateChange.m_NewNmtState);
+
             if (pEventArg_p->m_NmtStateChange.m_NewNmtState =! kEplNmtCsOperational)
             {
                 CnApi_disableSyncInt();
@@ -320,7 +321,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {   // NMT state machine was shut down,
                     // because of critical EPL stack error
                     // -> also shut down EplApiProcess() and main()
-                	setPowerlinkEvent(kPowerlinkEventShutdown);
+                    setPowerlinkEvent(kPowerlinkEventShutdown);
                     EplRet = kEplShutdown;
                     break;
                 }
@@ -334,15 +335,15 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                 case kEplNmtCsPreOperational2:
                 {
-                	setPowerlinkEvent(kPowerlinkEventEnterPreop2);
+                    setPowerlinkEvent(kPowerlinkEventEnterPreop2);
 
-               		EplRet = kEplReject; // prevent automatic change to kEplNmtCsReadyToOperate
-                	break;
+                    EplRet = kEplReject; // prevent automatic change to kEplNmtCsReadyToOperate
+                    break;
                 }
 
                 case kEplNmtCsReadyToOperate:
                 {
-                	break;
+                    break;
                 }
                 case kEplNmtGsResetConfiguration:
                 {
@@ -358,11 +359,11 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                 case kEplNmtGsResetCommunication:
                 {
-					BYTE    bNodeId = 0xF0;
-					DWORD   dwNodeAssignment = EPL_NODEASSIGN_NODE_EXISTS;
-					WORD    wPresPayloadLimit = 256;
+                    BYTE    bNodeId = 0xF0;
+                    DWORD   dwNodeAssignment = EPL_NODEASSIGN_NODE_EXISTS;
+                    WORD    wPresPayloadLimit = 256;
 
-					setPowerlinkEvent(kPowerlinkEventReset);        ///< fall back to PCP_PREOP1 (API-STATE)
+                    setPowerlinkEvent(kPowerlinkEventReset);        ///< fall back to PCP_PREOP1 (API-STATE)
 
                     EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
                     if (EplRet != kEplSuccessful)
