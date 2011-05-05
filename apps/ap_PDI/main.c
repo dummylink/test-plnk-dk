@@ -196,6 +196,8 @@ int main (void)
         CnApi_pollAsyncEvent();            // check if PCP event occurred
 #endif /* USE_POLLING_MODE */
 
+        //TODO: Do this in AsycIRQHandler
+        CnApi_pollAsyncEvent();            // check if PCP event occurred
     }
 
     TRACE("shut down application...\n");
