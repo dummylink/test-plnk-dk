@@ -310,9 +310,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
             //Gi_throwPdiEvent(kPcpPdiEventNmtStateChange, pEventArg_p->m_NmtStateChange.m_NewNmtState);
 
-            if (pEventArg_p->m_NmtStateChange.m_NewNmtState =! kEplNmtCsOperational)
+            if (pEventArg_p->m_NmtStateChange.m_NewNmtState != kEplNmtCsOperational)
             {
-                CnApi_disableSyncInt();
+                Gi_disableSyncInt();
             }
 
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
@@ -422,10 +422,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtEventEnableReadyToOperate:
                 {
                     /* setup the synchronization interrupt time period */
-                    if(Gi_checkSyncIrqRequired())       ///< true if Sync IR is required by AP
-                    {
-                        Gi_calcSyncIntPeriod();         ///< calculate multiple of cycles
-                    }
+                    Gi_calcSyncIntPeriod();   // calculate multiple of cycles
 
                     CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
                     break;
@@ -532,7 +529,6 @@ tEplKernel PUBLIC AppCbSync(void)
     Gi_writePdo();
 
     /* check if interrupts are enabled */
-
     if ((iSyncIntCycle_g != 0)) //TODO: enable PDI IRs in Operational, and disable for any other state
     {
 		if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
@@ -690,6 +686,15 @@ void Gi_calcSyncIntPeriod(void)
 		iSyncIntCycle_g = 0;
 		return;
 	}
+
+	if (pCtrlReg_g->m_dwMinCycleTime == 0 &&
+	    pCtrlReg_g->m_dwMaxCycleTime == 0 &&
+	    pCtrlReg_g->m_wMaxCycleNum == 0)
+    {
+	    /* no need to trigger IR signal - polling mode is applied */
+	    iSyncIntCycle_g = 0;
+        return;
+    }
 
 	iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;	/* do it this way to round up integer division! */
 	iSyncPeriod = iNumCycles * uiCycleTime;

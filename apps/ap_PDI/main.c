@@ -53,7 +53,7 @@ a dual ported RAM (DPRAM) area.
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
 #define DEFAULT_NODEID      0x01    ///< default node ID to use, should be NOT 0xF0 (=MN)
 
-//#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
+#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
 
 /*----------------------------------------------------------------------------*/
 
@@ -153,6 +153,8 @@ int main (void)
 #ifdef USE_POLLING_MODE
     CnApi_disableSyncInt();
     CnApi_disableAsyncEventIRQ();
+
+    CnApi_initSyncInt(0, 0, 0); // tell PCP we want polling mode
 #else
     /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us , maxCycleNum = 10 */
     #ifdef CN_API_USING_SPI
@@ -492,6 +494,7 @@ int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE 
 {
 	CnApi_initSyncInt(dwMinCycleTime_p, dwMaxCycleTime_p, bMaxCycleNum_p);
 	CnApi_disableSyncInt();
+	CnApi_disableAsyncEventIRQ();
 
 	/* register interrupt handler */
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
@@ -513,9 +516,6 @@ int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE 
     IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_FROM_PCP_BASE, 0x01);
     //TODO: endif not Avalon IF
 #endif /* CN_API_USING_SPI */
-
-    //CnApi_enableSyncInt();          // cause the PCP to set periodic IR's //TODO: enable in Operational
-    CnApi_enableAsyncEventIRQ();    //enable asynchronous event IR's
 
 	return OK;
 }

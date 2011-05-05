@@ -314,9 +314,9 @@ FUNC_ENTRYACT(kPcpStateOperational)
 	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateOperational);
 
 	/* enable the synchronization interrupt */
-    if(Gi_checkSyncIrqRequired())       ///< true if Sync IR is required by AP
+    if(iSyncIntCycle_g != 0)   // true if Sync IR is required by AP
     {
-        Gi_enableSyncInt();               ///< enable IR HW
+        Gi_enableSyncInt();    // enable IR trigger possibility
     }
 }
 /*----------------------------------------------------------------------------*/
