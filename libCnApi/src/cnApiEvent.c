@@ -35,8 +35,10 @@
 
 /******************************************************************************/
 /* function declarations */
+static void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p);
 static void CnApi_getAsyncIRQEvent(void);
 static void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p);
+
 
 /******************************************************************************/
 /* private functions */
@@ -61,6 +63,18 @@ void CnApi_enableAsyncEventIRQ(void)
 void CnApi_disableAsyncEventIRQ(void)
 {
     pCtrlReg_g->m_wAsyncIrqControl &= ~(1 << ASYNC_IRQ_EN);
+}
+
+/**
+********************************************************************************
+ \brief acknowledges asynchronous events and IR signal
+ \param pAckBits_p  pointer to 16 bit field, whereas a '1' indicates a
+                    pending event which should be acknowledged
+*******************************************************************************/
+void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p)
+{
+    /* reset asserted IR signal and acknowledge events */
+    pCtrlReg_g->m_wEventAck = *pAckBits_p;
 }
 
 /**
@@ -130,10 +144,8 @@ void CnApi_getAsyncIRQEvent(void)
 
     /* if no event -> don't care and exit */
 
-
-    /* acknowledge all signaled events;
-     * this also resets an asserted IR signal */
-    pCtrlReg_g->m_wEventAck = wCtrlRegField;
+    /* acknowledge all signaled events */
+    CnApi_ackAsyncIRQEvent(&wCtrlRegField);
 }
 
 void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p)
