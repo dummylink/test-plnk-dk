@@ -51,8 +51,7 @@ static void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg
 *******************************************************************************/
 void CnApi_enableAsyncEventIRQ(void)
 {
-    /* overwriting read only bits is ok */
-    pCtrlReg_g->m_wAsyncIrqControl = (1 << ASYNC_IRQ_EN);
+    pCtrlReg_g->m_wAsyncIrqControl |= (1 << ASYNC_IRQ_EN);
 }
 
 /**
@@ -61,9 +60,7 @@ void CnApi_enableAsyncEventIRQ(void)
 *******************************************************************************/
 void CnApi_disableAsyncEventIRQ(void)
 {
-    /* writing to whole register is ok in this case */
-    /* because all other bits are RO                */
-    pCtrlReg_g->m_wAsyncIrqControl = (0 << ASYNC_IRQ_EN);
+    pCtrlReg_g->m_wAsyncIrqControl &= ~(1 << ASYNC_IRQ_EN);
 }
 
 /**
