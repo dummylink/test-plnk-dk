@@ -5,7 +5,7 @@ POWERLINK CN Development Kit (CNDK)
 -------------------------------------------------------------------------------
 
 
-	openPOWERLINK - Demo for EBV DBC3C40 and INK Board (Direct IOs)
+	openPOWERLINK - Direct IO Demo for INK Board 
 	===============================================================
 
 Contents
@@ -35,11 +35,11 @@ Performance Data
 Requirements
 -------------
 
-- Development Board EBV DBC3C40 (Mercury Board)
+- Development Board TERASIC DE2-115 (INK-Board)
 
-- Altera Quartus II v10.0 SP1 or newer (Web Edition is also possible)
+- Altera Quartus II v10.1 SP1 or newer (Web Edition is also possible)
 
-- Altera Nios II Embedded Design Suite v10.0 SP1 or newer
+- Altera Nios II Embedded Design Suite v10.1 SP1 or newer
 
 - Experiences with this development environment are required
 

@@ -33,9 +33,9 @@ Requirements
 
 - Development Board EBV DBC3C40 (Mercury Board)
 
-- Altera Quartus II v10.0 SP1 or newer (Web Edition is also possible)
+- Altera Quartus II v10.1 SP1 or newer (Web Edition is also possible)
 
-- Altera Nios II Embedded Design Suite v10.0 SP1 or newer
+- Altera Nios II Embedded Design Suite v10.1 SP1 or newer
 
 - Experiences with this development environment are required
 
