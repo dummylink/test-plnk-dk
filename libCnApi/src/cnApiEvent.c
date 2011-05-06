@@ -148,6 +148,15 @@ void CnApi_getAsyncIRQEvent(void)
     CnApi_ackAsyncIRQEvent(&wCtrlRegField);
 }
 
+/**
+ ********************************************************************************
+ \brief processes an PCP event which was signaled in PDI
+ \param wEventType_p    wEventType_p    type of PCP event
+ \param wEventType_p    wEventArg_p     argument which matches event type
+
+ This function processes PCP events. If an event is also intended also for the
+ application, it will be forwarded.
+ *******************************************************************************/
 void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p)
 {
     tPcpPdiEvent Event;
