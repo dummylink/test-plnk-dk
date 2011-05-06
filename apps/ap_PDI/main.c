@@ -154,7 +154,7 @@ int main (void)
     CnApi_disableSyncInt();
     CnApi_disableAsyncEventIRQ();
 
-    CnApi_initSyncInt(0, 0, 0); // tell PCP we want polling mode
+    CnApi_initSyncInt(0, 0, 0); // tell PCP that we want polling mode
 #else
     /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us , maxCycleNum = 10 */
     #ifdef CN_API_USING_SPI
@@ -177,18 +177,16 @@ int main (void)
 
         /*--- TASK 1: START ---*/
         CnApi_processApStateMachine();     // The AP state machine must be periodically updated
-        //TODO: Implement Cbfunc "OperationalSyncCb"in statemachine?
-        workInputOutput();                 // update the PCB's inputs and outputs
         /*--- TASK 1: END   ---*/
 
         CnApi_processAsyncStateMachine();
-
 
 #ifdef USE_POLLING_MODE
         /*--- TASK 2: START ---*/
         if (fOperational_l == TRUE)
         {
             CnApi_transferPdo();           // update linked variables
+            CnApi_AppCbSync();             // call application specific synchronization function
         }
         /*--- TASK 2: END   ---*/
 
@@ -448,6 +446,20 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 }
 
 /**
+ ********************************************************************************
+ \brief application synchronization to POWERLINK cycle
+
+ This function is used to do application specific synchronization.
+ It will be called every time after the PDO-mapped data which were linked with
+ CnApi_linkObject()have been updated locally.
+
+ *******************************************************************************/
+void CnApi_AppCbSync(void)
+{
+    workInputOutput();                 // update the PCB's inputs and outputs
+}
+
+/**
 ********************************************************************************
 \brief	synchronous interrupt handler
 
@@ -469,9 +481,11 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
     alt_ic_irq_disable(0, SYNC_IRQ_FROM_PCP_IRQ);  // disable specific IRQ Number
 #endif
 
-	CnApi_transferPdo();		                   // Call CN API PDO transfer function
+	CnApi_transferPdo();               // Call CN API PDO transfer function
 
-	CnApi_ackSyncIrq();
+    CnApi_AppCbSync();                 // call application specific synchronization function
+
+	CnApi_ackSyncIrq();                // acknowledge IR from PCP
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_wSyncIrqControl); // update pcp register
