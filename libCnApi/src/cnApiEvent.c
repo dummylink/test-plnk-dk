@@ -206,10 +206,10 @@ void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEvent
             /* get PCP state */
             Event.Arg_m.NewPcpState_m = CnApi_getPcpState();
 
-            /* TODO: update AP state machine */
-            // CnApi_processApStateMachine();
+            /* update AP state machine */
+            //CnApi_processApStateMachine();
             // issue: there is no event buffer at PCP, if AP is to slow it will not recognize the change
-            // -> don't update event state machine triggered for now, but in extra task.
+            // -> additionally update state machine periodically in extra task for now.
             break;
         }
         case kPcpPdiEventCriticalStackError:

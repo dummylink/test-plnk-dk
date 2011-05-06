@@ -395,6 +395,8 @@ BOOL CnApi_processApStateMachine(void)
 void CnApi_enterApStateReadyToOperate()
 {
     fEnterReadyToOperate = TRUE;
+    /* immediately update state machine */
+    //TODO: trigger an "CnApi_processApStateMachine() - event";
 }
 
 /* END-OF-FILE */
