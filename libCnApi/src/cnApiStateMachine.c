@@ -309,7 +309,7 @@ static void stateChange(BYTE current, BYTE target)
 
 	/* inform application */
 	CnApiEventArg.NewApState_m = (tApStates) target;
-    CnApi_AppCbEvent(kCnApiEventApStateChange, CnApiEventArg, NULL);
+    CnApi_AppCbEvent(kCnApiEventApStateChange, &CnApiEventArg, NULL);
 }
 
 /******************************************************************************/

@@ -166,7 +166,7 @@ extern void CnApi_disableAsyncEventIRQ(void);
 extern void CnApi_pollAsyncEvent(void);
 
 // IN from main.c
-extern void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, void * pUserArg_p);
+extern void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 
 /******************************************************************************/
 /* private functions */

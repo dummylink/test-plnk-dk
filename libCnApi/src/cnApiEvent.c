@@ -209,7 +209,7 @@ void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEvent
 
     if (fInformApplication == TRUE)
     {    /* inform application */
-        CnApi_AppCbEvent(CnApiEvent.Typ_m, CnApiEvent.Arg_m, NULL);
+        CnApi_AppCbEvent(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
     }
 
 }

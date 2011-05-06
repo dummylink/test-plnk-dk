@@ -280,7 +280,19 @@ void workInputOutput(void)
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, dwOutPort);
 }
 
-void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, void * pUserArg_p)
+/**
+ ********************************************************************************
+ \brief application event handling of POWERLINK Slave API
+ \param EventType_p     type of CnApi event
+ \param pEventArg_p     pointer to argument of CnApi event which matches the event type
+ \param pUserArg_p      pointer to user argument
+
+ This function is the access point for all application related events which will
+ happen in the POWERLINK Slave API. Every time an event occurs this function
+ will be called.
+
+ *******************************************************************************/
+void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p)
 {
 
     switch (EventType_p)
@@ -288,7 +300,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
             case kCnApiEventUserDef:
             case kCnApiEventApStateChange:
             {
-                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", EventArg_p.NewApState_m);
+                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", pEventArg_p->NewApState_m);
 
                 fOperational_l = FALSE;
 
@@ -298,7 +310,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
                 // in PCP's OPERATIONAL state, but it disables the IRQs in any case.
 #endif /* USE_POLLING_MODE */
 
-                switch (EventArg_p.NewApState_m)
+                switch (pEventArg_p->NewApState_m)
                 {
 
                     case kApStateBooted:
@@ -338,7 +350,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
             }
             case kCnApiEventPcp:
             {
-                switch (EventArg_p.PcpEventGen_m)
+                switch (pEventArg_p->PcpEventGen_m)
                 {
                     case kPcpGenEventSyncCycleCalcSuccessful:
                     {
@@ -353,15 +365,15 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
             }
             case kCnApiEventError:
             {
-                switch (EventArg_p.CnApiError_m.ErrTyp_m)
+                switch (pEventArg_p->CnApiError_m.ErrTyp_m)
                 {
                     case kCnApiEventErrorFromPcp:
                     {
-                        switch (EventArg_p.CnApiError_m.ErrArg_m.PcpError_m.Typ_m)
+                        switch (pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Typ_m)
                         {
                             case kPcpPdiEventGenericError:
                             {
-                                switch (EventArg_p.CnApiError_m.ErrArg_m.PcpError_m.Arg_m.GenErr_m)
+                                switch (pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.GenErr_m)
                                 {
                                     case kPcpGenErrInitFailed:
                                     case kPcpGenErrSyncCycleCalcError:
@@ -410,7 +422,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg EventArg_p, vo
                             {
                                 // PCP will change state, stop processing or restart
                                 DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Error history entry code: %#04x\n",
-                                EventArg_p.CnApiError_m.ErrArg_m.PcpError_m.Arg_m.wErrorHistoryCode_m);
+                                pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.wErrorHistoryCode_m);
                                 break;
                             }
 
