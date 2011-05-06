@@ -51,9 +51,9 @@ a dual ported RAM (DPRAM) area.
 /* USER OPTIONS */
 
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
-#define DEFAULT_NODEID      0x01    ///< default node ID to use, should be NOT 0xF0 (=MN)
+#define DEFAULT_NODEID      0x01    // default node ID to use, should be NOT 0xF0 (=MN)
 
-//#define USE_POLLING_MODE ///< or IR synchronization mode by commenting this define
+#define USE_POLLING_MODE // or IR synchronization mode by commenting this define
 
 /*----------------------------------------------------------------------------*/
 
@@ -193,8 +193,10 @@ int main (void)
         CnApi_pollAsyncEvent();            // check if PCP event occurred
 #endif /* USE_POLLING_MODE */
 
-        //TODO: Do this in AsycIRQHandler
+#ifdef CN_API_INT_AVALON
+        //workaround, because in this case we have only 1 IR for sync and async
         CnApi_pollAsyncEvent();            // check if PCP event occurred
+#endif /* CN_API_INT_AVALON */
     }
 
     TRACE("shut down application...\n");
@@ -542,6 +544,16 @@ int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE 
     IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_FROM_PCP_BASE, 0x01);
     //TODO: endif not Avalon IF
 #endif /* CN_API_USING_SPI */
+
+
+    //TODO: register and enable your IR for asynchronous event
+    //      event handling here, and execute CnApi_pollAsyncEvent()
+    //      within your handler.
+
+#ifndef CN_API_INT_AVALON
+    //workaround, because in this case we have only 1 IR for sync and async
+    CnApi_enableAsyncEventIRQ();
+#endif /* CN_API_INT_AVALON */
 
 	return OK;
 }
