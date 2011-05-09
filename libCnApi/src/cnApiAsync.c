@@ -170,7 +170,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     //if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     /* Tx messages */
-    Dir = kCnApiDirReceive;
+    Dir = kCnApiDirReceive; // transfer type doesn't matter -> chosen according to Rx messsage size
     pPdiBuf = &aPcpPdiAsyncRxMsgBuffer_g[0];
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, CnApi_handleInitPcpResp, pPdiBuf,

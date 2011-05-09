@@ -744,57 +744,43 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     /* initialization for 1st fragment */
     if (pMsgDescr->dwPendTranfSize_m == 0) //indicates 1st fragment
     {
-        switch (pMsgDescr->TransfType_m)
-        {
-            case kPdiAsyncTrfTypeLclBuffering:
-            {/* local buffered transfer */
-                /* verify message size */
-                if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > MAX_ASYNC_STREAM_LENGTH)
-                {   /* data size exceeded -> reject transfer */
-                    ErrorHistory_l = kPdiAsyncStatusDataTooLong;
-                    fError = TRUE;
-                    goto exit;
-                }
-                break;
+        /* choose transfer type according to message size */
+        if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > MAX_ASYNC_STREAM_LENGTH)
+        { /* data size exceeded -> reject transfer */
+            ErrorHistory_l = kPdiAsyncStatusDataTooLong;
+            fError = TRUE;
+            goto exit;
+        }
+        else if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+        { /* message fits in local buffer */
+            pMsgDescr->TransfType_m = kPdiAsyncTrfTypeLclBuffering;
 
-                /* allocate memory for local storage */
-                //TODO: Multiple access to this function have to be restricted to 2 (for each channel and lcl buffering) (+ memory space restriction and multiple message activation)
-                if (pLclAsyncRxMsgBuffer_l != NULL)
-                {
-                    /* memory already allocated !*/
-                    ErrorHistory_l = kPdiAsyncStatusNoResource;
-                    fError = TRUE;
-                    goto exit;
-                }
-
-                pLclAsyncRxMsgBuffer_l = (BYTE *) CNAPI_MALLOC(pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen);
-
-                if (pLclAsyncRxMsgBuffer_l == NULL)
-                {
-                    ErrorHistory_l = kPdiAsyncStatusNoResource;
-                    fError = TRUE;
-                    goto exit;
-                }
-                else
-                {
-                    pMsgDescr->MsgHdl_m.pLclBuf_m = pLclAsyncRxMsgBuffer_l;
-                }
+            /* allocate memory for local storage */
+            //TODO: Multiple access to this function have to be restricted to 2 (for each channel and lcl buffering) (+ memory space restriction and multiple message activation)
+            if (pLclAsyncRxMsgBuffer_l != NULL)
+            {
+                /* memory already allocated !*/
+                ErrorHistory_l = kPdiAsyncStatusNoResource;
+                fError = TRUE;
+                goto exit;
             }
 
-            case kPdiAsyncTrfTypeDirectAccess:
-            {/* direct buffer access */
-                /* verify message size */
-                if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
-                {   /* inconsistent size for this transfer type -> reject transfer */
-                    ErrorHistory_l = kPdiAsyncStatusDataTooLong;
-                    fError = TRUE;
-                    goto exit;
-                }
-                break;
-            }
+            pLclAsyncRxMsgBuffer_l = (BYTE *) CNAPI_MALLOC(pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen);
 
-            default:
-                break;
+            if (pLclAsyncRxMsgBuffer_l == NULL)
+            {
+                ErrorHistory_l = kPdiAsyncStatusNoResource;
+                fError = TRUE;
+                goto exit;
+            }
+            else
+            {
+                pMsgDescr->MsgHdl_m.pLclBuf_m = pLclAsyncRxMsgBuffer_l;
+            }
+        }
+        else
+        { /* message fits PDI buffer */
+            pMsgDescr->TransfType_m = kPdiAsyncTrfTypeDirectAccess;
         }
 
         /* initialize message header values */
