@@ -765,6 +765,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                 goto exit;
             }
 
+            /* allocate data block for Rx message payload */
             pLclAsyncRxMsgBuffer_l = (BYTE *) CNAPI_MALLOC(pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen);
 
             if (pLclAsyncRxMsgBuffer_l == NULL)
