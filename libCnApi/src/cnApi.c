@@ -133,7 +133,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
         goto exit;
     }
 
-    pCtrlReg_g->m_wState = 0xff;                                            ///< set invalid PCP state
+    pCtrlReg_g->m_wState = kPcpStateInvalid;                                            ///< set invalid PCP state
     pCtrlReg_g->m_wCommand = kApCmdReset;                                  ///< send reboot cmd to PCP
     //pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
 

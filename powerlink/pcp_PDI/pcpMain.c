@@ -613,9 +613,9 @@ void Gi_init(void)
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;	   ///< set address of control register - equals DPRAM base address
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
-    pCtrlReg_g->m_wEventType = 0x00;	               ///< invalid event TODO: structure
+    pCtrlReg_g->m_wEventType = 0x00;                   ///< invalid event TODO: structure
     pCtrlReg_g->m_wEventArg = 0x00;                    ///< invalid event argument TODO: structure
-    pCtrlReg_g->m_wState = 0xff; 	                   ///< set invalid PCP state
+    pCtrlReg_g->m_wState = kPcpStateInvalid;           ///< set invalid PCP state
 
     Gi_disableSyncInt();
 }

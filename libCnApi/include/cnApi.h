@@ -248,7 +248,7 @@ typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct 
 	kPcpStateReadyToOperate = 0x04,
 	kPcpStateOperational = 0x05,
 	kNumPcpStates = 0x06,
-	kPcpStateInvalid = 0x07,
+	kPcpStateInvalid = 0xEE,
 } tPcpStates;
 
 /******************************************************************************/
