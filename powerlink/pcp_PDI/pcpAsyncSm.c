@@ -1481,7 +1481,7 @@ tPdiAsyncStatus CnApiAsync_finishMsgInit(void)
     for (bCnt = 0; bCnt < bLinkLogCounter_l; ++bCnt)
     { /* assign response message descriptor pointer */
 
-        /* search origin message descripor */
+        /* search origin message descriptor */
         bMsgType = aPdiAsyncMsgLinkLog_l[bCnt].MsgType_m;
         OrigDirection = aPdiAsyncMsgLinkLog_l[bCnt].Direction_m;
 
