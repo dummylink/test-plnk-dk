@@ -1151,7 +1151,7 @@ FUNC_DOACT(kPdiAsyncRxStatePending)
     }
 
     /* first, process internal messages */
-    if (aPdiAsyncTxMsgs[bActivTxMsg_l].Param_m.ChanType_m != kAsyncChannelInternal)
+    if (aPdiAsyncRxMsgs[bActivRxMsg_l].Param_m.ChanType_m != kAsyncChannelInternal)
     {
         if (!checkEvent(&fCheckedIfInternalMessageDue)) //not yet checked for internal messages
         {

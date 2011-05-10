@@ -85,7 +85,7 @@ typedef enum ePdiAsyncStatus{
 typedef enum ePdiAsyncTransferType{
     kPdiAsyncTrfTypeDirectAccess = 0x01, ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
     kPdiAsyncTrfTypeLclBuffering,        ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
-    kPdiAsyncTrfTypeAutoDecision,        ///< transfer type will be chosen automatically
+    kPdiAsyncTrfTypeAutoDecision,        ///< transfer type will be chosen automatically (only works for Rx)
 } tPdiAsyncTransferType;
 
 /**
