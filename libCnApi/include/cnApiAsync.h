@@ -56,7 +56,7 @@ typedef enum eAsyncTxState {
 /**
  * \brief enumeration for asynchronous transfer status values
  */
-typedef enum {
+typedef enum ePdiAsyncStatus{
     // area for generic errors 0x0000 - 0x000F
     kPdiAsyncStatusSuccessful           = 0x0000,  ///< no error/successful run
     kPdiAsyncStatusSendError            = 0x0001,
@@ -82,9 +82,10 @@ typedef enum {
     kPdiAsyncStatusUnhandledTransfer    = 0x0016,   ///< no handle assigned to process buffer
 } tPdiAsyncStatus; ///< module wide return and status codes
 
-typedef enum {
+typedef enum ePdiAsyncTransferType{
     kPdiAsyncTrfTypeDirectAccess = 0x01, ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
-    kPdiAsyncTrfTypeLclBuffering         ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
+    kPdiAsyncTrfTypeLclBuffering,        ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
+    kPdiAsyncTrfTypeAutoDecision,        ///< transfer type will be chosen automatically
 } tPdiAsyncTransferType;
 
 /**
