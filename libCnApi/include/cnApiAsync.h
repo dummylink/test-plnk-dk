@@ -67,7 +67,7 @@ typedef enum ePdiAsyncStatus{
     kPdiAsyncStatusBufFull              = 0x0006,
     kPdiAsyncStatusBufEmpty             = 0x0007,
     kPdiAsyncStatusDataTooLong          = 0x0008,
-    kPdiAsyncStatusIllegalInstance      = 0x000A,   ///< called Instanz does not exist
+    kPdiAsyncStatusIllegalInstance      = 0x000A,   ///< called Instance does not exist
     kPdiAsyncStatusInvalidInstanceParam = 0x000B,
     kPdiAsyncStatusNoFreeInstance       = 0x000C,   ///< AddInstance was called but no free instance is available
     kPdiAsyncStatusInvalidOperation     = 0x000D,   ///< operation not allowed in this situation
@@ -321,6 +321,30 @@ typedef struct sPdiAsyncMsgLink {
     tPdiAsyncMsgType    RespMsgType_m;       ///< type of response message
     tPcpPdiAsyncDir     Direction_m;         ///< direction of origin message
 } PACK_STRUCT tPdiAsyncMsgLink;
+
+typedef struct sPdiAsyncPendingTransferContext {
+    BOOL fMsgPending_m;            ///< flag indicates a pending message
+    BYTE bState_m;                 ///< state of state machine
+    BOOL fError_m;                 ///< transition event
+    BOOL fTimeout_m;               ///< transition event
+    BOOL fReset_m;                 ///< transition event
+    BOOL fRxTriggered_m;           ///< transition event -> explicitly wait for special message
+    BOOL fTxTriggered_m;           ///< transition event
+    BOOL fFrgmtAvailable_m;        ///< transition event
+    BOOL fFrgmtStored_m;           ///< transition event
+    BOOL fFrgmtDelivered_m;        ///< transition event
+    BOOL fMsgTransferFinished_m;   ///< transition event
+    BOOL fMsgTransferIncomplete_m; ///< transition event
+    BOOL fFragmentedTransfer_m;    ///< flag indicates fragmented transfer
+    BOOL fDeactivateRxMsg_m;       ///< aid flag for not setting bActivRxMsg_l
+                                   ///< immediately to INVALID_ELEMENT
+    BYTE              bActivTxMsg_m; ///< indicates inactive message
+    BYTE              bActivRxMsg_m; ///< indicates inactive message
+    BYTE *            pLclAsyncTxMsgBuffer_m;   ///< pointer to local Tx message buffer
+    tPdiAsyncStatus   ErrorHistory_m;
+    BYTE *            pLclAsyncRxMsgBuffer_m;   ///< pointer to local Rx message buffer
+    DWORD             dwTimeoutWait_m;          ///< timeout counter
+} tPdiAsyncPendingTransferContext;
 
 /******************************************************************************/
 /* external variable declarations */
