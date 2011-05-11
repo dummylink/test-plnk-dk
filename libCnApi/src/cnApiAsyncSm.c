@@ -664,6 +664,21 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 }
             }
 
+            /* free allocated buffers*/
+            switch (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m)
+            {
+                case kPdiAsyncTrfTypeLclBuffering:
+                {
+                    CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+                    pLclAsyncTxMsgBuffer_l = NULL;
+                    break;
+                }
+
+                case kPdiAsyncTrfTypeDirectAccess:
+                default:
+                    break;
+            }
+
             if (aPdiAsyncTxMsgs[bActivTxMsg_l].pRespMsgDescr_m != NULL )
             {/* if response is expected, force Rx Pending */
                 bElement = MAX_PDI_ASYNC_RX_MESSAGES;
@@ -687,21 +702,6 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 }
             }
 
-            /* free allocated buffers*/
-            switch (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m)
-            {
-                case kPdiAsyncTrfTypeLclBuffering:
-                {
-                    CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
-
-                    break;
-                }
-
-                case kPdiAsyncTrfTypeDirectAccess:
-                default:
-                    break;
-            }
-
             /* deactivate Tx message */
             aPdiAsyncTxMsgs[bActivTxMsg_l].fMsgValid_m = FALSE; // tag as obsolete
             bActivTxMsg_l = INVALID_ELEMENT;
@@ -715,7 +715,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                     case kPdiAsyncTrfTypeLclBuffering:
                     {
                         CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
-
+                        pLclAsyncRxMsgBuffer_l = NULL;
                         break;
                     }
 
@@ -1049,7 +1049,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                 case kPdiAsyncTrfTypeLclBuffering:
                 {
                     CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
-
+                    pLclAsyncRxMsgBuffer_l = NULL;
                     break;
                 }
 
@@ -1261,11 +1261,13 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
         CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+        pLclAsyncTxMsgBuffer_l = NULL;
     }
 
     if (pLclAsyncRxMsgBuffer_l != NULL)
     {
         CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+        pLclAsyncRxMsgBuffer_l = NULL;
     }
 
     /* timeout handling */
@@ -1833,6 +1835,8 @@ void CnApi_activateAsyncStateMachine(void)
     SM_ADD_TRANSITION(&PdiAsyncStateMachine_l, kPdiAsyncStateStopped, kPdiAsyncStateWait, 1);       //Transition event1
     SM_ADD_TRANSITION(&PdiAsyncStateMachine_l, kPdiAsyncStateStopped, STATE_FINAL, 1);              //Transition event2
     SM_ADD_ACTION_110(&PdiAsyncStateMachine_l, kPdiAsyncStateStopped);                              //ENTRY and DOACT
+
+    CnApi_resetAsyncStateMachine();
 }
 
 /**
