@@ -42,10 +42,9 @@ tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 /* global variables */
 
 /* local variables */
-//static  tAsyncMsg * pAsyncSendBuf;
-//static  tAsyncMsg * pAsyncRecvBuf;
-static  BYTE      * pObjData[OBJ_CRT_LNKS_BLKS] = {NULL};
-static  BYTE        bReqSeqnc = 0;        ///< sequence counter of split message
+static  BYTE *  pObjData[OBJ_CRT_LNKS_BLKS] = {NULL};
+static  BYTE    bReqSeqnc = 0;        ///< sequence counter of split message
+static  BYTE    bDescrVers_l = 0;     ///< descriptor version of LinkPdosReq
 
 /******************************************************************************/
 /* function declarations */
@@ -614,13 +613,14 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
     Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
 
-    pLinkPdosReq->m_bDescrVers++; ///< increase descriptor version number
+    bDescrVers_l++;                     ///< increase descriptor version number
+    pLinkPdosReq->m_bDescrVers = bDescrVers_l;
 
     DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d\n", pLinkPdosReq->m_bDescrVers);
     /*----------------------------------------------------------------------------*/
 
     /* update size values of message descriptors */
-    pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset;     // sent size
+    pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset + sizeof(tLinkPdosReq);     // sent size
 
 exit:
     return Ret;
