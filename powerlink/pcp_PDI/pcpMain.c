@@ -414,25 +414,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             break;
         }
 
-        case kEplApiEventRequestNmt:
-        {
-            switch (pEventArg_p->m_bNmtCmd)
-            {
-                /*MN sent NMT command EnableReadyToOperate */
-                case kEplNmtEventEnableReadyToOperate:
-                {
-                    /* setup the synchronization interrupt time period */
-                    Gi_calcSyncIntPeriod();   // calculate multiple of cycles
-
-                    CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
-                    break;
-                }
-
-                default:
-                break;
-            }
-            break;
-        }
         case kEplApiEventCriticalError:
         case kEplApiEventWarning:
         {   // error or warning occured within the stack or the application
@@ -493,6 +474,26 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         case kEplApiEventHistoryEntry:
         {
             Gi_throwPdiEvent(kPcpPdiEventHistoryEntry, pEventArg_p->m_ErrHistoryEntry.m_wErrorCode);
+            break;
+        }
+
+        case kEplApiEventBoot:
+        {
+            switch (pEventArg_p->m_Boot.m_BootEvent)
+            {
+                /*MN sent NMT command EnableReadyToOperate */
+                case kEplNmtBootEventNmtEnableReadyToOp:
+                {
+                    /* setup the synchronization interrupt time period */
+                    Gi_calcSyncIntPeriod();   // calculate multiple of cycles
+
+                    CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
+                    break;
+                }
+
+                default:
+                break;
+            }
             break;
         }
 
