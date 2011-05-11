@@ -138,7 +138,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     WORD wTout = 0;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-    /* Rx messages */
+    /* Tx messages */
     Dir = kCnApiDirTransmit;
     pPdiBuf = &aPcpPdiAsyncTxMsgBuffer_g[0];
 
@@ -169,7 +169,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     //TODO: cnApiAsync_initMsg(kPdiAsyncMsgIntReadObjReq, Dir, ...);
     //if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    /* Tx messages */
+    /* Rx messages */
     Dir = kCnApiDirReceive; // transfer type doesn't matter -> chosen according to Rx messsage size
     TfrTyp = kPdiAsyncTrfTypeAutoDecision;
     pPdiBuf = &aPcpPdiAsyncRxMsgBuffer_g[0];
