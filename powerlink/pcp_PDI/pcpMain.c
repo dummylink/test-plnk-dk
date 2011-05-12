@@ -486,7 +486,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             switch (pEventArg_p->m_Boot.m_BootEvent)
             {
                 /*MN sent NMT command EnableReadyToOperate */
-                case kEplNmtBootEventNmtEnableReadyToOp:
+                case kEplNmtBootEventEnableReadyToOp:
                 {
                     /* setup the synchronization interrupt time period */
                     Gi_calcSyncIntPeriod();   // calculate multiple of cycles
