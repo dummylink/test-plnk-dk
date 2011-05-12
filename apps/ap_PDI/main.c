@@ -357,6 +357,12 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         TRACE1("\nINFO: Synchronization IR Period is %lu us.\n", CnApi_getSyncIntPeriod());
                         break;
                     }
+
+                    case kPcpGenEventNodeIdConfigured:
+                    {
+                        TRACE1("INFO: NODE ID is set to 0x%02x\n", pCtrlReg_g->wNodeId);
+                        break;
+                    }
                     default:
                     break;
                 }

@@ -263,7 +263,7 @@ struct sPcpControlReg {
 	volatile WORD           m_wPcpPdiRev;          ///< Revision of PCP PDI (control and status register)
 	volatile WORD           wReserved1;
     volatile WORD           wReserved2;
-    volatile WORD           wReserved3;
+    volatile WORD           wNodeId;               ///< Powerlink node ID; can by read by AP at related event
 	volatile WORD			m_wCommand;            ///< AP issues commands to this register
 	volatile WORD			m_wState;              ///< state of the PCP
 	volatile DWORD			m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process

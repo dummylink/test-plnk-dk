@@ -45,6 +45,7 @@
 /* PCP forwarded events */
 typedef enum ePcpPdiEventGeneric {
     kPcpGenEventSyncCycleCalcSuccessful,         ///< synchronization interrupt cycle time calculation was successful
+    kPcpGenEventNodeIdConfigured,                ///< Powerlink Node Id has been configured
 } tPcpPdiEventGeneric;
 
 /**

@@ -218,6 +218,10 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 
 	DEBUG_TRACE1(DEBUG_LVL_09, "INFO: NODE ID is set to 0x%02x\n", EplApiInitParam.m_uiNodeId);
 
+	/* inform AP about current node ID */
+	pCtrlReg_g->wNodeId = EplApiInitParam.m_uiNodeId;
+	Gi_throwPdiEvent(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
+
 	/* initialize POWERLINK stack */
 	DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
 	EplRet = EplApiInitialize(&EplApiInitParam);
