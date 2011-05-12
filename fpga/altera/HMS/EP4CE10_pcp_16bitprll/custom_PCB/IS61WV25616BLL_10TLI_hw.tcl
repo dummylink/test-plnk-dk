@@ -58,18 +58,18 @@ add_interface s0 avalon_tristate end
 set_interface_property s0 activeCSThroughReadLatency false
 set_interface_property s0 associatedClock clock
 set_interface_property s0 explicitAddressSpan 0
-set_interface_property s0 holdTime 0
+set_interface_property s0 holdTime 40
 set_interface_property s0 isMemoryDevice true
 set_interface_property s0 isNonVolatileStorage false
 set_interface_property s0 maximumPendingReadTransactions 0
 set_interface_property s0 printableDevice false
 set_interface_property s0 readLatency 0
-#set_interface_property s0 readWaitStates 10
-set_interface_property s0 readWaitTime 11
-set_interface_property s0 setupTime 0
+set_interface_property s0 readWaitStates 40
+set_interface_property s0 readWaitTime 41
+set_interface_property s0 setupTime 40
 set_interface_property s0 timingUnits Nanoseconds
-#set_interface_property s0 writeWaitStates 10
-set_interface_property s0 writeWaitTime 10
+set_interface_property s0 writeWaitStates 40
+set_interface_property s0 writeWaitTime 40
 
 set_interface_property s0 ASSOCIATED_CLOCK clock
 set_interface_property s0 ENABLED true
