@@ -136,16 +136,17 @@ FUNC_DOACT(kApStateReadyToInit)
 /*============================================================================*/
 FUNC_EVT(kApStateInit, kApStatePreop1, 1)
 {
-	/* check for PCP state: PCP_PREOP */
-	if (CnApi_getPcpState() == kPcpStatePreop1)
-	{
-		CnApi_setApCommand(kApCmdNone);
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+    /* check for PCP state: PCP_PREOP */
+    if ((CnApi_getPcpState() == kPcpStatePreop1) ||
+        (CnApi_getPcpState() == kPcpStatePreop2)   )
+    {
+        CnApi_setApCommand(kApCmdNone);
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateInit)
