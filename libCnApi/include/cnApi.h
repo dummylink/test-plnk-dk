@@ -259,52 +259,52 @@ typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct 
 * tPcpCtrlReg defines the PCP control registers.
 */
 struct sPcpControlReg {
-	volatile DWORD			m_dwMagic;             ///< magic number indicating correct PCP PDI memory start address
-	volatile WORD           m_wPcpPdiRev;          ///< Revision of PCP PDI (control and status register)
-	volatile WORD           wReserved1;
-    volatile WORD           wReserved2;
-    volatile WORD           wNodeId;               ///< Powerlink node ID; can by read by AP at related event
-	volatile WORD			m_wCommand;            ///< AP issues commands to this register
-	volatile WORD			m_wState;              ///< state of the PCP
-	volatile DWORD			m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process
-	volatile DWORD			m_dwMinCycleTime;      ///< lower limit of synchronous-IR cycle time the AP can process
-	volatile WORD			m_wCycleCorrect;       ///< correction factor
-	volatile WORD			m_wMaxCycleNum;        ///< multiple of Powerlink cyle time for synchronous-IR
-    volatile DWORD          m_dwSyncIntCycTime;    ///< cycle time of synchronous-IR issued to the AP for PDO processing
-    volatile WORD           m_wEventType;          ///< type of event (e.g. state change, error, ...)
-    volatile WORD           m_wEventArg;           ///< event argument, if applicable (e.g. error code, state, ...)
-    volatile WORD           m_wAsyncIrqControl;    ///< asynchronous IRQ control register, contains IR acknowledge (at AP side)
-    volatile WORD           m_wEventAck;           ///< acknowledge for events and asynchronous IR signal
-	volatile WORD			m_wTxPdo0BufSize;      ///< buffer size for TPDO communication AP -> PCP
-	volatile WORD			m_wTxPdo0BufAoffs;     ///< buffer address for TPDO communication AP -> PCP
-	volatile WORD			m_wRxPdo0BufSize;      ///< buffer size for RPDO communication PCP -> AP
-	volatile WORD			m_wRxPdo0BufAoffs;     ///< buffer address for RPDO communication PCP -> AP
-	volatile WORD			m_wRxPdo1BufSize;      ///< buffer size for RPDO communication PCP -> AP
-	volatile WORD			m_wRxPdo1BufAoffs;     ///< buffer address for RPDO communication PCP -> AP
-	volatile WORD			m_wRxPdo2BufSize;      ///< buffer size for RPDO communication PCP -> AP
-    volatile WORD           m_wRxPdo2BufAoffs;	   ///< buffer address for RPDO communication PCP -> AP
-    volatile WORD           m_wTxAsyncBuf0Size;    ///< buffer size for asynchronous communication AP -> PCP
-    volatile WORD           m_wTxAsyncBuf0Aoffs;   ///< buffer address for asynchronous communication AP -> PCP
-    volatile WORD           m_wRxAsyncBuf0Size;    ///< buffer size for asynchronous communication PCP -> AP
-    volatile WORD           m_wRxAsyncBuf0Aoffs;   ///< buffer address for asynchronous communication PCP -> AP
-    volatile WORD           m_wTxAsyncBuf1Size;    ///< buffer size for asynchronous communication AP -> PCP
-    volatile WORD           m_wTxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication AP -> PCP
-    volatile WORD           m_wRxAsyncBuf1Size;    ///< buffer size for asynchronous communication PCP -> AP
-    volatile WORD           m_wRxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication PCP -> AP
-    volatile WORD           wReserved4;
-    volatile WORD           wReserved5;
-    volatile WORD           wReserved6;
-    volatile WORD           wReserved7;
-    volatile WORD           m_wTxPdo0Ack;          ///< address acknowledge register of TPDO buffer nr. 0
-	volatile WORD			m_wRxPdo0Ack;          ///< address acknowledge register of RPDO buffer nr. 0
-	volatile WORD			m_wRxPdo1Ack;          ///< address acknowledge register of RPDO buffer nr. 1
-	volatile WORD			m_wRxPdo2Ack;          ///< address acknowledge register of RPDO buffer nr. 2
-	volatile WORD			m_wSyncIrqControl;	   ///< PDO synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
-    volatile WORD           wReserved8;
-    volatile DWORD          dwRerserved9;
-    volatile DWORD          dwRerserved10;
-    volatile WORD           m_wLedControl;         ///< Powerlink IP-core Led output control register
-    volatile WORD           m_wLedConfig;          ///< Powerlink IP-core Led output configuration register
+    volatile DWORD      m_dwMagic;             ///< magic number indicating correct PCP PDI memory start address
+    volatile WORD       m_wPcpPdiRev;          ///< revision of PCP PDI (control and status register)
+    volatile WORD       m_wFpgaTimeStamp;      ///< compilation time stamp of FPGA design
+    volatile WORD       wReserved2;
+    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
+    volatile WORD       m_wCommand;            ///< AP issues commands to this register
+    volatile WORD       m_wState;              ///< state of the PCP
+    volatile DWORD      m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process
+    volatile DWORD      m_dwMinCycleTime;      ///< lower limit of synchronous-IR cycle time the AP can process
+    volatile WORD       m_wCycleCorrect;       ///< correction factor
+    volatile WORD       m_wMaxCycleNum;        ///< multiple of Powerlink cyle time for synchronous-IR
+    volatile DWORD      m_dwSyncIntCycTime;    ///< cycle time of synchronous-IR issued to the AP for PDO processing
+    volatile WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)
+    volatile WORD       m_wEventArg;           ///< event argument, if applicable (e.g. error code, state, ...)
+    volatile WORD       m_wAsyncIrqControl;    ///< asynchronous IRQ control register, contains IR acknowledge (at AP side)
+    volatile WORD       m_wEventAck;           ///< acknowledge for events and asynchronous IR signal
+    volatile WORD       m_wTxPdo0BufSize;      ///< buffer size for TPDO communication AP -> PCP
+    volatile WORD       m_wTxPdo0BufAoffs;     ///< buffer address for TPDO communication AP -> PCP
+    volatile WORD       m_wRxPdo0BufSize;      ///< buffer size for RPDO communication PCP -> AP
+    volatile WORD       m_wRxPdo0BufAoffs;     ///< buffer address for RPDO communication PCP -> AP
+    volatile WORD       m_wRxPdo1BufSize;      ///< buffer size for RPDO communication PCP -> AP
+    volatile WORD       m_wRxPdo1BufAoffs;     ///< buffer address for RPDO communication PCP -> AP
+    volatile WORD       m_wRxPdo2BufSize;      ///< buffer size for RPDO communication PCP -> AP
+    volatile WORD       m_wRxPdo2BufAoffs;	   ///< buffer address for RPDO communication PCP -> AP
+    volatile WORD       m_wTxAsyncBuf0Size;    ///< buffer size for asynchronous communication AP -> PCP
+    volatile WORD       m_wTxAsyncBuf0Aoffs;   ///< buffer address for asynchronous communication AP -> PCP
+    volatile WORD       m_wRxAsyncBuf0Size;    ///< buffer size for asynchronous communication PCP -> AP
+    volatile WORD       m_wRxAsyncBuf0Aoffs;   ///< buffer address for asynchronous communication PCP -> AP
+    volatile WORD       m_wTxAsyncBuf1Size;    ///< buffer size for asynchronous communication AP -> PCP
+    volatile WORD       m_wTxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication AP -> PCP
+    volatile WORD       m_wRxAsyncBuf1Size;    ///< buffer size for asynchronous communication PCP -> AP
+    volatile WORD       m_wRxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication PCP -> AP
+    volatile WORD       wReserved4;
+    volatile WORD       wReserved5;
+    volatile WORD       wReserved6;
+    volatile WORD       wReserved7;
+    volatile WORD       m_wTxPdo0Ack;          ///< address acknowledge register of TPDO buffer nr. 0
+    volatile WORD       m_wRxPdo0Ack;          ///< address acknowledge register of RPDO buffer nr. 0
+    volatile WORD       m_wRxPdo1Ack;          ///< address acknowledge register of RPDO buffer nr. 1
+    volatile WORD       m_wRxPdo2Ack;          ///< address acknowledge register of RPDO buffer nr. 2
+    volatile WORD       m_wSyncIrqControl;	   ///< PDO synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
+    volatile WORD       wReserved8;
+    volatile DWORD      dwRerserved9;
+    volatile DWORD      dwRerserved10;
+    volatile WORD       m_wLedControl;         ///< Powerlink IP-core Led output control register
+    volatile WORD       m_wLedConfig;          ///< Powerlink IP-core Led output configuration register
 } PACK_STRUCT;
 
 typedef struct sPcpControlReg tPcpCtrlReg;
