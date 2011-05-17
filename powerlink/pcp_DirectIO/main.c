@@ -276,8 +276,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
     {
         case kEplApiEventNmtStateChange:
         {
+#ifdef LCD_BASE
             LCD_printState(pEventArg_p->m_NmtStateChange.m_NewNmtState);
-
+#endif
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
             {
                 case kEplNmtGsOff:
