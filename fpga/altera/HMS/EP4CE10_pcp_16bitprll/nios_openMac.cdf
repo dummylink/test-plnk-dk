@@ -1,10 +1,10 @@
-/* Quartus II Version 10.0 Build 262 08/18/2010 Service Pack 1 SJ Full Version */
+/* Quartus II Version 10.1 Build 153 11/29/2010 SJ Web Edition */
 JedecChain;
 	FileRevision(JESD32A);
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP3C40F484) Path("C:/CNDK_Test_Debugging/openPOWERLINK_CNDK/fpga/altera/EBV_DBC3C40/nios2_openmac_dpram_multinios/") File("nios_openMac.sof") MfrSpec(OpMask(1));
+		Device PartName(EP4CE10U14) Path("C:/fpga/usr/20110506_CnApi_V0.2.5/fpga/altera/HMS/EP4CE10_pcp_16bitprll/") File("nios_openMac.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

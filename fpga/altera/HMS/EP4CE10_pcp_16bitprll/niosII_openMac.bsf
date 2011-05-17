@@ -34,29 +34,29 @@
 (port
 (pt 0 288)
 (input)
-(text "pap_be_to_the_powerlink_0[1..0] " (rect 0 0 161 16)(font "Arial" (font_size 8)))
-(text "pap_be_to_the_powerlink_0[1..0] " (rect 20 281 181 297)(font "Arial" (font_size 8)))
+(text "pap_be_n_to_the_powerlink_0[1..0] " (rect 0 0 172 16)(font "Arial" (font_size 8)))
+(text "pap_be_n_to_the_powerlink_0[1..0] " (rect 20 281 192 297)(font "Arial" (font_size 8)))
 (line (pt 0 288)(pt 16 288)(line_width 3))
 )
 (port
 (pt 0 304)
 (input)
-(text "pap_cs_to_the_powerlink_0 " (rect 0 0 136 16)(font "Arial" (font_size 8)))
-(text "pap_cs_to_the_powerlink_0 " (rect 20 297 156 313)(font "Arial" (font_size 8)))
+(text "pap_cs_n_to_the_powerlink_0 " (rect 0 0 148 16)(font "Arial" (font_size 8)))
+(text "pap_cs_n_to_the_powerlink_0 " (rect 20 297 168 313)(font "Arial" (font_size 8)))
 (line (pt 0 304)(pt 16 304)(line_width 1))
 )
 (port
 (pt 0 320)
 (input)
-(text "pap_rd_to_the_powerlink_0 " (rect 0 0 134 16)(font "Arial" (font_size 8)))
-(text "pap_rd_to_the_powerlink_0 " (rect 20 313 154 329)(font "Arial" (font_size 8)))
+(text "pap_rd_n_to_the_powerlink_0 " (rect 0 0 146 16)(font "Arial" (font_size 8)))
+(text "pap_rd_n_to_the_powerlink_0 " (rect 20 313 166 329)(font "Arial" (font_size 8)))
 (line (pt 0 320)(pt 16 320)(line_width 1))
 )
 (port
 (pt 0 336)
 (input)
-(text "pap_wr_to_the_powerlink_0 " (rect 0 0 136 16)(font "Arial" (font_size 8)))
-(text "pap_wr_to_the_powerlink_0 " (rect 20 329 156 345)(font "Arial" (font_size 8)))
+(text "pap_wr_n_to_the_powerlink_0 " (rect 0 0 147 16)(font "Arial" (font_size 8)))
+(text "pap_wr_n_to_the_powerlink_0 " (rect 20 329 167 345)(font "Arial" (font_size 8)))
 (line (pt 0 336)(pt 16 336)(line_width 1))
 )
 (port
@@ -181,15 +181,15 @@
 (port
 (pt 480 272)
 (output)
-(text "ap_asyncIrq_from_the_powerlink_0 " (rect 0 0 170 16)(font "Arial" (font_size 8)))
-(text "ap_asyncIrq_from_the_powerlink_0 " (rect 282 265 453 281)(font "Arial" (font_size 8)))
+(text "ap_asyncIrq_n_from_the_powerlink_0 " (rect 0 0 182 16)(font "Arial" (font_size 8)))
+(text "ap_asyncIrq_n_from_the_powerlink_0 " (rect 271 265 453 281)(font "Arial" (font_size 8)))
 (line (pt 464 272)(pt 480 272)(line_width 1))
 )
 (port
 (pt 480 288)
 (output)
-(text "ap_irq_from_the_powerlink_0 " (rect 0 0 143 16)(font "Arial" (font_size 8)))
-(text "ap_irq_from_the_powerlink_0 " (rect 309 281 453 297)(font "Arial" (font_size 8)))
+(text "ap_irq_n_from_the_powerlink_0 " (rect 0 0 155 16)(font "Arial" (font_size 8)))
+(text "ap_irq_n_from_the_powerlink_0 " (rect 298 281 453 297)(font "Arial" (font_size 8)))
 (line (pt 464 288)(pt 480 288)(line_width 1))
 )
 (port
@@ -230,8 +230,8 @@
 (port
 (pt 480 384)
 (output)
-(text "pap_ack_from_the_powerlink_0 " (rect 0 0 154 16)(font "Arial" (font_size 8)))
-(text "pap_ack_from_the_powerlink_0 " (rect 298 377 453 393)(font "Arial" (font_size 8)))
+(text "pap_ack_n_from_the_powerlink_0 " (rect 0 0 166 16)(font "Arial" (font_size 8)))
+(text "pap_ack_n_from_the_powerlink_0 " (rect 286 377 453 393)(font "Arial" (font_size 8)))
 (line (pt 464 384)(pt 480 384)(line_width 1))
 )
 (port
