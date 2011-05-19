@@ -1,7 +1,7 @@
 SYSTEM niosII_openMac
 {
-   System_Wizard_Version = "10.01";
-   System_Wizard_Build = "262";
+   System_Wizard_Version = "10.11";
+   System_Wizard_Build = "197";
    Builder_Application = "sopc_builder_ca";
    WIZARD_SCRIPT_ARGUMENTS 
    {
@@ -178,6 +178,13 @@ SYSTEM niosII_openMac
                width = "1";
                direction = "input";
                Is_Enabled = "1";
+            }
+            PORT jtag_debug_module_resetrequest
+            {
+               type = "resetrequest";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "0";
             }
          }
          SYSTEM_BUILDER_INFO 
@@ -431,13 +438,6 @@ SYSTEM niosII_openMac
                direction = "output";
                Is_Enabled = "1";
             }
-            PORT jtag_debug_module_resetrequest
-            {
-               type = "resetrequest";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
             PORT jtag_debug_module_select
             {
                type = "chipselect";
@@ -464,6 +464,13 @@ SYSTEM niosII_openMac
                Is_Enabled = "1";
                direction = "input";
                type = "clk";
+               width = "1";
+            }
+            PORT jtag_debug_module_resetrequest
+            {
+               Is_Enabled = "1";
+               direction = "output";
+               type = "resetrequest";
                width = "1";
             }
             PORT reset_n
@@ -610,15 +617,9 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry status_led_pio/s1
-            {
-               address = "0x01002020";
-               span = "0x00000020";
-               is_bridge = "0";
-            }
             Entry jtag_uart_0/avalon_jtag_slave
             {
-               address = "0x01002080";
+               address = "0x01002060";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -630,19 +631,19 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_CMP
             {
-               address = "0x01002060";
+               address = "0x01002040";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry altpll_0/pll_slave
             {
-               address = "0x01002070";
+               address = "0x01002050";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry benchmark_pio/s1
             {
-               address = "0x01002040";
+               address = "0x01002020";
                span = "0x00000020";
                is_bridge = "0";
             }
@@ -654,7 +655,7 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_BUF
             {
-               address = "0x00008000";
+               address = "0x00018000";
                span = "0x00008000";
                is_bridge = "0";
             }
@@ -895,7 +896,7 @@ SYSTEM niosII_openMac
          germs_monitor_id = "";
       }
       class = "altera_nios2";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -904,7 +905,7 @@ SYSTEM niosII_openMac
          Parameters_Signature = "";
          Is_CPU = "1";
          Instantiate_In_System_Module = "1";
-         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,STRATIXV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,TARPON,HARDCOPYIV,STINGRAY";
+         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,STRATIXV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,ARRIAIIGZ,TARPON,HARDCOPYIV,STINGRAY";
          Default_Module_Name = "cpu";
          Top_Level_Ports_Are_Enumerated = "1";
          View 
@@ -1601,7 +1602,7 @@ SYSTEM niosII_openMac
       {
       }
       class = "altera_avalon_tri_state_bridge";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -1627,6 +1628,13 @@ SYSTEM niosII_openMac
             PORT clk
             {
                type = "clk";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT reset
+            {
+               type = "reset";
                width = "1";
                direction = "input";
                Is_Enabled = "1";
@@ -1841,7 +1849,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_onchip_memory2";
-      class_version = "7.08100";
+      class_version = "7.08101";
       HDL_INFO 
       {
          Precompiled_Simulation_Library_Files = "";
@@ -2007,14 +2015,14 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002080";
+               Offset_Address = "0x00002060";
             }
-            Base_Address = "0x01002080";
+            Base_Address = "0x01002060";
             Address_Group = "0";
          }
       }
       class = "altera_avalon_jtag_uart";
-      class_version = "7.08100";
+      class_version = "7.08101";
       iss_model_name = "altera_avalon_jtag_uart";
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -2024,7 +2032,7 @@ SYSTEM niosII_openMac
          read_threshold = "8";
          read_char_stream = "";
          showascii = "0";
-         relativepath = "0";
+         relativepath = "1";
          read_le = "0";
          write_le = "0";
          altera_show_unreleased_jtag_uart_features = "0";
@@ -2232,7 +2240,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_timer";
-      class_version = "7.08100";
+      class_version = "7.08101";
       iss_model_name = "altera_avalon_timer";
       SYSTEM_BUILDER_INFO 
       {
@@ -2533,15 +2541,9 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
-            Entry status_led_pio/s1
-            {
-               address = "0x00002020";
-               span = "0x00000020";
-               is_bridge = "0";
-            }
             Entry jtag_uart_0/avalon_jtag_slave
             {
-               address = "0x00002080";
+               address = "0x00002060";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -2553,26 +2555,26 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_CMP
             {
-               address = "0x00002060";
+               address = "0x00002040";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry altpll_0/pll_slave
             {
-               address = "0x00002070";
+               address = "0x00002050";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry benchmark_pio/s1
             {
-               address = "0x00002040";
+               address = "0x00002020";
                span = "0x00000020";
                is_bridge = "0";
             }
          }
       }
       class = "altera_avalon_clock_crossing";
-      class_version = "7.08100";
+      class_version = "7.08101";
       iss_model_name = "altera_avalon_clock_crossing";
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -2612,170 +2614,6 @@ SYSTEM niosII_openMac
       }
       PORT_WIRING 
       {
-      }
-   }
-   MODULE status_led_pio
-   {
-      SLAVE s1
-      {
-         PORT_WIRING 
-         {
-            PORT clk
-            {
-               type = "clk";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT reset_n
-            {
-               type = "reset_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT address
-            {
-               type = "address";
-               width = "3";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT write_n
-            {
-               type = "write_n";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT writedata
-            {
-               type = "writedata";
-               width = "2";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT chipselect
-            {
-               type = "chipselect";
-               width = "1";
-               direction = "input";
-               Is_Enabled = "1";
-            }
-            PORT readdata
-            {
-               type = "readdata";
-               width = "2";
-               direction = "output";
-               Is_Enabled = "1";
-            }
-         }
-         SYSTEM_BUILDER_INFO 
-         {
-            Bus_Type = "avalon";
-            Write_Wait_States = "0cycles";
-            Read_Wait_States = "1cycles";
-            Hold_Time = "0cycles";
-            Setup_Time = "0cycles";
-            Is_Printable_Device = "0";
-            Address_Alignment = "native";
-            Well_Behaved_Waitrequest = "0";
-            Is_Nonvolatile_Storage = "0";
-            Read_Latency = "0";
-            Is_Memory_Device = "0";
-            Maximum_Pending_Read_Transactions = "0";
-            Minimum_Uninterrupted_Run_Length = "1";
-            Accepts_Internal_Connections = "1";
-            Write_Latency = "0";
-            Is_Flash = "0";
-            Data_Width = "2";
-            Address_Width = "3";
-            Maximum_Burst_Size = "1";
-            Register_Incoming_Signals = "0";
-            Register_Outgoing_Signals = "0";
-            Interleave_Bursts = "0";
-            Linewrap_Bursts = "0";
-            Burst_On_Burst_Boundaries_Only = "0";
-            Always_Burst_Max_Burst = "0";
-            Is_Big_Endian = "0";
-            Is_Enabled = "1";
-            MASTERED_BY clock_crossing_0/m1
-            {
-               priority = "1";
-               Offset_Address = "0x00002020";
-            }
-            Base_Address = "0x01002020";
-            Has_IRQ = "0";
-            Address_Group = "0";
-            Is_Readable = "0";
-            Is_Writable = "1";
-         }
-      }
-      PORT_WIRING 
-      {
-         PORT out_port
-         {
-            type = "export";
-            width = "2";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT in_port
-         {
-            direction = "input";
-            Is_Enabled = "0";
-            width = "2";
-         }
-         PORT bidir_port
-         {
-            direction = "inout";
-            Is_Enabled = "0";
-            width = "2";
-         }
-      }
-      class = "altera_avalon_pio";
-      class_version = "7.08100";
-      SYSTEM_BUILDER_INFO 
-      {
-         Is_Enabled = "1";
-         Instantiate_In_System_Module = "1";
-         Wire_Test_Bench_Values = "1";
-         Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk50Meg";
-         Has_Clock = "1";
-         Date_Modified = "";
-         View 
-         {
-            MESSAGES 
-            {
-            }
-            Settings_Summary = " 2-bit PIO using <br>
-					
-					
-					 output pins";
-         }
-      }
-      WIZARD_SCRIPT_ARGUMENTS 
-      {
-         Do_Test_Bench_Wiring = "0";
-         Driven_Sim_Value = "0";
-         has_tri = "0";
-         has_out = "1";
-         has_in = "0";
-         capture = "0";
-         Data_Width = "2";
-         reset_value = "0";
-         edge_type = "NONE";
-         irq_type = "NONE";
-         bit_clearing_edge_register = "0";
-         bit_modifying_output_register = "1";
-      }
-      HDL_INFO 
-      {
-         Precompiled_Simulation_Library_Files = "";
-         Simulation_HDL_Files = "";
-         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/status_led_pio.vhd";
-         Synthesis_Only_Files = "";
       }
    }
    MODULE node_switch_pio
@@ -2881,7 +2719,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -2979,6 +2817,13 @@ SYSTEM niosII_openMac
                width = "1";
                direction = "input";
                Is_Enabled = "1";
+            }
+            PORT jtag_debug_module_resetrequest
+            {
+               type = "resetrequest";
+               width = "1";
+               direction = "output";
+               Is_Enabled = "0";
             }
          }
          SYSTEM_BUILDER_INFO 
@@ -3220,13 +3065,6 @@ SYSTEM niosII_openMac
                direction = "output";
                Is_Enabled = "1";
             }
-            PORT jtag_debug_module_resetrequest
-            {
-               type = "resetrequest";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
             PORT jtag_debug_module_select
             {
                type = "chipselect";
@@ -3253,6 +3091,13 @@ SYSTEM niosII_openMac
                Is_Enabled = "1";
                direction = "input";
                type = "clk";
+               width = "1";
+            }
+            PORT jtag_debug_module_resetrequest
+            {
+               Is_Enabled = "1";
+               direction = "output";
+               type = "resetrequest";
                width = "1";
             }
             PORT reset_n
@@ -3433,6 +3278,12 @@ SYSTEM niosII_openMac
             {
                address = "0x00000840";
                span = "0x00000020";
+               is_bridge = "0";
+            }
+            Entry powerlink_0/MAC_BUF
+            {
+               address = "0x00018000";
+               span = "0x00008000";
                is_bridge = "0";
             }
          }
@@ -3648,7 +3499,7 @@ SYSTEM niosII_openMac
          germs_monitor_id = "";
       }
       class = "altera_nios2";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -3657,7 +3508,7 @@ SYSTEM niosII_openMac
          Parameters_Signature = "";
          Is_CPU = "1";
          Instantiate_In_System_Module = "1";
-         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,STRATIXV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,TARPON,HARDCOPYIV,STINGRAY";
+         Required_Device_Family = "STRATIX,STRATIXGX,STRATIXII,STRATIXIIGX,STRATIXIIGXLITE,STRATIXIII,STRATIXIV,STRATIXV,CYCLONE,CYCLONEII,CYCLONEIII,CYCLONEIVE,HARDCOPYIII,ARRIAII,ARRIAIIGZ,TARPON,HARDCOPYIV,STINGRAY";
          Default_Module_Name = "cpu";
          Top_Level_Ports_Are_Enumerated = "1";
          View 
@@ -4711,7 +4562,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_new_sdram_controller";
-      class_version = "7.08100";
+      class_version = "7.08101";
       HDL_INFO 
       {
          Precompiled_Simulation_Library_Files = "";
@@ -4858,7 +4709,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_jtag_uart";
-      class_version = "7.08100";
+      class_version = "7.08101";
       iss_model_name = "altera_avalon_jtag_uart";
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -4868,7 +4719,7 @@ SYSTEM niosII_openMac
          read_threshold = "8";
          read_char_stream = "";
          showascii = "1";
-         relativepath = "0";
+         relativepath = "1";
          read_le = "0";
          write_le = "0";
          altera_show_unreleased_jtag_uart_features = "0";
@@ -5076,7 +4927,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_timer";
-      class_version = "7.08100";
+      class_version = "7.08101";
       iss_model_name = "altera_avalon_timer";
       SYSTEM_BUILDER_INFO 
       {
@@ -5207,7 +5058,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_sysid";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Date_Modified = "";
@@ -5219,7 +5070,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>36509C87</b>    (unique ID tag) <br> <b>4D6F846C</b> (timestamp: Thu Mar 3, 2011 @1:07 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4DD51F17</b> (timestamp: Thu May 19, 2011 @3:45 PM)";
             MESSAGES 
             {
             }
@@ -5227,8 +5078,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "911252615u";
-         timestamp = "1299154028u";
+         id = "0u";
+         timestamp = "1305812759u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5237,7 +5088,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=911252615 --timestamp=1299154028";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000910 --id=0 --timestamp=1305812759";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -5346,9 +5197,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002070";
+               Offset_Address = "0x00002050";
             }
-            Base_Address = "0x01002070";
+            Base_Address = "0x01002050";
             Address_Group = "0";
          }
       }
@@ -5405,9 +5256,9 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.08100";
+      class_version = "7.08101";
       gtf_class_name = "altpll";
-      gtf_class_version = "10.0";
+      gtf_class_version = "10.1";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -5424,7 +5275,7 @@ SYSTEM niosII_openMac
       }
       HDL_INFO 
       {
-         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/altpll_0.vhd";
+         Simulation_HDL_Files = "__PROJECT_DIRECTORY__/altpll_0.vho";
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -5707,14 +5558,14 @@ SYSTEM niosII_openMac
          sync_reg_depth = "2";
       }
       class = "altera_avalon_epcs_flash_controller";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
          Clock_Source = "pcp_clk";
          Has_Clock = "1";
          Instantiate_In_System_Module = "1";
-         Required_Device_Family = "STRATIX,CYCLONE,CYCLONEII,CYCLONEIII,STRATIXIII,STRATIXII,STRATIXIIGX,ARRIAGX,STRATIXIIGXLITE,STRATIXIV,STRATIXV,ARRIAII,TARPON,STINGRAY,CYCLONEIVE";
+         Required_Device_Family = "STRATIX,CYCLONE,CYCLONEII,CYCLONEIII,STRATIXIII,STRATIXII,STRATIXIIGX,ARRIAGX,STRATIXIIGXLITE,STRATIXIV,STRATIXV,ARRIAII,ARRIAIIGZ,TARPON,STINGRAY,CYCLONEIVE";
          Fixed_Module_Name = "epcs_controller";
          Top_Level_Ports_Are_Enumerated = "1";
          View 
@@ -5845,9 +5696,9 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.08100";
+      class_version = "7.08101";
       gtf_class_name = "altera_avalon_remote_update_cycloneiii";
-      gtf_class_version = "10.0";
+      gtf_class_version = "10.1";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -5974,13 +5825,22 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00008000";
+               Offset_Address = "0x00018000";
             }
             Clock_Source = "pcp_clk";
             Has_Clock = "1";
-            Base_Address = "0x00008000";
+            MASTERED_BY ap_cpu/data_master
+            {
+               priority = "1";
+               Offset_Address = "0x00018000";
+            }
+            Base_Address = "0x00018000";
             Address_Group = "0";
             IRQ_MASTER pcp_cpu/data_master
+            {
+               IRQ_Number = "NC";
+            }
+            IRQ_MASTER ap_cpu/data_master
             {
                IRQ_Number = "NC";
             }
@@ -6094,14 +5954,63 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002060";
+               Offset_Address = "0x00002040";
             }
-            Base_Address = "0x01002060";
+            Base_Address = "0x01002040";
             Address_Group = "1";
          }
       }
       PORT_WIRING 
       {
+         PORT led_error
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT led_status
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT led_phyLink
+         {
+            type = "export";
+            width = "2";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT led_phyAct
+         {
+            type = "export";
+            width = "2";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT led_opt
+         {
+            type = "export";
+            width = "2";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy0_link
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phy1_link
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
          PORT spi_clk
          {
             type = "export";
@@ -6131,6 +6040,20 @@ SYSTEM niosII_openMac
             Is_Enabled = "1";
          }
          PORT ap_irq
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT ap_asyncIrq
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT ap_asyncIrq_n
          {
             type = "export";
             width = "1";
@@ -6485,9 +6408,9 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.08100";
+      class_version = "7.08101";
       gtf_class_name = "powerlink";
-      gtf_class_version = "1.0";
+      gtf_class_version = "1.2";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -6510,13 +6433,15 @@ SYSTEM niosII_openMac
       {
          CONFIG = "3";
          CONFIGAPENDIAN = "0";
-         MACBUFSIZE = "18976";
+         FPGAREV = "33";
+         MACBUFSIZE = "19096";
          MACRXBUFFERS = "6";
-         MACRXBUFSIZE = "9192";
+         MACRXBUFSIZE = "9288";
          MACTXBUFFERS = "12";
-         MACTXBUFSIZE = "9784";
+         MACTXBUFSIZE = "9808";
          PDIRPDOS = "3";
          PDITPDOS = "1";
+         PHYCNT = "2";
          PKTLOC = "0";
       }
    }
@@ -6644,7 +6569,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -6791,7 +6716,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -7024,7 +6949,7 @@ SYSTEM niosII_openMac
          delayunit = "us";
       }
       class = "altera_avalon_spi";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -7178,7 +7103,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -7349,7 +7274,7 @@ SYSTEM niosII_openMac
       {
       }
       class = "altera_avalon_lcd_16207";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -7497,7 +7422,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
@@ -7648,7 +7573,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "no_legacy_module";
-      class_version = "7.08100";
+      class_version = "7.08101";
       gtf_class_name = "sram";
       gtf_class_version = "1.0";
       SYSTEM_BUILDER_INFO 
@@ -7758,9 +7683,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002040";
+               Offset_Address = "0x00002020";
             }
-            Base_Address = "0x01002040";
+            Base_Address = "0x01002020";
             Has_IRQ = "0";
             Address_Group = "0";
             Is_Readable = "0";
@@ -7790,7 +7715,7 @@ SYSTEM niosII_openMac
          }
       }
       class = "altera_avalon_pio";
-      class_version = "7.08100";
+      class_version = "7.08101";
       SYSTEM_BUILDER_INFO 
       {
          Is_Enabled = "1";
