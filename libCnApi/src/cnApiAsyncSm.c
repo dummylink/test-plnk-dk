@@ -541,7 +541,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
                 // Check within call-back function if expected message size exceeds the PDI buffer!
                 // Also, call-back function has to write the written message size 'dwMsgSize_m' to the Tx descriptor.
                 ErrorHistory_l = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr,
-                                                                   (BYTE *) &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan,
+                                                                   (BYTE *) &pUtilTxPdiBuf->m_chan,
                                                                    (BYTE *) &pMsgDescr->pRespMsgDescr_m->pPdiBuffer_m->pAdr_m->m_chan,
                                                                    dwMaxBufPayload);
                 if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
@@ -803,7 +803,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     pUtilRxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m;
 
     /* verify message type */
-    if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_bMsgType != pMsgDescr->MsgType_m)
+    if (pUtilRxPdiBuf->m_header.m_bMsgType != pMsgDescr->MsgType_m)
     {
         ErrorHistory_l = kPdiAsyncStatusInvalidMessage;
         fError = TRUE;
@@ -816,13 +816,13 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     if (pMsgDescr->dwPendTranfSize_m == 0) //indicates 1st fragment
     {
         /* choose transfer type according to message size */
-        if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > MAX_ASYNC_STREAM_LENGTH)
+        if (pUtilRxPdiBuf->m_header.m_dwStreamLen > MAX_ASYNC_STREAM_LENGTH)
         { /* data size exceeded -> reject transfer */
             ErrorHistory_l = kPdiAsyncStatusDataTooLong;
             fError = TRUE;
             goto exit;
         }
-        else if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+        else if (pUtilRxPdiBuf->m_header.m_dwStreamLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
         { /* message fits in local buffer */
             pMsgDescr->TransfType_m = kPdiAsyncTrfTypeLclBuffering;
 
@@ -837,7 +837,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
 
             /* allocate data block for Rx message payload */
-            pLclAsyncRxMsgBuffer_l = (BYTE *) CNAPI_MALLOC(pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen);
+            pLclAsyncRxMsgBuffer_l = (BYTE *) CNAPI_MALLOC(pUtilRxPdiBuf->m_header.m_dwStreamLen);
 
             if (pLclAsyncRxMsgBuffer_l == NULL)
             {
@@ -856,7 +856,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
         }
 
         /* initialize message header values */
-        pMsgDescr->dwMsgSize_m = pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen;
+        pMsgDescr->dwMsgSize_m = pUtilRxPdiBuf->m_header.m_dwStreamLen;
         pMsgDescr->dwPendTranfSize_m = pMsgDescr->dwMsgSize_m;
     }/* initialization for 1st fragment finished */
 
@@ -889,7 +889,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
             /* copy local buffer fragment into the PDI buffer */
-            memcpy(pCurLclMsgFrgmt, &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan,  wCopyLength);
+            memcpy(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
 
             /* calculate new pending payload */
             pMsgDescr->dwPendTranfSize_m -= wCopyLength;
@@ -917,7 +917,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
 
         case kPdiAsyncTrfTypeDirectAccess:
         {
-            pRxChan = (BYTE *) &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan;
+            pRxChan = (BYTE *) &pUtilRxPdiBuf->m_chan;
             pMsgDescr->fMsgValid_m = TRUE; // tag message payload as complete
             break;
         }
