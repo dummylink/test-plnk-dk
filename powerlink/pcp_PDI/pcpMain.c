@@ -25,6 +25,7 @@
 
 #include "pcp.h"
 #include "pcpStateMachine.h"
+#include "FpgaCfg.h"
 
 #include "cnApiIntern.h"
 #include "cnApiEvent.h"
@@ -100,6 +101,33 @@ int main (void)
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
+    switch (FpgaCfg_handleReconfig())
+    {
+        case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
+        {
+            // user image reconfiguration failed
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Factory image loaded.\n");
+            DEBUG_TRACE0(DEBUG_LVL_ERROR, "Last user image timed out or failed!\n");
+            break;
+        }
+        case kFpgaCfgUserImageLoadedWatchdogDisabled:
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+            break;
+        }
+        case kFpgaCfgUserImageLoadedWatchdogEnabled:
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+            // watchdog timer has to be reset periodically
+            FpgaCfg_resetWatchdogTimer(); // do this periodically!
+            break;
+        }
+    
+        default:
+            //error, this shall not be reached
+        break;
+    }    
+    
     DEBUG_TRACE0(DEBUG_LVL_09, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
 
     /***** initializations *****/

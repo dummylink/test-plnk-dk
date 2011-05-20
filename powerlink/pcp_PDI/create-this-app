@@ -78,6 +78,7 @@ done
 INCLUDES="\
 . \
 ${EDRV_DIR}/openmac/include \
+${EDRV_DIR}/../target
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
@@ -115,6 +116,7 @@ pcpAsync.c \
 pcpPdo.c \
 pcpAsyncSm.c \
 pcpStateMachine.c \
+${EDRV_DIR}/../target/FpgaCfg.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
