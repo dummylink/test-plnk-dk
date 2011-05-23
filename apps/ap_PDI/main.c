@@ -360,7 +360,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                     case kPcpGenEventNodeIdConfigured:
                     {
-                        TRACE1("INFO: NODE ID is set to 0x%02x\n", pCtrlReg_g->m_wNodeId);
+                        TRACE1("INFO: NODE ID is set to 0x%02x\n", CnApi_getNodeId());
                         break;
                     }
                     default:

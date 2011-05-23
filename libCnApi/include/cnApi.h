@@ -366,7 +366,7 @@ extern void CnApi_enterApStateReadyToOperate();
 extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p);
 extern void CnApi_cleanupObjects(void);
-
+extern WORD CnApi_getNodeId(void);
 
 /* functions for interrupt synchronization */
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
@@ -376,6 +376,7 @@ extern void CnApi_ackSyncIrq(void);
 extern void CnApi_transferPdo(void);
 extern void CnApi_AppCbSync(void);
 extern DWORD CnApi_getSyncIntPeriod(void);
+
 
 extern int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p); //SPI Master Tx Handler
 extern int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p); //SPI MASTER Rx Handler

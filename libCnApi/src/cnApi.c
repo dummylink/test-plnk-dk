@@ -364,7 +364,9 @@ BOOL CnApi_verifyPcpPdiRevision(void)
                    (BYTE*) &pCtrlReg_g->m_wPcpPdiRev);
 #endif /* CN_API_USING_SPI */
 
-    /* verify if this compilation of CnApi library matches the current PCP PDI */
+    /* verify if this compilation of CnApi library matches
+     * the current PCP PDI revision
+     */
     if (PCP_PDI_REVISION != pCtrlReg_g->m_wPcpPdiRev)
     {
         return FALSE;
@@ -375,6 +377,54 @@ BOOL CnApi_verifyPcpPdiRevision(void)
     }
 }
 
+/**
+********************************************************************************
+\brief  verifies the PCP FPGA's built time stamp
+\retval FALSE if time stamp of this library build is not based on the current
+        FPGA build time stamp , TRUE if it matches
+*******************************************************************************/
+BOOL CnApi_verifyFpgaTimestamp(void)
+{
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_FPGA_TS_OFFSET,
+                   sizeof(pCtrlReg_g->m_dwFpgaTimeStamp),
+                   (BYTE*) &pCtrlReg_g->m_dwFpgaTimeStamp);
+#endif /* CN_API_USING_SPI */
+
+    /* verify if this compilation of CnApi library matches the current FPGA config */
+    if (PCP_FPGA_BUILD_TIME_STAMP != pCtrlReg_g->m_dwFpgaTimeStamp)
+    {
+        return FALSE;
+    }
+    else
+    {
+        return TRUE;
+    }
+}
+
+/**
+********************************************************************************
+\brief  get Powerlink Node Id
+
+This function reads the current Powerlink Node ID setting of the PCP
+and returns it. This function will only return a valid value if it is executed
+after PCP has reached state PCP_INIT (or in case of an related event).
+Range of a valid Powerlink Slave Node ID: [0x01h .. 0xEFh]
+
+\retval m_wNodeId        Powerlink Node ID
+*******************************************************************************/
+WORD CnApi_getNodeId(void)
+{
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_NODE_ID_OFFSET,
+                   sizeof(pCtrlReg_g->m_wNodeId),
+                   (BYTE*) &pCtrlReg_g->m_wNodeId);
+#endif /* CN_API_USING_SPI */
+
+    return pCtrlReg_g->m_wNodeId;
+}
 
 /* END-OF-FILE */
 /******************************************************************************/
