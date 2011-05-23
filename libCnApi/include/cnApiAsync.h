@@ -232,6 +232,7 @@ typedef struct sAsyncMsg {
  */
 typedef struct sPcpPdiAsyncBufDescr {
   tAsyncMsg *  pAdr_m;
+  WORD         wPdiOffset_m;  ///< DPRAM offset (used for serial interface)
   WORD         wMaxPayload_m;
 } PACK_STRUCT tPcpPdiAsyncMsgBufDescr;
 

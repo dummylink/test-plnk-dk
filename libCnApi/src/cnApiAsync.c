@@ -42,8 +42,10 @@ tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 
 /******************************************************************************/
 /* global variables */
-
 static BYTE				bReqId_l = 0;		///< asynchronous msg counter
+#ifdef CN_API_USING_SPI
+static tAsyncMsg LclCpyAsyncMsgHeader_l[4]; ///< local copy of asynchronous PDI message header
+#endif
 
 /******************************************************************************/
 /* function declarations */
@@ -65,14 +67,26 @@ int CnApiAsync_init(void)
     register WORD wCnt;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBuf0Aoffs);
-    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
-    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
+#ifdef CN_API_USING_SPI
+    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = &LclCpyAsyncMsgHeader_l[0];
+    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = &LclCpyAsyncMsgHeader_l[1];
+    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = &LclCpyAsyncMsgHeader_l[2];
+    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = &LclCpyAsyncMsgHeader_l[3];
 
+    aPcpPdiAsyncTxMsgBuffer_g[0].wPdiOffset_m = PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET;
+    aPcpPdiAsyncRxMsgBuffer_g[0].wPdiOffset_m = PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET;
+    aPcpPdiAsyncTxMsgBuffer_g[1].wPdiOffset_m = PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET;
+    aPcpPdiAsyncRxMsgBuffer_g[1].wPdiOffset_m = PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET;
+#else
+    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBuf0Aoffs);
+    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
     aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBuf1Aoffs);
-    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
     aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf1Aoffs);
+#endif /* CN_API_USING_SPI */
+
+    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
     aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
 
     for (wCnt = 0; wCnt < PDI_ASYNC_CHANNELS_MAX; ++wCnt)
@@ -142,7 +156,12 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     Dir = kCnApiDirTransmit;
     pPdiBuf = &aPcpPdiAsyncTxMsgBuffer_g[0];
 
-    TfrTyp = kPdiAsyncTrfTypeDirectAccess;
+#ifdef CN_API_USING_SPI
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering; // has to be buffered locally if serial interface is used
+#else
+    TfrTyp = kPdiAsyncTrfTypeDirectAccess; // use only, if message size will not exceed the PDI buffer
+#endif /* CN_API_USING_SPI */
+
     ChanType_p = kAsyncChannelInternal;
     pNmtList = NULL;
     wTout = 100;
@@ -159,7 +178,11 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    TfrTyp = kPdiAsyncTrfTypeDirectAccess;
+#ifdef CN_API_USING_SPI
+#else
+    TfrTyp = kPdiAsyncTrfTypeDirectAccess; // use only, if message size will not exceed the PDI buffer
+#endif /* CN_API_USING_SPI */
+
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntWriteObjReq, Dir, CnApi_doWriteObjReq, pPdiBuf,
                         kPdiAsyncMsgIntWriteObjResp, TfrTyp, ChanType_p, pNmtList, wTout);
@@ -170,8 +193,13 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     //if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     /* Rx messages */
-    Dir = kCnApiDirReceive; // transfer type doesn't matter -> chosen according to Rx messsage size
-    TfrTyp = kPdiAsyncTrfTypeAutoDecision;
+    Dir = kCnApiDirReceive;
+#ifdef CN_API_USING_SPI
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering; // has to be buffered locally if serial interface is used
+#else
+    TfrTyp = kPdiAsyncTrfTypeAutoDecision;; // transfer type doesn't matter -> chosen according to Rx messsage size
+#endif /* CN_API_USING_SPI */
+
     pPdiBuf = &aPcpPdiAsyncRxMsgBuffer_g[0];
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, CnApi_handleInitPcpResp, pPdiBuf,

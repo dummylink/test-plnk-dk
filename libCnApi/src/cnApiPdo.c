@@ -186,7 +186,7 @@ int CnApi_initPdo(void)
     aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wTxPdo0Ack);
     #ifdef CN_API_USING_SPI
     aTPdosPdi_l[0].dwSpiBufOffs_m = PCP_CTRLREG_TPDO0_OFST_OFFSET;
-    aTPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_TPDOACK_OFFSET;
+    aTPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_TPDO_0_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* TPDO_CHANNELS_MAX >= 1 */
 
@@ -197,7 +197,7 @@ int CnApi_initPdo(void)
     aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo0Ack);
     #ifdef CN_API_USING_SPI
     aRPdosPdi_l[0].dwSpiBufOffs_m = PCP_CTRLREG_RPDO0_OFST_OFFSET;
-    aRPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_RPDO0ACK_OFFSET;
+    aRPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_RPDO_0_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 1 */
 
@@ -207,7 +207,7 @@ int CnApi_initPdo(void)
     aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo1Ack);
     #ifdef CN_API_USING_SPI
     aRPdosPdi_l[1].dwSpiBufOffs_m = PCP_CTRLREG_RPDO1_OFST_OFFSET;
-    aRPdosPdi_l[1].wSpiAckOffs_m = PCP_CTRLREG_RPDO1ACK_OFFSET;
+    aRPdosPdi_l[1].wSpiAckOffs_m = PCP_CTRLREG_RPDO_1_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 2 */
 
@@ -217,7 +217,7 @@ int CnApi_initPdo(void)
     aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo2Ack);
     #ifdef CN_API_USING_SPI
     aRPdosPdi_l[2].dwSpiBufOffs_m = PCP_CTRLREG_RPDO2_OFST_OFFSET;
-    aRPdosPdi_l[2].wSpiAckOffs_m = PCP_CTRLREG_RPDO2ACK_OFFSET;
+    aRPdosPdi_l[2].wSpiAckOffs_m = PCP_CTRLREG_RPDO_2_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 3 */
 
@@ -390,12 +390,16 @@ to a defined buffer control register.
 *******************************************************************************/
 inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 {
+    const BYTE bAckValue = 0xff;
 
 #ifdef CN_API_USING_SPI
     DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI,"Ack Offs: %d\n", (WORD) *pAckReg_p);
-    CnApi_Spi_writeByte((WORD) *pAckReg_p, 0xff);    ///< update pcp register
+    /* update PCP register */
+    CnApi_Spi_write(*pAckReg_p, // this is an offset in case of serial interface
+                    sizeof(bAckValue),
+                    (BYTE*) &bAckValue);
 #else
-    *pAckReg_p = 0xff; ///> write random byte value
+    *pAckReg_p = bAckValue; ///> write random byte value
 #endif /* CN_API_USING_SPI */
 }
 
@@ -422,7 +426,7 @@ void CnApi_receivePdo(void)
         wEntryCnt = aRxPdoCopyTbl_l[iCntout].bNumOfEntries_m;
         dwPdiBufOffs = aRPdosPdi_l[iCntout].dwSpiBufOffs_m;
 
-        if(wEntryCnt == 0) break; ///< no data to be copied
+        if(wEntryCnt == 0) break; // no data to be copied
         DEBUG_TRACE2(DEBUG_LVL_CNAPI_SPI,"Offs: 0x%04x RPDO: %d\n", dwPdiBufOffs, iCntout);
 
         /* prepare PDO buffer for read access */
@@ -436,7 +440,7 @@ void CnApi_receivePdo(void)
         }
     }
 #else
-    BYTE                *pPdoPdiData;      ///< pointer to Pdo buffer
+    BYTE                *pPdoPdiData;      // pointer to Pdo buffer
 
     /* copy all RPDOs from PDI buffer to local variable */
     for (iCntout = 0; iCntout < RPDO_CHANNELS_MAX; ++iCntout)

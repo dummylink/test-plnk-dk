@@ -27,6 +27,7 @@ the Tx and Rx direction towards and from the AP is handled.
 /* includes */
 #include "cnApiAsyncSm.h"    ///< external function declarations
 #include "cnApiAsync.h"      ///< state machine constants
+#include "cnApiPdiSpi.h"     ///< serial interface
 
 #include <malloc.h>
 #include <string.h>
@@ -330,6 +331,13 @@ FUNC_DOACT(kPdiAsyncStateWait)
         {
             for (bCnt = 0; bCnt < PDI_ASYNC_CHANNELS_MAX; ++bCnt)
             {
+#ifdef CN_API_USING_SPI
+    /* read PDI buffer header to local copy */
+    CnApi_Spi_read(aPcpPdiAsyncRxMsgBuffer_g[bCnt].wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                   sizeof(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header),
+                   (BYTE*) &aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header);
+#endif /* CN_API_USING_SPI */
+
                 if (checkMsgPresence(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m))
                 {
                     bCurPdiChannelNum = bCnt; // set current Rx PDI channel
@@ -343,6 +351,13 @@ FUNC_DOACT(kPdiAsyncStateWait)
     /* check if internal Rx message is available */
     for (bCnt = 0; bCnt < PDI_ASYNC_CHANNELS_MAX; ++bCnt)
     {
+#ifdef CN_API_USING_SPI
+    /* read PDI buffer header to local copy */
+    CnApi_Spi_read(aPcpPdiAsyncRxMsgBuffer_g[bCnt].wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                   sizeof(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header),
+                   (BYTE*) &aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header);
+#endif /* CN_API_USING_SPI */
+
         if (checkMsgPresence(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m) &&
             aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header.m_bChannel == kAsyncChannelInternal)
         {
@@ -521,10 +536,23 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             pCurLclMsgFrgmt = pMsgDescr->MsgHdl_m.pLclBuf_m +
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
-            /* copy local buffer fragment into the PDI buffer */
-            memcpy(&pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan, pCurLclMsgFrgmt, wCopyLength);
+#ifdef CN_API_USING_SPI
+            /* write asynchronous message payload to PDI buffer */
+            CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
+                            wCopyLength,
+                            (BYTE*) pCurLclMsgFrgmt);
 
-            pUtilTxPdiBuf->m_header.m_wFrgmtLen = wCopyLength;  // update  PDI buffer control header
+            /* write fragment length to PDI buffer header */
+            CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_FRMT_OFFSET,
+                            sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_wFrgmtLen),
+                            (BYTE*) &wCopyLength);
+#else
+            /* write asynchronous message payload to PDI buffer */
+            memcpy(&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
+
+            /* write fragment length to PDI buffer header */
+            pUtilTxPdiBuf->m_header.m_wFrgmtLen = wCopyLength;
+#endif /* CN_API_USING_SPI */
 
             break;
         }
@@ -575,7 +603,28 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
     pUtilTxPdiBuf->m_header.m_bChannel =  pMsgDescr->Param_m.ChanType_m;
     pUtilTxPdiBuf->m_header.m_bMsgType = pMsgDescr->MsgType_m;
     pUtilTxPdiBuf->m_header.m_dwStreamLen = pMsgDescr->dwMsgSize_m;
+#ifdef CN_API_USING_SPI
+    /* update channel type of PCP PDI buffer header */
+    CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_CHAN_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bChannel),
+                    (BYTE*) &pUtilTxPdiBuf->m_header.m_bChannel);
+    /* update message type of PCP PDI buffer header */
+    CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_MSGT_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bMsgType),
+                    (BYTE*) &pUtilTxPdiBuf->m_header.m_bMsgType);
+    /* update stream lenght of PCP PDI buffer header */
+    CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_STRM_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_dwStreamLen),
+                    (BYTE*) &pUtilTxPdiBuf->m_header.m_dwStreamLen);
+#endif /* CN_API_USING_SPI */
+
     setBuffToReadOnly(pUtilTxPdiBuf); // set sync flag
+#ifdef CN_API_USING_SPI
+    /* update sync flag of PCP PDI buffer header */
+    CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bSync),
+                    (BYTE*) &pUtilTxPdiBuf->m_header.m_bSync);
+#endif /* CN_API_USING_SPI */
 
     fFrgmtStored = TRUE; // transit to ASYNC_TX_PENDING;
 
@@ -637,6 +686,13 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
     }
 
     // check if message has been delivered
+#ifdef CN_API_USING_SPI
+    /* update sync flag of PCP PDI buffer header */
+    CnApi_Spi_read(aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bSync),
+                    (BYTE*) &aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bSync);
+#endif /* CN_API_USING_SPI */
+
     if (checkMsgDelivery(aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->pAdr_m))
     {
         /* message has been delivered */
@@ -790,7 +846,6 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     BYTE *        pRxChan = NULL;           ///< pointer to Rx message payload
     BYTE          bElement = INVALID_ELEMENT;///< function argument for getArrayNumOfMsgDescr()
 
-
     if (bActivRxMsg_l == INVALID_ELEMENT)
     {
         ErrorHistory_l = kPdiAsyncStatusIllegalInstance;
@@ -800,9 +855,17 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
 
     /* initialize temporary pointers */
     pMsgDescr = &aPdiAsyncRxMsgs[bActivRxMsg_l];
-    pUtilRxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m;
+
+    pUtilRxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m; //assign Pdi Rx buffer which this message wants to use
 
     /* verify message type */
+#ifdef CN_API_USING_SPI
+    /* read PDI buffer header to local copy */
+    CnApi_Spi_read(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                   sizeof(((tAsyncMsg *) 0)->m_header),
+                   (BYTE*) pUtilRxPdiBuf);
+#endif /* CN_API_USING_SPI */
+
     if (pUtilRxPdiBuf->m_header.m_bMsgType != pMsgDescr->MsgType_m)
     {
         ErrorHistory_l = kPdiAsyncStatusInvalidMessage;
@@ -815,6 +878,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     /* initialization for 1st fragment */
     if (pMsgDescr->dwPendTranfSize_m == 0) //indicates 1st fragment
     {
+
         /* choose transfer type according to message size */
         if (pUtilRxPdiBuf->m_header.m_dwStreamLen > MAX_ASYNC_STREAM_LENGTH)
         { /* data size exceeded -> reject transfer */
@@ -822,7 +886,10 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             fError = TRUE;
             goto exit;
         }
-        else if (pUtilRxPdiBuf->m_header.m_dwStreamLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+
+        else if (pUtilRxPdiBuf->m_header.m_dwStreamLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m ||
+                 pMsgDescr->TransfType_m == kPdiAsyncTrfTypeLclBuffering) // transfer type already fixed because it is
+                                                                          // required for serial interface
         { /* message fits in local buffer */
             pMsgDescr->TransfType_m = kPdiAsyncTrfTypeLclBuffering;
 
@@ -888,8 +955,16 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             pCurLclMsgFrgmt = pMsgDescr->MsgHdl_m.pLclBuf_m +
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
+#ifdef CN_API_USING_SPI
+            /* write asynchronous message payload to PDI buffer */
+            CnApi_Spi_read(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
+                            wCopyLength,
+                            (BYTE*) pCurLclMsgFrgmt);
+#else
             /* copy local buffer fragment into the PDI buffer */
             memcpy(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
+#endif /* CN_API_USING_SPI */
+
 
             /* calculate new pending payload */
             pMsgDescr->dwPendTranfSize_m -= wCopyLength;
@@ -1092,6 +1167,13 @@ FUNC_EVT(kPdiAsyncRxStateBusy, kPdiAsyncStateWait, 1)
     if (checkEvent(&fMsgTransferFinished))
     {
         confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+#ifdef CN_API_USING_SPI
+    /* update sync flag of PCP PDI buffer header */
+    CnApi_Spi_write(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bSync),
+                    (BYTE*) &aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bSync);
+#endif /* CN_API_USING_SPI */
+
         if (checkEvent(&fDeactivateRxMsg))
         {
             bActivRxMsg_l = INVALID_ELEMENT;
@@ -1109,6 +1191,13 @@ FUNC_EVT(kPdiAsyncRxStateBusy, kPdiAsyncRxStatePending, 1)
     if (checkEvent(&fMsgTransferIncomplete))
     {
         confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+#ifdef CN_API_USING_SPI
+    /* update sync flag of PCP PDI buffer header */
+    CnApi_Spi_write(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bSync),
+                    (BYTE*) &aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bSync);
+#endif /* CN_API_USING_SPI */
+
         return TRUE; // do transition
     }
     else
@@ -1173,9 +1262,16 @@ FUNC_DOACT(kPdiAsyncRxStatePending)
         }
     }
 
+#ifdef CN_API_USING_SPI
+    /* read PDI buffer header to local copy */
+    CnApi_Spi_read(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                   sizeof(((tAsyncMsg *) 0)->m_header),
+                   (BYTE*) &aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header);
+#endif /* CN_API_USING_SPI */
+
     /* check if fragment is present */
     if (checkMsgPresence(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m))
-    {/* fragment is available in Rx buffer */
+    { /* fragment is available in Rx buffer */
 
         if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgType_m !=
             aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bMsgType)
@@ -1248,6 +1344,12 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
                      aPdiAsyncRxMsgs[bActivRxMsg_l].MsgType_m);
 
         confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+#ifdef CN_API_USING_SPI
+    /* update sync flag of PCP PDI buffer header */
+    CnApi_Spi_write(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bSync),
+                    (BYTE*) &aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bSync);
+#endif /* CN_API_USING_SPI */
 
         /* set invalid */
         aPdiAsyncRxMsgs[bActivRxMsg_l].fMsgValid_m = FALSE;

@@ -20,6 +20,7 @@
 /* includes */
 #include "cnApiEvent.h"
 #include "cnApiIntern.h"
+#include "cnApiPdiSpi.h"
 
 /******************************************************************************/
 /* defines */
@@ -53,7 +54,21 @@ static void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg
 *******************************************************************************/
 void CnApi_enableAsyncEventIRQ(void)
 {
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
+#endif /* CN_API_USING_SPI */
+
     pCtrlReg_g->m_wAsyncIrqControl |= (1 << ASYNC_IRQ_EN);
+
+#ifdef CN_API_USING_SPI
+    /* update PCP register */
+    CnApi_Spi_write(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
+#endif /* CN_API_USING_SPI */
 }
 
 /**
@@ -62,7 +77,21 @@ void CnApi_enableAsyncEventIRQ(void)
 *******************************************************************************/
 void CnApi_disableAsyncEventIRQ(void)
 {
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
+#endif /* CN_API_USING_SPI */
+
     pCtrlReg_g->m_wAsyncIrqControl &= ~(1 << ASYNC_IRQ_EN);
+
+#ifdef CN_API_USING_SPI
+    /* update PCP register */
+    CnApi_Spi_write(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
+#endif /* CN_API_USING_SPI */
 }
 
 /**
@@ -75,6 +104,13 @@ void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p)
 {
     /* reset asserted IR signal and acknowledge events */
     pCtrlReg_g->m_wEventAck = *pAckBits_p;
+
+#ifdef CN_API_USING_SPI
+    /* update PCP register */
+    CnApi_Spi_write(PCP_CTRLREG_EVENT_ACK_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventAck),
+                   (BYTE*) &pCtrlReg_g->m_wEventAck);
+#endif /* CN_API_USING_SPI */
 }
 
 /**
@@ -85,6 +121,13 @@ void CnApi_pollAsyncEvent(void)
 {
     /* check if IRQ-bit is set */
     WORD wCtrlRegField;
+
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
+#endif /* CN_API_USING_SPI */
 
     wCtrlRegField = pCtrlReg_g->m_wAsyncIrqControl;
 
@@ -105,6 +148,13 @@ void CnApi_getAsyncIRQEvent(void)
     /* check if IRQ-bit is set */
     WORD wCtrlRegField;
     tPcpPdiEvent Event;
+
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_EVENT_ACK_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventAck),
+                   (BYTE*) &pCtrlReg_g->m_wEventAck);
+#endif /* CN_API_USING_SPI */
 
     wCtrlRegField = pCtrlReg_g->m_wEventAck;
 
@@ -135,6 +185,16 @@ void CnApi_getAsyncIRQEvent(void)
     {
         /* generic event -> forward event */
         //TODO: create event queue -> for now: direct call
+
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_EVENT_TYPE_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventType),
+                   (BYTE*) &pCtrlReg_g->m_wEventType);
+    CnApi_Spi_read(PCP_CTRLREG_EVENT_ARG_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventArg),
+                   (BYTE*) &pCtrlReg_g->m_wEventArg);
+#endif /* CN_API_USING_SPI */
 
         Event.Typ_m = pCtrlReg_g->m_wEventType;
         Event.Arg_m.wVal_m = pCtrlReg_g->m_wEventArg;

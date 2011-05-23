@@ -153,18 +153,6 @@ int CnApi_initSpiMaster
     tSpiMasterRxHandler     SpiMasterRxH_p  ///< SPI MASTER Rx Handler
 );
 
-int CnApi_Spi_writeByte
-(
-    WORD    uwAddr_p,       ///< PDI Address to be written to
-    BYTE	ubData_p        ///< Write data
-);
-
-int CnApi_Spi_readByte
-(
-    WORD    uwAddr_p,       ///< PDI Address to be read from
-    BYTE	*pData_p        ///< Read data
-);
-
 int CnApi_Spi_read
 (
    WORD   	wPcpAddr_p,      ///< PDI Address to be read from

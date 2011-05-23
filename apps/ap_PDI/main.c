@@ -496,10 +496,6 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 	CnApi_ackSyncIrq();                // acknowledge IR from PCP
 
 #ifdef CN_API_USING_SPI
-    CnApi_Spi_writeByte(PCP_CTRLREG_SYNCIRQCTRL_OFFSET, pCtrlReg_g->m_wSyncIrqControl); // update pcp register
-#endif
-
-#ifdef CN_API_USING_SPI
     // Temporary Workaround:
     workInputOutput();
     //TODO: this workaround is unnecessary, but otherwise it will not work! IR blocks while() loop somehow.

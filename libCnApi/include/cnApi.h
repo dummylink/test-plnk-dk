@@ -49,9 +49,8 @@ This header file contains definitions for the CN API.
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
 #define SYNC_IRQ_ACK                0               ///< Sync IRQ Bit shift (for AP only)
 
-/* Control Register Offsets, used for SPI */
+/* Control Register Offsets, used for serial interface */
 #ifdef CN_API_USING_SPI
-#error: SPI is not yet updated to new version! //TODO: UPDATE!
 #define PCP_CTRLREG_START_ADR                   0x00
 #define PCP_CTRLREG_MAGIC_OFFSET                offsetof(tPcpCtrlReg, m_dwMagic)          //0x00
 #define PCP_CTRLREG_PDI_REV_OFFSET              offsetof(tPcpCtrlReg, m_wPcpPdiRev)       //0x04
@@ -100,6 +99,15 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_LED_CTRL_OFFSET             offsetof(tPcpCtrlReg, m_wLedControl)      //0x64
 #define PCP_CTRLREG_LED_CNFG_OFFSET             offsetof(tPcpCtrlReg, m_wLedConfig)       //0x66
 #define PCP_CTRLREG_SPAN                        sizeof(tPcpCtrlReg)
+
+// other offset defines used only by serial interface
+#define PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET    offsetof(tAsyncMsg, m_header)
+#define PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET   offsetof(tAsyncMsg, m_chan)
+#define PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET  PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET + offsetof(tAsyncPdiBufCtrlHeader, m_bSync)
+#define PCP_PDI_SERIAL_ASYNC_CHAN_OFFSET  PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET + offsetof(tAsyncPdiBufCtrlHeader, m_bChannel)
+#define PCP_PDI_SERIAL_ASYNC_MSGT_OFFSET  PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET + offsetof(tAsyncPdiBufCtrlHeader, m_bMsgType)
+#define PCP_PDI_SERIAL_ASYNC_FRMT_OFFSET  PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET + offsetof(tAsyncPdiBufCtrlHeader, m_wFrgmtLen)
+#define PCP_PDI_SERIAL_ASYNC_STRM_OFFSET  PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET + offsetof(tAsyncPdiBufCtrlHeader, m_dwStreamLen)
 #endif /* CN_API_USING_SPI */
 
 /* Timer definitions */
@@ -284,7 +292,7 @@ struct sPcpControlReg {
     volatile WORD       m_wState;              ///< state of the PCP
     volatile DWORD      m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process
     volatile DWORD      m_dwMinCycleTime;      ///< lower limit of synchronous-IR cycle time the AP can process
-    volatile WORD       m_wCycleCorrect;       ///< correction factor
+    volatile WORD       m_wCycleCorrect;       ///< correction factor(-- currently not used --)
     volatile WORD       m_wMaxCycleNum;        ///< multiple of Powerlink cyle time for synchronous-IR
     volatile DWORD      m_dwSyncIntCycTime;    ///< cycle time of synchronous-IR issued to the AP for PDO processing
     volatile WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)

@@ -95,6 +95,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /***************************************************************************************
  * LOCALS
  ***************************************************************************************/
+static int CnApi_Spi_writeByte
+(
+    WORD    uwAddr_p,       ///< PDI Address to be written to
+    BYTE  ubData_p        ///< Write data
+);
+
+static int CnApi_Spi_readByte
+(
+    WORD    uwAddr_p,       ///< PDI Address to be read from
+    BYTE  *pData_p        ///< Read data
+);
 
 static int writeSq
 (
