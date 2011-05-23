@@ -32,6 +32,12 @@
                                               ///< start address in flash
 #define FLASH_FPGA_FACTORY_IMAGE_ADR 0x000000 ///< fixed facory image address
 
+// do not reset to Flash memory, if no image is stored there yet
+// activate this define, if you use only JTAG programming!
+#define NO_FACTORY_IMG_IN_FLASH   ///< this define skips triggering
+                                  ///< user image reconfiguration
+#define DEFAULT_DISABLE_WATCHDOG  ///< if not defined, watchdog will be enabled
+
 #define RESET_TIMER 1 //register bit offset
 #define REMOTE_UPDATE_CORE_BASE  REMOTE_UPDATE_CYCLONEIII_0_BASE
 /******************************************************************************/
@@ -40,6 +46,7 @@ typedef enum eFpgaCfgRetVal {
   kFgpaCfgFactoryImageLoadedNoUserImagePresent,
   kFpgaCfgUserImageLoadedWatchdogDisabled,
   kFpgaCfgUserImageLoadedWatchdogEnabled,
+  kFgpaCfgWrongSystemID, ///< stop booting -> SW does not fit to HW
   kFpgaCfgInvalidRetVal,
 } tFpgaCfgRetVal;
 

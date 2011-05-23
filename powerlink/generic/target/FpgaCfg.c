@@ -21,16 +21,12 @@
 *******************************************************************************/
 /* includes */
 #include "FpgaCfg.h"
+#include "altera_avalon_sysid.h"
+#include "altera_avalon_sysid_regs.h"
 #include "altera_avalon_pio_regs.h"
 
 /******************************************************************************/
 /* defines */
-
-// do not reset to Flash memory, if no image is stored there yet
-// activate this define, if you use only JTAG programming!
-#define NO_FACTORY_IMG_IN_FLASH   ///< this define skips triggering
-                                  ///< user image reconfiguration
-#define DEFAULT_DISABLE_WATCHDOG  ///< if not defined, watchdog will be enabled
 
 /******************************************************************************/
 /* typedefs */
@@ -341,6 +337,16 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
     tFpgaCfgRetVal Ret = kFpgaCfgInvalidRetVal;
     BOOL fApplicationImageFailed = FALSE;
 
+    DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "Reconfigured with system time stamp: %ul\n", IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE));
+
+    /* verify if BSP matches SOPC build time stamp */
+    if (alt_avalon_sysid_test() != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Bad image! SystemID does not match!");
+        Ret = kFgpaCfgWrongSystemID;
+        goto exit;
+    }
+
     //DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "\nConfiguration State: %lu\n", FpgaCfg_getCurRemoteUpdateCoreState());
 
     switch (FpgaCfg_getCurRemoteUpdateCoreState())
@@ -348,7 +354,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
         case 0x00:
         {/* factory mode */
 
-            DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "\nFactory image triggered by: %#lx", FpgaCfg_getPast1ReconfigTriggerCondition());
+            DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "Factory image triggered by: %#lx", FpgaCfg_getPast1ReconfigTriggerCondition());
             if (FpgaCfg_getPast1ReconfigTriggerCondition() == 0x00)
             {
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (power up)\n");

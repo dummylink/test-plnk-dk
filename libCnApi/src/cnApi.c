@@ -124,6 +124,15 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 #endif /* CN_API_USING_SPI */
     }
 
+    /* verify FPGA build time stamp */
+    if (!CnApi_verifyFpgaTimestamp())
+    {
+        /* this compilation does not match the accessed PCP FPGA configuration */
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: FPGA time stamp doesn't match!\n");
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
+
     /* verify PDI revision */
     if (!CnApi_verifyPcpPdiRevision())
     {

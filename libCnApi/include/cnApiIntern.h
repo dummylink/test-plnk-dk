@@ -66,6 +66,7 @@ extern BYTE CnApi_getPcpState(void);
 extern DWORD CnApi_getPcpMagic(void);
 extern void CnApi_setApCommand(BYTE bCmd_p);
 extern void CnApi_initApStateMachine(void);
+extern BOOL CnApi_verifyFpgaTimestamp(void);
 extern BOOL CnApi_verifyPcpPdiRevision(void);
 
 /* functions for object access */

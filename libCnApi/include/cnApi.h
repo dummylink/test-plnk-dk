@@ -54,7 +54,7 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_START_ADR                   0x00
 #define PCP_CTRLREG_MAGIC_OFFSET                offsetof(tPcpCtrlReg, m_dwMagic)          //0x00
 #define PCP_CTRLREG_PDI_REV_OFFSET              offsetof(tPcpCtrlReg, m_wPcpPdiRev)       //0x04
-#define PCP_CTRLREG_FPGA_TS_OFFSET              offsetof(tPcpCtrlReg, m_wFpgaTimeStamp)   //0x06
+#define PCP_CTRLREG_FPGA_TS_OFFSET              offsetof(tPcpCtrlReg, m_dwFpgaTimeStamp)   //0x06
 // reserved                                                                               //0x08
 #define PCP_CTRLREG_NODE_ID_OFFSET              offsetof(tPcpCtrlReg, m_wNodeId)          //0x0A
 #define PCP_CTRLREG_CMD_OFFSET                  offsetof(tPcpCtrlReg, m_wCommand)         //0x0C

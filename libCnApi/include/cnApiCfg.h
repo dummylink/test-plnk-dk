@@ -11,6 +11,7 @@ a rebuild of the PCP software is executed. */
 #define POWERLINK_0_PDI_PCP_PDIRPDOS 3
 #define POWERLINK_0_PDI_PCP_PDITPDOS 1
 #define PCP_PDI_REVISION 33
+#define PCP_FPGA_BUILD_TIME_STAMP 1305812759u
 
 #endif /* _CNAPICFG_H_ */
 

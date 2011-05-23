@@ -31,6 +31,7 @@ PATTERN[1]="POWERLINK_0_PDI_PCP_CONFIGAPENDIAN "
 PATTERN[2]="POWERLINK_0_PDI_PCP_PDIRPDOS "
 PATTERN[3]="POWERLINK_0_PDI_PCP_PDITPDOS "
 PATTERN[4]="POWERLINK_0_MAC_BUF_FPGAREV "
+PATTERN[5]="SYSID_TIMESTAMP "
 
 ###################################################################
 
@@ -45,11 +46,11 @@ a rebuild of the PCP software is executed. */
 
 
 cnt=0
-while [ $cnt -lt 5 ] ; do
+while [ $cnt -lt 6 ] ; do
 	
 pattern=${PATTERN[$cnt]}
 PCPDefineValue=$(grep "$pattern" ${IN_FILE} | grep \#define | cut -d ' ' -f 3) #-d = delimiter (Space) -f= 3rd fragment is value of define
-echo "$pattern= $PCPDefineValue"
+echo "Pattern taken from system.h: $pattern= $PCPDefineValue"
 
 case  $cnt  in
     0)
@@ -87,9 +88,16 @@ case  $cnt  in
 	if [ "$PCPDefineValue" -gt "0" ]; then
 		echo "#define PCP_PDI_REVISION $PCPDefineValue" >> $OUT_FILE 
 	else
-		echo "#define ${PATTERN[$cnt]} //INVALID" >> $OUT_FILE	
+		echo "#define PCP_PDI_REVISION //INVALID" >> $OUT_FILE	
 	fi
-	;;	
+	;;
+	5)
+	if [ "$PCPDefineValue" ]; then
+		echo "#define PCP_FPGA_BUILD_TIME_STAMP $PCPDefineValue" >> $OUT_FILE 
+	else
+		echo "#define PCP_FPGA_BUILD_TIME_STAMP //INVALID" >> $OUT_FILE	
+	fi
+	;;
     *)echo Not a valid loop count!
 	;;
 esac
