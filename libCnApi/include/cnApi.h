@@ -285,14 +285,16 @@ typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct 
 struct sPcpControlReg {
     volatile DWORD      m_dwMagic;             ///< magic number indicating correct PCP PDI memory start address
     volatile WORD       m_wPcpPdiRev;          ///< revision of PCP PDI (control and status register)
-    volatile WORD       m_wFpgaTimeStamp;      ///< compilation time stamp of FPGA design
-    volatile WORD       wReserved2;
-    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
+    volatile WORD       wPadding;              // do not use until it is fixed (bug: currently not available!)
+    //    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
+    /* SOPC system generation time. The value is equivalent to the number of seconds after Jan. 1, 1970 */
+    volatile DWORD      m_dwFpgaTimeStamp;     ///< compilation time stamp of FPGA design
     volatile WORD       m_wCommand;            ///< AP issues commands to this register
     volatile WORD       m_wState;              ///< state of the PCP
     volatile DWORD      m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process
     volatile DWORD      m_dwMinCycleTime;      ///< lower limit of synchronous-IR cycle time the AP can process
-    volatile WORD       m_wCycleCorrect;       ///< correction factor(-- currently not used --)
+//    volatile WORD       m_wCycleCorrect;       ///< correction factor(-- currently not used --)
+    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
     volatile WORD       m_wMaxCycleNum;        ///< multiple of Powerlink cyle time for synchronous-IR
     volatile DWORD      m_dwSyncIntCycTime;    ///< cycle time of synchronous-IR issued to the AP for PDO processing
     volatile WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)
