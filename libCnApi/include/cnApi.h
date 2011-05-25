@@ -197,6 +197,7 @@ typedef enum ePcpPdiLedType {
 typedef struct sObjTbl {
 	WORD			m_wIndex;
 	BYTE			m_bSubIndex;
+	BYTE        m_bPad;
 	WORD			m_wSize;
 	char			*m_pData;
 } PACK_STRUCT tObjTbl;
@@ -236,6 +237,7 @@ typedef int (*tpfnSpiMasterRxCb) (unsigned char *pTxBuf_p, int iBytes_p);
  */
 typedef struct sCnApiInitParm {
 	BYTE			m_abMac[6];
+    BYTE            m_bPad;
 	BYTE			m_bNodeId;
 	DWORD			m_dwRevision;
 	DWORD			m_dwSerialNum;

@@ -132,6 +132,7 @@ typedef enum ePdiAsyncMsgType {
 typedef struct sInitPcpReq {
 //    BYTE                    m_bCmd; //TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
+    BYTE                    m_bPad;
     BYTE                    m_abMac[6];
     DWORD                   m_dwRevision;
     DWORD                   m_dwSerialNum;
@@ -152,6 +153,7 @@ typedef struct sInitPcpReq {
 typedef struct sInitPcpResp {
 //    BYTE                    m_bCmd; //TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
+    BYTE                    m_bPad;
     WORD                    m_wStatus;
 } PACK_STRUCT tInitPcpResp;
 
@@ -161,6 +163,7 @@ typedef struct sInitPcpResp {
 typedef struct sCreateObjReq {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
+    BYTE                    m_bPad;
     WORD                    m_wNumObjs;
 } PACK_STRUCT tCreateObjLksReq;
 
@@ -170,6 +173,7 @@ typedef struct sCreateObjReq {
 typedef struct sCreateObjResp {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
+    BYTE                    m_bPad;
     WORD                    m_wStatus;
     WORD                    m_wErrIndex;
     BYTE                    m_bErrSubindex;
@@ -188,6 +192,7 @@ typedef struct sLinkPdosReq {
 typedef struct sWriteObjReq {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
+    BYTE                    m_bPad;
     WORD                    m_wNumObjs;
 } PACK_STRUCT tWriteObjReq;
 
@@ -198,6 +203,7 @@ typedef struct sWriteObjReq {
 typedef struct sWriteObjResp {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
+    BYTE                    m_bPad;
     WORD                    m_wStatus;
     WORD                    m_wErrIndex;
     BYTE                    m_bErrSubindex;
@@ -209,6 +215,7 @@ typedef struct sWriteObjResp {
 typedef struct sAsyncIntHeader {
 //    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
+    BYTE                    m_bPad;
 } PACK_STRUCT tAsyncIntHeader;
 
 /**
@@ -218,6 +225,7 @@ typedef struct sAsyncMsgHeader {
     BYTE                    m_bSync;
     BYTE                    m_bChannel;
     BYTE                    m_bMsgType;
+    BYTE                    m_bPad;
     WORD                    m_wFrgmtLen;
     DWORD                   m_dwStreamLen;
 } PACK_STRUCT tAsyncPdiBufCtrlHeader;
@@ -314,7 +322,7 @@ typedef struct sPdiAsyncMsgDescr {
     struct sPdiAsyncMsgDescr * pRespMsgDescr_m;  ///< pointer to descriptor of response message
     tPdiAsyncTransferType   TransfType_m;        ///< TRUE = Buffered transfer, FALSE = Direct access
     tPdiAsyncMsgParam       Param_m;             ///< message parameter
-} PACK_STRUCT tPdiAsyncMsgDescr;
+} tPdiAsyncMsgDescr;
 
 
 typedef struct sPdiAsyncMsgLink {
