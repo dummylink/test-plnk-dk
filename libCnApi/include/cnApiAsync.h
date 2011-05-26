@@ -242,7 +242,7 @@ typedef struct sPcpPdiAsyncBufDescr {
   tAsyncMsg *  pAdr_m;
   WORD         wPdiOffset_m;  ///< DPRAM offset (used for serial interface)
   WORD         wMaxPayload_m;
-} PACK_STRUCT tPcpPdiAsyncMsgBufDescr;
+} tPcpPdiAsyncMsgBufDescr;
 
 /**
  * \brief constants for asynchronous transfer direction
@@ -301,14 +301,14 @@ typedef tPdiAsyncStatus (* tPdiAsyncCbTransferFinished) (struct sPdiAsyncMsgDesc
 typedef struct sPdiAsyncMsgHdl {
     BYTE*                 pLclBuf_m;        ///< pointer to msg if local msg buffering is used
     tPdiAsyncBufHdlCb     pfnCbMsgHdl_m;    ///< or callback function for handling buffer (local or direct)
-} PACK_STRUCT tPdiAsyncMsgHdl;
+} tPdiAsyncMsgHdl;
 
 typedef struct sPdiAsyncParam {
     tAsyncChannel   ChanType_m;                 ///< type of channel the message belongs to
     tPcpStates      aNmtList_m[kNumPcpStates];  ///< valid NmtStates for this message
     //not used: tPdiAsMsgPrio   Prio_m;         ///< message priority
     WORD           wTimeout_m;                  ///< timeout value of message delivery or reception (if set to 0, wait forever)
-} PACK_STRUCT tPdiAsyncMsgParam;
+} tPdiAsyncMsgParam;
 
 typedef struct sPdiAsyncMsgDescr {
     tPdiAsyncMsgType        MsgType_m;           ///< type of the message
@@ -329,7 +329,7 @@ typedef struct sPdiAsyncMsgLink {
     tPdiAsyncMsgType    MsgType_m;           ///< type of origin message
     tPdiAsyncMsgType    RespMsgType_m;       ///< type of response message
     tPcpPdiAsyncDir     Direction_m;         ///< direction of origin message
-} PACK_STRUCT tPdiAsyncMsgLink;
+} tPdiAsyncMsgLink;
 
 typedef struct sPdiAsyncPendingTransferContext {
     BOOL fMsgPending_m;            ///< flag indicates a pending message

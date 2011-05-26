@@ -143,7 +143,7 @@ typedef enum eCnApiStatus{
 typedef enum {
 	kCnApiSyncCycleOk = 0,				///< sync interrupt cycle ok
 	kCnApiSyncCycleError				///< sync interrupt cycle error
-} PACK_STRUCT tCnApiCycleStatus;
+} tCnApiCycleStatus;
 
 /**
  * \brief enumeration with valid AP commands
@@ -168,14 +168,14 @@ typedef struct sCnApiObjCreateObjLinksHdl {
     WORD                wCurObjs_m; ///< current number of objects to be created
     WORD                wReqObjs_m; ///< already created (=linked) objects
     tCnApiObjId *       pObj_m;     ///< pointer to current object entry
-} PACK_STRUCT tCnApiObjCreateObjLinksHdl;
+} tCnApiObjCreateObjLinksHdl;
 
 
 // TODO: not used, do we need it?
 typedef struct sCnApiReadQueue{
 	int					m_iNumElements;
 	tCnApiObjId 		*pObjectId;
-} PACK_STRUCT tCnApiReadQueue;
+} tCnApiReadQueue;
 
 //TODO: needed?
 typedef enum eProcType {
@@ -200,7 +200,7 @@ typedef struct sObjTbl {
 	BYTE        m_bPad;
 	WORD			m_wSize;
 	char			*m_pData;
-} PACK_STRUCT tObjTbl;
+} tObjTbl;
 
 typedef enum ePdoDir {
    TPdo = 0x01, ///< Transmit PDO
@@ -250,7 +250,7 @@ typedef struct sCnApiInitParm {
 	DWORD			m_dwPresMaxLatency;
 	DWORD			m_dwAsendMaxLatency;
 	DWORD			m_dwDpramBase;
-} PACK_STRUCT tCnApiInitParm;
+} tCnApiInitParm;
 
 /* definitions for AP state machine, transitions and states */
 typedef enum eApStates{
@@ -345,7 +345,7 @@ typedef struct sTPdoBuffer { ///< used to group buffer structure infos from cont
     DWORD   dwSpiBufOffs_m;
     WORD    wSpiAckOffs_m;
 #endif /* CN_API_USING_SPI */
-} PACK_STRUCT tTPdoBuffer;
+} tTPdoBuffer;
 
 typedef struct sRPdoBuffer { ///< used to group buffer structure infos from control register
     BYTE    *pAdrs_m;
@@ -353,7 +353,7 @@ typedef struct sRPdoBuffer { ///< used to group buffer structure infos from cont
     BYTE    *pAck_m;
     DWORD   dwSpiBufOffs_m;
     WORD    wSpiAckOffs_m;
-} PACK_STRUCT tRPdoBuffer;
+} tRPdoBuffer;
 
 /******************************************************************************/
 /* global variables */
