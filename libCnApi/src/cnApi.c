@@ -103,7 +103,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
         {
             DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..", pCtrlReg_g->m_dwMagic);
         }
-        usleep(1000000);
+        CNAPI_USLEEP(1000000);
     }
 
     if(!fPcpPresent)

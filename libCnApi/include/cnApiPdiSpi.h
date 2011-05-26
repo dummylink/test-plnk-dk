@@ -122,7 +122,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PDISPI_ADDR_ADDR_MASK           PDISPI_ADDR_MASK << PDISPI_ADDR_ADDR_OFFSET
 
 //function definitions
-#define PDISPI_USLEEP(x)                usleep(x)
+#define PDISPI_USLEEP(x)                CNAPI_USLEEP(x)
 
 //type definitions
 typedef int (*tSpiMasterTxHandler) (BYTE *pTxBuf_p, int iBytes_p);

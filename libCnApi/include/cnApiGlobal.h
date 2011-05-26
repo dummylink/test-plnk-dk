@@ -132,7 +132,8 @@ This file has to be included before other include files.
 #    pragma pack( 1 )
 #    define PACK_STRUCT
 #elif defined( __GNUC__ )
-#    define PACK_STRUCT    __attribute__((packed))
+    #define PACK_STRUCT         __attribute__((packed))
+    #define CNAPI_USLEEP(x)     usleep(x)
 #else
 #    error you must byte-align these structures with the appropriate compiler directives
 #endif

@@ -108,7 +108,7 @@ int main (void)
     alt_dcache_flush_all();
 
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); // set hex digits on Mercury-Board to indicate AP presence
-    usleep(1000000);		                                // wait 1 s, so you can see the LEDs
+    CNAPI_USLEEP(1000000);		                                // wait 1 s, so you can see the LEDs
 
     TRACE("\n\nInitialize CN API functions...");
 
