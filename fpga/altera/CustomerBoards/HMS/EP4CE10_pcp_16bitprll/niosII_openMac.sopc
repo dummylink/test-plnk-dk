@@ -298,6 +298,14 @@
          type = "long";
       }
    }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "8224";
+         type = "long";
+      }
+   }
    element remote_update_cycloneiii_0.s1
    {
       datum _lockedAddress
@@ -308,6 +316,14 @@
       datum baseAddress
       {
          value = "2048";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2304";
          type = "long";
       }
    }
@@ -334,22 +350,6 @@
       datum baseAddress
       {
          value = "8192";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "8224";
          type = "long";
       }
    }
@@ -472,7 +472,7 @@
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="4254364884" />
- <parameter name="timeStamp" value="1305127807138" />
+ <parameter name="timeStamp" value="1306484211838" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />

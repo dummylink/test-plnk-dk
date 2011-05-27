@@ -1,7 +1,7 @@
 SYSTEM niosII_openMac
 {
-   System_Wizard_Version = "10.10";
-   System_Wizard_Build = "153";
+   System_Wizard_Version = "10.11";
+   System_Wizard_Build = "197";
    Builder_Application = "sopc_builder_ca";
    WIZARD_SCRIPT_ARGUMENTS 
    {
@@ -2895,7 +2895,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4DCAAB7F</b> (timestamp: Wed May 11, 2011 @5:30 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4DDF5DF4</b> (timestamp: Fri May 27, 2011 @10:16 AM)";
             MESSAGES 
             {
             }
@@ -2904,7 +2904,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1305127807u";
+         timestamp = "1306484212u";
          regenerate_values = "0";
          MAKE 
          {
@@ -2913,7 +2913,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000900 --id=0 --timestamp=1305127807";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000900 --id=0 --timestamp=1306484212";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -4138,10 +4138,10 @@ SYSTEM niosII_openMac
          SYSTEM_BUILDER_INFO 
          {
             Bus_Type = "avalon_tristate";
-            Write_Wait_States = "40ns";
-            Read_Wait_States = "41ns";
-            Hold_Time = "40ns";
-            Setup_Time = "40ns";
+            Write_Wait_States = "1cycles";
+            Read_Wait_States = "1cycles";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
             Is_Printable_Device = "0";
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";

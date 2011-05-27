@@ -1,4 +1,4 @@
- -- Copyright (C) 1991-2010 Altera Corporation
+ -- Copyright (C) 1991-2011 Altera Corporation
  -- Your use of Altera Corporation's design tools, logic functions 
  -- and other software and tools, and its AMPP partner logic 
  -- functions, and any output files from any of the foregoing 
@@ -63,7 +63,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 10.1 Build 153 11/29/2010 SJ Web Edition
+Quartus II Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Web Edition
 CHIP  "nios_openMac"  ASSIGNED TO AN: EP4CE10U14I7
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -129,7 +129,7 @@ GND                          : D10       : gnd    :                   :         
 PDI_ADDR[15]                 : D11       : input  : 3.3-V LVTTL       :         : 7         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : D12       :        :                   :         : 7         :                
 VCCD_PLL2                    : D13       : power  :                   : 1.2V    :           :                
-LED2B                        : D14       : output : 3.3-V LVTTL       :         : 7         : Y              
+LED2A                        : D14       : output : 3.3-V LVTTL       :         : 7         : Y              
 PHY0_MDC                     : D15       : output : 3.3-V LVTTL       :         : 6         : Y              
 PDI_ADDR[3]                  : D16       : input  : 3.3-V LVTTL       :         : 6         : Y              
 CLK_96MHZ                    : E1        : input  : 3.3-V LVTTL       :         : 1         : Y              
@@ -160,7 +160,7 @@ RESERVED_INPUT_WITH_WEAK_PULLUP : F9        :        :                   :      
 RESERVED_INPUT_WITH_WEAK_PULLUP : F10       :        :                   :         : 7         :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : F11       :        :                   :         : 7         :                
 VCCA2                        : F12       : power  :                   : 2.5V    :           :                
-LED2A                        : F13       : output : 3.3-V LVTTL       :         : 6         : Y              
+LED2B                        : F13       : output : 3.3-V LVTTL       :         : 6         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : F14       :        :                   :         : 6         :                
 LED1A                        : F15       : output : 3.3-V LVTTL       :         : 6         : Y              
 PDI_ADDR[11]                 : F16       : input  : 3.3-V LVTTL       :         : 6         : Y              

@@ -35,12 +35,12 @@ set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) POWERLINK/powerlink.vhd]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) powerlink_0.vhd]
 # sram_0
-set_global_assignment -name TCL_FILE [file join $::quartus(qip_path) custom_PCB/IS61WV25616BLL_10TLI_hw.tcl]
+set_global_assignment -name TCL_FILE [file join $::quartus(qip_path) custom_PCB/CY7C1041DV33-10BVXIT_hw.tcl]
 # benchmark_pio
 # altpll_0
 set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_altpll/altera_avalon_altpll_hw.tcl]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) altpll_0.vhd]
 # null
 set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 0050043B88140000012FDFAF3B60 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 002314DCCB6C000001303087DCD4 
  

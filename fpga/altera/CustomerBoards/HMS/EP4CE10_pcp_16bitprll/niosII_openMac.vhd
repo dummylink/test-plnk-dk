@@ -5425,8 +5425,6 @@ entity pcp_cpu_data_master_arbitrator is
                  signal registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
                  signal registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2 : IN STD_LOGIC;
                  signal reset_n : IN STD_LOGIC;
-                 signal sram_0_s0_wait_counter_eq_0 : IN STD_LOGIC;
-                 signal sram_0_s0_wait_counter_eq_1 : IN STD_LOGIC;
                  signal system_timer_s1_irq_from_sa : IN STD_LOGIC;
                  signal tc_i_mem_pcp_s2_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 
@@ -5520,7 +5518,7 @@ begin
   --cascaded wait assignment, which is an e_assign
   pcp_cpu_data_master_run <= r_0 AND r_1;
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic((((((((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_requests_powerlink_0_MAC_BUF)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_BUF_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_requests_powerlink_0_PDI_PCP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_PDI_PCP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s2 OR registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2) OR NOT pcp_cpu_data_master_requests_tc_i_mem_pcp_s2)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s2 OR NOT pcp_cpu_data_master_read) OR ((registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2 AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s2 OR NOT ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((((pcp_cpu_data_master_qualified_request_sram_0_s0 OR ((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND internal_pcp_cpu_data_master_dbs_address(1)))) OR (((pcp_cpu_data_master_write AND NOT(or_reduce(pcp_cpu_data_master_byteenable_sram_0_s0))) AND internal_pcp_cpu_data_master_dbs_address(1)))) OR NOT pcp_cpu_data_master_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_sram_0_s0 OR NOT pcp_cpu_data_master_qualified_request_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_read) OR (((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND (internal_pcp_cpu_data_master_dbs_address(1))) AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_write)))) OR ((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(sram_0_s0_wait_counter_eq_1)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_pcp_cpu_data_master_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))));
+  r_1 <= Vector_To_Std_Logic((((((((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_requests_powerlink_0_MAC_BUF)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_MAC_BUF_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_requests_powerlink_0_PDI_PCP)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_powerlink_0_PDI_PCP_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_powerlink_0_PDI_PCP OR NOT pcp_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s2 OR registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2) OR NOT pcp_cpu_data_master_requests_tc_i_mem_pcp_s2)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s2 OR NOT pcp_cpu_data_master_read) OR ((registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2 AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_tc_i_mem_pcp_s2 OR NOT ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_read OR pcp_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((((pcp_cpu_data_master_qualified_request_sram_0_s0 OR ((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND internal_pcp_cpu_data_master_dbs_address(1)))) OR (((pcp_cpu_data_master_write AND NOT(or_reduce(pcp_cpu_data_master_byteenable_sram_0_s0))) AND internal_pcp_cpu_data_master_dbs_address(1)))) OR NOT pcp_cpu_data_master_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_data_master_granted_sram_0_s0 OR NOT pcp_cpu_data_master_qualified_request_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_read) OR (((registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 AND (internal_pcp_cpu_data_master_dbs_address(1))) AND pcp_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_data_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_data_master_write)))) OR ((((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_pcp_cpu_data_master_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_write)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_pcp_cpu_data_master_address_to_slave <= Std_Logic_Vector'(pcp_cpu_data_master_address(25 DOWNTO 24) & std_logic_vector'("000") & A_ToStdLogicVector(pcp_cpu_data_master_address(20)) & A_ToStdLogicVector(std_logic'('0')) & pcp_cpu_data_master_address(18 DOWNTO 0));
   --unpredictable registered wait state incoming data, which is an e_register
@@ -5605,7 +5603,7 @@ begin
   --compute the last dbs term, which is an e_mux
   last_dbs_term_and_run <= (to_std_logic(((internal_pcp_cpu_data_master_dbs_address = std_logic_vector'("10")))) AND pcp_cpu_data_master_write) AND NOT(or_reduce(pcp_cpu_data_master_byteenable_sram_0_s0));
   --pre dbs count enable, which is an e_mux
-  pre_dbs_count_enable <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((((((NOT internal_pcp_cpu_data_master_no_byte_enables_and_last_term) AND pcp_cpu_data_master_requests_sram_0_s0) AND pcp_cpu_data_master_write) AND NOT(or_reduce(pcp_cpu_data_master_byteenable_sram_0_s0)))) OR pcp_cpu_data_master_read_data_valid_sram_0_s0)))) OR (((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write)))) AND std_logic_vector'("00000000000000000000000000000001")) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((sram_0_s0_wait_counter_eq_0 AND NOT d1_tri_state_bridge_0_avalon_slave_end_xfer)))))))));
+  pre_dbs_count_enable <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((((((NOT internal_pcp_cpu_data_master_no_byte_enables_and_last_term) AND pcp_cpu_data_master_requests_sram_0_s0) AND pcp_cpu_data_master_write) AND NOT(or_reduce(pcp_cpu_data_master_byteenable_sram_0_s0)))) OR pcp_cpu_data_master_read_data_valid_sram_0_s0)))) OR (((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write)))) AND std_logic_vector'("00000000000000000000000000000001")) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_tri_state_bridge_0_avalon_slave_end_xfer)))))));
   --input to dbs-16 stored 0, which is an e_mux
   p1_dbs_16_reg_segment_0 <= incoming_tri_state_bridge_0_data;
   --dbs register for dbs-16 segment 0, which is an e_register
@@ -5697,8 +5695,6 @@ entity pcp_cpu_instruction_master_arbitrator is
                  signal pcp_cpu_instruction_master_requests_sram_0_s0 : IN STD_LOGIC;
                  signal pcp_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal reset_n : IN STD_LOGIC;
-                 signal sram_0_s0_wait_counter_eq_0 : IN STD_LOGIC;
-                 signal sram_0_s0_wait_counter_eq_1 : IN STD_LOGIC;
 
               -- outputs:
                  signal pcp_cpu_instruction_master_address_to_slave : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
@@ -5747,7 +5743,7 @@ begin
   --cascaded wait assignment, which is an e_assign
   pcp_cpu_instruction_master_run <= r_0 AND r_1;
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic(((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_pcp_cpu_jtag_debug_module_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_instruction_master_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_sram_0_s0 OR NOT pcp_cpu_instruction_master_qualified_request_sram_0_s0)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_instruction_master_read)))) OR ((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((sram_0_s0_wait_counter_eq_0 AND NOT d1_tri_state_bridge_0_avalon_slave_end_xfer)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_pcp_cpu_instruction_master_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))));
+  r_1 <= Vector_To_Std_Logic(((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module OR NOT pcp_cpu_instruction_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_pcp_cpu_jtag_debug_module_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_instruction_master_requests_sram_0_s0)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((pcp_cpu_instruction_master_granted_sram_0_s0 OR NOT pcp_cpu_instruction_master_qualified_request_sram_0_s0)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT pcp_cpu_instruction_master_qualified_request_sram_0_s0 OR NOT pcp_cpu_instruction_master_read)))) OR ((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_tri_state_bridge_0_avalon_slave_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((internal_pcp_cpu_instruction_master_dbs_address(1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_read)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_pcp_cpu_instruction_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(pcp_cpu_instruction_master_address(20)) & A_ToStdLogicVector(std_logic'('0')) & pcp_cpu_instruction_master_address(18 DOWNTO 0));
   --pcp_cpu_instruction_master_read_but_no_slave_selected assignment, which is an e_register
@@ -5844,7 +5840,7 @@ begin
   --dbs rdv counter overflow, which is an e_assign
   dbs_rdv_counter_overflow <= pcp_cpu_instruction_master_dbs_rdv_counter(1) AND NOT pcp_cpu_instruction_master_next_dbs_rdv_counter(1);
   --pre dbs count enable, which is an e_mux
-  pre_dbs_count_enable <= Vector_To_Std_Logic(((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((pcp_cpu_instruction_master_granted_sram_0_s0 AND pcp_cpu_instruction_master_read)))) AND std_logic_vector'("00000000000000000000000000000001")) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((sram_0_s0_wait_counter_eq_0 AND NOT d1_tri_state_bridge_0_avalon_slave_end_xfer)))))));
+  pre_dbs_count_enable <= Vector_To_Std_Logic(((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((pcp_cpu_instruction_master_granted_sram_0_s0 AND pcp_cpu_instruction_master_read)))) AND std_logic_vector'("00000000000000000000000000000001")) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_tri_state_bridge_0_avalon_slave_end_xfer)))));
   --vhdl renameroo for output signals
   pcp_cpu_instruction_master_address_to_slave <= internal_pcp_cpu_instruction_master_address_to_slave;
   --vhdl renameroo for output signals
@@ -8388,8 +8384,6 @@ entity tri_state_bridge_0_avalon_slave_arbitrator is
                  signal pcp_cpu_instruction_master_read_data_valid_sram_0_s0 : OUT STD_LOGIC;
                  signal pcp_cpu_instruction_master_requests_sram_0_s0 : OUT STD_LOGIC;
                  signal registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 : OUT STD_LOGIC;
-                 signal sram_0_s0_wait_counter_eq_0 : OUT STD_LOGIC;
-                 signal sram_0_s0_wait_counter_eq_1 : OUT STD_LOGIC;
                  signal tri_state_bridge_0_data : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal we_n_to_the_sram_0 : OUT STD_LOGIC
               );
@@ -8411,7 +8405,6 @@ architecture europa of tri_state_bridge_0_avalon_slave_arbitrator is
                 signal internal_pcp_cpu_instruction_master_granted_sram_0_s0 :  STD_LOGIC;
                 signal internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0 :  STD_LOGIC;
                 signal internal_pcp_cpu_instruction_master_requests_sram_0_s0 :  STD_LOGIC;
-                signal internal_sram_0_s0_wait_counter_eq_0 :  STD_LOGIC;
                 signal last_cycle_pcp_cpu_data_master_granted_slave_sram_0_s0 :  STD_LOGIC;
                 signal last_cycle_pcp_cpu_instruction_master_granted_slave_sram_0_s0 :  STD_LOGIC;
                 signal outgoing_tri_state_bridge_0_data :  STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -8436,10 +8429,8 @@ architecture europa of tri_state_bridge_0_avalon_slave_arbitrator is
                 signal pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register_in :  STD_LOGIC;
                 signal pcp_cpu_instruction_master_saved_grant_sram_0_s0 :  STD_LOGIC;
-                signal sram_0_s0_counter_load_value :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal sram_0_s0_in_a_read_cycle :  STD_LOGIC;
                 signal sram_0_s0_in_a_write_cycle :  STD_LOGIC;
-                signal sram_0_s0_wait_counter :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal sram_0_s0_waits_for_read :  STD_LOGIC;
                 signal sram_0_s0_waits_for_write :  STD_LOGIC;
                 signal sram_0_s0_with_write_latency :  STD_LOGIC;
@@ -8776,7 +8767,7 @@ begin
   end process;
 
   --~p1_we_n_to_the_sram_0 assignment, which is an e_mux
-  p1_we_n_to_the_sram_0 <= NOT ((((((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write)) AND NOT tri_state_bridge_0_avalon_slave_begins_xfer) AND to_std_logic((((std_logic_vector'("0000000000000000000000000000") & (sram_0_s0_wait_counter))>=std_logic_vector'("00000000000000000000000000000100"))))) AND to_std_logic((((std_logic_vector'("0000000000000000000000000000") & (sram_0_s0_wait_counter))<std_logic_vector'("00000000000000000000000000001000"))))));
+  p1_we_n_to_the_sram_0 <= NOT ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write));
   --addr_to_the_sram_0 of type address to p1_addr_to_the_sram_0, which is an e_register
   process (clk, reset_n)
   begin
@@ -8801,33 +8792,19 @@ begin
 
   end process;
 
-  --sram_0_s0_wait_counter_eq_1 assignment, which is an e_assign
-  sram_0_s0_wait_counter_eq_1 <= to_std_logic(((std_logic_vector'("0000000000000000000000000000") & (sram_0_s0_wait_counter)) = std_logic_vector'("00000000000000000000000000000001")));
   --sram_0_s0_waits_for_read in a cycle, which is an e_mux
-  sram_0_s0_waits_for_read <= sram_0_s0_in_a_read_cycle AND wait_for_sram_0_s0_counter;
+  sram_0_s0_waits_for_read <= sram_0_s0_in_a_read_cycle AND tri_state_bridge_0_avalon_slave_begins_xfer;
   --sram_0_s0_in_a_read_cycle assignment, which is an e_assign
   sram_0_s0_in_a_read_cycle <= ((internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_read)) OR ((internal_pcp_cpu_instruction_master_granted_sram_0_s0 AND pcp_cpu_instruction_master_read));
   --in_a_read_cycle assignment, which is an e_mux
   in_a_read_cycle <= sram_0_s0_in_a_read_cycle;
   --sram_0_s0_waits_for_write in a cycle, which is an e_mux
-  sram_0_s0_waits_for_write <= sram_0_s0_in_a_write_cycle AND wait_for_sram_0_s0_counter;
+  sram_0_s0_waits_for_write <= sram_0_s0_in_a_write_cycle AND tri_state_bridge_0_avalon_slave_begins_xfer;
   --sram_0_s0_in_a_write_cycle assignment, which is an e_assign
   sram_0_s0_in_a_write_cycle <= internal_pcp_cpu_data_master_granted_sram_0_s0 AND pcp_cpu_data_master_write;
   --in_a_write_cycle assignment, which is an e_mux
   in_a_write_cycle <= sram_0_s0_in_a_write_cycle;
-  internal_sram_0_s0_wait_counter_eq_0 <= to_std_logic(((std_logic_vector'("0000000000000000000000000000") & (sram_0_s0_wait_counter)) = std_logic_vector'("00000000000000000000000000000000")));
-  process (clk, reset_n)
-  begin
-    if reset_n = '0' then
-      sram_0_s0_wait_counter <= std_logic_vector'("0000");
-    elsif clk'event and clk = '1' then
-      sram_0_s0_wait_counter <= sram_0_s0_counter_load_value;
-    end if;
-
-  end process;
-
-  sram_0_s0_counter_load_value <= A_EXT (A_WE_StdLogicVector((std_logic'(((sram_0_s0_in_a_read_cycle AND tri_state_bridge_0_avalon_slave_begins_xfer))) = '1'), std_logic_vector'("000000000000000000000000000000110"), A_WE_StdLogicVector((std_logic'(((sram_0_s0_in_a_write_cycle AND tri_state_bridge_0_avalon_slave_begins_xfer))) = '1'), std_logic_vector'("000000000000000000000000000001010"), A_WE_StdLogicVector((std_logic'((NOT internal_sram_0_s0_wait_counter_eq_0)) = '1'), ((std_logic_vector'("00000000000000000000000000000") & (sram_0_s0_wait_counter)) - std_logic_vector'("000000000000000000000000000000001")), std_logic_vector'("000000000000000000000000000000000")))), 4);
-  wait_for_sram_0_s0_counter <= tri_state_bridge_0_avalon_slave_begins_xfer OR NOT internal_sram_0_s0_wait_counter_eq_0;
+  wait_for_sram_0_s0_counter <= std_logic'('0');
   --~p1_be_n_to_the_sram_0 byte enable port mux, which is an e_mux
   p1_be_n_to_the_sram_0 <= A_EXT (NOT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), (std_logic_vector'("000000000000000000000000000000") & (internal_pcp_cpu_data_master_byteenable_sram_0_s0)), -SIGNED(std_logic_vector'("00000000000000000000000000000001")))), 2);
   (pcp_cpu_data_master_byteenable_sram_0_s0_segment_1(1), pcp_cpu_data_master_byteenable_sram_0_s0_segment_1(0), pcp_cpu_data_master_byteenable_sram_0_s0_segment_0(1), pcp_cpu_data_master_byteenable_sram_0_s0_segment_0(0)) <= pcp_cpu_data_master_byteenable;
@@ -8846,8 +8823,6 @@ begin
   pcp_cpu_instruction_master_qualified_request_sram_0_s0 <= internal_pcp_cpu_instruction_master_qualified_request_sram_0_s0;
   --vhdl renameroo for output signals
   pcp_cpu_instruction_master_requests_sram_0_s0 <= internal_pcp_cpu_instruction_master_requests_sram_0_s0;
-  --vhdl renameroo for output signals
-  sram_0_s0_wait_counter_eq_0 <= internal_sram_0_s0_wait_counter_eq_0;
 --synthesis translate_off
     --sram_0/s0 enable non-zero assertions, which is an e_register
     process (clk, reset_n)
@@ -9976,8 +9951,6 @@ component pcp_cpu_data_master_arbitrator is
                     signal registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 : IN STD_LOGIC;
                     signal registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2 : IN STD_LOGIC;
                     signal reset_n : IN STD_LOGIC;
-                    signal sram_0_s0_wait_counter_eq_0 : IN STD_LOGIC;
-                    signal sram_0_s0_wait_counter_eq_1 : IN STD_LOGIC;
                     signal system_timer_s1_irq_from_sa : IN STD_LOGIC;
                     signal tc_i_mem_pcp_s2_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 
@@ -10017,8 +9990,6 @@ component pcp_cpu_instruction_master_arbitrator is
                     signal pcp_cpu_instruction_master_requests_sram_0_s0 : IN STD_LOGIC;
                     signal pcp_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal reset_n : IN STD_LOGIC;
-                    signal sram_0_s0_wait_counter_eq_0 : IN STD_LOGIC;
-                    signal sram_0_s0_wait_counter_eq_1 : IN STD_LOGIC;
 
                  -- outputs:
                     signal pcp_cpu_instruction_master_address_to_slave : OUT STD_LOGIC_VECTOR (20 DOWNTO 0);
@@ -10538,8 +10509,6 @@ component tri_state_bridge_0_avalon_slave_arbitrator is
                     signal pcp_cpu_instruction_master_read_data_valid_sram_0_s0 : OUT STD_LOGIC;
                     signal pcp_cpu_instruction_master_requests_sram_0_s0 : OUT STD_LOGIC;
                     signal registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 : OUT STD_LOGIC;
-                    signal sram_0_s0_wait_counter_eq_0 : OUT STD_LOGIC;
-                    signal sram_0_s0_wait_counter_eq_1 : OUT STD_LOGIC;
                     signal tri_state_bridge_0_data : INOUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal we_n_to_the_sram_0 : OUT STD_LOGIC
                  );
@@ -10994,8 +10963,6 @@ end component niosII_openMac_reset_clk25Meg_domain_synch_module;
                 signal remote_update_cycloneiii_0_s1_write :  STD_LOGIC;
                 signal remote_update_cycloneiii_0_s1_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal reset_n_sources :  STD_LOGIC;
-                signal sram_0_s0_wait_counter_eq_0 :  STD_LOGIC;
-                signal sram_0_s0_wait_counter_eq_1 :  STD_LOGIC;
                 signal sysid_control_slave_address :  STD_LOGIC;
                 signal sysid_control_slave_clock :  STD_LOGIC;
                 signal sysid_control_slave_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -11739,8 +11706,6 @@ begin
       registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 => registered_pcp_cpu_data_master_read_data_valid_sram_0_s0,
       registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2 => registered_pcp_cpu_data_master_read_data_valid_tc_i_mem_pcp_s2,
       reset_n => pcp_clk_reset_n,
-      sram_0_s0_wait_counter_eq_0 => sram_0_s0_wait_counter_eq_0,
-      sram_0_s0_wait_counter_eq_1 => sram_0_s0_wait_counter_eq_1,
       system_timer_s1_irq_from_sa => system_timer_s1_irq_from_sa,
       tc_i_mem_pcp_s2_readdata_from_sa => tc_i_mem_pcp_s2_readdata_from_sa
     );
@@ -11776,9 +11741,7 @@ begin
       pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module => pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module,
       pcp_cpu_instruction_master_requests_sram_0_s0 => pcp_cpu_instruction_master_requests_sram_0_s0,
       pcp_cpu_jtag_debug_module_readdata_from_sa => pcp_cpu_jtag_debug_module_readdata_from_sa,
-      reset_n => pcp_clk_reset_n,
-      sram_0_s0_wait_counter_eq_0 => sram_0_s0_wait_counter_eq_0,
-      sram_0_s0_wait_counter_eq_1 => sram_0_s0_wait_counter_eq_1
+      reset_n => pcp_clk_reset_n
     );
 
 
@@ -12243,8 +12206,6 @@ begin
       pcp_cpu_instruction_master_read_data_valid_sram_0_s0 => pcp_cpu_instruction_master_read_data_valid_sram_0_s0,
       pcp_cpu_instruction_master_requests_sram_0_s0 => pcp_cpu_instruction_master_requests_sram_0_s0,
       registered_pcp_cpu_data_master_read_data_valid_sram_0_s0 => registered_pcp_cpu_data_master_read_data_valid_sram_0_s0,
-      sram_0_s0_wait_counter_eq_0 => sram_0_s0_wait_counter_eq_0,
-      sram_0_s0_wait_counter_eq_1 => sram_0_s0_wait_counter_eq_1,
       tri_state_bridge_0_data => tri_state_bridge_0_data,
       we_n_to_the_sram_0 => internal_we_n_to_the_sram_0,
       clk => internal_pcp_clk,
