@@ -132,10 +132,14 @@ This file has to be included before other include files.
 #    pragma pack( 1 )
 #    define PACK_STRUCT
 #elif defined( __GNUC__ )
-    #define PACK_STRUCT         __attribute__((packed))
-    #define CNAPI_USLEEP(x)     usleep(x)
+#   define PACK_STRUCT            __attribute__((packed))
+#   if defined( __CR16C__ )
+#       define CNAPI_USLEEP(x)    GS_DelayTask(x/1000)
+#   else
+#       define CNAPI_USLEEP(x)    usleep(x)
+#   endif
 #else
-#    error you must byte-align these structures with the appropriate compiler directives
+#    error you must 16bit-align these structures with the appropriate compiler directives
 #endif
 
 #endif  // #ifndef _CNAPI_GLOBAL_H_
