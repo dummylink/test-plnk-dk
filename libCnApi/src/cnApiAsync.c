@@ -159,7 +159,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 #ifdef CN_API_USING_SPI
     TfrTyp = kPdiAsyncTrfTypeLclBuffering; // has to be buffered locally if serial interface is used
 #else
-    TfrTyp = kPdiAsyncTrfTypeDirectAccess; // use only, if message size will not exceed the PDI buffer
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
 
     ChanType_p = kAsyncChannelInternal;
@@ -180,7 +180,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
 #ifdef CN_API_USING_SPI
 #else
-    TfrTyp = kPdiAsyncTrfTypeDirectAccess; // use only, if message size will not exceed the PDI buffer
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
 
 

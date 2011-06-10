@@ -175,7 +175,7 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     /* Tx messages */
     Dir = kCnApiDirTransmit;
-    TfrTyp = kPdiAsyncTrfTypeDirectAccess;
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering;
     pPdiBuf = &aPcpPdiAsyncTxMsgBuffer_g[0];
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, NULL, pPdiBuf,
