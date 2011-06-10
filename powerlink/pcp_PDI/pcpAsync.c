@@ -193,6 +193,7 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering;
     CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosReq, Dir, cnApiAsync_doLinkPdosReq, pPdiBuf,
                         kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
 
@@ -407,6 +408,7 @@ tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr
 	    if (pCreateObjLinksReq->m_bReqId == FST_OBJ_CRT_INDICATOR)
 	    {// asynchronous message counter 2 indicates a AP restart (workaround)
 	        bReqSeqnc = 0;
+	        dwApObjLinkEntries_g = 0;
 	    }
 
 	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO ,"Sequence: %d \n", bReqSeqnc);
