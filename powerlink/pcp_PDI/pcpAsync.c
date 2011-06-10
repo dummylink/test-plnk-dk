@@ -43,7 +43,7 @@ tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 
 /* local variables */
 static  BYTE *  pObjData[OBJ_CRT_LNKS_BLKS] = {NULL};
-static  BYTE    bReqSeqnc = 0;        ///< sequence counter of split message
+static  BYTE    bReqSeqnc_l = 0;        ///< sequence counter of split message
 static  BYTE    bDescrVers_l = 0;     ///< descriptor version of LinkPdosReq
 
 /******************************************************************************/
@@ -407,24 +407,24 @@ tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr
 	{
 	    if (pCreateObjLinksReq->m_bReqId == FST_OBJ_CRT_INDICATOR)
 	    {// asynchronous message counter 2 indicates a AP restart (workaround)
-	        bReqSeqnc = 0;
+	        bReqSeqnc_l = 0;
 	        dwApObjLinkEntries_g = 0;
 	    }
 
-	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO ,"Sequence: %d \n", bReqSeqnc);
-	    if (bReqSeqnc > OBJ_CREATE_LINKS_REQ_MAX_SEQ)
+	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO ,"Sequence: %d \n", bReqSeqnc_l);
+	    if (bReqSeqnc_l > OBJ_CREATE_LINKS_REQ_MAX_SEQ)
 	    {
-	        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Invalid sequence %d!\n", bReqSeqnc);
+	        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Invalid sequence %d!\n", bReqSeqnc_l);
 	        Ret = kPdiAsyncStatusInvalidMessage;
 	        goto exit;
 	    }
 
 		/* allocate memory in HEAP */
-	    if (pObjData[bReqSeqnc] != NULL)
+	    if (pObjData[bReqSeqnc_l] != NULL)
 	    {
-	        free(pObjData[bReqSeqnc]); ///< memory has been allocated before! overwrite it...
+	        free(pObjData[bReqSeqnc_l]); ///< memory has been allocated before! overwrite it...
 	    }
-		if ((pObjData[bReqSeqnc] = malloc(iSize)) == NULL)
+		if ((pObjData[bReqSeqnc_l] = malloc(iSize)) == NULL)
 		{
 		    /* prepare response msg */
 			/*----------------------------------------------------------------------------*/
@@ -438,7 +438,7 @@ tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr
 		{
 			/* link objects to allocated HEAP memory */
 			pObjId = (tCnApiObjId *)(pCreateObjLinksReq + 1);
-			pData = pObjData[bReqSeqnc];
+			pData = pObjData[bReqSeqnc_l];
 
             for (i = 0; i < wNumObjs; i++, pObjId++)
 			{
@@ -483,7 +483,7 @@ tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr
 			}
 		}
 	}
-	bReqSeqnc++;
+	bReqSeqnc_l++;
 
 	/* setup response msg header */
 	/*----------------------------------------------------------------------------*/
