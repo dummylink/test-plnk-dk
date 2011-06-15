@@ -1005,11 +1005,15 @@ static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p)
 {
     if(*((unsigned short *)EDRV_IRQ_BASE) & 0x1)
     {
+        BENCHMARK_MOD_01_SET(1);
         omethTxIrqHandler(pArg_p);
+        BENCHMARK_MOD_01_RESET(1);
     }
     if(*((unsigned short *)EDRV_IRQ_BASE) & 0x2)
     {
+        BENCHMARK_MOD_01_SET(6);
         omethRxIrqHandler(pArg_p);
+        BENCHMARK_MOD_01_RESET(6);
     }
 }
 
@@ -1029,7 +1033,7 @@ static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p)
 static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time)
 {
 	EdrvInstance_l.m_dwMsgFree++;
-    BENCHMARK_MOD_01_SET(1);
+    //BENCHMARK_MOD_01_SET(1);
     if (arg != NULL)
     {
     tEdrvTxBuffer*  pTxBuffer = arg;
@@ -1040,7 +1044,7 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
         }
     }
 
-    BENCHMARK_MOD_01_RESET(1);
+    //BENCHMARK_MOD_01_RESET(1);
 }
 
 
@@ -1068,7 +1072,7 @@ tEdrvRxBuffer       rxBuffer;
 unsigned int        uiIndex;
 tEplTgtTimeStamp    TimeStamp;
 
-    BENCHMARK_MOD_01_SET(6);
+    //BENCHMARK_MOD_01_SET(6);
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
     rxBuffer.m_pbBuffer = (BYTE *) &pPacket->data;
     rxBuffer.m_uiRxMsgLen = pPacket->length;
@@ -1090,7 +1094,7 @@ tEplTgtTimeStamp    TimeStamp;
         BENCHMARK_MOD_01_RESET(5);
     }
 
-    BENCHMARK_MOD_01_RESET(6);
+    //BENCHMARK_MOD_01_RESET(6);
 
     return 0;
 }
