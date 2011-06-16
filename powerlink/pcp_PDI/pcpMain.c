@@ -56,6 +56,7 @@ static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 /******************************************************************************/
 /* forward declarations */
 int openPowerlink(void);
+void processPowerlink(void);
 extern void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p);
 
 /**
@@ -178,20 +179,7 @@ int main (void)
     IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
 #endif
 
-    /***** Starting main state machine *****/
-    resetStateMachine();
-    CnApi_activateAsyncStateMachine();
-
-    while (stateMachineIsRunning())
-    {
-        CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
-    	EplApiProcess();
-    	updateStateMachine();
-    }
-
-    DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
-
-    Gi_shutdown();
+    processPowerlink();
 
     return OK;
 exit:
@@ -305,16 +293,29 @@ int startPowerlink(void)
 *******************************************************************************/
 void processPowerlink(void)
 {
-    while(1)
+    /***** Starting state machines *****/
+    resetStateMachine();
+    CnApi_activateAsyncStateMachine();
+
+    while (stateMachineIsRunning())
     {
+        /* process Powerlink and it API */
+        CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
         EplApiProcess();
+        updateStateMachine();
+
         if (fShutdown_l == TRUE)
             break;
     }
 
+    /* error occurred -> shutdown */
     DEBUG_TRACE0(DEBUG_LVL_28, "Shutdown EPL Stack\n");
     EplApiShutdown();                           ///<shutdown node
-	return;
+
+    DEBUG_TRACE0(DEBUG_LVL_09, "shut down POWERLINK CN interface ...\n");
+    Gi_shutdown();
+
+    return;
 }
 
 /**
