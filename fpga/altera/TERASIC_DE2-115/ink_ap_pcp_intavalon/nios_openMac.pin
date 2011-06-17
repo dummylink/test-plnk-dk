@@ -367,7 +367,7 @@ PHY0_MDC                     : C20       : output : 2.5 V             :         
 PHY1_RXD[1]                  : C21       : input  : 2.5 V             :         : 7         : Y              
 PHY1_TXCLK                   : C22       : input  : 2.5 V             :         : 7         : Y              
 PHY1_GXCLK                   : C23       : output : 2.5 V             :         : 7         : Y              
-RESERVED_INPUT_WITH_WEAK_PULLUP : C24       :        :                   :         : 7         :                
+PHY1_RXER                    : C24       : input  : 2.5 V             :         : 7         : Y              
 PHY1_TXD[0]                  : C25       : output : 2.5 V             :         : 7         : Y              
 PHY1_TXD[3]                  : C26       : output : 2.5 V             :         : 7         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : C27       :        :                   :         : 6         :                
@@ -389,7 +389,7 @@ RESERVED_INPUT_WITH_WEAK_PULLUP : D14       :        :                   :      
 RESERVED_INPUT_WITH_WEAK_PULLUP : D15       :        :                   :         : 7         :                
 PHY0_RXD[1]                  : D16       : input  : 2.5 V             :         : 7         : Y              
 PHY0_RXD[2]                  : D17       : input  : 2.5 V             :         : 7         : Y              
-RESERVED_INPUT_WITH_WEAK_PULLUP : D18       :        :                   :         : 7         :                
+PHY0_RXER                    : D18       : input  : 2.5 V             :         : 7         : Y              
 PHY0_TXD[1]                  : D19       : output : 2.5 V             :         : 7         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : D20       :        :                   :         : 7         :                
 PHY1_RXD[3]                  : D21       : input  : 2.5 V             :         : 7         : Y              

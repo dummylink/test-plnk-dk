@@ -111,22 +111,22 @@
 (port
 (pt 480 32)
 (output)
-(text "ap_clkSDRAM " (rect 0 0 72 16)(font "Arial" (font_size 8)))
-(text "ap_clkSDRAM " (rect 381 25 453 41)(font "Arial" (font_size 8)))
+(text "altpll_0_c4_out " (rect 0 0 72 16)(font "Arial" (font_size 8)))
+(text "altpll_0_c4_out " (rect 380 25 453 41)(font "Arial" (font_size 8)))
 (line (pt 464 32)(pt 480 32)(line_width 1))
 )
 (port
 (pt 480 48)
 (output)
-(text "clk100 " (rect 0 0 31 16)(font "Arial" (font_size 8)))
-(text "clk100 " (rect 421 41 453 57)(font "Arial" (font_size 8)))
+(text "clk25 " (rect 0 0 25 16)(font "Arial" (font_size 8)))
+(text "clk25 " (rect 427 41 453 57)(font "Arial" (font_size 8)))
 (line (pt 464 48)(pt 480 48)(line_width 1))
 )
 (port
 (pt 480 64)
 (output)
-(text "clk25 " (rect 0 0 25 16)(font "Arial" (font_size 8)))
-(text "clk25 " (rect 427 57 453 73)(font "Arial" (font_size 8)))
+(text "clk50_270deg " (rect 0 0 69 16)(font "Arial" (font_size 8)))
+(text "clk50_270deg " (rect 384 57 453 73)(font "Arial" (font_size 8)))
 (line (pt 464 64)(pt 480 64)(line_width 1))
 )
 (port
@@ -139,8 +139,8 @@
 (port
 (pt 480 96)
 (output)
-(text "pcp_clk " (rect 0 0 37 16)(font "Arial" (font_size 8)))
-(text "pcp_clk " (rect 416 89 453 105)(font "Arial" (font_size 8)))
+(text "clkpcp " (rect 0 0 31 16)(font "Arial" (font_size 8)))
+(text "clkpcp " (rect 422 89 453 105)(font "Arial" (font_size 8)))
 (line (pt 464 96)(pt 480 96)(line_width 1))
 )
 (port
