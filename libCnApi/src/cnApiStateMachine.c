@@ -238,8 +238,7 @@ FUNC_EVT(kApStateReadyToOperate, kApStateOperational, 1)
 FUNC_EVT(kApStateReadyToOperate, kApStatePreop1, 1)
 {
 	/* check for PCP state: PCP_PREOP */
-	if (CnApi_getPcpState() == kPcpStatePreop1
-	    || CnApi_getPcpState() == kPcpStatePreop2 )
+	if (CnApi_getPcpState() == kPcpStatePreop1)
 	{
 		return TRUE;
 	}
