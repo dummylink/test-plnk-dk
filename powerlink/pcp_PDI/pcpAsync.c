@@ -611,6 +611,7 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     /* Prepare PDO descriptor message for AP */
 
     pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
+    dwSumMappingSize_g = 0;        ///< reset overall sum of mapping size
 
     Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
     Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);

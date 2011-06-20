@@ -216,7 +216,9 @@ typedef struct sPdoDescHeader {
 typedef struct sPdoDesc {
 	WORD	m_wPdoIndex;
 	BYTE	m_bPdoSubIndex;
-	BYTE	m_bReserved;    // NumObjChain not used
+	BYTE    m_bPad;
+	WORD    m_wOffset;
+	WORD    m_wSize;      // TODO: NumObjChain not used; Doku change!
 } PACK_STRUCT tPdoDescEntry;
 
 #define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400

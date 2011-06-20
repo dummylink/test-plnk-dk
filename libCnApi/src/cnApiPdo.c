@@ -31,8 +31,9 @@
 /******************************************************************************/
 /* typedefs */
 typedef struct sPdoCopyTblEntry {
-    BYTE            *pAdrs_m;
-    WORD             size_m;
+    BYTE *  pAdrs_m;        ///< source or target pointer
+    WORD    size_m;         ///< data size
+    WORD    wPdoOfst;       ///< PDO buffer offset
 } tPdoCopyTblEntry;
 
 typedef struct sPdoCpyTbl {
@@ -87,6 +88,7 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 	tPdoDir PdoDir;
 	WORD	wObjSize;
 	char	*pObjAdrs;
+	BOOL fRet = TRUE;
 
 	PdoDir = (tPdoDir) bDirection_p;
 
@@ -134,7 +136,9 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 	while(iCnt < wDescrEntries_p)
 	{
 		/* if object line up matches then acquire data pointer and size information from the linking table */
-		if (!CnApi_setupMappedObjects(pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, &wObjSize, &pObjAdrs))
+	    fRet = CnApi_getObjectParam(pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, &wObjSize, &pObjAdrs);
+		if (fRet == FALSE                ||
+		    wObjSize != pDescEntry->m_wSize)
 		{
 		    /* skip this copy table element */
 		    DEBUG_TRACE2(DEBUG_LVL_ERROR,"Couldn't find descriptor object 0x%04x/0x%02x"
@@ -144,9 +148,10 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 			pCopyTbl->aEntry_m[wTblNum].size_m = 0;
 		}
 		else
-		{   /* assing copy table element values */
+		{   /* assign copy table element values */
 		    pCopyTbl->aEntry_m[wTblNum].pAdrs_m = pObjAdrs;
-		    pCopyTbl->aEntry_m[wTblNum].size_m = wObjSize;
+		    pCopyTbl->aEntry_m[wTblNum].size_m = pDescEntry->m_wSize;
+		    pCopyTbl->aEntry_m[wTblNum].wPdoOfst = pDescEntry->m_wOffset;
 		    wTblNum++;
 		    (*pbCpyTblEntries)++;
 
@@ -434,8 +439,9 @@ void CnApi_receivePdo(void)
 
         for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
         {   /* get Pdo data from PDI */
-            CnApi_Spi_read(dwPdiBufOffs, pCopyTblEntry->size_m, (BYTE*) pCopyTblEntry->pAdrs_m);
-            dwPdiBufOffs += pCopyTblEntry->size_m;
+            CnApi_Spi_read(dwPdiBufOffs + pCopyTblEntry->wPdoOfst,
+                           pCopyTblEntry->size_m,
+                           (BYTE*) pCopyTblEntry->pAdrs_m);
             pCopyTblEntry++;
         }
     }
@@ -454,8 +460,9 @@ void CnApi_receivePdo(void)
 
         for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
         {
-            memcpy (pCopyTblEntry->pAdrs_m, pPdoPdiData, pCopyTblEntry->size_m);
-            pPdoPdiData += pCopyTblEntry->size_m;
+            memcpy (pCopyTblEntry->pAdrs_m,
+                    pPdoPdiData + pCopyTblEntry->wPdoOfst,
+                    pCopyTblEntry->size_m);
             pCopyTblEntry++;
         }
     }
@@ -491,7 +498,9 @@ void CnApi_transmitPdo(void)
 
         for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
         {   /* write Pdo data to PDI */
-            CnApi_Spi_write(dwPdiBufOffs, pCopyTblEntry->size_m, (BYTE*) pCopyTblEntry->pAdrs_m);
+            CnApi_Spi_write(dwPdiBufOffs + pCopyTblEntry->wPdoOfst,
+                            pCopyTblEntry->size_m,
+                            (BYTE*) pCopyTblEntry->pAdrs_m);
             dwPdiBufOffs += pCopyTblEntry->size_m;
             pCopyTblEntry++;
         }
@@ -511,8 +520,9 @@ void CnApi_transmitPdo(void)
 
         for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
         {
-            memcpy (pPdoPdiData, pCopyTblEntry->pAdrs_m, pCopyTblEntry->size_m);
-            pPdoPdiData += pCopyTblEntry->size_m;
+            memcpy (pPdoPdiData + pCopyTblEntry->wPdoOfst,
+                    pCopyTblEntry->pAdrs_m,
+                    pCopyTblEntry->size_m);
             pCopyTblEntry++;
         }
 

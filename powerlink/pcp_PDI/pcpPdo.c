@@ -27,7 +27,9 @@
 /* equals number of mapped objects, if memory-chaining is not applied */
 #define	PDO_COPY_TBL_ELEMENTS	MAX_MAPPABLE_OBJECTS   ///< max copy table elements per PDO
 //TODO: this is a restriction to be indicated in xdd! (max nr. of mappable objects)
+#define PCP_PDO_MAPPING_SIZE_SUM_MAX    100     ///< max sum of mappable bytes (for 400µs cycle time)
 
+#define BYTE_SIZE_SHIFT 3 ///< used for bit shift operation to convert bit value to byte value
 /******************************************************************************/
 /* typedefs */
 typedef struct sPdoCopyTblEntry {
@@ -46,13 +48,13 @@ typedef struct sPdoCpyTbl {
 
 /******************************************************************************/
 /* global variables */
-tObjTbl     *pPcpLinkedObjs_g = NULL;     ///< table of linked objects at pcp side according to AP message
+tObjTbl     *pPcpLinkedObjs_g = NULL;  ///< table of linked objects at pcp side according to AP message
 DWORD       dwApObjLinkEntries_g = 0;  ///< number of linked objects at pcp side
+DWORD       dwSumMappingSize_g = 0;    ///< counter of overall mapped bytes
 
 /* local variables */
 static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
 static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
-
 static	tPdoCopyTbl			aTxPdoCopyTbl_l[TPDO_CHANNELS_MAX];
 static	tPdoCopyTbl	        aRxPdoCopyTbl_l[RPDO_CHANNELS_MAX];
 
@@ -172,16 +174,30 @@ void OptimizeCpyTbl(tPdoCopyTbl *pPdoCpyTbl_p )
 
 /**
 ********************************************************************************
-\brief	decode object mapping
+\brief  decode object mapping
+\param qwObjectMapping_p    mapping pattern
+\param puiIndex_p           OUT: index of mapped object
+\param puiSubIndex_p        OUT: subindex of mapped object
+\param puiOffset_p          OUT: data offset in frame
+\param puiSize_p            OUT: data size in frame
 *******************************************************************************/
-static void DecodeObjectMapping(QWORD qwObjectMapping_p, unsigned int* puiIndex_p,
-                                    unsigned int* puiSubIndex_p)
+static void DecodeObjectMapping(
+        QWORD qwObjectMapping_p,
+        unsigned int* puiIndex_p,
+        unsigned int* puiSubIndex_p,
+        unsigned int* puiOffset_p,
+        unsigned int* puiSize_p)
 {
     *puiIndex_p = (unsigned int)
                     (qwObjectMapping_p & 0x000000000000FFFFLL);
-
     *puiSubIndex_p = (unsigned int)
                     ((qwObjectMapping_p & 0x0000000000FF0000LL) >> 16);
+
+    /* get bit values -> convert to byte values */
+    *puiOffset_p = (unsigned int)
+                    ((qwObjectMapping_p & 0x0000FFFF00000000LL) >> (32 + BYTE_SIZE_SHIFT));
+    *puiSize_p = (unsigned int)
+                    ((qwObjectMapping_p & 0xFFFF000000000000LL) >> (48 + BYTE_SIZE_SHIFT));
 }
 
 /**
@@ -412,6 +428,8 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	WORD		        wPdoDescSize;
 	unsigned int		uiMapIndex;
 	unsigned int		uiMapSubIndex;
+    unsigned int        uiMapOffset;
+    unsigned int        uiMapSize;
 	unsigned int		uiMapObj;
 	unsigned int		uiCommObj;
 	unsigned int		uiMaxPdoChannels;
@@ -436,8 +454,8 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	{
 	    PdoDir = RPdo;
 		pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdoReq_p + sizeof(tLinkPdosReq) + *pCurrentDescrOffset_p);       // ptr to first descriptor sink address
-		uiCommObj = EPL_PDOU_OBD_IDX_RX_COMM_PARAM;       // 1400 start (node ID object)
-		uiMapObj = EPL_PDOU_OBD_IDX_RX_MAPP_PARAM;        // 1600 start (object + size)
+		uiCommObj = EPL_PDOU_OBD_IDX_RX_COMM_PARAM;       // 1400 start (node ID object info)
+		uiMapObj = EPL_PDOU_OBD_IDX_RX_MAPP_PARAM;        // 1600 start (object + size + offset info)
 		pCopyTbl = &aRxPdoCopyTbl_l[0];                   // ptr CopyTable sink address
 		uiMaxPdoChannels = RPDO_CHANNELS_MAX;             // Max RPDOs
 	}
@@ -506,7 +524,9 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
             goto exit;
         }
 
-		/* setup descriptor and copy table of this PDO channel */
+		/* setup descriptor and copy table of this PDO channel
+		 * according to mapping object pattern (of each subindex)
+		 */
 		for (bMappSubindex = 1; bMappSubindex <= bObdSubIdxCount; bMappSubindex++)
 		{
 
@@ -518,7 +538,12 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 				goto exit;
 			}
 
-			DecodeObjectMapping(qwObjectMapping, &uiMapIndex, &uiMapSubIndex);
+			DecodeObjectMapping(
+			        qwObjectMapping,
+			        &uiMapIndex,
+			        &uiMapSubIndex,
+			        &uiMapOffset,
+			        &uiMapSize);
 
 			/* add object to PDO descriptor */
 	        if(uiMapIndex == 0x0000)
@@ -528,16 +553,25 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 			else
 			{
 			    /* check if object has been linked before by AP command */
-			    if (!Gi_checkIfObjLinked((WORD) uiMapIndex, (WORD) uiMapSubIndex))
-			    {
-                    continue; // goto next sub index of for loop, because only linked objects should be copied!
-                }
+			    //if (!Gi_checkIfObjLinked((WORD) uiMapIndex, (WORD) uiMapSubIndex))
+			    //{
+                //    continue; // goto next sub index of for loop, because only linked objects should be copied!
+                //} //TODO: delete this block, because we care about the linking only at AP side.
+			        //      Instead, check if object is mappable!
 
-	             /* add object to copy table */
-			    if ((pCopyTblEntry->size_m = EplObdGetDataSize(uiMapIndex, uiMapSubIndex)) == 0) // size is 0
+			    /* add object to copy table */
+			    pCopyTblEntry->size_m = EplObdGetDataSize(uiMapIndex, uiMapSubIndex);
+                //DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO,"TblSize: %d MapSize: %d MapOffset: %d\n",pCopyTblEntry->size_m, uiMapSize, uiMapOffset);
+			    if (pCopyTblEntry->size_m == 0      ||
+			        pCopyTblEntry->size_m != uiMapSize)
 			    {
-	                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Size 0 invalid. Skipped!\n");
-			    }
+                    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Invalid object size. Skipped!\n");
+                }
+                else if ((dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
+                {
+                    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
+                    goto exit;
+                }
 			    else
 			    {
 			        pTempAdrs = EplObdGetObjectDataPtr(uiMapIndex, uiMapSubIndex);
@@ -550,15 +584,24 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 			            pCopyTblEntry->pAdrs_m = pTempAdrs;                                      ///< linked address
 			            //pCopyTblEntry->size_m is already assigned in if statement above        ///< linked size
 
-			            pPdoDescEntry->m_wPdoIndex = uiMapIndex;               ///< write descriptor entry
-			            pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;         ///< write descriptor entry
+			            // write descriptor entry
+			            pPdoDescEntry->m_wPdoIndex = uiMapIndex;
+			            pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;
+			            pPdoDescEntry->m_wOffset = uiMapOffset;
+			            pPdoDescEntry->m_wSize = uiMapSize;
 
-			            DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size: %d linkadr: %p\n", uiMapIndex, (BYTE)uiMapSubIndex, pCopyTblEntry->size_m, pTempAdrs);
+			            DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size: %d linkadr: %p",
+			                    uiMapIndex,
+			                    (BYTE)uiMapSubIndex,
+			                    pCopyTblEntry->size_m,
+			                    pTempAdrs);
+	                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: %04x\n", uiMapOffset); //TODO: comment this line and add \n to last printf
 
-			            pCopyTblEntry++;                ///< prepare ptr for next element
-			            pCopyTbl->bNumOfEntries_m++;    ///< increment entry counter
-			            pPdoDescEntry++;                ///< prepare for next PDO descriptor entry
-			            bAddedDecrEntries++;            ///< count actually added entries
+			            pCopyTblEntry++;                 ///< prepare ptr for next element
+			            pCopyTbl->bNumOfEntries_m++;     ///< increment entry counter
+			            pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
+			            bAddedDecrEntries++;             ///< count added entries
+			            dwSumMappingSize_g += uiMapSize; ///< count bytes of mapped size
 			        }
 			    }
 			}

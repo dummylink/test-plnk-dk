@@ -50,6 +50,7 @@ extern BOOL            fIrqSyncMode_g;    ///< synchronization mode flag
 
 extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp side according to AP message
 extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp side
+extern DWORD       dwSumMappingSize_g;    ///< counter of overall mapped bytes
 
 /******************************************************************************/
 /* function declarations */

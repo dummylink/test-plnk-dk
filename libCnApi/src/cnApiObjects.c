@@ -132,13 +132,17 @@ int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_
 /**
 ********************************************************************************
 \brief	setup actually mapped objects
+\param wIndex_p     requested index
+\param bSubIndex_p  requested subindex
+\param wSize_p      OUT: size of object
+\param pAdrs_p      OUT: pointer to object
 
-The function CnApi_setupMappedObjects() compares the local linking table and the
-descriptor table. If the entries line up equally, the data pointer and
-the respective size is taken out of the local object linking table.
+The function CnApi_getObjectParam() compares the local linking table and the
+descriptor table. If the object entry is found, the data pointer and
+the respective size of the local object linking table will be returned.
 So only currently mapped objects at PCP side will be considered in the copy table!
 *******************************************************************************/
-BOOL CnApi_setupMappedObjects(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p)
+BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p)
 {
 	tObjTbl		*pTbl;
 	int			i;
