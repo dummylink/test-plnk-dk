@@ -531,7 +531,18 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     /* setup the synchronization interrupt time period */
                     Gi_calcSyncIntPeriod();   // calculate multiple of cycles
 
+                    /* prepare PDO mapping */
+
+                    /* setup PDO <-> DPRAM copy table */
                     CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
+
+                    /* setup frame <-> PDO copy table - needs already linked objects! */
+                    EplRet = EplPdouSetupAllPdoInternalCpyTable();
+                    if (EplRet != kEplSuccessful)
+                    {
+                        goto Exit;
+                    }
+
                     break;
                 }
 

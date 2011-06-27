@@ -58,6 +58,9 @@ static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
 static	tPdoCopyTbl			aTxPdoCopyTbl_l[TPDO_CHANNELS_MAX];
 static	tPdoCopyTbl	        aRxPdoCopyTbl_l[RPDO_CHANNELS_MAX];
 
+/* mapped objects are linked to this memory */
+static BYTE abMappedObjects_l[PCP_PDO_MAPPING_SIZE_SUM_MAX]; //TODO: directly link to DPRAM; additional system.h restriction for each PDO channel
+
 /******************************************************************************/
 /* function declarations */
 
@@ -433,6 +436,12 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	unsigned int		uiMapObj;
 	unsigned int		uiCommObj;
 	unsigned int		uiMaxPdoChannels;
+	unsigned int        uiOffsetCnt = 0;
+
+	/* linking function temporary variables */
+    BYTE *  pData = NULL;
+    unsigned int uiVarEntries = 0;
+    int iSize;
 
 	tEplObdSize         ObdSize;
 	BYTE                bNodeId;
@@ -566,6 +575,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 			        pCopyTblEntry->size_m != uiMapSize)
 			    {
                     DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Invalid object size. Skipped!\n");
+                    //TODO: Forward Error To AP.
                 }
                 else if ((dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
                 {
@@ -574,6 +584,18 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
                 }
 			    else
 			    {
+			        /* first, link object according to mappig */
+	                pData = &abMappedObjects_l[dwSumMappingSize_g];
+	                uiVarEntries = 1;
+	                iSize = uiMapSize;
+	                Ret = EplApiLinkObject(uiMapIndex, pData, &uiVarEntries, &iSize, uiMapSubIndex);
+	                if (Ret != kEplSuccessful)
+	                {
+	                    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
+	                    goto exit;
+	                }
+
+                    /* now setup copy table and PDO buffer descriptor message */
 			        pTempAdrs = EplObdGetObjectDataPtr(uiMapIndex, uiMapSubIndex);
 			        if(pTempAdrs == NULL)
 			        {
@@ -587,21 +609,23 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 			            // write descriptor entry
 			            pPdoDescEntry->m_wPdoIndex = uiMapIndex;
 			            pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;
-			            pPdoDescEntry->m_wOffset = uiMapOffset;
+			            // pPdoDescEntry->m_wOffset = uiMapOffset; //TODO: use this line for real PDO frame
+			            pPdoDescEntry->m_wOffset = uiOffsetCnt; //TODO: delete this line for real PDO frame
 			            pPdoDescEntry->m_wSize = uiMapSize;
 
 			            DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size: %d linkadr: %p",
 			                    uiMapIndex,
 			                    (BYTE)uiMapSubIndex,
 			                    pCopyTblEntry->size_m,
-			                    pTempAdrs);
-	                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: %04x\n", uiMapOffset); //TODO: comment this line and add \n to last printf
+			                    pCopyTblEntry->pAdrs_m);
+	                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: %04x\n", pPdoDescEntry->m_wOffset); //TODO: comment this line and add \n to last printf
 
 			            pCopyTblEntry++;                 ///< prepare ptr for next element
 			            pCopyTbl->bNumOfEntries_m++;     ///< increment entry counter
 			            pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
 			            bAddedDecrEntries++;             ///< count added entries
 			            dwSumMappingSize_g += uiMapSize; ///< count bytes of mapped size
+			            uiOffsetCnt += uiMapSize; ///< TODO: delete this variable (and line) for real PDO frame
 			        }
 			    }
 			}

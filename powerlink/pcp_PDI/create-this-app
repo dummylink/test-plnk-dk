@@ -80,6 +80,7 @@ INCLUDES="\
 ${EDRV_DIR}/openmac/include \
 ${EDRV_DIR}/../target
 ${POWERLINKDIR}/Include \
+${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
 ${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \

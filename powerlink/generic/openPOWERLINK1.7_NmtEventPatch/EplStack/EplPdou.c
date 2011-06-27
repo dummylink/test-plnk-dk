@@ -286,23 +286,6 @@ tEplKernel      Ret = kEplSuccessful;
             break;
         }
 
-        case kEplNmtGsResetConfiguration:
-        {
-            EplPdouInstance_g.m_fAllocated = FALSE;
-            EplPdouInstance_g.m_fRunning = FALSE;
-
-            // forward PDO configuration to Pdok module
-            Ret = EplPdouConfigureAllPdos();
-            if (Ret != kEplSuccessful)
-            {
-                goto Exit;
-            }
-
-            EplPdouInstance_g.m_fRunning = TRUE;
-
-            break;
-        }
-
         default:
         {   // do nothing
             break;
@@ -430,6 +413,41 @@ Exit:
     return Ret;
 }
 
+
+//---------------------------------------------------------------------------
+//
+// Function:    EplPdouSetupAllPdoInternalCpyTable
+//
+// Description: safely configures all PDOs in Pdok module
+//              setup copy tables according to the current object addresses.
+//
+// Parameters:  void
+//
+// Returns:     tEplKernel              = error code
+//
+//
+// State:
+//
+//---------------------------------------------------------------------------
+tEplKernel PUBLIC EplPdouSetupAllPdoInternalCpyTable(void)
+{
+    tEplKernel          Ret = kEplSuccessful;
+
+    EplPdouInstance_g.m_fAllocated = FALSE;
+    EplPdouInstance_g.m_fRunning = FALSE;
+
+    // forward PDO configuration to Pdok module
+    Ret = EplPdouConfigureAllPdos();
+    if (Ret != kEplSuccessful)
+    {
+        goto Exit;
+    }
+
+    EplPdouInstance_g.m_fRunning = TRUE;
+
+Exit:
+    return Ret;
+}
 
 
 //=========================================================================//
