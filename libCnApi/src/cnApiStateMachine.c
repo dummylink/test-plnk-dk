@@ -153,6 +153,7 @@ FUNC_ENTRYACT(kApStateInit)
 {
 	/* object creation and initialization */
 	CnApi_createObjectLinks();
+    CnApi_setApCommand(kApCmdPreop); // immediately make PCP move to PreOP
 
 }
 /*----------------------------------------------------------------------------*/

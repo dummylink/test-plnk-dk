@@ -227,27 +227,6 @@ void CnApi_createObjectLinks(void)
 	        return; //TODO: handle error
 		}
 	}
-
-	if (wCnt <= MAX_LINKABLE_OBJCS)
-	{
-
-        /* prepare message */
-	    memset(&CreateObjLinksHdl_l, 0x00, sizeof(CreateObjLinksHdl_l)); //reset message handle
-	    CreateObjLinksHdl_l.pObj_m = aObjLinkTbl_l;  // assign link list to be processed
-	    CreateObjLinksHdl_l.wNumCreateObjs_m = wCnt;       // set number of objects to be created
-
-	    /* send message */
-        Ret = CnApiAsync_postMsg(kPdiAsyncMsgIntCreateObjLinksReq,
-                                 (BYTE *) &CreateObjLinksHdl_l,
-                                 NULL,
-                                 CnApi_pfnCbCreateObjLinksRespFinished);
-
-        if (Ret != kPdiAsyncStatusSuccessful)
-        {
-            return;
-        }
-	}
-
 }
 
 /**
