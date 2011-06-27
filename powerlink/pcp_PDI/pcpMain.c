@@ -16,6 +16,7 @@
 /* includes */
 #include "Epl.h"
 #include "Debug.h"
+#include "EplPdou.h"
 
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
