@@ -33,16 +33,6 @@
 #define BYTE_SIZE_SHIFT 3 ///< used for bit shift operation to convert bit value to byte value
 /******************************************************************************/
 /* typedefs */
-typedef struct sPdoCopyTblEntry {
-    BYTE            *pAdrs_m;
-    WORD            size_m;
-} tPdoCopyTblEntry;
-
-typedef struct sPdoCpyTbl {
-   BYTE                 bNumOfEntries_m;
-   tPdoCopyTblEntry     aEntry_m[PDO_COPY_TBL_ELEMENTS];
-} tPdoCopyTbl;
-
 
 /******************************************************************************/
 /* external variable declarations */
@@ -66,110 +56,6 @@ static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
 /******************************************************************************/
 /* functions */
 
-/**
-********************************************************************************
-	\brief	comparison function used by qsort
- * This function will be used by qsort() to compare two elements of an array
-*******************************************************************************/
-int SortCopyTblEntry(const void *pCpyTblEntry, const void *pCpyTblNxtEntry)
-{
-	int iRet = 0;
-
-	if (((tPdoCopyTblEntry *) pCpyTblEntry)->pAdrs_m > ((tPdoCopyTblEntry *) pCpyTblNxtEntry)->pAdrs_m)
-	{
-		//Address of pCpyTblEntry is greater than pCpyTblNxtEntry return positive no
-		iRet = 1;
-	}
-	else if (((tPdoCopyTblEntry *) pCpyTblEntry)->pAdrs_m == ((tPdoCopyTblEntry *) pCpyTblNxtEntry)->pAdrs_m)
-	{
-		//Address of pCpyTblEntry is equal to pCpyTblNxtEntry return zero
-		iRet = 0;
-	}
-	else
-	{
-		//Address of pCpyTblEntry is less than pCpyTblNxtEntry return negative no
-		iRet = -1;
-	}
-	return iRet;
-}
-
-/**
-********************************************************************************
-	\brief	Prints the address and size of copy table entry
- * This function prints the address and size of all the copy table entry 
- * specified by the number of entries
-*******************************************************************************/
-void PrintCpyTbl(tPdoCopyTbl *pCpyTbl)
-{
-	int iLoop;
-
-	for (iLoop = 0; iLoop < pCpyTbl->bNumOfEntries_m; iLoop++)
-	{
-		DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "pCpyTbl->aEntry_m[%d]=%p size_m=%d\n", iLoop, (void *)pCpyTbl->aEntry_m[iLoop].pAdrs_m , pCpyTbl->aEntry_m[iLoop].size_m);
-	}
-}
-
-/**
-********************************************************************************
-	\brief	Optimize copy table entries
- * This function optimizes the entries of the Copytable
- * It checks whether the pAdrs_m in the copy table are memory chained or not
- * If the address are memory chained it reduces the num entries and increases
- * the size of chainable entries i.e. it merges single entries to memory blocks.
- 
-\param  pPdoCpyTbl_p    pointer to a copy table refering to one certain PDO
-*******************************************************************************/
-void OptimizeCpyTbl(tPdoCopyTbl *pPdoCpyTbl_p )
-{
-	tPdoCopyTblEntry  *pCpyTblEntry; //structure pointers
-	tPdoCopyTblEntry  *pTempCpyTblEntry;
-	BYTE bCpyTblEntries; 
-	register int iLoop1; // loop count
-	register int iLoop2;  //internal loop counter
-	
-	pCpyTblEntry    = &(pPdoCpyTbl_p->aEntry_m[0]); // starting value of the table's address 
-
-	bCpyTblEntries    = pPdoCpyTbl_p->bNumOfEntries_m; // number of entries
-
-	/*sort the list */
-	qsort(pPdoCpyTbl_p->aEntry_m, pPdoCpyTbl_p->bNumOfEntries_m, sizeof(tPdoCopyTblEntry), SortCopyTblEntry);
-
-	/* optimizing the copy table */
-	pCpyTblEntry = &(pPdoCpyTbl_p->aEntry_m[0]);
-	for (iLoop1 = 0; iLoop1 < bCpyTblEntries; iLoop1 ++ )
- 	{
-		pTempCpyTblEntry = 1 + pCpyTblEntry; //Next entry of the table assigned to a temporary variable
-
-		/*searching the add+size entry match with other entries in the table*/
-		for (iLoop2 = iLoop1 + 1; iLoop2 < bCpyTblEntries ; iLoop2 ++ )
-	 	{  
-
-			/* condition checks the add+size match with the other entries,
-			 * if found,size of the next is added to the first element, found entry is deleted, entries reduced.
-			 */
-			if ((pCpyTblEntry->pAdrs_m + pCpyTblEntry->size_m) == pTempCpyTblEntry->pAdrs_m )
-			{
-		
-				pCpyTblEntry->size_m += pTempCpyTblEntry->size_m ; //size of the found element is added to the
-				                                                   //first element's size
-				bCpyTblEntries--; // reduce the number of entries of the table
-
-				/* Delete the matched element and move up all entries below the matched element */
-				memcpy(pTempCpyTblEntry, 1 + pTempCpyTblEntry, (bCpyTblEntries - iLoop2) * sizeof(tPdoCopyTblEntry));
-				/* clear the element at the end of the array, since all the elements are moved up in array */
-				memset(((bCpyTblEntries - iLoop2) + pTempCpyTblEntry), 0, sizeof(tPdoCopyTblEntry));
-				iLoop2--;
-			}
-			else
-			{
-				pTempCpyTblEntry = 1 + pTempCpyTblEntry; // update the starting value again				
-			}	
-
-		}
-		pCpyTblEntry = 1 + pCpyTblEntry; // if the first entry doesnt match, the next entry is checked again
- 	}
-	pPdoCpyTbl_p->bNumOfEntries_m = bCpyTblEntries; //the number of entries assigned back to the structure element
-}
 
 /**
 ********************************************************************************
@@ -333,42 +219,6 @@ void Gi_writePdo(void)
         CnApi_ackPdoBuffer(aRPdosPdi_l[iCntout].pAck_m);
         // TODO: ack should be done right after the actual access (frame -> PDI copy job)
     }
-}
-
-/**
-********************************************************************************
-\brief  check if object is already linked
-
-This function searches the specified index and sub-index in
-the table of linked objects (according to AP command)
-and returns true, if it is found.
-
-\param  dwMapIndex         object index
-\param  dwMapSubIndex      object sub-index
-
-\return TRUE if object is linked or FALSE if not linked.
-*******************************************************************************/
-BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p)
-{
-    DWORD dwCnt;
-    tObjTbl *pObjTbl;
-
-    pObjTbl = pPcpLinkedObjs_g;
-
-    /* search the object links table for the given object */
-    for (dwCnt = 0; dwCnt < dwApObjLinkEntries_g; ++dwCnt)
-    {
-       if (pObjTbl->m_wIndex ==  wIndex_p &&
-           pObjTbl->m_bSubIndex == (BYTE) wSubIndex_p)
-       {
-           return TRUE; // entry found
-       }
-       else
-       {
-           pObjTbl++; // switch to next entry
-       }
-    }
-    return FALSE;
 }
 
 /**
