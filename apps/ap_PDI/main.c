@@ -58,7 +58,7 @@ a dual ported RAM (DPRAM) area.
 /*----------------------------------------------------------------------------*/
 
 #ifndef CN_API_USING_SPI
-    #define PDI_DPRAM_BASE_AP POWERLINK_0_PDI_AP_BASE           ///< from system.h
+    #define PDI_DPRAM_BASE_AP POWERLINK_0_BASE           ///< from system.h
 #else
     #define PDI_DPRAM_BASE_AP 0x00                              ///< no base address necessary
 #endif /* CN_API_USING_SPI */
