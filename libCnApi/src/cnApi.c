@@ -33,12 +33,11 @@ processor (AP) to the POWERLINK communication processor (PCP).
 
 /******************************************************************************/
 /* external variable declarations */
+tPcpCtrlReg    *  pCtrlReg_g;            ///< pointer to PCP control registers
+tCnApiInitParm *  pInitParm_g;           ///< pointer to POWERLINK init parameters
 
 /******************************************************************************/
 /* global variables */
-
-tPcpCtrlReg         *pCtrlReg_g;            // pointer to PCP control registers
-tCnApiInitParm      *pInitParm_g;           // pointer to POWERLINK init parameters
 tpfnSyncIntCb       pfnSyncIntCb = NULL;    // function pointer to sync interrupt callback
 #ifdef CN_API_USING_SPI
 tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of the PCP Control Register

@@ -115,7 +115,7 @@ typedef enum eCnApiEventTypeAsyncComm{
 } tCnApiEventTypeAsyncComm;
 
 typedef union {
-    struct
+    struct sLinkPdoReqRxHdl
     {
         tLinkPdosReq * pMsg_m;              ///< pointer to local LinkPdosReq message
         WORD wObjNotLinked_m;               ///< count of mapped but not linked objects
