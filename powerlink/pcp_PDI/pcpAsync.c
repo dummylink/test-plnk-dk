@@ -259,16 +259,11 @@ tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYT
 	memcpy (pInitParm->m_abMac, pInitPcpReq->m_abMac,
 			sizeof(pInitPcpReq->m_abMac));
 	pInitParm->m_dwDeviceType = pInitPcpReq->m_dwDeviceType;
-	pInitParm->m_dwFeatureFlags = pInitPcpReq->m_dwFeatureFlags;
 	pInitParm->m_bNodeId = pInitPcpReq->m_dwNodeId;
 	pInitParm->m_dwRevision = pInitPcpReq->m_dwRevision;
 	pInitParm->m_dwSerialNum = pInitPcpReq->m_dwSerialNum;
 	pInitParm->m_dwVendorId = pInitPcpReq->m_dwVendorId;
 	pInitParm->m_dwProductCode = pInitPcpReq->m_dwProductCode;
-	pInitParm->m_dwAsendMaxLatency = pInitPcpReq->m_dwAsendMaxLatency;
-	pInitParm->m_dwPresMaxLatency = pInitPcpReq->m_dwPresMaxLatency;
-	pInitParm->m_wIsoRxMaxPayload = pInitPcpReq->m_wIsoRxMaxPayload;
-	pInitParm->m_wIsoTxMaxPayload = pInitPcpReq->m_wIsoTxMaxPayload;
 
 	/* setup response */
 	pInitPcpResp->m_bReqId = pInitPcpReq->m_bReqId;

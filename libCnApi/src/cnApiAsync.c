@@ -284,16 +284,11 @@ tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsg
     memset (pInitPcpReq, 0x00, sizeof(pInitPcpReq));
     memcpy (&pInitPcpReq->m_abMac, pInitParm_g->m_abMac, sizeof(pInitParm_g->m_abMac));
     pInitPcpReq->m_dwDeviceType = pInitParm_g->m_dwDeviceType;
-    pInitPcpReq->m_dwFeatureFlags = pInitParm_g->m_dwFeatureFlags;
     pInitPcpReq->m_dwNodeId = pInitParm_g->m_bNodeId;
     pInitPcpReq->m_dwRevision = pInitParm_g->m_dwRevision;
     pInitPcpReq->m_dwSerialNum = pInitParm_g->m_dwSerialNum;
     pInitPcpReq->m_dwVendorId = pInitParm_g->m_dwVendorId;
     pInitPcpReq->m_dwProductCode = pInitParm_g->m_dwProductCode;
-    pInitPcpReq->m_dwAsendMaxLatency = pInitParm_g->m_dwAsendMaxLatency;
-    pInitPcpReq->m_dwPresMaxLatency = pInitParm_g->m_dwPresMaxLatency;
-    pInitPcpReq->m_wIsoRxMaxPayload = pInitParm_g->m_wIsoRxMaxPayload;
-    pInitPcpReq->m_wIsoTxMaxPayload = pInitParm_g->m_wIsoTxMaxPayload;
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 

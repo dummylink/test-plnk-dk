@@ -139,12 +139,7 @@ typedef struct sInitPcpReq {
     DWORD                   m_dwVendorId;
     DWORD                   m_dwProductCode;
     DWORD                   m_dwDeviceType;
-    DWORD                   m_dwFeatureFlags;
     DWORD                   m_dwNodeId;
-    WORD                    m_wIsoTxMaxPayload;
-    WORD                    m_wIsoRxMaxPayload;
-    DWORD                   m_dwPresMaxLatency;
-    DWORD                   m_dwAsendMaxLatency;
 } PACK_STRUCT tInitPcpReq;
 
 /**

@@ -217,12 +217,12 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EPL_MEMCPY(EplApiInitParam.m_abMacAddress, pInitParm_p->m_abMac, sizeof(EplApiInitParam.m_abMacAddress));
 	EplApiInitParam.m_uiNodeId = pInitParm_p->m_bNodeId;
 	EplApiInitParam.m_dwIpAddress = ip;
-	EplApiInitParam.m_uiIsochrTxMaxPayload = pInitParm_p->m_wIsoTxMaxPayload; // TODO: use system.h define?
-	EplApiInitParam.m_uiIsochrRxMaxPayload = pInitParm_p->m_wIsoRxMaxPayload; // TODO: use system.h define?
-	EplApiInitParam.m_dwPresMaxLatency = pInitParm_p->m_dwPresMaxLatency;
-	EplApiInitParam.m_dwAsndMaxLatency = pInitParm_p->m_dwAsendMaxLatency;
+	EplApiInitParam.m_uiIsochrTxMaxPayload = 256; // TODO: use system.h define?
+	EplApiInitParam.m_uiIsochrRxMaxPayload = 256; // TODO: use system.h define?
+	EplApiInitParam.m_dwPresMaxLatency = 2000; // ns
+	EplApiInitParam.m_dwAsndMaxLatency = 2000; // ns
 	EplApiInitParam.m_fAsyncOnly = FALSE;
-	EplApiInitParam.m_dwFeatureFlags = pInitParm_p->m_dwFeatureFlags;
+	EplApiInitParam.m_dwFeatureFlags = -1;                  // depends on openPOWERLINK module integration
 	EplApiInitParam.m_dwCycleLen = DEFAULT_CYCLE_LEN;
 	EplApiInitParam.m_uiPreqActPayloadLimit = 36;                              //TODO: use system.h define?
 	EplApiInitParam.m_uiPresActPayloadLimit = 36;                              //TODO: use system.h define?
