@@ -6,12 +6,12 @@ a rebuild of the PCP software is executed. */
 #define _CNAPICFG_H_
 
 /* Defines for CN API Library */
-#define CN_API_USING_SPI
+#define CN_API_INT_AVALON
 #define AP_IS_LITTLE_ENDIAN
-#define POWERLINK_0_PDI_PCP_PDIRPDOS 3
+#define POWERLINK_0_PDI_PCP_PDIRPDOS 1
 #define POWERLINK_0_PDI_PCP_PDITPDOS 1
 #define PCP_PDI_REVISION 33
-#define PCP_FPGA_BUILD_TIME_STAMP 1305812759u
+#define PCP_FPGA_BUILD_TIME_STAMP 1308142824u
 
 #endif /* _CNAPICFG_H_ */
 
