@@ -179,8 +179,20 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
 #ifdef CN_API_USING_SPI
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering; // has to be buffered locally if serial interface is used
 #else
-    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
+    TfrTyp = kPdiAsyncTrfTypeDirectAccess; // use only, if message size will not exceed the PDI buffer
+#endif /* CN_API_USING_SPI */
+
+    CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosResp, Dir, CnApi_doLinkPdosResp, pPdiBuf,
+                       kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+
+#ifdef CN_API_USING_SPI
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering; // has to be buffered locally if serial interface is used
+#else
+//    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
 
 

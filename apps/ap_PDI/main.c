@@ -452,19 +452,34 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                 {
                     case kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq:
                     {
-                        /* user has access to LinkPdosReq message here */
-                        /* and can do something useful with it, e.g. setup own copy tables */
-                        //DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Pointer to LinkPdosReq message from PCP: %p\n",
-                        //      pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m);
+                        /* User has access to LinkPdosReq message here and can do something
+                         * useful with it, e.g. setup own copy tables
+                         * The user is also responsible for sending a LinkPdosResp message
+                         * indicating success or failure of mapping and linking
+                         * (refer to default example below).
+                         */
 
                         DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Warning: %d objects are mapped but not linked!\n",
                                 pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m);
 
+                        /* prepare LinkPdosResp message status*/
                         if (pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m == FALSE)
-                        {
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Mapping Error!\n");
-                            // TODO: return message to PCP
+                        { // mapping invalid or linking failed
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Mapping or linking failed!\n");
+
+                            /* set status */
+                            LinkPdosResp_g.m_wStatus = kCnApiStatusObjectLinkFailed;
                         }
+                        else // successful
+                        { /* set status */
+                            LinkPdosResp_g.m_wStatus = kCnApiStatusOk;
+                        }
+
+                        /* prepare LinkPdosResp message descriptor count (return value of LinkPdosReq message) */
+                        LinkPdosResp_g.m_bDescrVers = pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bDescrVers;
+
+                        /* send LinkPdosResp message to PCP */
+                        CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosResp, 0,0,0);
                     }
 
                     default:

@@ -106,12 +106,13 @@ typedef enum eAsyncChannel {
 typedef enum ePdiAsyncMsgType {
     kPdiAsyncMsgInvalid         = 0x00,
     kPdiAsyncMsgIntInitPcpReq   = 0x01, ///< internal AP <-> PCP communication messages
-    kPdiAsyncMsgIntCreateObjLinksReq,
-    kPdiAsyncMsgIntWriteObjReq,
-    kPdiAsyncMsgIntReadObjReq,
     kPdiAsyncMsgIntInitPcpResp,
+    kPdiAsyncMsgIntCreateObjLinksReq,
     kPdiAsyncMsgIntCreateObjLinksResp,
     kPdiAsyncMsgIntLinkPdosReq,
+    kPdiAsyncMsgIntLinkPdosResp,
+    kPdiAsyncMsgIntWriteObjReq,
+    kPdiAsyncMsgIntReadObjReq,
     kPdiAsyncMsgIntWriteObjResp,
     kPdiAsyncMsgIntReadObjResp,
     kPdiAsyncMsgExtTxSdoWriteByIndex,     ///< external messages from network
@@ -180,6 +181,18 @@ typedef struct sLinkPdosReq {
     BYTE                    m_bDescrCnt;
     BYTE                    m_bDescrVers;
 } PACK_STRUCT tLinkPdosReq; //TODO: use async buffers!
+
+/**
+ * \brief structure for CreateObjResp command
+ */
+typedef struct sLinkPdosResp {
+//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
+    BYTE                    m_bDescrVers;
+    BYTE                    m_bPad;
+    WORD                    m_wStatus;
+//    WORD                    m_wErrIndex;
+//    BYTE                    m_bErrSubindex;
+} PACK_STRUCT tLinkPdosResp;
 
 /**
  * \brief structure for WriteObjReq command
@@ -354,6 +367,7 @@ typedef struct sPdiAsyncPendingTransferContext {
 /* external variable declarations */
 extern tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[];
 extern tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[];
+extern tLinkPdosResp LinkPdosResp_g;        ///< Link Pdos Response message
 
 /******************************************************************************/
 /* global variables */
@@ -400,6 +414,11 @@ extern tPdiAsyncStatus CnApi_doWriteObjReq(
                        BYTE * pTxMsgBuffer_p,
                        BYTE * pRxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
+extern tPdiAsyncStatus CnApi_doLinkPdosResp(
+                       tPdiAsyncMsgDescr * pMsgDescr_p,
+                       BYTE* pTxMsgBuffer_p,
+                       BYTE* pRxMsgBuffer_p,
+                       DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_handleInitPcpResp(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
                        BYTE * pRxMsgBuffer_p,
@@ -422,7 +441,7 @@ extern tPdiAsyncStatus CnApi_handleLinkPdosReq(
                        BYTE * pRxMsgBuffer_p,
                        BYTE * pTxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
-extern tPdiAsyncStatus CnApi_pfnCbLinkPdosReqFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
+extern tPdiAsyncStatus CnApi_pfnCbLinkPdosRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
 
 
 /*******************************************************************************

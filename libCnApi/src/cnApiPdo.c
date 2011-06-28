@@ -46,6 +46,7 @@ typedef struct sPdoCpyTbl {
 
 /******************************************************************************/
 /* external variable declarations */
+tLinkPdosResp LinkPdosResp_g;           ///< Link Pdos Response message
 
 /******************************************************************************/
 /* global variables */
@@ -356,16 +357,82 @@ exit:
     if (Ret == kPdiAsyncStatusSuccessful)
     {
         CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m = TRUE;
-        /* assign call back */
-        pMsgDescr_p->pfnTransferFinished_m = CnApi_pfnCbLinkPdosReqFinished;
     }
     else // error
     {
         CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m = FALSE;
-        pMsgDescr_p->pfnTransferFinished_m = NULL;
     }
 
     CnApi_AppCbEvent(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
+
+    return Ret;
+}
+
+
+/**
+********************************************************************************
+\brief  setup an Link PDOs response command
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
+
+CnApi_doLinkPdosResp() executes an LinkPdosResp command. The parameters
+stored in pInitParm_g will be copied to the LinkPdosResp message and transfered
+to the PCP.
+*******************************************************************************/
+tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
+                                     BYTE* pRxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
+{
+    tLinkPdosResp *    pLinkPdosResp = NULL;        ///< pointer to message (Tx)
+    tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
+
+    DEBUG_FUNC;
+
+    /* check message descriptor */
+    if (pMsgDescr_p == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* verify all buffer pointers we intend to use */
+    if (pTxMsgBuffer_p == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* check if expected Tx message size exceeds the buffer */
+    if ( sizeof(tLinkPdosResp) > dwMaxTxBufSize_p)
+    {
+        /* reject transfer, because direct access can not be processed */
+        Ret = kPdiAsyncStatusDataTooLong;
+        goto exit;
+    }
+
+    /* assign buffer payload addresses */
+    pLinkPdosResp = (tLinkPdosResp *) pTxMsgBuffer_p;    // Tx buffer
+
+    /* handle Tx Message */
+    /* build up InitPcpReq */
+    pLinkPdosResp->m_bDescrVers = LinkPdosResp_g.m_bDescrVers;
+    pLinkPdosResp->m_wStatus = LinkPdosResp_g.m_wStatus;
+
+    /* update size values of message descriptors */
+    pMsgDescr_p->dwMsgSize_m = sizeof(tLinkPdosResp); // sent size
+
+exit:
+    if (Ret == kPdiAsyncStatusSuccessful        &&
+        LinkPdosResp_g.m_wStatus == kCnApiStatusOk)
+    { /* assign call back  - move to ReadyToOperate state */
+        pMsgDescr_p->pfnTransferFinished_m = CnApi_pfnCbLinkPdosRespFinished;
+    }
+    else
+    { // error -> don not move to ReadyToOperate state
+        pMsgDescr_p->pfnTransferFinished_m = NULL;
+    }
 
     return Ret;
 }
@@ -380,7 +447,7 @@ exit:
  This function triggers an CMD_READY_TO_OPERATE which will be sent to the PCP
 
  *******************************************************************************/
-tPdiAsyncStatus CnApi_pfnCbLinkPdosReqFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
+tPdiAsyncStatus CnApi_pfnCbLinkPdosRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
 {
     /* trigger AP state machine change */
     CnApi_enterApStateReadyToOperate();
