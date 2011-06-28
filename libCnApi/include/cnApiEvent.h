@@ -25,6 +25,7 @@
 
 /* lends from openPOWERLINK stack */
 #include "cnApi.h"
+#include "cnApiAsync.h"
 #include "EplNmt.h"         // for tEplNmtState
 #include "EplErrDef.h"      // for tEplKernel
 #include "Epl.h"            // for tEplApiEventLed
@@ -110,10 +111,16 @@ typedef enum eCnApiEventTypeAsyncComm{
     kCnApiEventTypeAsyncCommExtChanFinished,     ///< asynchronous communication with PCP has finished and external channel is now available again
     kCnApiEventTypeAsyncCommExtChanMsgPresent,   ///< message from PCP is present in external channel
     kCnApiEventTypeAsyncCommExtChanBusy,         ///< access to external channel has been denied because it is in use
+    kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq  ///< Link Pdos Message received
 } tCnApiEventTypeAsyncComm;
 
-typedef struct sCnApiEventArgAsyncComm{
-// TODO
+typedef union {
+    struct
+    {
+        tLinkPdosReq * pMsg_m;              ///< pointer to local LinkPdosReq message
+        WORD wObjNotLinked_m;               ///< count of mapped but not linked objects
+        BOOL fSuccess_m;                    ///< flag indicating error while receiving LinkPdosReq message
+    } LinkPdosReq_m;                        ///< argument of kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq
 } tCnApiEventArgAsyncComm;
 
 typedef struct sCnApiEventAsyncComm {
@@ -132,7 +139,7 @@ typedef enum eCnApiEventType {
 //    kCnApiEventHistoryEntry,    ///< local CnApi error history entry
     kCnApiEventSdo,               ///< not used
     kCnApiEventObdAccess,         ///< not used
-    kCnApiEventAsyncComm,      ///< asynchronous communication AP <-> PCP event
+    kCnApiEventAsyncComm,         ///< asynchronous communication AP <-> PCP event
 } tCnApiEventType;
 
 /**
@@ -145,7 +152,7 @@ typedef union {
     tCnApiEventError         CnApiError_m;        ///< argument of kCnApiEventError
 //    tEplSdoComFinished       Sdo_m;               ///< argument of kCnApiEventSdo
 //    tEplObdCbParam           ObdCbParam_m;        ///< argument of kCnApiEventObdAccess
-// tCnApiEventAsyncPcpComm     AsyncPcpComm_m;      ///< argument of kCnApiEventAsyncCommPcp
+    tCnApiEventAsyncComm     AsyncComm_m;         ///< argument of kCnApiEventAsyncComm
 } tCnApiEventArg;
 
 typedef struct {

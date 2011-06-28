@@ -18,6 +18,7 @@
 #include "cnApiIntern.h"
 #include "cnApiDebug.h"
 #include "cnApiPdiSpi.h"
+#include "cnApiEvent.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -52,6 +53,7 @@ static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
 static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
 
 static  WORD                wPdoMappingVersion_l = 0xfe; ///< LinkPdosReq command mapping version
+static  WORD                wCntMappedNotLinkedObj_l;    ///< counter of mapped but not linked objects
 static  tPdoCopyTbl         aTxPdoCopyTbl_l[TPDO_CHANNELS_MAX];
 static  tPdoCopyTbl         aRxPdoCopyTbl_l[RPDO_CHANNELS_MAX];
 
@@ -73,9 +75,9 @@ Not stated objects in local table will be ignored.
 \param  wDescrEntries_p     Number of entries of the PDO descriptor
 \param	bDirection_p		Copy direction (read/write) of this copy table
 \param	wPdoBufNum_p	    PDO buffer number of one direction
-
+\return FALSE if error occurred, else TRUE
 *******************************************************************************/
-static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
+static BOOL CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
                                   WORD              wDescrEntries_p,
                                   BYTE              bDirection_p,
                                   WORD                 wPdoBufNum_p)
@@ -98,6 +100,7 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
                      "\nCopy table size of PDO Buffer %d too small"
                      " for count of descriptor elements (%d)!\n"
                      "Skipping copy table setup!\n", __func__, wPdoBufNum_p, wDescrEntries_p);
+        fRet = FALSE;
         goto exit;
     }
 
@@ -119,6 +122,7 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 	{
 	    DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s:"
                      "\nDescriptor has no valid direction! Skipping copy table for this PDO.\n", __func__);
+        fRet = FALSE;
 	    goto exit;
     }
     if(wDescrEntries_p == 0)
@@ -146,6 +150,7 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
                                                  pDescEntry->m_bPdoSubIndex);
 			pCopyTbl->aEntry_m[wTblNum].pAdrs_m = 0;
 			pCopyTbl->aEntry_m[wTblNum].size_m = 0;
+			wCntMappedNotLinkedObj_l++;
 		}
 		else
 		{   /* assign copy table element values */
@@ -164,11 +169,10 @@ static void CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 	    iCnt++;
 	}
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "OK\n");
-    return;
+    fRet = TRUE; // everything is fine if we reach this point
 
 exit:
-    //*pbCpyTblEntries = 0;
-	return;
+	return fRet;
 }
 
 /******************************************************************************/
@@ -282,6 +286,8 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     WORD                wNumDescr;
     tPdoDescHeader *    pPdoDescHeader;         ///< ptr to descriptor
     tLinkPdosReq *      pLinkPdosReq = NULL;    ///< ptr to message (Rx)
+    tCnApiEvent         CnApiEvent;             ///< forwarded to application
+    BOOL fRet = TRUE;                           ///< temporary return value
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
@@ -318,6 +324,7 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     }
     else
     {/* new mapping */
+        wCntMappedNotLinkedObj_l = 0; // reset counter
 
         wPdoMappingVersion_l = pLinkPdosReq->m_bDescrVers;
         DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "New Descriptor Version: %d. Contains %d PDO descriptors.\n",
@@ -326,7 +333,12 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
         /* read all descriptors and setup the corresponding copy tables */
         for (iCnt = 0; iCnt < wNumDescr; ++iCnt)
         {
-            CnApi_readPdoDesc(pPdoDescHeader);
+            fRet = CnApi_readPdoDesc(pPdoDescHeader);
+            if (fRet != TRUE)
+            {
+                Ret = kPdiAsyncStatusInvalidOperation;
+                goto exit;
+            }
 
             /* get pointer to next descriptor */
             pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
@@ -334,12 +346,28 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
         }
     }
 
-    exit:
+exit:
+    /* post event to user to provide the descriptor message for further use */
+    CnApiEvent.Typ_m = kCnApiEventAsyncComm;
+    CnApiEvent.Arg_m.AsyncComm_m.Typ_m = kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq;
+    CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m = pLinkPdosReq;
+    CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m = wCntMappedNotLinkedObj_l;
+
     if (Ret == kPdiAsyncStatusSuccessful)
-    { /* assign call back */
+    {
+        CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m = TRUE;
+        /* assign call back */
         pMsgDescr_p->pfnTransferFinished_m = CnApi_pfnCbLinkPdosReqFinished;
     }
-        return Ret;
+    else // error
+    {
+        CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m = FALSE;
+        pMsgDescr_p->pfnTransferFinished_m = NULL;
+    }
+
+    CnApi_AppCbEvent(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
+
+    return Ret;
 }
 
 
@@ -365,25 +393,28 @@ tPdiAsyncStatus CnApi_pfnCbLinkPdosReqFinished (struct sPdiAsyncMsgDescr * pMsgD
 ********************************************************************************
 \brief	read PDO descriptor
 
+\param  pPdoDescHeader_p    pointer to Pdo descriptor
+\return FALSE if error occurred, else TRUE
+
 CnApi_readPdoDesc() checks if the mapping changed. If it changed the
 PDO descriptor is read and the copy table is updated.
-
-
 *******************************************************************************/
-void CnApi_readPdoDesc(tPdoDescHeader *pPdoDescHeader_p)
+BOOL CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p)
 {
     WORD wNumDescrEntries;
     WORD wPdoBufNum;
     tPdoDir bPdoDir;
+    BOOL fRet = TRUE;
 
     wNumDescrEntries = pPdoDescHeader_p->m_bEntryCnt;
     bPdoDir = pPdoDescHeader_p->m_bPdoDir;
     wPdoBufNum = pPdoDescHeader_p->m_bBufferNum;
 
-    CnApi_setupCopyTable(pPdoDescHeader_p,
-                         wNumDescrEntries,
-                         bPdoDir,
-                         wPdoBufNum);
+    fRet = CnApi_setupCopyTable(pPdoDescHeader_p,
+                               wNumDescrEntries,
+                               bPdoDir,
+                               wPdoBufNum);
+    return fRet;
 }
 
 /**

@@ -37,7 +37,6 @@ static DWORD		dwNumVarLinks_l; ///< Number local link assignments
 static DWORD		dwMaxLinkEntries_l;
 static DWORD		dwSelectObj_l;
 static tCnApiObjId  aObjLinkTbl_l[MAX_LINKABLE_OBJCS];
-static tCnApiObjCreateObjLinksHdl CreateObjLinksHdl_l; ///< command handle
 
 /******************************************************************************/
 /* function declarations */
@@ -208,7 +207,6 @@ must exist in the PCPs object dictionary to be created.
 *******************************************************************************/
 void CnApi_createObjectLinks(void)
 {
-    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 	register WORD		wCnt;
 	tCnApiObjId			*pObjId;
 

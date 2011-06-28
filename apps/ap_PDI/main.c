@@ -446,6 +446,33 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                 break;
             }
+            case kCnApiEventAsyncComm:
+            {
+                switch (pEventArg_p->AsyncComm_m.Typ_m)
+                {
+                    case kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq:
+                    {
+                        /* user has access to LinkPdosReq message here */
+                        /* and can do something useful with it, e.g. setup own copy tables */
+                        //DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Pointer to LinkPdosReq message from PCP: %p\n",
+                        //      pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m);
+
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Warning: %d objects are mapped but not linked!\n",
+                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m);
+
+                        if (pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m == FALSE)
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Mapping Error!\n");
+                            // TODO: return message to PCP
+                        }
+                    }
+
+                    default:
+                        break;
+
+                }
+                break;
+            }
             case kCnApiEventSdo:
             case kCnApiEventObdAccess:
             default:
