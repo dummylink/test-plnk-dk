@@ -38,6 +38,8 @@
 tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 
+
+
 /******************************************************************************/
 /* global variables */
 
@@ -45,6 +47,10 @@ tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 static  BYTE *  pObjData[OBJ_CRT_LNKS_BLKS] = {NULL};
 static  BYTE    bReqSeqnc_l = 0;        ///< sequence counter of split message
 static  BYTE    bDescrVers_l = 0;     ///< descriptor version of LinkPdosReq
+/* variable indicates if AP objects have been linked successfully,
+ * an error happened or no linking happened yet
+ */
+static tPdiAsyncStatus ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
 
 /******************************************************************************/
 /* function declarations */
@@ -55,6 +61,8 @@ static tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pM
                                                            BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 static tPdiAsyncStatus cnApiAsync_handleWriteObjReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                      BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
+static tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+                                             BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p);
 static tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                  BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 
@@ -172,6 +180,11 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     //TODO: make handle: cnApiAsync_initMsg(kPdiAsyncMsgIntReadObjReq, Dir, ...);
     //if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+
+    CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosResp, Dir, cnApiAsync_handleLinkPdosResp, pPdiBuf,
+                       kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     /* Tx messages */
     Dir = kCnApiDirTransmit;
@@ -559,6 +572,64 @@ exit:
 
 /**
 ********************************************************************************
+\brief  handle an Link PDOs Response message
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
+*******************************************************************************/
+tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+                                             BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
+{
+    tLinkPdosResp *    pLinkPdosResp = NULL;       ///< pointer to response message (Tx)
+    tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
+
+    DEBUG_FUNC;
+
+    /* check message descriptor */
+    if (pMsgDescr_p == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* verify all buffer pointers we intend to use */
+    if (pRxMsgBuffer_p == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* assign buffer payload addresses */
+    pLinkPdosResp = (tLinkPdosResp *)pRxMsgBuffer_p;       // Rx buffer
+
+    /* handle Rx Message */
+    /* store data from pLinkPdosResp */
+    if (pLinkPdosResp->m_bDescrVers != bDescrVers_l)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Wrong descriptor version returned: %d\n", pLinkPdosResp->m_bDescrVers);
+        Ret = kPdiAsyncStatusReqIdError;
+        goto exit;
+    }
+
+    if (pLinkPdosResp->m_wStatus != kCnApiStatusOk)
+    { /* mapping is invalid or linking at AP failed */
+        // do not proceed to ReadyToOperate state (per default)!
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: AP object linking failed! Bootup will not proceed!\n");
+        //TODO: forward error e.g. return an SDO abort after mapping object has been written
+        ApLinkingStatus_l = kPdiAsyncStatusRespError;
+    }
+
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "OK!\n");
+    ApLinkingStatus_l = kPdiAsyncStatusSuccessful;
+
+exit:
+    return Ret;
+}
+
+/**
+********************************************************************************
 \brief  handle an tLinkPdosReq
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
@@ -620,10 +691,55 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset + sizeof(tLinkPdosReq);     // sent size
 
+    // reset AP status linking status, because we want the AP to do a new linking now
+    ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
+
 exit:
     return Ret;
 }
 
+
+/**
+ ********************************************************************************
+ \brief returns status of AP linking procedure
+ \return    tPdiAsyncStatus value
+ \retval    kPdiAsyncStatusInvalidState AP has not yet processed the linking request
+ \retval    kPdiAsyncStatusSuccessful   AP linking was successful
+ \retval    kPdiAsyncStatusRespError    AP linking failed
+ \retval    kPdiAsyncStatusInvalidState ApLinkingStatus_l has and invalid value
+
+ This function returns the value of ApLinkingStatus_l. Every time it is executed,
+ ApLinkingStatus_l will be reset to "kPdiAsyncStatusInvalidState".
+ The changing of ApLinkingStatus_l will be done upon reception of
+ LinkPdoResp message.
+ *******************************************************************************/
+tPdiAsyncStatus CnApiAsync_checkApLinkingStatus(void)
+{
+    tPdiAsyncStatus Ret;
+
+    switch (ApLinkingStatus_l)
+    {
+        case kPdiAsyncStatusSuccessful:
+        case kPdiAsyncStatusRespError:
+        case kPdiAsyncStatusInvalidState:
+        {
+            Ret = ApLinkingStatus_l;
+            // reset status
+            ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
+            break;
+        }
+
+        default:
+        {
+            // invalid value is assigned
+            Ret = kPdiAsyncStatusInvalidInstanceParam;
+        break;
+        }
+
+    }
+
+    return Ret;
+}
 
 /* END-OF-FILE */
 /******************************************************************************/

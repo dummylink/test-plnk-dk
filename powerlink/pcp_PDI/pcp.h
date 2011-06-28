@@ -85,6 +85,8 @@ extern void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p);
 
 extern void Gi_controlLED(BYTE bType_p, BOOL bOn_p);
 
+extern tPdiAsyncStatus CnApiAsync_checkApLinkingStatus(void);
+
 #endif /* GENERICIF_H_ */
 
 /* END-OF-FILE */

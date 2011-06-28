@@ -258,7 +258,14 @@ FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
     if(checkApCommand(kApCmdReadyToOperate))
     {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdReadyToOperate\n", __func__);
-        return TRUE;
+        if (CnApiAsync_checkApLinkingStatus() == kPdiAsyncStatusSuccessful)
+        { // state change allowed
+            return TRUE;
+        }
+        else
+        {
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: ReadyToOp blocked!");
+        }
     }
     else
     {
