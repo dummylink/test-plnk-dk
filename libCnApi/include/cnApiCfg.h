@@ -10,8 +10,8 @@ a rebuild of the PCP software is executed. */
 #define AP_IS_LITTLE_ENDIAN
 #define POWERLINK_0_PDI_PCP_PDIRPDOS 1
 #define POWERLINK_0_PDI_PCP_PDITPDOS 1
-#define PCP_PDI_REVISION 33
-#define PCP_FPGA_BUILD_TIME_STAMP 1308142824u
+#define PCP_PDI_REVISION 35
+#define PCP_FPGA_SYSID_ID 1u
 
 #endif /* _CNAPICFG_H_ */
 

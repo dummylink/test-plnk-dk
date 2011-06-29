@@ -952,10 +952,10 @@ entity benchmark_pio_s1_arbitrator is
               -- inputs:
                  signal benchmark_pio_s1_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -1031,7 +1031,7 @@ begin
   benchmark_pio_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_benchmark_pio_s1);
   --assign benchmark_pio_s1_readdata_from_sa = benchmark_pio_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   benchmark_pio_s1_readdata_from_sa <= benchmark_pio_s1_readdata;
-  internal_clock_crossing_0_m1_requests_benchmark_pio_s1 <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("00100100100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_benchmark_pio_s1 <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("000100100100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --benchmark_pio_s1_arb_share_counter set values, which is an e_mux
   benchmark_pio_s1_arb_share_set_values <= std_logic_vector'("01");
   --benchmark_pio_s1_non_bursting_master_requests mux, which is an e_mux
@@ -4226,10 +4226,10 @@ entity clock_crossing_0_s1_arbitrator is
                  signal reset_n : IN STD_LOGIC;
 
               -- outputs:
-                 signal clock_crossing_0_s1_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_s1_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_s1_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_s1_endofpacket_from_sa : OUT STD_LOGIC;
-                 signal clock_crossing_0_s1_nativeaddress : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_s1_nativeaddress : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_s1_read : OUT STD_LOGIC;
                  signal clock_crossing_0_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal clock_crossing_0_s1_reset_n : OUT STD_LOGIC;
@@ -4373,7 +4373,7 @@ begin
   clock_crossing_0_s1_begins_xfer <= NOT d1_reasons_to_wait AND ((internal_pcp_cpu_data_master_qualified_request_clock_crossing_0_s1 OR internal_pcp_cpu_instruction_master_qualified_request_clock_crossing_0_s1));
   --assign clock_crossing_0_s1_readdata_from_sa = clock_crossing_0_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   clock_crossing_0_s1_readdata_from_sa <= clock_crossing_0_s1_readdata;
-  internal_pcp_cpu_data_master_requests_clock_crossing_0_s1 <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(25 DOWNTO 14) & std_logic_vector'("00000000000000")) = std_logic_vector'("00000000000000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  internal_pcp_cpu_data_master_requests_clock_crossing_0_s1 <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(25 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("00000000000000000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
   --assign clock_crossing_0_s1_waitrequest_from_sa = clock_crossing_0_s1_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   internal_clock_crossing_0_s1_waitrequest_from_sa <= clock_crossing_0_s1_waitrequest;
   --assign clock_crossing_0_s1_readdatavalid_from_sa = clock_crossing_0_s1_readdatavalid so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -4475,7 +4475,7 @@ begin
   clock_crossing_0_s1_writedata <= pcp_cpu_data_master_writedata;
   --assign clock_crossing_0_s1_endofpacket_from_sa = clock_crossing_0_s1_endofpacket so that symbol knows where to group signals which may go to master only, which is an e_assign
   clock_crossing_0_s1_endofpacket_from_sa <= clock_crossing_0_s1_endofpacket;
-  internal_pcp_cpu_instruction_master_requests_clock_crossing_0_s1 <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_instruction_master_address_to_slave(24 DOWNTO 14) & std_logic_vector'("00000000000000")) = std_logic_vector'("0000000000000000000000000")))) AND (pcp_cpu_instruction_master_read))) AND pcp_cpu_instruction_master_read;
+  internal_pcp_cpu_instruction_master_requests_clock_crossing_0_s1 <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_instruction_master_address_to_slave(24 DOWNTO 15) & std_logic_vector'("000000000000000")) = std_logic_vector'("0000000000000000000000000")))) AND (pcp_cpu_instruction_master_read))) AND pcp_cpu_instruction_master_read;
   --pcp_cpu/data_master granted clock_crossing_0/s1 last time, which is an e_register
   process (clk, reset_n)
   begin
@@ -4590,10 +4590,10 @@ begin
   clock_crossing_0_s1_write <= internal_pcp_cpu_data_master_granted_clock_crossing_0_s1 AND pcp_cpu_data_master_write;
   shifted_address_to_clock_crossing_0_s1_from_pcp_cpu_data_master <= pcp_cpu_data_master_address_to_slave;
   --clock_crossing_0_s1_address mux, which is an e_mux
-  clock_crossing_0_s1_address <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_clock_crossing_0_s1)) = '1'), (A_SRL(shifted_address_to_clock_crossing_0_s1_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010"))), (std_logic_vector'("0") & ((A_SRL(shifted_address_to_clock_crossing_0_s1_from_pcp_cpu_instruction_master,std_logic_vector'("00000000000000000000000000000010")))))), 12);
+  clock_crossing_0_s1_address <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_clock_crossing_0_s1)) = '1'), (A_SRL(shifted_address_to_clock_crossing_0_s1_from_pcp_cpu_data_master,std_logic_vector'("00000000000000000000000000000010"))), (std_logic_vector'("0") & ((A_SRL(shifted_address_to_clock_crossing_0_s1_from_pcp_cpu_instruction_master,std_logic_vector'("00000000000000000000000000000010")))))), 13);
   shifted_address_to_clock_crossing_0_s1_from_pcp_cpu_instruction_master <= pcp_cpu_instruction_master_address_to_slave;
   --slaveid clock_crossing_0_s1_nativeaddress nativeaddress mux, which is an e_mux
-  clock_crossing_0_s1_nativeaddress <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_clock_crossing_0_s1)) = '1'), (A_SRL(pcp_cpu_data_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010"))), (std_logic_vector'("0") & ((A_SRL(pcp_cpu_instruction_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")))))), 12);
+  clock_crossing_0_s1_nativeaddress <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_clock_crossing_0_s1)) = '1'), (A_SRL(pcp_cpu_data_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010"))), (std_logic_vector'("0") & ((A_SRL(pcp_cpu_instruction_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")))))), 13);
   --d1_clock_crossing_0_s1_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
@@ -4708,7 +4708,7 @@ entity clock_crossing_0_m1_arbitrator is
               -- inputs:
                  signal benchmark_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_m1_byteenable_powerlink_0_MAC_REG : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal clock_crossing_0_m1_granted_benchmark_pio_s1 : IN STD_LOGIC;
@@ -4782,7 +4782,7 @@ entity clock_crossing_0_m1_arbitrator is
                  signal system_timer_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 
               -- outputs:
-                 signal clock_crossing_0_m1_address_to_slave : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : OUT STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_dbs_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal clock_crossing_0_m1_dbs_write_16 : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal clock_crossing_0_m1_endofpacket : OUT STD_LOGIC;
@@ -4797,7 +4797,7 @@ end entity clock_crossing_0_m1_arbitrator;
 
 architecture europa of clock_crossing_0_m1_arbitrator is
                 signal active_and_waiting_last_time :  STD_LOGIC;
-                signal clock_crossing_0_m1_address_last_time :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal clock_crossing_0_m1_address_last_time :  STD_LOGIC_VECTOR (14 DOWNTO 0);
                 signal clock_crossing_0_m1_byteenable_last_time :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal clock_crossing_0_m1_dbs_increment :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal clock_crossing_0_m1_is_granted_some_slave :  STD_LOGIC;
@@ -4809,7 +4809,7 @@ architecture europa of clock_crossing_0_m1_arbitrator is
                 signal dbs_16_reg_segment_0 :  STD_LOGIC_VECTOR (15 DOWNTO 0);
                 signal dbs_count_enable :  STD_LOGIC;
                 signal dbs_counter_overflow :  STD_LOGIC;
-                signal internal_clock_crossing_0_m1_address_to_slave :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal internal_clock_crossing_0_m1_address_to_slave :  STD_LOGIC_VECTOR (14 DOWNTO 0);
                 signal internal_clock_crossing_0_m1_dbs_address :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_clock_crossing_0_m1_latency_counter :  STD_LOGIC;
                 signal internal_clock_crossing_0_m1_waitrequest :  STD_LOGIC;
@@ -4834,7 +4834,7 @@ begin
   --r_2 master_run cascaded wait assignment, which is an e_assign
   r_2 <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT clock_crossing_0_m1_qualified_request_system_timer_s1 OR NOT clock_crossing_0_m1_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_write)))))));
   --optimize select-logic by passing only those address bits which matter.
-  internal_clock_crossing_0_m1_address_to_slave <= clock_crossing_0_m1_address(13 DOWNTO 0);
+  internal_clock_crossing_0_m1_address_to_slave <= clock_crossing_0_m1_address(14 DOWNTO 0);
   --clock_crossing_0_m1_read_but_no_slave_selected assignment, which is an e_register
   process (clk, reset_n)
   begin
@@ -4928,7 +4928,7 @@ begin
     process (clk, reset_n)
     begin
       if reset_n = '0' then
-        clock_crossing_0_m1_address_last_time <= std_logic_vector'("00000000000000");
+        clock_crossing_0_m1_address_last_time <= std_logic_vector'("000000000000000");
       elsif clk'event and clk = '1' then
         clock_crossing_0_m1_address_last_time <= clock_crossing_0_m1_address;
       end if;
@@ -5122,7 +5122,7 @@ entity epcs_flash_controller_0_epcs_control_port_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
@@ -5191,7 +5191,7 @@ architecture europa of epcs_flash_controller_0_epcs_control_port_arbitrator is
                 signal internal_clock_crossing_0_m1_granted_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal internal_clock_crossing_0_m1_qualified_request_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal internal_clock_crossing_0_m1_requests_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
-                signal shifted_address_to_epcs_flash_controller_0_epcs_control_port_from_clock_crossing_0_m1 :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal shifted_address_to_epcs_flash_controller_0_epcs_control_port_from_clock_crossing_0_m1 :  STD_LOGIC_VECTOR (14 DOWNTO 0);
                 signal wait_for_epcs_flash_controller_0_epcs_control_port_counter :  STD_LOGIC;
 
 begin
@@ -5209,7 +5209,7 @@ begin
   epcs_flash_controller_0_epcs_control_port_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_epcs_flash_controller_0_epcs_control_port);
   --assign epcs_flash_controller_0_epcs_control_port_readdata_from_sa = epcs_flash_controller_0_epcs_control_port_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   epcs_flash_controller_0_epcs_control_port_readdata_from_sa <= epcs_flash_controller_0_epcs_control_port_readdata;
-  internal_clock_crossing_0_m1_requests_epcs_flash_controller_0_epcs_control_port <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("00000000000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_epcs_flash_controller_0_epcs_control_port <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("000000000000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --assign epcs_flash_controller_0_epcs_control_port_dataavailable_from_sa = epcs_flash_controller_0_epcs_control_port_dataavailable so that symbol knows where to group signals which may go to master only, which is an e_assign
   epcs_flash_controller_0_epcs_control_port_dataavailable_from_sa <= epcs_flash_controller_0_epcs_control_port_dataavailable;
   --assign epcs_flash_controller_0_epcs_control_port_readyfordata_from_sa = epcs_flash_controller_0_epcs_control_port_readyfordata so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -5603,9 +5603,9 @@ entity jtag_uart_0_avalon_jtag_slave_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -5691,7 +5691,7 @@ begin
   jtag_uart_0_avalon_jtag_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave);
   --assign jtag_uart_0_avalon_jtag_slave_readdata_from_sa = jtag_uart_0_avalon_jtag_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_0_avalon_jtag_slave_readdata_from_sa <= jtag_uart_0_avalon_jtag_slave_readdata;
-  internal_clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("00100101110000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_jtag_uart_0_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("000100101110000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --assign jtag_uart_0_avalon_jtag_slave_dataavailable_from_sa = jtag_uart_0_avalon_jtag_slave_dataavailable so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_0_avalon_jtag_slave_dataavailable_from_sa <= jtag_uart_0_avalon_jtag_slave_dataavailable;
   --assign jtag_uart_0_avalon_jtag_slave_readyfordata_from_sa = jtag_uart_0_avalon_jtag_slave_readyfordata so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -6377,10 +6377,10 @@ entity niosII_openMac_clock_0_in_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -6463,7 +6463,7 @@ begin
   niosII_openMac_clock_0_in_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_niosII_openMac_clock_0_in);
   --assign niosII_openMac_clock_0_in_readdata_from_sa = niosII_openMac_clock_0_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   niosII_openMac_clock_0_in_readdata_from_sa <= niosII_openMac_clock_0_in_readdata;
-  internal_clock_crossing_0_m1_requests_niosII_openMac_clock_0_in <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00100101100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_niosII_openMac_clock_0_in <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("000100101100000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --assign niosII_openMac_clock_0_in_waitrequest_from_sa = niosII_openMac_clock_0_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   internal_niosII_openMac_clock_0_in_waitrequest_from_sa <= niosII_openMac_clock_0_in_waitrequest;
   --niosII_openMac_clock_0_in_arb_share_counter set values, which is an e_mux
@@ -6861,10 +6861,10 @@ entity niosII_openMac_clock_1_in_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -6947,7 +6947,7 @@ begin
   niosII_openMac_clock_1_in_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_niosII_openMac_clock_1_in);
   --assign niosII_openMac_clock_1_in_readdata_from_sa = niosII_openMac_clock_1_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   niosII_openMac_clock_1_in_readdata_from_sa <= niosII_openMac_clock_1_in_readdata;
-  internal_clock_crossing_0_m1_requests_niosII_openMac_clock_1_in <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 8) & std_logic_vector'("00000000")) = std_logic_vector'("00100000000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_niosII_openMac_clock_1_in <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 8) & std_logic_vector'("00000000")) = std_logic_vector'("000100000000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --assign niosII_openMac_clock_1_in_waitrequest_from_sa = niosII_openMac_clock_1_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   internal_niosII_openMac_clock_1_in_waitrequest_from_sa <= niosII_openMac_clock_1_in_waitrequest;
   --niosII_openMac_clock_1_in_arb_share_counter set values, which is an e_mux
@@ -7351,7 +7351,6 @@ entity niosII_openMac_clock_2_in_arbitrator is
                  signal niosII_openMac_clock_2_in_waitrequest : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-                 signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal reset_n : IN STD_LOGIC;
@@ -7370,7 +7369,6 @@ entity niosII_openMac_clock_2_in_arbitrator is
                  signal niosII_openMac_clock_2_in_writedata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in : OUT STD_LOGIC;
                  signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in : OUT STD_LOGIC;
-                 signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in : OUT STD_LOGIC;
                  signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in : OUT STD_LOGIC
               );
 end entity niosII_openMac_clock_2_in_arbitrator;
@@ -7420,7 +7418,7 @@ begin
   niosII_openMac_clock_2_in_begins_xfer <= NOT d1_reasons_to_wait AND (internal_powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in);
   --assign niosII_openMac_clock_2_in_readdata_from_sa = niosII_openMac_clock_2_in_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   niosII_openMac_clock_2_in_readdata_from_sa <= niosII_openMac_clock_2_in_readdata;
-  internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in <= to_std_logic(((Std_Logic_Vector'(powerlink_0_MAC_DMA_address_to_slave(29 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("000001001000000000000000000000")))) AND ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n));
+  internal_powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in <= ((to_std_logic(((Std_Logic_Vector'(powerlink_0_MAC_DMA_address_to_slave(29 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("000001001000000000000000000000")))) AND (NOT powerlink_0_MAC_DMA_write_n))) AND NOT powerlink_0_MAC_DMA_write_n;
   --assign niosII_openMac_clock_2_in_waitrequest_from_sa = niosII_openMac_clock_2_in_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   internal_niosII_openMac_clock_2_in_waitrequest_from_sa <= niosII_openMac_clock_2_in_waitrequest;
   --dummy niosII_openMac_clock_2_in_slavearbiterlockenable, which is an e_assign
@@ -7470,7 +7468,7 @@ begin
   --niosII_openMac_clock_2_in_beginbursttransfer_internal begin burst transfer, which is an e_assign
   niosII_openMac_clock_2_in_beginbursttransfer_internal <= niosII_openMac_clock_2_in_begins_xfer;
   --niosII_openMac_clock_2_in_read assignment, which is an e_mux
-  niosII_openMac_clock_2_in_read <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in AND NOT powerlink_0_MAC_DMA_read_n;
+  niosII_openMac_clock_2_in_read <= std_logic'('0');
   --niosII_openMac_clock_2_in_write assignment, which is an e_mux
   niosII_openMac_clock_2_in_write <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in AND NOT powerlink_0_MAC_DMA_write_n;
   --niosII_openMac_clock_2_in_address mux, which is an e_mux
@@ -7491,7 +7489,7 @@ begin
   --niosII_openMac_clock_2_in_waits_for_read in a cycle, which is an e_mux
   niosII_openMac_clock_2_in_waits_for_read <= niosII_openMac_clock_2_in_in_a_read_cycle AND internal_niosII_openMac_clock_2_in_waitrequest_from_sa;
   --niosII_openMac_clock_2_in_in_a_read_cycle assignment, which is an e_assign
-  niosII_openMac_clock_2_in_in_a_read_cycle <= internal_powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in AND NOT powerlink_0_MAC_DMA_read_n;
+  niosII_openMac_clock_2_in_in_a_read_cycle <= std_logic'('0');
   --in_a_read_cycle assignment, which is an e_mux
   in_a_read_cycle <= niosII_openMac_clock_2_in_in_a_read_cycle;
   --niosII_openMac_clock_2_in_waits_for_write in a cycle, which is an e_mux
@@ -7774,9 +7772,9 @@ entity node_switch_pio_s1_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal node_switch_pio_s1_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
@@ -7848,7 +7846,7 @@ begin
   node_switch_pio_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_node_switch_pio_s1);
   --assign node_switch_pio_s1_readdata_from_sa = node_switch_pio_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   node_switch_pio_s1_readdata_from_sa <= node_switch_pio_s1_readdata;
-  internal_clock_crossing_0_m1_requests_node_switch_pio_s1 <= ((to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00100101010000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))) AND clock_crossing_0_m1_read;
+  internal_clock_crossing_0_m1_requests_node_switch_pio_s1 <= ((to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("000100101010000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))) AND clock_crossing_0_m1_read;
   --node_switch_pio_s1_arb_share_counter set values, which is an e_mux
   node_switch_pio_s1_arb_share_set_values <= std_logic_vector'("01");
   --node_switch_pio_s1_non_bursting_master_requests mux, which is an e_mux
@@ -9919,7 +9917,7 @@ entity powerlink_0_MAC_CMP_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
@@ -9983,7 +9981,7 @@ architecture europa of powerlink_0_MAC_CMP_arbitrator is
                 signal powerlink_0_MAC_CMP_unreg_firsttransfer :  STD_LOGIC;
                 signal powerlink_0_MAC_CMP_waits_for_read :  STD_LOGIC;
                 signal powerlink_0_MAC_CMP_waits_for_write :  STD_LOGIC;
-                signal shifted_address_to_powerlink_0_MAC_CMP_from_clock_crossing_0_m1 :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal shifted_address_to_powerlink_0_MAC_CMP_from_clock_crossing_0_m1 :  STD_LOGIC_VECTOR (14 DOWNTO 0);
                 signal wait_for_powerlink_0_MAC_CMP_counter :  STD_LOGIC;
 
 begin
@@ -10001,7 +9999,7 @@ begin
   powerlink_0_MAC_CMP_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_powerlink_0_MAC_CMP);
   --assign powerlink_0_MAC_CMP_readdata_from_sa = powerlink_0_MAC_CMP_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_MAC_CMP_readdata_from_sa <= powerlink_0_MAC_CMP_readdata;
-  internal_clock_crossing_0_m1_requests_powerlink_0_MAC_CMP <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00100101000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_powerlink_0_MAC_CMP <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("000100101000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --powerlink_0_MAC_CMP_arb_share_counter set values, which is an e_mux
   powerlink_0_MAC_CMP_arb_share_set_values <= std_logic_vector'("01");
   --powerlink_0_MAC_CMP_non_bursting_master_requests mux, which is an e_mux
@@ -10164,7 +10162,7 @@ entity powerlink_0_MAC_REG_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal clock_crossing_0_m1_dbs_address : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal clock_crossing_0_m1_dbs_write_16 : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -10182,7 +10180,7 @@ entity powerlink_0_MAC_REG_arbitrator is
                  signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG : OUT STD_LOGIC;
                  signal clock_crossing_0_m1_requests_powerlink_0_MAC_REG : OUT STD_LOGIC;
                  signal d1_powerlink_0_MAC_REG_end_xfer : OUT STD_LOGIC;
-                 signal powerlink_0_MAC_REG_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal powerlink_0_MAC_REG_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal powerlink_0_MAC_REG_byteenable_n : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal powerlink_0_MAC_REG_chipselect : OUT STD_LOGIC;
                  signal powerlink_0_MAC_REG_irq_from_sa : OUT STD_LOGIC;
@@ -10233,7 +10231,7 @@ architecture europa of powerlink_0_MAC_REG_arbitrator is
                 signal powerlink_0_MAC_REG_unreg_firsttransfer :  STD_LOGIC;
                 signal powerlink_0_MAC_REG_waits_for_read :  STD_LOGIC;
                 signal powerlink_0_MAC_REG_waits_for_write :  STD_LOGIC;
-                signal shifted_address_to_powerlink_0_MAC_REG_from_clock_crossing_0_m1 :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal shifted_address_to_powerlink_0_MAC_REG_from_clock_crossing_0_m1 :  STD_LOGIC_VECTOR (14 DOWNTO 0);
                 signal wait_for_powerlink_0_MAC_REG_counter :  STD_LOGIC;
 
 begin
@@ -10251,7 +10249,7 @@ begin
   powerlink_0_MAC_REG_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_powerlink_0_MAC_REG);
   --assign powerlink_0_MAC_REG_readdata_from_sa = powerlink_0_MAC_REG_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_MAC_REG_readdata_from_sa <= powerlink_0_MAC_REG_readdata;
-  internal_clock_crossing_0_m1_requests_powerlink_0_MAC_REG <= to_std_logic(((Std_Logic_Vector'(A_ToStdLogicVector(clock_crossing_0_m1_address_to_slave(13)) & std_logic_vector'("0000000000000")) = std_logic_vector'("10000000000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_powerlink_0_MAC_REG <= to_std_logic(((Std_Logic_Vector'(A_ToStdLogicVector(clock_crossing_0_m1_address_to_slave(14)) & std_logic_vector'("00000000000000")) = std_logic_vector'("100000000000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --powerlink_0_MAC_REG_arb_share_counter set values, which is an e_mux
   powerlink_0_MAC_REG_arb_share_set_values <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_clock_crossing_0_m1_granted_powerlink_0_MAC_REG)) = '1'), std_logic_vector'("00000000000000000000000000000010"), std_logic_vector'("00000000000000000000000000000001")), 2);
   --powerlink_0_MAC_REG_non_bursting_master_requests mux, which is an e_mux
@@ -10343,9 +10341,9 @@ begin
   powerlink_0_MAC_REG_read_n <= NOT ((internal_clock_crossing_0_m1_granted_powerlink_0_MAC_REG AND clock_crossing_0_m1_read));
   --~powerlink_0_MAC_REG_write_n assignment, which is an e_mux
   powerlink_0_MAC_REG_write_n <= NOT ((internal_clock_crossing_0_m1_granted_powerlink_0_MAC_REG AND clock_crossing_0_m1_write));
-  shifted_address_to_powerlink_0_MAC_REG_from_clock_crossing_0_m1 <= A_EXT (Std_Logic_Vector'(A_SRL(clock_crossing_0_m1_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(clock_crossing_0_m1_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0'))), 14);
+  shifted_address_to_powerlink_0_MAC_REG_from_clock_crossing_0_m1 <= A_EXT (Std_Logic_Vector'(A_SRL(clock_crossing_0_m1_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(clock_crossing_0_m1_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0'))), 15);
   --powerlink_0_MAC_REG_address mux, which is an e_mux
-  powerlink_0_MAC_REG_address <= A_EXT (A_SRL(shifted_address_to_powerlink_0_MAC_REG_from_clock_crossing_0_m1,std_logic_vector'("00000000000000000000000000000001")), 12);
+  powerlink_0_MAC_REG_address <= A_EXT (A_SRL(shifted_address_to_powerlink_0_MAC_REG_from_clock_crossing_0_m1,std_logic_vector'("00000000000000000000000000000001")), 13);
   --d1_powerlink_0_MAC_REG_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
@@ -10943,14 +10941,11 @@ entity powerlink_0_MAC_DMA_arbitrator is
               -- inputs:
                  signal clk : IN STD_LOGIC;
                  signal d1_niosII_openMac_clock_2_in_end_xfer : IN STD_LOGIC;
-                 signal niosII_openMac_clock_2_in_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal niosII_openMac_clock_2_in_waitrequest_from_sa : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                 signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                 signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -10958,7 +10953,6 @@ entity powerlink_0_MAC_DMA_arbitrator is
 
               -- outputs:
                  signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
-                 signal powerlink_0_MAC_DMA_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_waitrequest : OUT STD_LOGIC
               );
 end entity powerlink_0_MAC_DMA_arbitrator;
@@ -10970,7 +10964,6 @@ architecture europa of powerlink_0_MAC_DMA_arbitrator is
                 signal internal_powerlink_0_MAC_DMA_waitrequest :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_address_last_time :  STD_LOGIC_VECTOR (29 DOWNTO 0);
                 signal powerlink_0_MAC_DMA_byteenable_n_last_time :  STD_LOGIC_VECTOR (1 DOWNTO 0);
-                signal powerlink_0_MAC_DMA_read_n_last_time :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_run :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_write_n_last_time :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_writedata_last_time :  STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -10979,13 +10972,11 @@ architecture europa of powerlink_0_MAC_DMA_arbitrator is
 begin
 
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic(((std_logic_vector'("00000000000000000000000000000001") AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in OR NOT ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in OR NOT ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n)))))))))));
+  r_1 <= Vector_To_Std_Logic((std_logic_vector'("00000000000000000000000000000001") AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in OR NOT (NOT powerlink_0_MAC_DMA_write_n))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT powerlink_0_MAC_DMA_write_n))))))))));
   --cascaded wait assignment, which is an e_assign
   powerlink_0_MAC_DMA_run <= r_1;
   --optimize select-logic by passing only those address bits which matter.
   internal_powerlink_0_MAC_DMA_address_to_slave <= Std_Logic_Vector'(std_logic_vector'("000001001") & powerlink_0_MAC_DMA_address(20 DOWNTO 0));
-  --powerlink_0/MAC_DMA readdata mux, which is an e_mux
-  powerlink_0_MAC_DMA_readdata <= niosII_openMac_clock_2_in_readdata_from_sa;
   --actual waitrequest port, which is an e_assign
   internal_powerlink_0_MAC_DMA_waitrequest <= NOT powerlink_0_MAC_DMA_run;
   --vhdl renameroo for output signals
@@ -11010,7 +11001,7 @@ begin
       if reset_n = '0' then
         active_and_waiting_last_time <= std_logic'('0');
       elsif clk'event and clk = '1' then
-        active_and_waiting_last_time <= internal_powerlink_0_MAC_DMA_waitrequest AND ((NOT powerlink_0_MAC_DMA_read_n OR NOT powerlink_0_MAC_DMA_write_n));
+        active_and_waiting_last_time <= internal_powerlink_0_MAC_DMA_waitrequest AND (NOT powerlink_0_MAC_DMA_write_n);
       end if;
 
     end process;
@@ -11060,34 +11051,6 @@ begin
 
     end process;
 
-    --~powerlink_0_MAC_DMA_read_n check against wait, which is an e_register
-    process (clk, reset_n)
-    begin
-      if reset_n = '0' then
-        powerlink_0_MAC_DMA_read_n_last_time <= Vector_To_Std_Logic(NOT std_logic_vector'("00000000000000000000000000000000"));
-      elsif clk'event and clk = '1' then
-        powerlink_0_MAC_DMA_read_n_last_time <= powerlink_0_MAC_DMA_read_n;
-      end if;
-
-    end process;
-
-    --~powerlink_0_MAC_DMA_read_n matches last port_name, which is an e_process
-    process (clk)
-    VARIABLE write_line34 : line;
-    begin
-      if clk'event and clk = '1' then
-        if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(NOT powerlink_0_MAC_DMA_read_n) /= std_logic'(NOT powerlink_0_MAC_DMA_read_n_last_time)))))) = '1' then 
-          write(write_line34, now);
-          write(write_line34, string'(": "));
-          write(write_line34, string'("~powerlink_0_MAC_DMA_read_n did not heed wait!!!"));
-          write(output, write_line34.all);
-          deallocate (write_line34);
-          assert false report "VHDL STOP" severity failure;
-        end if;
-      end if;
-
-    end process;
-
     --~powerlink_0_MAC_DMA_write_n check against wait, which is an e_register
     process (clk, reset_n)
     begin
@@ -11101,15 +11064,15 @@ begin
 
     --~powerlink_0_MAC_DMA_write_n matches last port_name, which is an e_process
     process (clk)
-    VARIABLE write_line35 : line;
+    VARIABLE write_line34 : line;
     begin
       if clk'event and clk = '1' then
         if std_logic'((active_and_waiting_last_time AND to_std_logic(((std_logic'(NOT powerlink_0_MAC_DMA_write_n) /= std_logic'(NOT powerlink_0_MAC_DMA_write_n_last_time)))))) = '1' then 
-          write(write_line35, now);
-          write(write_line35, string'(": "));
-          write(write_line35, string'("~powerlink_0_MAC_DMA_write_n did not heed wait!!!"));
-          write(output, write_line35.all);
-          deallocate (write_line35);
+          write(write_line34, now);
+          write(write_line34, string'(": "));
+          write(write_line34, string'("~powerlink_0_MAC_DMA_write_n did not heed wait!!!"));
+          write(output, write_line34.all);
+          deallocate (write_line34);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -11129,15 +11092,15 @@ begin
 
     --powerlink_0_MAC_DMA_writedata matches last port_name, which is an e_process
     process (clk)
-    VARIABLE write_line36 : line;
+    VARIABLE write_line35 : line;
     begin
       if clk'event and clk = '1' then
         if std_logic'(((active_and_waiting_last_time AND to_std_logic(((powerlink_0_MAC_DMA_writedata /= powerlink_0_MAC_DMA_writedata_last_time)))) AND NOT powerlink_0_MAC_DMA_write_n)) = '1' then 
-          write(write_line36, now);
-          write(write_line36, string'(": "));
-          write(write_line36, string'("powerlink_0_MAC_DMA_writedata did not heed wait!!!"));
-          write(output, write_line36.all);
-          deallocate (write_line36);
+          write(write_line35, now);
+          write(write_line35, string'(": "));
+          write(write_line35, string'("powerlink_0_MAC_DMA_writedata did not heed wait!!!"));
+          write(output, write_line35.all);
+          deallocate (write_line35);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12533,15 +12496,15 @@ begin
 
     --grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line37 : line;
+    VARIABLE write_line36 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_ap_cpu_data_master_granted_sdram_0_s1))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_ap_cpu_instruction_master_granted_sdram_0_s1))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line37, now);
-          write(write_line37, string'(": "));
-          write(write_line37, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line37.all);
-          deallocate (write_line37);
+          write(write_line36, now);
+          write(write_line36, string'(": "));
+          write(write_line36, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line36.all);
+          deallocate (write_line36);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12550,15 +12513,15 @@ begin
 
     --saved_grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line38 : line;
+    VARIABLE write_line37 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_saved_grant_sdram_0_s1))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(ap_cpu_instruction_master_saved_grant_sdram_0_s1))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line38, now);
-          write(write_line38, string'(": "));
-          write(write_line38, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line38.all);
-          deallocate (write_line38);
+          write(write_line37, now);
+          write(write_line37, string'(": "));
+          write(write_line37, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line37.all);
+          deallocate (write_line37);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12593,9 +12556,9 @@ entity sysid_control_slave_arbitrator is
                  signal ap_cpu_data_master_read : IN STD_LOGIC;
                  signal ap_cpu_data_master_write : IN STD_LOGIC;
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal reset_n : IN STD_LOGIC;
@@ -12756,7 +12719,7 @@ begin
   --sysid_control_slave_any_continuerequest at least one master continues requesting, which is an e_mux
   sysid_control_slave_any_continuerequest <= clock_crossing_0_m1_continuerequest OR ap_cpu_data_master_continuerequest;
   internal_ap_cpu_data_master_qualified_request_sysid_control_slave <= internal_ap_cpu_data_master_requests_sysid_control_slave AND NOT (clock_crossing_0_m1_arbiterlock);
-  internal_clock_crossing_0_m1_requests_sysid_control_slave <= ((to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("00100101111000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))) AND clock_crossing_0_m1_read;
+  internal_clock_crossing_0_m1_requests_sysid_control_slave <= ((to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("000100101111000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write)))) AND clock_crossing_0_m1_read;
   --ap_cpu/data_master granted sysid/control_slave last time, which is an e_register
   process (clk, reset_n)
   begin
@@ -12846,7 +12809,7 @@ begin
   sysid_control_slave_arbitration_holdoff_internal <= sysid_control_slave_begins_xfer AND sysid_control_slave_firsttransfer;
   shifted_address_to_sysid_control_slave_from_ap_cpu_data_master <= ap_cpu_data_master_address_to_slave;
   --sysid_control_slave_address mux, which is an e_mux
-  sysid_control_slave_address <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'((internal_ap_cpu_data_master_granted_sysid_control_slave)) = '1'), (A_SRL(shifted_address_to_sysid_control_slave_from_ap_cpu_data_master,std_logic_vector'("00000000000000000000000000000010"))), (std_logic_vector'("00000000000000000") & (clock_crossing_0_m1_nativeaddress))));
+  sysid_control_slave_address <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'((internal_ap_cpu_data_master_granted_sysid_control_slave)) = '1'), (A_SRL(shifted_address_to_sysid_control_slave_from_ap_cpu_data_master,std_logic_vector'("00000000000000000000000000000010"))), (std_logic_vector'("0000000000000000") & (clock_crossing_0_m1_nativeaddress))));
   --d1_sysid_control_slave_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
@@ -12897,15 +12860,15 @@ begin
 
     --grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line39 : line;
+    VARIABLE write_line38 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_ap_cpu_data_master_granted_sysid_control_slave))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_clock_crossing_0_m1_granted_sysid_control_slave))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line39, now);
-          write(write_line39, string'(": "));
-          write(write_line39, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line39.all);
-          deallocate (write_line39);
+          write(write_line38, now);
+          write(write_line38, string'(": "));
+          write(write_line38, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line38.all);
+          deallocate (write_line38);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12914,15 +12877,15 @@ begin
 
     --saved_grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line40 : line;
+    VARIABLE write_line39 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("000000000000000000000000000000") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_saved_grant_sysid_control_slave))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(clock_crossing_0_m1_saved_grant_sysid_control_slave))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line40, now);
-          write(write_line40, string'(": "));
-          write(write_line40, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line40.all);
-          deallocate (write_line40);
+          write(write_line39, now);
+          write(write_line39, string'(": "));
+          write(write_line39, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line39.all);
+          deallocate (write_line39);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -12951,9 +12914,9 @@ entity system_timer_s1_arbitrator is
         port (
               -- inputs:
                  signal clk : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                 signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                  signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                 signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                  signal clock_crossing_0_m1_read : IN STD_LOGIC;
                  signal clock_crossing_0_m1_write : IN STD_LOGIC;
                  signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -13031,7 +12994,7 @@ begin
   system_timer_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_clock_crossing_0_m1_qualified_request_system_timer_s1);
   --assign system_timer_s1_readdata_from_sa = system_timer_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   system_timer_s1_readdata_from_sa <= system_timer_s1_readdata;
-  internal_clock_crossing_0_m1_requests_system_timer_s1 <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(13 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("00100100000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
+  internal_clock_crossing_0_m1_requests_system_timer_s1 <= to_std_logic(((Std_Logic_Vector'(clock_crossing_0_m1_address_to_slave(14 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("000100100000000")))) AND ((clock_crossing_0_m1_read OR clock_crossing_0_m1_write));
   --system_timer_s1_arb_share_counter set values, which is an e_mux
   system_timer_s1_arb_share_set_values <= std_logic_vector'("01");
   --system_timer_s1_non_bursting_master_requests mux, which is an e_mux
@@ -14508,15 +14471,15 @@ begin
 
     --grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line41 : line;
+    VARIABLE write_line40 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("00000000000000000000000000000") & (((std_logic_vector'("0") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_niosII_openMac_clock_2_out_granted_sram_0_s0))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_data_master_granted_sram_0_s0)))))) + (std_logic_vector'("00") & (A_TOSTDLOGICVECTOR(internal_pcp_cpu_instruction_master_granted_sram_0_s0))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line41, now);
-          write(write_line41, string'(": "));
-          write(write_line41, string'("> 1 of grant signals are active simultaneously"));
-          write(output, write_line41.all);
-          deallocate (write_line41);
+          write(write_line40, now);
+          write(write_line40, string'(": "));
+          write(write_line40, string'("> 1 of grant signals are active simultaneously"));
+          write(output, write_line40.all);
+          deallocate (write_line40);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -14525,15 +14488,15 @@ begin
 
     --saved_grant signals are active simultaneously, which is an e_process
     process (clk)
-    VARIABLE write_line42 : line;
+    VARIABLE write_line41 : line;
     begin
       if clk'event and clk = '1' then
         if (std_logic_vector'("00000000000000000000000000000") & (((std_logic_vector'("0") & (((std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(niosII_openMac_clock_2_out_saved_grant_sram_0_s0))) + (std_logic_vector'("0") & (A_TOSTDLOGICVECTOR(pcp_cpu_data_master_saved_grant_sram_0_s0)))))) + (std_logic_vector'("00") & (A_TOSTDLOGICVECTOR(pcp_cpu_instruction_master_saved_grant_sram_0_s0))))))>std_logic_vector'("00000000000000000000000000000001") then 
-          write(write_line42, now);
-          write(write_line42, string'(": "));
-          write(write_line42, string'("> 1 of saved_grant signals are active simultaneously"));
-          write(output, write_line42.all);
-          deallocate (write_line42);
+          write(write_line41, now);
+          write(write_line41, string'(": "));
+          write(write_line41, string'("> 1 of saved_grant signals are active simultaneously"));
+          write(output, write_line41.all);
+          deallocate (write_line41);
           assert false report "VHDL STOP" severity failure;
         end if;
       end if;
@@ -14871,6 +14834,7 @@ entity niosII_openMac is
                  signal phyMii0_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii0_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal phyMii0_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
+                 signal phyMii0_RxEr_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii0_TxClk_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii0_TxDat_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal phyMii0_TxEn_from_the_powerlink_0 : OUT STD_LOGIC;
@@ -14878,6 +14842,7 @@ entity niosII_openMac is
                  signal phyMii1_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii1_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal phyMii1_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
+                 signal phyMii1_RxEr_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii1_TxClk_to_the_powerlink_0 : IN STD_LOGIC;
                  signal phyMii1_TxDat_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                  signal phyMii1_TxEn_from_the_powerlink_0 : OUT STD_LOGIC;
@@ -15140,10 +15105,10 @@ component benchmark_pio_s1_arbitrator is
                  -- inputs:
                     signal benchmark_pio_s1_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -15200,10 +15165,10 @@ component clock_crossing_0_s1_arbitrator is
                     signal reset_n : IN STD_LOGIC;
 
                  -- outputs:
-                    signal clock_crossing_0_s1_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_s1_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_s1_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_s1_endofpacket_from_sa : OUT STD_LOGIC;
-                    signal clock_crossing_0_s1_nativeaddress : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_s1_nativeaddress : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_s1_read : OUT STD_LOGIC;
                     signal clock_crossing_0_s1_readdata_from_sa : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal clock_crossing_0_s1_reset_n : OUT STD_LOGIC;
@@ -15229,7 +15194,7 @@ component clock_crossing_0_m1_arbitrator is
                  -- inputs:
                     signal benchmark_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_m1_byteenable_powerlink_0_MAC_REG : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal clock_crossing_0_m1_granted_benchmark_pio_s1 : IN STD_LOGIC;
@@ -15303,7 +15268,7 @@ component clock_crossing_0_m1_arbitrator is
                     signal system_timer_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
 
                  -- outputs:
-                    signal clock_crossing_0_m1_address_to_slave : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : OUT STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_dbs_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal clock_crossing_0_m1_dbs_write_16 : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal clock_crossing_0_m1_endofpacket : OUT STD_LOGIC;
@@ -15324,19 +15289,19 @@ component clock_crossing_0 is
                     signal master_readdatavalid : IN STD_LOGIC;
                     signal master_reset_n : IN STD_LOGIC;
                     signal master_waitrequest : IN STD_LOGIC;
-                    signal slave_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal slave_address : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal slave_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal slave_clk : IN STD_LOGIC;
-                    signal slave_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal slave_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal slave_read : IN STD_LOGIC;
                     signal slave_reset_n : IN STD_LOGIC;
                     signal slave_write : IN STD_LOGIC;
                     signal slave_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 
                  -- outputs:
-                    signal master_address : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal master_address : OUT STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal master_byteenable : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
-                    signal master_nativeaddress : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal master_nativeaddress : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal master_read : OUT STD_LOGIC;
                     signal master_write : OUT STD_LOGIC;
                     signal master_writedata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -15354,7 +15319,7 @@ component epcs_flash_controller_0_epcs_control_port_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
@@ -15449,9 +15414,9 @@ component jtag_uart_0_avalon_jtag_slave_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -15609,10 +15574,10 @@ component niosII_openMac_clock_0_in_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -15699,10 +15664,10 @@ component niosII_openMac_clock_1_in_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -15795,7 +15760,6 @@ component niosII_openMac_clock_2_in_arbitrator is
                     signal niosII_openMac_clock_2_in_waitrequest : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-                    signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal reset_n : IN STD_LOGIC;
@@ -15814,7 +15778,6 @@ component niosII_openMac_clock_2_in_arbitrator is
                     signal niosII_openMac_clock_2_in_writedata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in : OUT STD_LOGIC;
                     signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in : OUT STD_LOGIC;
-                    signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in : OUT STD_LOGIC;
                     signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in : OUT STD_LOGIC
                  );
 end component niosII_openMac_clock_2_in_arbitrator;
@@ -15878,9 +15841,9 @@ component node_switch_pio_s1_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal node_switch_pio_s1_readdata : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
@@ -16203,7 +16166,7 @@ component powerlink_0_MAC_CMP_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
@@ -16234,7 +16197,7 @@ component powerlink_0_MAC_REG_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_byteenable : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal clock_crossing_0_m1_dbs_address : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal clock_crossing_0_m1_dbs_write_16 : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -16252,7 +16215,7 @@ component powerlink_0_MAC_REG_arbitrator is
                     signal clock_crossing_0_m1_read_data_valid_powerlink_0_MAC_REG : OUT STD_LOGIC;
                     signal clock_crossing_0_m1_requests_powerlink_0_MAC_REG : OUT STD_LOGIC;
                     signal d1_powerlink_0_MAC_REG_end_xfer : OUT STD_LOGIC;
-                    signal powerlink_0_MAC_REG_address : OUT STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal powerlink_0_MAC_REG_address : OUT STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal powerlink_0_MAC_REG_byteenable_n : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal powerlink_0_MAC_REG_chipselect : OUT STD_LOGIC;
                     signal powerlink_0_MAC_REG_irq_from_sa : OUT STD_LOGIC;
@@ -16331,14 +16294,11 @@ component powerlink_0_MAC_DMA_arbitrator is
                  -- inputs:
                     signal clk : IN STD_LOGIC;
                     signal d1_niosII_openMac_clock_2_in_end_xfer : IN STD_LOGIC;
-                    signal niosII_openMac_clock_2_in_readdata_from_sa : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal niosII_openMac_clock_2_in_waitrequest_from_sa : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                    signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in : IN STD_LOGIC;
-                    signal powerlink_0_MAC_DMA_read_n : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_write_n : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_writedata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
@@ -16346,7 +16306,6 @@ component powerlink_0_MAC_DMA_arbitrator is
 
                  -- outputs:
                     signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
-                    signal powerlink_0_MAC_DMA_readdata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_waitrequest : OUT STD_LOGIC
                  );
 end component powerlink_0_MAC_DMA_arbitrator;
@@ -16363,9 +16322,8 @@ component powerlink_0 is
                     signal clk50 : IN STD_LOGIC;
                     signal clkAp : IN STD_LOGIC;
                     signal clkPcp : IN STD_LOGIC;
-                    signal m_readdata : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal m_waitrequest : IN STD_LOGIC;
-                    signal mac_address : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal mac_address : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal mac_byteenable_n : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal mac_chipselect : IN STD_LOGIC;
                     signal mac_read_n : IN STD_LOGIC;
@@ -16388,10 +16346,12 @@ component powerlink_0 is
                     signal phyMii0_RxClk : IN STD_LOGIC;
                     signal phyMii0_RxDat : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii0_RxDv : IN STD_LOGIC;
+                    signal phyMii0_RxEr : IN STD_LOGIC;
                     signal phyMii0_TxClk : IN STD_LOGIC;
                     signal phyMii1_RxClk : IN STD_LOGIC;
                     signal phyMii1_RxDat : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii1_RxDv : IN STD_LOGIC;
+                    signal phyMii1_RxEr : IN STD_LOGIC;
                     signal phyMii1_TxClk : IN STD_LOGIC;
                     signal rstAp : IN STD_LOGIC;
                     signal rstPcp : IN STD_LOGIC;
@@ -16413,7 +16373,6 @@ component powerlink_0 is
                     signal m_address : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
                     signal m_arbiterlock : OUT STD_LOGIC;
                     signal m_byteenable_n : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
-                    signal m_read_n : OUT STD_LOGIC;
                     signal m_write_n : OUT STD_LOGIC;
                     signal m_writedata : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
                     signal mac_irq : OUT STD_LOGIC;
@@ -16560,9 +16519,9 @@ component sysid_control_slave_arbitrator is
                     signal ap_cpu_data_master_read : IN STD_LOGIC;
                     signal ap_cpu_data_master_write : IN STD_LOGIC;
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal reset_n : IN STD_LOGIC;
@@ -16600,9 +16559,9 @@ component system_timer_s1_arbitrator is
            port (
                  -- inputs:
                     signal clk : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+                    signal clock_crossing_0_m1_address_to_slave : IN STD_LOGIC_VECTOR (14 DOWNTO 0);
                     signal clock_crossing_0_m1_latency_counter : IN STD_LOGIC;
-                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
+                    signal clock_crossing_0_m1_nativeaddress : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
                     signal clock_crossing_0_m1_read : IN STD_LOGIC;
                     signal clock_crossing_0_m1_write : IN STD_LOGIC;
                     signal clock_crossing_0_m1_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -16966,8 +16925,8 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clk50_reset_n :  STD_LOGIC;
                 signal clk_0_reset_n :  STD_LOGIC;
                 signal clkpcp_reset_n :  STD_LOGIC;
-                signal clock_crossing_0_m1_address :  STD_LOGIC_VECTOR (13 DOWNTO 0);
-                signal clock_crossing_0_m1_address_to_slave :  STD_LOGIC_VECTOR (13 DOWNTO 0);
+                signal clock_crossing_0_m1_address :  STD_LOGIC_VECTOR (14 DOWNTO 0);
+                signal clock_crossing_0_m1_address_to_slave :  STD_LOGIC_VECTOR (14 DOWNTO 0);
                 signal clock_crossing_0_m1_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal clock_crossing_0_m1_byteenable_powerlink_0_MAC_REG :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal clock_crossing_0_m1_dbs_address :  STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -16984,7 +16943,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clock_crossing_0_m1_granted_sysid_control_slave :  STD_LOGIC;
                 signal clock_crossing_0_m1_granted_system_timer_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_latency_counter :  STD_LOGIC;
-                signal clock_crossing_0_m1_nativeaddress :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal clock_crossing_0_m1_nativeaddress :  STD_LOGIC_VECTOR (12 DOWNTO 0);
                 signal clock_crossing_0_m1_qualified_request_benchmark_pio_s1 :  STD_LOGIC;
                 signal clock_crossing_0_m1_qualified_request_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal clock_crossing_0_m1_qualified_request_jtag_uart_0_avalon_jtag_slave :  STD_LOGIC;
@@ -17022,11 +16981,11 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clock_crossing_0_m1_waitrequest :  STD_LOGIC;
                 signal clock_crossing_0_m1_write :  STD_LOGIC;
                 signal clock_crossing_0_m1_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal clock_crossing_0_s1_address :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal clock_crossing_0_s1_address :  STD_LOGIC_VECTOR (12 DOWNTO 0);
                 signal clock_crossing_0_s1_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal clock_crossing_0_s1_endofpacket :  STD_LOGIC;
                 signal clock_crossing_0_s1_endofpacket_from_sa :  STD_LOGIC;
-                signal clock_crossing_0_s1_nativeaddress :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal clock_crossing_0_s1_nativeaddress :  STD_LOGIC_VECTOR (12 DOWNTO 0);
                 signal clock_crossing_0_s1_read :  STD_LOGIC;
                 signal clock_crossing_0_s1_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal clock_crossing_0_s1_readdata_from_sa :  STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -17381,14 +17340,11 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal powerlink_0_MAC_DMA_byteenable_n :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in :  STD_LOGIC;
-                signal powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in :  STD_LOGIC;
-                signal powerlink_0_MAC_DMA_read_n :  STD_LOGIC;
-                signal powerlink_0_MAC_DMA_readdata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
                 signal powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_waitrequest :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_write_n :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_writedata :  STD_LOGIC_VECTOR (15 DOWNTO 0);
-                signal powerlink_0_MAC_REG_address :  STD_LOGIC_VECTOR (11 DOWNTO 0);
+                signal powerlink_0_MAC_REG_address :  STD_LOGIC_VECTOR (12 DOWNTO 0);
                 signal powerlink_0_MAC_REG_byteenable_n :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_REG_chipselect :  STD_LOGIC;
                 signal powerlink_0_MAC_REG_irq :  STD_LOGIC;
@@ -18337,7 +18293,6 @@ begin
       niosII_openMac_clock_2_in_writedata => niosII_openMac_clock_2_in_writedata,
       powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in,
       powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in,
-      powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in,
       powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in,
       clk => internal_clk50,
       niosII_openMac_clock_2_in_endofpacket => niosII_openMac_clock_2_in_endofpacket,
@@ -18345,7 +18300,6 @@ begin
       niosII_openMac_clock_2_in_waitrequest => niosII_openMac_clock_2_in_waitrequest,
       powerlink_0_MAC_DMA_address_to_slave => powerlink_0_MAC_DMA_address_to_slave,
       powerlink_0_MAC_DMA_byteenable_n => powerlink_0_MAC_DMA_byteenable_n,
-      powerlink_0_MAC_DMA_read_n => powerlink_0_MAC_DMA_read_n,
       powerlink_0_MAC_DMA_write_n => powerlink_0_MAC_DMA_write_n,
       powerlink_0_MAC_DMA_writedata => powerlink_0_MAC_DMA_writedata,
       reset_n => clk50_reset_n
@@ -18831,18 +18785,14 @@ begin
   the_powerlink_0_MAC_DMA : powerlink_0_MAC_DMA_arbitrator
     port map(
       powerlink_0_MAC_DMA_address_to_slave => powerlink_0_MAC_DMA_address_to_slave,
-      powerlink_0_MAC_DMA_readdata => powerlink_0_MAC_DMA_readdata,
       powerlink_0_MAC_DMA_waitrequest => powerlink_0_MAC_DMA_waitrequest,
       clk => internal_clk50,
       d1_niosII_openMac_clock_2_in_end_xfer => d1_niosII_openMac_clock_2_in_end_xfer,
-      niosII_openMac_clock_2_in_readdata_from_sa => niosII_openMac_clock_2_in_readdata_from_sa,
       niosII_openMac_clock_2_in_waitrequest_from_sa => niosII_openMac_clock_2_in_waitrequest_from_sa,
       powerlink_0_MAC_DMA_address => powerlink_0_MAC_DMA_address,
       powerlink_0_MAC_DMA_byteenable_n => powerlink_0_MAC_DMA_byteenable_n,
       powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_granted_niosII_openMac_clock_2_in,
       powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_qualified_request_niosII_openMac_clock_2_in,
-      powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_read_data_valid_niosII_openMac_clock_2_in,
-      powerlink_0_MAC_DMA_read_n => powerlink_0_MAC_DMA_read_n,
       powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in => powerlink_0_MAC_DMA_requests_niosII_openMac_clock_2_in,
       powerlink_0_MAC_DMA_write_n => powerlink_0_MAC_DMA_write_n,
       powerlink_0_MAC_DMA_writedata => powerlink_0_MAC_DMA_writedata,
@@ -18863,7 +18813,6 @@ begin
       m_address => powerlink_0_MAC_DMA_address,
       m_arbiterlock => powerlink_0_MAC_DMA_arbiterlock,
       m_byteenable_n => powerlink_0_MAC_DMA_byteenable_n,
-      m_read_n => powerlink_0_MAC_DMA_read_n,
       m_write_n => powerlink_0_MAC_DMA_write_n,
       m_writedata => powerlink_0_MAC_DMA_writedata,
       mac_irq => powerlink_0_MAC_REG_irq,
@@ -18893,7 +18842,6 @@ begin
       clk50 => internal_clk50,
       clkAp => internal_clk50,
       clkPcp => internal_clkpcp,
-      m_readdata => powerlink_0_MAC_DMA_readdata,
       m_waitrequest => powerlink_0_MAC_DMA_waitrequest,
       mac_address => powerlink_0_MAC_REG_address,
       mac_byteenable_n => powerlink_0_MAC_REG_byteenable_n,
@@ -18918,10 +18866,12 @@ begin
       phyMii0_RxClk => phyMii0_RxClk_to_the_powerlink_0,
       phyMii0_RxDat => phyMii0_RxDat_to_the_powerlink_0,
       phyMii0_RxDv => phyMii0_RxDv_to_the_powerlink_0,
+      phyMii0_RxEr => phyMii0_RxEr_to_the_powerlink_0,
       phyMii0_TxClk => phyMii0_TxClk_to_the_powerlink_0,
       phyMii1_RxClk => phyMii1_RxClk_to_the_powerlink_0,
       phyMii1_RxDat => phyMii1_RxDat_to_the_powerlink_0,
       phyMii1_RxDv => phyMii1_RxDv_to_the_powerlink_0,
+      phyMii1_RxEr => phyMii1_RxEr_to_the_powerlink_0,
       phyMii1_TxClk => phyMii1_TxClk_to_the_powerlink_0,
       rstAp => powerlink_0_PDI_AP_reset,
       rstPcp => powerlink_0_MAC_BUF_reset,
@@ -19507,6 +19457,7 @@ component niosII_openMac is
                     signal phyMii0_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii0_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii0_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
+                    signal phyMii0_RxEr_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii0_TxClk_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii0_TxDat_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii0_TxEn_from_the_powerlink_0 : OUT STD_LOGIC;
@@ -19514,6 +19465,7 @@ component niosII_openMac is
                     signal phyMii1_RxClk_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii1_RxDat_to_the_powerlink_0 : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii1_RxDv_to_the_powerlink_0 : IN STD_LOGIC;
+                    signal phyMii1_RxEr_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii1_TxClk_to_the_powerlink_0 : IN STD_LOGIC;
                     signal phyMii1_TxDat_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
                     signal phyMii1_TxEn_from_the_powerlink_0 : OUT STD_LOGIC;
@@ -19594,6 +19546,7 @@ end component sdram_0_test_component;
                 signal niosII_openMac_clock_0_out_nativeaddress :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal niosII_openMac_clock_1_out_endofpacket :  STD_LOGIC;
                 signal niosII_openMac_clock_2_in_endofpacket_from_sa :  STD_LOGIC;
+                signal niosII_openMac_clock_2_in_readdata_from_sa :  STD_LOGIC_VECTOR (15 DOWNTO 0);
                 signal niosII_openMac_clock_2_out_endofpacket :  STD_LOGIC;
                 signal niosII_openMac_clock_2_out_nativeaddress :  STD_LOGIC_VECTOR (19 DOWNTO 0);
                 signal oe_n_to_the_sram_0 :  STD_LOGIC;
@@ -19611,6 +19564,7 @@ end component sdram_0_test_component;
                 signal phyMii0_RxClk_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii0_RxDat_to_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal phyMii0_RxDv_to_the_powerlink_0 :  STD_LOGIC;
+                signal phyMii0_RxEr_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii0_TxClk_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii0_TxDat_from_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal phyMii0_TxEn_from_the_powerlink_0 :  STD_LOGIC;
@@ -19618,6 +19572,7 @@ end component sdram_0_test_component;
                 signal phyMii1_RxClk_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii1_RxDat_to_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal phyMii1_RxDv_to_the_powerlink_0 :  STD_LOGIC;
+                signal phyMii1_RxEr_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii1_TxClk_to_the_powerlink_0 :  STD_LOGIC;
                 signal phyMii1_TxDat_from_the_powerlink_0 :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal phyMii1_TxEn_from_the_powerlink_0 :  STD_LOGIC;
@@ -19706,10 +19661,12 @@ begin
       phyMii0_RxClk_to_the_powerlink_0 => phyMii0_RxClk_to_the_powerlink_0,
       phyMii0_RxDat_to_the_powerlink_0 => phyMii0_RxDat_to_the_powerlink_0,
       phyMii0_RxDv_to_the_powerlink_0 => phyMii0_RxDv_to_the_powerlink_0,
+      phyMii0_RxEr_to_the_powerlink_0 => phyMii0_RxEr_to_the_powerlink_0,
       phyMii0_TxClk_to_the_powerlink_0 => phyMii0_TxClk_to_the_powerlink_0,
       phyMii1_RxClk_to_the_powerlink_0 => phyMii1_RxClk_to_the_powerlink_0,
       phyMii1_RxDat_to_the_powerlink_0 => phyMii1_RxDat_to_the_powerlink_0,
       phyMii1_RxDv_to_the_powerlink_0 => phyMii1_RxDv_to_the_powerlink_0,
+      phyMii1_RxEr_to_the_powerlink_0 => phyMii1_RxEr_to_the_powerlink_0,
       phyMii1_TxClk_to_the_powerlink_0 => phyMii1_TxClk_to_the_powerlink_0,
       reset_n => reset_n
     );

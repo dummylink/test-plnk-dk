@@ -232,7 +232,7 @@ SYSTEM niosII_openMac
             Entry clock_crossing_0/s1
             {
                address = "0x00000000";
-               span = "0x00004000";
+               span = "0x00008000";
                is_bridge = "1";
             }
             Entry system_timer/s1
@@ -249,8 +249,8 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_REG
             {
-               address = "0x00002000";
-               span = "0x00002000";
+               address = "0x00004000";
+               span = "0x00004000";
                is_bridge = "0";
             }
             Entry powerlink_0/MAC_CMP
@@ -656,7 +656,7 @@ SYSTEM niosII_openMac
             Entry clock_crossing_0/s1
             {
                address = "0x00000000";
-               span = "0x00004000";
+               span = "0x00008000";
                is_bridge = "1";
             }
             Entry system_timer/s1
@@ -673,8 +673,8 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_REG
             {
-               address = "0x00002000";
-               span = "0x00002000";
+               address = "0x00004000";
+               span = "0x00004000";
                is_bridge = "0";
             }
             Entry powerlink_0/MAC_CMP
@@ -2582,14 +2582,14 @@ SYSTEM niosII_openMac
             PORT slave_address
             {
                type = "address";
-               width = "12";
+               width = "13";
                direction = "input";
                Is_Enabled = "1";
             }
             PORT slave_nativeaddress
             {
                type = "nativeaddress";
-               width = "12";
+               width = "13";
                direction = "input";
                Is_Enabled = "1";
             }
@@ -2661,7 +2661,7 @@ SYSTEM niosII_openMac
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
             Is_Nonvolatile_Storage = "0";
-            Address_Span = "16384";
+            Address_Span = "32768";
             Read_Latency = "0";
             Is_Memory_Device = "0";
             Maximum_Pending_Read_Transactions = "34";
@@ -2670,7 +2670,7 @@ SYSTEM niosII_openMac
             Write_Latency = "0";
             Is_Flash = "0";
             Data_Width = "32";
-            Address_Width = "12";
+            Address_Width = "13";
             Opaque_Bridges_To = "m1";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
@@ -2722,14 +2722,14 @@ SYSTEM niosII_openMac
             PORT master_address
             {
                type = "address";
-               width = "14";
+               width = "15";
                direction = "output";
                Is_Enabled = "1";
             }
             PORT master_nativeaddress
             {
                type = "nativeaddress";
-               width = "12";
+               width = "13";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -2800,7 +2800,7 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "32";
-            Address_Width = "14";
+            Address_Width = "15";
             Opaque_Bridges_To = "s1";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
@@ -2830,8 +2830,8 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_REG
             {
-               address = "0x00002000";
-               span = "0x00002000";
+               address = "0x00004000";
+               span = "0x00004000";
                is_bridge = "0";
             }
             Entry powerlink_0/MAC_CMP
@@ -2886,7 +2886,7 @@ SYSTEM niosII_openMac
          Upstream_FIFO_Depth = "32";
          Downstream_FIFO_Depth = "16";
          Data_Width = "32";
-         Native_Address_Width = "12";
+         Native_Address_Width = "13";
          Use_Byte_Enable = "1";
          Use_Burst_Count = "0";
          Maximum_Burst_Size = "8";
@@ -5349,7 +5349,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4DF8ACE8</b> (timestamp: Wed Jun 15, 2011 @3:00 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4E0B2C31</b> (timestamp: Wed Jun 29, 2011 @3:44 PM)";
             MESSAGES 
             {
             }
@@ -5357,8 +5357,8 @@ SYSTEM niosII_openMac
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
-         id = "0u";
-         timestamp = "1308142824u";
+         id = "1u";
+         timestamp = "1309355057u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5367,7 +5367,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=0 --timestamp=1308142824";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=1 --timestamp=1309355057";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6484,10 +6484,24 @@ SYSTEM niosII_openMac
             direction = "input";
             Is_Enabled = "1";
          }
+         PORT phyMii0_RxEr
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
          PORT phyMii0_RxDat
          {
             type = "export";
             width = "4";
+            direction = "input";
+            Is_Enabled = "1";
+         }
+         PORT phyMii1_RxEr
+         {
+            type = "export";
+            width = "1";
             direction = "input";
             Is_Enabled = "1";
          }
@@ -6660,13 +6674,6 @@ SYSTEM niosII_openMac
          }
          PORT_WIRING 
          {
-            PORT m_read_n
-            {
-               type = "read_n";
-               width = "1";
-               direction = "output";
-               Is_Enabled = "1";
-            }
             PORT m_write_n
             {
                type = "write_n";
@@ -6693,13 +6700,6 @@ SYSTEM niosII_openMac
                type = "writedata";
                width = "16";
                direction = "output";
-               Is_Enabled = "1";
-            }
-            PORT m_readdata
-            {
-               type = "readdata";
-               width = "16";
-               direction = "input";
                Is_Enabled = "1";
             }
             PORT m_waitrequest
@@ -6741,7 +6741,7 @@ SYSTEM niosII_openMac
             Address_Alignment = "dynamic";
             Well_Behaved_Waitrequest = "0";
             Is_Nonvolatile_Storage = "0";
-            Address_Span = "8192";
+            Address_Span = "16384";
             Read_Latency = "0";
             Is_Memory_Device = "0";
             Maximum_Pending_Read_Transactions = "0";
@@ -6750,7 +6750,7 @@ SYSTEM niosII_openMac
             Write_Latency = "0";
             Is_Flash = "0";
             Data_Width = "16";
-            Address_Width = "12";
+            Address_Width = "13";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -6767,11 +6767,11 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00002000";
+               Offset_Address = "0x00004000";
             }
             Clock_Source = "clk50";
             Has_Clock = "1";
-            Base_Address = "0x00002000";
+            Base_Address = "0x00004000";
             Address_Group = "4";
          }
          PORT_WIRING 
@@ -6814,7 +6814,7 @@ SYSTEM niosII_openMac
             PORT mac_address
             {
                type = "address";
-               width = "12";
+               width = "13";
                direction = "input";
                Is_Enabled = "1";
             }
@@ -6860,7 +6860,8 @@ SYSTEM niosII_openMac
       {
          CONFIG = "4";
          CONFIGAPENDIAN = "0";
-         FPGAREV = "33";
+         FPGAREV = "35";
+         HWACC = "0";
          MACBUFSIZE = "7080";
          MACRXBUFFERS = "16";
          MACRXBUFSIZE = "0";
