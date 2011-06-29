@@ -55,49 +55,48 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_MAGIC_OFFSET                offsetof(tPcpCtrlReg, m_dwMagic)          //0x00
 #define PCP_CTRLREG_PDI_REV_OFFSET              offsetof(tPcpCtrlReg, m_wPcpPdiRev)       //0x04
 #define PCP_CTRLREG_FPGA_SYSID_OFFSET           offsetof(tPcpCtrlReg, m_dwFpgaSysId)      //0x08
-// reserved                                                                               //0x08
-#define PCP_CTRLREG_NODE_ID_OFFSET              offsetof(tPcpCtrlReg, m_wNodeId)          //0x0A
-#define PCP_CTRLREG_CMD_OFFSET                  offsetof(tPcpCtrlReg, m_wCommand)         //0x0C
-#define PCP_CTRLREG_STATE_OFFSET                offsetof(tPcpCtrlReg, m_wState)           //0x0E
-#define PCP_CTRLREG_MAXCYCT_OFFSET              offsetof(tPcpCtrlReg, m_dwMaxCycleTime)   //0x10
-#define PCP_CTRLREG_MINCYCT_OFFSET              offsetof(tPcpCtrlReg, m_dwMinCycleTime)   //0x14
-#define PCP_CTRLREG_CYCCRCT_OFFSET              offsetof(tPcpCtrlReg, m_wCycleCorrect)    //0x18
-#define PCP_CTRLREG_MAXCYCNUM_OFFSET            offsetof(tPcpCtrlReg, m_wMaxCycleNum)     //0x1A
-#define PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET       offsetof(tPcpCtrlReg, m_dwSyncIntCycTime) //0x1C
-#define PCP_CTRLREG_EVENT_TYPE_OFFSET           offsetof(tPcpCtrlReg, m_wEventType)       //0x20
-#define PCP_CTRLREG_EVENT_ARG_OFFSET            offsetof(tPcpCtrlReg, m_wEventArg)        //0x22
-#define PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET       offsetof(tPcpCtrlReg, m_wAsyncIrqControl) //0x24
-#define PCP_CTRLREG_EVENT_ACK_OFFSET            offsetof(tPcpCtrlReg, m_wEventAck)        //0x26
-#define PCP_CTRLREG_TPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wTxPdo0BufSize)   //0x28
-#define PCP_CTRLREG_TPDO0_OFST_OFFSET           pCtrlReg_g->m_wTxPdo0BufAoffs             //0x2A
-#define PCP_CTRLREG_RPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo0BufSize)   //0x2C
-#define PCP_CTRLREG_RPDO0_OFST_OFFSET           pCtrlReg_g->m_wRxPdo0BufAoffs             //0x2E
-#define PCP_CTRLREG_RPDO1_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo1BufSize)   //0x30
-#define PCP_CTRLREG_RPDO1_OFST_OFFSET           pCtrlReg_g->m_wRxPdo1BufAoffs             //0x32
-#define PCP_CTRLREG_RPDO2_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo2BufSize)   //0x34
-#define PCP_CTRLREG_RPDO2_OFST_OFFSET           pCtrlReg_g->m_wRxPdo2BufAoffs             //0x36
-#define PCP_CTRLREG_TX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf0Size) //0x38
-#define PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET   pCtrlReg_g->m_wTxAsyncBuf0Aoffs           //0x3A
-#define PCP_CTRLREG_RX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf0Size) //0x3C
-#define PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET   pCtrlReg_g->m_wRxAsyncBuf0Aoffs           //0x3E
-#define PCP_CTRLREG_TX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf1Size) //0x40
-#define PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET   pCtrlReg_g->m_wTxAsyncBuf1Aoffs           //0x42
-#define PCP_CTRLREG_RX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf1Size) //0x44
-#define PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET   pCtrlReg_g->m_wRxAsyncBuf1Aoffs           //0x46
-// reserved                                                                               //0x48
-// reserved                                                                               //0x4A
-// reserved                                                                               //0x4C
-// reserved                                                                               //0x4E
-#define PCP_CTRLREG_TPDO_0_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wTxPdo0Ack)       //0x50
-#define PCP_CTRLREG_RPDO_0_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo0Ack)       //0x52
-#define PCP_CTRLREG_RPDO_1_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo1Ack)       //0x54
-#define PCP_CTRLREG_RPDO_2_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo2Ack)       //0x56
-#define PCP_CTRLREG_SYNCIRQCTRL_OFFSET          offsetof(tPcpCtrlReg, m_wSyncIrqControl)  //0x58
-// reserved                                                                               //0x5A
-// reserved                                                                               //0x5C
-// reserved                                                                               //0x60
-#define PCP_CTRLREG_LED_CTRL_OFFSET             offsetof(tPcpCtrlReg, m_wLedControl)      //0x64
-#define PCP_CTRLREG_LED_CNFG_OFFSET             offsetof(tPcpCtrlReg, m_wLedConfig)       //0x66
+#define PCP_CTRLREG_NODE_ID_OFFSET              offsetof(tPcpCtrlReg, m_wNodeId)          //0x0C
+#define PCP_CTRLREG_CMD_OFFSET                  offsetof(tPcpCtrlReg, m_wCommand)         //0x10
+#define PCP_CTRLREG_STATE_OFFSET                offsetof(tPcpCtrlReg, m_wState)           //0x12
+#define PCP_CTRLREG_MAXCYCT_OFFSET              offsetof(tPcpCtrlReg, m_dwMaxCycleTime)   //0x14
+#define PCP_CTRLREG_MINCYCT_OFFSET              offsetof(tPcpCtrlReg, m_dwMinCycleTime)   //0x18
+#define PCP_CTRLREG_CYCCRCT_OFFSET              offsetof(tPcpCtrlReg, m_wCycleCorrect)    //0x1C
+#define PCP_CTRLREG_MAXCYCNUM_OFFSET            offsetof(tPcpCtrlReg, m_wMaxCycleNum)     //0x1E
+#define PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET       offsetof(tPcpCtrlReg, m_dwSyncIntCycTime) //0x20
+#define PCP_CTRLREG_EVENT_TYPE_OFFSET           offsetof(tPcpCtrlReg, m_wEventType)       //0x28
+#define PCP_CTRLREG_EVENT_ARG_OFFSET            offsetof(tPcpCtrlReg, m_wEventArg)        //0x2A
+#define PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET       offsetof(tPcpCtrlReg, m_wAsyncIrqControl) //0x2C
+#define PCP_CTRLREG_EVENT_ACK_OFFSET            offsetof(tPcpCtrlReg, m_wEventAck)        //0x2E
+#define PCP_CTRLREG_TPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wTxPdo0BufSize)   //0x30
+#define PCP_CTRLREG_TPDO0_OFST_OFFSET           pCtrlReg_g->m_wTxPdo0BufAoffs             //0x32
+#define PCP_CTRLREG_RPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo0BufSize)   //0x34
+#define PCP_CTRLREG_RPDO0_OFST_OFFSET           pCtrlReg_g->m_wRxPdo0BufAoffs             //0x36
+#define PCP_CTRLREG_RPDO1_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo1BufSize)   //0x38
+#define PCP_CTRLREG_RPDO1_OFST_OFFSET           pCtrlReg_g->m_wRxPdo1BufAoffs             //0x3A
+#define PCP_CTRLREG_RPDO2_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo2BufSize)   //0x3C
+#define PCP_CTRLREG_RPDO2_OFST_OFFSET           pCtrlReg_g->m_wRxPdo2BufAoffs             //0x3E
+#define PCP_CTRLREG_TX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf0Size) //0x40
+#define PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET   pCtrlReg_g->m_wTxAsyncBuf0Aoffs           //0x42
+#define PCP_CTRLREG_RX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf0Size) //0x44
+#define PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET   pCtrlReg_g->m_wRxAsyncBuf0Aoffs           //0x46
+#define PCP_CTRLREG_TX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf1Size) //0x48
+#define PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET   pCtrlReg_g->m_wTxAsyncBuf1Aoffs           //0x4A
+#define PCP_CTRLREG_RX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf1Size) //0x4C
+#define PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET   pCtrlReg_g->m_wRxAsyncBuf1Aoffs           //0x4E
+// reserved                                                                               //0x50
+// reserved                                                                               //0x52
+// reserved                                                                               //0x54
+// reserved                                                                               //0x56
+#define PCP_CTRLREG_TPDO_0_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wTxPdo0Ack)       //0x58
+#define PCP_CTRLREG_RPDO_0_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo0Ack)       //0x5A
+#define PCP_CTRLREG_RPDO_1_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo1Ack)       //0x5C
+#define PCP_CTRLREG_RPDO_2_ACK_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo2Ack)       //0x5E
+#define PCP_CTRLREG_SYNCIRQCTRL_OFFSET          offsetof(tPcpCtrlReg, m_wSyncIrqControl)  //0x60
+// reserved                                                                               //0x62
+// reserved                                                                               //0x64
+// reserved                                                                               //0x68
+#define PCP_CTRLREG_LED_CTRL_OFFSET             offsetof(tPcpCtrlReg, m_wLedControl)      //0x6C
+#define PCP_CTRLREG_LED_CNFG_OFFSET             offsetof(tPcpCtrlReg, m_wLedConfig)       //0x6E
 #define PCP_CTRLREG_SPAN                        sizeof(tPcpCtrlReg)
 
 // other offset defines used only by serial interface
@@ -289,17 +288,18 @@ typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct 
 struct sPcpControlReg {
     volatile DWORD      m_dwMagic;             ///< magic number indicating correct PCP PDI memory start address
     volatile WORD       m_wPcpPdiRev;          ///< revision of PCP PDI (control and status register)
-    volatile WORD       wPadding;              // do not use until it is fixed (bug: currently not available!)
-    //    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
+    volatile WORD       wPadding;              ///< not available (fixed)
     volatile DWORD      m_dwFpgaSysId;         ///< system ID of FPGA (SOPC)design, value is user defined
+    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
+    volatile WORD       wReserved1;
     volatile WORD       m_wCommand;            ///< AP issues commands to this register
     volatile WORD       m_wState;              ///< state of the PCP
     volatile DWORD      m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process
     volatile DWORD      m_dwMinCycleTime;      ///< lower limit of synchronous-IR cycle time the AP can process
-//    volatile WORD       m_wCycleCorrect;       ///< correction factor(-- currently not used --)
-    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
+    volatile WORD       m_wCycleCorrect;       ///< correction factor(-- currently not used --)
     volatile WORD       m_wMaxCycleNum;        ///< multiple of Powerlink cyle time for synchronous-IR
     volatile DWORD      m_dwSyncIntCycTime;    ///< cycle time of synchronous-IR issued to the AP for PDO processing
+    volatile DWORD      dwReserved2;
     volatile WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)
     volatile WORD       m_wEventArg;           ///< event argument, if applicable (e.g. error code, state, ...)
     volatile WORD       m_wAsyncIrqControl;    ///< asynchronous IRQ control register, contains IR acknowledge (at AP side)
@@ -328,7 +328,7 @@ struct sPcpControlReg {
     volatile WORD       m_wRxPdo0Ack;          ///< address acknowledge register of RPDO buffer nr. 0
     volatile WORD       m_wRxPdo1Ack;          ///< address acknowledge register of RPDO buffer nr. 1
     volatile WORD       m_wRxPdo2Ack;          ///< address acknowledge register of RPDO buffer nr. 2
-    volatile WORD       m_wSyncIrqControl;	   ///< PDO synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
+    volatile WORD       m_wSyncIrqControl;     ///< PDO synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
     volatile WORD       wReserved8;
     volatile DWORD      dwRerserved9;
     volatile DWORD      dwRerserved10;
