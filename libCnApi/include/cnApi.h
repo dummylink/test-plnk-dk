@@ -54,7 +54,7 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_START_ADR                   0x00
 #define PCP_CTRLREG_MAGIC_OFFSET                offsetof(tPcpCtrlReg, m_dwMagic)          //0x00
 #define PCP_CTRLREG_PDI_REV_OFFSET              offsetof(tPcpCtrlReg, m_wPcpPdiRev)       //0x04
-#define PCP_CTRLREG_FPGA_TS_OFFSET              offsetof(tPcpCtrlReg, m_dwFpgaTimeStamp)   //0x06
+#define PCP_CTRLREG_FPGA_SYSID_OFFSET           offsetof(tPcpCtrlReg, m_dwFpgaSysId)      //0x08
 // reserved                                                                               //0x08
 #define PCP_CTRLREG_NODE_ID_OFFSET              offsetof(tPcpCtrlReg, m_wNodeId)          //0x0A
 #define PCP_CTRLREG_CMD_OFFSET                  offsetof(tPcpCtrlReg, m_wCommand)         //0x0C
@@ -291,8 +291,7 @@ struct sPcpControlReg {
     volatile WORD       m_wPcpPdiRev;          ///< revision of PCP PDI (control and status register)
     volatile WORD       wPadding;              // do not use until it is fixed (bug: currently not available!)
     //    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
-    /* SOPC system generation time. The value is equivalent to the number of seconds after Jan. 1, 1970 */
-    volatile DWORD      m_dwFpgaTimeStamp;     ///< compilation time stamp of FPGA design
+    volatile DWORD      m_dwFpgaSysId;         ///< system ID of FPGA (SOPC)design, value is user defined
     volatile WORD       m_wCommand;            ///< AP issues commands to this register
     volatile WORD       m_wState;              ///< state of the PCP
     volatile DWORD      m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process

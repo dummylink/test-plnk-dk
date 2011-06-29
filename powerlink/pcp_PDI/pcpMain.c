@@ -671,8 +671,7 @@ void Gi_init(void)
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
 
-    pCtrlReg_g->m_dwFpgaTimeStamp = SYSID_TIMESTAMP;   ///< FPGA build time stamp
-    //DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "System time stamp: %ul\n", pCtrlReg_g->m_dwFpgaTimeStamp);
+    pCtrlReg_g->m_dwFpgaSysId = SYSID_ID;              // FPGA system ID from system.h
     pCtrlReg_g->m_wEventType = 0x00;                   ///< invalid event TODO: structure
     pCtrlReg_g->m_wEventArg = 0x00;                    ///< invalid event argument TODO: structure
     pCtrlReg_g->m_wState = kPcpStateInvalid;           ///< set invalid PCP state

@@ -31,7 +31,7 @@ PATTERN[1]="POWERLINK_0_PDI_PCP_CONFIGAPENDIAN "
 PATTERN[2]="POWERLINK_0_PDI_PCP_PDIRPDOS "
 PATTERN[3]="POWERLINK_0_PDI_PCP_PDITPDOS "
 PATTERN[4]="POWERLINK_0_MAC_BUF_FPGAREV "
-PATTERN[5]="SYSID_TIMESTAMP "
+PATTERN[5]="SYSID_ID "
 
 ###################################################################
 
@@ -93,9 +93,9 @@ case  $cnt  in
 	;;
 	5)
 	if [ "$PCPDefineValue" ]; then
-		echo "#define PCP_FPGA_BUILD_TIME_STAMP $PCPDefineValue" >> $OUT_FILE 
+		echo "#define PCP_FPGA_SYSID_ID $PCPDefineValue" >> $OUT_FILE 
 	else
-		echo "#define PCP_FPGA_BUILD_TIME_STAMP //INVALID" >> $OUT_FILE	
+		echo "#define PCP_FPGA_SYSID_ID //INVALID" >> $OUT_FILE	
 	fi
 	;;
     *)echo Not a valid loop count!

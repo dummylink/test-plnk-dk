@@ -124,7 +124,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     }
 
     /* verify FPGA build time stamp */
-    if (!CnApi_verifyFpgaTimestamp())
+    if (!CnApi_verifyFpgaConfigId())
     {
         /* this compilation does not match the accessed PCP FPGA configuration */
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: FPGA time stamp doesn't match!\n");
@@ -387,21 +387,21 @@ BOOL CnApi_verifyPcpPdiRevision(void)
 
 /**
 ********************************************************************************
-\brief  verifies the PCP FPGA's built time stamp
-\retval FALSE if time stamp of this library build is not based on the current
-        FPGA build time stamp , TRUE if it matches
+\brief  verifies the PCP FPGA's SYSTEM ID (user defined in SOPC Builder)
+\retval FALSE if SYSTEM ID of this library build is not based on the current
+        FPGA build SYSTEM ID , TRUE if it matches
 *******************************************************************************/
-BOOL CnApi_verifyFpgaTimestamp(void)
+BOOL CnApi_verifyFpgaConfigId(void)
 {
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_FPGA_TS_OFFSET,
-                   sizeof(pCtrlReg_g->m_dwFpgaTimeStamp),
-                   (BYTE*) &pCtrlReg_g->m_dwFpgaTimeStamp);
+                   sizeof(pCtrlReg_g->m_dwFpgaSysId),
+                   (BYTE*) &pCtrlReg_g->m_dwFpgaSysId);
 #endif /* CN_API_USING_SPI */
 
     /* verify if this compilation of CnApi library matches the current FPGA config */
-    if (PCP_FPGA_BUILD_TIME_STAMP != pCtrlReg_g->m_dwFpgaTimeStamp)
+    if (PCP_FPGA_SYSID_ID != pCtrlReg_g->m_dwFpgaSysId)
     {
         return FALSE;
     }

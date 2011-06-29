@@ -337,12 +337,14 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
     tFpgaCfgRetVal Ret = kFpgaCfgInvalidRetVal;
     BOOL fApplicationImageFailed = FALSE;
 
-    DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "Reconfigured with system time stamp: %ul\n", IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE));
+    DEBUG_TRACE2(DEBUG_LVL_ALWAYS, "Reconfigured with system time stamp: %ul \nand system ID: %ul\n",
+                 IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE),
+                 IORD_ALTERA_AVALON_SYSID_ID(SYSID_BASE));
 
     /* verify if BSP matches SOPC build time stamp */
     if (alt_avalon_sysid_test() != 0)
     {
-        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Bad image! SystemID does not match!");
+        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Bad image! FPGA configuration does not match SW!");
         Ret = kFgpaCfgWrongSystemID;
         goto exit;
     }
