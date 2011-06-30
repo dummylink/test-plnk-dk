@@ -588,10 +588,6 @@ tEplKernel PUBLIC AppCbSync(void)
         }
     }
 
-    /* process Async DPRAM buffer */
-
-
-
     return EplRet;
 }
 
