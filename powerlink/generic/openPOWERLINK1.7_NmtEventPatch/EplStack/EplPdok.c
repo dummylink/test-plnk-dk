@@ -73,7 +73,9 @@
 #include "EplObd.h"
 #include "kernel/EplDllk.h"
 #include "Benchmark.h"
-#include "pcp.h"
+#ifdef POWERLINK_0_PDI_PCP_CONFIG //PDI is used
+    #include "pcp.h"
+#endif
 
 #if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_PDOK)) != 0)
 
@@ -584,8 +586,10 @@ unsigned int        uiMappObjectCount;
 
         }
 
+#ifdef POWERLINK_0_PDI_PCP_CONFIG //PDI is used
         // acknowledge all RPDO PDI buffer right after write access
         Gi_signalPdiPdoWriteAccess();
+#endif
 
         // processing finished successfully
         break;
@@ -699,9 +703,10 @@ unsigned int        uiMappObjectCount;
         // set PDO version in frame
         AmiSetByteToLe(&pFrame_p->m_Data.m_Pres.m_le_bPdoVersion, pPdoChannel->m_bMappingVersion);
 
+#ifdef POWERLINK_0_PDI_PCP_CONFIG //PDI is used
         // acknowledge all RPDO PDI buffer right before read access
         Gi_preparePdiPdoReadAccess();
-
+#endif
         // process mapping
         for (uiMappObjectCount = pPdoChannel->m_uiMappObjectCount, pMappObject = EplPdokInstance_g.m_paTxObject[uiChannelId];
              uiMappObjectCount > 0;
