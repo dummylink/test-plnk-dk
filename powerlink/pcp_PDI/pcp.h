@@ -70,8 +70,8 @@ extern void Gi_pollAsync(void);
 extern int Gi_initPdo(void);
 extern int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
 extern BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p);
-extern void Gi_readPdo(void);
-extern void Gi_writePdo(void);
+extern void Gi_preparePdiPdoReadAccess(void);
+extern void Gi_signalPdiPdoWriteAccess(void);
 extern int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosReq *pLinkPdoReq_p);
 
 extern void Gi_enableSyncInt(void);

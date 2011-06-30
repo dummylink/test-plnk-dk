@@ -576,22 +576,16 @@ inputs and runs the control loop.
 *******************************************************************************/
 tEplKernel PUBLIC AppCbSync(void)
 {
-	tEplKernel 		EplRet = kEplSuccessful;
-	static	unsigned int 	iCycleCnt = 0;
-
-    /* read PDO data from DPRAM */
-    Gi_readPdo();
-
-    /* write PDO data to DPRAM */
-    Gi_writePdo();
+    tEplKernel  EplRet = kEplSuccessful;
+    static  unsigned int iCycleCnt = 0;
 
     /* check if interrupts are enabled */
     if ((iSyncIntCycle_g != 0)) //TODO: enable PDI IRs in Operational, and disable for any other state
     {
-		if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
-		{
-			Gi_generateSyncInt();// TODO: To avoid jitter, synchronize on openMAC Sync interrupt instead of IR throwing by SW
-		}
+        if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
+        {
+            Gi_generateSyncInt();// TODO: To avoid jitter, synchronize on openMAC Sync interrupt instead of IR throwing by SW
+        }
     }
 
     /* process Async DPRAM buffer */

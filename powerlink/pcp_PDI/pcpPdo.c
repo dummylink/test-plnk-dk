@@ -181,43 +181,39 @@ inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 
 /**
 ********************************************************************************
-\brief	read PDO data from DPRAM
+\brief  update PDI TPDO triple buffers
 
-This function reads all TPDOs to from PDI buffer. Therefore it uses a copy table
-for each PDO.
+This function switches all PDI PDO triple buffers to the last updated block.
+It has to be executed before each read access to the TPDO triple buffers.
 *******************************************************************************/
-void Gi_readPdo(void)
+void Gi_preparePdiPdoReadAccess(void)
 {
-	register int        iCntout;           ///< outer loop counter
+	register int        iCntout;           ///< loop counter
 
-    /* copy all TPDOs to PDI buffer */
-	for (iCntout = 0; iCntout < TPDO_CHANNELS_MAX; ++iCntout)
-	{
-	    /* prepare PDO buffer for read access (ack before accessing)*/
-	    CnApi_ackPdoBuffer(aTPdosPdi_l[iCntout].pAck_m);
-        // TODO: ack should be done right before the actual access (PDI -> frame copy job)
-	    // otherwise THIS methode will introduce 1 cycle additional latency
-	    // Note: currently its 2 cycles latency anyway when not doing direct copying
-	}
+    // acknowledge all RPDO PDI buffer right before read access
+    for (iCntout = 0; iCntout < TPDO_CHANNELS_MAX; ++iCntout)
+    {
+        // switch triple buffer to last updated block
+        CnApi_ackPdoBuffer(aTPdosPdi_l[iCntout].pAck_m);
+    }
 }
 
 /**
 ********************************************************************************
-\brief	write PDO data to DPRAM
+\brief  update PDI RPDO triple buffers
 
-This function writes all RPDOs to PDI buffer. Therefore it uses a copy table
-for each PDO.
+This function switches all PDI PDO triple buffers to the updated block. It has
+to be executed after each write access to the RPDO triple buffers.
 *******************************************************************************/
-void Gi_writePdo(void)
+void Gi_signalPdiPdoWriteAccess(void)
 {
-    register int        iCntout;           ///< outer loop counter
+    register int        iCntout;           ///< loop counter
 
-    /* copy all RPDOs to PDI buffer */
+    // acknowledge all RPDO PDI buffer right after write access
     for (iCntout = 0; iCntout < RPDO_CHANNELS_MAX; ++iCntout)
     {
-        /* prepare PDO buffer for next write access (ack after accessing) */
+        // switch triple buffer to updated block
         CnApi_ackPdoBuffer(aRPdosPdi_l[iCntout].pAck_m);
-        // TODO: ack should be done right after the actual access (frame -> PDI copy job)
     }
 }
 

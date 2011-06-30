@@ -73,6 +73,7 @@
 #include "EplObd.h"
 #include "kernel/EplDllk.h"
 #include "Benchmark.h"
+#include "pcp.h"
 
 #if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_PDOK)) != 0)
 
@@ -574,7 +575,7 @@ unsigned int        uiMappObjectCount;
              uiMappObjectCount--, pMappObject++)
         {
 
-            // copy object from process/OD variable to TPDO
+            // copy object from process/OD variable to RPDO
             Ret = EplPdokCopyVarFromPdo(&pFrame_p->m_Data.m_Pres.m_le_abPayload[0], pMappObject);
             if (Ret != kEplSuccessful)
             {   // other fatal error occured
@@ -582,6 +583,9 @@ unsigned int        uiMappObjectCount;
             }
 
         }
+
+        // acknowledge all RPDO PDI buffer right after write access
+        Gi_signalPdiPdoWriteAccess();
 
         // processing finished successfully
         break;
@@ -695,13 +699,16 @@ unsigned int        uiMappObjectCount;
         // set PDO version in frame
         AmiSetByteToLe(&pFrame_p->m_Data.m_Pres.m_le_bPdoVersion, pPdoChannel->m_bMappingVersion);
 
+        // acknowledge all RPDO PDI buffer right before read access
+        Gi_preparePdiPdoReadAccess();
+
         // process mapping
         for (uiMappObjectCount = pPdoChannel->m_uiMappObjectCount, pMappObject = EplPdokInstance_g.m_paTxObject[uiChannelId];
              uiMappObjectCount > 0;
              uiMappObjectCount--, pMappObject++)
         {
 
-            BENCHMARK_MOD_08_TOGGLE(7);
+            //BENCHMARK_MOD_08_TOGGLE(7);
             // copy object from process/OD variable to TPDO
             Ret = EplPdokCopyVarToPdo(&pFrame_p->m_Data.m_Pres.m_le_abPayload[0], pMappObject);
             if (Ret != kEplSuccessful)
