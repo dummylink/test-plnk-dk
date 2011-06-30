@@ -55,6 +55,11 @@
 -- 2011-04-26	V0.22	zelenkaj	generic for clock domain selection
 --									area optimization in Status/Control Register
 -- 2011-04-28  	V0.23	zelenkaj	clean up to reduce Quartus II warnings
+-- 2011-05-06	V0.24	zelenkaj	some naming convention changes
+-- 2011-05-09	V0.25	zelenkaj	minor change in edge detector and syncs (reset to zero)
+-- 2011-06-06	V0.26	zelenkaj	status/control register enhanced by 8 bytes
+-- 2011-06-10	V0.27	zelenkaj	bug fix: if dpr size goes below 2**10, error of dpr address width
+-- 2011-06-29	V0.28	zelenkaj	bug fix: led control was gone and dpr addr width still buggy
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -68,7 +73,7 @@ USE work.memMap.all; --used for memory mapping (alignment, ...)
 entity pdi is
 	generic (
 			genOnePdiClkDomain_g		:		boolean := false;
-			iFpgaRev_g					:		integer := 0; --for HW/SW match verification (0..65535)
+			iPdiRev_g					:		integer := 0; --for HW/SW match verification (0..65535)
 			iRpdos_g					:		integer := 3;
 			iTpdos_g					:		integer := 1;
 			--PDO buffer size *3
@@ -87,13 +92,13 @@ entity pdi is
 			ap_reset					: in    std_logic;
 			ap_clk						: in	std_logic;
 		-- Avalon Slave Interface for PCP
-            pcp_chipselect              : in    std_logic;
+            pcp_chipselect            	: in    std_logic;
             pcp_read					: in    std_logic;
             pcp_write					: in    std_logic;
-            pcp_byteenable	            : in    std_logic_vector(3 DOWNTO 0);
-            pcp_address                 : in    std_logic_vector(12 DOWNTO 0);
-            pcp_writedata               : in    std_logic_vector(31 DOWNTO 0);
-            pcp_readdata                : out   std_logic_vector(31 DOWNTO 0);
+            pcp_byteenable	        	: in    std_logic_vector(3 DOWNTO 0);
+            pcp_address               	: in    std_logic_vector(12 DOWNTO 0);
+            pcp_writedata             	: in    std_logic_vector(31 DOWNTO 0);
+            pcp_readdata              	: out   std_logic_vector(31 DOWNTO 0);
 			pcp_irq						: in	std_logic; --should be connected to the Time Cmp Toggle of openMAC!
 		-- Avalon Slave Interface for AP
             ap_chipselect               : in    std_logic;
@@ -109,7 +114,10 @@ entity pdi is
 		-- LED
 			ledsOut						: out	std_logic_vector(7 downto 0); --LEDs: O1, O0, PA1, PL1, PA0, PL0, E, S
 			phyLink						: in	std_logic_vector(1 downto 0); --link: phy1, phy0
-			phyAct						: in	std_logic_vector(1 downto 0) --acti: phy1, phy0
+			phyAct						: in	std_logic_vector(1 downto 0); --acti: phy1, phy0
+		--PDI change buffer triggers
+			rpdo_change_tog				: in	std_logic_vector(2 downto 0);
+			tpdo_change_tog				: in	std_logic
 	);
 end entity pdi;
 
@@ -139,7 +147,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#68#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#70#);
 ----asynchronous buffers
 constant	extABuf1Tx_c				: memoryMapping_t := (16#0800#, iABuf1_g); --header is included in generic value!
 constant	extABuf1Rx_c				: memoryMapping_t := (16#1000#, iABuf1_g); --header is included in generic value!
@@ -152,7 +160,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 7 * 4); --bytes mapped to dpr (dword alignment!!!)
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 9 * 4); --bytes mapped to dpr (dword alignment!!!)
 ----asynchronous buffers
 constant	intABuf1Tx_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extABuf1Tx_c.span));
 constant	intABuf1Rx_c				: memoryMapping_t := (intABuf1Tx_c.base + intABuf1Tx_c.span, align32(extABuf1Rx_c.span));
@@ -176,7 +184,7 @@ constant	dprSize_c					: integer := (	intCntStReg_c.span +
 constant	dprAddrWidth_c				: integer := integer(ceil(log2(real(dprSize_c))));
 ---other constants
 constant	magicNumber_c				: integer := 16#50435000#;
-constant	fpgaRev_c					: integer := iFpgaRev_g;
+constant	pdiRev_c					: integer := iPdiRev_g;
 														
 ------------------------------------------------------------------------------------------------------------------------
 --signals
@@ -280,7 +288,7 @@ begin
 	ASSERT NOT(iTpdos_g /= 1)
 		REPORT "Only 1 Tpdo is supported!"
 			severity failure;
-	
+
 ------------------------------------------------------------------------------------------------------------------------
 -- merge data to pcp/ap
 	theMerger : block
@@ -332,7 +340,7 @@ begin
 		q_b				=>		dprOut.ap
 		);
 	
-	pcp_addrRes <= '0' & pcp_address(extLog2MaxOneSpan-1-2 downto 0) + dpr.pcp.addrOff;
+	pcp_addrRes <= '0' & pcp_address(dprAddrWidth_c-2-1 downto 0) + dpr.pcp.addrOff;
 	
 	dpr.pcp	<=	dprCntStReg_s.pcp	when	selCntStReg_s.pcp = '1'	else
 				dprABuf1Tx_s.pcp	when	selABuf1Tx_s.pcp  = '1' else
@@ -346,7 +354,7 @@ begin
 				((others => '0'), (others => '0'), (others => '0'), (others => '0'), '0');
 				
 				
-	ap_addrRes <= '0' & ap_address(extLog2MaxOneSpan-1-2 downto 0) + dpr.ap.addrOff;
+	ap_addrRes <= '0' & ap_address(dprAddrWidth_c-2-1 downto 0) + dpr.ap.addrOff;
 	
 	dpr.ap	<=	dprCntStReg_s.ap	when	selCntStReg_s.ap = '1'	else
 				dprABuf1Tx_s.ap 	when	selABuf1Tx_s.ap   = '1' else
@@ -367,36 +375,36 @@ begin
 	begin
 		--pcp side
 		---control / status register
-		selCntStReg_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extCntStReg_c.base and 
-														 (conv_integer(pcp_address)*4 < extCntStReg_c.base + extCntStReg_c.span))
-												else	'0';
+		selCntStReg_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extCntStReg_c.base and 
+															(conv_integer(pcp_address)*4 < extCntStReg_c.base + extCntStReg_c.span))
+													else	'0';
 		---asynchronous buffers
-		selABuf1Tx_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extABuf1Tx_c.base and 
-														 (conv_integer(pcp_address)*4 < extABuf1Tx_c.base + extABuf1Tx_c.span))
-												else	'0';
-		selABuf1Rx_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extABuf1Rx_c.base and 
-														 (conv_integer(pcp_address)*4 < extABuf1Rx_c.base + extABuf1Rx_c.span))
-												else	'0';
-		selABuf2Tx_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extABuf2Tx_c.base and 
-														 (conv_integer(pcp_address)*4 < extABuf2Tx_c.base + extABuf2Tx_c.span))
-												else	'0';
-		selABuf2Rx_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extABuf2Rx_c.base and 
-														 (conv_integer(pcp_address)*4 < extABuf2Rx_c.base + extABuf2Rx_c.span))
-												else	'0';
+		selABuf1Tx_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extABuf1Tx_c.base and 
+														 	(conv_integer(pcp_address)*4 < extABuf1Tx_c.base + extABuf1Tx_c.span))
+													else	'0';
+		selABuf1Rx_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extABuf1Rx_c.base and 
+														 	(conv_integer(pcp_address)*4 < extABuf1Rx_c.base + extABuf1Rx_c.span))
+													else	'0';
+		selABuf2Tx_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extABuf2Tx_c.base and 
+														 	(conv_integer(pcp_address)*4 < extABuf2Tx_c.base + extABuf2Tx_c.span))
+													else	'0';
+		selABuf2Rx_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extABuf2Rx_c.base and 
+														 	(conv_integer(pcp_address)*4 < extABuf2Rx_c.base + extABuf2Rx_c.span))
+													else	'0';
 		
 		---pdo buffers (triple buffers considered!)
-		selTpdoBuf_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extTpdoBuf_c.base and 
-														 (conv_integer(pcp_address)*4 < extTpdoBuf_c.base + extTpdoBuf_c.span))
-												else	'0';
-		selRpdo0Buf_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extRpdo0Buf_c.base and 
-														 (conv_integer(pcp_address)*4 < extRpdo0Buf_c.base + extRpdo0Buf_c.span))
-												else	'0';
-		selRpdo1Buf_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extRpdo1Buf_c.base and 
-														 (conv_integer(pcp_address)*4 < extRpdo1Buf_c.base + extRpdo1Buf_c.span))
-												else	'0';
-		selRpdo2Buf_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extRpdo2Buf_c.base and 
-														 (conv_integer(pcp_address)*4 < extRpdo2Buf_c.base + extRpdo2Buf_c.span))
-												else	'0';
+		selTpdoBuf_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extTpdoBuf_c.base and 
+														 	(conv_integer(pcp_address)*4 < extTpdoBuf_c.base + extTpdoBuf_c.span))
+													else	'0';
+		selRpdo0Buf_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extRpdo0Buf_c.base and 
+														 	(conv_integer(pcp_address)*4 < extRpdo0Buf_c.base + extRpdo0Buf_c.span))
+													else	'0';
+		selRpdo1Buf_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extRpdo1Buf_c.base and 
+														 	(conv_integer(pcp_address)*4 < extRpdo1Buf_c.base + extRpdo1Buf_c.span))
+													else	'0';
+		selRpdo2Buf_s.pcp	<=	pcp_chipselect		when	(conv_integer(pcp_address)*4 >= extRpdo2Buf_c.base and 
+														 	(conv_integer(pcp_address)*4 < extRpdo2Buf_c.base + extRpdo2Buf_c.span))
+													else	'0';
 		
 		--ap side
 		---control / status register
@@ -446,7 +454,7 @@ begin
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
-			fpgaRev						=> conv_std_logic_vector(fpgaRev_c, 16),
+			pdiRev						=> conv_std_logic_vector(pdiRev_c, 16),
 			tPdoBuffer					=> conv_std_logic_vector(extTpdoBuf_c.base, 16) & 
 											conv_std_logic_vector(extTpdoBuf_c.span, 16),
 			rPdo0Buffer					=> conv_std_logic_vector(extRpdo0Buf_c.base, 16) & 
@@ -501,7 +509,10 @@ begin
 			--ap irq generation
 			apIrqControlOut				=> apIrqControlPcp,
 			--SW is blind, thus, use the transferred enable signal from AP!
-			apIrqControlIn				=> apIrqControlPcp2
+			apIrqControlIn				=> apIrqControlPcp2,
+			--hw acc triggering
+			rpdo_change_tog				=> rpdo_change_tog,
+			tpdo_change_tog				=> tpdo_change_tog
 	);
 	
 	--only read 15 bits of the written, the msbit is read from transferred AP bit
@@ -531,7 +542,7 @@ begin
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
-			fpgaRev						=> conv_std_logic_vector(fpgaRev_c, 16),
+			pdiRev						=> conv_std_logic_vector(pdiRev_c, 16),
 			tPdoBuffer					=> conv_std_logic_vector(extTpdoBuf_c.base, 16) & 
 											conv_std_logic_vector(extTpdoBuf_c.span, 16),
 			rPdo0Buffer					=> conv_std_logic_vector(extRpdo0Buf_c.base, 16) & 
@@ -586,7 +597,9 @@ begin
 			--ap irq generation
 			--apIrqValue					=>
 			apIrqControlOut				=> apIrqControlApOut,
-			apIrqControlIn				=> apIrqControlApIn
+			apIrqControlIn				=> apIrqControlApIn,
+			rpdo_change_tog				=> (others => '0'),
+			tpdo_change_tog				=> '0'
 	);
 	
 	theApIrqGenerator : entity work.apIrqGen
@@ -1452,7 +1465,7 @@ entity pdiControlStatusReg is
 			--register content
 			---constant values
 			magicNumber					: 		std_Logic_vector(31 downto 0) := (others => '0');
-			fpgaRev						: 		std_logic_vector(15 downto 0) := (others => '0');
+			pdiRev						: 		std_logic_vector(15 downto 0) := (others => '0');
 			tPdoBuffer					: 		std_logic_vector(31 downto 0) := (others => '0');
 			rPdo0Buffer					: 		std_logic_vector(31 downto 0) := (others => '0');
 			rPdo1Buffer					: 		std_logic_vector(31 downto 0) := (others => '0');
@@ -1476,6 +1489,8 @@ entity pdiControlStatusReg is
 			dout						: out	std_logic_vector(31 downto 0);
 			--register content
 			---virtual buffer control signals
+			rpdo_change_tog				: in	std_logic_vector(2 downto 0); --change buffer from hw acc
+			tpdo_change_tog				: in	std_logic; --change buffer from hw acc
 			pdoVirtualBufferSel			: in	std_logic_vector(31 downto 0); 	--for debugging purpose from SW side
 																				--TXPDO_ACK | RXPDO2_ACK | RXPDO1_ACK | RXPDO0_ACK
 			tPdoTrigger					: out	std_logic; --TPDO virtual buffer change trigger
@@ -1514,6 +1529,10 @@ signal virtualBufferSelectTpdo			:		std_logic_vector(15 downto 0);
 signal virtualBufferSelectRpdo0			:		std_logic_vector(15 downto 0);
 signal virtualBufferSelectRpdo1			:		std_logic_vector(15 downto 0);
 signal virtualBufferSelectRpdo2			:		std_logic_vector(15 downto 0);
+
+--edge detection
+signal rpdo_change_tog_l				: 		std_logic_vector(2 downto 0); --change buffer from hw acc
+signal tpdo_change_tog_l				: 		std_logic; --change buffer from hw acc
 begin	
 	--map to 16bit register
 	--TXPDO_ACK | RXPDO2_ACK | RXPDO1_ACK | RXPDO0_ACK
@@ -1544,7 +1563,7 @@ begin
 	--non dpr read
 	with conv_integer(addr)*4 select
 		nonDprDout <=	magicNumber 					when 16#00#,
-						(x"0000" & fpgaRev) 			when 16#04#,
+						(x"0000" & pdiRev) 				when 16#04#,
 						--STORED IN DPR 				when 16#08#,
 						--STORED IN DPR 				when 16#0C#,
 						--STORED IN DPR 				when 16#10#,
@@ -1552,25 +1571,27 @@ begin
 						--STORED IN DPR 				when 16#18#,
 						--STORED IN DPR 				when 16#1C#,
 						--STORED IN DPR 				when 16#20#,
-						(eventAckIn & asyncIrqCtrlIn) 	when 16#24#,
-						tPdoBuffer 						when 16#28#,
-						rPdo0Buffer 					when 16#2C#,
-						rPdo1Buffer 					when 16#30#,
-						rPdo2Buffer 					when 16#34#,
-						asyncBuffer1Tx 					when 16#38#,
-						asyncBuffer1Rx 					when 16#3C#,
-						asyncBuffer2Tx 					when 16#40#,
-						asyncBuffer2Rx 					when 16#44#,
-						--RESERVED 						when 16#48#,
-						--RESERVED 						when 16#4C#,
+						--STORED IN DPR 				when 16#24#,
+						--STORED IN DPR 				when 16#28#,
+						(eventAckIn & asyncIrqCtrlIn) 	when 16#2C#,
+						tPdoBuffer 						when 16#30#,
+						rPdo0Buffer 					when 16#34#,
+						rPdo1Buffer 					when 16#38#,
+						rPdo2Buffer 					when 16#3C#,
+						asyncBuffer1Tx 					when 16#40#,
+						asyncBuffer1Rx 					when 16#44#,
+						asyncBuffer2Tx 					when 16#48#,
+						asyncBuffer2Rx 					when 16#4C#,
+						--RESERVED 						when 16#50#,
+						--RESERVED 						when 16#54#,
 						(virtualBufferSelectRpdo0 & 
-						virtualBufferSelectTpdo) 		when 16#50#,
+						virtualBufferSelectTpdo) 		when 16#58#,
 						(virtualBufferSelectRpdo2 & 
-						virtualBufferSelectRpdo1) 		when 16#54#,
-						(x"0000" & apIrqControlIn) 		when 16#58#,
-						--RESERVED						when 16#5C#,
-						--RESERVED 						when 16#60#,
-						(ledCnfgIn & ledCtrlIn) 		when 16#64#,
+						virtualBufferSelectRpdo1) 		when 16#5C#,
+						(x"0000" & apIrqControlIn) 		when 16#60#,
+						--RESERVED						when 16#64#,
+						--RESERVED 						when 16#68#,
+						(ledCnfgIn & ledCtrlIn) 		when 16#6C#,
 						(others => '0') 				when others;
 	
 	--ignored values
@@ -1590,12 +1611,34 @@ begin
 			eventAckOut(7 downto 0) <= (others => '0');
 			ledCtrlOut(7 downto 0) <= (others => '0');
 			ledCnfgOut(7 downto 0) <= (others => '0');
+			if bIsPcp then
+				rpdo_change_tog_l <= (others => '0');
+				tpdo_change_tog_l <= '0';
+			end if;
 		elsif clk = '1' and clk'event then
 			--default assignments
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
 			apIrqControlOut(0) <= '0'; --PCP: set pulse // AP: ack pulse
 			eventAckOut(7 downto 0) <= (others => '0'); --PCP: set pulse // AP: ack pulse
+			
+			if bIsPcp then
+				--shift register for edge det
+				rpdo_change_tog_l <= rpdo_change_tog;
+				tpdo_change_tog_l <= tpdo_change_tog;
+				
+				--edge detection
+				---tpdo
+				if tpdo_change_tog_l /= tpdo_change_tog then
+					tPdoTrigger <= '1';
+				end if;
+				---rpdo
+				for i in rpdo_change_tog'range loop
+					if rpdo_change_tog_l(i) /= rpdo_change_tog(i) then
+						rPdoTrigger(i) <= '1';
+					end if;
+				end loop;
+			end if;
 			
 			if wr = '1' and sel = '1' and selDpr = '0' then
 				case conv_integer(addr)*4 is
@@ -1618,6 +1661,10 @@ begin
 					when 16#20# =>
 						--STORED IN DPR
 					when 16#24# =>
+						--STORED IN DPR
+					when 16#28# =>
+						--STORED IN DPR
+					when 16#2C# =>
 						--AP ONLY
 						if be(0) = '1' and bIsPcp = false then
 							--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
@@ -1634,10 +1681,6 @@ begin
 --						if be(3) = '1' then
 --							eventAckOut(15 downto 8) <= din(31 downto 24);
 --						end if;
-					when 16#28# =>
-						--RO
-					when 16#2C# =>
-						--RO
 					when 16#30# =>
 						--RO
 					when 16#34# =>
@@ -1651,23 +1694,27 @@ begin
 					when 16#44# =>
 						--RO
 					when 16#48# =>
-						--RESERVED
+						--RO
 					when 16#4C# =>
-						--RESERVED
+						--RO
 					when 16#50# =>
-						if be(0) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(1) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(2) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
-						if be(3) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
+						--RESERVED
 					when 16#54# =>
+						--RESERVED
+					when 16#58# =>
+						if be(0) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(1) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(2) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+						if be(3) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+					when 16#5C# =>
 						if be(0) = '1' then
 							rPdoTrigger(1) <= '1';
 						end if;
@@ -1680,18 +1727,18 @@ begin
 						if be(3) = '1' then
 							rPdoTrigger(2) <= '1';
 						end if;
-					when 16#58# =>
+					when 16#60# =>
 						if be(0) = '1' then
 							apIrqControlOut(7 downto 0) <= din(7 downto 0);
 						end if;
 						if be(1) = '1' then
 							apIrqControlOut(15 downto 8) <= din(15 downto 8);
 						end if;
-					when 16#5C# =>
-						--RESERVED
-					when 16#60# =>
-						--RESERVED
 					when 16#64# =>
+						--RESERVED
+					when 16#68# =>
+						--RESERVED
+					when 16#6C# =>
 						if be(0) = '1' then
 							ledCtrlOut(7 downto 0) <= din(7 downto 0);
 						end if;
@@ -1964,7 +2011,7 @@ BEGIN
 	shiftReg : PROCESS(clk, rst)
 	BEGIN
 		IF rst = '1' THEN
-			sreg <= (others => inData); --(others => '0');
+			sreg <= (others => '0');
 		ELSIF clk = '1' AND clk'EVENT THEN
 			sreg <= sreg(0) & inData;
 		END IF;
