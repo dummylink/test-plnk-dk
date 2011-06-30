@@ -387,8 +387,8 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
                     { // link directly to TPDO buffer
                         pData = aTPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
 
-                        /* verfiy if this PDO fits into the buffer */
-                        if (uiOffsetCnt + uiMapSize > aTPdosPdi_l[uiIndex].wSize_m       ||
+                        /* verify if this PDO fits into the buffer */
+                        if ((uiOffsetCnt + uiMapSize) > aTPdosPdi_l[uiIndex].wSize_m       ||
                             (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
@@ -399,8 +399,8 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
                     { // link directly to RPDO buffer
                         pData = aRPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
 
-                        /* verfiy if this PDO fits into the buffer */
-                        if (uiOffsetCnt + uiMapSize > aRPdosPdi_l[uiIndex].wSize_m       ||
+                        /* verify if this PDO fits into the buffer */
+                        if ((uiOffsetCnt + uiMapSize) > aRPdosPdi_l[uiIndex].wSize_m       ||
                             (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
