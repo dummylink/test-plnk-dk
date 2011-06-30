@@ -51,7 +51,7 @@ a dual ported RAM (DPRAM) area.
 /* USER OPTIONS */
 
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
-#define DEFAULT_NODEID      0x01    // default node ID to use, should be NOT 0xF0 (=MN)
+#define DEFAULT_NODEID      0x00    // default node ID to use, should be NOT 0xF0 (=MN)
 
 #define USE_POLLING_MODE // or IR synchronization mode by commenting this define
 
