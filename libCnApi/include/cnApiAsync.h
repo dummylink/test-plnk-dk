@@ -97,12 +97,8 @@ typedef enum eAsyncChannel {
 } tAsyncChannel;
 
 /**
- * \brief enumeration for asynchronous commands
- */ //TODO: needed?
-//typedef enum eAsyncCmd {
-//
-//} tAsyncCmd;
-
+ * \brief structure for asynchronous message types
+ */
 typedef enum ePdiAsyncMsgType {
     kPdiAsyncMsgInvalid         = 0x00,
     kPdiAsyncMsgIntInitPcpReq   = 0x01, ///< internal AP <-> PCP communication messages
@@ -131,7 +127,6 @@ typedef enum ePdiAsyncMsgType {
  * \brief structure for InitPcpReq command
  */
 typedef struct sInitPcpReq {
-//    BYTE                    m_bCmd; //TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     BYTE                    m_abMac[6];
@@ -147,7 +142,6 @@ typedef struct sInitPcpReq {
  * \brief structure for InitPcpResp command
  */
 typedef struct sInitPcpResp {
-//    BYTE                    m_bCmd; //TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wStatus;
@@ -157,7 +151,6 @@ typedef struct sInitPcpResp {
  * \brief structure for CreateObjReq command
  */
 typedef struct sCreateObjReq {
-//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wNumObjs;
@@ -167,7 +160,6 @@ typedef struct sCreateObjReq {
  * \brief structure for CreateObjResp command
  */
 typedef struct sCreateObjResp {
-//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wStatus;
@@ -176,8 +168,6 @@ typedef struct sCreateObjResp {
 } PACK_STRUCT tCreateObjLksResp;
 
 typedef struct sLinkPdosReq {
-//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
-//    BYTE                    m_reserved;
     BYTE                    m_bDescrCnt;
     BYTE                    m_bDescrVers;
 } PACK_STRUCT tLinkPdosReq; //TODO: use async buffers!
@@ -186,7 +176,6 @@ typedef struct sLinkPdosReq {
  * \brief structure for CreateObjResp command
  */
 typedef struct sLinkPdosResp {
-//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bDescrVers;
     BYTE                    m_bPad;
     WORD                    m_wStatus;
@@ -198,7 +187,6 @@ typedef struct sLinkPdosResp {
  * \brief structure for WriteObjReq command
  */
 typedef struct sWriteObjReq {
-//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wNumObjs;
@@ -209,7 +197,6 @@ typedef struct sWriteObjReq {
  */
 
 typedef struct sWriteObjResp {
-//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wStatus;
@@ -221,7 +208,6 @@ typedef struct sWriteObjResp {
  * \brief structure for internal channel header
  */
 typedef struct sAsyncIntHeader {
-//    BYTE                    m_bCmd;//TODO: deprecated; shifted to bMsgType_m of tAsyncPdiBufCtrlHeader
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
 } PACK_STRUCT tAsyncIntHeader;
@@ -235,6 +221,7 @@ typedef struct sAsyncMsgHeader {
     BYTE                    m_bMsgType;
     BYTE                    m_bPad;
     WORD                    m_wFrgmtLen;
+    //WORD                  wReserved;
     DWORD                   m_dwStreamLen;
 } PACK_STRUCT tAsyncPdiBufCtrlHeader;
 
