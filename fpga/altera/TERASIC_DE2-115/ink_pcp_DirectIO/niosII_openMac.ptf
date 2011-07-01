@@ -615,6 +615,12 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
+            Entry sysid/control_slave
+            {
+               address = "0x01004098";
+               span = "0x00000008";
+               is_bridge = "0";
+            }
             Entry epcs_flash_controller_0/epcs_control_port
             {
                address = "0x00000000";
@@ -2773,6 +2779,12 @@ SYSTEM niosII_openMac
                span = "0x00000020";
                is_bridge = "0";
             }
+            Entry sysid/control_slave
+            {
+               address = "0x00004098";
+               span = "0x00000008";
+               is_bridge = "0";
+            }
          }
       }
       class = "altera_avalon_clock_crossing";
@@ -4915,6 +4927,129 @@ SYSTEM niosII_openMac
          Simulation_HDL_Files = "";
          Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/lcd.vhd";
          Synthesis_Only_Files = "";
+      }
+   }
+   MODULE sysid
+   {
+      SLAVE control_slave
+      {
+         PORT_WIRING 
+         {
+            PORT clock
+            {
+               type = "clock";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT reset_n
+            {
+               type = "reset_n";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT address
+            {
+               type = "address";
+               width = "1";
+               direction = "input";
+               Is_Enabled = "1";
+            }
+            PORT readdata
+            {
+               type = "readdata";
+               width = "32";
+               direction = "output";
+               Is_Enabled = "1";
+            }
+         }
+         SYSTEM_BUILDER_INFO 
+         {
+            Bus_Type = "avalon";
+            Write_Wait_States = "0cycles";
+            Read_Wait_States = "1cycles";
+            Hold_Time = "0cycles";
+            Setup_Time = "0cycles";
+            Is_Printable_Device = "0";
+            Address_Alignment = "native";
+            Well_Behaved_Waitrequest = "0";
+            Is_Nonvolatile_Storage = "0";
+            Read_Latency = "0";
+            Is_Memory_Device = "0";
+            Maximum_Pending_Read_Transactions = "0";
+            Minimum_Uninterrupted_Run_Length = "1";
+            Accepts_Internal_Connections = "1";
+            Write_Latency = "0";
+            Is_Flash = "0";
+            Data_Width = "32";
+            Address_Width = "1";
+            Maximum_Burst_Size = "1";
+            Register_Incoming_Signals = "0";
+            Register_Outgoing_Signals = "0";
+            Interleave_Bursts = "0";
+            Linewrap_Bursts = "0";
+            Burst_On_Burst_Boundaries_Only = "0";
+            Always_Burst_Max_Burst = "0";
+            Is_Big_Endian = "0";
+            Is_Enabled = "1";
+            MASTERED_BY clock_crossing_0/m1
+            {
+               priority = "1";
+               Offset_Address = "0x00004098";
+            }
+            Base_Address = "0x01004098";
+            Has_IRQ = "0";
+            Address_Group = "0";
+         }
+      }
+      class = "altera_avalon_sysid";
+      class_version = "7.08101";
+      SYSTEM_BUILDER_INFO 
+      {
+         Date_Modified = "";
+         Is_Enabled = "1";
+         Instantiate_In_System_Module = "1";
+         Fixed_Module_Name = "sysid";
+         Top_Level_Ports_Are_Enumerated = "1";
+         Clock_Source = "clk50";
+         Has_Clock = "1";
+         View 
+         {
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4E0D5671</b> (timestamp: Fri Jul 1, 2011 @7:09 AM)";
+            MESSAGES 
+            {
+            }
+         }
+      }
+      WIZARD_SCRIPT_ARGUMENTS 
+      {
+         id = "1u";
+         timestamp = "1309496945u";
+         regenerate_values = "0";
+         MAKE 
+         {
+            TARGET verifysysid
+            {
+               verifysysid 
+               {
+                  All_Depends_On = "0";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01004098 --id=1 --timestamp=1309496945";
+                  Is_Phony = "1";
+                  Target_File = "dummy_verifysysid_file";
+               }
+            }
+         }
+      }
+      HDL_INFO 
+      {
+         Precompiled_Simulation_Library_Files = "";
+         Simulation_HDL_Files = "";
+         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/sysid.vhd";
+         Synthesis_Only_Files = "";
+      }
+      PORT_WIRING 
+      {
       }
    }
 }
