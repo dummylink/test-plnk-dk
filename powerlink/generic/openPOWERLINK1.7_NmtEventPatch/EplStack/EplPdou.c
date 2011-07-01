@@ -78,6 +78,9 @@
 #include "user/EplPdou.h"
 #include "EplSdoAc.h"
 #include "EplPdo.h"
+#if defined (__NIOS2__)
+    #include "system.h"
+#endif // defined (__NIOS2__)
 
 #if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_PDOU)) != 0)
 
@@ -285,6 +288,24 @@ tEplKernel      Ret = kEplSuccessful;
             EplPdouInstance_g.m_fRunning = FALSE;
             break;
         }
+#ifndef POWERLINK_0_PDI_PCP_CONFIG //PDI is used
+        case kEplNmtGsResetConfiguration:
+        {
+            EplPdouInstance_g.m_fAllocated = FALSE;
+            EplPdouInstance_g.m_fRunning = FALSE;
+
+            // forward PDO configuration to Pdok module
+            Ret = EplPdouConfigureAllPdos();
+            if (Ret != kEplSuccessful)
+            {
+                goto Exit;
+            }
+
+            EplPdouInstance_g.m_fRunning = TRUE;
+
+            break;
+        }
+#endif // not POWERLINK_0_PDI_PCP_CONFIG
 
         default:
         {   // do nothing
