@@ -643,6 +643,7 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
 
     tLinkPdosReq *      pLinkPdosReq = NULL;
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
+    BOOL fRet = TRUE;                                       ///< temporary return value
     WORD wCurDescrPayloadOffset = 0;
 
     DEBUG_FUNC;
@@ -679,8 +680,21 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
     dwSumMappingSize_g = 0;        ///< reset overall sum of mapping size
 
-    Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
-    Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
+    fRet = Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
+    if (fRet != TRUE)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
+        Ret = kPdiAsyncStatusInvalidOperation;
+        goto exit;
+    }
+
+    fRet = Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
+    if (fRet != TRUE)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
+        Ret = kPdiAsyncStatusInvalidOperation;
+        goto exit;
+    }
 
     bDescrVers_l++;                     ///< increase descriptor version number
     pLinkPdosReq->m_bDescrVers = bDescrVers_l;

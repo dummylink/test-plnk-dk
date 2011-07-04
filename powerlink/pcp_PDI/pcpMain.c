@@ -535,7 +535,13 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     /* prepare PDO mapping */
 
                     /* setup PDO <-> DPRAM copy table */
-                    CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
+
+                    if (CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0) !=
+                        kPdiAsyncStatusSuccessful                               )
+                    {
+                        EplRet = kEplReject;
+                        goto Exit;
+                    }
 
                     /* setup frame <-> PDO copy table - needs already linked objects! */
                     EplRet = EplPdouSetupAllPdoInternalCpyTable();

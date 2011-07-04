@@ -234,9 +234,9 @@ by the PCP for copying all objects contained in the mapping.
 \param  pCurrentDescrOffset_p      pointer to the current LinkPdoReq payload offset
 \param  pLinkPdoReq_p              pointer to the LinkPdoReq message.
 
-\return Ok, or ERROR if an error occured.
+\return TRUE if successful or FALSE if an error occured.
 *******************************************************************************/
-int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosReq *pLinkPdoReq_p)
+BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosReq *pLinkPdoReq_p)
 {
 	tEplKernel          Ret = kEplSuccessful;
 	unsigned int        uiCommParamIndex;
@@ -271,6 +271,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	tPdoDescHeader		*pPdoDescHeader = NULL;     ///< ptr to descriptor header
 	tPdoDir              PdoDir;
 	BYTE                 bApiBufferNum = 0;
+	BOOL fRet = TRUE;                               ///< return
 
 	/* initialize variables according to PDO direction */
 	if (bDirection_p == kCnApiDirReceive)
@@ -292,6 +293,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 	else
 	{
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Direction not specified!\n");
+        fRet = FALSE;
         goto exit;
     }
 
@@ -309,7 +311,8 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 		}
 		else if (Ret != kEplSuccessful)
 		{   // other fatal error occured
-			goto exit;
+            fRet = FALSE;
+	        goto exit;
 		}
 		uiPdoChannelCount++;  ///< increment PDO counter for every assigned Node ID
 	}
@@ -332,14 +335,9 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 		if (Ret != kEplSuccessful)
 		{
 		    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "OBD could not be read!\n");
+            fRet = FALSE;
 			goto exit;
 		}
-
-        if (PDO_COPY_TBL_ELEMENTS < bObdSubIdxCount)
-        {
-            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Objects do not fit in copy table!\n");
-            goto exit;
-        }
 
         uiOffsetCnt = 0;    //reset PDO offset counter for each PDO
 
@@ -354,6 +352,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 			Ret = EplObduReadEntry(uiMappParamIndex, bMappSubindex, &qwObjectMapping, &ObdSize);
 			if (Ret != kEplSuccessful)
 			{   // other fatal error occured
+			    fRet = FALSE;
 				goto exit;
 			}
 
@@ -392,6 +391,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
                             (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
+                            fRet = FALSE;
                             goto exit;
                         }
                     }
@@ -404,11 +404,13 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
                             (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
+                            fRet = FALSE;
                             goto exit;
                         }
                     }
                     else
                     { // should not occur -> error
+                        fRet = FALSE;
                         goto exit;
                     }
 
@@ -420,6 +422,7 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
                     if (Ret != kEplSuccessful)
                     {
                         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
+                        fRet = FALSE;
                         goto exit;
                     }
 
@@ -467,13 +470,13 @@ int Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosRe
 		bApiBufferNum++;   ///< increment DPRAM PDO buffer number of this direction
 	}
 
-	return OK;
-
 exit:
-	DEBUG_TRACE0 (DEBUG_LVL_CNAPI_ERR, "Error setup PDO descriptor!\n");
-	pPdoDescHeader->m_bEntryCnt = 0;
+    if (fRet != TRUE)
+    {
+        pPdoDescHeader->m_bEntryCnt = 0;
+    }
 
-	return ERROR;
+    return fRet;
 }
 
 /* END-OF-FILE */
