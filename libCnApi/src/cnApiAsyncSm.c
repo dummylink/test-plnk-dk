@@ -1363,12 +1363,14 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
         CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         pLclAsyncTxMsgBuffer_l = NULL;
     }
 
     if (pLclAsyncRxMsgBuffer_l != NULL)
     {
         CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
         pLclAsyncRxMsgBuffer_l = NULL;
     }
 
@@ -1745,6 +1747,8 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 // by the state machine. (Tx handle can be triggered by this function and the state machine)
                 if (Ret != kPdiAsyncStatusSuccessful)
                 {
+                    CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+                    pLclAsyncTxMsgBuffer_l = NULL;
                     goto exit;
                 }
 
