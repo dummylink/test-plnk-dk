@@ -913,7 +913,7 @@
         #define TARGET_SYSTEM       _NO_OS_
         #define DEV_SYSTEM          _DEV_NIOS2_
         /* PUT_TIME_CRITICAL_FUNC_IN_BLOCK_RAM */
-        #define FPGA_INTERNAL_RAM    __attribute__((section(".tc_i_mem_pcp")))
+        #define FPGA_INTERNAL_RAM    //__attribute__((section(".tc_i_mem_pcp")))
     #else
         #error 'ERROR: DEV_SYSTEM not found!'
     #endif
