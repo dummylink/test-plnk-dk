@@ -395,7 +395,7 @@ BOOL CnApi_verifyFpgaConfigId(void)
 {
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
-    CnApi_Spi_read(PCP_CTRLREG_FPGA_TS_OFFSET,
+    CnApi_Spi_read(PCP_CTRLREG_FPGA_SYSID_OFFSET,
                    sizeof(pCtrlReg_g->m_dwFpgaSysId),
                    (BYTE*) &pCtrlReg_g->m_dwFpgaSysId);
 #endif /* CN_API_USING_SPI */
