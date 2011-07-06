@@ -73,12 +73,12 @@ RESERVED_INPUT               : A3        :        :                   :         
 RESERVED_INPUT               : A4        :        :                   :         : 8         :                
 VCCIO8                       : A5        : power  :                   : 2.5V    : 8         :                
 RESERVED_INPUT               : A6        :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[2]       : A7        : output : 2.5 V             :         : 8         : N              
+SW_BENCHMARK_AP_OUT[5]       : A7        : output : 2.5 V             :         : 8         : N              
 RESERVED_INPUT               : A8        :        :                   :         : 8         :                
 VCCIO8                       : A9        : power  :                   : 2.5V    : 8         :                
 RESERVED_INPUT               : A10       :        :                   :         : 8         :                
 RESERVED_INPUT               : A11       :        :                   :         : 8         :                
-RESERVED_INPUT               : A12       :        :                   :         : 8         :                
+SW_BENCHMARK_PCP_OUT[6]      : A12       : output : 2.5 V             :         : 8         : N              
 VCCIO8                       : A13       : power  :                   : 2.5V    : 8         :                
 GND+                         : A14       :        :                   :         : 8         :                
 PHY0_RXCLK                   : A15       : input  : 2.5 V             :         : 7         : Y              
@@ -287,7 +287,7 @@ RESERVED_INPUT               : AG22      :        :                   :         
 RESERVED_INPUT               : AG23      :        :                   :         : 4         :                
 GND                          : AG24      : gnd    :                   :         :           :                
 RESERVED_INPUT               : AG25      :        :                   :         : 4         :                
-RESERVED_INPUT               : AG26      :        :                   :         : 4         :                
+ASYNC_IRQ_OUT                : AG26      : output : 3.3-V LVTTL       :         : 4         : Y              
 GND                          : AG27      : gnd    :                   :         :           :                
 VCCIO5                       : AG28      : power  :                   : 2.5V    : 5         :                
 VCCIO3                       : AH2       : power  :                   : 3.3V    : 3         :                
@@ -322,7 +322,7 @@ RESERVED_INPUT               : B3        :        :                   :         
 RESERVED_INPUT               : B4        :        :                   :         : 8         :                
 GND                          : B5        : gnd    :                   :         :           :                
 RESERVED_INPUT               : B6        :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[1]       : B7        : output : 2.5 V             :         : 8         : N              
+SW_BENCHMARK_AP_OUT[6]       : B7        : output : 2.5 V             :         : 8         : N              
 RESERVED_INPUT               : B8        :        :                   :         : 8         :                
 GND                          : B9        : gnd    :                   :         :           :                
 RESERVED_INPUT               : B10       :        :                   :         : 8         :                
@@ -355,9 +355,9 @@ RESERVED_INPUT               : C8        :        :                   :         
 RESERVED_INPUT               : C9        :        :                   :         : 8         :                
 RESERVED_INPUT               : C10       :        :                   :         : 8         :                
 RESERVED_INPUT               : C11       :        :                   :         : 8         :                
-SW_BENCHMARK_PCP_OUT[4]      : C12       : output : 2.5 V             :         : 8         : N              
-SW_BENCHMARK_PCP_OUT[5]      : C13       : output : 2.5 V             :         : 8         : N              
-SW_BENCHMARK_PCP_OUT[2]      : C14       : output : 2.5 V             :         : 8         : N              
+RESERVED_INPUT               : C12       :        :                   :         : 8         :                
+RESERVED_INPUT               : C13       :        :                   :         : 8         :                
+PHY0_LINK                    : C14       : input  : 2.5 V             :         : 8         : Y              
 PHY0_RXD[3]                  : C15       : input  : 2.5 V             :         : 7         : Y              
 PHY0_RXD[0]                  : C16       : input  : 2.5 V             :         : 7         : Y              
 PHY0_RXDV                    : C17       : input  : 2.5 V             :         : 7         : Y              
@@ -367,7 +367,7 @@ PHY0_MDC                     : C20       : output : 2.5 V             :         
 PHY1_RXD[1]                  : C21       : input  : 2.5 V             :         : 7         : Y              
 PHY1_TXCLK                   : C22       : input  : 2.5 V             :         : 7         : Y              
 PHY1_GXCLK                   : C23       : output : 2.5 V             :         : 7         : Y              
-RESERVED_INPUT               : C24       :        :                   :         : 7         :                
+PHY1_RXER                    : C24       : input  : 2.5 V             :         : 7         : Y              
 PHY1_TXD[0]                  : C25       : output : 2.5 V             :         : 7         : Y              
 PHY1_TXD[3]                  : C26       : output : 2.5 V             :         : 7         : Y              
 RESERVED_INPUT               : C27       :        :                   :         : 6         :                
@@ -381,15 +381,15 @@ RESERVED_INPUT               : D6        :        :                   :         
 RESERVED_INPUT               : D7        :        :                   :         : 8         :                
 RESERVED_INPUT               : D8        :        :                   :         : 8         :                
 RESERVED_INPUT               : D9        :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[6]       : D10       : output : 2.5 V             :         : 8         : N              
+RESERVED_INPUT               : D10       :        :                   :         : 8         :                
 RESERVED_INPUT               : D11       :        :                   :         : 8         :                
-SW_BENCHMARK_PCP_OUT[1]      : D12       : output : 2.5 V             :         : 8         : N              
-SW_BENCHMARK_PCP_OUT[6]      : D13       : output : 2.5 V             :         : 8         : N              
-SW_BENCHMARK_PCP_OUT[3]      : D14       : output : 2.5 V             :         : 8         : N              
+RESERVED_INPUT               : D12       :        :                   :         : 8         :                
+PHY1_LINK                    : D13       : input  : 2.5 V             :         : 8         : Y              
+RESERVED_INPUT               : D14       :        :                   :         : 8         :                
 RESERVED_INPUT               : D15       :        :                   :         : 7         :                
 PHY0_RXD[1]                  : D16       : input  : 2.5 V             :         : 7         : Y              
 PHY0_RXD[2]                  : D17       : input  : 2.5 V             :         : 7         : Y              
-RESERVED_INPUT               : D18       :        :                   :         : 7         :                
+PHY0_RXER                    : D18       : input  : 2.5 V             :         : 7         : Y              
 PHY0_TXD[1]                  : D19       : output : 2.5 V             :         : 7         : Y              
 RESERVED_INPUT               : D20       :        :                   :         : 7         :                
 PHY1_RXD[3]                  : D21       : input  : 2.5 V             :         : 7         : Y              
@@ -410,10 +410,10 @@ RESERVED_INPUT               : E7        :        :                   :         
 RESERVED_INPUT               : E8        :        :                   :         : 8         :                
 VCCIO8                       : E9        : power  :                   : 2.5V    : 8         :                
 RESERVED_INPUT               : E10       :        :                   :         : 8         :                
-RESERVED_INPUT               : E11       :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[7]       : E12       : output : 2.5 V             :         : 8         : N              
+SW_BENCHMARK_AP_OUT[0]       : E11       : output : 2.5 V             :         : 8         : N              
+SW_BENCHMARK_AP_OUT[4]       : E12       : output : 2.5 V             :         : 8         : N              
 VCCIO8                       : E13       : power  :                   : 2.5V    : 8         :                
-RESERVED_INPUT               : E14       :        :                   :         : 8         :                
+SW_BENCHMARK_PCP_OUT[0]      : E14       : output : 2.5 V             :         : 8         : N              
 RESERVED_INPUT               : E15       :        :                   :         : 7         :                
 VCCIO7                       : E16       : power  :                   : 2.5V    : 7         :                
 HEX0[2]                      : E17       : output : 2.5 V             :         : 7         : Y              
@@ -423,8 +423,8 @@ VCCIO7                       : E20       : power  :                   : 2.5V    
 LEDG[0]                      : E21       : output : 2.5 V             :         : 7         : Y              
 LEDG[1]                      : E22       : output : 2.5 V             :         : 7         : Y              
 VCCIO7                       : E23       : power  :                   : 2.5V    : 7         :                
-RESERVED_INPUT               : E24       :        :                   :         : 7         :                
-RESERVED_INPUT               : E25       :        :                   :         : 7         :                
+LEDG[3]                      : E24       : output : 2.5 V             :         : 7         : Y              
+LEDG[2]                      : E25       : output : 2.5 V             :         : 7         : Y              
 RESERVED_INPUT               : E26       :        :                   :         : 6         :                
 RESERVED_INPUT               : E27       :        :                   :         : 6         :                
 RESERVED_INPUT               : E28       :        :                   :         : 6         :                
@@ -438,10 +438,10 @@ RESERVED_INPUT               : F7        :        :                   :         
 RESERVED_INPUT               : F8        :        :                   :         : 8         :                
 GND                          : F9        : gnd    :                   :         :           :                
 RESERVED_INPUT               : F10       :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[4]       : F11       : output : 2.5 V             :         : 8         : N              
-RESERVED_INPUT               : F12       :        :                   :         : 8         :                
+SW_BENCHMARK_AP_OUT[3]       : F11       : output : 2.5 V             :         : 8         : N              
+SW_BENCHMARK_AP_OUT[7]       : F12       : output : 2.5 V             :         : 8         : N              
 GND                          : F13       : gnd    :                   :         :           :                
-RESERVED_INPUT               : F14       :        :                   :         : 8         :                
+SW_BENCHMARK_PCP_OUT[5]      : F14       : output : 2.5 V             :         : 8         : N              
 LEDR[14]                     : F15       : output : 2.5 V             :         : 7         : Y              
 GND                          : F16       : gnd    :                   :         :           :                
 RESERVED_INPUT               : F17       :        :                   :         : 7         :                
@@ -468,16 +468,16 @@ RESERVED_INPUT               : G9        :        :                   :         
 RESERVED_INPUT               : G10       :        :                   :         : 8         :                
 RESERVED_INPUT               : G11       :        :                   :         : 8         :                
 RESERVED_INPUT               : G12       :        :                   :         : 8         :                
-SW_BENCHMARK_AP_OUT[5]       : G13       : output : 2.5 V             :         : 8         : N              
-RESERVED_INPUT               : G14       :        :                   :         : 8         :                
+RESERVED_INPUT               : G13       :        :                   :         : 8         :                
+SW_BENCHMARK_PCP_OUT[3]      : G14       : output : 2.5 V             :         : 8         : N              
 LEDR[15]                     : G15       : output : 2.5 V             :         : 7         : Y              
 RESERVED_INPUT               : G16       :        :                   :         : 7         :                
 LEDR[9]                      : G17       : output : 2.5 V             :         : 7         : Y              
 HEX0[0]                      : G18       : output : 2.5 V             :         : 7         : Y              
 LEDR[0]                      : G19       : output : 2.5 V             :         : 7         : Y              
-RESERVED_INPUT               : G20       :        :                   :         : 7         :                
-RESERVED_INPUT               : G21       :        :                   :         : 7         :                
-RESERVED_INPUT               : G22       :        :                   :         : 7         :                
+LEDG[5]                      : G20       : output : 2.5 V             :         : 7         : Y              
+LEDG[7]                      : G21       : output : 2.5 V             :         : 7         : Y              
+LEDG[6]                      : G22       : output : 2.5 V             :         : 7         : Y              
 RESERVED_INPUT               : G23       :        :                   :         : 6         :                
 RESERVED_INPUT               : G24       :        :                   :         : 6         :                
 RESERVED_INPUT               : G25       :        :                   :         : 6         :                
@@ -497,14 +497,14 @@ RESERVED_INPUT               : H10       :        :                   :         
 VCCIO8                       : H11       : power  :                   : 2.5V    : 8         :                
 RESERVED_INPUT               : H12       :        :                   :         : 8         :                
 RESERVED_INPUT               : H13       :        :                   :         : 8         :                
-RESERVED_INPUT               : H14       :        :                   :         : 8         :                
+SW_BENCHMARK_PCP_OUT[4]      : H14       : output : 2.5 V             :         : 8         : N              
 RESERVED_INPUT               : H15       :        :                   :         : 7         :                
 LEDR[11]                     : H16       : output : 2.5 V             :         : 7         : Y              
 LEDR[13]                     : H17       : output : 2.5 V             :         : 7         : Y              
 VCCIO7                       : H18       : power  :                   : 2.5V    : 7         :                
 LEDR[7]                      : H19       : output : 2.5 V             :         : 7         : Y              
 GNDA2                        : H20       : gnd    :                   :         :           :                
-RESERVED_INPUT               : H21       :        :                   :         : 7         :                
+LEDG[4]                      : H21       : output : 2.5 V             :         : 7         : Y              
 HEX0[6]                      : H22       : output : 2.5 V             :         : 6         : Y              
 RESERVED_INPUT               : H23       :        :                   :         : 6         :                
 RESERVED_INPUT               : H24       :        :                   :         : 6         :                
@@ -525,7 +525,7 @@ RESERVED_INPUT               : J10       :        :                   :         
 GND                          : J11       : gnd    :                   :         :           :                
 RESERVED_INPUT               : J12       :        :                   :         : 8         :                
 RESERVED_INPUT               : J13       :        :                   :         : 8         :                
-RESERVED_INPUT               : J14       :        :                   :         : 8         :                
+SW_BENCHMARK_PCP_OUT[7]      : J14       : output : 2.5 V             :         : 8         : N              
 LEDR[10]                     : J15       : output : 2.5 V             :         : 7         : Y              
 LEDR[12]                     : J16       : output : 2.5 V             :         : 7         : Y              
 LEDR[8]                      : J17       : output : 2.5 V             :         : 7         : Y              
@@ -672,14 +672,14 @@ VCCINT                       : P17       : power  :                   : 1.2V    
 GND                          : P18       : gnd    :                   :         :           :                
 VCCINT                       : P19       : power  :                   : 1.2V    :           :                
 GND                          : P20       : gnd    :                   :         :           :                
-SW_BENCHMARK_AP_OUT[3]       : P21       : output : 2.5 V             :         : 5         : N              
+RESERVED_INPUT               : P21       :        :                   :         : 5         :                
 MSEL3                        : P22       :        :                   :         : 6         :                
 MSEL1                        : P23       :        :                   :         : 6         :                
 CONF_DONE                    : P24       :        :                   :         : 6         :                
-SW_BENCHMARK_PCP_OUT[7]      : P25       : output : 2.5 V             :         : 6         : N              
-RESERVED_INPUT               : P26       :        :                   :         : 6         :                
+SW_BENCHMARK_PCP_OUT[2]      : P25       : output : 2.5 V             :         : 6         : N              
+SW_BENCHMARK_PCP_OUT[1]      : P26       : output : 2.5 V             :         : 6         : N              
 RESERVED_INPUT               : P27       :        :                   :         : 6         :                
-SW_BENCHMARK_PCP_OUT[0]      : P28       : output : 2.5 V             :         : 6         : N              
+RESERVED_INPUT               : P28       :        :                   :         : 6         :                
 SDRAM_DQ[26]                 : R1        : bidir  : 3.3-V LVTTL       :         : 2         : Y              
 SDRAM_DQ[27]                 : R2        : bidir  : 3.3-V LVTTL       :         : 2         : Y              
 SDRAM_DQ[28]                 : R3        : bidir  : 3.3-V LVTTL       :         : 2         : Y              
@@ -701,7 +701,7 @@ VCCINT                       : R18       : power  :                   : 1.2V    
 GND                          : R19       : gnd    :                   :         :           :                
 VCCINT                       : R20       : power  :                   : 1.2V    :           :                
 RESERVED_INPUT               : R21       :        :                   :         : 5         :                
-SW_BENCHMARK_AP_OUT[0]       : R22       : output : 2.5 V             :         : 5         : N              
+RESERVED_INPUT               : R22       :        :                   :         : 5         :                
 RESERVED_INPUT               : R23       :        :                   :         : 5         :                
 KEY[3]                       : R24       : input  : 2.5 V             :         : 5         : Y              
 RESERVED_INPUT               : R25       :        :                   :         : 5         :                
@@ -732,8 +732,8 @@ RESERVED_INPUT               : T21       :        :                   :         
 RESERVED_INPUT               : T22       :        :                   :         : 5         :                
 GND                          : T23       : gnd    :                   :         :           :                
 VCCIO5                       : T24       : power  :                   : 2.5V    : 5         :                
-RESERVED_INPUT               : T25       :        :                   :         : 5         :                
-RESERVED_INPUT               : T26       :        :                   :         : 5         :                
+SW_BENCHMARK_AP_OUT[1]       : T25       : output : 2.5 V             :         : 5         : N              
+SW_BENCHMARK_AP_OUT[2]       : T26       : output : 2.5 V             :         : 5         : N              
 GND                          : T27       : gnd    :                   :         :           :                
 VCCIO5                       : T28       : power  :                   : 2.5V    : 5         :                
 SDRAM_DQ[31]                 : U1        : bidir  : 3.3-V LVTTL       :         : 2         : Y              
