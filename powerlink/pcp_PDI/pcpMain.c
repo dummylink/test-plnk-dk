@@ -47,7 +47,7 @@ tEplKernel PUBLIC AppCbEvent(
     tEplApiEventArg*        pEventArg_p,   ///< IN: event argument (union)
     void GENERIC*           pUserArg_p);
 
-tPcpCtrlReg		*pCtrlReg_g;               ///< ptr. to PCP control register
+tPcpCtrlReg		* volatile pCtrlReg_g;               ///< ptr. to PCP control register
 tCnApiInitParm 	initParm_g;                ///< Powerlink initialization parameter
 BOOL 			fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 int				iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)

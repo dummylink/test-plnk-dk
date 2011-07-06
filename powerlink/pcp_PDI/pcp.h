@@ -42,7 +42,7 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* global variables */
-extern tPcpCtrlReg     *pCtrlReg_g;       ///< ptr. to PCP control register
+extern tPcpCtrlReg     * volatile pCtrlReg_g;       ///< ptr. to PCP control register
 extern tCnApiInitParm  initParm_g;        ///< Powerlink initialization parameter
 extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after boot-up flag
 extern int             iSyncIntCycle_g;   ///< IR synchronization factor (multiple cycle time)
