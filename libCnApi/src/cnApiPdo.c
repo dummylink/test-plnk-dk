@@ -20,6 +20,10 @@
 #include "cnApiPdiSpi.h"
 #include "cnApiEvent.h"
 
+#ifdef AP_IS_BIG_ENDIAN
+#include "EplAmi.h"
+#endif
+
 #include <string.h>
 #include <unistd.h>
 #include <malloc.h>
@@ -140,6 +144,12 @@ static BOOL CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 	/* check if indices exist locally and setup copy table */
 	while(iCnt < wDescrEntries_p)
 	{
+#ifdef AP_IS_BIG_ENDIAN
+      pDescEntry->m_wPdoIndex = AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wPdoIndex));
+      pDescEntry->m_wOffset = AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wOffset));
+      pDescEntry->m_wSize = AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wSize));
+#endif
+
 		/* if object line up matches then acquire data pointer and size information from the linking table */
 	    fRet = CnApi_getObjectParam(pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, &wObjSize, &pObjAdrs);
 		if (fRet == FALSE                ||
@@ -155,7 +165,7 @@ static BOOL CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 		}
 		else
 		{   /* assign copy table element values */
-		    pCopyTbl->aEntry_m[wTblNum].pAdrs_m = pObjAdrs;
+		    pCopyTbl->aEntry_m[wTblNum].pAdrs_m = (BYTE*)pObjAdrs;
 		    pCopyTbl->aEntry_m[wTblNum].size_m = pDescEntry->m_wSize;
 		    pCopyTbl->aEntry_m[wTblNum].wPdoOfst = pDescEntry->m_wOffset;
 		    wTblNum++;
@@ -334,7 +344,11 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
         /* read all descriptors and setup the corresponding copy tables */
         for (iCnt = 0; iCnt < wNumDescr; ++iCnt)
         {
-            fRet = CnApi_readPdoDesc(pPdoDescHeader);
+#ifdef AP_IS_BIG_ENDIAN
+    pPdoDescHeader->m_wEntryCnt = AmiGetWordFromLe((BYTE*)&(pPdoDescHeader->m_wEntryCnt));
+#endif
+
+      fRet = CnApi_readPdoDesc(pPdoDescHeader);
             if (fRet != TRUE)
             {
                 Ret = kPdiAsyncStatusInvalidOperation;
@@ -343,7 +357,7 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
 
             /* get pointer to next descriptor */
             pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader) +
-                             (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry)));
+                             (pPdoDescHeader->m_wEntryCnt * sizeof(tPdoDescEntry)));
         }
     }
 
@@ -420,6 +434,10 @@ tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxM
     pLinkPdosResp->m_bDescrVers = LinkPdosResp_g.m_bDescrVers;
     pLinkPdosResp->m_wStatus = LinkPdosResp_g.m_wStatus;
 
+#ifdef AP_IS_BIG_ENDIAN
+    pLinkPdosResp->m_wStatus = AmiGetWordToLe((BYTE*)&(pLinkPdosResp->m_wStatus));
+#endif
+
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = sizeof(tLinkPdosResp); // sent size
 
@@ -473,7 +491,7 @@ BOOL CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p)
     tPdoDir bPdoDir;
     BOOL fRet = TRUE;
 
-    wNumDescrEntries = pPdoDescHeader_p->m_bEntryCnt;
+    wNumDescrEntries = pPdoDescHeader_p->m_wEntryCnt;
     bPdoDir = pPdoDescHeader_p->m_bPdoDir;
     wPdoBufNum = pPdoDescHeader_p->m_bBufferNum;
 

@@ -24,6 +24,10 @@ This module contains functions for the asynchronous transfer in the CN API libra
     #include "cnApiPdiSpi.h"
 #endif
 
+#ifdef AP_IS_BIG_ENDIAN
+   #include "EplAmi.h"
+#endif
+
 #include <string.h>
 #include <unistd.h>
 #include <stddef.h>
@@ -54,6 +58,19 @@ static tAsyncMsg LclCpyAsyncMsgHeader_l[4]; ///< local copy of asynchronous PDI 
 /******************************************************************************/
 /* private functions */
 static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void);
+
+#ifdef AP_IS_BIG_ENDIAN
+static inline void ConvertInitPcpRespEndian(tInitPcpResp* pDest, tInitPcpResp* pSrc) {
+   pDest->m_bReqId = pSrc->m_bReqId;
+   pDest->m_wStatus = AmiGetWordToLe((BYTE*)&(pSrc->m_wStatus));
+}
+static inline void ConvertCreateObjLksRespEndian(tCreateObjLksResp* pDest, tCreateObjLksResp* pSrc) {
+   pDest->m_bErrSubindex = pSrc->m_bErrSubindex;
+   pDest->m_bReqId = pSrc->m_bReqId;
+   pDest->m_wErrIndex = AmiGetWordToLe((BYTE*)&(pSrc->m_wErrIndex));
+   pDest->m_wStatus = AmiGetWordToLe((BYTE*)&(pSrc->m_wStatus));
+}
+#endif //AP_IS_BIG_ENDIAN
 
 /******************************************************************************/
 /* functions */
@@ -159,7 +176,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 #ifdef CN_API_USING_SPI
     TfrTyp = kPdiAsyncTrfTypeLclBuffering; // has to be buffered locally if serial interface is used
 #else
-    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
+    TfrTyp = kPdiAsyncTrfTypeLclBuffering; // for large messages
 #endif /* CN_API_USING_SPI */
 
     ChanType_p = kAsyncChannelInternal;
@@ -194,7 +211,6 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 #else
 //    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
-
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntWriteObjReq, Dir, CnApi_doWriteObjReq, pPdiBuf,
                         kPdiAsyncMsgIntWriteObjResp, TfrTyp, ChanType_p, pNmtList, wTout);
@@ -294,13 +310,13 @@ tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsg
     /* handle Tx Message */
     /* build up InitPcpReq */
     memset (pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    memcpy (&pInitPcpReq->m_abMac, pInitParm_g->m_abMac, sizeof(pInitParm_g->m_abMac));
-    pInitPcpReq->m_dwDeviceType = pInitParm_g->m_dwDeviceType;
-    pInitPcpReq->m_dwNodeId = pInitParm_g->m_bNodeId;
-    pInitPcpReq->m_dwRevision = pInitParm_g->m_dwRevision;
-    pInitPcpReq->m_dwSerialNum = pInitParm_g->m_dwSerialNum;
-    pInitPcpReq->m_dwVendorId = pInitParm_g->m_dwVendorId;
-    pInitPcpReq->m_dwProductCode = pInitParm_g->m_dwProductCode;
+    memcpy (&pInitPcpReq->m_abMac, pInitParmLE_g->m_abMac, sizeof(pInitParmLE_g->m_abMac));
+    pInitPcpReq->m_dwDeviceType = pInitParmLE_g->m_dwDeviceType;
+    pInitPcpReq->m_dwNodeId = pInitParmLE_g->m_bNodeId;
+    pInitPcpReq->m_dwRevision = pInitParmLE_g->m_dwRevision;
+    pInitPcpReq->m_dwSerialNum = pInitParmLE_g->m_dwSerialNum;
+    pInitPcpReq->m_dwVendorId = pInitParmLE_g->m_dwVendorId;
+    pInitPcpReq->m_dwProductCode = pInitParmLE_g->m_dwProductCode;
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 
@@ -431,11 +447,14 @@ tPdiAsyncStatus CnApi_doCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
         // no objects to be created -> exit;
         
         /* setup message header */
+#ifdef AP_IS_LITTLE_ENDIAN
         pCreateObjLksReq->m_wNumObjs = pMsgHdl->wCurObjs_m;
+#else // AP_IS_BIG_ENDIAN
+        pCreateObjLksReq->m_wNumObjs = AmiGetWordToLe(&pMsgHdl->wCurObjs_m);
+#endif // AP_IS_LITTLE_ENDIAN
         pCreateObjLksReq->m_bReqId = ++bReqId_l; 
         goto exit;
     }
-
     /* build up CreateObjReq */
     pDest = (char *) (pCreateObjLksReq + 1); // payload destination address of this message
     pData = (char *) pMsgHdl->pObj_m;        // payload source address
@@ -443,10 +462,27 @@ tPdiAsyncStatus CnApi_doCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
 
     DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Creating %d objects\n", pMsgHdl->wCurObjs_m);
 
+#ifdef AP_IS_LITTLE_ENDIAN
     memcpy(pDest, pData, dwDataLenght); // copy payload
-
+#else // AP_IS_BIG_ENDIAN
+    // copy payload, but convert Endian
+    {
+       tCnApiObjId* ptSrc = (tCnApiObjId*)pData;
+       tCnApiObjId* ptDest = (tCnApiObjId*)pDest;
+       tCnApiObjId* ptEnd = ptSrc + pMsgHdl->wCurObjs_m;
+       for (;ptSrc != ptEnd; ptSrc++, ptDest++) {
+          ptDest->m_wIndex = AmiGetWordToLe((BYTE*)&(ptSrc->m_wIndex));
+          ptDest->m_bSubIndex = ptSrc->m_bSubIndex;
+          ptDest->m_bNumEntries = ptSrc->m_bNumEntries;
+       }
+    }
+#endif // AP_IS_LITTLE_ENDIAN
     /* setup message header */
+#ifdef AP_IS_LITTLE_ENDIAN
     pCreateObjLksReq->m_wNumObjs = pMsgHdl->wCurObjs_m;
+#else // AP_IS_BIG_ENDIAN
+    pCreateObjLksReq->m_wNumObjs = AmiGetWordToLe(&pMsgHdl->wCurObjs_m);
+#endif // AP_IS_LITTLE_ENDIAN
     pCreateObjLksReq->m_bReqId = ++bReqId_l;
 
     /* update size values of message descriptors */
@@ -535,6 +571,10 @@ tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     tInitPcpResp *     pInitPcpResp = NULL;       ///< pointer to response message (Rx)
     tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
 
+#ifdef AP_IS_BIG_ENDIAN
+    tInitPcpResp InitPcpRespBE; ///< copy of InitPcpResponse in big endian byte order
+#endif // AP_IS_BIG_ENDIAN
+
     DEBUG_FUNC;
 
     /* check message descriptor */
@@ -551,8 +591,13 @@ tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
         goto exit;
     }
 
+#ifdef AP_IS_LITTLE_ENDIAN
     /* assign buffer payload addresses */
     pInitPcpResp = (tInitPcpResp *) pRxMsgBuffer_p;    // Rx buffer
+#else // AP_IS_BIG_ENDIAN
+    pInitPcpResp = &InitPcpRespBE;
+    ConvertInitPcpRespEndian(pInitPcpResp, (tInitPcpResp *) pRxMsgBuffer_p);
+#endif // AP_IS_LITTLE_ENDIAN
 
     /* handle Rx Message */
     DEBUG_TRACE0(DEBUG_LVL_10, "InitPcpResponse received.\n");
@@ -596,6 +641,11 @@ tPdiAsyncStatus CnApi_handleCreateObjLinksResp(tPdiAsyncMsgDescr * pMsgDescr_p, 
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
     tCnApiObjCreateObjLinksHdl * pMsgHdl;
 
+#ifdef AP_IS_BIG_ENDIAN
+    tCreateObjLksResp CreateObjLksRespBE; ///< copy of CreateObjLinksResponse message
+                                          ///< in big endian byte order
+#endif // AP_IS_BIG_ENDIAN
+
     DEBUG_FUNC;
 
     /* check message descriptor */
@@ -613,7 +663,12 @@ tPdiAsyncStatus CnApi_handleCreateObjLinksResp(tPdiAsyncMsgDescr * pMsgDescr_p, 
     }
 
     /* assign buffer payload addresses */
+#ifdef AP_IS_LITTLE_ENDIAN
     pCreateObjLksResp = (tCreateObjLksResp *) pRxMsgBuffer_p;    // Rx buffer
+#else // AP_IS_BIG_ENDIAN
+    pCreateObjLksResp = &CreateObjLksRespBE;
+    ConvertCreateObjLksRespEndian(pCreateObjLksResp, (tCreateObjLksResp *) pRxMsgBuffer_p);
+#endif //AP_IS_LITTLE_ENDIAN
 
     /* handle Rx Message */
     if (pCreateObjLksResp->m_bReqId != bReqId_l)

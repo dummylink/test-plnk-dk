@@ -24,6 +24,10 @@ application processor (AP).
 #include "cnApiPdiSpi.h"
 #include "cnApiEvent.h"
 
+#ifdef AP_IS_BIG_ENDIAN
+   #include "EplAmi.h"
+#endif
+
 #include <string.h>
 
 /******************************************************************************/
@@ -97,7 +101,11 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 
 #ifdef CN_API_USING_SPI
 	/* update control register before accessing it */
-    CnApi_Spi_read(PCP_CTRLREG_START_ADR, PCP_CTRLREG_SPAN, (BYTE*) pCtrlReg_g);
+    CnApi_Spi_read(PCP_CTRLREG_START_ADR, PCP_CTRLREG_SPAN, (BYTE*) pCtrlRegLE_g);
+#endif
+
+#ifdef AP_IS_BIG_ENDIAN
+    CnApi_GetCntrlRegfromLe(pCtrlReg_g, pCtrlRegLE_g);
 #endif
 
 	/* initialize asynchronous transfer functions */

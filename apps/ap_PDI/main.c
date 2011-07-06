@@ -63,6 +63,11 @@ a dual ported RAM (DPRAM) area.
     #define PDI_DPRAM_BASE_AP 0x00                              ///< no base address necessary
 #endif /* CN_API_USING_SPI */
 
+#ifndef USE_POLLING_MODE
+    #ifdef CN_API_INT_AVALON
+#error Dual-Nios design can not use 2 interrupts -> polling mode is required!
+    #endif //CN_API_INT_AVALON
+#endif //USE_POLLING_MODE
 
 #define NUM_INPUT_OBJS      4                                   ///< number of used input objects
 #define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects

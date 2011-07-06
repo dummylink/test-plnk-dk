@@ -457,11 +457,11 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 			}
 
 		}
-		pPdoDescHeader->m_bEntryCnt = bAddedDecrEntries;      ///< number of entries of this PDO descriptor
+		pPdoDescHeader->m_wEntryCnt = bAddedDecrEntries;      ///< number of entries of this PDO descriptor
 		pLinkPdoReq_p->m_bDescrCnt++;                         ///< update descriptor counter of LinkPdoReq message
 
         DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "setup PDO Descriptor %d : DIR:%d BufferNum:%d numObjs:%d\n"
-                ,pLinkPdoReq_p->m_bDescrCnt, bDirection_p, pPdoDescHeader->m_bBufferNum, pPdoDescHeader->m_bEntryCnt);
+                ,pLinkPdoReq_p->m_bDescrCnt, bDirection_p, pPdoDescHeader->m_bBufferNum, pPdoDescHeader->m_wEntryCnt);
 
 		/* prepare for next PDO */
 		wPdoDescSize = sizeof(tPdoDescHeader) + (bAddedDecrEntries * sizeof(tPdoDescEntry));
@@ -473,7 +473,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 exit:
     if (fRet != TRUE)
     {
-        pPdoDescHeader->m_bEntryCnt = 0;
+        pPdoDescHeader->m_wEntryCnt = 0;
     }
 
     return fRet;

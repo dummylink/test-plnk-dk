@@ -207,7 +207,7 @@ typedef enum ePdoDir {
 } tPdoDir;
 
 typedef struct sPdoDescHeader {
-	WORD	   m_bEntryCnt;
+	WORD	   m_wEntryCnt;
 	BYTE       m_bPdoDir;
 	BYTE       m_bBufferNum;
 } PACK_STRUCT tPdoDescHeader;
@@ -358,8 +358,11 @@ typedef struct sRPdoBuffer { ///< used to group buffer structure infos from cont
 
 /******************************************************************************/
 /* global variables */
-extern tCnApiInitParm *     pInitParm_g;    // pointer to POWERLINK init parameters
-extern tPcpCtrlReg *        pCtrlReg_g;		// pointer to PCP control registers
+/* global variables */
+extern tPcpCtrlReg      * volatile pCtrlReg_g;            // pointer to PCP control registers, CPU Endian
+extern tPcpCtrlReg      * volatile pCtrlRegLE_g;          // pointer to PCP control registers, Little Endian
+extern tCnApiInitParm   * volatile pInitParm_g;           // pointer to POWERLINK init parameters, CPU Endian
+extern tCnApiInitParm   * volatile pInitParmLE_g;         // pointer to POWERLINK init parameters, Little Endian
 
 /******************************************************************************/
 /* function declarations */
@@ -372,6 +375,8 @@ extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p);
 extern void CnApi_cleanupObjects(void);
 extern WORD CnApi_getNodeId(void);
+extern void CnApi_GetCntrlRegfromLe(tPcpCtrlReg * pDest_p, tPcpCtrlReg * pSrcLE_p);
+
 
 /* functions for interrupt synchronization */
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);

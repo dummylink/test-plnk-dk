@@ -28,6 +28,9 @@ the Tx and Rx direction towards and from the AP is handled.
 #include "cnApiAsyncSm.h"    ///< external function declarations
 #include "cnApiAsync.h"      ///< state machine constants
 #include "cnApiPdiSpi.h"     ///< serial interface
+#ifdef AP_IS_BIG_ENDIAN
+#include "EplAmi.h"
+#endif
 
 #include <malloc.h>
 #include <string.h>
@@ -86,6 +89,9 @@ static DWORD             dwTimeoutWait_l = 0;             ///< timeout counter
 
 tPdiAsyncPendingTransferContext PdiAsyncPendTrfContext_l;  ///< context of interrupted transfer
 
+/* endian conversion */
+tAsyncPdiBufCtrlHeader * pAsyncHeaderLE_l;
+
 /* list of connections from original message to response message */
 static tPdiAsyncMsgDescr aPdiAsyncTxMsgs[MAX_PDI_ASYNC_TX_MESSAGES] = {{0}};
 static BYTE                     bLinkLogCounter_l = 0;    ///< counter of current links
@@ -106,6 +112,15 @@ static BOOL CnApiAsync_restoreMsgContext(void);
 
 /******************************************************************************/
 /* private functions */
+#ifdef AP_IS_BIG_ENDIAN
+static inline void ConvertMessageHeaderEndian(tAsyncPdiBufCtrlHeader* pDest, tAsyncPdiBufCtrlHeader* pSrc) {
+   pDest->m_bChannel = pSrc->m_bChannel;
+   pDest->m_bMsgType = pSrc->m_bMsgType;
+   pDest->m_bSync = pSrc->m_bSync;
+   pDest->m_dwStreamLen = AmiGetDwordFromLe((BYTE*)&(pSrc->m_dwStreamLen));
+   pDest->m_wFrgmtLen = AmiGetWordFromLe((BYTE*)&(pSrc->m_wFrgmtLen));
+}
+#endif
 
 /**
 ********************************************************************************
@@ -301,6 +316,9 @@ FUNC_DOACT(kPdiAsyncStateWait)
     BYTE         bCurPdiChannelNum = INVALID_ELEMENT;   ///< current PDI channel number
     register BYTE bCnt = 0;                             ///< loop counter
     BYTE         bElement = INVALID_ELEMENT;            ///< function argument for getArrayNumOfMsgDescr()
+#ifdef AP_IS_BIG_ENDIAN
+    tAsyncPdiBufCtrlHeader AsyncHeaderTempLE;           ///< temporary storage for conversion to big endinan
+#endif // AP_IS_BIG_ENDIAN
 
     /* check if waiting for Rx message is required -> transit to  ASYNC_RX_PENDING*/
     if ((fRxTriggered == TRUE) || fTxTriggered == TRUE)
@@ -331,12 +349,22 @@ FUNC_DOACT(kPdiAsyncStateWait)
         {
             for (bCnt = 0; bCnt < PDI_ASYNC_CHANNELS_MAX; ++bCnt)
             {
+#ifdef AP_IS_LITTLE_ENDIAN
+                pAsyncHeaderLE_l = &aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header;
+#else // AP_IS_BIG_ENDIAN
+                pAsyncHeaderLE_l = &AsyncHeaderTempLE;
+#endif // AP_IS_LITTLE_ENDIAN
+
 #ifdef CN_API_USING_SPI
-    /* read PDI buffer header to local copy */
-    CnApi_Spi_read(aPcpPdiAsyncRxMsgBuffer_g[bCnt].wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
-                   sizeof(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header),
-                   (BYTE*) &aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header);
+                /* read PDI buffer header to local copy */
+                CnApi_Spi_read(aPcpPdiAsyncRxMsgBuffer_g[bCnt].wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                     sizeof(((tAsyncMsg *) 0)->m_header),
+                     (BYTE*) pAsyncHeaderLE_l);
 #endif /* CN_API_USING_SPI */
+
+#ifdef AP_IS_BIG_ENDIAN
+                ConvertMessageHeaderEndian(&(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header), pAsyncHeaderLE_l);
+#endif // AP_IS_BIG_ENDIAN
 
                 if (checkMsgPresence(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m))
                 {
@@ -347,16 +375,25 @@ FUNC_DOACT(kPdiAsyncStateWait)
         }
     }
 
-
     /* check if internal Rx message is available */
     for (bCnt = 0; bCnt < PDI_ASYNC_CHANNELS_MAX; ++bCnt)
     {
+#ifdef AP_IS_LITTLE_ENDIAN
+                pAsyncHeaderLE_l = &aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header;
+#else // AP_IS_BIG_ENDIAN
+                pAsyncHeaderLE_l = &AsyncHeaderTempLE;
+#endif // AP_IS_LITTLE_ENDIAN
+
 #ifdef CN_API_USING_SPI
-    /* read PDI buffer header to local copy */
-    CnApi_Spi_read(aPcpPdiAsyncRxMsgBuffer_g[bCnt].wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
-                   sizeof(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header),
-                   (BYTE*) &aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header);
+                /* read PDI buffer header to local copy */
+                CnApi_Spi_read(aPcpPdiAsyncRxMsgBuffer_g[bCnt].wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                     sizeof(((tAsyncMsg *) 0)->m_header),
+                     (BYTE*) pAsyncHeaderLE_l);
 #endif /* CN_API_USING_SPI */
+
+#ifdef AP_IS_BIG_ENDIAN
+                ConvertMessageHeaderEndian(&(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header), pAsyncHeaderLE_l);
+#endif // AP_IS_BIG_ENDIAN
 
         if (checkMsgPresence(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m) &&
             aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header.m_bChannel == kAsyncChannelInternal)
@@ -472,7 +509,13 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
     tPdiAsyncMsgDescr * pMsgDescr = NULL;   ///< pointer to current message descriptor
     WORD          wCopyLength   = 0;        ///< length of data to be copied (for local buffered transfer)
     DWORD         dwMaxBufPayload = 0;      ///< maximum payload for message storage
-    BYTE*         pCurLclMsgFrgmt = 0;      ///< pointer to currently handled local message fragment
+    BYTE *        pCurLclMsgFrgmt = 0;      ///< pointer to currently handled local message fragment
+    WORD *        pwCopyLengthLE = NULL;    ///< source pointer for fragment length write
+    DWORD *       pdwStreamLenLE = NULL;    ///< source pointer for fragment length write
+#ifdef AP_IS_BIG_ENDIAN
+    WORD          wCopyLengthTempLE;        ///< temporary storage for conversion to big endian
+    DWORD         dwStreamLenTempLE;        ///< temporary storage for conversion to big endian
+#endif // AP_IS_BIG_ENDIAN
 
     if (bActivTxMsg_l == INVALID_ELEMENT)
     {
@@ -536,17 +579,25 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             pCurLclMsgFrgmt = pMsgDescr->MsgHdl_m.pLclBuf_m +
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
-#ifdef CN_API_USING_SPI
-            /* write asynchronous message payload to PDI buffer */
-            CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
-                            wCopyLength,
-                            (BYTE*) pCurLclMsgFrgmt);
+#ifdef AP_IS_LITTLE_ENDIAN
+                pwCopyLengthLE = &wCopyLength;
+#else // AP_IS_BIG_ENDIAN
+                wCopyLengthTempLE = AmiGetWordToLe((BYTE*)&wCopyLength);
+                pwCopyLengthLE = &wCopyLengthTempLE;
+#endif // AP_IS_LITTLE_ENDIAN
 
-            /* write fragment length to PDI buffer header */
-            CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_FRMT_OFFSET,
-                            sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_wFrgmtLen),
-                            (BYTE*) &wCopyLength);
-#else
+#ifdef CN_API_USING_SPI
+                /* write asynchronous message payload to PDI buffer */
+                CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
+                                wCopyLength,
+                                (BYTE*) pCurLclMsgFrgmt);
+
+                /* write fragment length to PDI buffer header */
+                CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_FRMT_OFFSET,
+                      sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_wFrgmtLen),
+                      (BYTE*) pwCopyLengthLE);
+#else /* CN_API_USING_SPI */
+
             /* write asynchronous message payload to PDI buffer */
             memcpy(&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
 
@@ -600,23 +651,33 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
 
     // Note: Buffer is assumed to be available since this state was entered. No sync check necessary.
     /* setup PDI buffer control header */
-    pUtilTxPdiBuf->m_header.m_bChannel =  pMsgDescr->Param_m.ChanType_m;
-    pUtilTxPdiBuf->m_header.m_bMsgType = pMsgDescr->MsgType_m;
-    pUtilTxPdiBuf->m_header.m_dwStreamLen = pMsgDescr->dwMsgSize_m;
+
+#ifdef AP_IS_LITTLE_ENDIAN
+    pdwStreamLenLE = &pMsgDescr->dwMsgSize_m;
+#else // AP_IS_BIG_ENDIAN
+    dwStreamLenTempLE = AmiGetDwordToLe((BYTE*) &(pMsgDescr->dwMsgSize_m));
+    pdwStreamLenLE = &dwStreamLenTempLE;
+#endif // AP_IS_LITTLE_ENDIAN
+
 #ifdef CN_API_USING_SPI
     /* update channel type of PCP PDI buffer header */
     CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_CHAN_OFFSET,
                     sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bChannel),
-                    (BYTE*) &pUtilTxPdiBuf->m_header.m_bChannel);
+                    (BYTE*) &pMsgDescr->Param_m.ChanType_m);
     /* update message type of PCP PDI buffer header */
     CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_MSGT_OFFSET,
                     sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bMsgType),
-                    (BYTE*) &pUtilTxPdiBuf->m_header.m_bMsgType);
+                    (BYTE*) &pMsgDescr->MsgType_m);
     /* update stream lenght of PCP PDI buffer header */
-    CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_STRM_OFFSET,
-                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_dwStreamLen),
-                    (BYTE*) &pUtilTxPdiBuf->m_header.m_dwStreamLen);
+     CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_STRM_OFFSET,
+                     sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_dwStreamLen),
+                     (BYTE*) pdwStreamLenLE);
+#else
+     pUtilTxPdiBuf->m_header.m_bChannel =  pMsgDescr->Param_m.ChanType_m;
+     pUtilTxPdiBuf->m_header.m_bMsgType = pMsgDescr->MsgType_m;
+     pUtilTxPdiBuf->m_header.m_dwStreamLen = *pdwStreamLenLE;
 #endif /* CN_API_USING_SPI */
+
 
     setBuffToReadOnly(pUtilTxPdiBuf); // set sync flag
 #ifdef CN_API_USING_SPI
@@ -845,6 +906,9 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     BYTE *        pRespChan = NULL;         ///< pointer to Tx response message payload
     BYTE *        pRxChan = NULL;           ///< pointer to Rx message payload
     BYTE          bElement = INVALID_ELEMENT;///< function argument for getArrayNumOfMsgDescr()
+#ifdef AP_IS_BIG_ENDIAN
+    tAsyncPdiBufCtrlHeader AsyncHeaderTempLE; ///< temporary storage for conversion to big endinan
+#endif // AP_IS_BIG_ENDIAN
 
     if (bActivRxMsg_l == INVALID_ELEMENT)
     {
@@ -859,12 +923,22 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     pUtilRxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m; //assign Pdi Rx buffer which this message wants to use
 
     /* verify message type */
+#ifdef AP_IS_LITTLE_ENDIAN
+                pAsyncHeaderLE_l = &pUtilRxPdiBuf->m_header;
+#else // AP_IS_BIG_ENDIAN
+                pAsyncHeaderLE_l = &AsyncHeaderTempLE;
+#endif // AP_IS_LITTLE_ENDIAN
+
 #ifdef CN_API_USING_SPI
-    /* read PDI buffer header to local copy */
-    CnApi_Spi_read(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
-                   sizeof(((tAsyncMsg *) 0)->m_header),
-                   (BYTE*) pUtilRxPdiBuf);
+                /* read PDI buffer header to local copy */
+                CnApi_Spi_read(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                               sizeof(((tAsyncMsg *) 0)->m_header),
+                               (BYTE*) pAsyncHeaderLE_l);
 #endif /* CN_API_USING_SPI */
+
+#ifdef AP_IS_BIG_ENDIAN
+                ConvertMessageHeaderEndian(&(pUtilRxPdiBuf->m_header), pAsyncHeaderLE_l);
+#endif // AP_IS_BIG_ENDIAN
 
     if (pUtilRxPdiBuf->m_header.m_bMsgType != pMsgDescr->MsgType_m)
     {
@@ -956,10 +1030,10 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
 #ifdef CN_API_USING_SPI
-            /* write asynchronous message payload to PDI buffer */
-            CnApi_Spi_read(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
-                            wCopyLength,
-                            (BYTE*) pCurLclMsgFrgmt);
+         /* write asynchronous message payload to PDI buffer */
+         CnApi_Spi_read(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
+                        wCopyLength,
+                        (BYTE*) pCurLclMsgFrgmt);
 #else
             /* copy local buffer fragment into the PDI buffer */
             memcpy(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
@@ -1233,6 +1307,10 @@ exit:
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPdiAsyncRxStatePending)
 {
+#ifdef AP_IS_BIG_ENDIAN
+    tAsyncPdiBufCtrlHeader AsyncHeaderTempLE;           ///< temporary storage for conversion to big endinan
+#endif // AP_IS_BIG_ENDIAN
+
     if (fError == TRUE)
     {
         goto exit;
@@ -1262,12 +1340,22 @@ FUNC_DOACT(kPdiAsyncRxStatePending)
         }
     }
 
+#ifdef AP_IS_LITTLE_ENDIAN
+                pAsyncHeaderLE_l = &aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header;
+#else // AP_IS_BIG_ENDIAN
+                pAsyncHeaderLE_l = &AsyncHeaderTempLE;
+#endif // AP_IS_LITTLE_ENDIAN
+
 #ifdef CN_API_USING_SPI
-    /* read PDI buffer header to local copy */
-    CnApi_Spi_read(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
-                   sizeof(((tAsyncMsg *) 0)->m_header),
-                   (BYTE*) &aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header);
+                /* read PDI buffer header to local copy */
+                CnApi_Spi_read(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGHEADER_OFFSET,
+                               sizeof(((tAsyncMsg *) 0)->m_header),
+                               (BYTE*) pAsyncHeaderLE_l);
 #endif /* CN_API_USING_SPI */
+
+#ifdef AP_IS_BIG_ENDIAN
+                ConvertMessageHeaderEndian(&(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header), pAsyncHeaderLE_l);
+#endif // AP_IS_BIG_ENDIAN
 
     /* check if fragment is present */
     if (checkMsgPresence(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m))

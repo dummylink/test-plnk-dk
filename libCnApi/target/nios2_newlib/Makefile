@@ -95,17 +95,19 @@ ACDS_VERSION := 9.1sp2
 LIB_NAME := CnApi
 
 # Paths to C, C++, and assembly source files.
+C_SRCS += ../../src/amibe.c
 C_SRCS += ../../src/cnApi.c
 C_SRCS += ../../src/cnApiAsync.c
 C_SRCS += ../../src/cnApiAsyncSm.c
 C_SRCS += ../../src/cnApiEvent.c
 C_SRCS += ../../src/cnApiObjects.c
+C_SRCS += ../../src/cnApiPdiSpi.c
 C_SRCS += ../../src/cnApiPdo.c
 C_SRCS += ../../src/cnApiStateMachine.c
-C_SRCS += ../../src/cnApiPdiSpi.c
 C_SRCS += ../../utils/stateMachine.c
 CXX_SRCS :=
 ASM_SRCS :=
+
 
 
 # Path to root of object file tree.
