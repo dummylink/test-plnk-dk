@@ -22,7 +22,9 @@ POWERLINK CN generic interface.
 #include "cnApiEvent.h"
 #include "pcp.h"
 
+#ifdef __NIOS2__
 #include "system.h"
+#endif // __NIOS2__
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
 

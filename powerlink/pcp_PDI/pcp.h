@@ -16,7 +16,9 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* includes */
+#ifdef __NIOS2__
 #include "system.h"
+#endif // __NIOS2__
 #include "cnApi.h"
 #include "cnApiAsync.h"
 #include "Debug.h"

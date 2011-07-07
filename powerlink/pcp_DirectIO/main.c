@@ -16,13 +16,15 @@
 /* includes */
 #include "Epl.h"
 
+#ifdef __NIOS2__
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
-#include "FpgaCfg.h"
 #include <sys/alt_cache.h>
-#include <unistd.h>
+#endif // __NIOS2__
 
+#include <unistd.h>
+#include "FpgaCfg.h"
 #include "omethlib.h"
 
 #ifdef LCD_BASE

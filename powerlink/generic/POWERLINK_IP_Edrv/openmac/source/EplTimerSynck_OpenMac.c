@@ -72,11 +72,12 @@
 #include "Benchmark.h"
 
 #include "omethlib.h"
+#ifdef __NIOS2__
 #include "system.h"
 #include <sys/alt_irq.h>
 #include <alt_types.h>
 #include <io.h>
-
+#endif // __NIOS2__
 
 /***************************************************************************/
 /*                                                                         */

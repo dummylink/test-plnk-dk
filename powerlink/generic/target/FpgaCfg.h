@@ -24,7 +24,9 @@
 /* includes */
 #include "global.h"
 #include "debug.h"
+#ifdef __NIOS2__
 #include "system.h"
+#endif // __NIOS2__
 
 /******************************************************************************/
 /* defines */

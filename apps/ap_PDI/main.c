@@ -29,16 +29,21 @@ a dual ported RAM (DPRAM) area.
 #include "cnApiAsync.h"
 #include "cnApiEvent.h"
 
+#ifdef __NIOS2__
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
-#ifdef CN_API_USING_SPI
-#include "altera_avalon_spi.h"
-#include "cnApiPdiSpi.h"
-#endif
 #include "alt_types.h"
 #include <sys/alt_cache.h>
 #include <sys/alt_irq.h>
 #include <io.h>
+#endif // __NIOS2__
+
+#ifdef CN_API_USING_SPI
+#ifdef __NIOS2__
+#include "altera_avalon_spi.h"
+#endif // __NIOS2__
+#include "cnApiPdiSpi.h"
+#endif // CN_API_USING_SPI
 
 #include <unistd.h>
 #include <string.h>

@@ -61,8 +61,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "edrv.h"
 #include "Benchmark.h"
 
-#include "system.h"     // FPGA system definitions
-#include "omethlib.h"   // openMAC header
+#ifdef __NIOS2__
+#include "system.h" // FPGA system definitions
+#endif // __NIOS2__
+#include "omethlib.h" // openMAC header
 
 #include "EplTgtTimeStamp_openMac.h"
 
