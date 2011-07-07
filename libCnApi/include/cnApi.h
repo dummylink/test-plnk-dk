@@ -20,7 +20,9 @@ This header file contains definitions for the CN API.
 #include "cnApiDebug.h"
 #include "cnApiGlobal.h"     // global definitions
 #include "cnApiCfg.h"
+#ifdef __NIOS2__
 #include "system.h"
+#endif // __NIOS2__
 
 
 /******************************************************************************/
