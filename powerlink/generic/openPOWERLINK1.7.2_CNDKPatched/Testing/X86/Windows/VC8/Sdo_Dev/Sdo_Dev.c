@@ -27,7 +27,6 @@
   2006/06/26 k.t.:   start of the implementation
 
 ****************************************************************************/
-
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <conio.h>
@@ -110,21 +109,21 @@ static BYTE    bTargetNodeId_l;
 // this function prototype here. If you want to use more than one Epl
 // instances then the function name of each object dictionary has to differ.
 
-tEplKernel PUBLIC  EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
+tEplKernel   EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
 
-static tEplKernel PUBLIC EplAppSdoConnectionCb(tEplSdoComFinished* pSdoComFinished_p);
+static tEplKernel  EplAppSdoConnectionCb(tEplSdoComFinished* pSdoComFinished_p);
 
 static void EplAppPrintMenue(void);
 
 static void EplAppDumpData(void*         pData_p,
                            unsigned long ulDataSize_p);
 
-static tEplKernel PUBLIC EplAppCbAccessFinished(tEplObdParam* pObdParam_p);
+static tEplKernel EplAppCbAccessFinished(tEplObdParam* pObdParam_p);
 
-static tEplKernel PUBLIC EplAppProcessEvent(
+static tEplKernel  EplAppProcessEvent(
             tEplEvent* pEplEvent_p);
 
-static tEplKernel PUBLIC EplAppCbDefaultObdAccess(tEplObdParam MEM* pParam_p);
+static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pParam_p);
 
 
 /***************************************************************************/
@@ -1446,7 +1445,7 @@ Exit:
 //
 //---------------------------------------------------------------------------
 
-static tEplKernel PUBLIC EplAppProcessEvent(
+static tEplKernel  EplAppProcessEvent(
             tEplEvent* pEplEvent_p)
 {
 tEplKernel          Ret = kEplSuccessful;
@@ -1514,7 +1513,7 @@ Exit:
 //
 //---------------------------------------------------------------------------
 
-static tEplKernel PUBLIC EplAppCbAccessFinished(tEplObdParam* pObdParam_p)
+static tEplKernel  EplAppCbAccessFinished(tEplObdParam* pObdParam_p)
 {
 tEplKernel      Ret;
 
@@ -1562,6 +1561,8 @@ tEplKernel      Ret;
             break;
     }
 
+
+    //TODO: free handle ?
     return Ret;
 }
 
@@ -1582,7 +1583,7 @@ tEplKernel      Ret;
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel PUBLIC  EplAppSdoConnectionCb(tEplSdoComFinished*  pSdoComFinished_p)
+static tEplKernel   EplAppSdoConnectionCb(tEplSdoComFinished*  pSdoComFinished_p)
 {
 tEplKernel Ret;
 
@@ -1664,7 +1665,7 @@ return Ret;
 //
 //---------------------------------------------------------------------------
 
-tEplKernel PUBLIC EplAppCbObdAccess(tEplObdParam MEM* pParam_p)
+tEplKernel  EplAppCbObdAccess(tEplObdParam MEM* pParam_p)
 {
 tEplKernel          Ret = kEplSuccessful;
 
@@ -1736,7 +1737,7 @@ Exit:
 //
 //---------------------------------------------------------------------------
 
-static tEplKernel PUBLIC EplAppCbDefaultObdAccess(tEplObdParam MEM* pParam_p)
+static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pParam_p)
 {
 tEplKernel          Ret = kEplSuccessful;
 
@@ -1772,9 +1773,10 @@ tEplKernel          Ret = kEplSuccessful;
 
         if (pParam_p->m_ObdEvent == kEplObdEvInitWriteLe)
         {
-            EplAppDumpData(pParam_p->m_pData, min (pParam_p->m_SegmentSize, 256));
+            //TODO: write to target: pParam_p->m_pData, min (pParam_p->m_SegmentSize, 256)
         }
 
+        // safe Obd-access handle for adopted callback function
         if (pParam_p->m_pfnAccessFinished == NULL)
         {
             pParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
