@@ -242,6 +242,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
+    EplApiInitParam.m_pfnDefaultObdCallback = EplAppCbDefaultObdAccess; // called if objects do not exist in local OBD
 	EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 
 	DEBUG_TRACE1(DEBUG_LVL_09, "INFO: NODE ID is set to 0x%02x\n", EplApiInitParam.m_uiNodeId);
@@ -556,6 +557,12 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 default:
                 break;
             }
+            break;
+        }
+
+        case kEplApiEventUserDef:
+        {
+
             break;
         }
 
@@ -910,6 +917,288 @@ exit:
 #ifdef STATUS_LED_PIO_BASE
 #warning Deprecated! Deactivate STATUS_LED_PIO_BASE in SOPC-Builder!
 #endif
+
+static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pParam_p)
+{
+tEplKernel          Ret = kEplSuccessful;
+
+    printf("EplAppCbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u\n"
+           "                         ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+        pParam_p->m_uiIndex, pParam_p->m_uiSubIndex,
+        pParam_p->m_ObdEvent,
+        pParam_p->m_pData, pParam_p->m_SegmentOffset, pParam_p->m_SegmentSize,
+        pParam_p->m_ObjSize, pParam_p->m_TransferSize, pParam_p->m_Access, pParam_p->m_Type);
+
+    switch (pParam_p->m_ObdEvent)
+    {
+        case kEplObdEvCheckExist:
+        {
+            // Object does not exist in object dictionary -> user has to handle this case!
+            // Do not return "kEplObdAccessAdopted"!
+
+            // TODO: check if write access to read only object is allowed
+            // this is the case if the caller is local (not via remote SDO)
+
+            // TODO: Do I need to assing the object size and decide the type of transfer (segmented or not?)
+            // ->check when e.g. EplSdoComServerInitWriteByIndex() will be called
+
+            if (pParam_p->m_uiIndex != 0x2500)
+            {
+                printf("  Object does not exist!\n");
+                pParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                Ret = kEplObdIndexNotExist;
+                goto Exit;
+            }
+
+            if (pParam_p->m_uiSubIndex > 10)
+            {
+                printf("  Sub-index does not exist!\n");
+                pParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+                Ret = kEplObdSubindexNotExist;
+                goto Exit;
+            }
+            break;
+        }
+
+        case kEplObdEvInitWriteLe:
+        { // do not return kEplSuccessful in this case,
+          // only error or kEplObdAccessAdopted is allowed!
+
+            //TODO:
+            /*
+             The application which wants to adopt OD accesses has to support multiple adopted
+transfers at the same time. E.g. in case of SDO writes the SDO server receives
+several SDO segments (up to the number of history entries) without the possibility to
+interrupt the stream from the SDO client. TODO: Why not possible???
+The currently received segment is written to
+the OD immediately when it is received. This new write access has to be adopted by
+the OD callback function even if the write of the previous segment has not been
+finished yet. TODO: How often???
+The transmission of the SDO Sequence Layer Acknowledge will be
+delayed until the write access has been completed. TODO: So why it it not possible to interrupt the stream then ???
+             */
+
+              tEplObdParam*   pMyObdParam;
+              tEplTimerArg    TimerArg;
+              tEplTimerHdl    EplTimerHdl;
+
+              if (pParam_p->m_ObdEvent == kEplObdEvInitWriteLe)
+              {
+                  //TODO: write to target: pParam_p->m_pData, min (pParam_p->m_SegmentSize, 256)
+              }
+
+              // save Obd-access handle for adopted callback function
+              if (pParam_p->m_pfnAccessFinished == NULL)
+              {
+                  pParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                  Ret = kEplObdAccessViolation;
+                  goto Exit;
+              }
+
+              pMyObdParam = EPL_MALLOC(sizeof (*pMyObdParam));
+              if (pMyObdParam == NULL)
+              {
+                  Ret = kEplObdOutOfMemory;
+                  pParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                  goto Exit;
+              }
+
+              EPL_MEMCPY(pMyObdParam, pParam_p, sizeof (*pMyObdParam));
+
+              TimerArg.m_EventSink = kEplEventSinkApi;
+              TimerArg.m_Arg.m_pVal = pMyObdParam;
+
+              Ret = EplTimeruSetTimerMs(&EplTimerHdl,
+                                          2000,
+                                          TimerArg);
+
+              // forward "pMyObdParam" which has to be returned in callback,
+              // so callback can access the Obd-access handle and SDO communication handle
+
+              // TODO: send message to AP
+
+              // TODO simulate answer in ProcessEvent():
+              // AP returns answer (including address) -> call EplAppCbObdAdoptedAccessFinished:
+
+              // Note: pParam_p->m_pHandle is SDO connection handle and has to be returned in pfnAccessFinished to SDO command layer;
+
+              Ret = kEplObdAccessAdopted;
+              printf("  Adopted\n");
+              goto Exit;
+        }
+
+        case kEplObdEvPreRead:
+        { // do not return kEplSuccessful in this case,
+          // only error or kEplObdAccessAdopted or kEplObdSegmentReturned is allowed!
+
+            // Note: kEplObdAccessAdopted can only be returned for expedited (non-fragmented) reads!
+            // Adopted access is not yet implemented for segmented kEplObdEvPreRead.
+            // Thus, kEplObdSegmentReturned has to be returned in this case! This requires immediate access to
+            // the read source data.
+
+            // TODO: decide if Adopted or regular access according to Index
+            // adopt the transfer in case of read access
+
+        }
+
+        default:
+        break;
+    }
+
+Exit:
+    return Ret;
+}
+
+//---------------------------------------------------------------------------
+//
+// Function:    EplAppCbAccessFinished();
+//
+// Description: function is called by the adopter of the OD access
+//
+// Parameters:  pObdParam_p     = pointer to OBD parameter structure
+//
+// Returns:     tEplKernel  =  errorcode
+//
+// State:
+//
+//---------------------------------------------------------------------------
+
+/**
+ ********************************************************************************
+ \brief called by the adopter of the OD access
+ \paramp pObdParam_p pointer to OBD access handle
+ \return tEplKernel
+
+ The origin of the OD access was and SDO transfer. An adopted OD access knew about
+ this origin and assigned this callback function to an allocated handle. This handle
+ will be valid until it is freed. It can only be accessed by its constant address,
+ which was forwarded to the adopted OD access sink.
+ *******************************************************************************/
+static tEplKernel EplAppCbObdAdoptedAccessSourceSdoFinished(tEplObdParam* pObdParam_p)
+{
+    tEplSdoComCon *     pSdoHdl; ///< pointer to handle of SDO command layer connection
+    tEplKernel          Ret;
+
+    Ret = kEplSuccessful;
+
+    printf("0x%04X/0x%02X finished %u bytes transferred\n(Abortcode: 0x%04x Handle: 0x%x)\n",
+        pObdParam_p->m_uiIndex,
+        pObdParam_p->m_uiSubIndex,
+        pObdParam_p->m_SegmentSize,
+        pObdParam_p->m_dwAbortCode,
+        pObdParam_p->m_pHandle);
+
+    // m_pHandle is assumed to be an SDO handle because this function was called
+    pSdoHdl = (tEplSdoComCon*) pObdParam_p->m_pHandle;
+    if (pSdoHdl == NULL)
+    {
+        Ret = kEplSdoComInvalidHandle;
+        goto Exit;
+    }
+
+    // update Sdo communication handle
+    pSdoHdl->m_dwLastAbortCode = pObdParam_p->m_dwAbortCode;
+    pSdoHdl->m_pData = pObdParam_p->m_pData;
+
+    // send SDO response
+    if (pObdParam_p->m_dwAbortCode != 0)
+    {   //send SDO abort if abort code is preset
+
+        Ret = EplSdoComServerSendFrameIntern(
+                pSdoHdl,
+                pObdParam_p->m_uiIndex,
+                pObdParam_p->m_uiSubIndex,
+                kEplSdoComSendTypeAbort);
+
+        goto Exit;
+    }
+    else
+    {   // send SDO response
+
+        switch (pObdParam_p->m_ObdEvent)
+        {
+            case kEplObdEvPreRead:
+            {
+                printf("Local read of object ");
+
+                if (pSdoHdl->m_SdoTransType == kEplSdoTransSegmented)
+                {
+                    printf("Error: kEplSdoTransSegmented not supported for adopted transfers yet!\n");
+                    Ret = kEplObdReadViolation;
+                    goto Exit;
+                }
+
+                pSdoHdl->m_uiTransSize = pObdParam_p->m_ObjSize; // TODO: how does Send function send frames larger then EPL_SDO_MAX_PAYLOAD?
+                                                                 // Do we have to take care here about retransmission?
+                // forward to SDO command layer
+                Ret= EplSdoComServerSendFrameIntern(
+                        pSdoHdl,
+                        0,
+                        0,
+                        kEplSdoComSendTypeRes);
+
+                break;
+            }
+
+            case kEplObdEvInitWriteLe:
+            {
+                printf("Local write of object ");
+
+                // TODO: do I need to update any size information?
+                // pSdoHdl->m_uiTransSize = ?;
+                // pSdoHdl->m_uiTransferredByte = ?;
+
+                // forward to SDO command layer
+                Ret= EplSdoComServerSendFrameIntern(
+                        pSdoHdl,
+                        0,
+                        0,
+                        kEplSdoComSendTypeAckRes);
+
+                break;
+            }
+
+            default:
+            {
+                printf("Invalid Obd Event!");
+                break;
+            }
+        }
+    }
+
+    // dump data to stdout
+    switch (pObdParam_p->m_SegmentSize)
+    {
+        case 0:
+            printf("no Bytes transfered\n");
+            break;
+
+        case 1:
+            printf("BYTE: 0x%02X\n", (WORD)AmiGetByteFromLe(pObdParam_p->m_pData));
+            break;
+
+        case 2:
+            printf("WORD: 0x%04X\n", AmiGetWordFromLe(pObdParam_p->m_pData));
+            break;
+
+        case 3:
+            printf("3 BYTEs: 0x%06X\n", AmiGetDword24FromLe(pObdParam_p->m_pData));
+            break;
+
+        case 4:
+            printf("DWORD: 0x%08X\n", AmiGetDwordFromLe(pObdParam_p->m_pData));
+            break;
+
+        default:
+            EplAppDumpData(pObdParam_p->m_pData, min (pObdParam_p->m_SegmentSize, 256));
+            break;
+    }
+
+Exit:
+    // free handle
+    EPL_FREE(pObdParam_p);
+    return Ret;
+}
 
 /* EOF */
 /*********************************************************************************/
