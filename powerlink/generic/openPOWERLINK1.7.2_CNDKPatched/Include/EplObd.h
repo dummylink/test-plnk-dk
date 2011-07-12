@@ -132,7 +132,7 @@ typedef enum
     kEplObdEvPostRead              = 0x01,    // after reading an object                                destination data buffer from caller
     kEplObdEvPostReadLe            = 0x08,    // after reading an object                                destination data buffer from caller in little endian
     kEplObdEvWrStringDomain        = 0x07,    // event for changing string/domain data pointer or size  struct tEplObdVStringDomain in RAM
-    kEplObdEvInitWrite             = 0x04,    // initializes writing an object (checking object size)   size of object in OD (tEplObdSize)
+    kEplObdEvInitWrite             = 0x05,    // initializes writing an object (checking object size)   size of object in OD (tEplObdSize)
     kEplObdEvInitWriteLe           = 0x04,    // initializes writing an object (checking object size)   size of object in OD (tEplObdSize)
     kEplObdEvPreWrite              = 0x02,    // before writing an object                               source data buffer from caller
     kEplObdEvPostWrite             = 0x03,    // after writing an object                                destination data buffer in OD
@@ -426,6 +426,22 @@ typedef struct
 struct _tEplObdParam;
 
 typedef struct _tEplObdParam tEplObdParam;
+
+typedef enum
+{
+    kEplObdDefAccHdlProcessingFinished  =   0x00,
+    kEplObdDefAccHdlWaitProcessing      =   0x01,
+    kEplObdDefAccHdlInUse               =   0x02,
+
+
+} tEplObdDefAccStatus;
+
+typedef struct sDefObdAccHdl
+{
+    tEplObdDefAccStatus m_Status;
+    tEplObdParam * m_pObdParam;
+
+} tDefObdAccHdl;
 
 typedef tEplKernel (PUBLIC ROM* tEplObdCbAccessFinished) (/*EPL_MCO_DECL_INSTANCE_HDL_*/
     tEplObdParam MEM* pParam_p);

@@ -209,7 +209,8 @@ typedef enum
     kEplSdoTypeAuto  =   0x00,
     kEplSdoTypeUdp   =   0x01,
     kEplSdoTypeAsnd  =   0x02,
-    kEplSdoTypePdo   =   0x03
+    kEplSdoTypePdo   =   0x03,
+    kEplSdoTypeApi   =   0x04    // forward to Application Interface
 
 }tEplSdoType;
 

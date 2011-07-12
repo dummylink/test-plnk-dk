@@ -252,6 +252,8 @@
 //#define EPL_API_PROCESS_IMAGE_SIZE_IN 0 //disable
 //#define EPL_API_PROCESS_IMAGE_SIZE_OUT 0 //disable
 
+#define TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+
 #endif //_EPLCFG_H_
 
 

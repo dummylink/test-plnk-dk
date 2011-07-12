@@ -86,132 +86,6 @@
 
 #endif
 
-/***************************************************************************/
-/*                                                                         */
-/*                                                                         */
-/*          G L O B A L   D E F I N I T I O N S                            */
-/*                                                                         */
-/*                                                                         */
-/***************************************************************************/
-
-//---------------------------------------------------------------------------
-// const defines
-//---------------------------------------------------------------------------
-
-#ifndef EPL_MAX_SDO_COM_CON
-#define EPL_MAX_SDO_COM_CON         5
-#endif
-
-
-//---------------------------------------------------------------------------
-// local types
-//---------------------------------------------------------------------------
-
-// intern events
-typedef enum
-{
-    kEplSdoComConEventSendFirst     = 0x00, // first frame to send
-    kEplSdoComConEventRec           = 0x01, // frame received
-    kEplSdoComConEventConEstablished= 0x02, // connection established
-    kEplSdoComConEventConClosed     = 0x03, // connection closed
-    kEplSdoComConEventAckReceived   = 0x04, // acknowledge received by lower layer
-                                        // -> continue sending
-    kEplSdoComConEventFrameSended   = 0x05, // lower has send a frame
-    kEplSdoComConEventInitError     = 0x06, // error duringinitialisiation
-                                            // of the connection
-    kEplSdoComConEventTimeout       = 0x07, // timeout in lower layer
-    kEplSdoComConEventTransferAbort = 0x08, // transfer abort by lower layer
-#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
-
-    kEplSdoComConEventInitCon       = 0x09, // init connection (only client)
-    kEplSdoComConEventAbort         = 0x0A, // abort sdo transfer (only client)
-#endif
-
-
-}tEplSdoComConEvent;
-
-typedef enum
-{
-    kEplSdoComSendTypeReq      = 0x00,  // send a request
-    kEplSdoComSendTypeAckRes   = 0x01,  // send a resonse without data
-    kEplSdoComSendTypeRes      = 0x02,  // send response with data
-    kEplSdoComSendTypeAbort    = 0x03   // send abort
-
-}tEplSdoComSendType;
-
-// state of the state maschine
-typedef enum
-{
-    // General State
-    kEplSdoComStateIdle             = 0x00, // idle state
-
-#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOS)) != 0)
-    // Server States
-    kEplSdoComStateServerSegmTrans  = 0x01, // send following frames
-#endif
-
-
-#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
-    // Client States
-    kEplSdoComStateClientWaitInit   = 0x10, // wait for init connection
-                                            // on lower layer
-    kEplSdoComStateClientConnected  = 0x11, // connection established
-    kEplSdoComStateClientSegmTrans  = 0x12  // send following frames
-#endif
-
-
-
-} tEplSdoComState;
-
-
-// control structure for transaction
-typedef struct
-{
-    tEplSdoSeqConHdl    m_SdoSeqConHdl;     // if != 0 -> entry used
-    tEplSdoComState     m_SdoComState;
-    BYTE                m_bTransactionId;
-    unsigned int        m_uiNodeId;         // NodeId of the target
-                                            // -> needed to reinit connection
-                                            //    after timeout
-    tEplSdoTransType    m_SdoTransType;     // Auto, Expedited, Segmented
-    tEplSdoServiceType  m_SdoServiceType;   // WriteByIndex, ReadByIndex
-    tEplSdoType         m_SdoProtType;      // protocol layer: Auto, Udp, Asnd, Pdo
-    BYTE*               m_pData;            // pointer to data
-    unsigned int        m_uiTransSize;      // number of bytes
-                                            // to transfer
-    unsigned int        m_uiTransferredByte;// number of bytes
-                                            // already transferred
-    tEplSdoFinishedCb   m_pfnTransferFinished;// callback function of the
-                                            // application
-                                            // -> called in the end of
-                                            //    the SDO transfer
-    void*               m_pUserArg;         // user definable argument pointer
-
-    DWORD               m_dwLastAbortCode;  // save the last abort code
-#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
-    // only for client
-    unsigned int        m_uiTargetIndex;    // index to access
-    unsigned int        m_uiTargetSubIndex; // subiondex to access
-
-    // for future use
-    unsigned int        m_uiTimeout;        // timeout for this connection
-
-#endif
-
-} tEplSdoComCon;
-
-// instance table
-typedef struct
-{
-    tEplSdoComCon       m_SdoComCon[EPL_MAX_SDO_COM_CON];
-
-#if defined(WIN32) || defined(_WIN32)
-    LPCRITICAL_SECTION  m_pCriticalSection;
-    CRITICAL_SECTION    m_CriticalSection;
-#endif
-
-}tEplSdoComInstance;
-
 //---------------------------------------------------------------------------
 // module global vars
 //---------------------------------------------------------------------------
@@ -410,7 +284,7 @@ Exit:
 //              the existing connection in pSdoComConHdl_p.
 //              Using of existing server connections is possible.
 //
-// Parameters:  pSdoComConHdl_p     = pointer to the buffer of the handle
+// Parameters:  pSdoComConHdl_p     = IN: pointer to the buffer of the handle OUT: number of handle
 //              uiTargetNodeId_p    = NodeId of the targetnode
 //              ProtType_p          = type of protocol to use for connection
 //
@@ -3183,6 +3057,167 @@ tEplKernel      Ret;
 
     }
 
+    return Ret;
+}
+
+
+/**
+ ********************************************************************************
+ \brief called by the adopter of the OD access
+ \paramp pObdParam_p pointer to OBD access handle
+ \return tEplKernel
+
+ The origin of the OD access was and SDO transfer. An adopted OD access knew about
+ this origin and assigned this callback function to an allocated handle. This handle
+ will be valid until it is freed. It can only be accessed by its constant address,
+ which was forwarded to the adopted OD access sink.
+ *******************************************************************************/
+tEplKernel PUBLIC EplAppCbObdAdoptedAccessSourceSdoFinished(tEplObdParam* pObdParam_p)
+{
+    tEplSdoComCon *     pSdoHdl; ///< pointer to handle of SDO command layer connection
+    tEplKernel          Ret;
+
+    Ret = kEplSuccessful;
+
+    printf("EplAppCbObdAdoptedAccessSourceSdoFinished(\n0x%04X/0x%02X finished \nAbortcode: 0x%04x Handle: 0x%x)\n",
+        pObdParam_p->m_uiIndex,
+        pObdParam_p->m_uiSubIndex,
+        pObdParam_p->m_dwAbortCode,
+        pObdParam_p->m_pHandle);
+
+    // m_pHandle is assumed to be an SDO handle because this function was called
+    pSdoHdl = (tEplSdoComCon*) pObdParam_p->m_pHandle;
+    if (pSdoHdl == NULL)
+    {
+        Ret = kEplSdoComInvalidHandle;
+        goto Exit;
+    }
+
+    // update Sdo communication handle
+    pSdoHdl->m_dwLastAbortCode = pObdParam_p->m_dwAbortCode;
+    pSdoHdl->m_pData = pObdParam_p->m_pData;
+
+    // send SDO response
+    if (pObdParam_p->m_dwAbortCode != 0)
+    {   //send SDO abort if abort code is preset
+
+        Ret = EplSdoComServerSendFrameIntern(
+                pSdoHdl,
+                pObdParam_p->m_uiIndex,
+                pObdParam_p->m_uiSubIndex,
+                kEplSdoComSendTypeAbort);
+
+        goto Exit;
+    }
+    else
+    {   // send SDO response
+
+        switch (pObdParam_p->m_ObdEvent)
+        {
+            case kEplObdEvPreRead:
+            {
+                printf("%u bytes read\n", pObdParam_p->m_ObjSize);
+
+                if (pSdoHdl->m_SdoTransType == kEplSdoTransSegmented)
+                {
+                    printf("Error: kEplSdoTransSegmented not supported for adopted transfers yet!\n");
+                    Ret = kEplObdReadViolation;
+                    goto Exit;
+                }
+
+                pSdoHdl->m_uiTransSize = pObdParam_p->m_ObjSize;
+
+                // forward to SDO command layer
+                Ret= EplSdoComServerSendFrameIntern(
+                        pSdoHdl,
+                        0,
+                        0,
+                        kEplSdoComSendTypeRes);
+
+                if (Ret != kEplSuccessful)
+                {
+                    // error -> abort
+                    pSdoHdl->m_dwLastAbortCode = EPL_SDOAC_GENERAL_ERROR;
+                    // send abort
+                    Ret = EplSdoComServerSendFrameIntern(
+                            pSdoHdl,
+                            pObdParam_p->m_uiIndex,
+                            pObdParam_p->m_uiSubIndex,
+                            kEplSdoComSendTypeAbort);
+                    goto Exit;
+                }
+
+                break;
+            }
+
+            case kEplObdEvInitWriteLe:
+            {
+                printf("%u bytes written\n", pObdParam_p->m_SegmentSize);
+
+                // forward to SDO command layer
+                Ret= EplSdoComServerSendFrameIntern(
+                        pSdoHdl,
+                        0,
+                        0,
+                        kEplSdoComSendTypeAckRes);
+
+                if (Ret != kEplSuccessful)
+                {
+                    // error -> abort
+                    pSdoHdl->m_dwLastAbortCode = EPL_SDOAC_GENERAL_ERROR;
+                    // send abort
+                    Ret = EplSdoComServerSendFrameIntern(
+                            pSdoHdl,
+                            pObdParam_p->m_uiIndex,
+                            pObdParam_p->m_uiSubIndex,
+                            kEplSdoComSendTypeAbort);
+                    goto Exit;
+                }
+
+                break;
+            }
+
+            default:
+            {
+                printf("Invalid Obd Event!");
+                break;
+            }
+        }
+    }
+
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+    // dump data to stdout
+    switch (pObdParam_p->m_SegmentSize)
+    {
+        case 0:
+            printf("no Bytes transfered\n");
+            break;
+
+        case 1:
+            printf("BYTE: 0x%02X\n", (WORD)AmiGetByteFromLe(pObdParam_p->m_pData));
+            break;
+
+        case 2:
+            printf("WORD: 0x%04X\n", AmiGetWordFromLe(pObdParam_p->m_pData));
+            break;
+
+        case 3:
+            printf("3 BYTEs: 0x%06X\n", AmiGetDword24FromLe(pObdParam_p->m_pData));
+            break;
+
+        case 4:
+            printf("DWORD: 0x%08X\n", AmiGetDwordFromLe(pObdParam_p->m_pData));
+            break;
+
+        default:
+            EplAppDumpData(pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
+            break;
+    }
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+
+Exit:
+    // free handle
+    EPL_FREE(pObdParam_p);
     return Ret;
 }
 

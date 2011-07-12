@@ -1604,7 +1604,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
 
     /* assign user handle */
     if (pUserHandle_p != NULL)
-    { // Note: if needed, handle also has to be forwared to response message by the user
+    { // Note: if needed, handle also has to be forwarded to response message by the user
         pMsgDescr->pUserHdl_m = pUserHandle_p;
     }
 
