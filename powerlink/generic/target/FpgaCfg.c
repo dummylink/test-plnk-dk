@@ -341,7 +341,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                  IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE),
                  IORD_ALTERA_AVALON_SYSID_ID(SYSID_BASE));
 
-    /* verify if BSP matches SOPC build time stamp */
+    /* verify if BSP matches SOPC system ID */
     if (alt_avalon_sysid_test() != 0)
     {
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Bad image! FPGA configuration does not match SW!");
