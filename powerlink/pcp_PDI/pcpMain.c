@@ -50,7 +50,8 @@
 //---------------------------------------------------------------------------
 // defines
 //---------------------------------------------------------------------------
-#define OBD_ACCESS_PENDING_MAX 20
+#define OBD_DEFAULT_SEG_WRITE_HISTORY_PENDING_MAX 5
+#define OBD_DEFAULT_SEG_WRITE_SIZE 20
 
 //---------------------------------------------------------------------------
 // module global vars
@@ -61,7 +62,10 @@ BOOL 			fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up f
 int				iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 
 static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
-static tDefObdAccHdl aObdDefAccHdl_l[OBD_ACCESS_PENDING_MAX]; ///< segmented object access management
+static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_SIZE]; ///< segmented object access management
+
+/* counter of current OBD segmented write history elements for default OBD access */
+BYTE bObdSegWriteAccHistoryGrowth_g;
 
 /******************************************************************************/
 // This function is the entry point for your object dictionary. It is defined
@@ -590,8 +594,115 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         }
 
         case kEplApiEventUserDef:
-        {
+        {   // this case is assumed to handle only default OBD Accesses
 
+        tEplObdParam *  pObdParam;
+        tDefObdAccHdl * pFoundHdl;      ///< pointer to OBD access handle
+
+            // assign user argument
+            pObdParam = pEventArg_p->m_pUserArg;
+
+            // check if write operation has already started for this index
+            EplRet = EplAppDefObdAccGetStatusDependantHdl(
+                    pObdParam->m_uiIndex,
+                    pObdParam->m_uiSubIndex,
+                    &pFoundHdl,
+                    kEplObdDefAccHdlInUse);
+
+            if (EplRet == kEplSuccessful)
+            {   // write operation is already processing -> exit
+                EplRet = kEplSuccessful;
+                goto Exit;
+            }
+
+            //search for handle to be processed
+            EplRet = EplAppDefObdAccGetStatusDependantHdl(
+                    pObdParam->m_uiIndex,
+                    pObdParam->m_uiSubIndex,
+                    &pFoundHdl,
+                    kEplObdDefAccHdlWaitProcessing);
+
+            if (EplRet != kEplSuccessful)
+            {   // nothing to be written, even though we received this event -> signal error
+                pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                EplRet = kEplObdAccessViolation;
+                pObdParam->m_pfnAccessFinished(pObdParam);
+                goto Exit;
+            }
+
+            pObdParam = pFoundHdl->m_pObdParam; // update found OBD access paramter
+
+            // -------- do OBD write -----
+            // write access might take some time ...
+            // it might be interrupted by new remote OBD accesses (Rx IR)
+            EplRet = EplAppDefObdAccWriteObdSegmented(pFoundHdl);
+
+            if (EplRet != kEplSuccessful)
+            {   // signal write error
+                pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                pObdParam->m_pfnAccessFinished(pObdParam);
+                goto Exit;
+            }
+
+            // free allocated object data buffer used for segmented access
+            EPL_FREE(pFoundHdl->m_pObdParam->m_pData);
+            pFoundHdl->m_pObdParam->m_pData = NULL;
+
+            // check if segmented write history is full (flow control for SDO)
+            if (bObdSegWriteAccHistoryGrowth_g >=
+                OBD_DEFAULT_SEG_WRITE_HISTORY_PENDING_MAX)
+            {   // keep processing the history without calling m_pfnAccessFinished
+
+                // search again for segment to be processed because we might have
+                // received new OBD accesses in the meantime while doing the write
+                EplRet = EplAppDefObdAccGetStatusDependantHdl(
+                        pObdParam->m_uiIndex,
+                        pObdParam->m_uiSubIndex,
+                        &pFoundHdl,
+                        kEplObdDefAccHdlWaitProcessing);
+
+                if (EplRet == kEplSuccessful)
+                {   // trigger new segmented write OBD access
+                    EplApiPostUserEvent((void*) &pFoundHdl->m_pObdParam);
+                }
+
+                EplRet = kEplSuccessful;
+                goto Exit;
+            }
+            else
+            {   // call m_pfnAccessFinished
+
+                // acknowledge all finished segments of this index
+                while (EplRet == kEplSuccessful)
+                {
+                    //search for handle where m_pfnAccessFinished call is still due
+                    EplRet = EplAppDefObdAccGetStatusDependantHdl(
+                            pObdParam->m_uiIndex,
+                            pObdParam->m_uiSubIndex,
+                            &pFoundHdl,
+                            kEplObdDefAccHdlProcessingFinished);
+
+                    if (EplRet == kEplSuccessful)
+                    {   // signal "OBD access finished" to originator
+
+                        // this triggers an Ack of the last received SDO sequence in case of remote access
+                        pObdParam->m_pfnAccessFinished(pObdParam);
+                        EPL_FREE(pFoundHdl->m_pObdParam);
+                        bObdSegWriteAccHistoryGrowth_g--;
+                    }
+
+                    // we might have received a lot of new accesses in the meantime
+                    if (bObdSegWriteAccHistoryGrowth_g >=
+                        OBD_DEFAULT_SEG_WRITE_HISTORY_PENDING_MAX)
+                    { // stop signaling "OBD access finished
+
+                        EplRet = kEplSuccessful;
+                        goto Exit;
+                    }
+                }
+            }
+
+            EplRet = kEplSuccessful;
             break;
         }
 
@@ -967,9 +1078,8 @@ tEplTimerHdl    EplTimerHdl;
 #endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
 tEplObdParam *   pAllocObdParam = NULL; ///< pointer to allocated memory of OBD access handle
-tDefObdAccHdl *  pFoundHdl;      ///< pointer to OBD access handle
 BYTE *           pAllocDataBuf;  ///< pointer to object data buffer
-tEplKernel      Ret = kEplSuccessful;
+tEplKernel       Ret = kEplSuccessful;
 
     if (pObdParam_p->m_pRemoteAddress != NULL)
     {   // remote access via SDO
@@ -1041,11 +1151,6 @@ tEplKernel      Ret = kEplSuccessful;
             // A: no, Client will send Ack Request after sending history block
             // Note: Only a "history segment block" can be delayed, but not single segments!
 
-
-
-            //TODO: Save data and introduce handling-queue (save up to history size elements) for Obd Write accesses.
-            //      Send AckResponse of last segment, if this queue has finished.
-
             if (pObdParam_p->m_Type == kEplObdTypDomain)
             {
                 // save object data
@@ -1076,7 +1181,7 @@ tEplKernel      Ret = kEplSuccessful;
             // allocate memory for handle - to be freed in EplAppCbObdAdoptedAccessSourceSdoFinished()
             // TODO: introduce counter to recognize memory leaks / to much allocated memory
             // or use static storage
-            pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam)); // TODO: make queue
+            pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam));
             if (pAllocObdParam == NULL)
             {
                 Ret = kEplObdOutOfMemory;
@@ -1135,70 +1240,20 @@ tEplKernel      Ret = kEplSuccessful;
                             goto Exit;
                         }
 
-                        // if write operation is already in progress, keep the data
-                        // for later processing (in following while loop) and exit immediately
-                        Ret = EplAppDefObdAccGetStatusDependantHdl(
-                                pObdParam_p->m_uiIndex,
-                                pObdParam_p->m_uiSubIndex,
-                                &pFoundHdl,
-                                kEplObdDefAccHdlInUse);
+                        if (Ret != kEplSuccessful)
+                        {   // trigger write operation (in AppEventCb) because its not activ
 
-                        if (Ret == kEplSuccessful)
-                        {   // write operation is currently processing
-
-                            // adopt write access
-                            Ret = kEplObdAccessAdopted;
-                            printf("  Adopted\n");
-                            goto Exit;
+                            //UserEvent.m_EventType = kEplApiUserDefObdSegmentedWriteAcc; //use global var for UserEvent? extend enum?
+                            //UserEvent.m_pArg = pAllocObdParam;
+                            EplApiPostUserEvent((void*) pAllocObdParam); // TODO: new user event struct
+                            //Todo: is it an immediate call? not possible here! Use timer instead in this case!
                         }
 
-                        //search for handle to be processed
-                        Ret = EplAppDefObdAccGetStatusDependantHdl(
-                                pObdParam_p->m_uiIndex,
-                                pObdParam_p->m_uiSubIndex,
-                                &pFoundHdl,
-                                kEplObdDefAccHdlWaitProcessing);
+                        // adopt write access
+                        Ret = kEplObdAccessAdopted;
+                        printf("  Adopted\n");
+                        goto Exit;
 
-                        while (Ret == kEplSuccessful)
-                        {   // handle due OBD access parameter - write to FLASH memory
-
-                            // write access might take some time ...
-                            // this loop will be interrupted by new remote OBD accesses (Rx IR)
-                            Ret = EplAppDefObdAccWriteObdSegmented(pFoundHdl);
-
-                            // free allocated object data buffer for segmented access
-                            EPL_FREE(pFoundHdl->m_pObdParam->m_pData);
-                            pFoundHdl->m_pObdParam->m_pData = NULL;
-
-                            if (Ret != kEplSuccessful)
-                            {
-                                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                                goto Exit;
-                            }
-
-                            // search again for handle to be processed because we might have
-                            // received new OBD accesses in the meantime while doing the write
-                            Ret = EplAppDefObdAccGetStatusDependantHdl(
-                                    pObdParam_p->m_uiIndex,
-                                    pObdParam_p->m_uiSubIndex,
-                                    &pFoundHdl,
-                                    kEplObdDefAccHdlWaitProcessing);
-
-                            if (Ret == kEplSuccessful)
-                            {   // still a due handle present
-                                // so this OBD access parameter are not needed anymore
-                                EPL_FREE(pFoundHdl->m_pObdParam);
-                            }
-                        }
-
-                        // no more segments to be handled, signal finished to lower layer
-                        // Note: only one segment of the received history (in case of SDO)
-                        //       needs to be indicated as finished which will trigger an Ack
-                        //       of the last received sequence
-                        pObdParam_p->m_pfnAccessFinished(pFoundHdl->m_pObdParam);
-
-                        EPL_FREE(pFoundHdl->m_pObdParam);
-                        // TODO: is it an issue if Adopted will be returned after finished callback was invoked?
                         break;
                     }
 
@@ -1285,16 +1340,17 @@ BYTE bArrayNum;                 ///< loop counter and array element
         goto Exit;
     }
 
-    bMaxArrayNum = OBD_ACCESS_PENDING_MAX - 1; // max array elements -1 = max array number
+    bMaxArrayNum = OBD_DEFAULT_SEG_WRITE_SIZE - 1; // max array elements -1 = max array number
     pObdDefAccHdl = aObdDefAccHdl_l;
 
     for (bArrayNum = 0; bArrayNum < bMaxArrayNum; bArrayNum++, pObdDefAccHdl++)
     {
-        if (pObdDefAccHdl->m_Status == kEplObdDefAccHdlProcessingFinished)
+        if (pObdDefAccHdl->m_Status == kEplObdDefAccHdlEmpty)
         {
             // free storage found -> assign OBD access handle
             pObdDefAccHdl->m_pObdParam = pObdParam_p;
             pObdDefAccHdl->m_Status = kEplObdDefAccHdlWaitProcessing;
+            bObdSegWriteAccHistoryGrowth_g++;
             goto Exit;
         }
     }
@@ -1338,7 +1394,7 @@ BYTE bArrayNum;                 ///< loop counter and array element
         goto Exit;
     }
 
-    bMaxArrayNum = OBD_ACCESS_PENDING_MAX - 1; // max array elements -1 = max array number
+    bMaxArrayNum = OBD_DEFAULT_SEG_WRITE_SIZE - 1; // max array elements -1 = max array number
     pObdDefAccHdl = aObdDefAccHdl_l;
 
     for (bArrayNum = 0; bArrayNum < bMaxArrayNum; bArrayNum++, pObdDefAccHdl++)
@@ -1373,6 +1429,7 @@ Exit:
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p)
 {
 tEplKernel Ret = kEplSuccessful;
+BOOL fRet = TRUE;
 
     if (pDefObdAccHdl_p == NULL)
     {
@@ -1393,11 +1450,10 @@ tEplKernel Ret = kEplSuccessful;
                 goto Exit;
             }
 
-            // write to FLASH memory
-            //TODO: Program Flash memory
-
-            // mark handle as free
-            pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlProcessingFinished;
+            fRet = FpgaCfg_writeFlashSafely(
+                   (DWORD*)pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
+                   (DWORD*)pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
+                   (void*) pDefObdAccHdl_p->m_pObdParam->m_pData);
 
             if (Ret != kEplSuccessful)
             {   //write operation went wrong
@@ -1412,6 +1468,9 @@ tEplKernel Ret = kEplSuccessful;
         default:
         break;
     }
+
+    // mark handle as processed
+    pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlProcessingFinished;
 
 Exit:
     return Ret;
