@@ -798,7 +798,8 @@ BYTE*           pabDataBuffer;
     else
     {
         //set pointer to NULL
-        pEplEvent->m_pArg = NULL;
+        //BUG: Do not set arg to NULL if data size is 0 because this is the case with kEplApiEventUserDef!
+        //pEplEvent->m_pArg = NULL;
     }
 
     BENCHMARK_MOD_28_SET(1);
