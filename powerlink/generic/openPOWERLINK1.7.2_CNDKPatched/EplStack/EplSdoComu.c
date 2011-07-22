@@ -2240,6 +2240,8 @@ BYTE            bFlag;
             Ret = EplSdoAsySeqSendData(pSdoComCon_p->m_SdoSeqConHdl,
                                                 uiSizeOfFrame,
                                                 pFrame);
+            printf("ERROR: SDO Aborted!\n");
+
             break;
         }
     } // end of switch(SendType_p)
@@ -3079,11 +3081,11 @@ tEplKernel PUBLIC EplAppCbObdAdoptedAccessSourceSdoFinished(tEplObdParam* pObdPa
 
     Ret = kEplSuccessful;
 
-    printf("EplAppCbObdAdoptedAccessSourceSdoFinished(\n0x%04X/0x%02X finished \nAbortcode: 0x%04x Handle: 0x%x)\n",
-        pObdParam_p->m_uiIndex,
-        pObdParam_p->m_uiSubIndex,
-        pObdParam_p->m_dwAbortCode,
-        pObdParam_p->m_pHandle);
+//    printf("EplAppCbObdAdoptedAccessSourceSdoFinished(\n0x%04X/0x%02X finished \nAbortcode: 0x%04x Handle: 0x%x)\n",
+//        pObdParam_p->m_uiIndex,
+//        pObdParam_p->m_uiSubIndex,
+//        pObdParam_p->m_dwAbortCode,
+//        pObdParam_p->m_pHandle);
 
     // m_pHandle is assumed to be an SDO handle because this function was called
     pSdoHdl = (tEplSdoComCon*) pObdParam_p->m_pHandle;
@@ -3216,8 +3218,6 @@ tEplKernel PUBLIC EplAppCbObdAdoptedAccessSourceSdoFinished(tEplObdParam* pObdPa
 #endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
 Exit:
-    // free handle
-    EPL_FREE(pObdParam_p);
     return Ret;
 }
 

@@ -802,6 +802,9 @@ BYTE*           pabDataBuffer;
         //pEplEvent->m_pArg = NULL;
     }
 
+    //TODO: delete
+    //printf("EplEventuRxSignalHandlerCb(): pEplEvent->m_pArg = %p\n", pEplEvent->m_pArg);
+
     BENCHMARK_MOD_28_SET(1);
     // call processfunction
     EplEventuProcess(pEplEvent);

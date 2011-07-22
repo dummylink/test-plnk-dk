@@ -433,6 +433,7 @@ typedef enum
     kEplObdDefAccHdlWaitProcessing      =   0x01, // hanlde waits to be processed
     kEplObdDefAccHdlInUse               =   0x02, // handle is currently processed
     kEplObdDefAccHdlProcessingFinished  =   0x03, // processing is finished
+    kEplObdDefAccHdlError               =   0x04, // error happened while processing
 
 } tEplObdDefAccStatus;
 

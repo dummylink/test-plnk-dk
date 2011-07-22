@@ -861,7 +861,7 @@ BOOL FpgaCfg_writeFlashSafely(const DWORD * pdwDestFlashOffset_p,
         pDataSrc_p == NULL                            ||
         (dwFlashSize - 1) < *pdwDestFlashOffset_p + *pdwSize_p) //flash size exceeded
     {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!\n", __func__);
         fRet = FALSE;
         goto exit;
     }
