@@ -223,6 +223,11 @@ tEplKernel PUBLIC EplSdoComDefineCon(tEplSdoComConHdl*  pSdoComConHdl_p,
 
 tEplKernel PUBLIC EplSdoComInitTransferByIndex(tEplSdoComTransParamByIndex* pSdoComTransParam_p);
 
+tEplKernel PUBLIC EplSdoComServerSendFrameIntern(tEplSdoComCon*     pSdoComCon_p,
+                                           unsigned int       uiIndex_p,
+                                           unsigned int       uiSubIndex_p,
+                                           tEplSdoComSendType SendType_p);
+
 unsigned int PUBLIC EplSdoComGetNodeId(tEplSdoComConHdl  SdoComConHdl_p);
 
 tEplKernel PUBLIC EplSdoComUndefineCon(tEplSdoComConHdl  SdoComConHdl_p);
@@ -232,8 +237,6 @@ tEplKernel PUBLIC EplSdoComGetState(tEplSdoComConHdl SdoComConHdl_p,
 
 tEplKernel PUBLIC EplSdoComSdoAbort(tEplSdoComConHdl SdoComConHdl_p,
                               DWORD           dwAbortCode_p);
-
-tEplKernel PUBLIC EplAppCbObdAdoptedAccessSourceSdoFinished(tEplObdParam* pObdParam_p);
 #endif
 
 // for future extention

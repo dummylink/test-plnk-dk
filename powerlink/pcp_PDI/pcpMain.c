@@ -17,6 +17,7 @@
 #include "Epl.h"
 #include "Debug.h"
 #include "EplPdou.h"
+#include "EplSdoComu.h"
 
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
@@ -88,6 +89,7 @@ static tEplKernel EplAppDefObdAccGetStatusDependantHdl(
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p);
 static tEplKernel EplAppDefObdAccCleanupHistory(void);
 static tEplKernel EplAppDefObdAccFinished(tEplObdParam * pObdParam_p);
+static tEplKernel EplAppCbObdAdoptedAccessSourceSdoFinished(tEplObdParam* pObdParam_p);
 
 /* forward declarations */
 int openPowerlink(void);
@@ -1609,6 +1611,166 @@ Exit:
 
     return Ret;
 }
+
+
+/**
+ ********************************************************************************
+ \brief called by the adopter of the OD access
+ \paramp pObdParam_p pointer to OBD access handle
+ \return tEplKernel
+
+ The origin of the OD access was and SDO transfer. An adopted OD access knew about
+ this origin and assigned this callback function to an allocated handle. This handle
+ will be valid until it is freed. It can only be accessed by its constant address,
+ which was forwarded to the adopted OD access sink.
+ *******************************************************************************/
+static tEplKernel EplAppCbObdAdoptedAccessSourceSdoFinished(tEplObdParam* pObdParam_p)
+{
+    tEplSdoComCon *     pSdoHdl; ///< pointer to handle of SDO command layer connection
+    tEplKernel          Ret;
+
+    Ret = kEplSuccessful;
+
+//    printf("EplAppCbObdAdoptedAccessSourceSdoFinished(\n0x%04X/0x%02X finished \nAbortcode: 0x%04x Handle: 0x%x)\n",
+//        pObdParam_p->m_uiIndex,
+//        pObdParam_p->m_uiSubIndex,
+//        pObdParam_p->m_dwAbortCode,
+//        pObdParam_p->m_pHandle);
+
+    // m_pHandle is assumed to be an SDO handle because this function was called
+    pSdoHdl = (tEplSdoComCon*) pObdParam_p->m_pHandle;
+    if (pSdoHdl == NULL)
+    {
+        Ret = kEplSdoComInvalidHandle;
+        goto Exit;
+    }
+
+    // update Sdo communication handle
+    pSdoHdl->m_dwLastAbortCode = pObdParam_p->m_dwAbortCode;
+    pSdoHdl->m_pData = pObdParam_p->m_pData;
+
+    // send SDO response
+    if (pObdParam_p->m_dwAbortCode != 0)
+    {   //send SDO abort if abort code is preset
+
+        Ret = EplSdoComServerSendFrameIntern(
+                pSdoHdl,
+                pObdParam_p->m_uiIndex,
+                pObdParam_p->m_uiSubIndex,
+                kEplSdoComSendTypeAbort);
+
+        goto Exit;
+    }
+    else
+    {   // send SDO response
+
+        switch (pObdParam_p->m_ObdEvent)
+        {
+            case kEplObdEvPreRead:
+            {
+                printf("%u bytes read\n", pObdParam_p->m_ObjSize);
+
+                if (pSdoHdl->m_SdoTransType == kEplSdoTransSegmented)
+                {
+                    printf("Error: kEplSdoTransSegmented not supported for adopted transfers yet!\n");
+                    Ret = kEplObdReadViolation;
+                    goto Exit;
+                }
+
+                pSdoHdl->m_uiTransSize = pObdParam_p->m_ObjSize;
+
+                // forward to SDO command layer
+                Ret= EplSdoComServerSendFrameIntern(
+                        pSdoHdl,
+                        0,
+                        0,
+                        kEplSdoComSendTypeRes);
+
+                if (Ret != kEplSuccessful)
+                {
+                    // error -> abort
+                    pSdoHdl->m_dwLastAbortCode = EPL_SDOAC_GENERAL_ERROR;
+                    // send abort
+                    Ret = EplSdoComServerSendFrameIntern(
+                            pSdoHdl,
+                            pObdParam_p->m_uiIndex,
+                            pObdParam_p->m_uiSubIndex,
+                            kEplSdoComSendTypeAbort);
+                    goto Exit;
+                }
+
+                break;
+            }
+
+            case kEplObdEvInitWriteLe:
+            {
+                printf("%u bytes written\n", pObdParam_p->m_SegmentSize);
+
+                // forward to SDO command layer
+                Ret= EplSdoComServerSendFrameIntern(
+                        pSdoHdl,
+                        0,
+                        0,
+                        kEplSdoComSendTypeAckRes);
+
+                if (Ret != kEplSuccessful)
+                {
+                    // error -> abort
+                    pSdoHdl->m_dwLastAbortCode = EPL_SDOAC_GENERAL_ERROR;
+                    // send abort
+                    Ret = EplSdoComServerSendFrameIntern(
+                            pSdoHdl,
+                            pObdParam_p->m_uiIndex,
+                            pObdParam_p->m_uiSubIndex,
+                            kEplSdoComSendTypeAbort);
+                    goto Exit;
+                }
+
+                break;
+            }
+
+            default:
+            {
+                printf("Invalid Obd Event!");
+                break;
+            }
+        }
+    }
+
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+    // dump data to stdout
+    switch (pObdParam_p->m_SegmentSize)
+    {
+        case 0:
+            printf("no Bytes transfered\n");
+            break;
+
+        case 1:
+            printf("BYTE: 0x%02X\n", (WORD)AmiGetByteFromLe(pObdParam_p->m_pData));
+            break;
+
+        case 2:
+            printf("WORD: 0x%04X\n", AmiGetWordFromLe(pObdParam_p->m_pData));
+            break;
+
+        case 3:
+            printf("3 BYTEs: 0x%06X\n", AmiGetDword24FromLe(pObdParam_p->m_pData));
+            break;
+
+        case 4:
+            printf("DWORD: 0x%08X\n", AmiGetDwordFromLe(pObdParam_p->m_pData));
+            break;
+
+        default:
+            EplAppDumpData(pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
+            break;
+    }
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+
+Exit:
+    return Ret;
+}
+
 
 //---------------------------------------------------------------------------
 //
