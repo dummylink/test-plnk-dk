@@ -1056,26 +1056,3 @@ print-elf-name:
 	@$(ECHO) $(ELF)
 
 
-
-# Rules for EPCS flash programming commands (EPCS contains SOF and application)
-PROGRAM_EPCS_SUFFIX := -epcs
-PROGRAM_EPCS_TARGET := $(addsuffix $(PROGRAM_EPCS_SUFFIX), $(FLASH_FILES))
-
-.PHONY : program-epcs
-program-epcs : $(PROGRAM_EPCS_TARGET)
-
-SOF_FILE := $(wildcard $(QUARTUS_PROJECT_DIR)/*.sof)
-
-.PHONY : $(PROGRAM_EPCS_TARGET)
-$(PROGRAM_EPCS_TARGET) : $(ELF)
-
-	@$(ECHO) Info: Programming $(basename $@).flash	
-	@if [ -n "$($(basename $@)_EPCS_FLAGS)" ]; \
-	then \
-		nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \
-		sof2flash --epcs --input=$(SOF_FILE) --output=sof.flash; \
-		$(ELF2FLASH) --after=sof.flash --input=$(ELF) --outfile=$(basename $@)_after_sof.flash --sim_optimize=$(SIM_OPTIMIZE) $(elf2flash_extra_args); \
-		$(ECHO) $(FLASHPROG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) sof.flash $(basename $@)_after_sof.flash; \
-		$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) -g --override=../../powerlink/generic/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
-	fi
-

@@ -25,7 +25,6 @@
 /******************************************************************************/
 /* includes */
 #include "cnApi.h"
-#include "EplFrame.h" //    SDO Cmd Frame
 
 /******************************************************************************/
 /* defines */
@@ -108,10 +107,8 @@ typedef enum ePdiAsyncMsgType {
     kPdiAsyncMsgIntCreateObjLinksResp,
     kPdiAsyncMsgIntLinkPdosReq,
     kPdiAsyncMsgIntLinkPdosResp,
-    kPdiAsyncMsgIntWriteObjReq,
-    kPdiAsyncMsgIntReadObjReq,
-    kPdiAsyncMsgIntWriteObjResp,
-    kPdiAsyncMsgIntReadObjResp,
+    kPdiAsyncMsgIntObjAccReq,
+    kPdiAsyncMsgIntObjAccResp,
     kPdiAsyncMsgExtTxSdoWriteByIndex,     ///< external messages from network
     kPdiAsyncMsgExtRxSdoWriteByIndex,
     kPdiAsyncMsgExtTxSdoReadByIndex,
@@ -184,26 +181,28 @@ typedef struct sLinkPdosResp {
 //    BYTE                    m_bErrSubindex;
 } PACK_STRUCT tLinkPdosResp;
 
-/**
- * \brief structure for WriteObjReq command
- */
-typedef struct sWriteObjReq {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-    WORD                    m_wNumObjs;
-} PACK_STRUCT tWriteObjReq;
+// borrowed from openPOWERLINK stack
+typedef struct
+{
+    BYTE                    m_le_bReserved;
+    BYTE                    m_le_bTransactionId;
+    BYTE                    m_le_bFlags;
+    BYTE                    m_le_bCommandId;
+    WORD                    m_le_wSegmentSize;
+    WORD                    m_le_wReserved;
+    BYTE                    m_le_abCommandData[8];  // just reserve a minimum number of bytes as a placeholder
+
+}PACK_STRUCT tEplAsySdoComFrm; //equals tEplAsySdoCom
 
 /**
- * \brief structure for WriteObjResp command
+ * \brief structure for ObjAccReq command
  */
-
-typedef struct sWriteObjResp {
+typedef struct sObjAccReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
-    WORD                    m_wStatus;
-    WORD                    m_wErrIndex;
-    BYTE                    m_bErrSubindex;
-} PACK_STRUCT tWriteObjResp;
+    WORD                    m_wHdlCom;      ///< connection handle of originator module
+    tEplAsySdoComFrm        m_SdoCmdFrame;
+} PACK_STRUCT tObjAccMsg;
 
 /**
  * \brief structure for internal channel header
@@ -397,7 +396,7 @@ extern tPdiAsyncStatus CnApi_doCreateObjLinksReq(
                        BYTE * pTxMsgBuffer_p,
                        BYTE * pRxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
-extern tPdiAsyncStatus CnApi_doWriteObjReq(
+extern tPdiAsyncStatus CnApi_doObjAccReq(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
                        BYTE * pTxMsgBuffer_p,
                        BYTE * pRxMsgBuffer_p,
@@ -418,7 +417,7 @@ extern tPdiAsyncStatus CnApi_handleCreateObjLinksResp(
                        BYTE * pTxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_pfnCbCreateObjLinksRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
-extern tPdiAsyncStatus CnApi_handleWriteObjResp(
+extern tPdiAsyncStatus CnApi_handleObjAccResp(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
                        BYTE * pRxMsgBuffer_p,
                        BYTE * pTxMsgBuffer_p,
