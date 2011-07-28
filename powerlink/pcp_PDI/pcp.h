@@ -22,6 +22,8 @@ DETAILED_DESCRIPTION_OF_FILE
 #include "cnApi.h"
 #include "cnApiAsync.h"
 #include "Debug.h"
+#include "EplErrDef.h"
+#include "EplObd.h"
 
 /******************************************************************************/
 /* defines */
@@ -93,6 +95,8 @@ extern tPdiAsyncStatus CnApiAsync_checkApLinkingStatus(void);
 
 //Tests
 extern void EplAppDumpData(void* pData_p, unsigned long ulDataSize_p);
+extern tEplKernel EplAppDefObdAccFinished(tEplObdParam * pObdParam_p);
+extern tEplKernel EplAppDefObdAccCleanupHistory(void);
 
 #endif /* GENERICIF_H_ */
 
