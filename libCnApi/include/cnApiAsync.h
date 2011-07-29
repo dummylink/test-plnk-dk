@@ -199,6 +199,15 @@ typedef struct
 }PACK_STRUCT tEplAsySdoComFrm; //equals tEplAsySdoCom
 
 /**
+ * \brief structure connects object access messages and SDO command layer
+ */
+typedef struct sObjAccSdoComCon {
+    WORD                    m_wSdoSeqConHdl; ///< SDO command layer connection handle number
+    tEplAsySdoComFrm *      m_pSdoCmdFrame;    ///< pointer to SDO command frame
+    unsigned int            m_uiSizeOfFrame;   ///< size of SDO command frame
+} tsObjAccSdoComCon;
+
+/**
  * \brief structure for ObjAccReq command
  */
 typedef struct sObjAccReq {

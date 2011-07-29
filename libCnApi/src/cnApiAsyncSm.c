@@ -1762,7 +1762,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
     /* verify if message is currently in use */
     if (pMsgDescr->fMsgValid_m == TRUE)
     { /* message has been sent before and is not finished yet */
-        Ret = kPdiAsyncStatusReject;
+        Ret = kPdiAsyncStatusRetry;
         goto exit;
     }
 

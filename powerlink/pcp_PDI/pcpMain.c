@@ -70,6 +70,20 @@ BYTE bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_SIZE;
 BYTE bObdSegWriteAccHistoryFinishedCnt_g = 0;
 
 /******************************************************************************/
+// TEST SDO TRANSFER TO AP
+// flag
+static BOOL    fSdoSuccessful_l;
+
+// strints to print out states of sdo transfer
+static char aszSdoStates_l[6][40]={"Connection not active\n",
+                                "Transfer running\n",
+                                "TX Abort\n",
+                                "RX Abort\n",
+                                "Sdo Tranfer finished\n",
+                                "Sdo Transfer aborted by lower layer\n"};
+
+
+/******************************************************************************/
 // This function is the entry point for your object dictionary. It is defined
 // in OBJDICT.C by define EPL_OBD_INIT_RAM_NAME. Use this function name to define
 // this function prototype here. If you want to use more than one Epl
@@ -94,6 +108,7 @@ static tEplKernel EplAppDefObdAccCountHdlStatus(
         WORD *  pwCntRet_p,
         tEplObdDefAccStatus ReqStatus_p);
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p);
+static tEplKernel EplAppCbSdoConnectionSourcePdiFinished(tEplSdoComFinished*  pSdoComFinished_p);
 
 /* forward declarations */
 int openPowerlink(void);
@@ -422,6 +437,60 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                 case kEplNmtCsPreOperational2:
                 {
+                    while(1)
+                    {
+                    //TEST of AP SDO TRANSFERS
+                    /******************************************************************************/
+                    #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
+
+                    tEplSdoComConHdl            SdoComConHdl = 0;
+                    unsigned long               ulSize;
+                    unsigned int                uiBuffer;
+                    tEplSdoComTransParamByIndex TransParamByIndex;
+                    unsigned int                uiCount;
+                    BYTE                        bBuffer;
+
+                    #endif
+
+                    // init command layer connection
+                    EplRet = EplSdoComDefineCon(&SdoComConHdl,
+                                                0x01,  // target node id -> take any valid powerlink node id. e.g. 0x01!
+                                                kEplSdoTypeApiPdi);
+                    if(EplRet != kEplSuccessful)
+                    {
+                        printf("Define of SDO via UDP Connection failed: 0x%03X\n", EplRet);
+                    }
+
+                    // read object 0x1000
+                    TransParamByIndex.m_pData = &uiBuffer;
+                    TransParamByIndex.m_SdoAccessType = kEplSdoAccessTypeRead;
+                    TransParamByIndex.m_SdoComConHdl = SdoComConHdl; // EplSdoComDefineCon returned this handle
+                    TransParamByIndex.m_uiDataSize = sizeof(uiBuffer);
+                    TransParamByIndex.m_uiIndex = 0x6500;
+                    TransParamByIndex.m_uiSubindex = 0x01;
+                    TransParamByIndex.m_uiTimeout = 0;
+                    TransParamByIndex.m_pfnSdoFinishedCb = EplAppCbSdoConnectionSourcePdiFinished;
+                    TransParamByIndex.m_pUserArg = TransParamByIndex.m_pData;
+
+                    EplRet = EplSdoComInitTransferByIndex(&TransParamByIndex);
+                    if (EplRet != kEplSuccessful)
+                    {
+                        printf("Error = 0x%04X in function EplSdoComInitTransferByIndex\n", EplRet);
+                    }
+                    else
+                    {   // wait for end of transfer
+                        printf("Read of object 0x1000 started\n");
+                    }
+
+                    // close connection
+                    EplRet = EplSdoComUndefineCon(SdoComConHdl); //TODO: handle new case PDI
+                    if(EplRet != kEplSuccessful)
+                    {
+                        printf("Close of SDO via UDP Connection failed: 0x%03X\n", EplRet);
+                    }
+                    /******************************************************************************/
+                    }
+
                     setPowerlinkEvent(kPowerlinkEventEnterPreop2);
 
                     EplRet = kEplReject; // prevent automatic change to kEplNmtCsReadyToOperate
@@ -441,7 +510,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtCsBasicEthernet:                        ///< this state is only indicated  by Led
                 {
                     // clean OBD access application history buffers
-                    EplRet = EplAppDefObdAccCleanupHistory();
+                    EplRet = EplAppDefObdAccCleanupHistory(); //TODO: move to other place?
                     if (EplRet != kEplSuccessful)
                     {
                         goto Exit;
@@ -1964,6 +2033,73 @@ Exit:
     return Ret;
 }
 
+
+static tEplKernel EplAppCbSdoConnectionSourcePdiFinished(tEplSdoComFinished*  pSdoComFinished_p)
+{
+tEplKernel Ret;
+
+    Ret = kEplSuccessful;
+
+    if (pSdoComFinished_p->m_SdoAccessType == kEplSdoAccessTypeRead)
+    {
+        printf("SDO read of object ");
+    }
+    else
+    {
+        printf("SDO write of object ");
+    }
+    printf("0x%04X/0x%02X finished %u bytes transferred\n(Abortcode: 0x%04x Handle: 0x%x State: %s)\n",
+        pSdoComFinished_p->m_uiTargetIndex,
+        pSdoComFinished_p->m_uiTargetSubIndex,
+        pSdoComFinished_p->m_uiTransferredByte,
+        pSdoComFinished_p->m_dwAbortCode,
+        pSdoComFinished_p->m_SdoComConHdl,
+        aszSdoStates_l[pSdoComFinished_p->m_SdoComConState]);
+
+    switch (pSdoComFinished_p->m_uiTransferredByte)
+    {
+        case 0:
+            printf("no Bytes transfered\n");
+            break;
+
+        case 1:
+            printf("BYTE: 0x%02X\n", (WORD)AmiGetByteFromLe(pSdoComFinished_p->m_pUserArg));
+            break;
+
+        case 2:
+            printf("WORD: 0x%04X\n", AmiGetWordFromLe(pSdoComFinished_p->m_pUserArg));
+            break;
+
+        case 3:
+            printf("3 BYTEs: 0x%06X\n", AmiGetDword24FromLe(pSdoComFinished_p->m_pUserArg));
+            break;
+
+        case 4:
+            printf("DWORD: 0x%08X\n", AmiGetDwordFromLe(pSdoComFinished_p->m_pUserArg));
+            break;
+
+        default:
+            EplAppDumpData(pSdoComFinished_p->m_pUserArg, min (pSdoComFinished_p->m_uiTransferredByte, 256));
+            break;
+    }
+
+    if((pSdoComFinished_p->m_dwAbortCode != 0)
+        ||(pSdoComFinished_p->m_SdoComConState != kEplSdoComTransferFinished))
+    {
+        fSdoSuccessful_l = FALSE;
+    }
+    else
+    {
+        fSdoSuccessful_l = TRUE;
+    }
+
+    // set event
+    // SetEvent(SdoReadyHdl_l);
+
+
+return Ret;
+
+}
 
 //---------------------------------------------------------------------------
 //
