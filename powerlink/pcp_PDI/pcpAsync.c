@@ -60,13 +60,9 @@ static tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pM
                                                            BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 static tPdiAsyncStatus cnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                      BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
-static tPdiAsyncStatus cnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 static tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                              BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p);
 static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
-static tPdiAsyncStatus cnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                      BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 static tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                  BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
@@ -178,13 +174,15 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_handleObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgIntObjAccResp, TfrTyp, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, cnApiAsync_handleObjAccReq, pPdiBuf,
+                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    //TODO: make handle: cnApiAsync_initMsg(kPdiAsyncMsgIntReadObjAccResp, Dir, ...);
-    //if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_handleObjAccReq, pPdiBuf,
+                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosResp, Dir, cnApiAsync_handleLinkPdosResp, pPdiBuf,
                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
@@ -196,6 +194,7 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     TfrTyp = kPdiAsyncTrfTypeLclBuffering;
     pPdiBuf = &aPcpPdiAsyncTxMsgBuffer_g[0];
 
+    //pfnCbMsgHdl_p set to NULL means that message will be set up in corresponding request handle
     CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, NULL, pPdiBuf,
                         kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
 
@@ -206,8 +205,15 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, NULL, pPdiBuf,
-                       kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, cnApiAsync_doObjAccReq, pPdiBuf,
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
+
+    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
+
+    //TODO: This is blocking asynchronous traffic, because it waits for a response
+    //      Issue: ReqId has to be saved somehow (= another handle history)
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_doObjAccReq, pPdiBuf,
+                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -513,7 +519,7 @@ exit:
 
 /**
 ********************************************************************************
-\brief  handle an object request message
+\brief  handle an object access request message
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
@@ -523,52 +529,29 @@ exit:
 tPdiAsyncStatus cnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                   BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p        )
 {
-
     tObjAccMsg *    pObjAccReq = NULL;
-    tObjAccMsg *    pObjAccResp = NULL;
     tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
 
-    /* check message descriptor */
-    if (pMsgDescr_p == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-    /* check response message assignment */
-    if (pMsgDescr_p->pRespMsgDescr_m == NULL)
+    if (pMsgDescr_p == NULL                  || // message descriptor
+        pMsgDescr_p->pUserHdl_m == NULL      || // input argument
+        pRxMsgBuffer_p == NULL                 ) // verify all buffer pointers we intend to use)
     {
         Ret = kPdiAsyncStatusInvalidInstanceParam;
         goto exit;
     }
 
-    /* verify all buffer pointers we intend to use */
-    if ((pRxMsgBuffer_p == NULL) || (pTxMsgBuffer_p == NULL))
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* check if expected Tx message size exceeds the buffer */
-    if ( sizeof(tObjAccMsg) > dwMaxTxBufSize_p)
-    {
-        /* reject transfer, because direct access can not be processed */
-        Ret = kPdiAsyncStatusDataTooLong;
-        goto exit;
-    }
-
-    /* assign buffer payload addresses */
+    // assign buffer payload addresses
     pObjAccReq = (tObjAccMsg *) pRxMsgBuffer_p;      // Rx buffer
-    pObjAccResp = (tObjAccMsg *) pTxMsgBuffer_p;     // Tx buffer
 
-    /* setup response */
+    // process the message
     /*----------------------------------------------------------------------------*/
     // TODO: actual function
-    /*----------------------------------------------------------------------------*/
+    // forward to SDO command layer //TODO: Req->Server, Resp->Client: Issue?
+    // TODO: convert to local endian from LE
 
-    /* update size values of message descriptors */
-    pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tObjAccMsg);     // sent size
+    /*----------------------------------------------------------------------------*/
 
 exit:
     return Ret;
@@ -577,49 +560,19 @@ exit:
 
 /**
 ********************************************************************************
-\brief  handle an object response message
+\brief  handle an object access response message
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-static tPdiAsyncStatus cnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-{
-    //TODO
-}
+//static tPdiAsyncStatus cnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+//                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
+//{
+//    //TODO: exact same functionality like cnApiAsync_handleObjAccReq (only different naming)!
+//}
 
-
-/**
-********************************************************************************
-\brief  create an object request message
-\param  pMsgDescr_p         pointer to asynchronous message descriptor
-\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
-\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
-\param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
-*******************************************************************************/
-static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-{
-    //TODO put to do's
-}
-
-/**
-********************************************************************************
-\brief  create an object response message
-\param  pMsgDescr_p         pointer to asynchronous message descriptor
-\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
-\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
-\param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
-*******************************************************************************/
-static tPdiAsyncStatus cnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-{
-    //TODO put to do's
-}
 
 /**
 ********************************************************************************
@@ -762,6 +715,78 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
 exit:
     return Ret;
 }
+
+
+/**
+********************************************************************************
+\brief  create an object access request message
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
+*******************************************************************************/
+static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
+{
+    tObjAccMsg *    pObjAccReqDst = NULL;
+    tObjAccMsg *    pObjAccReqScr = NULL; //input argument
+    tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
+
+    DEBUG_FUNC;
+
+    if (pMsgDescr_p == NULL                  || // message descriptor
+        pMsgDescr_p->pUserHdl_m == NULL      || // input argument
+        pMsgDescr_p->pRespMsgDescr_m == NULL || // response message assignment
+        pTxMsgBuffer_p == NULL                 ) // verify all buffer pointers we intend to use)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    /* check if expected Tx message size exceeds the buffer */
+    if (sizeof(tObjAccMsg) > dwMaxTxBufSize_p)
+    {
+        /* reject transfer, because direct access can not be processed */
+        Ret = kPdiAsyncStatusDataTooLong;
+        goto exit;
+    }
+
+    // assign input argument
+    pObjAccReqScr = (tObjAccMsg *) pMsgDescr_p->pUserHdl_m;
+
+    // assign buffer payload addresses
+    pObjAccReqDst = (tObjAccMsg *) pTxMsgBuffer_p;   // Tx buffer
+
+    /* setup message */
+    /*----------------------------------------------------------------------------*/
+    // TODO: convert to local endian to LE
+    memcpy(pObjAccReqDst, pObjAccReqScr, sizeof(tObjAccMsg));
+
+    pObjAccReqDst->m_bReqId = bReqId_l; //TODO: dont use this Id, only rely on m_wHdlCom
+    /*----------------------------------------------------------------------------*/
+
+    /* update size values of message descriptors */
+    pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tObjAccMsg);     // sent size
+
+exit:
+    return Ret;
+}
+
+/**
+********************************************************************************
+\brief  create an object access response message
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
+*******************************************************************************/
+//static tPdiAsyncStatus cnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+//                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
+//{
+//    //TODO: exact same functionality like cnApiAsync_doObjAccReq (only different naming)!
+//}
 
 
 /**

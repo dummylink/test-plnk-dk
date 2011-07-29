@@ -39,6 +39,10 @@
 
 #define CNAPI_MALLOC(siz)             malloc(siz)
 #define CNAPI_FREE(ptr)               free(ptr)
+
+// renaming of functions which have exactly the same functionality
+//#define cnApiAsync_doObjAccResp     cnApiAsync_doObjAccReq
+//#define cnApiAsync_handleObjAccResp cnApiAsync_handleObjAccReq
 /******************************************************************************/
 /* typedefs */
 
@@ -396,11 +400,6 @@ extern tPdiAsyncStatus CnApi_doCreateObjLinksReq(
                        BYTE * pTxMsgBuffer_p,
                        BYTE * pRxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
-extern tPdiAsyncStatus CnApi_doObjAccReq(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pTxMsgBuffer_p,
-                       BYTE * pRxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_doLinkPdosResp(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
                        BYTE* pTxMsgBuffer_p,
@@ -417,11 +416,6 @@ extern tPdiAsyncStatus CnApi_handleCreateObjLinksResp(
                        BYTE * pTxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_pfnCbCreateObjLinksRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
-extern tPdiAsyncStatus CnApi_handleObjAccResp(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pRxMsgBuffer_p,
-                       BYTE * pTxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
 extern tPdiAsyncStatus CnApi_handleLinkPdosReq(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
