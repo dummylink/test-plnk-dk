@@ -225,7 +225,7 @@ APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/SharedBuff
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/ObjDicts
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/Target/altera_nios2/no_os/gnu/include
 APP_INCLUDE_DIRS += ../../objDicts/PDI
-APP_INCLUDE_DIRS += ../../libCnApi/include
+APP_INCLUDE_DIRS += ../../libCnApi/include/tst
 APP_INCLUDE_DIRS += ../../libCnApi/utils
 
 APP_LIBRARY_DIRS :=

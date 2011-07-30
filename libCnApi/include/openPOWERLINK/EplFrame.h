@@ -72,7 +72,8 @@
 #ifndef _EPL_FRAME_H_
 #define _EPL_FRAME_H_
 
-
+#include "cnApiGlobal.h"
+#include "EplInc.h"
 //---------------------------------------------------------------------------
 // const defines
 //---------------------------------------------------------------------------
@@ -130,20 +131,6 @@
 // typedef
 //---------------------------------------------------------------------------
 
-
-// $$$ d.k.: move this definition to global.h
-// byte-align structures
-#ifdef _MSC_VER
-#    pragma pack( push, packing )
-#    pragma pack( 1 )
-#    define PACK_STRUCT
-#elif defined( __GNUC__ )
-#    define PACK_STRUCT    __attribute__((packed))
-#else
-#    error you must byte-align these structures with the appropriate compiler directives
-#endif
-
-
 typedef struct
 {
     // Offset 17
@@ -153,7 +140,7 @@ typedef struct
     // Offset 19
     BYTE                    m_le_bFlag2;                    // Flags: res
     // Offset 20
-    tEplNetTime             m_le_NetTime;                   // supported if D_NMT_NetTimeIsRealTime_BOOL is set
+    //tEplNetTime             m_le_NetTime;                   // supported if D_NMT_NetTimeIsRealTime_BOOL is set
     // Offset 28
     QWORD                   m_le_RelativeTime;              // in us (supported if D_NMT_RelativeTime_BOOL is set)
 

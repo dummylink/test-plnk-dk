@@ -20,6 +20,8 @@ This header file contains definitions for the CN API.
 #include "cnApiDebug.h"
 #include "cnApiGlobal.h"     // global definitions
 #include "cnApiCfg.h"
+#include "EplErrDef.h"
+#include "EplObd.h"
 #ifdef __NIOS2__
 #include "system.h"
 #endif // __NIOS2__
@@ -378,6 +380,7 @@ extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char 
 extern void CnApi_cleanupObjects(void);
 extern WORD CnApi_getNodeId(void);
 extern void CnApi_GetCntrlRegfromLe(tPcpCtrlReg * pDest_p, tPcpCtrlReg * pSrcLE_p);
+extern tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
 
 
 /* functions for interrupt synchronization */

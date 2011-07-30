@@ -15,7 +15,7 @@ BSP_ROOT_DIR := ../../../apps/ap_PDI/bsp
 MAKEABLE_LIBRARY_ROOT_DIRS :=
 
 # Generic flags passed to the compiler for different types of input files.
-ALT_CFLAGS :=
+ALT_CFLAGS := 
 ALT_CXXFLAGS :=
 ALT_CPPFLAGS :=
 ALT_ASFLAGS :=
@@ -95,7 +95,8 @@ ACDS_VERSION := 9.1sp2
 LIB_NAME := CnApi
 
 # Paths to C, C++, and assembly source files.
-C_SRCS += ../../src/amibe.c
+# C_SRCS += ../../src/amibe.c
+
 C_SRCS += ../../src/cnApi.c
 C_SRCS += ../../src/cnApiAsync.c
 C_SRCS += ../../src/cnApiAsyncSm.c
@@ -105,6 +106,11 @@ C_SRCS += ../../src/cnApiPdiSpi.c
 C_SRCS += ../../src/cnApiPdo.c
 C_SRCS += ../../src/cnApiStateMachine.c
 C_SRCS += ../../utils/stateMachine.c
+# use amibe.c for Big Endian and amiarm.c for Little Endian architecture
+C_SRCS += ../../src/amiarm.c
+C_SRCS += ../../src/EplSdoComu.c
+C_SRCS += ../../src/EplSdoAsySequ.c
+C_SRCS += ../../src/EplObd.c
 CXX_SRCS :=
 ASM_SRCS :=
 
@@ -127,7 +133,7 @@ LIB_ASFLAGS_USER :=
 LIB_ARCHIVER_FLAGS := -src
 
 # List of library specific include directories
-LIB_INCLUDE_DIRS := ../../include/openPOWERLINK
+LIB_INCLUDE_DIRS := ../../include/openPOWERLINK 
 
 # Pre- and post- processor settings.
 BUILD_PRE_PROCESS :=

@@ -142,6 +142,11 @@ This file has to be included before other include files.
 #    error you must 16bit-align these structures with the appropriate compiler directives
 #endif
 
+#define EPL_MODULE_INTEGRATION  (0 \
+                                | EPL_MODULE_OBDK \
+                                | EPL_MODULE_SDOS \
+                                )
+
 #endif  // #ifndef _CNAPI_GLOBAL_H_
 
 

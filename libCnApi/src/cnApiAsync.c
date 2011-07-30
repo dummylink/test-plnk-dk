@@ -20,6 +20,8 @@ This module contains functions for the asynchronous transfer in the CN API libra
 #include "cnApiIntern.h"
 #include "cnApiAsync.h"
 #include "stateMachine.h"
+#include "EplErrDef.h"
+#include "user/EplSdoComu.h"
 #ifdef CN_API_USING_SPI
     #include "cnApiPdiSpi.h"
 #endif
@@ -252,12 +254,12 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, pPdiBuf,
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -801,6 +803,7 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
 {
     tObjAccMsg *    pObjAccReq = NULL;
     tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
+    tEplKernel EplRet = kEplSuccessful;
 
     DEBUG_FUNC;
 
@@ -816,12 +819,22 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
 
     // process the message
     /*----------------------------------------------------------------------------*/
-    // TODO: actual function
     // forward to SDO command layer //TODO: Req->Server, Resp->Client: Issue?
     // TODO: convert to local endian from LE
+
     printf("(ReqId: %d Hdl:%d SdoCmdSegSize: %d)\n",
             pObjAccReq->m_bReqId, pObjAccReq->m_wHdlCom,
             pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
+
+    // TODO: better search for free handle?
+    EplRet = EplSdoComProcessIntern(pObjAccReq->m_wHdlCom,
+                                    kEplSdoComConEventRec,
+                                    &pObjAccReq->m_SdoCmdFrame);
+    if (EplRet != kEplSuccessful)
+    {
+        Ret = kPdiAsyncStatusInvalidOperation;
+        goto exit;
+    }
     /*----------------------------------------------------------------------------*/
 
 exit:

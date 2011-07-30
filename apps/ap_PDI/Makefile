@@ -183,6 +183,7 @@ BSP_ROOT_DIR := ./bsp
 APP_INCLUDE_DIRS += ../../libCnApi/include
 APP_INCLUDE_DIRS += ../../libCnApi/include/openPOWERLINK
 APP_INCLUDE_DIRS += ../../libCnApi/utils
+APP_INCLUDE_DIRS += ../powerlink/pcp_PDI/../generic/openPOWERLINK_CNDKPatched/Include
 
 APP_LIBRARY_DIRS := ../../libCnApi/target/nios2_newlib
 APP_LIBRARY_NAMES := CnApi

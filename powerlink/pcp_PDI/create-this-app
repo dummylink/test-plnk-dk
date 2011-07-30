@@ -85,7 +85,7 @@ ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
 ${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
 ${OBJDICTDIR} \
-${LIBAPIDIR}/include \
+${LIBAPIDIR}/include/tst \
 ${LIBAPIDIR}/utils"
 
 ###############################################################################

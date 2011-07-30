@@ -217,6 +217,9 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
                     (BYTE*) &pCtrlRegLE_g->m_wCommand);
 #endif /* CN_API_USING_SPI */
 
+    /* assign callback for all objects which don't exist in local OBD */
+    EplObdSetDefaultObdCallback(CnApi_CbDefaultObdAccess);
+
     /* initialize state machine */
     CnApi_initApStateMachine();
 

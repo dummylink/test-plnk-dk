@@ -28,6 +28,7 @@ a dual ported RAM (DPRAM) area.
 #include "cnApiDebug.h"
 #include "cnApiAsync.h"
 #include "cnApiEvent.h"
+#include "EplSdoAc.h"
 
 #ifdef __NIOS2__
 #include "system.h"
@@ -634,6 +635,272 @@ int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
     return OK;
 }
 #endif /* CN_API_USING_SPI */
+
+/**
+ ********************************************************************************
+ \brief called if object index does not exits in OBD
+ \param pObdParam_p   OBD access structure
+ \return tEplKernel value
+
+ This default OBD access callback function will be invoked if an index is not
+ present in the local OBD. If a subindex is not present, this function shall not
+ be called. If the access to the desired object can not be handled immediately,
+ kEplObdAccessAdopted has to be returned.
+ *******************************************************************************/
+tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam *  pObdParam_p)
+{
+tEplObdParam *   pAllocObdParam = NULL; ///< pointer to allocated memory of OBD access handle
+tEplKernel       Ret = kEplSuccessful;
+
+    if (pObdParam_p == NULL)
+    {
+        Ret = kEplInvalidParam;
+    }
+
+    if (pObdParam_p->m_pRemoteAddress != NULL)
+    {   // remote access via SDO
+        //printf("Remote OBD access from %d\n", pObdParam_p->m_pRemoteAddress->m_uiNodeId);
+    }
+
+    // return error for all non existing objects
+    switch (pObdParam_p->m_uiIndex)
+    {
+        case 0x1010:
+        {
+            switch (pObdParam_p->m_uiSubIndex)
+            {
+                case 0x01:
+                {
+                    break;
+                }
+
+                default:
+                {
+                    // printf("Sub-index does not exist!\n");
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+                    Ret = kEplObdSubindexNotExist;
+                    goto Exit;
+                }
+            }
+
+            break;
+        }
+
+        case 0x1F50:
+        {
+            switch (pObdParam_p->m_uiSubIndex)
+            {
+                case 0x01:
+                case 0x02:
+                {
+                    break;
+                }
+
+                default:
+                {
+                    // printf("Sub-index does not exist!\n");
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+                    Ret = kEplObdSubindexNotExist;
+                    goto Exit;
+                }
+            }
+
+            break;
+        }
+
+        case 0x6500:
+        {
+            switch (pObdParam_p->m_uiSubIndex)
+            {
+                case 0x01:
+                {
+                    break;
+                }
+
+                default:
+                {
+                    // printf("Sub-index does not exist!\n");
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+                    Ret = kEplObdSubindexNotExist;
+                    goto Exit;
+                }
+            }
+
+            break;
+        }
+
+        default:
+        {
+            // printf("Object does not exist!\n");
+            pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+            Ret = kEplObdIndexNotExist;
+            goto Exit;
+        }
+        break;
+    }
+
+    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
+           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
+        pObdParam_p->m_ObdEvent,
+        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
+        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
+
+    switch (pObdParam_p->m_ObdEvent)
+    {
+        case kEplObdEvCheckExist:
+        {
+            // Do not return "kEplObdAccessAdopted" - not allowed in this case!
+
+            // assign data type
+            //TODO: check maximum segment offset
+            //TODO: check object size
+            switch (pObdParam_p->m_uiIndex)
+            {
+                case 0x1010:
+                //case 0x1011:
+                case 0x6500: //TODO: delete this test object
+                {
+                    pObdParam_p->m_Type = kEplObdTypUInt32;
+
+                    break;
+                }
+
+                case 0x1F50:
+                {
+                    pObdParam_p->m_Type = kEplObdTypDomain;
+
+                    break;
+                }
+
+                default:
+                break;
+            }
+
+            goto Exit;
+        } // end case kEplObdEvCheckExist
+
+        case kEplObdEvInitWriteLe:
+        { // do not return kEplSuccessful in this case,
+          // only error or kEplObdAccessAdopted is allowed!
+
+          // TODO: Systec Doku: "The pointer m_pData is only valid within the function call.
+          // The caller of m_pfnAccessFinished has to provide an own
+          // buffer." -> Do I really need to allocate a buffer for Default OBD (write) access ?
+
+          // TODO: block all transfers of same index/subindex which are already processing
+
+            if (pObdParam_p->m_pRemoteAddress != NULL)
+            {   // remote access via SDO
+
+                // TODO: if it is a read only object -> refuse SDO access
+                //Ret = kEplObdWriteViolation;
+                //ObdParam_p->m_dwAbortCode = EPL_SDOAC_WRITE_TO_READ_ONLY_OBJ;
+                //goto Exit;
+                //TODO: else
+
+            }
+            else
+            {   // caller is local -> write access to read only object is fine
+
+                //TODO: callback function for local access has to be assigned by caller
+            }
+
+            // TODO:
+            // Question: Sequence Layer Ack will be sent after first received "init" segment?
+            // A: no, Client will send Ack Request after sending history block
+            // Note: Only a "history segment block" can be delayed, but not single segments!
+
+            if (pObdParam_p->m_pfnAccessFinished == NULL)
+            {
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                Ret = kEplObdAccessViolation;
+                goto Exit;
+            }
+
+            // allocate memory for handle
+            pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam));
+            if (pAllocObdParam == NULL)
+            {
+                Ret = kEplObdOutOfMemory;
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                goto Exit;
+            }
+
+            EPL_MEMCPY(pAllocObdParam, pObdParam_p, sizeof (*pAllocObdParam));
+
+            // forward "pAllocObdParam" which has to be returned in callback
+            if (pObdParam_p->m_Type == kEplObdTypDomain)
+            {
+                // Domain access currently not allowed (segmented transfer is not supported)
+                Ret = kEplObdUnknownObjectType;
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                goto Exit;
+            }
+            else // non domain objects
+            {
+                // TODO: send message to AP
+                // or TODO: search for valid handle and write to target
+
+                // AP returns answer (including address) -> call EplAppCbObdAdoptedAccessFinished:
+
+                // Note: pObdParam_p->m_pHandle is SDO connection handle and has to be returned in pfnAccessFinished to SDO command layer;
+            }
+
+            // adopt write access
+            Ret = kEplObdAccessAdopted;
+            printf(" Adopted\n");
+            goto Exit;
+
+        }   // end case kEplObdEvInitWriteLe
+
+        case kEplObdEvPreRead:
+        { // do not return kEplSuccessful in this case,
+          // only error or kEplObdAccessAdopted or kEplObdSegmentReturned is allowed!
+
+            // Note: kEplObdAccessAdopted can only be returned for expedited (non-fragmented) reads!
+            // Adopted access is not yet implemented for segmented kEplObdEvPreRead.
+            // Thus, kEplObdSegmentReturned has to be returned in this case! This requires immediate access to
+            // the read source data right from this function.
+
+            //TODO: send expedited SDO request to AP + forward handle
+
+            //TODO: set type of transfer according to object size - see EplSdoComServerInitReadByIndex()
+
+            //TODO: block all transfers of same index/subindex which are already processing
+
+            if (pObdParam_p->m_pfnAccessFinished == NULL)
+            {
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                Ret = kEplObdAccessViolation;
+                goto Exit;
+            }
+
+            // allocate memory for handle
+            pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam));
+            if (pAllocObdParam == NULL)
+            {
+                Ret = kEplObdOutOfMemory;
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                goto Exit;
+            }
+
+            EPL_MEMCPY(pAllocObdParam, pObdParam_p, sizeof (*pAllocObdParam));
+
+            // adopt read access
+            Ret = kEplObdAccessAdopted;
+            printf("  Adopted\n");
+            goto Exit;
+
+        }   // end case kEplObdEvPreRead
+
+        default:
+        break;
+    }
+
+Exit:
+    return Ret;
+}
 
 /* END-OF-FILE */
 /******************************************************************************/
