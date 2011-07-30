@@ -205,7 +205,7 @@ typedef struct sObjAccSdoComCon {
     WORD                    m_wSdoSeqConHdl; ///< SDO command layer connection handle number
     tEplAsySdoComFrm *      m_pSdoCmdFrame;    ///< pointer to SDO command frame
     unsigned int            m_uiSizeOfFrame;   ///< size of SDO command frame
-} tsObjAccSdoComCon;
+} tObjAccSdoComCon;
 
 /**
  * \brief structure for ObjAccReq command

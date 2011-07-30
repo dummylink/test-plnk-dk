@@ -213,8 +213,8 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     //TODO: This is blocking asynchronous traffic, because it waits for a response
     //      Issue: ReqId has to be saved somehow (= another handle history)
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_doObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
+                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, 0);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -537,7 +537,6 @@ tPdiAsyncStatus cnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE
     DEBUG_FUNC;
 
     if (pMsgDescr_p == NULL                  || // message descriptor
-        pMsgDescr_p->pUserHdl_m == NULL      || // input argument
         pRxMsgBuffer_p == NULL                 ) // verify all buffer pointers we intend to use)
     {
         Ret = kPdiAsyncStatusInvalidInstanceParam;
@@ -740,7 +739,7 @@ static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
                                                      BYTE * pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
     tObjAccMsg *            pObjAccReqDst = NULL;
-    tsObjAccSdoComCon *     pSdoComConInArg = NULL; //input argument
+    tObjAccSdoComCon *     pSdoComConInArg = NULL; //input argument
     tPdiAsyncStatus         Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
@@ -763,7 +762,7 @@ static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     }
 
     // assign input argument
-    pSdoComConInArg = (tsObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
+    pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
     // assign buffer payload addresses
     pObjAccReqDst = (tObjAccMsg *) pMsgBuffer_p;   // Tx buffer
 

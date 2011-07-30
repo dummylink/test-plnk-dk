@@ -256,8 +256,8 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
+                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -522,7 +522,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
                                                      BYTE * pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
     tObjAccMsg *            pObjAccReqDst = NULL;
-    tsObjAccSdoComCon *     pSdoComConInArg = NULL; //input argument
+    tObjAccSdoComCon *     pSdoComConInArg = NULL; //input argument
     tPdiAsyncStatus         Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
@@ -545,7 +545,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     }
 
     // assign input argument
-    pSdoComConInArg = (tsObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
+    pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
     // assign buffer payload addresses
     pObjAccReqDst = (tObjAccMsg *) pMsgBuffer_p;   // Tx buffer
 
@@ -805,7 +805,6 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
     DEBUG_FUNC;
 
     if (pMsgDescr_p == NULL                  || // message descriptor
-        pMsgDescr_p->pUserHdl_m == NULL      || // input argument
         pRxMsgBuffer_p == NULL                 ) // verify all buffer pointers we intend to use)
     {
         Ret = kPdiAsyncStatusInvalidInstanceParam;
@@ -820,7 +819,9 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
     // TODO: actual function
     // forward to SDO command layer //TODO: Req->Server, Resp->Client: Issue?
     // TODO: convert to local endian from LE
-
+    printf("(ReqId: %d Hdl:%d SdoCmdSegSize: %d)\n",
+            pObjAccReq->m_bReqId, pObjAccReq->m_wHdlCom,
+            pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
     /*----------------------------------------------------------------------------*/
 
 exit:

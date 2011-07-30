@@ -437,8 +437,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                 case kEplNmtCsPreOperational2:
                 {
-                    while(1)
-                    {
+
                     //TEST of AP SDO TRANSFERS
                     /******************************************************************************/
                     #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
@@ -483,13 +482,13 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     }
 
                     // close connection
-                    EplRet = EplSdoComUndefineCon(SdoComConHdl); //TODO: handle new case PDI
+                    EplRet = EplSdoComUndefineCon(SdoComConHdl); //TODO: Do this in Cb function??
                     if(EplRet != kEplSuccessful)
                     {
                         printf("Close of SDO via UDP Connection failed: 0x%03X\n", EplRet);
                     }
                     /******************************************************************************/
-                    }
+
 
                     setPowerlinkEvent(kPowerlinkEventEnterPreop2);
 
