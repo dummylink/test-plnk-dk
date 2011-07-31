@@ -876,13 +876,6 @@ tEplKernel       Ret = kEplSuccessful;
 //                goto Exit;
 //            }
 
-            if (pObdParam_p->m_pfnAccessFinished == NULL)
-            {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                Ret = kEplObdAccessViolation;
-                goto Exit;
-            }
-
             // allocate memory for handle
             pAllocObdParam = CNAPI_MALLOC(sizeof (*pAllocObdParam));
             if (pAllocObdParam == NULL)
