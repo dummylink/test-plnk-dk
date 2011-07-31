@@ -811,7 +811,7 @@ tEplKernel       Ret = kEplSuccessful;
             }
 
             // allocate memory for handle
-            pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam));
+            pAllocObdParam = CNAPI_MALLOC(sizeof (*pAllocObdParam));
             if (pAllocObdParam == NULL)
             {
                 Ret = kEplObdOutOfMemory;
@@ -884,7 +884,7 @@ tEplKernel       Ret = kEplSuccessful;
             }
 
             // allocate memory for handle
-            pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam));
+            pAllocObdParam = CNAPI_MALLOC(sizeof (*pAllocObdParam));
             if (pAllocObdParam == NULL)
             {
                 Ret = kEplObdOutOfMemory;
