@@ -796,32 +796,14 @@ tEplKernel       Ret = kEplSuccessful;
         { // do not return kEplSuccessful in this case,
           // only error or kEplObdAccessAdopted is allowed!
 
-          // TODO: Systec Doku: "The pointer m_pData is only valid within the function call.
-          // The caller of m_pfnAccessFinished has to provide an own
-          // buffer." -> Do I really need to allocate a buffer for Default OBD (write) access ?
-
-          // TODO: block all transfers of same index/subindex which are already processing
-
             if (pObdParam_p->m_pRemoteAddress != NULL)
             {   // remote access via SDO
-
-                // TODO: if it is a read only object -> refuse SDO access
-                //Ret = kEplObdWriteViolation;
-                //ObdParam_p->m_dwAbortCode = EPL_SDOAC_WRITE_TO_READ_ONLY_OBJ;
-                //goto Exit;
-                //TODO: else
 
             }
             else
             {   // caller is local -> write access to read only object is fine
 
-                //TODO: callback function for local access has to be assigned by caller
             }
-
-            // TODO:
-            // Question: Sequence Layer Ack will be sent after first received "init" segment?
-            // A: no, Client will send Ack Request after sending history block
-            // Note: Only a "history segment block" can be delayed, but not single segments!
 
             if (pObdParam_p->m_pfnAccessFinished == NULL)
             {
@@ -875,11 +857,26 @@ tEplKernel       Ret = kEplSuccessful;
             // Thus, kEplObdSegmentReturned has to be returned in this case! This requires immediate access to
             // the read source data right from this function.
 
-            //TODO: send expedited SDO request to AP + forward handle
-
             //TODO: set type of transfer according to object size - see EplSdoComServerInitReadByIndex()
 
-            //TODO: block all transfers of same index/subindex which are already processing
+            //TODO: set max connection to 1
+
+            // Process objects which are able to return their data immediately
+//            pObdParam_p->m_pData = &dwExampleData;
+//            pObdParam_p->m_ObjSize = sizeof(dwExampleData);
+//            pObdParam_p->m_SegmentSize = sizeof(dwExampleData);
+//
+//            Ret = kEplObdSegmentReturned;
+//            printf("INFO: Object Data immediately returned.\n");
+//            goto Exit;
+//
+//            // Process objects which can not be accessed immediately
+//            if (pObdParam_p->m_pfnAccessFinished == NULL)
+//            {
+//                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+//                Ret = kEplObdAccessViolation;
+//                goto Exit;
+//            }
 
             if (pObdParam_p->m_pfnAccessFinished == NULL)
             {
