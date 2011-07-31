@@ -354,9 +354,9 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         tEplObdParam ObdParam_p;
 
                         //TODO: delete this test
-                        ObdParam_p->m_pData = &dwExampleData;
-                        ObdParam_p->m_ObjSize = sizeof(dwExampleData);
-                        ObdParam_p->m_SegmentSize = sizeof(dwExampleData);
+                        ObdParam_p.m_pData = &dwExampleData;
+                        ObdParam_p.m_ObjSize = sizeof(dwExampleData);
+                        ObdParam_p.m_SegmentSize = sizeof(dwExampleData);
 
                         CnApi_DefObdAccFinished(&ObdParam_p);
 
