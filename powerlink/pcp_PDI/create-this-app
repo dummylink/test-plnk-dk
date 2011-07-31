@@ -85,7 +85,7 @@ ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
 ${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
 ${OBJDICTDIR} \
-${LIBAPIDIR}/include/tst \
+${LIBAPIDIR}/include \
 ${LIBAPIDIR}/utils"
 
 ###############################################################################
@@ -108,7 +108,7 @@ else
 	DEF_DEBUG_LVL="0xEC000F00L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs + CN API messages
 fi
 
-CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
+CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP"
 
 ###############################################################################
 # source files

@@ -23,9 +23,7 @@ a dual ported RAM (DPRAM) area.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiGlobal.h"     // global definitions
 #include "cnApi.h"
-#include "cnApiDebug.h"
 #include "cnApiAsync.h"
 #include "cnApiEvent.h"
 #include "EplSdoAc.h"

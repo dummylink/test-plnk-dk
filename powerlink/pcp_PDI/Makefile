@@ -225,7 +225,7 @@ APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/SharedBuff
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/ObjDicts
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/Target/altera_nios2/no_os/gnu/include
 APP_INCLUDE_DIRS += ../../objDicts/PDI
-APP_INCLUDE_DIRS += ../../libCnApi/include/tst
+APP_INCLUDE_DIRS += ../../libCnApi/include
 APP_INCLUDE_DIRS += ../../libCnApi/utils
 
 APP_LIBRARY_DIRS :=
@@ -235,7 +235,7 @@ APP_LIBRARY_NAMES :=
 BUILD_PRE_PROCESS :=
 BUILD_POST_PROCESS :=
 
-CFLAGS := -D_DEBUG -DCN_API_FLAGS= -DDEF_DEBUG_LVL=0xEC000F00L
+CFLAGS := -D_DEBUG -DCN_API_FLAGS= -DDEF_DEBUG_LVL=0xEC000F00L -DMAKE_BUILD_PCP
 CREATE_OBJDUMP := 0
 OBJDUMP_INCLUDE_SOURCE := 1
 QUARTUS_PROJECT_DIR := ../../fpga/altera/TERASIC_DE2-115/ink_ap_pcp_intavalon
