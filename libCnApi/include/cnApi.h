@@ -381,7 +381,7 @@ extern void CnApi_cleanupObjects(void);
 extern WORD CnApi_getNodeId(void);
 extern void CnApi_GetCntrlRegfromLe(tPcpCtrlReg * pDest_p, tPcpCtrlReg * pSrcLE_p);
 extern tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
-
+extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p)
 
 /* functions for interrupt synchronization */
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);

@@ -91,6 +91,9 @@ static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values 
 static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here
 static BOOL     fOperational_l = FALSE;                         ///< indicates AP Operation state
 
+// Object access
+static DWORD dwExampleData = 0xABCD; // this is only an example object data
+
 /******************************************************************************/
 /* forward declarations */
 void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *pMac_p);
@@ -348,6 +351,15 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 #ifndef USE_POLLING_MODE
                         CnApi_enableSyncInt();    // enable synchronous IR signal of PCP
 #endif
+                        tEplObdParam ObdParam_p;
+
+                        //TODO: delete this test
+                        ObdParam_p->m_pData = &dwExampleData;
+                        ObdParam_p->m_ObjSize = sizeof(dwExampleData);
+                        ObdParam_p->m_SegmentSize = sizeof(dwExampleData);
+
+                        CnApi_DefObdAccFinished(&ObdParam_p);
+
                         break;
                     }
                     case kApStateError:
@@ -902,5 +914,55 @@ Exit:
     return Ret;
 }
 
+/**
+ ********************************************************************************
+ \brief signals an OBD default access as finished
+ \param pObdParam_p
+ \return tEplKernel value
+ *******************************************************************************/
+tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p)
+{
+tEplKernel EplRet = kEplSuccessful;
+
+    printf("INFO: %s(%p) called\n", __func__, pObdParam_p);
+
+    if (pObdParam_p == NULL)
+    {
+        EplRet = kEplInvalidParam;
+        goto Exit;
+    }
+
+    if (pObdParam_p->m_pfnAccessFinished == NULL)
+    {
+        EplRet = kEplInvalidParam;
+        goto Exit;
+    }
+
+    // call callback function which was assigned by caller
+    EplRet = pObdParam_p->m_pfnAccessFinished(pObdParam_p);
+    if (EplRet != kEplSuccessful)
+    {
+        goto Exit;
+    }
+
+    // check if it was a segmented write SDO transfer (domain object write access)
+    if ((pObdParam_p->m_Type == kEplObdTypDomain))
+    {
+            // currently not supported
+            EplRet = kEplInvalidParam;
+            goto Exit;
+    }
+
+    CNAPI_FREE(pObdParam_p);
+    pObdParam_p = NULL;
+
+Exit:
+    if (EplRet != kEplSuccessful)
+    {
+        printf("ERROR: %s failed!\n", __func__);
+    }
+    return EplRet;
+
+}
 /* END-OF-FILE */
 /******************************************************************************/
