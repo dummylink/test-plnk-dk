@@ -82,6 +82,9 @@ static char aszSdoStates_l[6][40]={"Connection not active\n",
                                 "Sdo Tranfer finished\n",
                                 "Sdo Transfer aborted by lower layer\n"};
 
+static tEplSdoComConHdl          SdoComConHdl_l = 0;
+static unsigned int              uiBuffer_l;
+
 
 /******************************************************************************/
 // This function is the entry point for your object dictionary. It is defined
@@ -441,18 +444,11 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     //TEST of AP SDO TRANSFERS
                     /******************************************************************************/
                     #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
-
-                    tEplSdoComConHdl            SdoComConHdl = 0;
-                    unsigned long               ulSize;
-                    unsigned int                uiBuffer;
                     tEplSdoComTransParamByIndex TransParamByIndex;
-                    unsigned int                uiCount;
-                    BYTE                        bBuffer;
-
                     #endif
 
                     // init command layer connection
-                    EplRet = EplSdoComDefineCon(&SdoComConHdl,
+                    EplRet = EplSdoComDefineCon(&SdoComConHdl_l,
                                                 0x01,  // target node id -> take any valid powerlink node id. e.g. 0x01!
                                                 kEplSdoTypeApiPdi);
                     if(EplRet != kEplSuccessful)
@@ -461,10 +457,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     }
 
                     // read object 0x1000
-                    TransParamByIndex.m_pData = &uiBuffer;
+                    TransParamByIndex.m_pData = &uiBuffer_l; // provide data buffer to SDO Client
                     TransParamByIndex.m_SdoAccessType = kEplSdoAccessTypeRead;
-                    TransParamByIndex.m_SdoComConHdl = SdoComConHdl; // EplSdoComDefineCon returned this handle
-                    TransParamByIndex.m_uiDataSize = sizeof(uiBuffer);
+                    TransParamByIndex.m_SdoComConHdl = SdoComConHdl_l; // EplSdoComDefineCon returned this handle
+                    TransParamByIndex.m_uiDataSize = sizeof(uiBuffer_l);
                     TransParamByIndex.m_uiIndex = 0x6500;
                     TransParamByIndex.m_uiSubindex = 0x01;
                     TransParamByIndex.m_uiTimeout = 0;
@@ -481,12 +477,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         printf("Read of object 0x1000 started\n");
                     }
 
-                    // close connection
-                    EplRet = EplSdoComUndefineCon(SdoComConHdl); //TODO: Do this in Cb function??
-                    if(EplRet != kEplSuccessful)
-                    {
-                        printf("Close of SDO via UDP Connection failed: 0x%03X\n", EplRet);
-                    }
                     /******************************************************************************/
 
 
@@ -2090,6 +2080,13 @@ tEplKernel Ret;
     else
     {
         fSdoSuccessful_l = TRUE;
+    }
+
+    // close connection
+    Ret = EplSdoComUndefineCon(SdoComConHdl_l); //TODO: Do this in Cb function??
+    if(Ret != kEplSuccessful)
+    {
+        printf("Close of SDO via UDP Connection failed: 0x%03X\n", Ret);
     }
 
     // set event

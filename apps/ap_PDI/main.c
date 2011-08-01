@@ -90,7 +90,8 @@ static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values 
 static BOOL     fOperational_l = FALSE;                         ///< indicates AP Operation state
 
 // Object access
-static DWORD dwExampleData = 0xABCD; // this is only an example object data
+static DWORD dwExampleData = 0x1234ABCD;             ///< this is only an example object data
+static tEplObdParam *   pAllocObdParam_l = NULL; ///< pointer to allocated memory of OBD access handle
 
 /******************************************************************************/
 /* forward declarations */
@@ -349,14 +350,13 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 #ifndef USE_POLLING_MODE
                         CnApi_enableSyncInt();    // enable synchronous IR signal of PCP
 #endif
-                        tEplObdParam ObdParam_p;
 
                         //TODO: delete this test
-                        ObdParam_p.m_pData = &dwExampleData;
-                        ObdParam_p.m_ObjSize = sizeof(dwExampleData);
-                        ObdParam_p.m_SegmentSize = sizeof(dwExampleData);
+                        pAllocObdParam_l->m_pData = &dwExampleData;
+                        pAllocObdParam_l->m_ObjSize = sizeof(dwExampleData);
+                        pAllocObdParam_l->m_SegmentSize = sizeof(dwExampleData);
 
-                        CnApi_DefObdAccFinished(&ObdParam_p);
+                        CnApi_DefObdAccFinished(pAllocObdParam_l);
 
                         break;
                     }
@@ -659,7 +659,6 @@ int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
  *******************************************************************************/
 tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam *  pObdParam_p)
 {
-tEplObdParam *   pAllocObdParam = NULL; ///< pointer to allocated memory of OBD access handle
 tEplKernel       Ret = kEplSuccessful;
 
     if (pObdParam_p == NULL)
@@ -811,17 +810,17 @@ tEplKernel       Ret = kEplSuccessful;
             }
 
             // allocate memory for handle
-            pAllocObdParam = CNAPI_MALLOC(sizeof (*pAllocObdParam));
-            if (pAllocObdParam == NULL)
+            pAllocObdParam_l = CNAPI_MALLOC(sizeof (*pAllocObdParam_l));
+            if (pAllocObdParam_l == NULL)
             {
                 Ret = kEplObdOutOfMemory;
                 pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
                 goto Exit;
             }
 
-            EPL_MEMCPY(pAllocObdParam, pObdParam_p, sizeof (*pAllocObdParam));
+            EPL_MEMCPY(pAllocObdParam_l, pObdParam_p, sizeof (*pAllocObdParam_l));
 
-            // forward "pAllocObdParam" which has to be returned in callback
+            // forward "pAllocObdParam_l" which has to be returned in callback
             if (pObdParam_p->m_Type == kEplObdTypDomain)
             {
                 // Domain access currently not allowed (segmented transfer is not supported)
@@ -877,15 +876,15 @@ tEplKernel       Ret = kEplSuccessful;
 //            }
 
             // allocate memory for handle
-            pAllocObdParam = CNAPI_MALLOC(sizeof (*pAllocObdParam));
-            if (pAllocObdParam == NULL)
+            pAllocObdParam_l = CNAPI_MALLOC(sizeof (*pAllocObdParam_l));
+            if (pAllocObdParam_l == NULL)
             {
                 Ret = kEplObdOutOfMemory;
                 pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
                 goto Exit;
             }
 
-            EPL_MEMCPY(pAllocObdParam, pObdParam_p, sizeof (*pAllocObdParam));
+            EPL_MEMCPY(pAllocObdParam_l, pObdParam_p, sizeof (*pAllocObdParam_l));
 
             // adopt read access
             Ret = kEplObdAccessAdopted;

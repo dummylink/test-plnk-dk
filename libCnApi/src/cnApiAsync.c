@@ -221,15 +221,15 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 //    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     //TODO: This is blocking asynchronous traffic, because it waits for a response
     //      Issue: ReqId has to be saved somehow (= another handle history)
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
+                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, 1000);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -253,13 +253,13 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, pPdiBuf,
-                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, ChanType_p, pNmtList, wTout);
+    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -531,7 +531,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
 
     if (pMsgDescr_p == NULL                  || // message descriptor
         pMsgDescr_p->pUserHdl_m == NULL      || // input argument
-        pMsgDescr_p->pRespMsgDescr_m == NULL || // response message assignment
+        //pMsgDescr_p->pRespMsgDescr_m == NULL || // response message assignment
         pMsgBuffer_p == NULL                 ) // verify all buffer pointers we intend to use)
     {
         Ret = kPdiAsyncStatusInvalidInstanceParam;
@@ -546,6 +546,12 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
         goto exit;
     }
 
+    if ( pSdoComConInArg->m_uiSizeOfFrame == 0)
+    {
+        // no data containment - this should be an sequence layer ack frame
+        // -> dont send it since we only use command layer!
+        goto exit;
+    }
     // assign input argument
     pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
     // assign buffer payload addresses
