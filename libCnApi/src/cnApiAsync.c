@@ -229,7 +229,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     //TODO: This is blocking asynchronous traffic, because it waits for a response
     //      Issue: ReqId has to be saved somehow (= another handle history)
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, 1000);
+                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -538,8 +538,14 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
         goto exit;
     }
 
+    // assign input argument
+    pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
+
+    /* update size values of message descriptors */
+    pMsgDescr_p->dwMsgSize_m = offsetof(tObjAccMsg ,m_SdoCmdFrame) + pSdoComConInArg->m_uiSizeOfFrame;
+
     /* check if expected Tx message size exceeds the buffer */
-    if (sizeof(tObjAccMsg) > dwMaxTxBufSize_p)
+    if (pMsgDescr_p->dwMsgSize_m > dwMaxTxBufSize_p)
     {
         /* reject transfer, because direct access can not be processed */
         Ret = kPdiAsyncStatusDataTooLong;
@@ -552,8 +558,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
         // -> dont send it since we only use command layer!
         goto exit;
     }
-    // assign input argument
-    pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
+
     // assign buffer payload addresses
     pObjAccReqDst = (tObjAccMsg *) pMsgBuffer_p;   // Tx buffer
 
@@ -565,9 +570,6 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     pObjAccReqDst->m_bReqId =  bReqId_l;//TODO: dont use this Id, only rely on m_wHdlCom
     pObjAccReqDst->m_wHdlCom = pSdoComConInArg->m_wSdoSeqConHdl;
     /*----------------------------------------------------------------------------*/
-
-    /* update size values of message descriptors */
-    pMsgDescr_p->dwMsgSize_m = offsetof(tObjAccMsg ,m_SdoCmdFrame) + pSdoComConInArg->m_uiSizeOfFrame;     // sent size
 
 exit:
     return Ret;
@@ -833,7 +835,11 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
             pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
 
     // TODO: better search for free handle?
-    EplRet = EplSdoComProcessIntern(pObjAccReq->m_wHdlCom,
+//    tEplKernel EplSdoComSearchConIntern(tEplSdoSeqConHdl    SdoSeqConHdl_p,
+//                                             tEplSdoComConEvent SdoComConEvent_p,
+//                                             tEplAsySdoCom*     pAsySdoCom_p);
+
+    EplRet = EplSdoComProcessIntern(0,
                                     kEplSdoComConEventRec,
                                     &pObjAccReq->m_SdoCmdFrame);
     if (EplRet != kEplSuccessful)

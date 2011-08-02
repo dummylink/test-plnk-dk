@@ -352,13 +352,24 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 #endif
 
                         //TODO: This is only a test! -> delete
-                        // Example how to finish a ReadByIndex access:
-                        pAllocObdParam_l->m_pData = &dwExampleData;
-                        pAllocObdParam_l->m_ObjSize = sizeof(dwExampleData);
-                        pAllocObdParam_l->m_SegmentSize = sizeof(dwExampleData);
+                        if (pAllocObdParam_l->m_ObdEvent == kEplObdEvPreRead)
+                        {   // return data of read access
 
-                        // if an error occured (e.g. object does not exist):
-                        // pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                            // Example how to finish a ReadByIndex access:
+                            pAllocObdParam_l->m_pData = &dwExampleData;
+                            pAllocObdParam_l->m_ObjSize = sizeof(dwExampleData);
+                            pAllocObdParam_l->m_SegmentSize = sizeof(dwExampleData);
+
+                            // if an error occured (e.g. object does not exist):
+                            // pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+
+                        }
+                        else
+                        { // write access
+
+                            // nothing to do except optional error handling
+                            // pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                        }
 
                         CnApi_DefObdAccFinished(pAllocObdParam_l);
                         // end of test
@@ -671,22 +682,12 @@ tEplKernel       Ret = kEplSuccessful;
         Ret = kEplInvalidParam;
     }
 
-    // check if it was a segmented write SDO transfer (domain object write access)
-    if ((pObdParam_p->m_Type == kEplObdTypDomain))
-    {
-            // currently not supported
-            EplRet = kEplInvalidParam;
-            goto Exit;
-    }
-
-    // check if it was a segmented write SDO transfer (domain object write access)
-    if ((pObdParam_p->m_Type == kEplObdTypDomain))
-    {
-            // currently not supported
-            EplRet = kEplInvalidParam;
-            pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
-            goto Exit;
-    }
+    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
+           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
+        pObdParam_p->m_ObdEvent,
+        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
+        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     // return error for all non existing objects
     // if not known yet, this can also be done in CnApi_DefObdAccFinished()
@@ -694,6 +695,7 @@ tEplKernel       Ret = kEplSuccessful;
     switch (pObdParam_p->m_uiIndex)
     {
         case 0x6500:
+        case 0x1010:
         {
             switch (pObdParam_p->m_uiSubIndex)
             {
@@ -724,13 +726,6 @@ tEplKernel       Ret = kEplSuccessful;
         break;
     }
 
-    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
-           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
-        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
-        pObdParam_p->m_ObdEvent,
-        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
-        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
-
     switch (pObdParam_p->m_ObdEvent)
     {
         case kEplObdEvCheckExist:
@@ -747,6 +742,15 @@ tEplKernel       Ret = kEplSuccessful;
         case kEplObdEvPreRead:
         { // do not return kEplSuccessful in this case,
           // only error or kEplObdAccessAdopted is allowed!
+
+            // check if it is a segmented transfer (= domain object access)
+//            if ((pObdParam_p->m_Type == kEplObdTypDomain))
+//            {
+//                    // currently not supported
+//                    Ret = kEplInvalidParam;
+//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
+//                    goto Exit;
+//            }
 
             if (pObdParam_p->m_pfnAccessFinished == NULL)
             {
@@ -804,32 +808,23 @@ tEplKernel EplRet = kEplSuccessful;
 
     printf("INFO: %s(%p) called\n", __func__, pObdParam_p);
 
-    if (pObdParam_p == NULL)
+    if (pObdParam_p == NULL                     ||
+        pObdParam_p->m_pfnAccessFinished == NULL  )
     {
         EplRet = kEplInvalidParam;
         goto Exit;
     }
 
-    if (pObdParam_p->m_pfnAccessFinished == NULL)
+    if ((pObdParam_p->m_ObdEvent == kEplObdEvPreRead)          &&
+        (pObdParam_p->m_SegmentSize != pObdParam_p->m_ObjSize) ||
+        (pObdParam_p->m_SegmentOffset != 0)                      )
     {
-        EplRet = kEplInvalidParam;
-        goto Exit;
+        //segmented read access not allowed!
+        pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
     }
 
     // call callback function which was assigned by caller
     EplRet = pObdParam_p->m_pfnAccessFinished(pObdParam_p);
-    if (EplRet != kEplSuccessful)
-    {
-        goto Exit;
-    }
-
-    // check if it was a segmented write SDO transfer (domain object write access)
-    if ((pObdParam_p->m_Type == kEplObdTypDomain))
-    {
-            // currently not supported
-            EplRet = kEplInvalidParam;
-            goto Exit;
-    }
 
     CNAPI_FREE(pObdParam_p);
     pObdParam_p = NULL;

@@ -56,6 +56,8 @@ extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp si
 extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp side
 extern DWORD       dwSumMappingSize_g;    ///< counter of overall mapped bytes
 
+// Api PDI communication instance
+extern tEplObdParam * ApiPdiComInstance_g;
 /******************************************************************************/
 /* function declarations */
 extern BYTE getCommandFromAp(void);

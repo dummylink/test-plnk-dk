@@ -176,12 +176,12 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, cnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, 0);
+                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, 0);
+                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -214,7 +214,7 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     //TODO: This is blocking asynchronous traffic, because it waits for a response
     //      Issue: ReqId has to be saved somehow (= another handle history)
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, 0);
+                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -552,64 +552,17 @@ tPdiAsyncStatus cnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE
     // process the message
     /*----------------------------------------------------------------------------*/
 
-    // forward to SDO command layer //TODO: Req->Server, Resp->Client: Issue?
+    // forward to SDO command layer
     // TODO: convert to local endian from LE
 
-    pObjAccReq->m_wHdlCom = 4; // test
-
-    // get pointer to control structure
-    pSdoComCon = &SdoComInstance_g.m_SdoComCon[pObjAccReq->m_wHdlCom];
-    pAsySdoCom_p = &pObjAccReq->m_SdoCmdFrame;
-
-    // check if the frame is a SDO response and has the right transaction ID
-    bFlag = AmiGetByteFromLe(&pAsySdoCom_p->m_le_bFlags);
-    if (((bFlag & 0x80) != 0) && (AmiGetByteFromLe(&pAsySdoCom_p->m_le_bTransactionId) == pSdoComCon->m_bTransactionId))
+    if ((pObjAccReq->m_SdoCmdFrame.m_le_bFlags & 0x40) == 1)
     {
-        // check if abort or not
-        if((bFlag & 0x40) != 0)
-        {
-            // send acknowledge without any Command layer data
-            EplRet = EplSdoAsySeqSendData(pSdoComCon->m_SdoSeqConHdl,
-                                                    0,
-                                                    (tEplFrame*)NULL);
-            // inc transaction id
-            pSdoComCon->m_bTransactionId++;
-            // save abort code
-            pSdoComCon->m_dwLastAbortCode = AmiGetDwordFromLe(&pAsySdoCom_p->m_le_abCommandData[0]);
-            // call callback of application
-            EplRet = EplSdoComTransferFinished(pObjAccReq->m_wHdlCom, pSdoComCon, kEplSdoComTransferRxAborted);
-
-            goto Exit;
-        }
-        else
-        {   // normal frame received
-            // check frame
-            EplRet = EplSdoComClientProcessFrame(pObjAccReq->m_wHdlCom, pAsySdoCom_p);
-
-            // check if transfer ready
-            if(pSdoComCon->m_uiTransSize == 0)
-            {
-                // send acknowledge without any Command layer data
-//                EplRet = EplSdoAsySeqSendData(pSdoComCon->m_SdoSeqConHdl,
-//                                                        0,
-//                                                        (tEplFrame*)NULL);
-                // inc transaction id
-                pSdoComCon->m_bTransactionId++;
-                // call callback of application
-                pSdoComCon->m_dwLastAbortCode = 0;
-                // provide data pointer to application
-                pSdoComCon->m_pUserArg = pSdoComCon->m_pData;
-                EplRet = EplSdoComTransferFinished(pObjAccReq->m_wHdlCom, pSdoComCon, kEplSdoComTransferFinished);
-
-                goto Exit;
-            }
-
-        }
-
+        // SDO abort received
+        ApiPdiComInstance_g->m_dwAbortCode = AmiGetDwordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
     }
-//    EplRet = EplSdoComProcessIntern(pObjAccReq->m_wHdlCom,
-//                                    kEplSdoComConEventRec,
-//                                    &pObjAccReq->m_SdoCmdFrame);
+
+    EplRet = EplAppDefObdAccFinished(ApiPdiComInstance_g);
+
 Exit:
     if (EplRet != kEplSuccessful)
     {
@@ -809,16 +762,20 @@ static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
         goto exit;
     }
 
+    // assign input argument
+    pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
+
+    /* update size values of message descriptors */
+    pMsgDescr_p->dwMsgSize_m = offsetof(tObjAccMsg ,m_SdoCmdFrame) + pSdoComConInArg->m_uiSizeOfFrame;
+
     /* check if expected Tx message size exceeds the buffer */
-    if (sizeof(tObjAccMsg) > dwMaxTxBufSize_p)
+    if (pMsgDescr_p->dwMsgSize_m > dwMaxTxBufSize_p)
     {
         /* reject transfer, because direct access can not be processed */
         Ret = kPdiAsyncStatusDataTooLong;
         goto exit;
     }
 
-    // assign input argument
-    pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
     // assign buffer payload addresses
     pObjAccReqDst = (tObjAccMsg *) pMsgBuffer_p;   // Tx buffer
 
@@ -830,9 +787,6 @@ static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     pObjAccReqDst->m_bReqId =  bReqId_l;//TODO: dont use this Id, only rely on m_wHdlCom
     pObjAccReqDst->m_wHdlCom = pSdoComConInArg->m_wSdoSeqConHdl;
     /*----------------------------------------------------------------------------*/
-
-    /* update size values of message descriptors */
-    pMsgDescr_p->dwMsgSize_m = offsetof(tObjAccMsg ,m_SdoCmdFrame) + pSdoComConInArg->m_uiSizeOfFrame;     // sent size
 
 exit:
     return Ret;
