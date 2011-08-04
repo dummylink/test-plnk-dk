@@ -560,8 +560,16 @@ tPdiAsyncStatus cnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE
         // SDO abort received
         ApiPdiComInstance_g->m_dwAbortCode = AmiGetDwordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
     }
+    else
+    {
+        // only expedited transfer are currently supported
+        ApiPdiComInstance_g->m_SegmentSize = AmiGetWordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
+        ApiPdiComInstance_g->m_pData = &pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0];
+    }
 
-    EplRet = EplAppDefObdAccFinished(ApiPdiComInstance_g);
+    // TODO: search handle index
+
+    EplRet = EplAppDefObdAccFinished(&ApiPdiComInstance_g);
 
 Exit:
     if (EplRet != kEplSuccessful)

@@ -720,7 +720,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     printf("ERROR: No handle assigned!\n");
 
                     pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                    EplRet = EplAppDefObdAccFinished(pObdParam);
+                    EplRet = EplAppDefObdAccFinished(&pObdParam);
                     // correct history status
                     pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
                     bObdSegWriteAccHistoryEmptyCnt_g++;
@@ -933,7 +933,7 @@ BYTE bArrayNum;                 ///< loop counter and array element
         {
             // signal "OBD access finished" to originator
             // this triggers an Ack of the last received SDO sequence in case of remote access
-            EplRet = EplAppDefObdAccFinished(pObdDefAccHdl->m_pObdParam);
+            EplRet = EplAppDefObdAccFinished(&pObdDefAccHdl->m_pObdParam);
             if (EplRet != kEplSuccessful)
             {
                 goto Exit;
@@ -952,43 +952,47 @@ Exit:
 /**
  ********************************************************************************
  \brief signals an OBD default access as finished
- \param pObdParam_p
+ \param pObdParam_p pointer to OBD access struct pointer
  \return tEplKernel value
  *******************************************************************************/
-tEplKernel EplAppDefObdAccFinished(tEplObdParam * pObdParam_p)
+tEplKernel EplAppDefObdAccFinished(tEplObdParam ** pObdParam_p)
 {
 tEplKernel EplRet = kEplSuccessful;
+tEplObdParam * pObdParam = NULL;
 
-    printf("INFO: %s(%p) called\n", __func__, pObdParam_p);
+    pObdParam = *pObdParam_p;
 
-    if (pObdParam_p == NULL                     ||
-        pObdParam_p->m_pfnAccessFinished == NULL  )
+    printf("INFO: %s(%p) called\n", __func__, pObdParam);
+
+    if (pObdParam_p == NULL                   ||
+        pObdParam == NULL                     ||
+        pObdParam->m_pfnAccessFinished == NULL  )
     {
         EplRet = kEplInvalidParam;
         goto Exit;
     }
 
     // check if it was a segmented write SDO transfer (domain object write access)
-    if ((pObdParam_p->m_ObdEvent == kEplObdEvPreRead)          &&
-        (pObdParam_p->m_SegmentSize != pObdParam_p->m_ObjSize) ||
-        (pObdParam_p->m_SegmentOffset != 0)                      )
+    if ((pObdParam->m_ObdEvent == kEplObdEvPreRead)            &&
+        (//(pObdParam->m_SegmentSize != pObdParam->m_ObjSize) || //TODO: implement object size in Async message
+         (pObdParam->m_SegmentOffset != 0)                    )  )
     {
         //segmented read access not allowed!
-        pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
+        pObdParam->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
     }
 
     // call callback function which was assigned by caller
-    EplRet = pObdParam_p->m_pfnAccessFinished(pObdParam_p);
+    EplRet = pObdParam->m_pfnAccessFinished(pObdParam);
 
-    if ((pObdParam_p->m_Type == kEplObdTypDomain)         &&
-        (pObdParam_p->m_ObdEvent == kEplObdEvInitWriteLe) &&
-        (pObdParam_p->m_uiIndex == 0x1F50)                  )
+    if ((pObdParam->m_Type == kEplObdTypDomain)         &&
+        (pObdParam->m_ObdEvent == kEplObdEvInitWriteLe) &&
+        (pObdParam->m_uiIndex == 0x1F50)                  )
     {   // free allocated memory for segmented write transfer history
 
-        if (pObdParam_p->m_pData != NULL)
+        if (pObdParam->m_pData != NULL)
         {
-            EPL_FREE(pObdParam_p->m_pData);
-            pObdParam_p->m_pData = NULL;
+            EPL_FREE(pObdParam->m_pData);
+            pObdParam->m_pData = NULL;
         }
         else
         {   //allocation expected, but not present!
@@ -997,8 +1001,8 @@ tEplKernel EplRet = kEplSuccessful;
     }
 
     // free handle storage
-    EPL_FREE(pObdParam_p);
-    pObdParam_p = NULL;
+    EPL_FREE(pObdParam);
+    *pObdParam_p = NULL;
 
 Exit:
     if (EplRet != kEplSuccessful)
@@ -1587,6 +1591,8 @@ tEplKernel       Ret = kEplSuccessful;
             // save handle for callback function
             ApiPdiComInstance_g = pAllocObdParam;
 
+            printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
+
             // forward "pAllocObdParam" which has to be returned in callback,
             // so callback can access the Obd-access handle and SDO communication handle
             if (pObdParam_p->m_Type == kEplObdTypDomain)
@@ -1779,9 +1785,47 @@ tEplKernel       Ret = kEplSuccessful;
             EPL_MEMCPY(pAllocObdParam, pObdParam_p, sizeof (*pAllocObdParam));
 
             // save handle for callback function
-            ApiPdiComInstance_g = pAllocObdParam;
+            ApiPdiComInstance_g = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+            printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
+
+            // forward SDO transfers of application specific objects to AP
+            if (pObdParam_p->m_pRemoteAddress != NULL)
+            {   // remote access via SDO
+
+                //if (pObdParam_p->m_uiIndex >= 0x2000)
+                if(1)
+                {
+                    tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
+                    tObjAccSdoComCon PdiObjAccCon;
+
+                    PdiObjAccCon.m_wSdoSeqConHdl = 0xFF;///< SDO command layer connection handle number
+                    PdiObjAccCon.m_pSdoCmdFrame = pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame; ///< assign to SDO command frame
+                    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoComFrm , m_le_abCommandData) + pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize;  ///< size of SDO command frame
+
+                    PdiRet = CnApiAsync_postMsg(
+                                    kPdiAsyncMsgIntObjAccReq,
+                                    (BYTE *) &PdiObjAccCon,
+                                    0,
+                                    0);
+
+                    if (PdiRet == kPdiAsyncStatusRetry)
+                    {
+                        Ret = kEplSdoSeqConnectionBusy;
+                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+                        goto Exit;
+                    }
+                    else if (PdiRet != kPdiAsyncStatusSuccessful)
+                    {
+                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
+                        Ret = kEplInvalidOperation;
+                        goto Exit;
+                    }
+                }
+            } // end if (pObdParam_p->m_pRemoteAddress != NULL)
+
+#if 0
+//#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
             TimerArg.m_EventSink = kEplEventSinkApi;
             TimerArg.m_Arg.m_pVal = pAllocObdParam;
 
@@ -2037,13 +2081,13 @@ BOOL fRet = TRUE;
                 case 0x01:
                 {
                     //TODO: use correct function for this object
-                    fRet = FpgaCfg_writeFlashSafely(
-                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
-                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
-                           (void*) pDefObdAccHdl_p->m_pObdParam->m_pData);
+//                    fRet = FpgaCfg_writeFlashSafely(
+//                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
+//                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
+//                           (void*) pDefObdAccHdl_p->m_pObdParam->m_pData);
 
-//                    usleep(1000000); //TODO: delete this test delay
-//                    fRet = TRUE;    //TODO: delete this line
+                    usleep(100000); //TODO: delete this test delay
+                    fRet = TRUE;    //TODO: delete this line
 
                     if (fRet != TRUE)
                     {   //write operation went wrong

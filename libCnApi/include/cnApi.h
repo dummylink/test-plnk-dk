@@ -384,7 +384,7 @@ extern WORD CnApi_getNodeId(void);
 extern void CnApi_GetCntrlRegfromLe(tPcpCtrlReg * pDest_p, tPcpCtrlReg * pSrcLE_p);
 #ifndef MAKE_BUILD_PCP
 extern tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
-extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p);
+extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p);
 #endif
 
 /* functions for interrupt synchronization */

@@ -371,7 +371,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             // pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
                         }
 
-                        CnApi_DefObdAccFinished(pAllocObdParam_l);
+                        CnApi_DefObdAccFinished(&pAllocObdParam_l);
                         // end of test
 
                         break;
@@ -802,32 +802,36 @@ Exit:
  \param pObdParam_p
  \return tEplKernel value
  *******************************************************************************/
-tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p)
+tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p)
 {
 tEplKernel EplRet = kEplSuccessful;
+tEplObdParam * pObdParam = NULL;
 
-    printf("INFO: %s(%p) called\n", __func__, pObdParam_p);
+    pObdParam = *pObdParam_p;
 
-    if (pObdParam_p == NULL                     ||
-        pObdParam_p->m_pfnAccessFinished == NULL  )
+    printf("INFO: %s(%p) called\n", __func__, pObdParam);
+
+    if (pObdParam_p == NULL                   ||
+        pObdParam == NULL                     ||
+        pObdParam->m_pfnAccessFinished == NULL  )
     {
         EplRet = kEplInvalidParam;
         goto Exit;
     }
 
-    if ((pObdParam_p->m_ObdEvent == kEplObdEvPreRead)          &&
-        (pObdParam_p->m_SegmentSize != pObdParam_p->m_ObjSize) ||
-        (pObdParam_p->m_SegmentOffset != 0)                      )
+    if ((pObdParam->m_ObdEvent == kEplObdEvPreRead)            &&
+        ((pObdParam->m_SegmentSize != pObdParam->m_ObjSize) ||
+         (pObdParam->m_SegmentOffset != 0)                    )  )
     {
         //segmented read access not allowed!
-        pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
+        pObdParam->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
     }
 
     // call callback function which was assigned by caller
-    EplRet = pObdParam_p->m_pfnAccessFinished(pObdParam_p);
+    EplRet = pObdParam->m_pfnAccessFinished(pObdParam);
 
-    CNAPI_FREE(pObdParam_p);
-    pObdParam_p = NULL;
+    CNAPI_FREE(pObdParam);
+    *pObdParam_p = NULL;
 
 Exit:
     if (EplRet != kEplSuccessful)
