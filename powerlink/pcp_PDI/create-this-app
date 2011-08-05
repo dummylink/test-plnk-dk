@@ -117,6 +117,7 @@ pcpAsync.c \
 pcpPdo.c \
 pcpAsyncSm.c \
 pcpStateMachine.c \
+pcpEventFifo.c \
 ${EDRV_DIR}/../target/FpgaCfg.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \

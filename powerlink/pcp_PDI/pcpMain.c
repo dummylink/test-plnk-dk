@@ -26,6 +26,7 @@
 
 #include "pcp.h"
 #include "pcpStateMachine.h"
+#include "pcpEventFifo.h"
 #include "FpgaCfg.h"
 
 #include "cnApiIntern.h"
@@ -182,6 +183,9 @@ int main (void)
 
     processPowerlink();
 
+    //init the event fifo
+    pcp_EventFifoInit();
+
     return OK;
 exit:
     return ERROR;
@@ -304,6 +308,10 @@ void processPowerlink(void)
         CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
         EplApiProcess();
         updateStateMachine();
+
+        /* check if previous event has been confirmed by AP */
+		if(pcp_EventFifoProcess(pCtrlReg_g) == EVENT_FIFO_POSTED)
+			DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted event from Fifo into memory!\n", __func__);
 
         if (fShutdown_l == TRUE)
             break;
@@ -837,8 +845,10 @@ void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
 void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
 {
     WORD wEventAck;
+    UCHAR ret;
 
     wEventAck = pCtrlReg_g->m_wEventAck;
+
 
     /* check if previous event has been confirmed by AP */
     if ((wEventAck & (1 << EVT_GENERIC)) == 0)
@@ -853,8 +863,20 @@ void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
     }
     else // not confirmed -> do not overwrite
     {
-       //TODO: store in event history
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow!\n", __func__);
+    	if((ret = pcp_EventFifoInsert(wEventType_p, wArg_p)) == EVENT_FIFO_FULL)
+    	{
+    		// set the full event into memory
+    		pCtrlReg_g->m_wEventType = kPcpPdiEventGenericError;
+    		pCtrlReg_g->m_wEventArg = kPcpGenErrEventBuffOverflow;
+
+    		pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+
+    		pcp_EventFifoFlush();
+
+    		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow (FIFO overflow)!\n", __func__);
+    	} else if(ret == EVENT_FIFO_INSERTED)
+    		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted element into fifo!\n", __func__);
+
     }
 }
 
