@@ -113,6 +113,7 @@ static tEplKernel EplAppDefObdAccCountHdlStatus(
         tEplObdDefAccStatus ReqStatus_p);
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p);
 static tEplKernel EplAppCbSdoConnectionSourcePdiFinished(tEplSdoComFinished*  pSdoComFinished_p);
+static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
 
 /* forward declarations */
 int openPowerlink(void);
@@ -771,7 +772,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 printf("ERROR: No handle assigned!\n");
 
                 pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                EplRet = EplAppDefObdAccFinished(pObdParam);
+                EplRet = EplAppDefObdAccFinished(&pObdParam);
                 // correct history status
                 pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
                 bObdSegWriteAccHistoryEmptyCnt_g++;
@@ -800,7 +801,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             if (EplRet != kEplSuccessful)
             {   // signal write error if write operation went wrong
                 pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                EplRet = EplAppDefObdAccFinished(pObdParam);
+                EplRet = EplAppDefObdAccFinished(&pObdParam);
                 // correct history status
                 pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
                 bObdSegWriteAccHistoryEmptyCnt_g++;
@@ -844,7 +845,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     {   // signal "OBD access finished" to originator
 
                         // this triggers an Ack of the last received SDO sequence in case of remote access
-                        EplRet = EplAppDefObdAccFinished(pFoundHdl->m_pObdParam);
+                        EplRet = EplAppDefObdAccFinished(&pFoundHdl->m_pObdParam);
 
                         // correct history status
                         pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
@@ -985,8 +986,7 @@ tEplObdParam * pObdParam = NULL;
     EplRet = pObdParam->m_pfnAccessFinished(pObdParam);
 
     if ((pObdParam->m_Type == kEplObdTypDomain)         &&
-        (pObdParam->m_ObdEvent == kEplObdEvInitWriteLe) &&
-        (pObdParam->m_uiIndex == 0x1F50)                  )
+        (pObdParam->m_ObdEvent == kEplObdEvInitWriteLe)   )
     {   // free allocated memory for segmented write transfer history
 
         if (pObdParam->m_pData != NULL)
@@ -1389,30 +1389,29 @@ tEplKernel       Ret = kEplSuccessful;
         //printf("Remote OBD access from %d\n", pObdParam_p->m_pRemoteAddress->m_uiNodeId);
     }
 
-    // TODO: forward all application objects to AP (>=0x2000)
     // return error for all non existing objects
     switch (pObdParam_p->m_uiIndex)
     {
-        case 0x1010:
-        {
-            switch (pObdParam_p->m_uiSubIndex)
-            {
-                case 0x01:
-                {
-                    break;
-                }
-
-                default:
-                {
-                    // printf("Sub-index does not exist!\n");
-                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
-                    Ret = kEplObdSubindexNotExist;
-                    goto Exit;
-                }
-            }
-
-            break;
-        }
+//        case 0x1010:
+//        {
+//            switch (pObdParam_p->m_uiSubIndex)
+//            {
+//                case 0x01:
+//                {
+//                    break;
+//                }
+//
+//                default:
+//                {
+//                    // printf("Sub-index does not exist!\n");
+//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+//                    Ret = kEplObdSubindexNotExist;
+//                    goto Exit;
+//                }
+//            }
+//
+//            break;
+//        }
 
 //        case 0x1011:
 //        {
@@ -1440,28 +1439,6 @@ tEplKernel       Ret = kEplSuccessful;
             switch (pObdParam_p->m_uiSubIndex)
             {
                 case 0x01:
-                case 0x02:
-                {
-                    break;
-                }
-
-                default:
-                {
-                    // printf("Sub-index does not exist!\n");
-                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
-                    Ret = kEplObdSubindexNotExist;
-                    goto Exit;
-                }
-            }
-
-            break;
-        }
-
-        case 0x6500:
-        {
-            switch (pObdParam_p->m_uiSubIndex)
-            {
-                case 0x01:
                 {
                     break;
                 }
@@ -1480,10 +1457,15 @@ tEplKernel       Ret = kEplSuccessful;
 
         default:
         {
-            // printf("Object does not exist!\n");
-            pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-            Ret = kEplObdIndexNotExist;
-            goto Exit;
+            if(pObdParam_p->m_uiIndex < 0x2000)
+            {   // remaining PCP objects do not exist
+
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                Ret = kEplObdIndexNotExist;
+                goto Exit;
+
+                break;
+            }
         }
         break;
     }
@@ -1502,28 +1484,34 @@ tEplKernel       Ret = kEplSuccessful;
             // Do not return "kEplObdAccessAdopted" - not allowed in this case!
 
             // assign data type
-            //TODO: check maximum segment offset
-            //TODO: check object size
+
+            // check object size and type
             switch (pObdParam_p->m_uiIndex)
             {
                 case 0x1010:
                 //case 0x1011:
-                case 0x6500: //TODO: delete this test object
                 {
                     pObdParam_p->m_Type = kEplObdTypUInt32;
-
+                    pObdParam_p->m_ObjSize = 4;
                     break;
                 }
 
                 case 0x1F50:
                 {
                     pObdParam_p->m_Type = kEplObdTypDomain;
-
+                    //TODO: check maximum segment offset
                     break;
                 }
 
                 default:
-                break;
+                {
+                    if(pObdParam_p->m_uiIndex >= 0x2000)
+                    { // all application specific objects will be verified at AP side
+                        break;
+                    }
+
+                    break;
+                }
             }
 
             goto Exit;
@@ -1533,33 +1521,27 @@ tEplKernel       Ret = kEplSuccessful;
         { // do not return kEplSuccessful in this case,
           // only error or kEplObdAccessAdopted is allowed!
 
-          // TODO: Systec Doku: "The pointer m_pData is only valid within the function call.
-          // The caller of m_pfnAccessFinished has to provide an own
-          // buffer." -> Do I really need to allocate a buffer for Default OBD (write) access ?
+          // TODO: Do I really need to allocate a buffer for Default OBD (write) access ?
 
           // TODO: block all transfers of same index/subindex which are already processing
 
+            // verify caller - if it is local, then write access to read only object is fine
             if (pObdParam_p->m_pRemoteAddress != NULL)
             {   // remote access via SDO
 
-                // TODO: if it is a read only object -> refuse SDO access
-                //Ret = kEplObdWriteViolation;
-                //ObdParam_p->m_dwAbortCode = EPL_SDOAC_WRITE_TO_READ_ONLY_OBJ;
-                //goto Exit;
-                //TODO: else
-
+                // if it is a read only object -> refuse SDO access
+                if (pObdParam_p->m_Access == kEplObdAccR)
+                {
+                    Ret = kEplObdWriteViolation;
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_WRITE_TO_READ_ONLY_OBJ;
+                    goto Exit;
+                }
             }
-            else
-            {   // caller is local -> write access to read only object is fine
+            // Note SDO: Only a "history segment block" can be delayed, but not single segments!
+            //           Client will send Ack Request after sending a history block, so we don't need to
+            //           send an Ack immediately after first received frame.
 
-                //TODO: callback function for local access has to be assigned by caller
-            }
-
-            // TODO:
-            // Question: Sequence Layer Ack will be sent after first received "init" segment?
-            // A: no, Client will send Ack Request after sending history block
-            // Note: Only a "history segment block" can be delayed, but not single segments!
-
+            // verify if caller has assigned a callback function
             if (pObdParam_p->m_pfnAccessFinished == NULL)
             {
                 pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
@@ -1567,17 +1549,70 @@ tEplKernel       Ret = kEplSuccessful;
                 goto Exit;
             }
 
-            // check if empty handles are available
-            if (ApiPdiComInstance_g != NULL)
+            // different pre-access verification for all write objects (previous to handle storing)
+            switch (pObdParam_p->m_uiIndex)
             {
-                Ret = kEplObdOutOfMemory;
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
-                goto Exit;
-            }
+                case 0x1010:
+                //case 0x1011:
+                {
+
+                    break;
+                }
+
+//                case 0x1F50:
+//                {
+//
+//                    break;
+//                }
+
+                default:
+                {
+                    if(pObdParam_p->m_uiIndex >= 0x2000)
+                    {   // check if forwarding object access request to AP is possible
+
+                        // check if empty ApiPdi connection handles are available
+                        if (ApiPdiComInstance_g != NULL)
+                        {
+                            Ret = kEplObdOutOfMemory;
+                            pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                            goto Exit;
+                        }
+                        break;
+                    }
+                    else
+                    {   // all remaining local PCP objects
+
+                        // TODO: introduce counter to recognize memory leaks / to much allocated memory
+                        // or use static storage
+
+                        // forward "pAllocObdParam" which has to be returned in callback,
+                        // so callback can access the Obd-access handle and SDO communication handle
+                        if (pObdParam_p->m_Type == kEplObdTypDomain)
+                        {
+                            // if it is an initial segment, check if this object is already accessed
+                            if (pObdParam_p->m_SegmentOffset == 0)
+                            {   // inital segment
+
+                                // history has to be completely empty for new segmented write transfer
+                                // only one segmented transfer at once is allowed!
+                                if (bObdSegWriteAccHistoryEmptyCnt_g < OBD_DEFAULT_SEG_WRITE_SIZE)
+                                {
+                                    Ret = kEplObdOutOfMemory;
+                                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                                    goto Exit;
+                                }
+                            }
+                        }
+                        else
+                        {   // non domain object
+                            // should be handled in the switch-cases above, not in the default case
+                        }
+                    }
+                    break;
+                }
+            } // end of switch (pObdParam_p->m_uiIndex)
 
             // allocate memory for handle
-            // TODO: introduce counter to recognize memory leaks / to much allocated memory
-            // or use static storage
             pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam));
             if (pAllocObdParam == NULL)
             {
@@ -1588,127 +1623,89 @@ tEplKernel       Ret = kEplSuccessful;
 
             EPL_MEMCPY(pAllocObdParam, pObdParam_p, sizeof (*pAllocObdParam));
 
-            // save handle for callback function
-            ApiPdiComInstance_g = pAllocObdParam;
-
-            printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
-
-            // forward "pAllocObdParam" which has to be returned in callback,
-            // so callback can access the Obd-access handle and SDO communication handle
-            if (pObdParam_p->m_Type == kEplObdTypDomain)
+            // different treatment for all write objects (after handle storing)
+            switch (pObdParam_p->m_uiIndex)
             {
-                // if it is an initial segment, check if this object is already accessed;
-                // m_pHandle is assumed to be an SDO handle //TODO: extend this function for other callers than SDO
+                case 0x1010:
+                //case 0x1011:
+                {
 
-                if (pObdParam_p->m_SegmentOffset == 0)
-                {   // inital segment
-
-                    // history has to be completely empty for new segmented write transfer
-                    // only one segmented transfer at once is allowed!
-                    if (bObdSegWriteAccHistoryEmptyCnt_g < OBD_DEFAULT_SEG_WRITE_SIZE)
-                    {
-                        Ret = kEplObdOutOfMemory;
-                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
-                        EPL_FREE(pAllocObdParam);
-                        goto Exit;
-                    }
-
-                    // Cleanup history TODO: put to more senseful places
-                    Ret = EplAppDefObdAccCleanupHistory();
-                    if (Ret != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
+                    break;
                 }
 
-                // save object data
-                pAllocDataBuf = EPL_MALLOC(pObdParam_p->m_SegmentSize);
-                if (pAllocDataBuf == NULL)
+//                case 0x1F50:
+//                {
+//
+//                    break;
+//                }
+
+                default:
                 {
-                    Ret = kEplObdOutOfMemory;
-                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
-                    EPL_FREE(pAllocObdParam);
-                    goto Exit;
-                }
+                    if(pObdParam_p->m_uiIndex >= 0x2000)
+                    { // forward object access request to AP
 
-                EPL_MEMCPY(pAllocDataBuf, pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
-                pAllocObdParam->m_pData = (void*) pAllocDataBuf;
+                        // save handle for callback function
+                        ApiPdiComInstance_g = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-                // save OBD access handle for Domain objects (segmented access)
-                printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
-                Ret = EplAppDefObdAccSaveHdl(pAllocObdParam);
-                printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
-                if (Ret != kEplSuccessful)
-                {
-                    EPL_FREE(pAllocObdParam);
-                    goto Exit;
-                }
+                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
 
-                // trigger write to all domain objects (using segmented transfers)
-                switch (pObdParam_p->m_uiIndex)
-                {
-                    case 0x1F50:
-                    {
-                        // trigger write operation (in AppEventCb)
-                        Ret = EplApiPostUserEvent((void*) pAllocObdParam);
-                        if (Ret != kEplSuccessful)
-                        {
-                            goto Exit;
-                        }
+                        // forward SDO transfers of application specific objects to AP
+                        if (pObdParam_p->m_pRemoteAddress != NULL)
+                        {   // remote access via SDO
 
+                            Ret = Gi_forwardObdAccessToPdi(pObdParam_p);
+                            if (Ret != kEplSuccessful)
+                            {
+                                goto Exit;
+                            }
+
+                        } // end if (pObdParam_p->m_pRemoteAddress != NULL)
                         break;
                     }
+                    else
+                    {   // all remaining local PCP objects
 
-                    default:
-                    {
-                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-                        Ret = kEplObdIndexNotExist;
-                        goto Exit;
+                        if (pObdParam_p->m_Type == kEplObdTypDomain)
+                        {   // save object data
+
+                            pAllocDataBuf = EPL_MALLOC(pObdParam_p->m_SegmentSize);
+                            if (pAllocDataBuf == NULL)
+                            {
+                                Ret = kEplObdOutOfMemory;
+                                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                                EPL_FREE(pAllocObdParam);
+                                goto Exit;
+                            }
+
+                            EPL_MEMCPY(pAllocDataBuf, pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
+                            pAllocObdParam->m_pData = (void*) pAllocDataBuf;
+
+                            // save OBD access handle for Domain objects (segmented access)
+                            printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
+                            Ret = EplAppDefObdAccSaveHdl(pAllocObdParam);
+                            printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
+                            if (Ret != kEplSuccessful)
+                            {
+                                EPL_FREE(pAllocObdParam);
+                                goto Exit;
+                            }
+
+                            // trigger write operation (in AppEventCb)
+                            Ret = EplApiPostUserEvent((void*) pAllocObdParam);
+                            if (Ret != kEplSuccessful)
+                            {
+                                goto Exit;
+                            }
+                        }
+                        else
+                        {   // non domain objects
+                            // should be handled in the switch-cases above, not in the default case
+                        }
                     }
+
                     break;
                 }
             }
-            else // non domain objects
-            {
-
-#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-            EplAppDumpData(pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-
-            // forward SDO transfers of application specific objects to AP
-            if (pObdParam_p->m_pRemoteAddress != NULL)
-            {   // remote access via SDO
-
-                //if (pObdParam_p->m_uiIndex >= 0x2000)
-                if(1)
-                {
-                    tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
-                    tObjAccSdoComCon PdiObjAccCon;
-
-                    PdiObjAccCon.m_wSdoSeqConHdl = 0xFF;///< SDO command layer connection handle number
-                    PdiObjAccCon.m_pSdoCmdFrame = pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame; ///< assign to SDO command frame
-                    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoComFrm , m_le_abCommandData) + pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize;  ///< size of SDO command frame
-
-                    PdiRet = CnApiAsync_postMsg(
-                                    kPdiAsyncMsgIntObjAccReq,
-                                    (BYTE *) &PdiObjAccCon,
-                                    0,
-                                    0);
-
-                    if (PdiRet == kPdiAsyncStatusRetry)
-                    {
-                        Ret = kEplSdoSeqConnectionBusy;
-                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
-                        goto Exit;
-                    }
-                    else if (PdiRet != kPdiAsyncStatusSuccessful)
-                    {
-                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
-                        Ret = kEplInvalidOperation;
-                        goto Exit;
-                    }
-                }
-            } // end if (pObdParam_p->m_pRemoteAddress != NULL)
 
 #if 0
 //#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
@@ -1726,13 +1723,8 @@ tEplKernel       Ret = kEplSuccessful;
             }
 #endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
-                // TODO: send message to AP
-                // or TODO: search for valid handle and write to target
-
-                // AP returns answer (including address) -> call EplAppCbObdAdoptedAccessFinished:
-
-                // Note: pObdParam_p->m_pHandle is SDO connection handle and has to be returned in pfnAccessFinished to SDO command layer;
-            }
+            // test output //TODO: delete
+//            EplAppDumpData(pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
 
             // adopt write access
             Ret = kEplObdAccessAdopted;
@@ -1750,10 +1742,6 @@ tEplKernel       Ret = kEplSuccessful;
             // Thus, kEplObdSegmentReturned has to be returned in this case! This requires immediate access to
             // the read source data right from this function.
 
-            //TODO: send expedited SDO request to AP + forward handle
-
-            //TODO: set type of transfer according to object size - see EplSdoComServerInitReadByIndex()
-
             //TODO: block all transfers of same index/subindex which are already processing
 
             if (pObdParam_p->m_pfnAccessFinished == NULL)
@@ -1763,17 +1751,46 @@ tEplKernel       Ret = kEplSuccessful;
                 goto Exit;
             }
 
-            // check if empty handles are available
-            if (ApiPdiComInstance_g != NULL)
+            // different pre-access verification for all read objects (previous to handle storing)
+            switch (pObdParam_p->m_uiIndex)
             {
-                Ret = kEplObdOutOfMemory;
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
-                goto Exit;
+                case 0x1010:
+                //case 0x1011:
+                {
+
+                    break;
+                }
+
+                case 0x1F50:
+                {
+
+                    break;
+                }
+
+                default:
+                {
+                    if(pObdParam_p->m_uiIndex >= 0x2000)
+                    {   // check if forwarding object access request to AP is possible
+
+                        // check if empty ApiPdi connection handles are available
+                        if (ApiPdiComInstance_g != NULL)
+                        {
+                            Ret = kEplObdOutOfMemory;
+                            pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+                            goto Exit;
+                        }
+                        break;
+                    }
+                    else
+                    {   // local objects at PCP
+                        // should be handled in the switch-cases above, not in the default case
+                    }
+
+                    break;
+                }
             }
 
             // allocate memory for handle
-            // TODO: introduce counter to recognize memory leaks / to much allocated memory
-            // or use static storage
             pAllocObdParam = EPL_MALLOC(sizeof (*pAllocObdParam));
             if (pAllocObdParam == NULL)
             {
@@ -1784,45 +1801,53 @@ tEplKernel       Ret = kEplSuccessful;
 
             EPL_MEMCPY(pAllocObdParam, pObdParam_p, sizeof (*pAllocObdParam));
 
-            // save handle for callback function
-            ApiPdiComInstance_g = pAllocObdParam; //TODO: handle index, not a single pointer variable
-
-            printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
-
-            // forward SDO transfers of application specific objects to AP
-            if (pObdParam_p->m_pRemoteAddress != NULL)
-            {   // remote access via SDO
-
-                //if (pObdParam_p->m_uiIndex >= 0x2000)
-                if(1)
+            // different treatment for all read objects (after handle storing)
+            switch (pObdParam_p->m_uiIndex)
+            {
+                case 0x1010:
+                //case 0x1011:
                 {
-                    tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
-                    tObjAccSdoComCon PdiObjAccCon;
 
-                    PdiObjAccCon.m_wSdoSeqConHdl = 0xFF;///< SDO command layer connection handle number
-                    PdiObjAccCon.m_pSdoCmdFrame = pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame; ///< assign to SDO command frame
-                    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoComFrm , m_le_abCommandData) + pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize;  ///< size of SDO command frame
-
-                    PdiRet = CnApiAsync_postMsg(
-                                    kPdiAsyncMsgIntObjAccReq,
-                                    (BYTE *) &PdiObjAccCon,
-                                    0,
-                                    0);
-
-                    if (PdiRet == kPdiAsyncStatusRetry)
-                    {
-                        Ret = kEplSdoSeqConnectionBusy;
-                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
-                        goto Exit;
-                    }
-                    else if (PdiRet != kPdiAsyncStatusSuccessful)
-                    {
-                        pObdParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
-                        Ret = kEplInvalidOperation;
-                        goto Exit;
-                    }
+                    break;
                 }
-            } // end if (pObdParam_p->m_pRemoteAddress != NULL)
+
+                case 0x1F50:
+                {
+
+                    break;
+                }
+
+                default:
+                {
+                    if(pObdParam_p->m_uiIndex >= 0x2000)
+                    { // forward object access request to AP
+
+                        // save handle for callback function
+                        ApiPdiComInstance_g = pAllocObdParam; //TODO: handle index, not a single pointer variable
+
+                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
+
+                        // forward SDO transfers of application specific objects to AP
+                        if (pObdParam_p->m_pRemoteAddress != NULL)
+                        {   // remote access via SDO
+
+                            Ret = Gi_forwardObdAccessToPdi(pObdParam_p);
+                            if (Ret != kEplSuccessful)
+                            {
+                                goto Exit;
+                            }
+
+                        } // end if (pObdParam_p->m_pRemoteAddress != NULL)
+                        break;
+                    }
+                    else
+                    {   // local objects at PCP
+                        // should be handled in the switch-cases above, not in the default case
+                    }
+
+                    break;
+                }
+            }
 
 #if 0
 //#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
@@ -2200,6 +2225,53 @@ tEplKernel Ret;
 
 return Ret;
 
+}
+
+/**
+ ********************************************************************************
+ \brief forwards an object access to an Application Processor (AP)
+ \param pObdParam_p     object access handle of object to be forwarded
+ \retval kEplSuccessful forwarding  succeeded
+ \retval kEplSdoSeqConnectionBusy   forwarding aborted because no resources
+                                    are available to send a message to AP
+ \retval kEplInvalidOperation       general error
+
+ This function posts an asynchronous message to the AP which contains an object
+ access request. In case of an error this function modifies the abort code of
+ the input parameter pObdParam_p.
+
+ *******************************************************************************/
+static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p)
+{
+    tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
+    tEplKernel Ret = kEplSuccessful;
+    tObjAccSdoComCon PdiObjAccCon;
+
+    PdiObjAccCon.m_wSdoSeqConHdl = 0xFF;///< SDO command layer connection handle number //TODO: implement handle index
+    PdiObjAccCon.m_pSdoCmdFrame = pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame; ///< assign to SDO command frame
+    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoComFrm , m_le_abCommandData) + pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize;  ///< size of SDO command frame
+
+    PdiRet = CnApiAsync_postMsg(
+                    kPdiAsyncMsgIntObjAccReq,
+                    (BYTE *) &PdiObjAccCon,
+                    0,
+                    0);
+
+    if (PdiRet == kPdiAsyncStatusRetry)
+    {
+        Ret = kEplSdoSeqConnectionBusy;
+        pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+        goto Exit;
+    }
+    else if (PdiRet != kPdiAsyncStatusSuccessful)
+    {
+        pObdParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
+        Ret = kEplInvalidOperation;
+        goto Exit;
+    }
+
+Exit:
+    return Ret;
 }
 
 //---------------------------------------------------------------------------

@@ -695,7 +695,6 @@ tEplKernel       Ret = kEplSuccessful;
     switch (pObdParam_p->m_uiIndex)
     {
         case 0x6500:
-        case 0x1010:
         {
             switch (pObdParam_p->m_uiSubIndex)
             {
@@ -718,10 +717,16 @@ tEplKernel       Ret = kEplSuccessful;
 
         default:
         {
-            // printf("Object does not exist!\n");
-            pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-            Ret = kEplObdIndexNotExist;
-            goto Exit;
+            if(pObdParam_p->m_uiIndex < 0x2000)
+            { // not an application specific object
+
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                Ret = kEplObdIndexNotExist;
+                goto Exit;
+
+                break;
+            }
+
         }
         break;
     }
@@ -780,7 +785,7 @@ tEplKernel       Ret = kEplSuccessful;
             // adopt OBD access
             // If the transfer has finished, invoke callback function with pointer to saved handle
             // e.g.: CnApi_DefObdAccFinished(pAllocObdParam_l)
-            // after appropriat values have been assigned.
+            // after appropriate values have been assigned.
             // please scroll up to "case kApStateOperational" in AppCbEvent()for an example
             Ret = kEplObdAccessAdopted;
             printf(" Adopted\n");
