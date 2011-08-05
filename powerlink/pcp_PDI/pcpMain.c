@@ -1392,26 +1392,26 @@ tEplKernel       Ret = kEplSuccessful;
     // return error for all non existing objects
     switch (pObdParam_p->m_uiIndex)
     {
-//        case 0x1010:
-//        {
-//            switch (pObdParam_p->m_uiSubIndex)
-//            {
-//                case 0x01:
-//                {
-//                    break;
-//                }
-//
-//                default:
-//                {
-//                    // printf("Sub-index does not exist!\n");
-//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
-//                    Ret = kEplObdSubindexNotExist;
-//                    goto Exit;
-//                }
-//            }
-//
-//            break;
-//        }
+        case 0x1010:
+        {
+            switch (pObdParam_p->m_uiSubIndex)
+            {
+                case 0x01:
+                {
+                    break;
+                }
+
+                default:
+                {
+                    // printf("Sub-index does not exist!\n");
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+                    Ret = kEplObdSubindexNotExist;
+                    goto Exit;
+                }
+            }
+
+            break;
+        }
 
 //        case 0x1011:
 //        {
@@ -1630,6 +1630,21 @@ tEplKernel       Ret = kEplSuccessful;
                 //case 0x1011:
                 {
 
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+            TimerArg.m_EventSink = kEplEventSinkApi;
+            TimerArg.m_Arg.m_pVal = pAllocObdParam;
+
+            Ret = EplTimeruSetTimerMs(&EplTimerHdl,
+                                        6000, //Timer availability is very fragile -> do other tests
+                                        TimerArg);
+            if(Ret != kEplSuccessful)
+            {
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+                EPL_FREE(pAllocObdParam);
+                goto Exit;
+            }
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+
                     break;
                 }
 
@@ -1706,22 +1721,6 @@ tEplKernel       Ret = kEplSuccessful;
                     break;
                 }
             }
-
-#if 0
-//#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-            TimerArg.m_EventSink = kEplEventSinkApi;
-            TimerArg.m_Arg.m_pVal = pAllocObdParam;
-
-            Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                        6000, //Timer availability is very fragile -> do other tests
-                                        TimerArg);
-            if(Ret != kEplSuccessful)
-            {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
-                EPL_FREE(pAllocObdParam);
-                goto Exit;
-            }
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
             // test output //TODO: delete
 //            EplAppDumpData(pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
@@ -1808,6 +1807,21 @@ tEplKernel       Ret = kEplSuccessful;
                 //case 0x1011:
                 {
 
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+            TimerArg.m_EventSink = kEplEventSinkApi;
+            TimerArg.m_Arg.m_pVal = pAllocObdParam;
+
+            Ret = EplTimeruSetTimerMs(&EplTimerHdl,
+                                        6000, //Timer availability is very fragile -> do other tests
+                                        TimerArg);
+            if(Ret != kEplSuccessful)
+            {
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+                EPL_FREE(pAllocObdParam);
+                goto Exit;
+            }
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+
                     break;
                 }
 
@@ -1848,22 +1862,6 @@ tEplKernel       Ret = kEplSuccessful;
                     break;
                 }
             }
-
-#if 0
-//#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-            TimerArg.m_EventSink = kEplEventSinkApi;
-            TimerArg.m_Arg.m_pVal = pAllocObdParam;
-
-            Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                        4000, //Timer availability is very fragile -> do other tests
-                                        TimerArg);
-            if(Ret != kEplSuccessful)
-            {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
-                EPL_FREE(pAllocObdParam);
-                goto Exit;
-            }
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
             // adopt read access
             Ret = kEplObdAccessAdopted;
