@@ -33,9 +33,9 @@
 #define EVENT_FIFO_BUSY			1
 
 typedef struct {
-	WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)
-	WORD       m_wEventArg;           ///< event argument, if applicable (e.g. error code, state, ...)
-	WORD       m_wEventAck;           ///< acknowledge for events and asynchronous IR signal
+	WORD       wEventType_m;          ///< type of event (e.g. state change, error, ...)
+	WORD       wEventArg_m;           ///< event argument, if applicable (e.g. error code, state, ...)
+	WORD       wEventAck_m;           ///< acknowledge for events and asynchronous IR signal
 }	typ_fifo_buffer;
 
 void pcp_EventFifoInit(void);

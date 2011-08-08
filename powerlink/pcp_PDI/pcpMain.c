@@ -845,7 +845,7 @@ void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
 void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
 {
     WORD wEventAck;
-    UCHAR ret;
+    UCHAR ucRet;
 
     wEventAck = pCtrlReg_g->m_wEventAck;
 
@@ -863,19 +863,19 @@ void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
     }
     else // not confirmed -> do not overwrite
     {
-    	if((ret = pcp_EventFifoInsert(wEventType_p, wArg_p)) == EVENT_FIFO_FULL)
-    	{
-    		// set the full event into memory
-    		pCtrlReg_g->m_wEventType = kPcpPdiEventGenericError;
-    		pCtrlReg_g->m_wEventArg = kPcpGenErrEventBuffOverflow;
+        if((ucRet = pcp_EventFifoInsert(wEventType_p, wArg_p)) == EVENT_FIFO_FULL)
+        {
+            // set the full event into memory
+            pCtrlReg_g->m_wEventType = kPcpPdiEventGenericError;
+            pCtrlReg_g->m_wEventArg = kPcpGenErrEventBuffOverflow;
 
-    		pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+            pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
 
-    		pcp_EventFifoFlush();
+            pcp_EventFifoFlush();
 
-    		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow (FIFO overflow)!\n", __func__);
-    	} else if(ret == EVENT_FIFO_INSERTED)
-    		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted element into fifo!\n", __func__);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow (FIFO overflow)!\n", __func__);
+        } else if(ucRet == EVENT_FIFO_INSERTED)
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted element into fifo!\n", __func__);
 
     }
 }

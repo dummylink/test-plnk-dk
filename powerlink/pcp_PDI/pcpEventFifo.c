@@ -14,9 +14,9 @@
 
 #include "pcpEventFifo.h"
 
-typ_fifo_buffer fifo[FIFO_SIZE];	//FIFO buffer
-UCHAR read_pos, write_pos; // read and write pointer
-UCHAR element_count;
+typ_fifo_buffer a_Fifo_g[FIFO_SIZE];  ///FIFO buffer
+UCHAR ucReadPos_g, ucWritePos_g;  ///read and write pos
+UCHAR ucElementCount_g;
 
 /**
  ********************************************************************************
@@ -24,9 +24,9 @@ UCHAR element_count;
  *******************************************************************************/
 void pcp_EventFifoInit(void)
 {
-	read_pos = 0;
-	write_pos = 0;
-	element_count = 0;
+	ucReadPos_g = 0;
+	ucWritePos_g = 0;
+	ucElementCount_g = 0;
 }
 
 /**
@@ -41,28 +41,20 @@ void pcp_EventFifoInit(void)
  *******************************************************************************/
 UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p)
 {
-	//printf("Fifo insert!\n");
-	//element to process in fifo?
-	if((write_pos != read_pos) || element_count == 0)
-	{
-		fifo[write_pos].m_wEventType = wEventType_p;
-		fifo[write_pos].m_wEventArg = wArg_p;
+    ///element to process in fifo?
+    if((ucWritePos_g != ucReadPos_g) || ucElementCount_g == 0)
+    {
+    	a_Fifo_g[ucWritePos_g].wEventType_m = wEventType_p;
+    	a_Fifo_g[ucWritePos_g].wEventArg_m = wArg_p;
 
-		//modify write pointer
-		write_pos = (write_pos + 1) % FIFO_SIZE;
+        ///modify write pointer
+        ucWritePos_g = (ucWritePos_g + 1) % FIFO_SIZE;
 
-		element_count++;
+        ucElementCount_g++;
 
-		//printf("%d %d %d\n",element_count,write_pos, read_pos);
-
-		return EVENT_FIFO_INSERTED;
-	} else //if((write_pos == read_pos) && (element_count != 0))
-	{
-		//printf("FIFO full!\n");
-		return EVENT_FIFO_FULL;
-	}
-
-
+        return EVENT_FIFO_INSERTED;
+    } else
+        return EVENT_FIFO_FULL;
 }
 
 /**
@@ -72,31 +64,30 @@ UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p)
 inline UCHAR pcp_EventFifoProcess(tPcpCtrlReg* volatile pCtrlReg_g)
 {
 
-	WORD wEventAck = pCtrlReg_g->m_wEventAck;
+    WORD wEventAck = pCtrlReg_g->m_wEventAck;
 
 
-	//check event FIFO bit
-	if (((wEventAck & (1 << EVT_GENERIC)) == 0) && (read_pos != write_pos))
-	{
-		//Post event from fifo into memory
-        pCtrlReg_g->m_wEventType = fifo[read_pos].m_wEventType;
-        pCtrlReg_g->m_wEventArg = fifo[read_pos].m_wEventArg;
+    ///check event FIFO bit
+    if (((wEventAck & (1 << EVT_GENERIC)) == 0) && (ucReadPos_g != ucWritePos_g))
+    {
+    	///Post event from fifo into memory
+        pCtrlReg_g->m_wEventType = a_Fifo_g[ucReadPos_g].wEventType_m;
+        pCtrlReg_g->m_wEventArg = a_Fifo_g[ucReadPos_g].wEventArg_m;
 
         /* set GE bit to signal event to AP; If desired by AP,
          *  an IR signal will be asserted in addition */
         pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
 
-        //modify read pointer
-        read_pos = (read_pos + 1) % FIFO_SIZE;
+        ///modify read pointer
+        ucReadPos_g = (ucReadPos_g + 1) % FIFO_SIZE;
 
-        element_count--;
+        ucElementCount_g--;
 
-        //printf("%d %d %d\n",element_count,write_pos, read_pos);
+        ///printf("%d %d %d\n",element_count,write_pos, read_pos);
         return EVENT_FIFO_POSTED;
-
 	}
 
-	return EVENT_FIFO_BUSY;
+    return EVENT_FIFO_BUSY;
 }
 
 /**
@@ -104,10 +95,7 @@ inline UCHAR pcp_EventFifoProcess(tPcpCtrlReg* volatile pCtrlReg_g)
 */
 void pcp_EventFifoFlush(void)
 {
-	read_pos = 0;
-	write_pos = 0;
-	element_count = 0;
+    ucReadPos_g = 0;
+    ucWritePos_g = 0;
+    ucElementCount_g = 0;
 }
-
-
-
