@@ -25,18 +25,22 @@
 /* defines */
 #define FIFO_SIZE	16
 
-#define EVENT_FIFO_EMPTY		0
-#define EVENT_FIFO_FULL			1
-#define EVENT_FIFO_INSERTED		2
+enum eFifoDelete {
+    kPcpEventFifoEmpty = 0,
+    kPcpEventFifoFull,
+    kPcpEventFifoInserted
+};
 
-#define EVENT_FIFO_POSTED		0
-#define EVENT_FIFO_BUSY			1
+enum eFifoInsert {
+    kPcpEventFifoPosted = 0,
+    kPcpEventFifoBusy
+};
 
 typedef struct {
 	WORD       wEventType_m;          ///< type of event (e.g. state change, error, ...)
 	WORD       wEventArg_m;           ///< event argument, if applicable (e.g. error code, state, ...)
 	WORD       wEventAck_m;           ///< acknowledge for events and asynchronous IR signal
-}	typ_fifo_buffer;
+}	tFifoBuffer;
 
 void pcp_EventFifoInit(void);
 UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p);

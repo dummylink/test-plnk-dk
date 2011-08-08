@@ -183,9 +183,6 @@ int main (void)
 
     processPowerlink();
 
-    //init the event fifo
-    pcp_EventFifoInit();
-
     return OK;
 exit:
     return ERROR;
@@ -310,7 +307,7 @@ void processPowerlink(void)
         updateStateMachine();
 
         /* check if previous event has been confirmed by AP */
-		if(pcp_EventFifoProcess(pCtrlReg_g) == EVENT_FIFO_POSTED)
+		if(pcp_EventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
 			DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted event from Fifo into memory!\n", __func__);
 
         if (fShutdown_l == TRUE)
@@ -681,6 +678,9 @@ void Gi_init(void)
     pCtrlReg_g->m_wState = kPcpStateInvalid;           ///< set invalid PCP state
 
     Gi_disableSyncInt();
+
+    ///init event fifo queue
+    pcp_EventFifoInit();
 }
 
 /**
@@ -863,7 +863,7 @@ void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
     }
     else // not confirmed -> do not overwrite
     {
-        if((ucRet = pcp_EventFifoInsert(wEventType_p, wArg_p)) == EVENT_FIFO_FULL)
+        if((ucRet = pcp_EventFifoInsert(wEventType_p, wArg_p)) == kPcpEventFifoFull)
         {
             // set the full event into memory
             pCtrlReg_g->m_wEventType = kPcpPdiEventGenericError;
@@ -874,7 +874,7 @@ void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
             pcp_EventFifoFlush();
 
             DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow (FIFO overflow)!\n", __func__);
-        } else if(ucRet == EVENT_FIFO_INSERTED)
+        } else if(ucRet == kPcpEventFifoInserted)
             DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted element into fifo!\n", __func__);
 
     }

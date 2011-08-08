@@ -14,7 +14,7 @@
 
 #include "pcpEventFifo.h"
 
-typ_fifo_buffer a_Fifo_g[FIFO_SIZE];  ///FIFO buffer
+tFifoBuffer a_Fifo_g[FIFO_SIZE];  ///FIFO buffer
 UCHAR ucReadPos_g, ucWritePos_g;  ///read and write pos
 UCHAR ucElementCount_g;
 
@@ -52,9 +52,9 @@ UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p)
 
         ucElementCount_g++;
 
-        return EVENT_FIFO_INSERTED;
+        return kPcpEventFifoInserted;
     } else
-        return EVENT_FIFO_FULL;
+        return kPcpEventFifoFull;
 }
 
 /**
@@ -84,10 +84,10 @@ inline UCHAR pcp_EventFifoProcess(tPcpCtrlReg* volatile pCtrlReg_g)
         ucElementCount_g--;
 
         ///printf("%d %d %d\n",element_count,write_pos, read_pos);
-        return EVENT_FIFO_POSTED;
+        return kPcpEventFifoPosted;
 	}
 
-    return EVENT_FIFO_BUSY;
+    return kPcpEventFifoBusy;
 }
 
 /**
