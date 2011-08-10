@@ -114,6 +114,7 @@ static tEplKernel EplAppDefObdAccCountHdlStatus(
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p);
 static tEplKernel EplAppCbSdoConnectionSourcePdiFinished(tEplSdoComFinished*  pSdoComFinished_p);
 static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
+static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
 
 /* forward declarations */
 int openPowerlink(void);
@@ -2178,7 +2179,7 @@ static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p)
     PdiRet = CnApiAsync_postMsg(
                     kPdiAsyncMsgIntObjAccReq,
                     (BYTE *) &PdiObjAccCon,
-                    0,
+                    Gi_ObdAccessSrcPdiFinished,
                     0);
 
     if (PdiRet == kPdiAsyncStatusRetry)
@@ -2197,6 +2198,54 @@ static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p)
 Exit:
     return Ret;
 }
+
+/**
+ ********************************************************************************
+ \brief call back function, invoked after message transfer has finished
+ \param  pMsgDescr_p         pointer to asynchronous message descriptor
+ \return Ret                 tPdiAsyncStatus value
+
+ This function will be called if and OBD access forwarded to PDI finished.
+ It only calls signals that the transfer finished to the originator in case of an
+ error. This is the only functionality, the real OBD access finished wil be triggerd
+ by a return message from PDI (sent by AP).
+ *******************************************************************************/
+static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p)
+{
+tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
+tEplKernel          EplRet;
+
+    DEBUG_FUNC;
+
+    if (pMsgDescr_p == NULL)  // message descriptor invalid
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+
+    // error handling
+    if ((pMsgDescr_p->MsgStatus_m == kPdiAsyncMsgStatusError) &&
+        (pMsgDescr_p->Error_m != kPdiAsyncStatusSuccessful)     )
+    {
+        // if no abort code is present, assign one
+        if (ApiPdiComInstance_g->m_dwAbortCode == 0)
+        {
+            ApiPdiComInstance_g->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+        }
+
+        // cleanup failed OBD Access    // TODO: search handle index
+        EplRet = EplAppDefObdAccFinished(&ApiPdiComInstance_g);
+        if (EplRet != kEplSuccessful)
+        {
+            Ret = kPdiAsyncStatusInvalidOperation;
+            goto exit;
+        }
+    }
+
+exit:
+    return Ret;
+}
+
 
 //---------------------------------------------------------------------------
 //
