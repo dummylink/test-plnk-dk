@@ -90,7 +90,7 @@ static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values 
 static BOOL     fOperational_l = FALSE;                         ///< indicates AP Operation state
 
 // Object access
-static DWORD dwExampleData = 0x1234ABCD;             ///< this is only an example object data
+static DWORD dwExampleData = 0xABCD0001;             ///< this is only an example object data
 static tEplObdParam *   pAllocObdParam_l = NULL; ///< pointer to allocated memory of OBD access handle
 
 /******************************************************************************/
@@ -356,6 +356,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         {   // return data of read access
 
                             // Example how to finish a ReadByIndex access:
+                            dwExampleData++;
                             pAllocObdParam_l->m_pData = &dwExampleData;
                             pAllocObdParam_l->m_ObjSize = sizeof(dwExampleData);
                             pAllocObdParam_l->m_SegmentSize = sizeof(dwExampleData);
