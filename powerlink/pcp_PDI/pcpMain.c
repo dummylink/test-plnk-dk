@@ -986,7 +986,8 @@ tEplObdParam * pObdParam = NULL;
     // call callback function which was assigned by caller
     EplRet = pObdParam->m_pfnAccessFinished(pObdParam);
 
-    if ((pObdParam->m_Type == kEplObdTypDomain)         &&
+    if ((pObdParam->m_uiIndex < 0x2000)               &&
+        (pObdParam->m_Type == kEplObdTypDomain)         &&
         (pObdParam->m_ObdEvent == kEplObdEvInitWriteLe)   )
     {   // free allocated memory for segmented write transfer history
 
