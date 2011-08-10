@@ -407,6 +407,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
             break;
         }
     }
+    // end of search for available Tx message
 
     if (bActivTxMsg_l == INVALID_ELEMENT)
     {
@@ -414,6 +415,19 @@ FUNC_DOACT(kPdiAsyncStateWait)
     }
     else // message activated
     {
+        // if local buffering is used, assign buffer pointer
+        if (aPdiAsyncTxMsgs[bCnt].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+        {
+            if (pLclAsyncTxMsgBuffer_l != NULL)
+            {
+                ErrorHistory_l = kPdiAsyncStatusNoResource;
+                fError = TRUE;
+                goto exit;
+            }
+
+            pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bCnt].MsgHdl_m.pLclBuf_m;
+        }
+
         /*transit to ASYNC_TX_BUSY */
         fTxTriggered = TRUE;
         goto exit;
@@ -672,6 +686,8 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 {
                     CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
                     pLclAsyncTxMsgBuffer_l = NULL;
+                    aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
+
                     break;
                 }
 
@@ -1273,6 +1289,19 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         /* reset message status */
         aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive;
         aPdiAsyncTxMsgs[bActivTxMsg_l].Error_m = kPdiAsyncStatusSuccessful;
+
+        if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m == pLclAsyncTxMsgBuffer_l)
+        {   // prevent free operation from executing a second time with pLclAsyncTxMsgBuffer_l
+            pLclAsyncTxMsgBuffer_l = NULL;
+        }
+
+        if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
+        {
+            CNAPI_FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
+            aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
+        }
+
         bActivTxMsg_l = INVALID_ELEMENT;
     }
 
@@ -1664,23 +1693,18 @@ tPdiAsyncStatus CnApiAsync_postMsg(
         case kPdiAsyncTrfTypeLclBuffering:
         {
             //TODO: Multiple access to this function have to be restricted to 2 (for each channel and lcl buffering) (+ memory space restriction and multiple message activation)
-            if (pLclAsyncTxMsgBuffer_l != NULL)
+            if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
             {
                 /* memory already allocated !*/
-                ErrorHistory_l = kPdiAsyncStatusNoResource;
-                fError = TRUE;
-                goto exit;
-            }
-
-            pLclAsyncTxMsgBuffer_l = CNAPI_MALLOC(MAX_ASYNC_STREAM_LENGTH);
-            if (pLclAsyncTxMsgBuffer_l == NULL)
-            {
                 Ret = kPdiAsyncStatusNoResource;
                 goto exit;
             }
-            else
+
+            pMsgDescr->MsgHdl_m.pLclBuf_m = CNAPI_MALLOC(MAX_ASYNC_STREAM_LENGTH);
+            if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL)
             {
-                pMsgDescr->MsgHdl_m.pLclBuf_m = pLclAsyncTxMsgBuffer_l;
+                Ret = kPdiAsyncStatusNoResource;
+                goto exit;
             }
 
             /* invoke call back function to fill the local buffer */
@@ -1695,8 +1719,8 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 // by the state machine. (Tx handle can be triggered by this function and the state machine)
                 if (Ret != kPdiAsyncStatusSuccessful)
                 {
-                    CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
-                    pLclAsyncTxMsgBuffer_l = NULL;
+                    CNAPI_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                    pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     goto exit;
                 }
 
