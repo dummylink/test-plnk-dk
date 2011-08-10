@@ -318,9 +318,19 @@ typedef struct sPdiAsyncParam {
     WORD           wTimeout_m;                  ///< timeout value of message delivery or reception (if set to 0, wait forever)
 } tPdiAsyncMsgParam;
 
+typedef enum ePdiAsyncMsgStatus {
+    kPdiAsyncMsgStatusNotActive             = 0x00,
+    kPdiAsyncMsgStatusQueuing               = 0x01,
+    kPdiAsyncMsgStatusProcessing            = 0x02,
+    kPdiAsyncMsgStatusTransferCompleted     = 0x03,
+    kPdiAsyncMsgStatusInterrupted           = 0x04,
+    kPdiAsyncMsgStatusError                 = 0x05,
+} tPdiAsyncMsgStatus;
+
 typedef struct sPdiAsyncMsgDescr {
     tPdiAsyncMsgType        MsgType_m;           ///< type of the message
-    BOOL                    fMsgValid_m;         ///< flag indicating a valid (= "completed transfer" for Rx "to be processed" for Tx) message payload
+    tPdiAsyncMsgStatus      MsgStatus_m;         ///< status of message transfer
+    tPdiAsyncStatus         Error_m;             ///< in case of an error the error code will be stored here
     DWORD                   dwMsgSize_m;         ///< size of message payload
     DWORD                   dwPendTranfSize_m;   ///< size of data which has not been transfered yet
     tPdiAsyncMsgHdl         MsgHdl_m;            ///< message handler
