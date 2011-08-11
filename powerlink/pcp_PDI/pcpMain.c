@@ -72,6 +72,12 @@ BYTE bObdSegWriteAccHistoryFinishedCnt_g = 0;
 tEplObdParam * ApiPdiComInstance_g = NULL;
 /******************************************************************************/
 // TEST SDO TRANSFER TO AP
+
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+tEplTimerArg    TimerArg;
+tEplTimerHdl    EplTimerHdl;
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+
 // flag
 static BOOL    fSdoSuccessful_l;
 
@@ -1372,11 +1378,6 @@ exit:
  *******************************************************************************/
 static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
 {
-#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-tEplTimerArg    TimerArg;
-tEplTimerHdl    EplTimerHdl;
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-
 tEplObdParam *   pAllocObdParam = NULL; ///< pointer to allocated memory of OBD access handle
 BYTE *           pAllocDataBuf;         ///< pointer to object data buffer
 tEplKernel       Ret = kEplSuccessful;
@@ -1636,9 +1637,19 @@ tEplKernel       Ret = kEplSuccessful;
             TimerArg.m_EventSink = kEplEventSinkApi;
             TimerArg.m_Arg.m_pVal = pAllocObdParam;
 
-            Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                        6000, //Timer availability is very fragile -> do other tests
-                                        TimerArg);
+            if(EplTimerHdl == 0)
+            {   // create new timer
+                Ret = EplTimeruSetTimerMs(&EplTimerHdl,
+                                            6000,
+                                            TimerArg);
+            }
+            else
+            {   // modify exisiting timer
+                Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
+                                            6000,
+                                            TimerArg);
+
+            }
             if(Ret != kEplSuccessful)
             {
                 pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
@@ -1675,6 +1686,32 @@ tEplKernel       Ret = kEplSuccessful;
                             {
                                 goto Exit;
                             }
+
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+                            // timer event for triggering answer at AP
+                            TimerArg.m_EventSink = kEplEventSinkApi;
+                            TimerArg.m_Arg.m_pVal = pAllocObdParam;
+
+                            if(EplTimerHdl == 0)
+                            {   // create new timer
+                                Ret = EplTimeruSetTimerMs(&EplTimerHdl,
+                                                            6000,
+                                                            TimerArg);
+                            }
+                            else
+                            {   // modify exisiting timer
+                                Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
+                                                            6000,
+                                                            TimerArg);
+
+                            }
+                            if(Ret != kEplSuccessful)
+                            {
+                                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+                                EPL_FREE(pAllocObdParam);
+                                goto Exit;
+                            }
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
                         } // end if (pObdParam_p->m_pRemoteAddress != NULL)
                         break;
@@ -1813,9 +1850,19 @@ tEplKernel       Ret = kEplSuccessful;
             TimerArg.m_EventSink = kEplEventSinkApi;
             TimerArg.m_Arg.m_pVal = pAllocObdParam;
 
-            Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                        6000, //Timer availability is very fragile -> do other tests
-                                        TimerArg);
+            if(EplTimerHdl == 0)
+            {   // create new timer
+                Ret = EplTimeruSetTimerMs(&EplTimerHdl,
+                                            6000,
+                                            TimerArg);
+            }
+            else
+            {   // modify exisiting timer
+                Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
+                                            6000,
+                                            TimerArg);
+
+            }
             if(Ret != kEplSuccessful)
             {
                 pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
@@ -1852,6 +1899,32 @@ tEplKernel       Ret = kEplSuccessful;
                             {
                                 goto Exit;
                             }
+
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+                            // timer event for triggering answer at AP
+                            TimerArg.m_EventSink = kEplEventSinkApi;
+                            TimerArg.m_Arg.m_pVal = pAllocObdParam;
+
+                            if(EplTimerHdl == 0)
+                            {   // create new timer
+                                Ret = EplTimeruSetTimerMs(&EplTimerHdl,
+                                                            6000,
+                                                            TimerArg);
+                            }
+                            else
+                            {   // modify exisiting timer
+                                Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
+                                                            6000,
+                                                            TimerArg);
+
+                            }
+                            if(Ret != kEplSuccessful)
+                            {
+                                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+                                EPL_FREE(pAllocObdParam);
+                                goto Exit;
+                            }
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
                         } // end if (pObdParam_p->m_pRemoteAddress != NULL)
                         break;
