@@ -350,31 +350,6 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 #ifndef USE_POLLING_MODE
                         CnApi_enableSyncInt();    // enable synchronous IR signal of PCP
 #endif
-
-                        //TODO: This is only a test! -> delete
-                        if (pAllocObdParam_l->m_ObdEvent == kEplObdEvPreRead)
-                        {   // return data of read access
-
-                            // Example how to finish a ReadByIndex access:
-                            dwExampleData++;
-                            pAllocObdParam_l->m_pData = &dwExampleData;
-                            pAllocObdParam_l->m_ObjSize = sizeof(dwExampleData);
-                            pAllocObdParam_l->m_SegmentSize = sizeof(dwExampleData);
-
-                            // if an error occured (e.g. object does not exist):
-                            // pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-
-                        }
-                        else
-                        { // write access
-
-                            // nothing to do except optional error handling
-                            // pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-                        }
-
-                        CnApi_DefObdAccFinished(&pAllocObdParam_l);
-                        // end of test
-
                         break;
                     }
                     case kApStateError:
@@ -404,6 +379,31 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                     case kPcpGenEventUserTimer:
                     {
+                        //TODO: This is only a test! -> delete
+                        if (pAllocObdParam_l->m_ObdEvent == kEplObdEvPreRead)
+                        {   // return data of read access
+
+                            // Example how to finish a ReadByIndex access:
+                            dwExampleData++;
+                            pAllocObdParam_l->m_pData = &dwExampleData;
+                            pAllocObdParam_l->m_ObjSize = sizeof(dwExampleData);
+                            pAllocObdParam_l->m_SegmentSize = sizeof(dwExampleData);
+
+                            // if an error occured (e.g. object does not exist):
+                            //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+
+                        }
+                        else
+                        { // write access
+
+                            // write to some variable
+
+                            // nothing to do except optional error handling
+                            //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                        }
+
+                        CnApi_DefObdAccFinished(&pAllocObdParam_l);
+                        // end of test
 
                         break;
                     }
