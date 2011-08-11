@@ -401,6 +401,13 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         TRACE1("INFO: NODE ID is set to 0x%02x\n", CnApi_getNodeId());
                         break;
                     }
+
+                    case kPcpGenEventUserTimer:
+                    {
+
+                        break;
+                    }
+
                     default:
                     break;
                 }
