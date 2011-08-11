@@ -526,6 +526,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     tObjAccMsg *            pObjAccReqDst = NULL;
     tObjAccSdoComCon *     pSdoComConInArg = NULL; //input argument
     tPdiAsyncStatus         Ret = kPdiAsyncStatusSuccessful;
+    tEplSdoComCon*         pSdoComCon;
 
     DEBUG_FUNC;
 
@@ -538,8 +539,15 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
         goto exit;
     }
 
-    // assign input argument
+    // assign input arguments
     pSdoComConInArg = (tObjAccSdoComCon *) pMsgDescr_p->pUserHdl_m;
+
+    if (pSdoComConInArg->m_pUserArg == NULL)
+    {
+        Ret = kPdiAsyncStatusInvalidInstanceParam;
+        goto exit;
+    }
+    pSdoComCon = (tEplSdoComCon *) pSdoComConInArg->m_pUserArg;
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = offsetof(tObjAccMsg ,m_SdoCmdFrame) + pSdoComConInArg->m_uiSizeOfFrame;
@@ -566,6 +574,9 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     /*----------------------------------------------------------------------------*/
     // TODO: convert to local endian to LE
     memcpy(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
+
+    // overwrite segment size - because this SDO command layer frame is misused as an customized acknowledge message
+    pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize = pSdoComCon->m_uiTransferredByte;
 
     pObjAccReqDst->m_bReqId =  bReqId_l;//TODO: dont use this Id, only rely on m_wHdlCom
     pObjAccReqDst->m_wHdlCom = pSdoComConInArg->m_wSdoSeqConHdl;
