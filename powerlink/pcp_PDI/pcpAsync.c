@@ -555,7 +555,7 @@ tPdiAsyncStatus cnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE
     // forward to SDO command layer
     // TODO: convert to local endian from LE
 
-    if ((pObjAccReq->m_SdoCmdFrame.m_le_bFlags & 0x40) == 1)
+    if ((pObjAccReq->m_SdoCmdFrame.m_le_bFlags & 0x40) != 0)
     {
         // SDO abort received
         ApiPdiComInstance_g->m_dwAbortCode = AmiGetDwordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
