@@ -25,6 +25,11 @@
 /******************************************************************************/
 /* includes */
 #include "cnApi.h"
+#ifdef MAKE_BUILD_PCP
+    #include "Epl.h"
+#endif
+    #include "EplFrame.h"
+
 
 /******************************************************************************/
 /* defines */
@@ -185,27 +190,14 @@ typedef struct sLinkPdosResp {
 //    BYTE                    m_bErrSubindex;
 } PACK_STRUCT tLinkPdosResp;
 
-// borrowed from openPOWERLINK stack
-typedef struct
-{
-    BYTE                    m_le_bReserved;
-    BYTE                    m_le_bTransactionId;
-    BYTE                    m_le_bFlags;
-    BYTE                    m_le_bCommandId;
-    WORD                    m_le_wSegmentSize;
-    WORD                    m_le_wReserved;
-    BYTE                    m_le_abCommandData[8];  // just reserve a minimum number of bytes as a placeholder
-
-}PACK_STRUCT tEplAsySdoComFrm; //equals tEplAsySdoCom
-
 /**
  * \brief structure connects object access messages and SDO command layer
  */
 typedef struct sObjAccSdoComCon {
     WORD                    m_wSdoSeqConHdl;    ///< SDO command layer connection handle number
-    tEplAsySdoComFrm *      m_pSdoCmdFrame;     ///< pointer to SDO command frame
+    tEplAsySdoCom *         m_pSdoCmdFrame;     ///< pointer to SDO command frame
     unsigned int            m_uiSizeOfFrame;    ///< size of SDO command frame
-    void *                  m_pUserArg;          ///< general purpose argument
+    void *                  m_pUserArg;         ///< general purpose argument
 } tObjAccSdoComCon;
 
 /**
@@ -215,7 +207,7 @@ typedef struct sObjAccReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wHdlCom;      ///< connection handle of originator module
-    tEplAsySdoComFrm        m_SdoCmdFrame;
+    tEplAsySdoCom           m_SdoCmdFrame;
 } PACK_STRUCT tObjAccMsg;
 
 /**
