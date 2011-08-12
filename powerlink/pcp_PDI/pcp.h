@@ -44,6 +44,13 @@ DETAILED_DESCRIPTION_OF_FILE
 /******************************************************************************/
 /* typedefs */
 
+/**
+ * \brief structure for object access forwarding to PDI (i.e. AP)
+ */
+typedef struct sApiPdiComCon {
+    tEplObdParam *          apObdParam_m[0];    ///< SDO command layer connection handle number
+} tApiPdiComCon;
+
 /******************************************************************************/
 /* global variables */
 extern tPcpCtrlReg     * volatile pCtrlReg_g;       ///< ptr. to PCP control register
@@ -57,7 +64,7 @@ extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp s
 extern DWORD       dwSumMappingSize_g;    ///< counter of overall mapped bytes
 
 // Api PDI communication instance
-extern tEplObdParam * ApiPdiComInstance_g;
+extern tApiPdiComCon ApiPdiComInstance_g;
 /******************************************************************************/
 /* function declarations */
 extern BYTE getCommandFromAp(void);

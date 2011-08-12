@@ -69,7 +69,7 @@ static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_SIZE]; ///< segmented
 BYTE bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_SIZE;
 BYTE bObdSegWriteAccHistoryFinishedCnt_g = 0;
 
-tEplObdParam * ApiPdiComInstance_g = NULL;
+tApiPdiComCon ApiPdiComInstance_g;
 /******************************************************************************/
 // TEST SDO TRANSFER TO AP
 
@@ -77,21 +77,6 @@ tEplObdParam * ApiPdiComInstance_g = NULL;
 tEplTimerArg    TimerArg;
 tEplTimerHdl    EplTimerHdl;
 #endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-
-// flag
-static BOOL    fSdoSuccessful_l;
-
-// strints to print out states of sdo transfer
-static char aszSdoStates_l[6][40]={"Connection not active\n",
-                                "Transfer running\n",
-                                "TX Abort\n",
-                                "RX Abort\n",
-                                "Sdo Tranfer finished\n",
-                                "Sdo Transfer aborted by lower layer\n"};
-
-static tEplSdoComConHdl          SdoComConHdl_l = 0;
-static unsigned int              uiBuffer_l;
-
 
 /******************************************************************************/
 // This function is the entry point for your object dictionary. It is defined
@@ -679,7 +664,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         {   // this case is assumed to handle only default OBD accesses
 
         tEplObdParam *  pObdParam;
-        tDefObdAccHdl * pFoundHdl;               ///< pointer to OBD access handle
+        tDefObdAccHdl * pFoundHdl;                 ///< pointer to OBD access handle
 //        tEplTimerArg    TimerArg;                ///< timer event posting
 //        tEplTimerHdl    EplTimerHdl;             ///< timer event posting
         volatile WORD     wFinishedHistoryCnt = 0; ///< counter finished history elements
@@ -1574,7 +1559,7 @@ tEplKernel       Ret = kEplSuccessful;
                     {   // check if forwarding object access request to AP is possible
 
                         // check if empty ApiPdi connection handles are available
-                        if (ApiPdiComInstance_g != NULL)
+                        if (ApiPdiComInstance_g.apObdParam_m[0] != NULL)
                         {
                             Ret = kEplObdOutOfMemory;
                             pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
@@ -1673,9 +1658,9 @@ tEplKernel       Ret = kEplSuccessful;
                     { // forward object access request to AP
 
                         // save handle for callback function
-                        ApiPdiComInstance_g = pAllocObdParam; //TODO: handle index, not a single pointer variable
+                        ApiPdiComInstance_g.apObdParam_m[0] = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
+                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
 
                         // forward SDO transfers of application specific objects to AP
                         if (pObdParam_p->m_pRemoteAddress != NULL)
@@ -1811,7 +1796,7 @@ tEplKernel       Ret = kEplSuccessful;
                     {   // check if forwarding object access request to AP is possible
 
                         // check if empty ApiPdi connection handles are available
-                        if (ApiPdiComInstance_g != NULL)
+                        if (ApiPdiComInstance_g.apObdParam_m[0] != NULL)
                         {
                             Ret = kEplObdOutOfMemory;
                             pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
@@ -1886,9 +1871,9 @@ tEplKernel       Ret = kEplSuccessful;
                     { // forward object access request to AP
 
                         // save handle for callback function
-                        ApiPdiComInstance_g = pAllocObdParam; //TODO: handle index, not a single pointer variable
+                        ApiPdiComInstance_g.apObdParam_m[0] = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g);
+                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
 
                         // forward SDO transfers of application specific objects to AP
                         if (pObdParam_p->m_pRemoteAddress != NULL)
@@ -2248,7 +2233,7 @@ static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p)
 
     PdiObjAccCon.m_wSdoSeqConHdl = 0xFF;///< SDO command layer connection handle number //TODO: implement handle index
     PdiObjAccCon.m_pSdoCmdFrame = pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame; ///< assign to SDO command frame
-    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoComFrm , m_le_abCommandData) + pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize;  ///< size of SDO command frame
+    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoCom , m_le_abCommandData) + pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize;  ///< size of SDO command frame
 
     PdiRet = CnApiAsync_postMsg(
                     kPdiAsyncMsgIntObjAccReq,
@@ -2302,13 +2287,13 @@ tEplKernel          EplRet;
         (pMsgDescr_p->Error_m != kPdiAsyncStatusSuccessful)     )
     {
         // if no abort code is present, assign one
-        if (ApiPdiComInstance_g->m_dwAbortCode == 0)
+        if (ApiPdiComInstance_g.apObdParam_m[0]->m_dwAbortCode == 0)
         {
-            ApiPdiComInstance_g->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+            ApiPdiComInstance_g.apObdParam_m[0]->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
         }
 
         // cleanup failed OBD Access    // TODO: search handle index
-        EplRet = EplAppDefObdAccFinished(&ApiPdiComInstance_g);
+        EplRet = EplAppDefObdAccFinished(&ApiPdiComInstance_g.apObdParam_m[0]);
         if (EplRet != kEplSuccessful)
         {
             Ret = kPdiAsyncStatusInvalidOperation;
