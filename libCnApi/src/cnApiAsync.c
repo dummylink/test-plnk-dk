@@ -572,14 +572,13 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
 
     /* setup message */
     /*----------------------------------------------------------------------------*/
-    // TODO: convert to local endian to LE
     memcpy(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
 
     // overwrite segment size - because this SDO command layer frame is misused as an customized acknowledge message
-    pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize = pSdoComCon->m_uiTransferredByte;
+    AmiSetWordToLe(&pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize, pSdoComCon->m_uiTransferredByte);
 
     pObjAccReqDst->m_bReqId =  bReqId_l;//TODO: dont use this Id, only rely on m_wHdlCom
-    pObjAccReqDst->m_wHdlCom = pSdoComConInArg->m_wSdoSeqConHdl;
+    AmiSetWordToLe(&pObjAccReqDst->m_wHdlCom, pSdoComConInArg->m_wSdoSeqConHdl);
     /*----------------------------------------------------------------------------*/
 
 exit:
@@ -838,12 +837,13 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
 
     // process the message
     /*----------------------------------------------------------------------------*/
-    // forward to SDO command layer //TODO: Req->Server, Resp->Client: Issue?
-    // TODO: convert to local endian from LE
+    // forward to SDO command layer
+    pObjAccReq->m_wHdlCom = AmiGetWordFromLe(&pObjAccReq->m_wHdlCom);
+    pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize = AmiGetWordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
 
-    printf("(ReqId: %d Hdl:%d SdoCmdSegSize: %d)\n",
-            pObjAccReq->m_bReqId, pObjAccReq->m_wHdlCom,
-            pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
+//    printf("(ReqId: %d Hdl:%d SdoCmdSegSize: %d)\n",
+//            pObjAccReq->m_bReqId, pObjAccReq->m_wHdlCom,
+//            pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
 
     // TODO: better search for free handle?
 //    tEplKernel EplSdoComSearchConIntern(tEplSdoSeqConHdl    SdoSeqConHdl_p,
