@@ -339,7 +339,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                         // Note: The application should not take longer for this preparation than
                         // the timeout value of the Powerlink MN "MNTimeoutPreOp2_U32".
-                        // Otherwise the CN will not boot!
+                        // Otherwise the CN will constantly reboot (= not finish booting)!
                         break;
                     }
 
@@ -398,7 +398,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                             // write to some variable
 
-                            // nothing to do except optional error handling
+                            // nothing else to do except optional error handling
                             //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
                         }
 
@@ -452,7 +452,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                                     case kPcpGenErrEventBuffOverflow:
                                     {
-                                        // AP is too slow (or PCP buffer is too small)!
+                                        // AP is too slow (or PCP event buffer is too small)!
                                         // -> AP will lose latest events from PCP
                                     }
                                     default:
@@ -690,12 +690,12 @@ tEplKernel       Ret = kEplSuccessful;
         Ret = kEplInvalidParam;
     }
 
-    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
-           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
-        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
-        pObdParam_p->m_ObdEvent,
-        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
-        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
+//    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
+//           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+//        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
+//        pObdParam_p->m_ObdEvent,
+//        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
+//        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     // return error for all non existing objects
     // if not known yet, this can also be done in CnApi_DefObdAccFinished()
@@ -713,7 +713,6 @@ tEplKernel       Ret = kEplSuccessful;
 
                 default:
                 {
-                    // printf("Sub-index does not exist!\n");
                     pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
                     Ret = kEplObdSubindexNotExist;
                     goto Exit;
@@ -745,7 +744,7 @@ tEplKernel       Ret = kEplSuccessful;
         {
             // Do not return "kEplObdAccessAdopted" - not allowed in this case!
 
-            // optionally assign data type if it is already known
+            // optionally assign data type, access type and object size if it is already known
             // e.g. pObdParam_p->m_Type = kEplObdTypUInt32;
 
             goto Exit;
@@ -792,11 +791,11 @@ tEplKernel       Ret = kEplSuccessful;
 
             // adopt OBD access
             // If the transfer has finished, invoke callback function with pointer to saved handle
-            // e.g.: CnApi_DefObdAccFinished(pAllocObdParam_l)
-            // after appropriate values have been assigned.
-            // please scroll up to "case kApStateOperational" in AppCbEvent()for an example
+            // e.g.: CnApi_DefObdAccFinished(pAllocObdParam_l);
+            // after appropriate values have been assigned to pAllocObdParam_l.
+            // Please scroll up to "case kPcpGenEventUserTimer" in AppCbEvent()for an example
             Ret = kEplObdAccessAdopted;
-            printf(" Adopted\n");
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO," Adopted\n");
             goto Exit;
 
         }   // end case kEplObdEvInitWriteLe
@@ -814,6 +813,9 @@ Exit:
  \brief signals an OBD default access as finished
  \param pObdParam_p
  \return tEplKernel value
+
+ This function has to be called after an OBD access has been finished to
+ inform the caller about this event.
  *******************************************************************************/
 tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p)
 {
@@ -822,7 +824,7 @@ tEplObdParam * pObdParam = NULL;
 
     pObdParam = *pObdParam_p;
 
-    printf("INFO: %s(%p) called\n", __func__, pObdParam);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "INFO: %s(%p) called\n", __func__, pObdParam);
 
     if (pObdParam_p == NULL                   ||
         pObdParam == NULL                     ||
@@ -849,7 +851,7 @@ tEplObdParam * pObdParam = NULL;
 Exit:
     if (EplRet != kEplSuccessful)
     {
-        printf("ERROR: %s failed!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: %s failed!\n", __func__);
     }
     return EplRet;
 
