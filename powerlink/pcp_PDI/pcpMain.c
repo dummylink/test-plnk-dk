@@ -103,7 +103,6 @@ static tEplKernel EplAppDefObdAccCountHdlStatus(
         WORD *  pwCntRet_p,
         tEplObdDefAccStatus ReqStatus_p);
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p);
-static tEplKernel EplAppCbSdoConnectionSourcePdiFinished(tEplSdoComFinished*  pSdoComFinished_p);
 static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
 static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
 
@@ -434,45 +433,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                 case kEplNmtCsPreOperational2:
                 {
-
-                    //TEST of AP SDO TRANSFERS
-                    /******************************************************************************/
-#if 0//#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
-                    tEplSdoComTransParamByIndex TransParamByIndex;
-
-
-                    // init command layer connection
-                    EplRet = EplSdoComDefineCon(&SdoComConHdl_l,
-                                                0x01,  // target node id -> take any valid powerlink node id. e.g. 0x01!
-                                                kEplSdoTypeApiPdi);
-                    if(EplRet != kEplSuccessful)
-                    {
-                        printf("Define of SDO via UDP Connection failed: 0x%03X\n", EplRet);
-                    }
-
-                    // read object 0x1000
-                    TransParamByIndex.m_pData = &uiBuffer_l; // provide data buffer to SDO Client
-                    TransParamByIndex.m_SdoAccessType = kEplSdoAccessTypeRead;
-                    TransParamByIndex.m_SdoComConHdl = SdoComConHdl_l; // EplSdoComDefineCon returned this handle
-                    TransParamByIndex.m_uiDataSize = sizeof(uiBuffer_l);
-                    TransParamByIndex.m_uiIndex = 0x6500;
-                    TransParamByIndex.m_uiSubindex = 0x01;
-                    TransParamByIndex.m_uiTimeout = 0;
-                    TransParamByIndex.m_pfnSdoFinishedCb = EplAppCbSdoConnectionSourcePdiFinished;
-                    TransParamByIndex.m_pUserArg = TransParamByIndex.m_pData;
-
-                    EplRet = EplSdoComInitTransferByIndex(&TransParamByIndex);
-                    if (EplRet != kEplSuccessful)
-                    {
-                        printf("Error = 0x%04X in function EplSdoComInitTransferByIndex\n", EplRet);
-                    }
-                    else
-                    {   // wait for end of transfer
-                        printf("Read of object 0x1000 started\n");
-                    }
-#endif
-                    /******************************************************************************/
-
 
                     setPowerlinkEvent(kPowerlinkEventEnterPreop2);
 
