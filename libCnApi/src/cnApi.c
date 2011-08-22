@@ -20,6 +20,7 @@ processor (AP) to the POWERLINK communication processor (PCP).
 /* includes */
 #include "cnApi.h"
 #include "cnApiIntern.h"
+#include "kernel/EplObdk.h"
 #include <unistd.h> // for usleep()
 #ifdef CN_API_USING_SPI
     #include "cnApiPdiSpi.h"
@@ -79,6 +80,7 @@ called by the application in order to use the API.
 tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 {
     tCnApiStatus FncRet = kCnApiStatusOk;
+    tEplKernel EplRet = kEplSuccessful;
     BOOL fPcpPresent = FALSE;
     int iCnt;
 
@@ -216,6 +218,14 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
                     sizeof(pCtrlRegLE_g->m_wCommand),
                     (BYTE*) &pCtrlRegLE_g->m_wCommand);
 #endif /* CN_API_USING_SPI */
+
+    /* assign callback for all objects which don't exist in local OBD */
+    EplRet = EplObdSetDefaultObdCallback(CnApi_CbDefaultObdAccess);
+    if (EplRet != kEplSuccessful)
+    {
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
 
     /* initialize state machine */
     CnApi_initApStateMachine();

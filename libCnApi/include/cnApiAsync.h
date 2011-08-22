@@ -25,6 +25,11 @@
 /******************************************************************************/
 /* includes */
 #include "cnApi.h"
+#ifdef MAKE_BUILD_PCP
+    #include "Epl.h"
+#endif
+    #include "EplFrame.h"
+
 
 /******************************************************************************/
 /* defines */
@@ -39,6 +44,10 @@
 
 #define CNAPI_MALLOC(siz)             malloc(siz)
 #define CNAPI_FREE(ptr)               free(ptr)
+
+// renaming of functions which have exactly the same functionality
+//#define cnApiAsync_doObjAccResp     cnApiAsync_doObjAccReq
+//#define cnApiAsync_handleObjAccResp cnApiAsync_handleObjAccReq
 /******************************************************************************/
 /* typedefs */
 
@@ -107,10 +116,8 @@ typedef enum ePdiAsyncMsgType {
     kPdiAsyncMsgIntCreateObjLinksResp,
     kPdiAsyncMsgIntLinkPdosReq,
     kPdiAsyncMsgIntLinkPdosResp,
-    kPdiAsyncMsgIntWriteObjReq,
-    kPdiAsyncMsgIntReadObjReq,
-    kPdiAsyncMsgIntWriteObjResp,
-    kPdiAsyncMsgIntReadObjResp,
+    kPdiAsyncMsgIntObjAccReq,
+    kPdiAsyncMsgIntObjAccResp,
     kPdiAsyncMsgExtTxSdoWriteByIndex,     ///< external messages from network
     kPdiAsyncMsgExtRxSdoWriteByIndex,
     kPdiAsyncMsgExtTxSdoReadByIndex,
@@ -184,25 +191,24 @@ typedef struct sLinkPdosResp {
 } PACK_STRUCT tLinkPdosResp;
 
 /**
- * \brief structure for WriteObjReq command
+ * \brief structure connects object access messages and SDO command layer
  */
-typedef struct sWriteObjReq {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-    WORD                    m_wNumObjs;
-} PACK_STRUCT tWriteObjReq;
+typedef struct sObjAccSdoComCon {
+    WORD                    m_wSdoSeqConHdl;    ///< SDO command layer connection handle number
+    tEplAsySdoCom *         m_pSdoCmdFrame;     ///< pointer to SDO command frame
+    unsigned int            m_uiSizeOfFrame;    ///< size of SDO command frame
+    void *                  m_pUserArg;         ///< general purpose argument
+} tObjAccSdoComCon;
 
 /**
- * \brief structure for WriteObjResp command
+ * \brief structure for ObjAccReq command
  */
-
-typedef struct sWriteObjResp {
+typedef struct sObjAccReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
-    WORD                    m_wStatus;
-    WORD                    m_wErrIndex;
-    BYTE                    m_bErrSubindex;
-} PACK_STRUCT tWriteObjResp;
+    WORD                    m_wHdlCom;      ///< connection handle of originator module
+    tEplAsySdoCom           m_SdoCmdFrame;
+} PACK_STRUCT tObjAccMsg;
 
 /**
  * \brief structure for internal channel header
@@ -305,9 +311,19 @@ typedef struct sPdiAsyncParam {
     WORD           wTimeout_m;                  ///< timeout value of message delivery or reception (if set to 0, wait forever)
 } tPdiAsyncMsgParam;
 
+typedef enum ePdiAsyncMsgStatus {
+    kPdiAsyncMsgStatusNotActive             = 0x00,
+    kPdiAsyncMsgStatusQueuing               = 0x01,
+    kPdiAsyncMsgStatusProcessing            = 0x02,
+    kPdiAsyncMsgStatusTransferCompleted     = 0x03,
+    kPdiAsyncMsgStatusInterrupted           = 0x04,
+    kPdiAsyncMsgStatusError                 = 0x05,
+} tPdiAsyncMsgStatus;
+
 typedef struct sPdiAsyncMsgDescr {
     tPdiAsyncMsgType        MsgType_m;           ///< type of the message
-    BOOL                    fMsgValid_m;         ///< flag indicating a valid (= "completed transfer" for Rx "to be processed" for Tx) message payload
+    tPdiAsyncMsgStatus      MsgStatus_m;         ///< status of message transfer
+    tPdiAsyncStatus         Error_m;             ///< in case of an error the error code will be stored here
     DWORD                   dwMsgSize_m;         ///< size of message payload
     DWORD                   dwPendTranfSize_m;   ///< size of data which has not been transfered yet
     tPdiAsyncMsgHdl         MsgHdl_m;            ///< message handler
@@ -396,11 +412,6 @@ extern tPdiAsyncStatus CnApi_doCreateObjLinksReq(
                        BYTE * pTxMsgBuffer_p,
                        BYTE * pRxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
-extern tPdiAsyncStatus CnApi_doWriteObjReq(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pTxMsgBuffer_p,
-                       BYTE * pRxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_doLinkPdosResp(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
                        BYTE* pTxMsgBuffer_p,
@@ -417,11 +428,6 @@ extern tPdiAsyncStatus CnApi_handleCreateObjLinksResp(
                        BYTE * pTxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_pfnCbCreateObjLinksRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
-extern tPdiAsyncStatus CnApi_handleWriteObjResp(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pRxMsgBuffer_p,
-                       BYTE * pTxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
 extern tPdiAsyncStatus CnApi_handleLinkPdosReq(
                        tPdiAsyncMsgDescr * pMsgDescr_p,

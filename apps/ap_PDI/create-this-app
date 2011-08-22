@@ -13,7 +13,6 @@ DBG_MODE=_DEBUG	# compile printfs()
 
 				
 CN_API_FLAGS= 	# empty							
-#CN_API_FLAGS="CN_API_USING_SPI"
                                                                               #
 ###############################################################################
 
@@ -21,6 +20,7 @@ CN_API_FLAGS= 	# empty
 # include project configuration
 
 . ../../project.config
+POWERLINKDIR=../powerlink/pcp_PDI/${POWERLINKDIR}
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
 
@@ -75,7 +75,8 @@ done
 INCLUDES="\
 ${LIBAPIDIR}/include \
 ${LIBAPIDIR}/include/openPOWERLINK \
-${LIBAPIDIR}/utils"
+${LIBAPIDIR}/utils \
+${POWERLINKDIR}/Include"
 
 ###############################################################################
 # Custom libraries

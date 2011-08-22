@@ -21,9 +21,14 @@
 *******************************************************************************/
 /* includes */
 #include "FpgaCfg.h"
+#include "altera_avalon_pio_regs.h"
+#include <string.h>                      //for memcpy()
+#ifdef SYSID_BASE
 #include "altera_avalon_sysid.h"
 #include "altera_avalon_sysid_regs.h"
-#include "altera_avalon_pio_regs.h"
+#else
+#warning: No SOPC module "SYSTEM-ID" present! Checking if SW fits to HW can not be performed!
+#endif /* SYSID_BASE */
 
 /******************************************************************************/
 /* defines */
@@ -52,11 +57,33 @@ static DWORD FpgaCfg_getPast1BootAdr(void);
 static DWORD FpgaCfg_getPast2BootAdr(void);
 static DWORD FpgaCfg_getPast1ReconfigTriggerCondition(void);
 
+static BOOL FpgaCfg_checkBlockStaysInRange(
+             const DWORD dwRangeStartOffs_p,
+             const DWORD dwRangeEndOffs_p,
+             const DWORD * pdwBlkStartOffs_p,
+             const DWORD * pdwBlkSize_p);
+//static BOOL FpgaCfg_getFlashSize(DWORD * pdwFlashSize_p);
+static BOOL FpgaCfg_writeFlashBlockSafely(
+             alt_flash_fd * pFlashInst_p,
+             int iBlkDestOffset_p,
+             int iBlkSize_p,
+             int iDestOffset_p,
+             const void * pSrc_p,
+             int iWriteSize_p);
+static BOOL FpgaCfg_getFlashBlockStartOffset(
+             DWORD * pdwFlashOffsetDest_p,
+             alt_flash_fd * pFlashInst_p,
+             DWORD *        pdwBlockStartOffset_p);
+
 /******************************************************************************/
 /* private functions */
 
 /******************************************************************************/
 /* functions */
+
+/******************************************************************************/
+/* REMOTE UPDATE CORE FUNCTIONS                                               */
+/******************************************************************************/
 
 /**
 ********************************************************************************
@@ -337,6 +364,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
     tFpgaCfgRetVal Ret = kFpgaCfgInvalidRetVal;
     BOOL fApplicationImageFailed = FALSE;
 
+#ifdef SYSID_BASE
     DEBUG_TRACE2(DEBUG_LVL_ALWAYS, "Reconfigured with system time stamp: %ul \nand system ID: %ul\n",
                  IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE),
                  IORD_ALTERA_AVALON_SYSID_ID(SYSID_BASE));
@@ -348,6 +376,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
         Ret = kFgpaCfgWrongSystemID;
         goto exit;
     }
+#endif /* SYSID_BASE */
 
     //DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "\nConfiguration State: %lu\n", FpgaCfg_getCurRemoteUpdateCoreState());
 
@@ -435,6 +464,652 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 exit:
     return Ret;
 }
+
+/******************************************************************************/
+/* FPGA FLASH PROGRAMMING FUNCTIONS                                           */
+/******************************************************************************/
+
+/**
+ ********************************************************************************
+ \brief reads data from flash memory
+ \param pdwSrcFlashOffset_p  pointer to flash source destination offset
+ \param pdwSize_p            pointer to size of source data
+ \param pDest_p              pointer to destination
+ \return TRUE if successful, FALSE if not
+ *******************************************************************************/
+BOOL FpgaCfg_readFlash(const DWORD * pdwSrcFlashOffset_p,
+                       DWORD * pdwSize_p,
+                       void * pDest_p)
+{
+    alt_flash_fd *  pFlashInst = NULL;  ///< pointer to structure for flash device handling
+    flash_region* aFlashRegions;        ///< flash regions array
+    WORD wNumOfRegions;                 ///< number of flash regions
+    BYTE bRegElmt = 0;                  ///< element of flash regions array
+    DWORD dwBlockSize = 0;              ///< block size (fixed for each region)
+    DWORD dwFlashSize = 0;              ///< size of whole flash memory
+    BOOL fRet = TRUE;                   ///< return value
+    int iRet;                           ///< captures bsp flash function return values
+
+    /* get pointer to flash instance structure */
+    pFlashInst = alt_flash_open_dev(FLASH_CTRL_NAME);
+    if (pFlashInst == NULL)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Could not open Flash device!\n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* get some flash information */
+    iRet = alt_get_flash_info(pFlashInst, &aFlashRegions, (int*) &wNumOfRegions);
+    if (iRet != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_get_flash_info() failed! \n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    if (wNumOfRegions == 1 )
+    { /* it is an EPCS device (with only one region)*/
+
+        /* assign the first (and only) regions block size */
+        bRegElmt = 0;
+        dwBlockSize = aFlashRegions[bRegElmt].block_size;
+        dwFlashSize = aFlashRegions[bRegElmt].region_size;
+
+        //printf( "\nReading from flash %s.\n"
+        //      "Flash size is %ld (%#08lx)\n", FLASH_CTRL_NAME, dwFlashSize, dwFlashSize);
+    }
+    else
+    { /* other devices currently not handled */
+        //for dwFlashSize, regions have to be summed up in case of other device
+        {
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!\n", __func__);
+            fRet = FALSE;
+            goto exit;
+        }
+    }
+
+    /* check for useless values */
+    if (dwBlockSize == 0                              ||
+        aFlashRegions[bRegElmt].number_of_blocks == 0 ||
+        dwFlashSize == 0                              ||
+        pdwSize_p == NULL                             ||
+        *pdwSize_p == 0                               ||
+        pDest_p == NULL                               ||
+        (dwFlashSize - 1) < *pdwSrcFlashOffset_p + *pdwSize_p) //flash size exceeded
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!", __func__);
+        fRet = FALSE;
+        goto exit;
+    }
+
+    iRet = alt_read_flash(pFlashInst,
+                          (int) *pdwSrcFlashOffset_p,
+                          pDest_p,
+                          (int) *pdwSize_p);
+    if (iRet != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_read_flash() failed! \n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "INFO: Read %lu bytes from flash\n", *pdwSize_p);
+
+    alt_flash_close_dev(pFlashInst);
+
+exit:
+    return fRet;
+}
+
+/**
+ ********************************************************************************
+ \brief write to a certain flash region
+ \param RegionName_p            name of the destination region
+ \param pdwDestFlashOffset_p    pointer to flash write destination offset
+ \param pSrc_p                  pointer to source data
+ \param pdwSize_p               pointer to size of source data
+ \return TRUE if successful, FALSE if not
+
+ This function ensures that the borders for desired write section won't be
+ exceeded in order to protect other regions from being overwritten.
+ *******************************************************************************/
+BOOL FpgaCfg_writeFlashUserImageRegion(tFpgaCfgFlashRegionName RegionName_p,
+                                       DWORD * pdwDestFlashOffset_p,
+                                       const BYTE * pSrc_p,
+                                       DWORD * pdwSize_p)
+{
+    BOOL fRet = TRUE;                   ///< return value
+    DWORD   dwFlashSizeOffs = 0;        ///< flash memory size
+
+    /*
+     * the desired write block has to stay in the desired
+     * region, otherwise it would result in an error.
+     */
+
+    /* protect other sections from being overwritten */
+    switch (RegionName_p)
+    {
+        case kFpgaCfgFlashRegionFactoryImage:
+        {
+             fRet = FALSE; // writing to this section is not allowed!
+             break;
+        }
+        case kFpgaCfgFlashRegionUserImage:
+        {
+            fRet = FpgaCfg_checkBlockStaysInRange(
+                        FLASH_SECTION_OFFSET_USER_IMAGE,
+                        FLASH_SECTION_OFFSET_CONFIG_STORAGE,
+                        pdwDestFlashOffset_p,
+                        pdwSize_p);
+            if (fRet == FALSE)
+            {
+                goto exit;
+            }
+            break;
+        }
+        case kFpgaCfgFlashRegionConfigurationStorage:
+        {
+            fRet = FpgaCfg_checkBlockStaysInRange(
+                        FLASH_SECTION_OFFSET_CONFIG_STORAGE,
+                        FLASH_SECTION_OFFSET_NON_PCP_SPARE,
+                        pdwDestFlashOffset_p,
+                        pdwSize_p);
+            if (fRet == FALSE)
+            {
+                goto exit;
+            }
+            break;
+        }
+        case kFpgaCfgFlashRegionNonPcpSpare:
+        {
+            fRet = FpgaCfg_getFlashSize(&dwFlashSizeOffs);
+            if (fRet == FALSE)
+            {
+                goto exit;
+            }
+
+            fRet = FpgaCfg_checkBlockStaysInRange(
+                        FLASH_SECTION_OFFSET_NON_PCP_SPARE,
+                        dwFlashSizeOffs,
+                        pdwDestFlashOffset_p,
+                        pdwSize_p);
+            if (fRet == FALSE)
+            {
+                goto exit;
+            }
+            break;
+        }
+
+        default:
+        {
+            /* function was called with invalid parameter */
+            fRet = FALSE;
+            goto exit;
+        }
+    }
+
+exit:
+    return fRet;
+}
+
+/**
+ ********************************************************************************
+ \brief checks if a memory block exceeds a specified memory range
+ \param dwRangeStartOffs_p   start of allowed range (offset)
+ \param dwRangeEndOffs_p     end of allowed range (offset)
+ \param pdwBlkStartOffs_p    pointer to start of block (offset)
+ \param pdwBlkSize_p         pointer to size of block
+ \return TRUE if block is in range, FALSE if not or in case of an error
+
+This function verifies if a memory block (with start offset dwBlkStartOffs_p and
+size dwBlkSize_p) stays within an allowed range (*pdwRangeStartOffs_p to
+*pdwRangeEndOffs_p).
+ *******************************************************************************/
+BOOL FpgaCfg_checkBlockStaysInRange(
+             const DWORD dwRangeStartOffs_p,
+             const DWORD dwRangeEndOffs_p,
+             const DWORD * pdwBlkStartOffs_p,
+             const DWORD * pdwBlkSize_p)
+{
+    BOOL fRet = TRUE;  ///< return value
+
+    /* check for useless values */
+    if (pdwBlkStartOffs_p == NULL              ||
+        pdwBlkSize_p == NULL                   ||
+        dwRangeStartOffs_p > dwRangeEndOffs_p) // start is higher than end -> error
+    {
+
+        fRet = FALSE;
+        goto exit;
+    }
+
+    if (*pdwBlkStartOffs_p < dwRangeStartOffs_p            ||
+        (*pdwBlkStartOffs_p + *pdwBlkSize_p) > dwRangeEndOffs_p)
+    { /* block exceed the specified range */
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* block stays within specified range if this line is reached */
+
+exit:
+    return fRet;
+}
+
+/**
+ ********************************************************************************
+ \brief read the flash size
+ \param pdwFlashSize_p OUT: pointer to size of flash
+ \return TRUE if successful, FALSE if flash size is invalid
+
+This function will write the size of the flash memory (flash name defined in
+"FLASH_CTRL_NAME") to the parameter pdwFlashSize_p.
+If the flash memory instance can not be found or has invalid values an error will
+be returned.
+ *******************************************************************************/
+BOOL FpgaCfg_getFlashSize(DWORD * pdwFlashSize_p)
+{
+    alt_flash_fd *  pFlashInst = NULL;  ///< pointer to structure for flash device handling
+    flash_region* aFlashRegions;        ///< flash regions array
+    WORD wNumOfRegions;                 ///< number of flash regions
+    BYTE bRegElmt = 0;                  ///< element of flash regions array
+    DWORD dwBlockSize = 0;              ///< block size (fixed for each region)
+    BOOL fRet = TRUE;                   ///< return value
+    int iRet;                           ///< captures bsp flash function return values
+
+    if (pdwFlashSize_p == NULL)
+    {
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* get pointer to flash instance structure */
+    pFlashInst = alt_flash_open_dev(FLASH_CTRL_NAME);
+    if (pFlashInst == NULL)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Could not open Flash device!\n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* get some flash information */
+    iRet = alt_get_flash_info(pFlashInst, &aFlashRegions, (int*) &wNumOfRegions);
+    if (iRet != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_get_flash_info() failed! \n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    if (wNumOfRegions == 1 )
+    { /* it is an EPCS device (with only one region)*/
+
+        /* assign the first (and only) regions block size */
+        dwBlockSize = aFlashRegions[bRegElmt].block_size;       // only for tracing
+        *pdwFlashSize_p = aFlashRegions[bRegElmt].region_size;  //return flash size
+
+        /* printf("\nWriting to flash %s.\n"
+               "Block size:  %ld bytes.\n"
+               "Block count: %d \n"
+               "Flash size:  %ld (%#08lx)\n",
+               FLASH_CTRL_NAME,
+               dwBlockSize,
+               aFlashRegions[bRegElmt].number_of_blocks,
+               dwFlashSize,
+               dwFlashSize); */
+    }
+    else
+    { /* other devices currently not handled */
+        //for dwFlashSize, regions have to be summed up in case of other device
+        {
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!\n", __func__);
+            fRet = FALSE;
+            goto exit;
+        }
+    }
+
+    alt_flash_close_dev(pFlashInst);
+
+exit:
+    return fRet;
+}
+
+/**
+ ********************************************************************************
+ \brief writes to flash memory without corrupting non-written data
+ \param pdwDestFlashOffset_p pointer to flash write destination offset
+ \param pdwSize_p            pointer to size of source data
+ \param pDataSrc_p           pointer to source data
+ \return TRUE if successful, FALSE if not
+
+ This function writes any size and value to flash memory without corrupting other
+ data. If the source data size exceeds the flash size, it will result in an error.
+ *******************************************************************************/
+BOOL FpgaCfg_writeFlashSafely(const DWORD * pdwDestFlashOffset_p,
+                              const DWORD * pdwSize_p,
+                              const void * pDataSrc_p)
+{
+    alt_flash_fd *  pFlashInst = NULL;  ///< pointer to structure for flash device handling
+    flash_region* aFlashRegions;        ///< flash regions array
+    WORD wNumOfRegions;                 ///< number of flash regions
+    BYTE bRegElmt = 0;                  ///< element of flash regions array
+    WORD wBlockCnt = 0;                 ///< block counter
+    DWORD dwBlockSize = 0;              ///< block size (fixed for each region)
+    DWORD dwFlashSize = 0;              ///< size of whole flash memory
+    DWORD dwDestOffset = 0;             ///< flash offset to be written to
+    DWORD dwBlkDestOffset = 0;          ///< flash block start offset write destination
+    const void * pSrc;                  ///< temporary data source pointer
+    DWORD dwWriteSize = 0;              ///< data size to be written
+    DWORD dwWrittenDataSize = 0;        ///< cumulating counter of already written data size
+    DWORD dwFirstFlashBlkOfst = 0;      ///< first flash block offset of destination write block
+    BOOL fRet = TRUE;                   ///< return value
+    int iRet;                           ///< captures bsp flash function return values
+
+    /* get pointer to flash instance structure */
+    pFlashInst = alt_flash_open_dev(FLASH_CTRL_NAME);
+    if (pFlashInst == NULL)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Could not open Flash device!\n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* get some flash information */
+    iRet = alt_get_flash_info(pFlashInst, &aFlashRegions, (int*) &wNumOfRegions);
+    if (iRet != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_get_flash_info() failed! \n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    if (wNumOfRegions == 1 )
+    { /* it is an EPCS device (with only one region)*/
+
+        /* assign the first (and only) regions block size */
+        bRegElmt = 0;
+        dwBlockSize = aFlashRegions[bRegElmt].block_size;
+        dwFlashSize = aFlashRegions[bRegElmt].region_size;
+
+        /* printf("\nWriting to flash %s.\n"
+               "Block size:  %ld bytes.\n"
+               "Block count: %d \n"
+               "Flash size:  %ld (%#08lx)\n",
+               FLASH_CTRL_NAME,
+               dwBlockSize,
+               aFlashRegions[bRegElmt].number_of_blocks,
+               dwFlashSize,
+               dwFlashSize); */
+    }
+    else
+    { /* other devices currently not handled */
+        //for dwFlashSize, regions have to be summed up in case of other device
+        {
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!\n", __func__);
+            fRet = FALSE;
+            goto exit;
+        }
+    }
+
+    /* check for useless values */
+    if (dwBlockSize == 0                              ||
+        aFlashRegions[bRegElmt].number_of_blocks == 0 ||
+        dwFlashSize == 0                              ||
+        pdwSize_p == NULL                             ||
+        *pdwSize_p == 0                               ||
+        pDataSrc_p == NULL                            ||
+        (dwFlashSize - 1) < *pdwDestFlashOffset_p + *pdwSize_p) //flash size exceeded
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!\n", __func__);
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* get flash block offsets for verification if write operation spans
+     * more than one flash block
+     */
+    dwDestOffset = *pdwDestFlashOffset_p;
+    fRet = FpgaCfg_getFlashBlockStartOffset(&dwDestOffset,
+                                            pFlashInst,
+                                            &dwFirstFlashBlkOfst);
+    if (fRet != TRUE)
+    {
+        goto exit;
+    }
+
+    /* prepare write to first flash block */
+    dwBlkDestOffset = dwFirstFlashBlkOfst;
+    dwDestOffset = *pdwDestFlashOffset_p;
+    pSrc = pDataSrc_p;
+
+    /* write data to subsequent flash blocks */
+    while ((*pdwSize_p - dwWrittenDataSize) > 0)
+    {
+        if (dwDestOffset + *pdwSize_p - dwWrittenDataSize > dwBlkDestOffset + aFlashRegions[bRegElmt].block_size)
+        { /* write data spans into next block -> fill only one block up to it's end */
+            dwWriteSize = dwBlkDestOffset + aFlashRegions[bRegElmt].block_size - dwDestOffset;
+        }
+        else
+        { /* all write data fits into this block -> remaining size */
+            dwWriteSize = *pdwSize_p - dwWrittenDataSize;
+        }
+
+        fRet = FpgaCfg_writeFlashBlockSafely(pFlashInst,
+                                             (int) dwBlkDestOffset,
+                                             aFlashRegions[bRegElmt].block_size,
+                                             (int) dwDestOffset,
+                                             pSrc,
+                                             (int) dwWriteSize);
+        if (fRet != TRUE)
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: FpgaCfg_writeFlashBlockSafely() failed! \n");
+            goto exit;
+        }
+
+        /* prepare write to next flash block */
+        dwWrittenDataSize += dwWriteSize; // memorize how much data has already been written
+        dwBlkDestOffset += aFlashRegions[bRegElmt].block_size;
+        dwDestOffset += dwWriteSize;
+        pSrc += dwWriteSize;
+
+        wBlockCnt++;                     // count written blocks
+    }
+
+    DEBUG_TRACE3(DEBUG_LVL_ALWAYS, "INFO: Wrote %lu bytes of %lu to flash using %d blocks\n", dwWrittenDataSize, *pdwSize_p, wBlockCnt);
+
+    alt_flash_close_dev(pFlashInst);
+
+exit:
+    return fRet;
+}
+
+/**
+ ********************************************************************************
+ \brief writes to a single flash block without corrupting other data
+ \param pFlashInst_p      flash instance structure
+ \param iBlkDestOffset_p  flash block start offset of write destination
+ \param iBlkSize_p        flash block size
+ \param iDestOffset_p     flash write destination offset
+ \param pSrc_p            pointer to source data
+ \param iWriteSize_p      size of source data
+ \return TRUE if successful, FALSE if not
+
+ This function writes to a single flash block. Only the intended data will be
+ overwritten, all other data will be conserved by temporarily buffering the
+ flash data block into an local buffer. With this mode, also NAND-Flashes can
+ be written randomly without data corruption.
+ This function does not check if it gets useful parameters i.e. it expects
+ correct block start and destination data flash offsets. The destination data
+ offset iDestOffset_p must be in range of the flash block with start offset
+ iBlkDestOffset_p. The flash block size iBlkSize_p has to describe the flash
+ block with start offset iBlkDestOffset_p correctly.
+ Also, the sources data size iWriteSize_p should not exceed the block size
+ iBlkSize_p.
+ *******************************************************************************/
+BOOL FpgaCfg_writeFlashBlockSafely(alt_flash_fd *pFlashInst_p,
+                                   int iBlkDestOffset_p,
+                                   int iBlkSize_p,
+                                   int iDestOffset_p,
+                                   const void * pSrc_p,
+                                   int iWriteSize_p)
+{
+    BYTE *  pBlockShadowCopy = NULL;    ///< local copy of flash block
+    BOOL fRet = TRUE;                   ///< return value
+    int iRet;                           ///< captures bsp flash function return values
+
+    /* check for useless values */
+    if (pFlashInst_p == NULL   ||
+        pSrc_p == NULL         ||
+        iBlkSize_p == 0        ||
+        iWriteSize_p == 0      ||
+        iWriteSize_p > iBlkSize_p) //block size exceeded
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!", __func__);
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* save whole block before it will be erased */
+    pBlockShadowCopy = malloc(iBlkSize_p);
+    if (pBlockShadowCopy == NULL)
+    {
+        fRet = FALSE;
+        goto exit;
+    }
+
+    iRet = alt_read_flash(pFlashInst_p,
+                          iBlkDestOffset_p,
+                          pBlockShadowCopy,
+                          iBlkSize_p);
+    if (iRet != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_read_flash() failed! \n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* now lets write the source data to the local shadow block */
+    memcpy(pBlockShadowCopy + (iDestOffset_p - iBlkDestOffset_p),
+            pSrc_p,
+            iWriteSize_p);
+
+    /* erase whole block before we can do a write */
+    iRet = alt_erase_flash_block(pFlashInst_p,
+                                 iBlkDestOffset_p,
+                                 iBlkSize_p);
+    if (iRet != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_erase_flash_block() failed! \n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* write whole local shadow block to flash */
+    iRet = alt_write_flash_block (pFlashInst_p,
+                                  iBlkDestOffset_p,
+                                  iBlkDestOffset_p,
+                                  pBlockShadowCopy,
+                                  iBlkSize_p);
+    if (iRet != 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_write_flash_block() failed! \n");
+        fRet = FALSE;
+        goto exit;
+    }
+
+    DEBUG_TRACE2(DEBUG_LVL_ALWAYS,"INFO: Write to DestOffset: %#08x (Block Base: %#08x)\n", iDestOffset_p, iBlkDestOffset_p);
+
+exit:
+    free(pBlockShadowCopy);
+
+    return fRet;
+}
+
+/**
+ ********************************************************************************
+ \brief returns the block start address of a block the argument points to
+ \param dwFlashOffsetDest_p     IN:  flash offset (pointing to required block offset)
+ \param pFlashInst_p            IN:  instance of flash structure
+ \param pdwBlockStartOffset_p   OUT: offset of block start where dwFlashOffsetDest_p
+                                     points to
+ \return TRUE if successful, FALSE if not
+
+This function also checks if the argument dwFlashOffsetDest_p is located within
+the flash memory borders. If this is not the case, ERROR will be returned.
+ *******************************************************************************/
+BOOL FpgaCfg_getFlashBlockStartOffset(DWORD * pdwFlashOffsetDest_p,
+                             alt_flash_fd * pFlashInst_p, //TODO not working somehow
+                             DWORD *        pdwBlockStartOffset_p)
+{
+    flash_region* aFlashRegions;        ///< flash regions array
+    WORD wNumOfRegions;                 ///< number of flash regions
+    BYTE bRegElmt = 0;                  ///< element of flash regions array
+    WORD wBlockCnt = 1;                 ///< block counter
+    DWORD dwBlockSize = 0;              ///< block size (fixed for each region)
+    DWORD dwFlashSize = 0;              ///< size of whole flash memory
+    int iRet = 0;                       ///< return value of internal used functions
+    BOOL fRet = TRUE;                   ///< return value of this function
+    DWORD dwBlockStartOffsetRet = 0;    ///< return value of block start offset
+
+    iRet = alt_get_flash_info(pFlashInst_p, &aFlashRegions, (int*) &wNumOfRegions);
+    if (iRet != 0       ||
+        wNumOfRegions == 0)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR,"ERROR: %s failed!", __func__);
+        fRet = FALSE;
+        goto exit;
+    }
+
+    if (wNumOfRegions == 1 )
+    { /* it is an EPCS device (with only one region)*/
+
+        /* assign the first (and only) regions block size */
+        bRegElmt = 0;
+        dwBlockSize = aFlashRegions[bRegElmt].block_size;
+
+        dwFlashSize = aFlashRegions[bRegElmt].region_size;
+    }
+    else
+    { /* other devices currently not handled */
+        //for dwFlashSize, regions have to be summed up in case of other device
+        {
+            DEBUG_TRACE1(DEBUG_LVL_ERROR,"ERROR: %s failed!", __func__);
+            fRet = FALSE;
+            goto exit;
+        }
+    }
+
+    /* check for useless values */
+    if (dwBlockSize == 0                              ||
+        aFlashRegions[bRegElmt].number_of_blocks == 0 ||
+        dwFlashSize == 0                              ||
+        (dwFlashSize - 1) < *pdwFlashOffsetDest_p) //flash size exceeded
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR,"ERROR: %s failed3!", __func__);
+        fRet = FALSE;
+        goto exit;
+    }
+
+    /* determine the flash blocks start address of the destination offset */
+    for(wBlockCnt = 0; wBlockCnt < aFlashRegions[bRegElmt].number_of_blocks; wBlockCnt++)
+    {
+        dwBlockStartOffsetRet = aFlashRegions[bRegElmt].offset + dwBlockSize * (wBlockCnt+1);
+
+        if (dwBlockStartOffsetRet > *pdwFlashOffsetDest_p)
+        { /* we are one block above the found result -> set correct value and exit loop */
+            dwBlockStartOffsetRet = aFlashRegions[bRegElmt].offset + dwBlockSize * wBlockCnt;
+            break;
+        }
+    }
+
+    /* assign return value */
+    *pdwBlockStartOffset_p = dwBlockStartOffsetRet;
+
+exit:
+    return fRet;
+}
+
 
 /*******************************************************************************
 *

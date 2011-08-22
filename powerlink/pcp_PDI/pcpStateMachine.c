@@ -257,12 +257,15 @@ FUNC_DOACT(kPcpStatePreop2)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
 {
+    BOOL fRet = FALSE;
+
     if(checkApCommand(kApCmdReadyToOperate))
     {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdReadyToOperate\n", __func__);
         if (CnApiAsync_checkApLinkingStatus() == kPdiAsyncStatusSuccessful)
         { // state change allowed
-            return TRUE;
+            fRet = TRUE;
+            goto Exit;
         }
         else
         {
@@ -271,8 +274,11 @@ FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
     }
     else
     {
-        return FALSE;
+        fRet = FALSE;
+        goto Exit;
     }
+Exit:
+    return fRet;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStatePreop1,1)

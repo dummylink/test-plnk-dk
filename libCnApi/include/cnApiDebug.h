@@ -69,7 +69,7 @@
 #ifndef _CNAPI_DEBUG_H_
 #define _CNAPI_DEBUG_H_
 
-#include "CnApiGlobal.h"
+#include "cnApiGlobal.h"
 
 
 /***************************************************************************/

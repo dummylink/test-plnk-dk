@@ -75,9 +75,9 @@ static BOOL                 fCheckOnlyInternalMessages = FALSE;   ///< only chec
                                                                   ///< and return to originating 'pending' state of non-internal message
 static BOOL                 fCheckedIfInternalMessageDue = FALSE; ///< internal messages have already been checked once
 
-/* errors */
 /* Asynchronous Transfers */
 static tPdiAsyncMsgDescr aPdiAsyncRxMsgs[MAX_PDI_ASYNC_RX_MESSAGES] = {{0}};
+static tPdiAsyncMsgDescr aPdiAsyncTxMsgs[MAX_PDI_ASYNC_TX_MESSAGES] = {{0}};
 static tPdiAsyncMsgLink  aPdiAsyncMsgLinkLog_l[(MAX_PDI_ASYNC_TX_MESSAGES + MAX_PDI_ASYNC_RX_MESSAGES)] = {{0}};
 static BYTE              bActivTxMsg_l = INVALID_ELEMENT; ///< indicates inactive message
 static BYTE              bActivRxMsg_l = INVALID_ELEMENT; ///< indicates inactive message
@@ -93,7 +93,6 @@ tPdiAsyncPendingTransferContext PdiAsyncPendTrfContext_l;  ///< context of inter
 tAsyncPdiBufCtrlHeader * pAsyncHeaderLE_l;
 
 /* list of connections from original message to response message */
-static tPdiAsyncMsgDescr aPdiAsyncTxMsgs[MAX_PDI_ASYNC_TX_MESSAGES] = {{0}};
 static BYTE                     bLinkLogCounter_l = 0;    ///< counter of current links
 
 /******************************************************************************/
@@ -441,7 +440,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
     {
         for (bCnt = 0; bCnt < MAX_PDI_ASYNC_TX_MESSAGES; ++bCnt)
         {
-            if ((aPdiAsyncTxMsgs[bCnt].fMsgValid_m == TRUE))
+            if ((aPdiAsyncTxMsgs[bCnt].MsgStatus_m == kPdiAsyncMsgStatusQueuing))
             {
                 bActivTxMsg_l = bCnt;   // activate first found element
                 break;
@@ -452,13 +451,14 @@ FUNC_DOACT(kPdiAsyncStateWait)
     /* check if internal Tx message is due (high priority) */
     for (bCnt = 0; bCnt < MAX_PDI_ASYNC_TX_MESSAGES; ++bCnt)
     {
-        if ((aPdiAsyncTxMsgs[bCnt].fMsgValid_m == TRUE) &&
+        if ((aPdiAsyncTxMsgs[bCnt].MsgStatus_m == kPdiAsyncMsgStatusQueuing) &&
             (aPdiAsyncTxMsgs[bCnt].Param_m.ChanType_m == kAsyncChannelInternal))
         {
             bActivTxMsg_l = bCnt;   // overwrite previous found element
             break;
         }
     }
+    // end of search for available Tx message
 
     if (bActivTxMsg_l == INVALID_ELEMENT)
     {
@@ -466,6 +466,19 @@ FUNC_DOACT(kPdiAsyncStateWait)
     }
     else // message activated
     {
+        // if local buffering is used, assign buffer pointer
+        if (aPdiAsyncTxMsgs[bCnt].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+        {
+            if (pLclAsyncTxMsgBuffer_l != NULL)
+            {
+                ErrorHistory_l = kPdiAsyncStatusNoResource;
+                fError = TRUE;
+                goto exit;
+            }
+
+            pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bCnt].MsgHdl_m.pLclBuf_m;
+        }
+
         /*transit to ASYNC_TX_BUSY */
         fTxTriggered = TRUE;
         goto exit;
@@ -734,6 +747,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 /* check if internal messages have to be processed -> goto ASYNC_WAIT state */
                 fCheckOnlyInternalMessages = TRUE;
                 fMsgTransferInterrupted = TRUE; // not really finished, only causes transition to ASYNC_WAIT
+                //TODO: Change MsgStatus to interrupted
                 goto exit;
             }
             else
@@ -788,6 +802,8 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 {
                     CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
                     pLclAsyncTxMsgBuffer_l = NULL;
+                    aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
+
                     break;
                 }
 
@@ -809,7 +825,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 else
                 {
                     /* deactivate Tx message */
-                    aPdiAsyncTxMsgs[bActivTxMsg_l].fMsgValid_m = FALSE; // tag as obsolete
+                    aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive; // tag as obsolete
                     bActivTxMsg_l = INVALID_ELEMENT;
 
                     /* set active Rx element and trigger Rx pending */
@@ -820,7 +836,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
             }
 
             /* deactivate Tx message */
-            aPdiAsyncTxMsgs[bActivTxMsg_l].fMsgValid_m = FALSE; // tag as obsolete
+            aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive; // tag as obsolete
             bActivTxMsg_l = INVALID_ELEMENT;
 
             /* if Tx response was triggered by Rx message, free and deactivate also Rx message */
@@ -844,7 +860,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                     break;
                 }
                 /* deactivate Rx message */
-                aPdiAsyncRxMsgs[bActivRxMsg_l].fMsgValid_m = FALSE; // tag as obsolete
+                aPdiAsyncRxMsgs[bActivRxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive; // tag as obsolete
                 bActivRxMsg_l = INVALID_ELEMENT;
             }
 
@@ -1058,7 +1074,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             else // pMsgDescr->dwPendTranfSize_m == 0
             {/* transfer has finished  */
                 pRxChan = pMsgDescr->MsgHdl_m.pLclBuf_m;
-                pMsgDescr->fMsgValid_m = TRUE; // tag message payload as complete
+                pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
             }
 
             break;
@@ -1067,7 +1083,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
         case kPdiAsyncTrfTypeDirectAccess:
         {
             pRxChan = (BYTE *) &pUtilRxPdiBuf->m_chan;
-            pMsgDescr->fMsgValid_m = TRUE; // tag message payload as complete
+            pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
             break;
         }
 
@@ -1076,7 +1092,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     }
 
     /* Rx transfer has finished -> handle Rx message */
-    if (pMsgDescr->fMsgValid_m)
+    if (pMsgDescr->MsgStatus_m == kPdiAsyncMsgStatusTransferCompleted)
     {
         if (pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m != NULL)
         {/* prepare Rx call back */
@@ -1211,7 +1227,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
 
             /* deactivate Rx message */
-            pMsgDescr->fMsgValid_m = FALSE; // tag as obsolete
+            pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusNotActive; // tag as obsolete
             fDeactivateRxMsg = TRUE; // set bActivRxMsg_l to INVALID_ELEMENT at transition
         }
 
@@ -1414,15 +1430,51 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 {
     /* handle errors */
 
-    //TODO: Post event
+    /* timeout handling */
+    if (ErrorHistory_l == kPdiAsyncStatusTimeout)
+    { /* reset timeout counter */
+        dwTimeoutWait_l = 0;
+    }
+
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s status: %s\n",
+                                __func__, getStrgCurError(ErrorHistory_l));
 
     /* deactivate active messages */
     if (bActivTxMsg_l != INVALID_ELEMENT)
     {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Tx message type: %d\n",
                      aPdiAsyncTxMsgs[bActivTxMsg_l].MsgType_m);
-        /* set invalid */
-        aPdiAsyncTxMsgs[bActivTxMsg_l].fMsgValid_m = FALSE;
+
+        /* inform callback about error */
+        aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusError;
+        aPdiAsyncTxMsgs[bActivTxMsg_l].Error_m = ErrorHistory_l; // inform callback about error //TODO: assign error where it happens
+
+        /* call user defined "transfer finished" callback */
+        if (aPdiAsyncTxMsgs[bActivTxMsg_l].pfnTransferFinished_m != NULL)
+        {
+            ErrorHistory_l = aPdiAsyncTxMsgs[bActivTxMsg_l].pfnTransferFinished_m(&aPdiAsyncTxMsgs[bActivTxMsg_l]);
+            if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
+            {
+                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR in async user callback!\n");
+            }
+        }
+
+        /* reset message status */
+        aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive;
+        aPdiAsyncTxMsgs[bActivTxMsg_l].Error_m = kPdiAsyncStatusSuccessful;
+
+        if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m == pLclAsyncTxMsgBuffer_l)
+        {   // prevent free operation from executing a second time with pLclAsyncTxMsgBuffer_l
+            pLclAsyncTxMsgBuffer_l = NULL;
+        }
+
+        if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
+        {
+            CNAPI_FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
+            aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
+        }
+
         bActivTxMsg_l = INVALID_ELEMENT;
     }
 
@@ -1439,13 +1491,25 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
                     (BYTE*) &aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bSync);
 #endif /* CN_API_USING_SPI */
 
-        /* set invalid */
-        aPdiAsyncRxMsgs[bActivRxMsg_l].fMsgValid_m = FALSE;
+        /* inform callback about error */
+        aPdiAsyncRxMsgs[bActivRxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusError;
+        aPdiAsyncRxMsgs[bActivRxMsg_l].Error_m = ErrorHistory_l; // inform callback about error //TODO: assign error where it happens
+
+        /* call user defined "transfer finished" callback */
+        if (aPdiAsyncRxMsgs[bActivRxMsg_l].pfnTransferFinished_m != NULL)
+        {
+            ErrorHistory_l = aPdiAsyncRxMsgs[bActivRxMsg_l].pfnTransferFinished_m(&aPdiAsyncRxMsgs[bActivRxMsg_l]);
+            if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
+            {
+                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR in async user callback!\n");
+            }
+        }
+
+        /* reset message status */
+        aPdiAsyncRxMsgs[bActivRxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive;
+        aPdiAsyncRxMsgs[bActivRxMsg_l].Error_m = kPdiAsyncStatusSuccessful;
         bActivRxMsg_l = INVALID_ELEMENT;
     }
-
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s status: %s\n",
-                                __func__, getStrgCurError(ErrorHistory_l));
 
     /* free buffers */
     if (pLclAsyncTxMsgBuffer_l != NULL)
@@ -1462,12 +1526,8 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         pLclAsyncRxMsgBuffer_l = NULL;
     }
 
-    /* timeout handling */
-    if (ErrorHistory_l == kPdiAsyncStatusTimeout)
-    { /* reset timeout counter */
-        dwTimeoutWait_l = 0;
-    }
-
+    /* reset the error, because we have already handled it */
+    ErrorHistory_l = kPdiAsyncStatusSuccessful;
     fReset = TRUE; //Transit to ASYNC_WAIT
 }
 /*----------------------------------------------------------------------------*/
@@ -1760,9 +1820,9 @@ tPdiAsyncStatus CnApiAsync_postMsg(
     }
 
     /* verify if message is currently in use */
-    if (pMsgDescr->fMsgValid_m == TRUE)
+    if (pMsgDescr->MsgStatus_m != kPdiAsyncMsgStatusNotActive)
     { /* message has been sent before and is not finished yet */
-        Ret = kPdiAsyncStatusReject;
+        Ret = kPdiAsyncStatusRetry;
         goto exit;
     }
 
@@ -1804,23 +1864,18 @@ tPdiAsyncStatus CnApiAsync_postMsg(
         case kPdiAsyncTrfTypeLclBuffering:
         {
             //TODO: Multiple access to this function have to be restricted to 2 (for each channel and lcl buffering) (+ memory space restriction and multiple message activation)
-            if (pLclAsyncTxMsgBuffer_l != NULL)
+            if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
             {
                 /* memory already allocated !*/
-                ErrorHistory_l = kPdiAsyncStatusNoResource;
-                fError = TRUE;
-                goto exit;
-            }
-
-            pLclAsyncTxMsgBuffer_l = CNAPI_MALLOC(MAX_ASYNC_STREAM_LENGTH);
-            if (pLclAsyncTxMsgBuffer_l == NULL)
-            {
                 Ret = kPdiAsyncStatusNoResource;
                 goto exit;
             }
-            else
+
+            pMsgDescr->MsgHdl_m.pLclBuf_m = CNAPI_MALLOC(MAX_ASYNC_STREAM_LENGTH);
+            if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL)
             {
-                pMsgDescr->MsgHdl_m.pLclBuf_m = pLclAsyncTxMsgBuffer_l;
+                Ret = kPdiAsyncStatusNoResource;
+                goto exit;
             }
 
             /* invoke call back function to fill the local buffer */
@@ -1835,8 +1890,8 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 // by the state machine. (Tx handle can be triggered by this function and the state machine)
                 if (Ret != kPdiAsyncStatusSuccessful)
                 {
-                    CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
-                    pLclAsyncTxMsgBuffer_l = NULL;
+                    CNAPI_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                    pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     goto exit;
                 }
 
@@ -1857,7 +1912,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
     }
 
     /* activate message */
-    pMsgDescr->fMsgValid_m = TRUE;
+    pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusQueuing;
 
     Ret = kPdiAsyncStatusSuccessful;
 
@@ -2060,6 +2115,8 @@ void CnApi_resetAsyncStateMachine(void)
     pLclAsyncTxMsgBuffer_l = NULL;   ///< pointer to local Tx message buffer
     pLclAsyncRxMsgBuffer_l = NULL;   ///< pointer to local Rx message buffer
     dwTimeoutWait_l = 0;              ///< timeout counter
+
+    PdiAsyncPendTrfContext_l.fMsgPending_m = FALSE;
 
     /* initialize state machine */
     sm_reset(&PdiAsyncStateMachine_l);

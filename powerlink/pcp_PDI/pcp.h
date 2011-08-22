@@ -22,6 +22,8 @@ DETAILED_DESCRIPTION_OF_FILE
 #include "cnApi.h"
 #include "cnApiAsync.h"
 #include "Debug.h"
+#include "EplErrDef.h"
+#include "EplObd.h"
 
 /******************************************************************************/
 /* defines */
@@ -42,6 +44,13 @@ DETAILED_DESCRIPTION_OF_FILE
 /******************************************************************************/
 /* typedefs */
 
+/**
+ * \brief structure for object access forwarding to PDI (i.e. AP)
+ */
+typedef struct sApiPdiComCon {
+    tEplObdParam *          apObdParam_m[0];    ///< SDO command layer connection handle number
+} tApiPdiComCon;
+
 /******************************************************************************/
 /* global variables */
 extern tPcpCtrlReg     * volatile pCtrlReg_g;       ///< ptr. to PCP control register
@@ -54,6 +63,8 @@ extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp si
 extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp side
 extern DWORD       dwSumMappingSize_g;    ///< counter of overall mapped bytes
 
+// Api PDI communication instance
+extern tApiPdiComCon ApiPdiComInstance_g;
 /******************************************************************************/
 /* function declarations */
 extern BYTE getCommandFromAp(void);
@@ -90,6 +101,11 @@ extern void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p);
 extern void Gi_controlLED(BYTE bType_p, BOOL bOn_p);
 
 extern tPdiAsyncStatus CnApiAsync_checkApLinkingStatus(void);
+
+//Tests
+extern void EplAppDumpData(void* pData_p, unsigned long ulDataSize_p);
+extern tEplKernel EplAppDefObdAccFinished(tEplObdParam ** pObdParam_p);
+extern tEplKernel EplAppDefObdAccCleanupHistory(void);
 
 #endif /* GENERICIF_H_ */
 

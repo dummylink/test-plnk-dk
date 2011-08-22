@@ -104,7 +104,7 @@ Application Example:   CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
 \return		status of write operation
 
 *******************************************************************************/
-int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, char *pAdrs_p)
+int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p)
 {
 	tObjTbl		*pTbl;
 

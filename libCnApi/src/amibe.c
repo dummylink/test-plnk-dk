@@ -70,7 +70,9 @@
 
 ****************************************************************************/
 
-#include "EplAmi.h"
+//#include "global.h"
+//#include "EplAmi.h"
+#include "EplInc.h"
 
 #if (!defined(EPL_AMI_INLINED)) || defined(INLINE_ENABLED)
 
@@ -892,7 +894,7 @@ tqwStruct      qwStruct;
 
 }
 
-#ifdef _TIME_OF_DAY_DEFINED_
+
 //---------------------------------------------------------------------------
 //
 // Function:    AmiSetTimeOfDay()
@@ -939,10 +941,9 @@ INLINE_FUNCTION void PUBLIC AmiGetTimeOfDay (void FAR* pAddr_p, tTimeOfDay FAR* 
     pTimeOfDay_p->m_wDays = AmiGetWordFromLe  (((BYTE FAR*) pAddr_p) + 4);
 
 }
-#endif // _TIME_OF_DAY_DEFINED_
 
 
-#endif // (!defined(EPL_AMI_INLINED)) || defined(INLINE_ENABLED)
+#endif
 
 
 
