@@ -1340,6 +1340,7 @@ tEplKernel       Ret = kEplSuccessful;
     // return error for all non existing objects
     switch (pObdParam_p->m_uiIndex)
     {
+#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
         case 0x1010:
         {
             switch (pObdParam_p->m_uiSubIndex)
@@ -1381,6 +1382,7 @@ tEplKernel       Ret = kEplSuccessful;
 //
 //            break;
 //        }
+#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
         case 0x1F50:
         {
