@@ -800,8 +800,11 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
             {
                 case kPdiAsyncTrfTypeLclBuffering:
                 {
-                    CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
-                    pLclAsyncTxMsgBuffer_l = NULL;
+                    if (pLclAsyncTxMsgBuffer_l != NULL)
+                    {
+                        CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+                        pLclAsyncTxMsgBuffer_l = NULL;
+                    }
                     aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
 
                     break;
@@ -847,8 +850,11 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 {
                     case kPdiAsyncTrfTypeLclBuffering:
                     {
-                        CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
-                        pLclAsyncRxMsgBuffer_l = NULL;
+                        if (pLclAsyncRxMsgBuffer_l != NULL)
+                        {
+                            CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+                            pLclAsyncRxMsgBuffer_l = NULL;
+                        }
                         break;
                     }
 
@@ -1213,8 +1219,11 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             {
                 case kPdiAsyncTrfTypeLclBuffering:
                 {
-                    CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
-                    pLclAsyncRxMsgBuffer_l = NULL;
+                    if (pLclAsyncRxMsgBuffer_l != NULL)
+                    {
+                        CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+                        pLclAsyncRxMsgBuffer_l = NULL;
+                    }
                     break;
                 }
 
@@ -1890,8 +1899,11 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 // by the state machine. (Tx handle can be triggered by this function and the state machine)
                 if (Ret != kPdiAsyncStatusSuccessful)
                 {
-                    CNAPI_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
-                    pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
+                    if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
+                    {
+                        CNAPI_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                        pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
+                    }
                     goto exit;
                 }
 
