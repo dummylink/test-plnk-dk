@@ -134,9 +134,15 @@ This file has to be included before other include files.
 #elif defined( __GNUC__ )
 #   define PACK_STRUCT            __attribute__((packed))
 #   if defined( __CR16C__ )
-#       define CNAPI_USLEEP(x)    GS_DelayTask(x/1000)
+#       define CNAPI_USLEEP(x)               GS_DelayTask(x/1000)
+#       define CNAPI_MALLOC(siz)             GS_Malloc(siz)
+#       define CNAPI_FREE(ptr)               GS_Free(ptr)
+#       define CNAPI_MEMSET(ptr, bVal, bCnt) UC_SetMem(ptr, bVal, bCnt)
 #   else
-#       define CNAPI_USLEEP(x)    usleep(x)
+#       define CNAPI_USLEEP(x)               usleep(x)
+#       define CNAPI_MALLOC(siz)             malloc(siz)
+#       define CNAPI_FREE(ptr)               free(ptr)
+#       define CNAPI_MEMSET(ptr, bVal, bCnt) memset(ptr, bVal, bCnt)
 #   endif
 #else
 #    error you must 16bit-align these structures with the appropriate compiler directives
