@@ -1089,6 +1089,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
         case kPdiAsyncTrfTypeDirectAccess:
         {
             pRxChan = (BYTE *) &pUtilRxPdiBuf->m_chan;
+            pMsgDescr->dwPendTranfSize_m == 0;                            // indicate finished transfer
             pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
             break;
         }
@@ -2129,6 +2130,9 @@ void CnApi_resetAsyncStateMachine(void)
     dwTimeoutWait_l = 0;              ///< timeout counter
 
     PdiAsyncPendTrfContext_l.fMsgPending_m = FALSE;
+
+    CNAPI_MEMSET( aPdiAsyncRxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_RX_MESSAGES );
+    CNAPI_MEMSET( aPdiAsyncTxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_TX_MESSAGES );
 
     /* initialize state machine */
     sm_reset(&PdiAsyncStateMachine_l);
