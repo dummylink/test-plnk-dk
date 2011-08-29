@@ -1456,7 +1456,8 @@ tEplKernel       Ret = kEplSuccessful;
                 default:
                 {
                     if(pObdParam_p->m_uiIndex >= 0x2000)
-                    { // all application specific objects will be verified at AP side
+                    {  // all application specific objects will be verified at AP side
+
                         break;
                     }
 
@@ -1494,9 +1495,19 @@ tEplKernel       Ret = kEplSuccessful;
             // verify if caller has assigned a callback function
             if (pObdParam_p->m_pfnAccessFinished == NULL)
             {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                Ret = kEplObdAccessViolation;
-                goto Exit;
+                if (pObdParam_p->m_pRemoteAddress != NULL)
+                {   // remote access via SDO
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                    Ret = kEplObdAccessViolation;
+                    goto Exit;
+                }
+                else
+                {
+                    // ignore all other originators than SDO (for now)
+                    // workaround: do not return error because EplApiLinkObject() calls this function,
+                    // but object access is not really necessary
+                    goto Exit;
+                }
             }
 
             // different pre-access verification for all write objects (previous to handle storing)
@@ -1729,11 +1740,22 @@ tEplKernel       Ret = kEplSuccessful;
 
             //TODO: block all transfers of same index/subindex which are already processing
 
+            // verify if caller has assigned a callback function
             if (pObdParam_p->m_pfnAccessFinished == NULL)
             {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                Ret = kEplObdAccessViolation;
-                goto Exit;
+                if (pObdParam_p->m_pRemoteAddress != NULL)
+                {   // remote access via SDO
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                    Ret = kEplObdAccessViolation;
+                    goto Exit;
+                }
+                else
+                {
+                    // ignore all other originators than SDO (for now)
+                    // workaround: do not return error because EplApiLinkObject() calls this function,
+                    // but object access is not really necessary
+                    goto Exit;
+                }
             }
 
             // different pre-access verification for all read objects (previous to handle storing)
