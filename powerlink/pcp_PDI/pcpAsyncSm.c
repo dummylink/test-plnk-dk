@@ -941,7 +941,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
         case kPdiAsyncTrfTypeDirectAccess:
         {
             pRxChan = (BYTE *) &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan;
-            pMsgDescr->dwPendTranfSize_m == 0;                             // indicate finished transfer
+            pMsgDescr->dwPendTranfSize_m = 0;                             // indicate finished transfer
             pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
             break;
         }
