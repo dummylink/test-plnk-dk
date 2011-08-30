@@ -123,8 +123,6 @@ int main (void)
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); // set hex digits on Mercury-Board to indicate AP presence
     CNAPI_USLEEP(1000000);		                                // wait 1 s, so you can see the LEDs
 
-    TRACE("\n\nInitialize CN API functions...");
-
     nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_l);             // initialize POWERLINK parameters
 
@@ -179,8 +177,6 @@ int main (void)
 
     /* Start periodic main loop */
     TRACE("API example is running...\n");
-	CnApi_activateApStateMachine();
-	CnApi_activateAsyncStateMachine();
 
 	/* main program loop */
 	/* TODO: implement exit of application! */

@@ -148,7 +148,6 @@ char * getNmtState (tEplNmtState state)
 *******************************************************************************/
 int main (void)
 {
-    int iRet= OK;
     tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
 
 	/* flush all caches */
@@ -198,33 +197,7 @@ int main (void)
     /***** initializations *****/
     DEBUG_TRACE0(DEBUG_LVL_09, "Initializing...\n");
 
-    initStateMachine();
     Gi_init();
-    iRet = CnApiAsync_init();
-    if (iRet != OK )
-    {
-        Gi_throwPdiEvent(0, 0);
-        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
-        //TODO: set error flag at Cntrl Reg
-        goto exit;
-    }
-
-    AsyncRet = CnApiAsync_finishMsgInit();
-    if (AsyncRet != kPdiAsyncStatusSuccessful)
-    {
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
-        DEBUG_TRACE0(DEBUG_LVL_09, "cnApiAsync_finishMsgInit() FAILED!\n");
-        goto exit;
-    }
-
-    iRet = Gi_initPdo();
-    if (iRet != OK )
-    {
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
-        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
-        //TODO: set error flag at Cntrl Reg
-        goto exit;
-    }
 
      DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
 
@@ -347,10 +320,6 @@ int startPowerlink(void)
 *******************************************************************************/
 void processPowerlink(void)
 {
-    /***** Starting state machines *****/
-    resetStateMachine();
-    CnApi_activateAsyncStateMachine();
-
     while (stateMachineIsRunning())
     {
         /* process Powerlink and it API */
@@ -1060,6 +1029,8 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 
 void Gi_init(void)
 {
+    int iRet= OK;
+
 	/* Setup PCP Control Register in DPRAM */
 
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;	   ///< set address of control register - equals DPRAM base address
@@ -1072,6 +1043,31 @@ void Gi_init(void)
     pCtrlReg_g->m_wState = kPcpStateInvalid;           ///< set invalid PCP state
 
     Gi_disableSyncInt();
+
+    // Starting PCP state machines
+    initStateMachine();
+    resetStateMachine();
+
+    iRet = CnApiAsync_init();
+    if (iRet != OK )
+    {
+        Gi_throwPdiEvent(0, 0);
+        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
+        //TODO: set error flag at Cntrl Reg
+        goto exit;
+    }
+
+    iRet = Gi_initPdo();
+    if (iRet != OK )
+    {
+        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
+        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
+        //TODO: set error flag at Cntrl Reg
+        goto exit;
+    }
+
+exit:
+    return;
 }
 
 /**
