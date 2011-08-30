@@ -27,6 +27,7 @@
 
 #include "pcp.h"
 #include "pcpStateMachine.h"
+#include "pcpEvent.h"
 #include "FpgaCfg.h"
 
 #include "cnApiIntern.h"
@@ -37,13 +38,6 @@
 #include "EplSdo.h"
 #include "EplAmi.h"
 #include "EplObd.h"
-//#include "EplObdk.h"
-//#include "EplNmtk.h"
-//#include "EplDllk.h"
-//#include "EplDllkCal.h"
-//#include "EplPdokCal.h"
-//#include "EplDlluCal.h"
-//#include "EplDllu.h"
 #include "EplNmtCnu.h"
 #include "EplSdoComu.h"
 #include "EplTimeru.h"
@@ -110,7 +104,6 @@ static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr
 int openPowerlink(void);
 void processPowerlink(void);
 extern void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p);
-
 
 /**
 ********************************************************************************
@@ -326,6 +319,10 @@ void processPowerlink(void)
         CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
         EplApiProcess();
         updateStateMachine();
+
+        /* check if previous event has been confirmed by AP */
+		if(pcp_EventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
+			DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted event from Fifo into memory!\n", __func__);
 
         if (fShutdown_l == TRUE)
             break;
@@ -1066,6 +1063,10 @@ void Gi_init(void)
         goto exit;
     }
 
+
+    // init event fifo queue
+    pcp_EventFifoInit();
+
 exit:
     return;
 }
@@ -1215,42 +1216,6 @@ void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
     // pCtrlReg_g->m_dwPcpIrqTimerValue = uiTimeValue; TODO: This is not in PDI, but in openMAC (2nd timer)! Check doku.
 	pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_MODE); ///< set mode bit to high -> HW assertion
 	return;
-}
-
-/**
- ********************************************************************************
- \brief	set event and related argument in PCP control register to inform AP
- \param	wEventType_p    event type (e.g. state change, error, ...)
- \param wArg_p          event argument (e.g. NmtState, error code ...)
-
- This function fills the event related PCP PDI register with an AP known value,
- and informs the AP this way about occurred events. The AP has to acknowledge
- an event after reading out the registers.
- According to the Asynchronous IRQ configuration register, the PCP might assert
- an IR signal in case of an event.
- *******************************************************************************/
-void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p)
-{
-    WORD wEventAck;
-
-    wEventAck = pCtrlReg_g->m_wEventAck;
-
-    /* check if previous event has been confirmed by AP */
-    if ((wEventAck & (1 << EVT_GENERIC)) == 0)
-    { //confirmed -> set event
-
-        pCtrlReg_g->m_wEventType = wEventType_p;
-        pCtrlReg_g->m_wEventArg = wArg_p;
-
-        /* set GE bit to signal event to AP; If desired by AP,
-         *  an IR signal will be asserted in addition */
-        pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
-    }
-    else // not confirmed -> do not overwrite
-    {
-       //TODO: store in event history
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow!\n", __func__);
-    }
 }
 
 /**
