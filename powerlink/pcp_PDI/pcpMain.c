@@ -103,7 +103,7 @@ static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr
 /* forward declarations */
 int openPowerlink(void);
 void processPowerlink(void);
-extern void Gi_throwPdiEvent(WORD wEventType_p, WORD wArg_p);
+extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 
 /**
 ********************************************************************************
@@ -141,8 +141,6 @@ char * getNmtState (tEplNmtState state)
 *******************************************************************************/
 int main (void)
 {
-    tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
-
 	/* flush all caches */
     alt_icache_flush_all();
     alt_dcache_flush_all();
@@ -267,7 +265,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 
 	/* inform AP about current node ID */
 	pCtrlReg_g->m_wNodeId = EplApiInitParam.m_uiNodeId;
-	Gi_throwPdiEvent(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
+	Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
 
 	/* initialize POWERLINK stack */
 	DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
@@ -320,9 +318,12 @@ void processPowerlink(void)
         EplApiProcess();
         updateStateMachine();
 
-        /* check if previous event has been confirmed by AP */
-		if(pcp_EventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
-			DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted event from Fifo into memory!\n", __func__);
+        /* Check if previous event has been confirmed by AP */
+        /* If not, try to post it */
+        if(Gi_pcpEventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted event from fifo into PDI!\n", __func__);
+        }
 
         if (fShutdown_l == TRUE)
             break;
@@ -372,7 +373,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                                         getNmtState(pEventArg_p->m_NmtStateChange.m_NewNmtState),
                                         pEventArg_p->m_NmtStateChange.m_NmtEvent);
 
-            //Gi_throwPdiEvent(kPcpPdiEventNmtStateChange, pEventArg_p->m_NmtStateChange.m_NewNmtState);
+            //Gi_pcpEventPost(kPcpPdiEventNmtStateChange, pEventArg_p->m_NmtStateChange.m_NewNmtState);
 
             if (pEventArg_p->m_NmtStateChange.m_NewNmtState != kEplNmtCsOperational)
             {
@@ -495,7 +496,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     pEventArg_p->m_InternalError.m_EventSource,
                     pEventArg_p->m_InternalError.m_EplError);
 
-            Gi_throwPdiEvent(kPcpPdiEventCriticalStackError, pEventArg_p->m_InternalError.m_EplError);
+            Gi_pcpEventPost(kPcpPdiEventCriticalStackError, pEventArg_p->m_InternalError.m_EplError);
 
             // check additional argument
             switch (pEventArg_p->m_InternalError.m_EventSource)
@@ -527,7 +528,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         case kEplApiEventLed:
         {   // status or error LED shall be changed
 
-            //Gi_throwPdiEvent(kPcpPdiEventStackLed, pEventArg_p->m_Led.m_LedType);
+            //Gi_pcpEventPost(kPcpPdiEventStackLed, pEventArg_p->m_Led.m_LedType);
 
         	switch (pEventArg_p->m_Led.m_LedType)
             {
@@ -545,7 +546,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
         case kEplApiEventHistoryEntry:
         {
-            Gi_throwPdiEvent(kPcpPdiEventHistoryEntry, pEventArg_p->m_ErrHistoryEntry.m_wErrorCode);
+            Gi_pcpEventPost(kPcpPdiEventHistoryEntry, pEventArg_p->m_ErrHistoryEntry.m_wErrorCode);
             break;
         }
 
@@ -1048,7 +1049,7 @@ void Gi_init(void)
     iRet = CnApiAsync_init();
     if (iRet != OK )
     {
-        Gi_throwPdiEvent(0, 0);
+        Gi_pcpEventPost(0, 0);
         DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
         //TODO: set error flag at Cntrl Reg
         goto exit;
@@ -1057,7 +1058,7 @@ void Gi_init(void)
     iRet = Gi_initPdo();
     if (iRet != OK )
     {
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
         DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
         //TODO: set error flag at Cntrl Reg
         goto exit;
@@ -1065,7 +1066,7 @@ void Gi_init(void)
 
 
     // init event fifo queue
-    pcp_EventFifoInit();
+    Gi_pcpEventFifoInit();
 
 exit:
     return;
@@ -1133,7 +1134,7 @@ void Gi_calcSyncIntPeriod(void)
 	EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
 	if (EplRet != kEplSuccessful)
 	{
-	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
+	    Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -1155,7 +1156,7 @@ void Gi_calcSyncIntPeriod(void)
 
 	if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
 	{
-	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
+	    Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -1164,7 +1165,7 @@ void Gi_calcSyncIntPeriod(void)
 	{
 	    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
-	    Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
+	    Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
 		iSyncIntCycle_g = 0;
 		return;
 	}
@@ -1172,14 +1173,14 @@ void Gi_calcSyncIntPeriod(void)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
         iSyncIntCycle_g = 0;
         return;
     }
 
 	iSyncIntCycle_g = iNumCycles;
 	pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
-    Gi_throwPdiEvent(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
+    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
 	return;
 }

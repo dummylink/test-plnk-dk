@@ -174,6 +174,7 @@ C_SRCS += ../generic/openPOWERLINK_CNDKPatched/Target/altera_nios2/no_os/gnu/gen
 C_SRCS += ../generic/target/FpgaCfg.c
 C_SRCS += pcpAsync.c
 C_SRCS += pcpAsyncSm.c
+C_SRCS += pcpEvent.c
 C_SRCS += pcpMain.c
 C_SRCS += pcpPdo.c
 C_SRCS += pcpStateMachine.c

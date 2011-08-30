@@ -1262,7 +1262,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     { /* reset timeout counter */
         dwTimeoutWait_l = 0;
 
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrAsyncComTimeout);
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComTimeout);
     }
 
     DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s status: %s\n",
@@ -1278,7 +1278,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         {
             if (ErrorHistory_l != kPdiAsyncStatusTimeout)
             { /* timeout error has extra treatment - don't handle it here */
-                Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
+                Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
             }
         }
 
@@ -1324,7 +1324,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         {
             if (ErrorHistory_l != kPdiAsyncStatusTimeout)
             { /* timeout error has extra treatment - don't handle it here */
-                Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
+                Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
             }
         }
 
