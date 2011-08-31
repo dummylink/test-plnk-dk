@@ -78,7 +78,7 @@ void usage(void)
            "           -f|--fpgacfg <fpgaconfig> --fpgavers <fpga_verssion>\n"
            "           -p|--pcpsw <pcpsw> --pcpvers <pcpsw_version>\n"
            "           -a|--apsw <apsw> --apvers <apsw_version>\n"
-           "           -d|--devie <deviceId> -r|--hwrev <hwRevision>\n"
+           "           -d|--device <deviceId> -r|--hwrev <hwRevision>\n"
            "           [--appswdate <appsw_date>] [--appswtime <appsw_time>]\n");
     printf("mkfirmware -i|--info <firmware>\n");
     printf("mkfirmware -h|--help\n\n");
@@ -288,30 +288,30 @@ void printFwInfo(tFwHeader *pHeader_p)
     printf ("Firmware Header Version: %d.%d\n",
             ((ntohs(pHeader_p->m_version) >> 8) & 0xff),
             (ntohs(pHeader_p->m_version) & 0xff));
-    printf ("Device ID:               %d\n", ntohs(pHeader_p->m_deviceId));
+    printf ("Device ID:               %d\n", (UINT32)ntohs(pHeader_p->m_deviceId));
     printf ("Hardware Revision:       %d\n", ntohs(pHeader_p->m_hwRevision));
-    printf ("Application SW Date:     %d\n", ntohl(pHeader_p->m_applicationSwDate));
-    printf ("Application SW Time:     %d\n", ntohl(pHeader_p->m_applicationSwTime));
-    printf ("Header CRC:              0x%08x\n", ntohl(pHeader_p->m_headerCrc));
+    printf ("Application SW Date:     %d\n", (UINT32)ntohl(pHeader_p->m_applicationSwDate));
+    printf ("Application SW Time:     %d\n", (UINT32)ntohl(pHeader_p->m_applicationSwTime));
+    printf ("Header CRC:              0x%08x\n", (UINT32)ntohl(pHeader_p->m_headerCrc));
 
     printf ("-------------------------------------------------\n");
     printf ("FPGA configuration:\n");
-    printf ("Version:                 %d\n", ntohl(pHeader_p->m_fpgaConfigVersion));
-    printf ("Size:                    %d\n", ntohl(pHeader_p->m_fpgaConfigSize));
-    printf ("CRC:                     0x%08x\n", ntohl(pHeader_p->m_fpgaConfigCrc));
+    printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigVersion));
+    printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigSize));
+    printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigCrc));
     printf ("-------------------------------------------------\n");
     printf ("PCP software:\n");
-    printf ("Version:                 %d\n", ntohl(pHeader_p->m_pcpSwVersion));
-    printf ("Size:                    %d\n", ntohl(pHeader_p->m_pcpSwSize));
-    printf ("CRC:                     0x%08x\n", ntohl(pHeader_p->m_pcpSwCrc));
+    printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwVersion));
+    printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwSize));
+    printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_pcpSwCrc));
 
     if (pHeader_p->m_apSwSize > 0)
     {
         printf ("-------------------------------------------------\n");
         printf ("AP software:\n");
-        printf ("Version:                 %d\n", ntohl(pHeader_p->m_apSwVersion));
-        printf ("Size:                    %d\n", ntohl(pHeader_p->m_apSwSize));
-        printf ("CRC:                     0x%08x\n", ntohl(pHeader_p->m_apSwCrc));
+        printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_apSwVersion));
+        printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_apSwSize));
+        printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_apSwCrc));
     }
     printf ("\n");
 }
@@ -451,7 +451,7 @@ int checkFirmware(void)
     /* check header CRC */
     if ((crc = crc32(0, &fwHeader, sizeof(fwHeader) - sizeof(DWORD))) != ntohl(fwHeader.m_headerCrc))
     {
-        printf ("Invalid firmware header checksum! (%08x : %08x)\n", crc, ntohl(fwHeader.m_headerCrc));
+        printf ("Invalid firmware header checksum! (%08x : %08x)\n", crc, (UINT32)ntohl(fwHeader.m_headerCrc));
         close (fd);
         return ERROR;
     }
