@@ -416,7 +416,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
     else // message activated
     {
         // if local buffering is used, assign buffer pointer
-        if (aPdiAsyncTxMsgs[bCnt].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+        if (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
         {
             if (pLclAsyncTxMsgBuffer_l != NULL)
             {
@@ -425,7 +425,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
                 goto exit;
             }
 
-            pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bCnt].MsgHdl_m.pLclBuf_m;
+            pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m;
         }
 
         /*transit to ASYNC_TX_BUSY */
@@ -686,10 +686,17 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 {
                     if (pLclAsyncTxMsgBuffer_l != NULL)
                     {
+                        if (pLclAsyncTxMsgBuffer_l                           !=
+                            aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m  )
+                        {   // those two pointers have to be equal at this point
+                            ErrorHistory_l = kPdiAsyncStatusInvalidInstanceParam;
+                            fError = TRUE;
+                            goto exit;
+                        }
                         CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
                         pLclAsyncTxMsgBuffer_l = NULL;
+                        aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                     }
-                    aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
 
                     break;
                 }
