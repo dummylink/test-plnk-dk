@@ -237,11 +237,6 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
     pInitParm_p->m_dwProductCode = -1;
     pInitParm_p->m_dwRevision = -1;
     pInitParm_p->m_dwSerialNum = -1;
-    pInitParm_p->m_dwFeatureFlags = -1;
-    pInitParm_p->m_wIsoTxMaxPayload = 256;
-    pInitParm_p->m_wIsoRxMaxPayload = 256;
-    pInitParm_p->m_dwPresMaxLatency = 2000;
-    pInitParm_p->m_dwAsendMaxLatency= 2000;
 
     pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;     //address of DPRAM area
 }

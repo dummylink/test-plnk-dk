@@ -253,6 +253,10 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 	EplApiInitParam.m_dwProductCode = pInitParm_p->m_dwProductCode;
 	EplApiInitParam.m_dwRevisionNumber = pInitParm_p->m_dwRevision;
 	EplApiInitParam.m_dwSerialNumber = pInitParm_p->m_dwSerialNum;
+	//EplApiInitParam.m_dwVerifyConfigurationDate;
+	//EplApiInitParam.m_dwVerifyConfigurationTime;
+	EplApiInitParam.m_dwApplicationSwDate = 1;
+	EplApiInitParam.m_dwApplicationSwTime = 1;
 	EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
 	EplApiInitParam.m_dwDefaultGateway = 0;
 	EplApiInitParam.m_pfnCbEvent = AppCbEvent;

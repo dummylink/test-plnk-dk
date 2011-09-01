@@ -251,11 +251,6 @@ typedef struct sCnApiInitParm {
 	DWORD			m_dwVendorId;
 	DWORD			m_dwProductCode;
 	DWORD			m_dwDeviceType;
-	DWORD			m_dwFeatureFlags;
-	WORD			m_wIsoTxMaxPayload;
-	WORD			m_wIsoRxMaxPayload;
-	DWORD			m_dwPresMaxLatency;
-	DWORD			m_dwAsendMaxLatency;
 	DWORD			m_dwDpramBase;
 } tCnApiInitParm;
 
