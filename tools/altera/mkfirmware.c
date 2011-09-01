@@ -74,7 +74,7 @@ void usage(void)
     printf("configuration, a PCP software, an AP software and prepends a\n");
     printf("firmware file header.\n\n");
     printf("Usage:\n");
-    printf("mkfirmware [-v|--verbose] -o|--output <firmware>\n"
+    printf("mkfirmware [-o|--output <firmware>\n"
            "           -f|--fpgacfg <fpgaconfig> --fpgavers <fpga_verssion>\n"
            "           -p|--pcpsw <pcpsw> --pcpvers <pcpsw_version>\n"
            "           -a|--apsw <apsw> --apvers <apsw_version>\n"
@@ -85,7 +85,6 @@ void usage(void)
     printf("Available options:\n");
     printf(" -h                         Print this help\n");
     printf(" -i|--info <firmware>       Print information on this firmware\n");
-    printf(" -v                         Verbose output\n");
     printf(" -f|--fpgacfg <fpgaconfig>  FPGA configuration file to insert in firmware\n"
            " --fpgavers <fpga_version>  Version number of FPGA configuration\n"
            " -p|--pcpsw <pcpsw>         PCP software to insert in firmware\n"
@@ -121,7 +120,6 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
     int         index = 0;
 
     static struct option long_options[] = {
-                {"verbose",   no_argument,       0,  'v' },
                 {"help",      no_argument,       0,  'h' },
                 {"output",    required_argument, 0,  'o' },
                 {"pcpsw",     required_argument, 0,  'p' },
@@ -142,7 +140,7 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
     if (iArgc_p <= 1)
         return ERROR;
 
-    while ((opt = getopt_long(iArgc_p, caArgv_p, "hvf:p:a:o:i:d:r:",
+    while ((opt = getopt_long(iArgc_p, caArgv_p, "hf:p:a:o:i:d:r:",
                               long_options, &index)) != -1)
     {
         switch (opt)
@@ -161,7 +159,7 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
             if ((pOpts_p->m_applicationSwTime > (24 * 60 * 60 * 1000)) ||
                 (strspn(optarg,"0123456789") != strlen(optarg)))
             {
-                printf ("Invalid application software time (no number)!\n");
+                printf ("Invalid application software time (no number or too big)!\n");
                 return ERROR;
             }
             break;
@@ -201,9 +199,6 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
 
         case 'h':
             return ERROR;
-            break;
-        case 'v':
-            pOpts_p->m_fVerbose = TRUE;
             break;
         case 'f':
             strncpy(pOpts_p->m_fpgaCfgName, optarg, MAX_NAME_LEN);

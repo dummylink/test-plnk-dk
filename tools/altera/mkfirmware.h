@@ -36,7 +36,6 @@ typedef struct {
     char        m_outFileName[MAX_NAME_LEN];
     UINT32      m_deviceId;
     UINT32      m_hwRevision;
-    BOOL        m_fVerbose;
     BOOL        m_fPrintInfo;
     UINT32      m_applicationSwDate;
     UINT32      m_applicationSwTime;
