@@ -1619,13 +1619,13 @@ tEplKernel       Ret = kEplSuccessful;
                             if(EplTimerHdl == 0)
                             {   // create new timer
                                 Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                                            6000,
+                                                            1000,
                                                             TimerArg);
                             }
                             else
                             {   // modify exisiting timer
                                 Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
-                                                            6000,
+                                                            1000,
                                                             TimerArg);
 
                             }
@@ -1843,13 +1843,13 @@ tEplKernel       Ret = kEplSuccessful;
                             if(EplTimerHdl == 0)
                             {   // create new timer
                                 Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                                            6000,
+                                                            1000,
                                                             TimerArg);
                             }
                             else
                             {   // modify exisiting timer
                                 Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
-                                                            6000,
+                                                            1000,
                                                             TimerArg);
 
                             }
@@ -2119,7 +2119,7 @@ BOOL fRet = TRUE;
 //                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
 //                           (void*) pDefObdAccHdl_p->m_pObdParam->m_pData);
 
-                    usleep(100000); //TODO: delete this test delay
+                    usleep(1000); //TODO: delete this test delay
                     fRet = TRUE;    //TODO: delete this line
 
                     if (fRet != TRUE)
