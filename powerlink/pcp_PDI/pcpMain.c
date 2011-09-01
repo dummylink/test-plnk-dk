@@ -45,9 +45,9 @@
 //---------------------------------------------------------------------------
 // defines
 //---------------------------------------------------------------------------
-#define OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD 2
-#define OBD_DEFAULT_SEG_WRITE_SIZE 20
-
+#define OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD 2  ///< count of history entries, where 0BD accesses will still be acknowledged
+#define OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE 20              ///< maximum possible history elements
+#define OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID   0xFFFFUL
 //---------------------------------------------------------------------------
 // module global vars
 //---------------------------------------------------------------------------
@@ -57,11 +57,12 @@ BOOL 			fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up f
 int				iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 
 static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
-static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_SIZE]; ///< segmented object access management
+static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< segmented object access management
 
 /* counter of currently empty OBD segmented write history elements for default OBD access */
-BYTE bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_SIZE;
+BYTE bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE;
 BYTE bObdSegWriteAccHistoryFinishedCnt_g = 0;
+WORD wObdSegWriteAccHistorySeqCnt_g = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;        ///< counter of subsequent accesses to an object
 
 tApiPdiComCon ApiPdiComInstance_g;
 /******************************************************************************/
@@ -90,7 +91,8 @@ static tEplKernel EplAppDefObdAccGetStatusDependantHdl(
         WORD wIndex_p,
         WORD wSubIndex_p,
         tDefObdAccHdl **  ppDefObdAccHdl_p,
-        tEplObdDefAccStatus ReqStatus_p);
+        tEplObdDefAccStatus ReqStatus_p,
+        BOOL fSearchOldestEntry);
 static tEplKernel EplAppDefObdAccCountHdlStatus(
         WORD wIndex_p,
         WORD wSubIndex_p,
@@ -624,7 +626,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     pObdParam->m_uiIndex,
                     pObdParam->m_uiSubIndex,
                     &pFoundHdl,
-                    kEplObdDefAccHdlInUse);
+                    kEplObdDefAccHdlInUse,
+                    FALSE);
 
             if (EplRet == kEplSuccessful)
             {   // write operation is already processing -> exit
@@ -636,7 +639,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         0,
                         0,
                         &pFoundHdl,
-                        0);
+                        0,
+                        FALSE);
 
                 if (EplRet != kEplSuccessful)
                 {   // handle incorrectly assigned -> signal error
@@ -647,6 +651,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     EplRet = EplAppDefObdAccFinished(&pObdParam);
                     // correct history status
                     pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
+                    pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
                     bObdSegWriteAccHistoryEmptyCnt_g++;
 
                     //TODO: Abort all not empty handles of segmented transfer
@@ -687,7 +692,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     0,
                     0,
                     &pFoundHdl,
-                    0);
+                    0,
+                    FALSE);
 
             if (EplRet != kEplSuccessful)
             {   // handle incorrectly assigned -> signal error
@@ -698,6 +704,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 EplRet = EplAppDefObdAccFinished(&pObdParam);
                 // correct history status
                 pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
+                pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
                 bObdSegWriteAccHistoryEmptyCnt_g++;
 
                 //TODO: Abort all not empty handles of segmented transfer
@@ -727,6 +734,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 EplRet = EplAppDefObdAccFinished(&pObdParam);
                 // correct history status
                 pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
+                pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
                 bObdSegWriteAccHistoryEmptyCnt_g++;
 
                 //TODO: Abort all not empty handles of segmented transfer
@@ -746,9 +754,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             }
 
             // check if segmented write history is full (flow control for SDO)
-            if ((OBD_DEFAULT_SEG_WRITE_SIZE - bObdSegWriteAccHistoryEmptyCnt_g <=    //occupied elements
+            if ((OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bObdSegWriteAccHistoryEmptyCnt_g <=    //occupied elements
                  OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD)                 ||
-                (OBD_DEFAULT_SEG_WRITE_SIZE - bObdSegWriteAccHistoryEmptyCnt_g ==    // occupied elements
+                (OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bObdSegWriteAccHistoryEmptyCnt_g ==    // occupied elements
                  wFinishedHistoryCnt)                                               )// should all be finished
             {   // call m_pfnAccessFinished - this will set the handle status to "empty"
 
@@ -756,14 +764,17 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 EplRet = kEplSuccessful;
                 while (EplRet == kEplSuccessful)
                 {
-                    //search for handle where m_pfnAccessFinished call is still due
+                    //search for oldest handle where m_pfnAccessFinished call is still due
                     EplRet = EplAppDefObdAccGetStatusDependantHdl(
                             0,
                             pObdParam->m_uiIndex,
                             pObdParam->m_uiSubIndex,
                             &pFoundHdl,
-                            kEplObdDefAccHdlProcessingFinished);
+                            kEplObdDefAccHdlProcessingFinished,
+                            TRUE);
 
+                    printf("OBD ACC Cnt: %d\n", pFoundHdl->m_wSeqCnt);
+                    printf("OBD ACC ptr: %p\n", pFoundHdl);
                     if (EplRet == kEplSuccessful)
                     {   // signal "OBD access finished" to originator
 
@@ -772,9 +783,15 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                         // correct history status
                         pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
+                        pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
                         bObdSegWriteAccHistoryEmptyCnt_g++;
+                        printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
 
-                        goto Exit;
+                        if (EplRet != kEplSuccessful)
+                        {
+                            goto Exit;
+                        }
+
                     }
                 }
             }
@@ -786,7 +803,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         pObdParam->m_uiIndex,
                         pObdParam->m_uiSubIndex,
                         &pFoundHdl,
-                        kEplObdDefAccHdlWaitProcessingQueue);
+                        kEplObdDefAccHdlWaitProcessingQueue,
+                        FALSE);
 
                 if (EplRet == kEplSuccessful)
                 {   // handle found
@@ -829,8 +847,11 @@ BYTE bArrayNum;                 ///< loop counter and array element
 
     pObdDefAccHdl = aObdDefAccHdl_l;
 
-    for (bArrayNum = 0; bArrayNum < OBD_DEFAULT_SEG_WRITE_SIZE; bArrayNum++, pObdDefAccHdl++)
+    for (bArrayNum = 0; bArrayNum < OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE; bArrayNum++, pObdDefAccHdl++)
     {
+        // reset OBD access sequence counter
+        pObdDefAccHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
+
         switch (pObdDefAccHdl->m_Status)
         {
             case kEplObdDefAccHdlEmpty:
@@ -864,10 +885,14 @@ BYTE bArrayNum;                 ///< loop counter and array element
             }
         }
 
-        // correct history status
+        // reset history status and access counter
         pObdDefAccHdl->m_Status = kEplObdDefAccHdlEmpty;
-        bObdSegWriteAccHistoryEmptyCnt_g++;
+        pObdDefAccHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
     }
+
+    // reset global counters
+    bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE;
+    wObdSegWriteAccHistorySeqCnt_g = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
 
 Exit:
     return EplRet;
@@ -1522,7 +1547,7 @@ tEplKernel       Ret = kEplSuccessful;
 
                                 // history has to be completely empty for new segmented write transfer
                                 // only one segmented transfer at once is allowed!
-                                if (bObdSegWriteAccHistoryEmptyCnt_g < OBD_DEFAULT_SEG_WRITE_SIZE)
+                                if (bObdSegWriteAccHistoryEmptyCnt_g < OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE)
                                 {
                                     Ret = kEplObdOutOfMemory;
                                     pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
@@ -1913,13 +1938,14 @@ BYTE bArrayNum;                 ///< loop counter and array element
 
     pObdDefAccHdl = aObdDefAccHdl_l;
 
-    for (bArrayNum = 0; bArrayNum < OBD_DEFAULT_SEG_WRITE_SIZE; bArrayNum++, pObdDefAccHdl++)
+    for (bArrayNum = 0; bArrayNum < OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE; bArrayNum++, pObdDefAccHdl++)
     {
         if (pObdDefAccHdl->m_Status == kEplObdDefAccHdlEmpty)
         {
             // free storage found -> assign OBD access handle
             pObdDefAccHdl->m_pObdParam = pObdParam_p;
             pObdDefAccHdl->m_Status = kEplObdDefAccHdlWaitProcessingInit;
+            pObdDefAccHdl->m_wSeqCnt = ++wObdSegWriteAccHistorySeqCnt_g;
             bObdSegWriteAccHistoryEmptyCnt_g--;
 
             goto Exit;
@@ -1977,7 +2003,7 @@ volatile BYTE bArrayNum;                             ///< loop counter and array
         fCountAllMatchingStatus = TRUE;
     }
 
-    for (bArrayNum = 0; bArrayNum < OBD_DEFAULT_SEG_WRITE_SIZE; )
+    for (bArrayNum = 0; bArrayNum < OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE; )
     {
         // check for wrong parameter values
         if (fCountAllMatchingStatus == TRUE)
@@ -2020,6 +2046,7 @@ Exit:
  \param wSubIndex_p     subindex of searched element
  \param ppObdParam_p    IN:  caller provides  target pointer address
                         OUT: address of found element or NULL
+ \param fSearchOldestEntry  if TRUE, the oldest object access will be returned
  \param ReqStatus_p     requested status of handle
  \retval kEplSuccessful             if element was found
  \retval kEplObdVarEntryNotExist    if no element was found
@@ -2035,10 +2062,13 @@ static tEplKernel EplAppDefObdAccGetStatusDependantHdl(
         WORD wIndex_p,
         WORD wSubIndex_p,
         tDefObdAccHdl **  ppDefObdAccHdl_p,
-        tEplObdDefAccStatus ReqStatus_p)
+        tEplObdDefAccStatus ReqStatus_p,
+        BOOL fSearchOldestEntry)
 {
 tEplKernel Ret = kEplSuccessful;
 tDefObdAccHdl * pObdDefAccHdl = NULL;
+BYTE    bCmpOpCorrection = 0;   ///< correction for compare operation
+BOOL fSearchForOldestEntryStarted = FALSE;
 BYTE bArrayNum;                 ///< loop counter and array element
 
     // check for wrong parameter values
@@ -2050,34 +2080,84 @@ BYTE bArrayNum;                 ///< loop counter and array element
 
     pObdDefAccHdl = aObdDefAccHdl_l;
 
-    for (bArrayNum = 0; bArrayNum < OBD_DEFAULT_SEG_WRITE_SIZE; bArrayNum++, pObdDefAccHdl++)
+    if (fSearchOldestEntry)
+    {
+        bCmpOpCorrection = 1;
+    }
+
+    for (bArrayNum = 0; bArrayNum < (OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bCmpOpCorrection); bArrayNum++, pObdDefAccHdl++)
     {
         if (pObdAccParam_p == 0)
-        {
+        {   // search for index, subindex and status
+
             if (wIndex_p == pObdDefAccHdl->m_pObdParam->m_uiIndex        &&
                 wSubIndex_p == pObdDefAccHdl->m_pObdParam->m_uiSubIndex  &&
-                pObdDefAccHdl->m_Status == ReqStatus_p)
+                pObdDefAccHdl->m_Status == ReqStatus_p                     )
             {
-                // handle ready for processing found
-                *ppDefObdAccHdl_p = pObdDefAccHdl;
-                goto Exit;
+                // handle found
+                if (!fSearchForOldestEntryStarted)
+                {
+                    *ppDefObdAccHdl_p = pObdDefAccHdl;
+                }
+
+                 if (fSearchOldestEntry)
+                 {
+                     if (!fSearchForOldestEntryStarted)
+                     {
+                         // start with first found element of requested status (assigned right above)
+                         pObdDefAccHdl++;        // first element to compare is the following element
+                         bCmpOpCorrection = 1;   // do not process whole loop because compare operation
+                                                 // always checks two elements
+                     }
+
+                     fSearchForOldestEntryStarted = TRUE;
+
+                     // additionally search for oldest object access - compare two elements
+                     if ((ReqStatus_p == (*ppDefObdAccHdl_p)->m_Status)                              &&
+                         (wIndex_p == (*ppDefObdAccHdl_p)->m_pObdParam->m_uiIndex)                   &&
+                         (wSubIndex_p == (*ppDefObdAccHdl_p)->m_pObdParam->m_uiSubIndex)             &&
+                         (OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID != (*ppDefObdAccHdl_p)->m_wSeqCnt)   &&
+                         (OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID != pObdDefAccHdl->m_wSeqCnt)         &&
+                         (bArrayNum < (OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - 1))                      && // end not yet reached
+                         ((*ppDefObdAccHdl_p)->m_wSeqCnt > pObdDefAccHdl->m_wSeqCnt)                   )
+                     {
+                         // update oldest found handle
+                         *ppDefObdAccHdl_p = pObdDefAccHdl;
+                     }
+                 }
+                 else
+                 {  // handle has already been found so exit the loop
+                     goto Exit;
+                 }
             }
+
         }
         else
-        {
+        {   // search for pObdAccParam_p value
+
             if (pObdAccParam_p == pObdDefAccHdl->m_pObdParam)
             {
-                // assigned handle found
+                // assigned found handle
                  *ppDefObdAccHdl_p = pObdDefAccHdl;
                  goto Exit;
             }
         }
-
     }
 
-    // no handle found
-    *ppDefObdAccHdl_p = NULL;
-    Ret = kEplObdVarEntryNotExist;
+    if (!fSearchOldestEntry)
+    {
+        // no handle found
+        *ppDefObdAccHdl_p = NULL;
+        Ret = kEplObdVarEntryNotExist;
+    }
+    else
+    {
+        if ((*ppDefObdAccHdl_p)->m_wSeqCnt == OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID)
+        {
+            *ppDefObdAccHdl_p = NULL;
+            Ret = kEplObdVarEntryNotExist;
+        }
+    }
 
 Exit:
     return Ret;
@@ -2150,6 +2230,7 @@ BOOL fRet = TRUE;
 
     // mark handle as processed
     pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlProcessingFinished;
+    printf("OBD ACC Cnt Fininshed: %d\n", pDefObdAccHdl_p->m_wSeqCnt);
 
 Exit:
     if (Ret != kEplSuccessful)
