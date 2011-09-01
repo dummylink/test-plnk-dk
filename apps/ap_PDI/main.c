@@ -689,12 +689,12 @@ tEplKernel       Ret = kEplSuccessful;
 //        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     // return error for all non existing objects
-    // if not known yet, this can also be done in CnApi_DefObdAccFinished()
-    // by settig m_dwAbortCode appropriately before the call.
+    // if not known yet, this can also be done by settig m_dwAbortCode appropriately
+    // before the call of CnApi_DefObdAccFinished().
     switch (pObdParam_p->m_uiIndex)
     {
         case 0x6500:
-        {
+        {   // example: checking an existing object
             switch (pObdParam_p->m_uiSubIndex)
             {
                 case 0x01:
