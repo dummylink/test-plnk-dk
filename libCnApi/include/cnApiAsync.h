@@ -42,9 +42,6 @@
 
 #define INVALID_ELEMENT            0xFF ///< indicator for invalid array element
 
-#define CNAPI_MALLOC(siz)             malloc(siz)
-#define CNAPI_FREE(ptr)               free(ptr)
-
 // renaming of functions which have exactly the same functionality
 //#define cnApiAsync_doObjAccResp     cnApiAsync_doObjAccReq
 //#define cnApiAsync_handleObjAccResp cnApiAsync_handleObjAccReq
