@@ -62,7 +62,8 @@ static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< s
 /* counter of currently empty OBD segmented write history elements for default OBD access */
 BYTE bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE;
 BYTE bObdSegWriteAccHistoryFinishedCnt_g = 0;
-WORD wObdSegWriteAccHistorySeqCnt_g = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;        ///< counter of subsequent accesses to an object
+/* counter of subsequent accesses to an object */
+WORD wObdSegWriteAccHistorySeqCnt_g = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
 
 tApiPdiComCon ApiPdiComInstance_g;
 /******************************************************************************/
@@ -605,7 +606,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             // assign user argument
             pObdParam = (tEplObdParam *) pEventArg_p->m_pUserArg;
 
-            printf("AppCbEvent(kEplApiEventUserDef): (EventArg %p)\n", pObdParam);
+            DEBUG_TRACE1(DEBUG_LVL_14, "AppCbEvent(kEplApiEventUserDef): (EventArg %p)\n", pObdParam);
 
             if(pObdParam->m_uiIndex != 0x1F50)
             {   // should not get any other indices
@@ -613,12 +614,17 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 goto Exit;
             }
 
-            printf("(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u\n"
-                   "                         ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
-                pObdParam->m_uiIndex, pObdParam->m_uiSubIndex,
-                pObdParam->m_ObdEvent,
-                pObdParam->m_pData, pObdParam->m_SegmentOffset, pObdParam->m_SegmentSize,
-                pObdParam->m_ObjSize, pObdParam->m_TransferSize, pObdParam->m_Access, pObdParam->m_Type);
+            DEBUG_TRACE4(DEBUG_LVL_14, "(0x%04X/%u Ev=%X Size=%u\n",
+                 pObdParam->m_uiIndex, pObdParam->m_uiSubIndex,
+                 pObdParam->m_ObdEvent,
+                 pObdParam->m_SegmentSize);
+
+//            printf("(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u\n"
+//                   " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+//                pObdParam->m_uiIndex, pObdParam->m_uiSubIndex,
+//                pObdParam->m_ObdEvent,
+//                pObdParam->m_pData, pObdParam->m_SegmentOffset, pObdParam->m_SegmentSize,
+//                pObdParam->m_ObjSize, pObdParam->m_TransferSize, pObdParam->m_Access, pObdParam->m_Type);
 
             // check if write operation has already started for this object
             EplRet = EplAppDefObdAccGetStatusDependantHdl(
@@ -631,7 +637,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
             if (EplRet == kEplSuccessful)
             {   // write operation is already processing -> exit
-                printf(" Write already in progress->exit\n");
+                DEBUG_TRACE0(DEBUG_LVL_14, " Write already in progress->exit\n");
 
                 // get segmented OBD access handle
                 EplRet = EplAppDefObdAccGetStatusDependantHdl(
@@ -645,7 +651,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 if (EplRet != kEplSuccessful)
                 {   // handle incorrectly assigned -> signal error
 
-                    printf("ERROR: No handle assigned!\n");
+                    DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: No handle assigned!\n");
 
                     pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
                     EplRet = EplAppDefObdAccFinished(&pObdParam);
@@ -698,7 +704,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             if (EplRet != kEplSuccessful)
             {   // handle incorrectly assigned -> signal error
 
-                printf("ERROR: No handle assigned!\n");
+                DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: No handle assigned!\n");
 
                 pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
                 EplRet = EplAppDefObdAccFinished(&pObdParam);
@@ -715,7 +721,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             if ((pFoundHdl->m_Status != kEplObdDefAccHdlWaitProcessingInit) &&
                 (pFoundHdl->m_Status != kEplObdDefAccHdlWaitProcessingQueue)  )
             {
-                printf("ERROR: Invalid handle status!\n");
+                DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Invalid handle status!\n");
 
                 //TODO: Abort all not empty handles of segmented transfer
 
@@ -724,7 +730,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             }
 
             // -------- do OBD write -----
-            // write access might take some time ...
+            // write access might take some time ... but it should be not be blocking for more then 1s
             // it might be interrupted by new remote OBD accesses (Rx IR)
             EplRet = EplAppDefObdAccWriteObdSegmented(pFoundHdl);
 
@@ -773,10 +779,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                             kEplObdDefAccHdlProcessingFinished,
                             TRUE);
 
-                    printf("OBD ACC Cnt: %d\n", pFoundHdl->m_wSeqCnt);
-                    printf("OBD ACC ptr: %p\n", pFoundHdl);
                     if (EplRet == kEplSuccessful)
                     {   // signal "OBD access finished" to originator
+
+                        DEBUG_TRACE2(DEBUG_LVL_14,"Oldest OBD ACC cnt: %d ptr: %p\n", pFoundHdl->m_wSeqCnt, pFoundHdl);
 
                         // this triggers an Ack of the last received SDO sequence in case of remote access
                         EplRet = EplAppDefObdAccFinished(&pFoundHdl->m_pObdParam);
@@ -785,7 +791,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
                         pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
                         bObdSegWriteAccHistoryEmptyCnt_g++;
-                        printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
+                        DEBUG_TRACE1(DEBUG_LVL_14, "New SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
 
                         if (EplRet != kEplSuccessful)
                         {
@@ -911,7 +917,7 @@ tEplObdParam * pObdParam = NULL;
 
     pObdParam = *pObdParam_p;
 
-    printf("INFO: %s(%p) called\n", __func__, pObdParam);
+    DEBUG_TRACE2(DEBUG_LVL_14, "INFO: %s(%p) called\n", __func__, pObdParam);
 
     if (pObdParam_p == NULL                   ||
         pObdParam == NULL                     ||
@@ -956,7 +962,7 @@ tEplObdParam * pObdParam = NULL;
 Exit:
     if (EplRet != kEplSuccessful)
     {
-        printf("ERROR: %s failed!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: %s failed!\n", __func__);
     }
     return EplRet;
 
@@ -1061,6 +1067,8 @@ void Gi_init(void)
 	/* Setup PCP Control Register in DPRAM */
 
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;	   ///< set address of control register - equals DPRAM base address
+
+    // TODO: update pCtrlReg_g->m_dwAppDate and pCtrlReg_g->m_dwAppTime
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
 
@@ -1325,7 +1333,7 @@ tEplKernel       Ret = kEplSuccessful;
 
     if (pObdParam_p->m_pRemoteAddress != NULL)
     {   // remote access via SDO
-        //printf("Remote OBD access from %d\n", pObdParam_p->m_pRemoteAddress->m_uiNodeId);
+        // DEBUG_TRACE1(DEBUG_LVL_14, "Remote OBD access from %d\n", pObdParam_p->m_pRemoteAddress->m_uiNodeId);
     }
 
     // return error for all non existing objects
@@ -1343,7 +1351,6 @@ tEplKernel       Ret = kEplSuccessful;
 
                 default:
                 {
-                    // printf("Sub-index does not exist!\n");
                     pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
                     Ret = kEplObdSubindexNotExist;
                     goto Exit;
@@ -1364,7 +1371,6 @@ tEplKernel       Ret = kEplSuccessful;
 //
 //                default:
 //                {
-//                    // printf("Sub-index does not exist!\n");
 //                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
 //                    Ret = kEplObdSubindexNotExist;
 //                    goto Exit;
@@ -1386,7 +1392,6 @@ tEplKernel       Ret = kEplSuccessful;
 
                 default:
                 {
-                    // printf("Sub-index does not exist!\n");
                     pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
                     Ret = kEplObdSubindexNotExist;
                     goto Exit;
@@ -1411,12 +1416,17 @@ tEplKernel       Ret = kEplSuccessful;
         break;
     }
 
-    printf("EplAppCbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
-           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
-        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
-        pObdParam_p->m_ObdEvent,
-        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
-        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
+    DEBUG_TRACE4(DEBUG_LVL_14, "EplAppCbDefaultObdAccess(0x%04X/%u Ev=%X Size=%u\n",
+            pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
+            pObdParam_p->m_ObdEvent,
+            pObdParam_p->m_SegmentSize);
+
+//    printf("EplAppCbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
+//           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+//        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
+//        pObdParam_p->m_ObdEvent,
+//        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
+//        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     switch (pObdParam_p->m_ObdEvent)
     {
@@ -1553,6 +1563,9 @@ tEplKernel       Ret = kEplSuccessful;
                                     pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
                                     goto Exit;
                                 }
+
+                                // reset object segment access counter
+                                wObdSegWriteAccHistorySeqCnt_g = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
                             }
                         }
                         else
@@ -1624,7 +1637,7 @@ tEplKernel       Ret = kEplSuccessful;
                         // save handle for callback function
                         ApiPdiComInstance_g.apObdParam_m[0] = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
+                        DEBUG_TRACE1(DEBUG_LVL_14, "pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
 
                         // forward SDO transfers of application specific objects to AP
                         if (pObdParam_p->m_pRemoteAddress != NULL)
@@ -1684,9 +1697,8 @@ tEplKernel       Ret = kEplSuccessful;
                             pAllocObdParam->m_pData = (void*) pAllocDataBuf;
 
                             // save OBD access handle for Domain objects (segmented access)
-                            printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
                             Ret = EplAppDefObdAccSaveHdl(pAllocObdParam);
-                            printf("SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
+                            DEBUG_TRACE1(DEBUG_LVL_14, "New SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
                             if (Ret != kEplSuccessful)
                             {
                                 EPL_FREE(pAllocObdParam);
@@ -1715,7 +1727,7 @@ tEplKernel       Ret = kEplSuccessful;
 
             // adopt write access
             Ret = kEplObdAccessAdopted;
-            printf(" Adopted\n");
+            DEBUG_TRACE0(DEBUG_LVL_14, " Adopted\n");
             goto Exit;
 
         }   // end case kEplObdEvInitWriteLe
@@ -1848,7 +1860,7 @@ tEplKernel       Ret = kEplSuccessful;
                         // save handle for callback function
                         ApiPdiComInstance_g.apObdParam_m[0] = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-                        printf("pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
+                        DEBUG_TRACE1(DEBUG_LVL_14, "pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
 
                         // forward SDO transfers of application specific objects to AP
                         if (pObdParam_p->m_pRemoteAddress != NULL)
@@ -1900,7 +1912,7 @@ tEplKernel       Ret = kEplSuccessful;
 
             // adopt read access
             Ret = kEplObdAccessAdopted;
-            printf("  Adopted\n");
+            DEBUG_TRACE0(DEBUG_LVL_14, "  Adopted\n");
             goto Exit;
 
         }   // end case kEplObdEvPreRead
@@ -2193,7 +2205,7 @@ BOOL fRet = TRUE;
             {
                 case 0x01:
                 {
-                    //TODO: use correct function for this object
+                    // TODO: use correct function for this object
 //                    fRet = FpgaCfg_writeFlashSafely(
 //                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
 //                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
@@ -2207,10 +2219,7 @@ BOOL fRet = TRUE;
                         Ret = kEplObdAccessViolation;
                         goto Exit;
                     }
-                }
-                case 0x02:
-                {
-                    //TODO: use correct function for this object
+
                     break;
                 }
 
@@ -2230,7 +2239,7 @@ BOOL fRet = TRUE;
 
     // mark handle as processed
     pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlProcessingFinished;
-    printf("OBD ACC Cnt Fininshed: %d\n", pDefObdAccHdl_p->m_wSeqCnt);
+    DEBUG_TRACE1(DEBUG_LVL_14, "OBD ACC cnt processed: %d\n", pDefObdAccHdl_p->m_wSeqCnt);
 
 Exit:
     if (Ret != kEplSuccessful)
@@ -2365,7 +2374,7 @@ char            szBuffer[17];
 
     if (pData_p == NULL)
     {
-        printf("Null pointer!\n");
+        DEBUG_TRACE0(DEBUG_LVL_14, "Null pointer!\n");
         return;
     }
 
@@ -2378,7 +2387,7 @@ char            szBuffer[17];
     // printout data
     while (ulCount < ulDataSize_p)
     {
-        printf(" %02X", (WORD)*pbData);
+        DEBUG_TRACE1(DEBUG_LVL_14, " %02X", (WORD)*pbData);
         if (isgraph(*pbData))
         {
             szBuffer[ulOffset] = *pbData;
@@ -2392,7 +2401,7 @@ char            szBuffer[17];
         ulOffset++;
         if (ulOffset == 16)
         {
-            printf("  %s\n", szBuffer);
+            DEBUG_TRACE1(DEBUG_LVL_14, "  %s\n", szBuffer);
             ulOffset = 0;
         }
     }
@@ -2402,13 +2411,13 @@ char            szBuffer[17];
         szBuffer[ulOffset] = '\0';
         for (; ulOffset < 16; ulOffset++)
         {
-            printf("   ");
+            DEBUG_TRACE0(DEBUG_LVL_14,"   ");
         }
-        printf("  %s\n", szBuffer);
+        DEBUG_TRACE1(DEBUG_LVL_14, "  %s\n", szBuffer);
     }
     else
     {
-        printf("\n");
+        DEBUG_TRACE0(DEBUG_LVL_14,"\n");
     }
 }
 #endif
