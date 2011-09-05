@@ -14819,6 +14819,7 @@ entity niosII_openMac is
 
               -- the_powerlink_0
                  signal led_error_from_the_powerlink_0 : OUT STD_LOGIC;
+                 signal led_gpo_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
                  signal led_opt_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal led_phyAct_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal led_phyLink_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -16366,6 +16367,7 @@ component powerlink_0 is
                     signal ap_irq : OUT STD_LOGIC;
                     signal ap_readdata : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal led_error : OUT STD_LOGIC;
+                    signal led_gpo : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal led_opt : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal led_phyAct : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal led_phyLink : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -17055,6 +17057,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal internal_clkpcp :  STD_LOGIC;
                 signal internal_dclk_from_the_epcs_flash_controller_0 :  STD_LOGIC;
                 signal internal_led_error_from_the_powerlink_0 :  STD_LOGIC;
+                signal internal_led_gpo_from_the_powerlink_0 :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal internal_led_opt_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_led_phyAct_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal internal_led_phyLink_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -18806,6 +18809,7 @@ begin
       ap_irq => powerlink_0_PDI_AP_irq,
       ap_readdata => powerlink_0_PDI_AP_readdata,
       led_error => internal_led_error_from_the_powerlink_0,
+      led_gpo => internal_led_gpo_from_the_powerlink_0,
       led_opt => internal_led_opt_from_the_powerlink_0,
       led_phyAct => internal_led_phyAct_from_the_powerlink_0,
       led_phyLink => internal_led_phyLink_from_the_powerlink_0,
@@ -19317,6 +19321,8 @@ begin
   --vhdl renameroo for output signals
   led_error_from_the_powerlink_0 <= internal_led_error_from_the_powerlink_0;
   --vhdl renameroo for output signals
+  led_gpo_from_the_powerlink_0 <= internal_led_gpo_from_the_powerlink_0;
+  --vhdl renameroo for output signals
   led_opt_from_the_powerlink_0 <= internal_led_opt_from_the_powerlink_0;
   --vhdl renameroo for output signals
   led_phyAct_from_the_powerlink_0 <= internal_led_phyAct_from_the_powerlink_0;
@@ -19442,6 +19448,7 @@ component niosII_openMac is
 
                  -- the_powerlink_0
                     signal led_error_from_the_powerlink_0 : OUT STD_LOGIC;
+                    signal led_gpo_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal led_opt_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal led_phyAct_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal led_phyLink_from_the_powerlink_0 : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -19537,6 +19544,7 @@ end component sdram_0_test_component;
                 signal jtag_uart_1_avalon_jtag_slave_dataavailable_from_sa :  STD_LOGIC;
                 signal jtag_uart_1_avalon_jtag_slave_readyfordata_from_sa :  STD_LOGIC;
                 signal led_error_from_the_powerlink_0 :  STD_LOGIC;
+                signal led_gpo_from_the_powerlink_0 :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal led_opt_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal led_phyAct_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal led_phyLink_from_the_powerlink_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -19619,6 +19627,7 @@ begin
       data_to_and_from_the_sram_0 => data_to_and_from_the_sram_0,
       dclk_from_the_epcs_flash_controller_0 => dclk_from_the_epcs_flash_controller_0,
       led_error_from_the_powerlink_0 => led_error_from_the_powerlink_0,
+      led_gpo_from_the_powerlink_0 => led_gpo_from_the_powerlink_0,
       led_opt_from_the_powerlink_0 => led_opt_from_the_powerlink_0,
       led_phyAct_from_the_powerlink_0 => led_phyAct_from_the_powerlink_0,
       led_phyLink_from_the_powerlink_0 => led_phyLink_from_the_powerlink_0,

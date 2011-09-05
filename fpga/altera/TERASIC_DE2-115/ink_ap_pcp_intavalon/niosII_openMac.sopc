@@ -264,6 +264,14 @@
          type = "boolean";
       }
    }
+   element ap_cpu.jtag_debug_module
+   {
+      datum baseAddress
+      {
+         value = "4096";
+         type = "long";
+      }
+   }
    element pcp_cpu.jtag_debug_module
    {
       datum _lockedAddress
@@ -274,14 +282,6 @@
       datum baseAddress
       {
          value = "21022720";
-         type = "long";
-      }
-   }
-   element ap_cpu.jtag_debug_module
-   {
-      datum baseAddress
-      {
-         value = "4096";
          type = "long";
       }
    }
@@ -438,16 +438,11 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element node_switch_pio.s1
    {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
       datum baseAddress
       {
-         value = "0";
+         value = "2384";
          type = "long";
       }
    }
@@ -464,11 +459,40 @@
          type = "long";
       }
    }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element sdram_0.s1
+   {
+      datum baseAddress
+      {
+         value = "268435456";
+         type = "long";
+      }
+   }
    element benchmark_pio.s1
    {
       datum baseAddress
       {
          value = "2336";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2096";
          type = "long";
       }
    }
@@ -480,23 +504,7 @@
          type = "long";
       }
    }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2080";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2384";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
+   element clock_crossing_0.s1
    {
       datum _lockedAddress
       {
@@ -505,7 +513,7 @@
       }
       datum baseAddress
       {
-         value = "2048";
+         value = "0";
          type = "long";
       }
    }
@@ -522,19 +530,11 @@
          type = "long";
       }
    }
-   element inport_ap.s1
+   element outport_ap.s1
    {
       datum baseAddress
       {
-         value = "2096";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum baseAddress
-      {
-         value = "268435456";
+         value = "2080";
          type = "long";
       }
    }
@@ -685,7 +685,7 @@
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="7929233553" />
- <parameter name="timeStamp" value="1314967972910" />
+ <parameter name="timeStamp" value="1315210575043" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
