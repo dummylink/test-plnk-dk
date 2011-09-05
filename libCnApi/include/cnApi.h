@@ -251,11 +251,6 @@ typedef struct sCnApiInitParm {
 	DWORD			m_dwVendorId;
 	DWORD			m_dwProductCode;
 	DWORD			m_dwDeviceType;
-	DWORD			m_dwFeatureFlags;
-	WORD			m_wIsoTxMaxPayload;
-	WORD			m_wIsoRxMaxPayload;
-	DWORD			m_dwPresMaxLatency;
-	DWORD			m_dwAsendMaxLatency;
 	DWORD			m_dwDpramBase;
 } tCnApiInitParm;
 
@@ -296,6 +291,8 @@ struct sPcpControlReg {
     volatile WORD       m_wPcpPdiRev;          ///< revision of PCP PDI (control and status register)
     volatile WORD       wPadding;              ///< not available (fixed)
     volatile DWORD      m_dwFpgaSysId;         ///< system ID of FPGA (SOPC)design, value is user defined
+    volatile DWORD      m_dwAppDate;           ///< Powerlink application date
+    volatile DWORD      m_dwAppTime;           ///< Powerlink application time
     volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
     volatile WORD       wReserved1;
     volatile WORD       m_wCommand;            ///< AP issues commands to this register

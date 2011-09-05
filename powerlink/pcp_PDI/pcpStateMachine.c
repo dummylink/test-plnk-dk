@@ -143,7 +143,7 @@ FUNC_ENTRYACT(kPcpStateBooted)
 	    fPLisInitalized_g = FALSE;
 	}
 	storePcpState(kPcpStateBooted);
-	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateBooted);
+	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateBooted);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateBooted)
@@ -177,7 +177,7 @@ FUNC_EVT(kPcpStateBooted,kPcpStateInit,1)
 FUNC_ENTRYACT(kPcpStateInit)
 {
 	storePcpState(kPcpStateInit);
-	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateInit);
+	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateInit);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateInit)
@@ -216,7 +216,7 @@ FUNC_ENTRYACT(kPcpStatePreop1)
 {
     Gi_controlLED(kEplLedTypeTestAll, FALSE); // reset "bootup LED" //TODO: status/error LED does not work without this test
 	storePcpState(kPcpStatePreop1);
-	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStatePreop1);
+	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStatePreop1);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStatePreop1)
@@ -247,7 +247,7 @@ FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
 FUNC_ENTRYACT(kPcpStatePreop2)
 {
 	storePcpState(kPcpStatePreop2);
-	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStatePreop2);
+	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStatePreop2);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStatePreop2)
@@ -298,7 +298,7 @@ FUNC_ENTRYACT(kPcpStateReadyToOperate)
 {
     EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate); // trigger NMT state change
 	storePcpState(kPcpStateReadyToOperate);
-	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateReadyToOperate);
+	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateReadyToOperate);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateReadyToOperate)
@@ -326,7 +326,7 @@ FUNC_EVT(kPcpStateReadyToOperate,kPcpStateBooted,1)
 FUNC_ENTRYACT(kPcpStateOperational)
 {
 	storePcpState(kPcpStateOperational);
-	Gi_throwPdiEvent(kPcpPdiEventPcpStateChange, kPcpStateOperational);
+	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateOperational);
 
 	/* enable the synchronization interrupt */
     if(iSyncIntCycle_g != 0)   // true if Sync IR is required by AP

@@ -61,6 +61,9 @@
 -- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 --									bug fix: use the RX_ER signal, it has important meaning!
 -- 2011-05-09  	V0.25	zelenkaj	Hardware Acceleration (HW ACC) added.
+-- 2011-07-23   V0.26	zelenkaj	openFILTER enhanced by RxErr signal
+-- 2011-07-25	V0.27	zelenkaj	LED gadget and asynchronous buffer optional
+-- 2011-08-08	V0.28	zelenkaj	LED gadget enhancement -> added 8 general purpose outputs
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -89,6 +92,9 @@ entity powerlink is
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
+		genABuf1_g					:		boolean 							:= true; --if false iABuf1_g must be set to 0!
+		genABuf2_g					:		boolean 							:= true; --if false iABuf2_g must be set to 0!
+		genLedGadget_g				:		boolean 							:= false;
 		--PDO buffer size *3
 		iTpdoBufSize_g				:		integer 							:= 100;
 		iRpdo0BufSize_g				:		integer 							:= 100;
@@ -210,6 +216,7 @@ entity powerlink is
 	--- RMII PORTS
 		phy0_RxDat                 	: in    std_logic_vector(1 downto 0);
 		phy0_RxDv                  	: in    std_logic;
+		phy0_RxErr					: in 	std_logic;
 		phy0_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
 		phy0_TxEn                  	: out   std_logic := '0';
 		phy0_SMIClk					: out	std_logic := '0';
@@ -218,6 +225,7 @@ entity powerlink is
 		phy0_link					: in	std_logic							:= '0';
 		phy1_RxDat                 	: in    std_logic_vector(1 downto 0) := (others => '0');
 		phy1_RxDv                  	: in    std_logic;
+		phy1_RxErr					: in	std_logic;
 		phy1_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
 		phy1_TxEn                  	: out   std_logic := '0';
 		phy1_SMIClk					: out	std_logic := '0';
@@ -246,7 +254,8 @@ entity powerlink is
 		led_status					: out	std_logic := '0';
 		led_phyLink					: out	std_logic_vector(1 downto 0) := (others => '0');
 		led_phyAct					: out	std_logic_vector(1 downto 0) := (others => '0');
-		led_opt						: out	std_logic_vector(1 downto 0) := (others => '0')
+		led_opt						: out	std_logic_vector(1 downto 0) := (others => '0');
+		led_gpo						: out	std_logic_vector(7 downto 0) := (others => '0')
 	);
 end powerlink;
 
@@ -288,7 +297,7 @@ architecture rtl of powerlink is
 	
 	signal phyLink, phyAct			:		std_logic_vector(1 downto 0);
 	
-	signal led_s					:		std_logic_vector(7 downto 0);
+	signal led_s					:		std_logic_vector(15 downto 0);
 	
 	signal clkAp_s, rstAp_s			:		std_logic;
 	
@@ -311,6 +320,7 @@ begin
 	led_phyLink <= led_s(4) & led_s(2);
 	led_phyAct <= led_s(5) & led_s(3);
 	led_opt <= led_s(7) & led_s(6);
+	led_gpo <= led_s(15 downto 8);
 	
 ------------------------------------------------------------------------------------------------------------------------
 --PCP + AP
@@ -326,6 +336,9 @@ begin
 				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
+				genABuf1_g					=> genABuf1_g,
+				genABuf2_g					=> genABuf2_g,
+				genLedGadget_g				=> genLedGadget_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -439,6 +452,9 @@ begin
 				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
+				genABuf1_g					=> genABuf1_g,
+				genABuf2_g					=> genABuf2_g,
+				genLedGadget_g				=> genLedGadget_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -547,6 +563,9 @@ begin
 				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
+				genABuf1_g					=> genABuf1_g,
+				genABuf2_g					=> genABuf2_g,
+				genLedGadget_g				=> genLedGadget_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -674,10 +693,12 @@ begin
             m_arbiterlock			=> m_arbiterlock,
 			rRx_Dat_0               => phy0_RxDat,
 			rCrs_Dv_0               => phy0_RxDv,
+			rRx_Err_0				=> phy0_RxErr,
 			rTx_Dat_0               => phy0_TxDat,
 			rTx_En_0                => phy0_TxEn,
 			rRx_Dat_1               => phy1_RxDat,
 			rCrs_Dv_1               => phy1_RxDv,
+			rRx_Err_1				=> phy1_RxErr,
 			rTx_Dat_1               => phy1_TxDat,
 			rTx_En_1                => phy1_TxEn,
 		--- MII PORTS

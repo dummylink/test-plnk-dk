@@ -82,9 +82,12 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     tCnApiStatus FncRet = kCnApiStatusOk;
     tEplKernel EplRet = kEplSuccessful;
     BOOL fPcpPresent = FALSE;
+    int     iStatus;
     int iCnt;
 
-    /* initialize pointers */
+    TRACE("\n\nInitialize CN API functions...");
+
+    /* initialize global pointers */
 
     /* Control and Status Register is mirrored, Pointer shows CPU Endian Mirror */
 #ifdef CN_API_USING_SPI
@@ -182,7 +185,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 
     }
 
-    /* verify FPGA build time stamp */
+    /* verify FPGA configuration ID */
     if (!CnApi_verifyFpgaConfigId())
     {
         /* this compilation does not match the accessed PCP FPGA configuration */
@@ -228,7 +231,25 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     }
 
     /* initialize state machine */
-    CnApi_initApStateMachine();
+    CnApi_activateApStateMachine();
+
+    /* initialize asynchronous transfer functions */
+    iStatus = CnApiAsync_init();
+    if (iStatus != OK)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_init() failed!\n");
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
+
+    /* initialize PDO transfer functions */
+    iStatus = CnApi_initPdo();
+    if (iStatus != OK)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApi_initPdo() failed!\n");
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
 
 exit:
     return FncRet;

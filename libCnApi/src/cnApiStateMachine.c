@@ -95,7 +95,6 @@ FUNC_EVT(kApStateReadyToInit, kApStateError, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateReadyToInit)
 {
-	int		iStatus;
 	tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
 	DEBUG_FUNC;
 
@@ -107,21 +106,6 @@ FUNC_ENTRYACT(kApStateReadyToInit)
 #ifdef AP_IS_BIG_ENDIAN
     CnApi_GetCntrlRegfromLe(pCtrlReg_g, pCtrlRegLE_g);
 #endif
-
-	/* initialize asynchronous transfer functions */
-    iStatus = CnApiAsync_init();
-    if (iStatus != OK)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_init() failed!\n");
-    }
-
-	/* initialize PDO transfer functions */
-	iStatus = CnApi_initPdo();
-	if (iStatus != OK)
-	{
-	    DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApi_initPdo() failed!\n");
-	    return;
-	}
 
 	AsyncRet = CnApiAsync_postMsg(kPdiAsyncMsgIntInitPcpReq,
                                   NULL,
@@ -376,6 +360,8 @@ void CnApi_initApStateMachine(void)
 
 	/* State: ERROR */
 	SM_ADD_ACTION_100(&apStateMachine, kApStateError);
+
+
 }
 
 /**
@@ -384,6 +370,8 @@ void CnApi_initApStateMachine(void)
 *******************************************************************************/
 void CnApi_activateApStateMachine(void)
 {
+    CnApi_initApStateMachine();
+
 	sm_reset(&apStateMachine);
 	fErrorEvent = FALSE;
 }

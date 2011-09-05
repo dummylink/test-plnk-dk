@@ -85,7 +85,7 @@ int CnApiAsync_init(void)
     register WORD wCnt;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-    CnApi_resetAsyncStateMachine();
+    CnApi_activateAsyncStateMachine();
 
     CNAPI_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
     CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );

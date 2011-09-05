@@ -416,7 +416,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
     else // message activated
     {
         // if local buffering is used, assign buffer pointer
-        if (aPdiAsyncTxMsgs[bCnt].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+        if (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
         {
             if (pLclAsyncTxMsgBuffer_l != NULL)
             {
@@ -425,7 +425,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
                 goto exit;
             }
 
-            pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bCnt].MsgHdl_m.pLclBuf_m;
+            pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m;
         }
 
         /*transit to ASYNC_TX_BUSY */
@@ -686,10 +686,17 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 {
                     if (pLclAsyncTxMsgBuffer_l != NULL)
                     {
+                        if (pLclAsyncTxMsgBuffer_l                           !=
+                            aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m  )
+                        {   // those two pointers have to be equal at this point
+                            ErrorHistory_l = kPdiAsyncStatusInvalidInstanceParam;
+                            fError = TRUE;
+                            goto exit;
+                        }
                         CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
                         pLclAsyncTxMsgBuffer_l = NULL;
+                        aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                     }
-                    aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
 
                     break;
                 }
@@ -941,7 +948,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
         case kPdiAsyncTrfTypeDirectAccess:
         {
             pRxChan = (BYTE *) &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan;
-            pMsgDescr->dwPendTranfSize_m == 0;                             // indicate finished transfer
+            pMsgDescr->dwPendTranfSize_m = 0;                             // indicate finished transfer
             pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
             break;
         }
@@ -1262,7 +1269,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     { /* reset timeout counter */
         dwTimeoutWait_l = 0;
 
-        Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrAsyncComTimeout);
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComTimeout);
     }
 
     DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s status: %s\n",
@@ -1278,7 +1285,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         {
             if (ErrorHistory_l != kPdiAsyncStatusTimeout)
             { /* timeout error has extra treatment - don't handle it here */
-                Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
+                Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
             }
         }
 
@@ -1324,7 +1331,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         {
             if (ErrorHistory_l != kPdiAsyncStatusTimeout)
             { /* timeout error has extra treatment - don't handle it here */
-                Gi_throwPdiEvent(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
+                Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncIntChanComError);
             }
         }
 

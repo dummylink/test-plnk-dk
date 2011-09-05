@@ -5349,7 +5349,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4E0B2C31</b> (timestamp: Wed Jun 29, 2011 @3:44 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4E64854F</b> (timestamp: Mon Sep 5, 2011 @10:16 AM)";
             MESSAGES 
             {
             }
@@ -5358,7 +5358,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "1u";
-         timestamp = "1309355057u";
+         timestamp = "1315210575u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5367,7 +5367,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=1 --timestamp=1309355057";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=1 --timestamp=1315210575";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -6379,18 +6379,11 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT phy0_link
+         PORT led_gpo
          {
             type = "export";
-            width = "1";
-            direction = "input";
-            Is_Enabled = "1";
-         }
-         PORT phy1_link
-         {
-            type = "export";
-            width = "1";
-            direction = "input";
+            width = "8";
+            direction = "output";
             Is_Enabled = "1";
          }
          PORT phyMii1_TxClk
@@ -6526,6 +6519,13 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
+         PORT phy1_link
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
          PORT phy0_SMIClk
          {
             type = "export";
@@ -6545,6 +6545,13 @@ SYSTEM niosII_openMac
             type = "export";
             width = "1";
             direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy0_link
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
             Is_Enabled = "1";
          }
       }
@@ -6860,8 +6867,9 @@ SYSTEM niosII_openMac
       {
          CONFIG = "4";
          CONFIGAPENDIAN = "0";
-         FPGAREV = "35";
+         FPGAREV = "1";
          HWACC = "0";
+         LEDGADGET = "TRUE";
          MACBUFSIZE = "7080";
          MACRXBUFFERS = "16";
          MACRXBUFSIZE = "0";

@@ -255,7 +255,7 @@
 // =========================================================================
 // API with PDI specific defines
 // =========================================================================
-//#define TEST_OBD_ADOPTABLE_FINISHED_TIMERU
+#define TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 #define EPL_MODULE_API_PDI
 
 #endif //_EPLCFG_H_

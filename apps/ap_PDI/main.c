@@ -123,8 +123,6 @@ int main (void)
     IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); // set hex digits on Mercury-Board to indicate AP presence
     CNAPI_USLEEP(1000000);		                                // wait 1 s, so you can see the LEDs
 
-    TRACE("\n\nInitialize CN API functions...");
-
     nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
     setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_l);             // initialize POWERLINK parameters
 
@@ -179,8 +177,6 @@ int main (void)
 
     /* Start periodic main loop */
     TRACE("API example is running...\n");
-	CnApi_activateApStateMachine();
-	CnApi_activateAsyncStateMachine();
 
 	/* main program loop */
 	/* TODO: implement exit of application! */
@@ -241,11 +237,6 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
     pInitParm_p->m_dwProductCode = -1;
     pInitParm_p->m_dwRevision = -1;
     pInitParm_p->m_dwSerialNum = -1;
-    pInitParm_p->m_dwFeatureFlags = -1;
-    pInitParm_p->m_wIsoTxMaxPayload = 256;
-    pInitParm_p->m_wIsoRxMaxPayload = 256;
-    pInitParm_p->m_dwPresMaxLatency = 2000;
-    pInitParm_p->m_dwAsendMaxLatency= 2000;
 
     pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;     //address of DPRAM area
 }
@@ -698,12 +689,12 @@ tEplKernel       Ret = kEplSuccessful;
 //        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     // return error for all non existing objects
-    // if not known yet, this can also be done in CnApi_DefObdAccFinished()
-    // by settig m_dwAbortCode appropriately before the call.
+    // if not known yet, this can also be done by settig m_dwAbortCode appropriately
+    // before the call of CnApi_DefObdAccFinished().
     switch (pObdParam_p->m_uiIndex)
     {
         case 0x6500:
-        {
+        {   // example: checking an existing object
             switch (pObdParam_p->m_uiSubIndex)
             {
                 case 0x01:

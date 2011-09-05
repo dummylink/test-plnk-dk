@@ -60,6 +60,9 @@
 -- 2011-06-06	V0.26	zelenkaj	status/control register enhanced by 8 bytes
 -- 2011-06-10	V0.27	zelenkaj	bug fix: if dpr size goes below 2**10, error of dpr address width
 -- 2011-06-29	V0.28	zelenkaj	bug fix: led control was gone and dpr addr width still buggy
+-- 2011-07-25	V0.29	zelenkaj	LED gadget and asynchronous buffer optional
+-- 2011-08-08	V0.30	zelenkaj	LED gadget enhancement -> added 8 general purpose outputs
+-- 2011-08-16	V0.31	zelenkaj	status/control register enhanced by 8 bytes (again...)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -76,6 +79,9 @@ entity pdi is
 			iPdiRev_g					:		integer := 0; --for HW/SW match verification (0..65535)
 			iRpdos_g					:		integer := 3;
 			iTpdos_g					:		integer := 1;
+			genABuf1_g					:		boolean := true; --if false iABuf1_g must be set to 0!
+			genABuf2_g					:		boolean := true; --if false iABuf2_g must be set to 0!
+			genLedGadget_g				:		boolean := false;
 			--PDO buffer size *3
 			iTpdoBufSize_g				:		integer := 100;
 			iRpdo0BufSize_g				:		integer := 116; --includes header
@@ -112,7 +118,7 @@ entity pdi is
 		-- async interrupt
 			ap_asyncIrq					: out	std_logic; --Async Irq to the Ap
 		-- LED
-			ledsOut						: out	std_logic_vector(7 downto 0); --LEDs: O1, O0, PA1, PL1, PA0, PL0, E, S
+			ledsOut						: out	std_logic_vector(15 downto 0) := (others => '0'); --LEDs: GPO7, ..., GPO0, O1, O0, PA1, PL1, PA0, PL0, E, S
 			phyLink						: in	std_logic_vector(1 downto 0); --link: phy1, phy0
 			phyAct						: in	std_logic_vector(1 downto 0); --acti: phy1, phy0
 		--PDI change buffer triggers
@@ -147,7 +153,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#70#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#78#);
 ----asynchronous buffers
 constant	extABuf1Tx_c				: memoryMapping_t := (16#0800#, iABuf1_g); --header is included in generic value!
 constant	extABuf1Rx_c				: memoryMapping_t := (16#1000#, iABuf1_g); --header is included in generic value!
@@ -160,7 +166,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 9 * 4); --bytes mapped to dpr (dword alignment!!!)
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 11 * 4); --bytes mapped to dpr (dword alignment!!!)
 ----asynchronous buffers
 constant	intABuf1Tx_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extABuf1Tx_c.span));
 constant	intABuf1Rx_c				: memoryMapping_t := (intABuf1Tx_c.base + intABuf1Tx_c.span, align32(extABuf1Rx_c.span));
@@ -274,11 +280,11 @@ signal		phyLink_s,
 
 --LED stuff
 signal		pcp_ledForce_s,
-			pcp_ledSet_s				: std_logic_vector(15 downto 0);
+			pcp_ledSet_s				: std_logic_vector(15 downto 0) := (others => '0');
 signal		ap_ledForce_s,
-			ap_ledSet_s					: std_logic_vector(15 downto 0);
+			ap_ledSet_s					: std_logic_vector(15 downto 0) := (others => '0');
 signal		hw_ledForce_s,
-			hw_ledSet_s					: std_logic_vector(15 downto 0);
+			hw_ledSet_s					: std_logic_vector(15 downto 0) := (others => '0');
 begin
 	
 	ASSERT NOT(iRpdos_g < 1 or iRpdos_g > 3)
@@ -627,27 +633,29 @@ begin
 	apIrqControlApIn <= apIrqControlApOut(15) & "000" & x"00" & "000" & ap_irq_s;
 	
 	--the LED stuff
-	--first set the hw leds
-	hw_ledForce_s <= x"00" & "00111100"; --phy1 and 0 act and link
-	hw_ledSet_s <= x"00" & "00" & (phyAct(1) and phyLink(1)) & phyLink(1) & (phyAct(0) and phyLink(0)) & phyLink(0) & "00";
-	
-	theLedGadget : entity work.pdiLed
-	generic map (
-		iLedWidth_g						=> ledsOut'length
-	)
-	port map (
-		--src A (lowest priority)
-		srcAled							=> hw_ledSet_s(ledsOut'range),
-		srcAforce						=> hw_ledForce_s(ledsOut'range),
-		--src B
-		srcBled							=> pcp_ledSet_s(ledsOut'range),
-		srcBforce						=> pcp_ledForce_s(ledsOut'range),
-		--src C (highest priority)
-		srcCled							=> ap_ledSet_s(ledsOut'range),
-		srcCforce						=> ap_ledForce_s(ledsOut'range),
-		--led output
-		ledOut							=> ledsOut
-	);
+	genLedGadget : if genLedGadget_g generate
+		--first set the hw leds
+		hw_ledForce_s <= x"00" & "00111100"; --phy1 and 0 act and link
+		hw_ledSet_s <= x"00" & "00" & (phyAct(1) and phyLink(1)) & phyLink(1) & (phyAct(0) and phyLink(0)) & phyLink(0) & "00";
+		
+		theLedGadget : entity work.pdiLed
+		generic map (
+			iLedWidth_g						=> ledsOut'length
+		)
+		port map (
+			--src A (lowest priority)
+			srcAled							=> hw_ledSet_s(ledsOut'range),
+			srcAforce						=> hw_ledForce_s(ledsOut'range),
+			--src B
+			srcBled							=> pcp_ledSet_s(ledsOut'range),
+			srcBforce						=> pcp_ledForce_s(ledsOut'range),
+			--src C (highest priority)
+			srcCled							=> ap_ledSet_s(ledsOut'range),
+			srcCforce						=> ap_ledForce_s(ledsOut'range),
+			--led output
+			ledOut							=> ledsOut
+		);
+	end generate;
 	
 	theEventBlock : block
 		--set here the number of events
@@ -741,206 +749,214 @@ begin
 
 ------------------------------------------------------------------------------------------------------------------------
 -- asynchronous Buffer 1 Tx
-	theAsyncBuf1Tx4Pcp : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf1Tx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf1Tx_s.pcp.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf1Tx_s.pcp,
-			wr							=> pcp_write,
-			rd							=> pcp_read,
-			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> pcp_byteenable,
-			din							=> pcp_writedata,
-			dout						=> outABuf1Tx_s.pcp,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf1Tx_s.pcp.addrOff,
-			dprDin						=> dprABuf1Tx_s.pcp.din,
-			dprDout						=> dprOut.pcp,
-			dprBe						=> dprABuf1Tx_s.pcp.be,
-			dprWr						=> dprABuf1Tx_s.pcp.wr
-	);
-	
-	theAsyncBuf1Tx4Ap : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf1Tx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf1Tx_s.ap.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf1Tx_s.ap,
-			wr							=> ap_write,
-			rd							=> ap_read,
-			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> ap_byteenable,
-			din							=> ap_writedata,
-			dout						=> outABuf1Tx_s.ap,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf1Tx_s.ap.addrOff,
-			dprDin						=> dprABuf1Tx_s.ap.din,
-			dprDout						=> dprOut.ap,
-			dprBe						=> dprABuf1Tx_s.ap.be,
-			dprWr						=> dprABuf1Tx_s.ap.wr
-	);
+	genABuf1Tx : if genABuf1_g generate
+		theAsyncBuf1Tx4Pcp : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf1Tx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf1Tx_s.pcp.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf1Tx_s.pcp,
+				wr							=> pcp_write,
+				rd							=> pcp_read,
+				addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> pcp_byteenable,
+				din							=> pcp_writedata,
+				dout						=> outABuf1Tx_s.pcp,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf1Tx_s.pcp.addrOff,
+				dprDin						=> dprABuf1Tx_s.pcp.din,
+				dprDout						=> dprOut.pcp,
+				dprBe						=> dprABuf1Tx_s.pcp.be,
+				dprWr						=> dprABuf1Tx_s.pcp.wr
+		);
+		
+		theAsyncBuf1Tx4Ap : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf1Tx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf1Tx_s.ap.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf1Tx_s.ap,
+				wr							=> ap_write,
+				rd							=> ap_read,
+				addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> ap_byteenable,
+				din							=> ap_writedata,
+				dout						=> outABuf1Tx_s.ap,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf1Tx_s.ap.addrOff,
+				dprDin						=> dprABuf1Tx_s.ap.din,
+				dprDout						=> dprOut.ap,
+				dprBe						=> dprABuf1Tx_s.ap.be,
+				dprWr						=> dprABuf1Tx_s.ap.wr
+		); 
+	end generate;
 ------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------
 -- asynchronous Buffer 1 Rx
-	theAsyncBuf1Rx4Pcp : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf1Rx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf1Rx_s.pcp.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf1Rx_s.pcp,
-			wr							=> pcp_write,
-			rd							=> pcp_read,
-			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> pcp_byteenable,
-			din							=> pcp_writedata,
-			dout						=> outABuf1Rx_s.pcp,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf1Rx_s.pcp.addrOff,
-			dprDin						=> dprABuf1Rx_s.pcp.din,
-			dprDout						=> dprOut.pcp,
-			dprBe						=> dprABuf1Rx_s.pcp.be,
-			dprWr						=> dprABuf1Rx_s.pcp.wr
-	);
-	
-	theAsyncBuf1Rx4Ap : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf1Rx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf1Rx_s.ap.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf1Rx_s.ap,
-			wr							=> ap_write,
-			rd							=> ap_read,
-			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> ap_byteenable,
-			din							=> ap_writedata,
-			dout						=> outABuf1Rx_s.ap,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf1Rx_s.ap.addrOff,
-			dprDin						=> dprABuf1Rx_s.ap.din,
-			dprDout						=> dprOut.ap,
-			dprBe						=> dprABuf1Rx_s.ap.be,
-			dprWr						=> dprABuf1Rx_s.ap.wr
-	);
+	genABuf1Rx : if genABuf1_g generate
+		theAsyncBuf1Rx4Pcp : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf1Rx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf1Rx_s.pcp.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf1Rx_s.pcp,
+				wr							=> pcp_write,
+				rd							=> pcp_read,
+				addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> pcp_byteenable,
+				din							=> pcp_writedata,
+				dout						=> outABuf1Rx_s.pcp,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf1Rx_s.pcp.addrOff,
+				dprDin						=> dprABuf1Rx_s.pcp.din,
+				dprDout						=> dprOut.pcp,
+				dprBe						=> dprABuf1Rx_s.pcp.be,
+				dprWr						=> dprABuf1Rx_s.pcp.wr
+		);
+		
+		theAsyncBuf1Rx4Ap : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf1Rx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf1Rx_s.ap.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf1Rx_s.ap,
+				wr							=> ap_write,
+				rd							=> ap_read,
+				addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> ap_byteenable,
+				din							=> ap_writedata,
+				dout						=> outABuf1Rx_s.ap,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf1Rx_s.ap.addrOff,
+				dprDin						=> dprABuf1Rx_s.ap.din,
+				dprDout						=> dprOut.ap,
+				dprBe						=> dprABuf1Rx_s.ap.be,
+				dprWr						=> dprABuf1Rx_s.ap.wr
+		); 
+	end generate;
 ------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------
 -- asynchronous Buffer 2 Tx
-	theAsyncBuf2Tx4Pcp : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf2Tx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf2Tx_s.pcp.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf2Tx_s.pcp,
-			wr							=> pcp_write,
-			rd							=> pcp_read,
-			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> pcp_byteenable,
-			din							=> pcp_writedata,
-			dout						=> outABuf2Tx_s.pcp,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf2Tx_s.pcp.addrOff,
-			dprDin						=> dprABuf2Tx_s.pcp.din,
-			dprDout						=> dprOut.pcp,
-			dprBe						=> dprABuf2Tx_s.pcp.be,
-			dprWr						=> dprABuf2Tx_s.pcp.wr
-	);
-	
-	theAsyncBuf2Tx4Ap : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf2Tx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf2Tx_s.ap.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf2Tx_s.ap,
-			wr							=> ap_write,
-			rd							=> ap_read,
-			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> ap_byteenable,
-			din							=> ap_writedata,
-			dout						=> outABuf2Tx_s.ap,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf2Tx_s.ap.addrOff,
-			dprDin						=> dprABuf2Tx_s.ap.din,
-			dprDout						=> dprOut.ap,
-			dprBe						=> dprABuf2Tx_s.ap.be,
-			dprWr						=> dprABuf2Tx_s.ap.wr
-	);
+	genABuf2Tx : if genABuf2_g generate
+		theAsyncBuf2Tx4Pcp : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf2Tx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf2Tx_s.pcp.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf2Tx_s.pcp,
+				wr							=> pcp_write,
+				rd							=> pcp_read,
+				addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> pcp_byteenable,
+				din							=> pcp_writedata,
+				dout						=> outABuf2Tx_s.pcp,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf2Tx_s.pcp.addrOff,
+				dprDin						=> dprABuf2Tx_s.pcp.din,
+				dprDout						=> dprOut.pcp,
+				dprBe						=> dprABuf2Tx_s.pcp.be,
+				dprWr						=> dprABuf2Tx_s.pcp.wr
+		);
+		
+		theAsyncBuf2Tx4Ap : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf2Tx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf2Tx_s.ap.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf2Tx_s.ap,
+				wr							=> ap_write,
+				rd							=> ap_read,
+				addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> ap_byteenable,
+				din							=> ap_writedata,
+				dout						=> outABuf2Tx_s.ap,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf2Tx_s.ap.addrOff,
+				dprDin						=> dprABuf2Tx_s.ap.din,
+				dprDout						=> dprOut.ap,
+				dprBe						=> dprABuf2Tx_s.ap.be,
+				dprWr						=> dprABuf2Tx_s.ap.wr
+		);
+	end generate;
 ------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------
 -- asynchronous Buffer 2 Rx
-	theAsyncBuf2Rx4Pcp : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf2Rx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf2Rx_s.pcp.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf2Rx_s.pcp,
-			wr							=> pcp_write,
-			rd							=> pcp_read,
-			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> pcp_byteenable,
-			din							=> pcp_writedata,
-			dout						=> outABuf2Rx_s.pcp,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf2Rx_s.pcp.addrOff,
-			dprDin						=> dprABuf2Rx_s.pcp.din,
-			dprDout						=> dprOut.pcp,
-			dprBe						=> dprABuf2Rx_s.pcp.be,
-			dprWr						=> dprABuf2Rx_s.pcp.wr
-	);
-	
-	theAsyncBuf2Rx4Ap : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intABuf2Rx_c.base/4,
-			iDprAddrWidth_g				=> dprABuf2Rx_s.ap.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selABuf2Rx_s.ap,
-			wr							=> ap_write,
-			rd							=> ap_read,
-			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> ap_byteenable,
-			din							=> ap_writedata,
-			dout						=> outABuf2Rx_s.ap,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprABuf2Rx_s.ap.addrOff,
-			dprDin						=> dprABuf2Rx_s.ap.din,
-			dprDout						=> dprOut.ap,
-			dprBe						=> dprABuf2Rx_s.ap.be,
-			dprWr						=> dprABuf2Rx_s.ap.wr
-	);
+	genABuf2Rx : if genABuf2_g generate
+		theAsyncBuf2Rx4Pcp : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf2Rx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf2Rx_s.pcp.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf2Rx_s.pcp,
+				wr							=> pcp_write,
+				rd							=> pcp_read,
+				addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> pcp_byteenable,
+				din							=> pcp_writedata,
+				dout						=> outABuf2Rx_s.pcp,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf2Rx_s.pcp.addrOff,
+				dprDin						=> dprABuf2Rx_s.pcp.din,
+				dprDout						=> dprOut.pcp,
+				dprBe						=> dprABuf2Rx_s.pcp.be,
+				dprWr						=> dprABuf2Rx_s.pcp.wr
+		);
+		
+		theAsyncBuf2Rx4Ap : entity work.pdiSimpleReg
+		generic map (
+				iAddrWidth_g				=> extLog2MaxOneSpan-2,
+				iBaseMap2_g					=> intABuf2Rx_c.base/4,
+				iDprAddrWidth_g				=> dprABuf2Rx_s.ap.addr'length
+		)
+				
+		port map (   
+				--memory mapped interface
+				sel							=> selABuf2Rx_s.ap,
+				wr							=> ap_write,
+				rd							=> ap_read,
+				addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
+				be							=> ap_byteenable,
+				din							=> ap_writedata,
+				dout						=> outABuf2Rx_s.ap,
+				--dpr interface (from PCP/AP to DPR)
+				dprAddrOff					=> dprABuf2Rx_s.ap.addrOff,
+				dprDin						=> dprABuf2Rx_s.ap.din,
+				dprDout						=> dprOut.ap,
+				dprBe						=> dprABuf2Rx_s.ap.be,
+				dprWr						=> dprABuf2Rx_s.ap.wr
+		);
+	end generate;
 ------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -1573,31 +1589,31 @@ begin
 						--STORED IN DPR 				when 16#20#,
 						--STORED IN DPR 				when 16#24#,
 						--STORED IN DPR 				when 16#28#,
-						(eventAckIn & asyncIrqCtrlIn) 	when 16#2C#,
-						tPdoBuffer 						when 16#30#,
-						rPdo0Buffer 					when 16#34#,
-						rPdo1Buffer 					when 16#38#,
-						rPdo2Buffer 					when 16#3C#,
-						asyncBuffer1Tx 					when 16#40#,
-						asyncBuffer1Rx 					when 16#44#,
-						asyncBuffer2Tx 					when 16#48#,
-						asyncBuffer2Rx 					when 16#4C#,
-						--RESERVED 						when 16#50#,
-						--RESERVED 						when 16#54#,
+						--STORED IN DPR					when 16#2C#,
+						--STORED IN DPR					when 16#30#,
+						(eventAckIn & asyncIrqCtrlIn) 	when 16#34#,
+						tPdoBuffer 						when 16#38#,
+						rPdo0Buffer 					when 16#3C#,
+						rPdo1Buffer 					when 16#40#,
+						rPdo2Buffer 					when 16#44#,
+						asyncBuffer1Tx 					when 16#48#,
+						asyncBuffer1Rx 					when 16#4C#,
+						asyncBuffer2Tx 					when 16#50#,
+						asyncBuffer2Rx 					when 16#54#,
+						--RESERVED 						when 16#58#,
+						--RESERVED 						when 16#5C#,
 						(virtualBufferSelectRpdo0 & 
-						virtualBufferSelectTpdo) 		when 16#58#,
+						virtualBufferSelectTpdo) 		when 16#60#,
 						(virtualBufferSelectRpdo2 & 
-						virtualBufferSelectRpdo1) 		when 16#5C#,
-						(x"0000" & apIrqControlIn) 		when 16#60#,
-						--RESERVED						when 16#64#,
-						--RESERVED 						when 16#68#,
-						(ledCnfgIn & ledCtrlIn) 		when 16#6C#,
+						virtualBufferSelectRpdo1) 		when 16#64#,
+						(x"0000" & apIrqControlIn) 		when 16#68#,
+						--RESERVED						when 16#6C#,
+						--RESERVED 						when 16#70#,
+						(ledCnfgIn & ledCtrlIn) 		when 16#74#,
 						(others => '0') 				when others;
 	
 	--ignored values
 	asyncIrqCtrlOut(14 downto 1) <= (others => '0');
-	ledCtrlOut(15 downto 8) <= (others => '0');
-	ledCnfgOut(15 downto 8) <= (others => '0');
 	eventAckOut(15 downto 8) <= (others => '0');
 	--non dpr write
 	process(clk, rst)
@@ -1665,6 +1681,11 @@ begin
 					when 16#28# =>
 						--STORED IN DPR
 					when 16#2C# =>
+						--STORED IN DPR
+					when 16#30# =>
+						--STORED IN DPR
+					
+					when 16#34# =>
 						--AP ONLY
 						if be(0) = '1' and bIsPcp = false then
 							--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
@@ -1681,10 +1702,6 @@ begin
 --						if be(3) = '1' then
 --							eventAckOut(15 downto 8) <= din(31 downto 24);
 --						end if;
-					when 16#30# =>
-						--RO
-					when 16#34# =>
-						--RO
 					when 16#38# =>
 						--RO
 					when 16#3C# =>
@@ -1698,23 +1715,27 @@ begin
 					when 16#4C# =>
 						--RO
 					when 16#50# =>
-						--RESERVED
+						--RO
 					when 16#54# =>
-						--RESERVED
+						--RO
 					when 16#58# =>
-						if be(0) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(1) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(2) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
-						if be(3) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
+						--RESERVED
 					when 16#5C# =>
+						--RESERVED
+					when 16#60# =>
+						if be(0) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(1) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(2) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+						if be(3) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+					when 16#64# =>
 						if be(0) = '1' then
 							rPdoTrigger(1) <= '1';
 						end if;
@@ -1727,31 +1748,30 @@ begin
 						if be(3) = '1' then
 							rPdoTrigger(2) <= '1';
 						end if;
-					when 16#60# =>
+					when 16#68# =>
 						if be(0) = '1' then
 							apIrqControlOut(7 downto 0) <= din(7 downto 0);
 						end if;
 						if be(1) = '1' then
 							apIrqControlOut(15 downto 8) <= din(15 downto 8);
 						end if;
-					when 16#64# =>
-						--RESERVED
-					when 16#68# =>
-						--RESERVED
 					when 16#6C# =>
+						--RESERVED
+					when 16#70# =>
+						--RESERVED
+					when 16#74# =>
 						if be(0) = '1' then
 							ledCtrlOut(7 downto 0) <= din(7 downto 0);
 						end if;
---ignore higher byte of led gadget
---						if be(1) = '1' then
---							ledCtrlOut(15 downto 8) <= din(15 downto 8);
---						end if;
+						if be(1) = '1' then
+							ledCtrlOut(15 downto 8) <= din(15 downto 8);
+						end if;
 						if be(2) = '1' then
 							ledCnfgOut(7 downto 0) <= din(23 downto 16);
 						end if;
---						if be(3) = '1' then
---							ledCnfgOut(15 downto 8) <= din(31 downto 24);
---						end if;
+						if be(3) = '1' then
+							ledCnfgOut(15 downto 8) <= din(31 downto 24);
+						end if;
 					when others =>
 				end case;
 			end if;
