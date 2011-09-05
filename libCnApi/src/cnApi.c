@@ -185,7 +185,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 
     }
 
-    /* verify FPGA build time stamp */
+    /* verify FPGA configuration ID */
     if (!CnApi_verifyFpgaConfigId())
     {
         /* this compilation does not match the accessed PCP FPGA configuration */
