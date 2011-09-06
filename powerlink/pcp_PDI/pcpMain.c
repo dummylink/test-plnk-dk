@@ -18,6 +18,7 @@
 #include "Debug.h"
 #include "EplPdou.h"
 #include "EplSdoComu.h"
+#include "user/EplSdoAsySequ.h"
 
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
@@ -766,6 +767,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                  wFinishedHistoryCnt)                                               )// should all be finished
             {   // call m_pfnAccessFinished - this will set the handle status to "empty"
 
+                // do ordinary SDO sequence processing / reset flow control manipulation
+                EplSdoAsySeqAppFlowControl(0, FALSE);
+
                 // acknowledge all finished segments of this index
                 EplRet = kEplSuccessful;
                 while (EplRet == kEplSuccessful)
@@ -803,6 +807,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             }
             else
             {   // go on processing the history without calling m_pfnAccessFinished
+
+                // prevent SDO from ack the last received frame
+                EplSdoAsySeqAppFlowControl(wFinishedHistoryCnt, TRUE);
 
                 EplRet = EplAppDefObdAccGetStatusDependantHdl(
                         0,
