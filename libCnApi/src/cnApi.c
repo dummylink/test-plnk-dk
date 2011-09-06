@@ -189,7 +189,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     if (!CnApi_verifyFpgaConfigId())
     {
         /* this compilation does not match the accessed PCP FPGA configuration */
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: FPGA time stamp doesn't match!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: FPGA Configuration ID doesn't match!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }
