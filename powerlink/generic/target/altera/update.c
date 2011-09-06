@@ -1,6 +1,18 @@
+/**
+********************************************************************************
+\file       update.c
 
+\brief      firmware update functions
 
+\author     Josef Baumgartner
 
+\date       06.09.2011
+
+(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
+
+This module contains firmware update functions.
+
+*******************************************************************************/
 
 /******************************************************************************/
 /* includes */
@@ -63,7 +75,10 @@ getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     return OK;
 }
 
-
+/**
+********************************************************************************
+\brief  program firmware data into flash
+*******************************************************************************/
 programFirmware()
 {
 
@@ -84,6 +99,7 @@ int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
 {
     updateInfo_g.m_deviceId = deviceId_p;
     updateInfo_g.m_hwRev = hwRev_p;
+    updateInfo_g.m_userImageOffset = uiUserImageOffset_p;
 }
 
 /**
@@ -103,6 +119,8 @@ int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData
     /* The first segment of the SDO transfer starts with the firmware header */
     if (*pSegmentOff_p == 0)
     {
+        updateInfo_g.m_progOffset = 0;
+
         /* get firmware header and check if we receive a valid one */
         if (getFwHeader(pData_p,
                         updateInfo_g.m_deviceId,
@@ -111,7 +129,7 @@ int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData
             return ERROR;
         }
 
-        sizeToProgram = fwHeader_g.m_fpgaConfigSize + fwHeader_g.m_pcpSwSize;
+        remainingSize = fwHeader_g.m_fpgaConfigSize + fwHeader_g.m_pcpSwSize;
         offset += sizeof(fwHeader);
 
         size = *pSegmentSize_p - sizeof(fwHeader);
@@ -121,8 +139,13 @@ int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData
         size = *pSegmentSize_p;
     }
 
-    progSize = (size <= sizeToProgram) ? size : sizeToProgram;
-    if (programFirmware(sizeToProgram) < 0)
+    if (updateI)
+
+    if (programming)
+    {
+
+    progSize = (size <= remainingSize) ? size : remainingSize;
+    if (programFirmware(pData_p, progSize, offset) < 0)
     {
         return ERROR;
     }

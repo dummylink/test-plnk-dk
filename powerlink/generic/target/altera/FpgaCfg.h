@@ -1,7 +1,7 @@
 /******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
 */
 
 /**
@@ -23,7 +23,7 @@
 /******************************************************************************/
 /* includes */
 #include "global.h"
-#include "debug.h"
+#include "Debug.h"
 #include "system.h"
 #include <sys/alt_flash.h>
 #include <sys/alt_flash_dev.h>
@@ -107,13 +107,13 @@ extern BOOL FpgaCfg_writeFlashUserImageRegion(tFpgaCfgFlashRegionName RegionName
 *
 * License Agreement
 *
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1  
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 * All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms,
 * with or without modification,
 * are permitted provided that the following conditions are met:
-* 
+*
 *   * Redistributions of source code must retain the above copyright notice,
 *     this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above copyright notice,
@@ -123,7 +123,7 @@ extern BOOL FpgaCfg_writeFlashUserImageRegion(tFpgaCfgFlashRegionName RegionName
 *   * Neither the name of the B&R nor the names of its contributors
 *     may be used to endorse or promote products derived from this software
 *     without specific prior written permission.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
