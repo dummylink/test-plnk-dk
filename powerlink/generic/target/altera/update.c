@@ -16,10 +16,12 @@ This module contains firmware update functions.
 
 /******************************************************************************/
 /* includes */
+#include "cnApiGlobal.h"
 #include "system.h"
 #include "firmware.h"
 #include <sys/alt_flash.h>
 #include <alt_types.h>
+#include <errno.h>
 
 /******************************************************************************/
 /* defines */
@@ -59,8 +61,8 @@ typedef enum {
 typedef struct {
     UINT32              m_uiDeviceId;
     UINT32              m_uiHwRev;
-    UINT32              m_uiUserImageOffset
-    UINT32              m_uiSectorSize
+    UINT32              m_uiUserImageOffset;
+    UINT32              m_uiSectorSize;
     char *              m_pData;
     UINT32              m_uiDataSize;
     UINT32              m_uiEraseOffset;
@@ -95,7 +97,7 @@ to the global variable fwHeader_g for further reference.
 getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
 {
     /* check header CRC */
-    if (crc32(0, pData_p, sizeof(tFwHeader) - sizeof(UINT32)) !=
+    if (crc32(0, pHeader_p, sizeof(tFwHeader) - sizeof(UINT32)) !=
               pHeader_p->m_headerCrc)
     {
         /* wrong CRC */
@@ -119,18 +121,209 @@ getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     }
 
     /* save header */
-    memcpy (&fwHeader_g, pData_p, sizeof(tFwHeader));
+    memcpy (&fwHeader_g, pHeader_p, sizeof(tFwHeader));
 
     return OK;
 }
 
 /**
 ********************************************************************************
+\brief  abort update
+*******************************************************************************/
+static void abortUpdate(void)
+{
+    /* call abort callback function */
+    updateInfo_g.m_pfnAbortCb();
+
+    /* close the flash device */
+    alt_flash_close_dev(updateInfo_g.m_flashFd);
+
+    /* reset state */
+    updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+}
+
+
+/**
+********************************************************************************
 \brief  program firmware data into flash
 *******************************************************************************/
-programFirmware()
+int programFirmware(void)
 {
+    int         iRet;
+    int         iResult;
+    int         size;
 
+    /* check if data is available */
+    if (updateInfo_g.m_uiDataSize == 0)
+    {
+        return eUpdateResultPending;
+    }
+
+    /* If we are on a sector boundary we have to erase the sector first */
+    if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
+    {
+        iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+                                         updateInfo_g.m_uiEraseOffset);
+
+        switch (iRet)
+        {
+        case -EAGAIN:
+            /* erase not finished, return pending */
+            return eUpdateResultPending;
+            break;
+
+        case 0:
+            /* sector was successfully erased, increas erase Offset */
+            updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
+            break;
+
+        case -EIO:
+        default:
+            /* error occured, return abort */
+            return eUpdateResultAbort;
+            break;
+        }
+    }
+
+    /* check if the segment contains data of the next image part */
+    if (updateInfo_g.m_uiRemainingSize > updateInfo_g.m_uiDataSize)
+    {
+        /* segment contains only data of the current image part */
+
+        /* check if the segment crosses the next sector boundary*/
+        if (updateInfo_g.m_uiProgOffset + updateInfo_g.m_uiDataSize <=
+            updateInfo_g.m_uiEraseOffset)
+        {
+            /* All data is located in the same sector and could be
+             * immediately programmed */
+            programFlashCrc(updateInfo_g.m_pData, updateInfo_g.m_uiDataSize,
+                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+            updateInfo_g.m_uiProgOffset += updateInfo_g.m_uiDataSize;
+            updateInfo_g.m_uiRemainingSize -= updateInfo_g.m_uiDataSize;
+            updateInfo_g.m_uiDataSize = 0; // all data of segment is programmed
+
+            /* check if next segment will start on a sector boundary so we
+             * can start the erase cycle immediately */
+            if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
+            {
+                iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+                                                 updateInfo_g.m_uiEraseOffset);
+                if (iRet == -EIO)
+                {
+                    iResult = eUpdateResultAbort;
+                }
+                else
+                {
+                    if (iRet == 0)
+                    {
+                        /* sector was successfully erased, increas erase Offset */
+                        updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
+                    }
+                    iResult = eUpdateResultSegFinish;
+                }
+            }
+        }
+        else
+        {
+            /* Data crosses a sector boundary. Only data in this sector
+             * can be programmed. Then an erase of the next sector is
+             * initiated */
+            size = updateInfo_g.m_uiEraseOffset - updateInfo_g.m_uiProgOffset;
+
+            programFlashCrc(updateInfo_g.m_pData, size,
+                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+            updateInfo_g.m_uiProgOffset += size;
+            updateInfo_g.m_uiRemainingSize -= size;
+            updateInfo_g.m_uiDataSize -= size;
+            updateInfo_g.m_pData += size;
+
+            iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+                                                 updateInfo_g.m_uiEraseOffset);
+            if (iRet == -EIO)
+            {
+                iResult = eUpdateResultAbort;
+            }
+            else
+            {
+                if (iRet == 0)
+                {
+                    /* sector was successfully erased, increas erase Offset */
+                    updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
+                }
+                iResult = eUpdateResultPending;
+            }
+        }
+    }
+    else
+    {
+        /* Segment crosses an firmware image part boundary
+         * Only program data of current image part. */
+
+        /* check if the segment crosses the next sector boundary*/
+        if (updateInfo_g.m_uiProgOffset + updateInfo_g.m_uiDataSize <=
+            updateInfo_g.m_uiEraseOffset)
+        {
+            /* All data of the image part is located in the same sector and
+             * could be immediately programmed, so this image part is finished. */
+            size = updateInfo_g.m_uiRemainingSize;
+
+            programFlashCrc(updateInfo_g.m_pData, size,
+                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+            updateInfo_g.m_uiProgOffset += size;
+            updateInfo_g.m_uiRemainingSize -= size;
+            updateInfo_g.m_uiDataSize -= size;
+            updateInfo_g.m_pData += size;
+
+            /* We don't erase the next sector even if we are on a sector
+             * boundary because we don't know if the next image part is
+             * also stored in flash or somewhere else! If it is located
+             * also in this flash it will be automatically be erased on
+             * the next call. */
+            if (updateInfo_g.m_uiDataSize == 0)
+            {
+                /* Segment finished and image part finished */
+                iResult = eUpdateResultPartFinish | eUpdateResultSegFinish;
+            }
+            else
+            {
+                /* Image part finished, but segment contains data of next
+                 * part. */
+                iResult = eUpdateResultPartFinish;
+            }
+        }
+        else
+        {
+            /* Data crosses a sector boundary. Only data in this sector
+             * can be programmed. Then an erase of the next sector is
+             * initiated */
+            size = updateInfo_g.m_uiEraseOffset - updateInfo_g.m_uiProgOffset;
+
+            programFlashCrc(updateInfo_g.m_pData, size,
+                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+            updateInfo_g.m_uiProgOffset += size;
+            updateInfo_g.m_uiRemainingSize -= size;
+            updateInfo_g.m_uiDataSize -= size;
+            updateInfo_g.m_pData += size;
+
+            iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+                                                 updateInfo_g.m_uiEraseOffset);
+            if (iRet == -EIO)
+            {
+                iResult = eUpdateResultAbort;
+            }
+            else
+            {
+                if (iRet == 0)
+                {
+                    /* sector was successfully erased, increas erase Offset */
+                    updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
+                }
+                iResult = eUpdateResultPending;
+            }
+        }
+    }
+
+    return iResult;
 }
 
 /**
@@ -232,8 +425,7 @@ void updateStateStart(void)
 
     if (FLAG_ISSET(iRet, eUpdateResultAbort))
     {
-        updateInfo_g.m_pfnAbortCb();
-        updateInfo_g.m_uiUpdateState = UPDATE_STATE_NONE;
+        abortUpdate();
     }
 
     if (FLAG_ISSET(iRet, eUpdateResultEraseFinish))
@@ -259,8 +451,7 @@ void updateStateFpga(void)
 
     if (FLAG_ISSET(iRet, eUpdateResultAbort))
     {
-        updateInfo_g.m_pfnAbortCb();
-        updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+        abortUpdate();
         return;
     }
 
@@ -289,8 +480,7 @@ void updateStateFpga(void)
         else
         {
             /* abort due to wrong CRC */
-            updateInfo_g.m_pfnAbortCb();
-            updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+            abortUpdate();
         }
     }
     else
@@ -315,8 +505,7 @@ void updateStatePcp(void)
 
     if (FLAG_ISSET(iRet, eUpdateResultAbort))
     {
-        updateInfo_g.m_pfnAbortCb();
-        updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+        abortUpdate();
         return;
     }
 
@@ -357,8 +546,7 @@ void updateStatePcp(void)
         else
         {
             /* abort due to wrong CRC */
-            updateInfo_g.m_pfnAbortCb();
-            updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+            abortUpdate();
         }
     }
     else
@@ -383,8 +571,7 @@ void updateStateAp(void)
 
     if (FLAG_ISSET(iRet, eUpdateResultAbort))
     {
-        updateInfo_g.m_pfnAbortCb();
-        updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+        abortUpdate();
         return;
     }
 
@@ -409,15 +596,13 @@ void updateStateAp(void)
             {
                 /* we are finished with the AP part but there is
                  * remaining data! Abort the update! */
-                updateInfo_g.m_pfnAbortCb();
-                updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+                abortUpdate();
             }
         }
         else
         {
             /* abort due to wrong CRC */
-            updateInfo_g.m_pfnAbortCb();
-            updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+            abortUpdate();
         }
     }
     else
@@ -460,6 +645,8 @@ void updateStateIib(void)
                               data_offset,
                               &iib, sizeof(iib));
 
+    /* close the flash device */
+    alt_flash_close_dev(updateInfo_g.m_flashFd);
     updateInfo_g.m_uiUpdateState = eUpdateStateNone;
 }
 
