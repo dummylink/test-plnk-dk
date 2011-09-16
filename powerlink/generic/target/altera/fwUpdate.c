@@ -18,10 +18,11 @@ This module contains firmware update functions.
 /* includes */
 #include "cnApiGlobal.h"
 #include "system.h"
-#include "firmware.h"
+#include "../../include/firmware.h"
 #include <sys/alt_flash.h>
 #include <alt_types.h>
 #include <errno.h>
+#include <string.h>
 
 /******************************************************************************/
 /* defines */
@@ -63,16 +64,20 @@ typedef struct {
     UINT32              m_uiProgOffset;
     UINT32              m_uiRemainingSize;
     UINT32              m_uiCrc;
-    void *              m_pfnAbortCb;
-    void *              m_pfnSegFinishCb;
+    void                (*m_pfnAbortCb)();
+    void                (*m_pfnSegFinishCb)();
     UINT32              m_uiUpdateState;
     alt_flash_fd *      m_flashFd;
 } tUpdateInfo;
 
 /******************************************************************************/
 /* external variables */
-extern tFwHeader fwHeader_g;
-extern tUpdateInfo updateInfo_g;
+tFwHeader fwHeader_g;
+tUpdateInfo updateInfo_g;
+
+/******************************************************************************/
+/* function declarations */
+UINT32 crc32(UINT32 uiCrc_p, const void *pBuf_p, unsigned int uiSize_p);
 
 /******************************************************************************/
 /* privat functions */
@@ -165,7 +170,7 @@ static void programFlashCrc(char * pData_p, UINT32 uiDataSize_p,
 static int programFirmware(void)
 {
     int         iRet;
-    int         iResult;
+    int         iResult = eUpdateResultPending;
     int         size;
 
     /* check if data is available */
@@ -178,7 +183,8 @@ static int programFirmware(void)
     if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
     {
         iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
-                                         updateInfo_g.m_uiEraseOffset);
+                                         updateInfo_g.m_uiEraseOffset,
+                                         updateInfo_g.m_uiSectorSize);
 
         switch (iRet)
         {
@@ -222,7 +228,8 @@ static int programFirmware(void)
             if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
             {
                 iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
-                                                 updateInfo_g.m_uiEraseOffset);
+                                                 updateInfo_g.m_uiEraseOffset,
+                                                 updateInfo_g.m_uiSectorSize);
                 if (iRet == -EIO)
                 {
                     iResult = eUpdateResultAbort;
@@ -253,7 +260,8 @@ static int programFirmware(void)
             updateInfo_g.m_pData += size;
 
             iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
-                                                 updateInfo_g.m_uiEraseOffset);
+                                                 updateInfo_g.m_uiEraseOffset,
+                                                 updateInfo_g.m_uiSectorSize);
             if (iRet == -EIO)
             {
                 iResult = eUpdateResultAbort;
@@ -321,7 +329,8 @@ static int programFirmware(void)
             updateInfo_g.m_pData += size;
 
             iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
-                                                 updateInfo_g.m_uiEraseOffset);
+                                                 updateInfo_g.m_uiEraseOffset,
+                                                 updateInfo_g.m_uiSectorSize);
             if (iRet == -EIO)
             {
                 iResult = eUpdateResultAbort;
@@ -350,7 +359,8 @@ static void updateStateStart(void)
 {
     int iRet;
 
-    iRet = alt_erase_flash_block(updateInfo_g.m_flashFd, USER_IIB_OFFSET);
+    iRet = alt_erase_flash_block(updateInfo_g.m_flashFd, USER_IIB_OFFSET,
+                                 updateInfo_g.m_uiSectorSize);
 
     if (iRet == -EIO)
     {
@@ -550,7 +560,6 @@ static void updateStateAp(void)
 *******************************************************************************/
 static void updateStateIib(void)
 {
-    int         iRet;
     tIib        iib;
 
     /* setup IIB */
@@ -595,6 +604,7 @@ int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
     updateInfo_g.m_uiDeviceId = deviceId_p;
     updateInfo_g.m_uiHwRev = hwRev_p;
     updateInfo_g.m_uiUserImageOffset = USER_IMAGE_OFFSET;
+    return OK;
 }
 
 /**
@@ -649,7 +659,7 @@ int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData
 
         updateInfo_g.m_pData = pData_p + sizeof(tFwHeader);
         updateInfo_g.m_uiDataSize = *pSegmentSize_p - sizeof(tFwHeader);
-        updateInfo_g.m_uiUpdateState = UPDATE_STATE_START;
+        updateInfo_g.m_uiUpdateState = eUpdateStateStart;
     }
     else
     {
