@@ -76,7 +76,7 @@ done
 INCLUDES="\
 . \
 ${EDRV_DIR}/openmac/include \
-${EDRV_DIR}/../target
+${EDRV_DIR}/../target/altera \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
@@ -98,7 +98,7 @@ CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
 # source files
 SRCFILES="main.c \
 lcd.c \
-${EDRV_DIR}/../target/FpgaCfg.c \
+${EDRV_DIR}/../target/altera/FpgaCfg.c \
 ${OBJDICTDIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
