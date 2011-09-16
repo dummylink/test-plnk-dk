@@ -17,6 +17,7 @@ This header file contains definitions for the firmware update functions.
 
 /******************************************************************************/
 /* includes */
+#include "cnApiGlobal.h"
 
 /******************************************************************************/
 /* defines */

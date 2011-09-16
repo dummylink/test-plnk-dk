@@ -175,7 +175,7 @@ int main (void)
             goto exit; // fatal error
             break;
         }
-    
+
         default:
         {
 #ifndef NO_FACTORY_IMG_IN_FLASH
@@ -184,8 +184,8 @@ int main (void)
 #endif
         break;
         }
-    }    
-    
+    }
+
     DEBUG_TRACE0(DEBUG_LVL_09, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
 
     /***** initializations *****/
@@ -2175,6 +2175,28 @@ Exit:
     return Ret;
 }
 
+/**
+********************************************************************************
+\brief abort callback function
+
+fwUpdateAbortCb() will be called if firmware update is aborted.
+*******************************************************************************/
+void fwUpdateAbortCb(void)
+{
+
+}
+
+/**
+********************************************************************************
+\brief segment finished callback function
+
+fwUpdateSegFinishCb() will be called if a segment is successfully programmed
+to flash memory.
+*******************************************************************************/
+void fwUpdateSegFinishCb(void)
+{
+
+}
 
 /**
  ********************************************************************************
@@ -2205,17 +2227,14 @@ BOOL fRet = TRUE;
             {
                 case 0x01:
                 {
-                    // TODO: use correct function for this object
-//                    fRet = FpgaCfg_writeFlashSafely(
-//                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
-//                           &pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
-//                           (void*) pDefObdAccHdl_p->m_pObdParam->m_pData);
 
-                    usleep(1000); //TODO: delete this test delay
-                    fRet = TRUE;    //TODO: delete this line
-
-                    if (fRet != TRUE)
-                    {   //write operation went wrong
+                    fRet = updateFirmware(
+                              &pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
+                              &pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
+                              (void*) pDefObdAccHdl_p->m_pObdParam->m_pData,
+                              fwUpdateAbortCb, fwUpdateSegFinishCb);
+                    if (fRet == ERROR)
+                    {   //update operation went wrong
                         Ret = kEplObdAccessViolation;
                         goto Exit;
                     }
@@ -2249,7 +2268,6 @@ Exit:
 
     return Ret;
 }
-
 
 /**
  ********************************************************************************

@@ -74,6 +74,9 @@ typedef struct {
 extern tFwHeader fwHeader_g;
 extern tUpdateInfo updateInfo_g;
 
+/******************************************************************************/
+/* privat functions */
+
 /**
 ********************************************************************************
 \brief	get firmware header
@@ -86,9 +89,9 @@ to the global variable fwHeader_g for further reference.
 \param  deviceId_p              The device Id to check for
 \param  hwRev_p                 The hardware revision to check for
 
-\return		ERROR if no valid firmware header is found, OK otherwise
+\return ERROR if no valid firmware header is found, OK otherwise
 *******************************************************************************/
-getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
+static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
 {
     /* check header CRC */
     if (crc32(0, pHeader_p, sizeof(tFwHeader) - sizeof(UINT32)) !=
@@ -159,7 +162,7 @@ static void programFlashCrc(char * pData_p, UINT32 uiDataSize_p,
 ********************************************************************************
 \brief  program firmware data into flash
 *******************************************************************************/
-int programFirmware(void)
+static int programFirmware(void)
 {
     int         iRet;
     int         iResult;
@@ -338,98 +341,12 @@ int programFirmware(void)
     return iResult;
 }
 
-/**
-********************************************************************************
-\brief	initilize firmware update function
-
-initFirmwareUpdate() initializes all things needed for a firmware update.
-
-\param	deviceId_p              device ID of this device
-\param  hwRev_p                 hardware revision of this device
-
-\return OK, always
-*******************************************************************************/
-int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
-{
-    updateInfo_g.m_uiDeviceId = deviceId_p;
-    updateInfo_g.m_uiHwRev = hwRev_p;
-    updateInfo_g.m_uiUserImageOffset = USER_IMAGE_OFFSET;
-}
-
-/**
-********************************************************************************
-\brief	update the firmware
-
-updateFirmware() updates the firmware of the device. It will be called by the
-SDO object handler for object 0x1F50.
-
-\param		parameter			parameter_description
-
-\return		return
-\retval		return_value			return_value_description
-*******************************************************************************/
-int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData_p,
-        void *pfnAbortCb_p, void * pfnSegFinishCb_p)
-{
-    int                 iRet;
-    flash_region*       aFlashRegions;  ///< flash regions array
-    unsigned short      wNumOfRegions;  ///< number of flash regions
-
-    /* The first segment of the SDO transfer starts with the firmware header */
-    if (*pSegmentOff_p == 0)
-    {
-        updateInfo_g.m_uiProgOffset = 0;
-
-        /* get firmware header and check if we receive a valid one */
-        if (getFwHeader(pData_p,
-                        updateInfo_g.m_uiDeviceId,
-                        updateInfo_g.m_uiHwRev) == ERROR)
-        {
-            return ERROR;
-        }
-
-        /* open flash device */
-        if ((updateInfo_g.m_flashFd =
-                alt_flash_open_dev(EPCS_FLASH_CONTROLLER_0_NAME)) == NULL)
-        {
-            return ERROR;
-        }
-        /* get some flash information */
-        if ((iRet = alt_get_flash_info(updateInfo_g.m_flashFd,
-                                       &aFlashRegions,
-                                       (int*) &wNumOfRegions)) != 0)
-        {
-            return ERROR;
-        }
-        updateInfo_g.m_uiSectorSize = aFlashRegions->block_size;
-
-        updateInfo_g.m_pData = pData_p + sizeof(tFwHeader);
-        updateInfo_g.m_uiDataSize = *pSegmentSize_p - sizeof(tFwHeader);
-        updateInfo_g.m_uiUpdateState = UPDATE_STATE_START;
-    }
-    else
-    {
-        /* check if last segment is not yet processed */
-        if (updateInfo_g.m_uiDataSize != 0)
-        {
-            return ERROR;
-        }
-        else
-        {
-            updateInfo_g.m_pData = pData_p;
-            updateInfo_g.m_uiDataSize = *pSegmentSize_p;
-        }
-    }
-
-    updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
-    updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;
-}
 
 /**
 ********************************************************************************
 \brief  start state
 *******************************************************************************/
-void updateStateStart(void)
+static void updateStateStart(void)
 {
     int iRet;
 
@@ -455,7 +372,7 @@ void updateStateStart(void)
 ********************************************************************************
 \brief  fpga update state
 *******************************************************************************/
-void updateStateFpga(void)
+static void updateStateFpga(void)
 {
     int         iRet;
 
@@ -509,7 +426,7 @@ void updateStateFpga(void)
 ********************************************************************************
 \brief  pcp software update state
 *******************************************************************************/
-void updateStatePcp(void)
+static void updateStatePcp(void)
 {
     int         iRet;
 
@@ -575,7 +492,7 @@ void updateStatePcp(void)
 ********************************************************************************
 \brief  AP software update state
 *******************************************************************************/
-void updateStateAp(void)
+static void updateStateAp(void)
 {
     int         iRet;
 
@@ -631,7 +548,7 @@ void updateStateAp(void)
 ********************************************************************************
 \brief  IIB setup state
 *******************************************************************************/
-void updateStateIib(void)
+static void updateStateIib(void)
 {
     int         iRet;
     tIib        iib;
@@ -659,11 +576,109 @@ void updateStateIib(void)
     updateInfo_g.m_uiUpdateState = eUpdateStateNone;
 }
 
+/******************************************************************************/
+/* public functions */
+
+/**
+********************************************************************************
+\brief	initilize firmware update function
+
+initFirmwareUpdate() initializes all things needed for a firmware update.
+
+\param	deviceId_p              device ID of this device
+\param  hwRev_p                 hardware revision of this device
+
+\return OK, always
+*******************************************************************************/
+int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
+{
+    updateInfo_g.m_uiDeviceId = deviceId_p;
+    updateInfo_g.m_uiHwRev = hwRev_p;
+    updateInfo_g.m_uiUserImageOffset = USER_IMAGE_OFFSET;
+}
+
+/**
+********************************************************************************
+\brief	update the firmware
+
+updateFirmware() updates the firmware of the device. It will be called by the
+SDO object handler for object 0x1F50. If
+
+\param		pSegmentOff_p			pointer to offset of the current segment
+\param      pSegmentSize_p          pointer to size of current segment
+\param      pData_p                 pointer to segment data
+\param      pfnAbortCb_p            pointer to abort callback function
+\param      pfnSegFinishCb_p        pointer to segment-finish callback function
+
+\return		return                  ERROR if something went wrong, OK otherwise
+*******************************************************************************/
+int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData_p,
+        void *pfnAbortCb_p, void * pfnSegFinishCb_p)
+{
+    int                 iRet;
+    flash_region*       aFlashRegions;  ///< flash regions array
+    unsigned short      wNumOfRegions;  ///< number of flash regions
+
+    /* The first segment of the SDO transfer starts with the firmware header */
+    if (*pSegmentOff_p == 0)
+    {
+        updateInfo_g.m_uiProgOffset = 0;
+
+        /* get firmware header and check if we receive a valid one */
+        if (getFwHeader(pData_p,
+                        updateInfo_g.m_uiDeviceId,
+                        updateInfo_g.m_uiHwRev) == ERROR)
+        {
+            return ERROR;
+        }
+
+        /* open flash device */
+        if ((updateInfo_g.m_flashFd =
+                alt_flash_open_dev(EPCS_FLASH_CONTROLLER_0_NAME)) == NULL)
+        {
+            return ERROR;
+        }
+        /* get some flash information */
+        if ((iRet = alt_get_flash_info(updateInfo_g.m_flashFd,
+                                       &aFlashRegions,
+                                       (int*) &wNumOfRegions)) != 0)
+        {
+            return ERROR;
+        }
+        updateInfo_g.m_uiSectorSize = aFlashRegions->block_size;
+
+        updateInfo_g.m_pData = pData_p + sizeof(tFwHeader);
+        updateInfo_g.m_uiDataSize = *pSegmentSize_p - sizeof(tFwHeader);
+        updateInfo_g.m_uiUpdateState = UPDATE_STATE_START;
+    }
+    else
+    {
+        /* check if last segment is not yet processed */
+        if (updateInfo_g.m_uiDataSize != 0)
+        {
+            return ERROR;
+        }
+        else
+        {
+            updateInfo_g.m_pData = pData_p;
+            updateInfo_g.m_uiDataSize = *pSegmentSize_p;
+        }
+    }
+
+    updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
+    updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;
+
+    return OK;
+}
+
 /**
 ********************************************************************************
 \brief  periodic worker function for firmware update
+
+updateFirmwarePeriodic() must be periodically be called to execute the firmware
+update state machine.
 *******************************************************************************/
-int updateFirmwarePeriodic(void)
+void updateFirmwarePeriodic(void)
 {
     switch (updateInfo_g.m_uiUpdateState)
     {
