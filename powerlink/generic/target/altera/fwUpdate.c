@@ -25,15 +25,9 @@ This module contains firmware update functions.
 
 /******************************************************************************/
 /* defines */
-#define UPDATE_STATE_NONE       0
-#define UPDATE_STATE_START      1
-#define UPDATE_STATE_FPGA       2
-#define UPDATE_STATE_PCP        3
-#define UPDATE_STATE_AP         4
-#define UPDATE_STATE_IIB        5
-
 
 #define USER_IMAGE_OFFSET       0x000D0000
+#define USER_IIB_OFFSET         0x001E0000
 
 /* check if a flag in a variable is set */
 #define FLAG_ISSET(VAR,FLAG)          ((VAR & FLAG) == FLAG)
@@ -142,6 +136,24 @@ static void abortUpdate(void)
     updateInfo_g.m_uiUpdateState = eUpdateStateNone;
 }
 
+/**
+********************************************************************************
+\brief  program flash and calculate CRC
+*******************************************************************************/
+static void programFlashCrc(char * pData_p, UINT32 uiDataSize_p,
+                            UINT32 uiProgOffset_p, UINT32 * pCrc_p)
+{
+    UINT32      crc;
+
+    /* calculate CRC of block */
+    crc = crc32(*pCrc_p, pData_p, uiDataSize_p);
+
+    /* write data to flash */
+    alt_write_flash(updateInfo_g.m_flashFd, uiProgOffset_p, pData_p,
+                    uiDataSize_p);
+
+    *pCrc_p = crc;
+}
 
 /**
 ********************************************************************************
@@ -162,7 +174,7 @@ int programFirmware(void)
     /* If we are on a sector boundary we have to erase the sector first */
     if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
     {
-        iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+        iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
                                          updateInfo_g.m_uiEraseOffset);
 
         switch (iRet)
@@ -197,7 +209,7 @@ int programFirmware(void)
             /* All data is located in the same sector and could be
              * immediately programmed */
             programFlashCrc(updateInfo_g.m_pData, updateInfo_g.m_uiDataSize,
-                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+                            updateInfo_g.m_uiProgOffset, &updateInfo_g.m_uiCrc);
             updateInfo_g.m_uiProgOffset += updateInfo_g.m_uiDataSize;
             updateInfo_g.m_uiRemainingSize -= updateInfo_g.m_uiDataSize;
             updateInfo_g.m_uiDataSize = 0; // all data of segment is programmed
@@ -206,7 +218,7 @@ int programFirmware(void)
              * can start the erase cycle immediately */
             if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
             {
-                iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+                iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
                                                  updateInfo_g.m_uiEraseOffset);
                 if (iRet == -EIO)
                 {
@@ -231,13 +243,13 @@ int programFirmware(void)
             size = updateInfo_g.m_uiEraseOffset - updateInfo_g.m_uiProgOffset;
 
             programFlashCrc(updateInfo_g.m_pData, size,
-                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+                            updateInfo_g.m_uiProgOffset, &updateInfo_g.m_uiCrc);
             updateInfo_g.m_uiProgOffset += size;
             updateInfo_g.m_uiRemainingSize -= size;
             updateInfo_g.m_uiDataSize -= size;
             updateInfo_g.m_pData += size;
 
-            iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+            iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
                                                  updateInfo_g.m_uiEraseOffset);
             if (iRet == -EIO)
             {
@@ -268,7 +280,7 @@ int programFirmware(void)
             size = updateInfo_g.m_uiRemainingSize;
 
             programFlashCrc(updateInfo_g.m_pData, size,
-                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+                            updateInfo_g.m_uiProgOffset,&updateInfo_g.m_uiCrc);
             updateInfo_g.m_uiProgOffset += size;
             updateInfo_g.m_uiRemainingSize -= size;
             updateInfo_g.m_uiDataSize -= size;
@@ -299,13 +311,13 @@ int programFirmware(void)
             size = updateInfo_g.m_uiEraseOffset - updateInfo_g.m_uiProgOffset;
 
             programFlashCrc(updateInfo_g.m_pData, size,
-                            updateInfo_g.m_uiProgOffset, updateInfo_g.m_uiCrc);
+                            updateInfo_g.m_uiProgOffset, &updateInfo_g.m_uiCrc);
             updateInfo_g.m_uiProgOffset += size;
             updateInfo_g.m_uiRemainingSize -= size;
             updateInfo_g.m_uiDataSize -= size;
             updateInfo_g.m_pData += size;
 
-            iRet = br_epcs_flash_erase_block(updateInfo_g.m_flashFd,
+            iRet = alt_erase_flash_block(updateInfo_g.m_flashFd,
                                                  updateInfo_g.m_uiEraseOffset);
             if (iRet == -EIO)
             {
@@ -421,21 +433,21 @@ void updateStateStart(void)
 {
     int iRet;
 
-    iRet = eraseIib();
+    iRet = alt_erase_flash_block(updateInfo_g.m_flashFd, USER_IIB_OFFSET);
 
-    if (FLAG_ISSET(iRet, eUpdateResultAbort))
+    if (iRet == -EIO)
     {
         abortUpdate();
     }
 
-    if (FLAG_ISSET(iRet, eUpdateResultEraseFinish))
+    if (iRet == 0)
     {
         updateInfo_g.m_uiProgOffset = updateInfo_g.m_uiUserImageOffset;
         /* FPGA configuration must always start on a sector boundary */
         updateInfo_g.m_uiEraseOffset = updateInfo_g.m_uiProgOffset;
         updateInfo_g.m_uiRemainingSize = fwHeader_g.m_fpgaConfigSize;
         updateInfo_g.m_uiCrc = 0;
-        updateInfo_g.m_uiUpdateState = UPDATE_STATE_FPGA;
+        updateInfo_g.m_uiUpdateState = eUpdateStateFpga;
     }
 }
 
@@ -640,16 +652,12 @@ void updateStateIib(void)
     crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
 
     /* program IIB into flash */
-    br_epcs_flash_write_block(updateInfo_g.m_flashFd,
-                              block_offset,
-                              data_offset,
-                              &iib, sizeof(iib));
+    alt_write_flash(updateInfo_g.m_flashFd, USER_IIB_OFFSET, &iib, sizeof(iib));
 
     /* close the flash device */
     alt_flash_close_dev(updateInfo_g.m_flashFd);
     updateInfo_g.m_uiUpdateState = eUpdateStateNone;
 }
-
 
 /**
 ********************************************************************************
