@@ -65,6 +65,7 @@ extern DWORD       dwSumMappingSize_g;    ///< counter of overall mapped bytes
 
 // Api PDI communication instance
 extern tApiPdiComCon ApiPdiComInstance_g;
+
 /******************************************************************************/
 /* function declarations */
 extern BYTE getCommandFromAp(void);

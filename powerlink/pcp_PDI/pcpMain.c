@@ -18,6 +18,7 @@
 #include "Debug.h"
 #include "EplPdou.h"
 #include "EplSdoComu.h"
+#include "user/EplSdoAsySequ.h"
 
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
@@ -61,7 +62,6 @@ static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< s
 
 /* counter of currently empty OBD segmented write history elements for default OBD access */
 BYTE bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE;
-BYTE bObdSegWriteAccHistoryFinishedCnt_g = 0;
 /* counter of subsequent accesses to an object */
 WORD wObdSegWriteAccHistorySeqCnt_g = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
 
@@ -668,26 +668,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 // change handle status
                 pFoundHdl->m_Status = kEplObdDefAccHdlWaitProcessingQueue;
 
-//                TimerArg.m_EventSink = kEplEventSinkApi;
-//                TimerArg.m_Arg.m_pVal = (void*) pObdParam;
-
-                // try again later
-//                EplRet = EplTimeruSetTimerMs(&EplTimerHdl,
-//                                            1000000,
-//                                            TimerArg);
-//                if(Ret != kEplSuccessful)
-//                {
-//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
-//                    EPL_FREE(pAllocObdParam);
-//                    goto Exit;
-//                }
-
-//                EplRet = EplApiPostUserEvent((void*) pObdParam);
-//                if (EplRet != kEplSuccessful)
-//                {
-//                    goto Exit;
-//                }
-
                 EplRet = kEplSuccessful;
                 goto Exit;
             }
@@ -766,6 +746,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                  wFinishedHistoryCnt)                                               )// should all be finished
             {   // call m_pfnAccessFinished - this will set the handle status to "empty"
 
+                // do ordinary SDO sequence processing / reset flow control manipulation
+                EplSdoAsySeqAppFlowControl(0, FALSE);
+
                 // acknowledge all finished segments of this index
                 EplRet = kEplSuccessful;
                 while (EplRet == kEplSuccessful)
@@ -803,6 +786,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             }
             else
             {   // go on processing the history without calling m_pfnAccessFinished
+
+                // prevent SDO from ack the last received frame
+                EplSdoAsySeqAppFlowControl(wFinishedHistoryCnt, TRUE);
 
                 EplRet = EplAppDefObdAccGetStatusDependantHdl(
                         0,
@@ -872,13 +858,6 @@ BYTE bArrayNum;                 ///< loop counter and array element
                 break;
             }
         }
-
-        // free all buffers used for segmented transfer // TODO: free data already done in finished function...
-//        if (pObdDefAccHdl->m_pObdParam->m_pData != NULL)
-//        {
-//            EPL_FREE(pObdDefAccHdl->m_pObdParam->m_pData);
-//            pObdDefAccHdl->m_pObdParam->m_pData = NULL;
-//        }
 
         if (pObdDefAccHdl->m_pObdParam != NULL)
         {
