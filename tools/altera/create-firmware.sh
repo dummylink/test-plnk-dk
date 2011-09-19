@@ -192,7 +192,7 @@ else
     $MKFW -f ${TMPDIR}/${FPGACFG_BASE}.bin --fpgavers $FPGACFG_VERS \
           -p ${TMPDIR}/${PCPSW_BASE}.bin --pcpvers $PCPSW_VERS \
           -a ${TMPDIR}/${APSW_BIN} --apvers $APSW_VERS \
-          -o ${FIRMWARE} ${APPSWOPT}--device $DEVICE --hwrev $HW_REVISION
+          -o ${FIRMWARE} ${APPSWOPT} --device $DEVICE --hwrev $HW_REVISION
 fi
 
 exit
