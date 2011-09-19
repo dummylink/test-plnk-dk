@@ -43,10 +43,10 @@
 
 #include <errno.h>
 #include "alt_types.h"
-#include "epcs_commands_ext.h"
+#include "epcs_commands.h"
 #include "altera_avalon_spi.h"
 
-alt_u8 epcs_read_status_register_ext(alt_u32 base)
+alt_u8 epcs_read_status_register(alt_u32 base)
 {
   const alt_u8 rdsr = epcs_rdsr;
   alt_u8 status;
@@ -65,7 +65,7 @@ alt_u8 epcs_read_status_register_ext(alt_u32 base)
 
 static ALT_INLINE int epcs_test_wip(alt_u32 base)
 {
-  return epcs_read_status_register_ext(base) & 1;
+  return epcs_read_status_register(base) & 1;
 }
 
 static ALT_INLINE int epcs_await_wip_released(alt_u32 base)
@@ -81,14 +81,14 @@ static ALT_INLINE int epcs_await_wip_released(alt_u32 base)
 #endif
 }
 
-int epcs_sector_erase_ext(alt_u32 base, alt_u32 offset)
+int epcs_sector_erase(alt_u32 base, alt_u32 offset)
 {
   alt_u8 se[4];
   static int eraseInProgress = 0;
   static alt_u32 savedBase;
   static alt_u32 savedOffset;
 
-  
+
   if (!eraseInProgress)
   {
       se[0] = epcs_se;
@@ -131,10 +131,10 @@ int epcs_sector_erase_ext(alt_u32 base, alt_u32 offset)
   }
 }
 
-alt_32 epcs_read_buffer_ext(alt_u32 base, int offset, alt_u8 *dest_addr, int length)
+alt_32 epcs_read_buffer(alt_u32 base, int offset, alt_u8 *dest_addr, int length)
 {
   alt_u8 read_command[4];
-  
+
   read_command[0] = epcs_read;
   read_command[1] = (offset >> 16) & 0xFF;
   read_command[2] = (offset >> 8) & 0xFF;
@@ -163,7 +163,7 @@ alt_32 epcs_read_buffer_ext(alt_u32 base, int offset, alt_u8 *dest_addr, int len
   return length;
 }
 
-void epcs_write_enable_ext(alt_u32 base)
+void epcs_write_enable(alt_u32 base)
 {
   const alt_u8 wren = epcs_wren;
   alt_avalon_spi_command(
@@ -177,10 +177,10 @@ void epcs_write_enable_ext(alt_u32 base)
   );
 }
 
-void epcs_write_status_register_ext(alt_u32 base, alt_u8 value)
+void epcs_write_status_register(alt_u32 base, alt_u8 value)
 {
   alt_u8 wrsr[2];
-  
+
   wrsr[0] = epcs_wrsr;
   wrsr[1] = value;
 
@@ -198,17 +198,17 @@ void epcs_write_status_register_ext(alt_u32 base, alt_u8 value)
 }
 
 /* Write a partial or full page, assuming that page has been erased */
-alt_32 epcs_write_buffer_ext(alt_u32 base, int offset, const alt_u8* src_addr, int length)
+alt_32 epcs_write_buffer(alt_u32 base, int offset, const alt_u8* src_addr, int length)
 {
   alt_u8 pp[4];
-  
+
   pp[0] = epcs_pp;
   pp[1] = (offset >> 16) & 0xFF;
   pp[2] = (offset >> 8) & 0xFF;
   pp[3] = offset & 0xFF;
 
   /* First, WREN */
-  epcs_write_enable_ext(base);
+  epcs_write_enable(base);
 
   /* Send the PP command */
   alt_avalon_spi_command(
@@ -244,7 +244,7 @@ alt_32 epcs_write_buffer_ext(alt_u32 base, int offset, const alt_u8* src_addr, i
 }
 
 
-alt_u8 epcs_read_electronic_signature_ext(alt_u32 base)
+alt_u8 epcs_read_electronic_signature(alt_u32 base)
 {
   const alt_u8 res_cmd[] = {epcs_res, 0, 0, 0};
   alt_u8 res;
@@ -262,7 +262,7 @@ alt_u8 epcs_read_electronic_signature_ext(alt_u32 base)
   return res;
 }
 
-alt_u8 epcs_read_device_id_ext(alt_u32 base)
+alt_u8 epcs_read_device_id(alt_u32 base)
 {
   const alt_u8 rd_id_cmd[] = {epcs_rdid, 0, 0};
   alt_u8 res;

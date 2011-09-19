@@ -48,12 +48,12 @@ set_sw_property supported_interrupt_apis "legacy_interrupt_api enhanced_interrup
 
 # C/C++ source files
 add_sw_property c_source HAL/src/altera_avalon_epcs_flash_controller.c
-add_sw_property c_source HAL/src/epcs_commands_ext.c
+add_sw_property c_source HAL/src/epcs_commands.c
 add_sw_property c_source HAL/src/altera_avalon_spi.c
 
 # Include files
 add_sw_property include_source HAL/inc/altera_avalon_epcs_flash_controller.h
-add_sw_property include_source HAL/inc/epcs_commands_ext.h
+add_sw_property include_source HAL/inc/epcs_commands.h
 add_sw_property include_source HAL/inc/altera_avalon_spi.h
 add_sw_property include_source inc/altera_avalon_spi_regs.h
 

@@ -14,7 +14,7 @@ echo input parameters: $INPUT_VARS
 
 BSP_TYPE=hal
 BSP_DIR=.
-NIOS2_BSP_ARGS="--set hal.sys_clk_timer system_timer --cpu-name pcp_cpu --settings settings.bsp --cmd set_driver altera_avalon_epcs_flash_controller_driver epcs_flash_controller_0"
+NIOS2_BSP_ARGS="--set hal.sys_clk_timer system_timer --cpu-name pcp_cpu --settings settings.bsp"
 # --set hal.make.bsp_cflags_debug none
 
 #NIOS2_BSP_ARGS="--set hal.max_file_descriptors 4 --set hal.enable_small_c_library true --set hal.sys_clk_timer none --set hal.timestamp_timer none --set hal.enable_exit false --set hal.enable_c_plus_plus false --set hal.enable_lightweight_device_driver_api true --set hal.enable_clean_exit false --set hal.enable_sim_optimize false --set hal.enable_reduced_device_drivers true  --set hal.make.bsp_cflags_optimization '-Os'"
@@ -56,9 +56,6 @@ echo "No SOPC directory specified !"
 echo "Use parameter: --sopcdir <SOPC_directory>"
 exit 1
 fi
-
-export SOPC_BUILDER_PATH_101="C:/Data/Source/work/openPOWERLINK_CNDK_mh_work/../../../fpga/altera/driver"
-echo +++++++++++++++ $SOPC_BUILDER_PATH_101 +++++++++++++++++++++++
 
 if [ -z "$NO_OPT" ]; then
     NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2"

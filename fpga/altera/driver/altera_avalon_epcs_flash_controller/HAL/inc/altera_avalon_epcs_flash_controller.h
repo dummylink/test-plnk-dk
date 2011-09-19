@@ -49,7 +49,7 @@
 *                                                                             *
 ******************************************************************************/
 
-typedef struct br_flash_epcs_dev br_flash_epcs_dev;
+typedef struct alt_flash_epcs_dev alt_flash_epcs_dev;
 
 /*
  *  Description of the flash
@@ -65,7 +65,7 @@ typedef struct br_flash_epcs_dev br_flash_epcs_dev;
  *  size_in_bytes: the number of bytes of
  *  storage in this chip.
  */
-struct br_flash_epcs_dev
+struct alt_flash_epcs_dev
 {
   alt_flash_dev dev;
 
@@ -90,25 +90,25 @@ struct br_flash_epcs_dev
 #if (!defined(ALT_USE_SMALL_DRIVERS) && !defined(ALT_SIM_OPTIMIZE)) || defined ALT_USE_EPCS_FLASH
 
 #define ALTERA_AVALON_EPCS_FLASH_CONTROLLER_INSTANCE(name, dev) \
-static br_flash_epcs_dev dev =    \
+static alt_flash_epcs_dev dev =    \
 {                                 \
   {                               \
     ALT_LLIST_ENTRY,              \
     name##_NAME,                  \
     NULL,                         \
     NULL,                         \
-    br_epcs_flash_write,         \
-    br_epcs_flash_read,          \
-    br_epcs_flash_get_info,      \
-    br_epcs_flash_erase_block,   \
-    br_epcs_flash_write_block,   \
+    alt_epcs_flash_write,         \
+    alt_epcs_flash_read,          \
+    alt_epcs_flash_get_info,      \
+    alt_epcs_flash_erase_block,   \
+    alt_epcs_flash_write_block,   \
     ((void*)(name##_BASE))        \
   },                              \
   (name##_REGISTER_OFFSET + name##_BASE)          \
 }
 
 #define ALTERA_AVALON_EPCS_FLASH_CONTROLLER_INIT(name, dev) \
-br_epcs_flash_init(&dev)
+alt_epcs_flash_init(&dev)
 
 #else /* exclude driver */
 #define ALTERA_AVALON_EPCS_FLASH_CONTROLLER_INSTANCE(name, dev)  extern int alt_no_storage
@@ -120,7 +120,7 @@ br_epcs_flash_init(&dev)
  *  The initialisation function which reads the EPCS table and fills out
  *  the appropriate sections of the the alt_flash_epcs_dev structure
  */
-int br_epcs_flash_init(br_flash_epcs_dev* flash);
+int alt_epcs_flash_init(alt_flash_epcs_dev* flash);
 
 /*
  *  Functions exported through the common Flash interface
@@ -136,17 +136,17 @@ int br_epcs_flash_init(br_flash_epcs_dev* flash);
  * want that functionality.
  */
 
-int br_epcs_flash_write(alt_flash_dev* flash_info, int offset,
+int alt_epcs_flash_write(alt_flash_dev* flash_info, int offset,
                           const void* src_addr, int length);
 
-int br_epcs_flash_read(alt_flash_dev* flash_info, int offset,
+int alt_epcs_flash_read(alt_flash_dev* flash_info, int offset,
                         void* dest_addr, int length);
-int br_epcs_flash_get_info(alt_flash_fd* fd, flash_region** info,
+int alt_epcs_flash_get_info(alt_flash_fd* fd, flash_region** info,
                             int*  );
 
-int br_epcs_flash_erase_block(alt_flash_dev* flash_info, int block_offset);
+int alt_epcs_flash_erase_block(alt_flash_dev* flash_info, int block_offset);
 
-int br_epcs_flash_write_block(alt_flash_dev* flash, int block_offset,
+int alt_epcs_flash_write_block(alt_flash_dev* flash, int block_offset,
                                       int data_offset, const void* data,
                                       int length);
 

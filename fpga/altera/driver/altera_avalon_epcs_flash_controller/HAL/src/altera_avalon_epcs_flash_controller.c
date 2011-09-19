@@ -1,14 +1,14 @@
 /******************************************************************************
-* br_avalon_epcs_flash_controller.c
+* altera_avalon_epcs_flash_controller.c
 *
 * (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 *
 * This is a modified altera EPCS flash driver. It is changed to immediately
 * return when a flash erase cycle is started. This is needed if application
 * doesn't allow to block for the long time the erase cycle needs. As long
-* as the erase cycle is not completed br_epcs_flash_erase_block() returns
+* as the erase cycle is not completed alt_epcs_flash_erase_block() returns
 * -EAGAIN. If another sector erase is started while the previous one is in
-* progress br_epcs_flash_erase_block() returns -EIO.
+* progress alt_epcs_flash_erase_block() returns -EIO.
 ******************************************************************************/
 
 /******************************************************************************
@@ -55,20 +55,20 @@
 #include "sys/alt_cache.h"
 #include "altera_avalon_epcs_flash_controller.h"
 #include "altera_avalon_spi.h"
-#include "epcs_commands_ext.h"
+#include "epcs_commands.h"
 
-static int br_epcs_flash_query(br_flash_epcs_dev* flash);
+static int alt_epcs_flash_query(alt_flash_epcs_dev* flash);
 
 /*
  * alt_epcs_flash_init
  *
  */
-int br_epcs_flash_init(br_flash_epcs_dev* flash)
+int alt_epcs_flash_init(alt_flash_epcs_dev* flash)
 {
   int ret_code = 0;
 
   /* Set up function pointers and/or data structures as needed. */
-  ret_code = br_epcs_flash_query(flash);
+  ret_code = alt_epcs_flash_query(flash);
 
   /* The following function pointers:
    *
@@ -90,7 +90,7 @@ int br_epcs_flash_init(br_flash_epcs_dev* flash)
 }
 
 
-static int br_epcs_flash_query(br_flash_epcs_dev* flash)
+static int alt_epcs_flash_query(alt_flash_epcs_dev* flash)
 {
   int ret_code = 0;
 
@@ -106,7 +106,7 @@ static int br_epcs_flash_query(br_flash_epcs_dev* flash)
 
   /* Send the RES command sequence */
   flash->silicon_id =
-    epcs_read_electronic_signature_ext(flash->register_base);
+    epcs_read_electronic_signature(flash->register_base);
 
   /* Fill in all device-specific parameters. */
   if (flash->silicon_id == 0x16) /* EPCS64 */
@@ -145,7 +145,7 @@ static int br_epcs_flash_query(br_flash_epcs_dev* flash)
      * Read electronic signature doesn't work for the EPCS128; try
      * the "Read Device ID" command" before giving up.
      */
-    flash->silicon_id = epcs_read_device_id_ext(flash->register_base);
+    flash->silicon_id = epcs_read_device_id(flash->register_base);
 
     if(flash->silicon_id == 0x18) /* EPCS128 */
     {
@@ -168,7 +168,7 @@ static int br_epcs_flash_query(br_flash_epcs_dev* flash)
   return ret_code;
 }
 
-static int br_epcs_flash_memcmp(
+static int alt_epcs_flash_memcmp(
   alt_flash_dev* flash_info,
   const void* src_buffer,
   int offset,
@@ -189,7 +189,7 @@ static int br_epcs_flash_memcmp(
     int this_chunk_cmp;
 
     if (
-      br_epcs_flash_read(
+      alt_epcs_flash_read(
         flash_info,
         offset + current_offset,
         chunk_buffer,
@@ -234,7 +234,7 @@ static int br_epcs_flash_memcmp(
  * large buffer to tie up in our programming library, when not all users will
  * want that functionality.
  */
-int br_epcs_flash_write(alt_flash_dev* flash_info, int offset,
+int alt_epcs_flash_write(alt_flash_dev* flash_info, int offset,
                           const void* src_addr, int length)
 {
   int         ret_code = 0;
@@ -268,7 +268,7 @@ int br_epcs_flash_write(alt_flash_dev* flash_info, int offset,
                             - offset);
           data_to_write = MIN(data_to_write, length);
 
-          if(br_epcs_flash_memcmp(flash_info, src_addr, offset, data_to_write))
+          if(alt_epcs_flash_memcmp(flash_info, src_addr, offset, data_to_write))
           {
             while ((ret_code = (*flash_info->erase_block)(flash_info, current_offset)) == -EAGAIN);
 
@@ -307,7 +307,7 @@ finished:
  *
  *  Pass the table of erase blocks to the user
  */
-int br_epcs_flash_get_info(alt_flash_fd* fd, flash_region** info,
+int alt_epcs_flash_get_info(alt_flash_fd* fd, flash_region** info,
                             int* number_of_regions)
 {
   int ret_code = 0;
@@ -334,13 +334,13 @@ int br_epcs_flash_get_info(alt_flash_fd* fd, flash_region** info,
 
 
 /* This might be a candidate for optimization.  Precompute the last-address? */
-static ALT_INLINE int br_epcs_test_address(alt_flash_dev* flash_info, int offset)
+static ALT_INLINE int alt_epcs_test_address(alt_flash_dev* flash_info, int offset)
 {
   int ret_code = 0;
   /* Error checking:
    * if the block offset is outside of the memory, return -EIO.
    */
-  br_flash_epcs_dev *f = (br_flash_epcs_dev*)flash_info;
+  alt_flash_epcs_dev *f = (alt_flash_epcs_dev*)flash_info;
 
   const alt_u32 last_region_index = f->dev.number_of_regions - 1;
   alt_u32 last_device_address =
@@ -362,22 +362,22 @@ static ALT_INLINE int br_epcs_test_address(alt_flash_dev* flash_info, int offset
  * Erase the selected erase block ("sector erase", from the POV
  * of the EPCS data sheet).
  */
-int br_epcs_flash_erase_block(alt_flash_dev* flash_info, int block_offset)
+int alt_epcs_flash_erase_block(alt_flash_dev* flash_info, int block_offset)
 {
   int ret_code = 0;
-  br_flash_epcs_dev *f = (br_flash_epcs_dev*)flash_info;
+  alt_flash_epcs_dev *f = (alt_flash_epcs_dev*)flash_info;
 
-  ret_code = br_epcs_test_address(flash_info, block_offset);
+  ret_code = alt_epcs_test_address(flash_info, block_offset);
 
   if (ret_code >= 0)
   {
     /* Execute a WREN instruction */
-    epcs_write_enable_ext(f->register_base);
+    epcs_write_enable(f->register_base);
 
     /* Send the Sector Erase command, whose 3 address bytes are anywhere
      * within the chosen sector.
      */
-    ret_code = epcs_sector_erase_ext(f->register_base, block_offset);
+    ret_code = epcs_sector_erase(f->register_base, block_offset);
   }
   return ret_code;
 }
@@ -390,16 +390,16 @@ int br_epcs_flash_erase_block(alt_flash_dev* flash_info, int block_offset)
  * This device has no need for "block_offset", but it's included for
  * function type compatibility.
  */
-int br_epcs_flash_write_block(alt_flash_dev* flash_info, int block_offset,
+int alt_epcs_flash_write_block(alt_flash_dev* flash_info, int block_offset,
                                       int data_offset, const void* data,
                                       int length)
 {
   int ret_code;
-  br_flash_epcs_dev *f = (br_flash_epcs_dev*)flash_info;
+  alt_flash_epcs_dev *f = (alt_flash_epcs_dev*)flash_info;
 
   int buffer_offset = 0;
   int length_of_current_write;
-  ret_code = br_epcs_test_address(flash_info, data_offset);
+  ret_code = alt_epcs_test_address(flash_info, data_offset);
 
   if (ret_code >= 0)
   {
@@ -412,7 +412,7 @@ int br_epcs_flash_write_block(alt_flash_dev* flash_info, int block_offset,
       int next_page_start = (data_offset + f->page_size) & ~(f->page_size - 1);
       length_of_current_write = MIN(length, next_page_start - data_offset);
 
-      epcs_write_buffer_ext(f->register_base, data_offset, &((const alt_u8*)data)[buffer_offset], length_of_current_write);
+      epcs_write_buffer(f->register_base, data_offset, &((const alt_u8*)data)[buffer_offset], length_of_current_write);
 
       length -= length_of_current_write;
       buffer_offset += length_of_current_write;
@@ -427,18 +427,18 @@ int br_epcs_flash_write_block(alt_flash_dev* flash_info, int block_offset,
  *  to the beginning.  Reads that start beyond the end of the memory are
  *  flagged as errors with EIO (is there a better error code?).
  */
-int br_epcs_flash_read(alt_flash_dev* flash_info, int offset,
+int alt_epcs_flash_read(alt_flash_dev* flash_info, int offset,
                         void* dest_addr, int length)
 {
   int ret_code = 0;
 
-  br_flash_epcs_dev *f = (br_flash_epcs_dev*)flash_info;
+  alt_flash_epcs_dev *f = (alt_flash_epcs_dev*)flash_info;
 
-  ret_code = br_epcs_test_address(flash_info, offset);
+  ret_code = alt_epcs_test_address(flash_info, offset);
 
   if (ret_code >= 0)
   {
-    ret_code = epcs_read_buffer_ext(f->register_base, offset, dest_addr, length);
+    ret_code = epcs_read_buffer(f->register_base, offset, dest_addr, length);
 
     /* epcs_read_buffer returns the number of buffers read, but
      * alt_epcs_flash_read returns 0 on success, <0 on failure.
