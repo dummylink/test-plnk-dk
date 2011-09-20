@@ -167,15 +167,16 @@ fi
 
 NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
---set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
+--set CFLAGS=${CFLAGS} --set APP_INCLUDE_DIRS=${INCLUDES} --src-files $SRCFILES"
 
 if [ -z "$SOPC_DIR" ]; then
-echo "No SOPC directory specified !"
-echo "Use parameter: --sopcdir <SOPC_directory>"
-exit 1
+    echo "No SOPC directory specified !"
+    echo "Use parameter: --sopcdir <SOPC_directory>"
+    exit 1
 fi
 
 if [ -z "$NO_OPT" ]; then
+    echo $NIOS2_APP_GEN_ARGS
     NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O2"
 else
 # in case of --debug option ("-g" means to insert debug information)
