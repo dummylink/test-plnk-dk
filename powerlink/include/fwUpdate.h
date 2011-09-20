@@ -18,6 +18,7 @@ This header file contains definitions for the firmware update functions.
 /******************************************************************************/
 /* includes */
 #include "cnApiGlobal.h"
+#include "firmware.h"
 
 /******************************************************************************/
 /* function declarations */
@@ -26,10 +27,11 @@ extern "C" {
 #endif
 
 int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p);
-int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData_p,
-        void *pfnAbortCb_p, void * pfnSegFinishCb_p);
+int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p,
+        void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p);
 void updateFirmwarePeriodic(void);
-
+int checkIib(tIib *pIib_p, UINT8 uiVersion_p);
+int checkImage(UINT32 uiOffset_p, UINT32 uiSize_p, UINT32 uiCrc_p);
 
 #ifdef __cplusplus
 }

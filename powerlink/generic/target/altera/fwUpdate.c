@@ -66,6 +66,7 @@ typedef struct {
     UINT32              m_uiCrc;
     void                (*m_pfnAbortCb)();
     void                (*m_pfnSegFinishCb)();
+    void *              m_pHandle;
     UINT32              m_uiUpdateState;
     alt_flash_fd *      m_flashFd;
 } tUpdateInfo;
@@ -413,7 +414,7 @@ static void updateStateFpga(void)
             /* notify SDO stack if segment is finished */
             if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
             {
-                updateInfo_g.m_pfnSegFinishCb();
+                updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
             }
         }
         else
@@ -427,7 +428,7 @@ static void updateStateFpga(void)
         /* notify SDO stack that segment is finished */
         if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
         {
-            updateInfo_g.m_pfnSegFinishCb();
+            updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
         }
     }
 }
@@ -459,7 +460,7 @@ static void updateStatePcp(void)
             /* notify SDO stack if segment is finished */
             if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
             {
-                updateInfo_g.m_pfnSegFinishCb();
+                updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
             }
 
             /* check if AP software is contained in update */
@@ -493,7 +494,7 @@ static void updateStatePcp(void)
         /* notify SDO stack that segment is finished */
         if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
         {
-            updateInfo_g.m_pfnSegFinishCb();
+            updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
         }
     }
 }
@@ -529,7 +530,7 @@ static void updateStateAp(void)
              */
             if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
             {
-                updateInfo_g.m_pfnSegFinishCb();
+                updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
             }
             else
             {
@@ -549,7 +550,7 @@ static void updateStateAp(void)
         /* notify SDO stack that segment is finished */
         if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
         {
-            updateInfo_g.m_pfnSegFinishCb();
+            updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
         }
     }
 }
@@ -614,28 +615,29 @@ int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
 updateFirmware() updates the firmware of the device. It will be called by the
 SDO object handler for object 0x1F50. If
 
-\param		pSegmentOff_p			pointer to offset of the current segment
-\param      pSegmentSize_p          pointer to size of current segment
-\param      pData_p                 pointer to segment data
-\param      pfnAbortCb_p            pointer to abort callback function
-\param      pfnSegFinishCb_p        pointer to segment-finish callback function
+\param uiSegmentOff_p	       offset of the current segment
+\param uiSegmentSize_p         size of current segment
+\param pData_p                 pointer to segment data
+\param pfnAbortCb_p            pointer to abort callback function
+\param pfnSegFinishCb_p        pointer to segment-finish callback function
+\param pHandle_p               pointer to handle for callback functions
 
 \return		return                  ERROR if something went wrong, OK otherwise
 *******************************************************************************/
-int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData_p,
-        void *pfnAbortCb_p, void * pfnSegFinishCb_p)
+int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p,
+        void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p)
 {
     int                 iRet;
     flash_region*       aFlashRegions;  ///< flash regions array
     unsigned short      wNumOfRegions;  ///< number of flash regions
 
     /* The first segment of the SDO transfer starts with the firmware header */
-    if (*pSegmentOff_p == 0)
+    if (uiSegmentOff_p == 0)
     {
         updateInfo_g.m_uiProgOffset = 0;
 
         /* get firmware header and check if we receive a valid one */
-        if (getFwHeader(pData_p,
+        if (getFwHeader((tFwHeader *)pData_p,
                         updateInfo_g.m_uiDeviceId,
                         updateInfo_g.m_uiHwRev) == ERROR)
         {
@@ -658,7 +660,7 @@ int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData
         updateInfo_g.m_uiSectorSize = aFlashRegions->block_size;
 
         updateInfo_g.m_pData = pData_p + sizeof(tFwHeader);
-        updateInfo_g.m_uiDataSize = *pSegmentSize_p - sizeof(tFwHeader);
+        updateInfo_g.m_uiDataSize = uiSegmentSize_p - sizeof(tFwHeader);
         updateInfo_g.m_uiUpdateState = eUpdateStateStart;
     }
     else
@@ -671,12 +673,13 @@ int updateFirmware(UINT32 * pSegmentOff_p, UINT32 * pSegmentSize_p, char * pData
         else
         {
             updateInfo_g.m_pData = pData_p;
-            updateInfo_g.m_uiDataSize = *pSegmentSize_p;
+            updateInfo_g.m_uiDataSize = uiSegmentSize_p;
         }
     }
 
     updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
     updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;
+    updateInfo_g.m_pHandle = pHandle_p;
 
     return OK;
 }

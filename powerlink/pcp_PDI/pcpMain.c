@@ -30,6 +30,7 @@
 #include "pcpStateMachine.h"
 #include "pcpEvent.h"
 #include "FpgaCfg.h"
+#include "fwUpdate.h"
 
 #include "cnApiIntern.h"
 #include "cnApiEvent.h"
@@ -324,6 +325,7 @@ void processPowerlink(void)
         CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
         EplApiProcess();
         updateStateMachine();
+        updateFirmwarePeriodic();               // periodically call firmware update state machine
 
         /* Check if previous event has been confirmed by AP */
         /* If not, try to post it */
@@ -2160,9 +2162,20 @@ Exit:
 
 fwUpdateAbortCb() will be called if firmware update is aborted.
 *******************************************************************************/
-void fwUpdateAbortCb(void)
+int fwUpdateAbortCb(void * pHandle)
 {
+    int         iRet;
 
+
+    ((tDefObdAccHdl *)pHandle)->m_Status = kEplObdDefAccHdlError;
+
+    // trigger event
+    iRet = EplApiPostUserEvent((void*) ((tDefObdAccHdl *)pHandle)->m_pObdParam);
+    if (iRet != kEplSuccessful)
+    {
+        // add debug msg here
+    }
+    return iRet;
 }
 
 /**
@@ -2172,9 +2185,21 @@ void fwUpdateAbortCb(void)
 fwUpdateSegFinishCb() will be called if a segment is successfully programmed
 to flash memory.
 *******************************************************************************/
-void fwUpdateSegFinishCb(void)
+int fwUpdateSegFinishCb(void * pHandle)
 {
+    int         iRet;
 
+    ((tDefObdAccHdl *)pHandle)->m_Status = kEplObdDefAccHdlProcessingFinished;
+    DEBUG_TRACE1(DEBUG_LVL_14, "OBD ACC cnt processed: %d\n",
+                ((tDefObdAccHdl *)pHandle)->m_wSeqCnt);
+
+    // trigger event
+    iRet = EplApiPostUserEvent((void*) ((tDefObdAccHdl *)pHandle)->m_pObdParam);
+    if (iRet != kEplSuccessful)
+    {
+        // add debug msg here
+    }
+    return iRet;
 }
 
 /**
@@ -2187,8 +2212,8 @@ void fwUpdateSegFinishCb(void)
  *******************************************************************************/
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p)
 {
-tEplKernel Ret = kEplSuccessful;
-BOOL fRet = TRUE;
+    tEplKernel Ret = kEplSuccessful;
+    int iRet = OK;
 
     if (pDefObdAccHdl_p == NULL)
     {
@@ -2206,18 +2231,18 @@ BOOL fRet = TRUE;
             {
                 case 0x01:
                 {
-
-                    fRet = updateFirmware(
-                              &pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
-                              &pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
+                    iRet = updateFirmware(
+                              pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
+                              pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
                               (void*) pDefObdAccHdl_p->m_pObdParam->m_pData,
-                              fwUpdateAbortCb, fwUpdateSegFinishCb);
-                    if (fRet == ERROR)
+                              fwUpdateAbortCb, fwUpdateSegFinishCb,
+                              (void *)pDefObdAccHdl_p);
+
+                    if (iRet == ERROR)
                     {   //update operation went wrong
                         Ret = kEplObdAccessViolation;
                         goto Exit;
                     }
-
                     break;
                 }
 
@@ -2234,10 +2259,6 @@ BOOL fRet = TRUE;
         default:
         break;
     }
-
-    // mark handle as processed
-    pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlProcessingFinished;
-    DEBUG_TRACE1(DEBUG_LVL_14, "OBD ACC cnt processed: %d\n", pDefObdAccHdl_p->m_wSeqCnt);
 
 Exit:
     if (Ret != kEplSuccessful)

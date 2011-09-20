@@ -24,6 +24,7 @@ This header file contains definitions for the firmware update functions.
 #define         FW_HEADER_MAGIC         0x4657          ///< magic "FW"
 #define         FW_HEADER_VERSION       0x0100          ///< version 1.0
 
+#define         IIB_MAGIC               0x49494200      ///< IIB
 #define         IIB_MAGIC_V2            0x49494202      ///< IIB version 2
 
 /******************************************************************************/
