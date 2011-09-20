@@ -695,40 +695,80 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
                 bObdSegWriteAccHistoryEmptyCnt_g++;
 
-                //TODO: Abort all not empty handles of segmented transfer
+                // Abort all not empty handles of segmented transfer
+                EplRet = EplAppDefObdAccCleanupHistory();
+                if (EplRet != kEplSuccessful)
+                {
+                    goto Exit;
+                }
 
                 goto Exit;
             }
 
-            if ((pFoundHdl->m_Status != kEplObdDefAccHdlWaitProcessingInit) &&
-                (pFoundHdl->m_Status != kEplObdDefAccHdlWaitProcessingQueue)  )
+            switch (pFoundHdl->m_Status)
             {
-                DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Invalid handle status!\n");
+                case kEplObdDefAccHdlWaitProcessingInit:
+                case kEplObdDefAccHdlWaitProcessingQueue:
+                {
+                    // segment has not been processed yet -> do a initialize writing
 
-                //TODO: Abort all not empty handles of segmented transfer
+                    // -------- do OBD write -----
+                    // write access might take some time ... but it should be not be blocking for more then 1s
+                    // it might be interrupted by new remote OBD accesses (Rx IR)
+                    EplRet = EplAppDefObdAccWriteObdSegmented(pFoundHdl);
 
-                EplRet = kEplInvalidParam;
-                goto Exit;
-            }
+                    if (EplRet != kEplSuccessful)
+                    {   // signal write error if write operation went wrong
+                        pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                        EplRet = EplAppDefObdAccFinished(&pObdParam);
+                        // correct history status
+                        pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
+                        pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
+                        bObdSegWriteAccHistoryEmptyCnt_g++;
 
-            // -------- do OBD write -----
-            // write access might take some time ... but it should be not be blocking for more then 1s
-            // it might be interrupted by new remote OBD accesses (Rx IR)
-            EplRet = EplAppDefObdAccWriteObdSegmented(pFoundHdl);
+                        // Abort all not empty handles of segmented transfer
+                        EplRet = EplAppDefObdAccCleanupHistory();
+                        if (EplRet != kEplSuccessful)
+                        {
+                            goto Exit;
+                        }
 
-            if (EplRet != kEplSuccessful)
-            {   // signal write error if write operation went wrong
-                pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                EplRet = EplAppDefObdAccFinished(&pObdParam);
-                // correct history status
-                pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
-                pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
-                bObdSegWriteAccHistoryEmptyCnt_g++;
+                        goto Exit;
+                    }
 
-                //TODO: Abort all not empty handles of segmented transfer
+                    break;
+                }
 
-                goto Exit;
-            }
+                case kEplObdDefAccHdlProcessingFinished:
+                {
+                    // go on with acknowledging finished segments
+                    break;
+                }
+
+                case kEplObdDefAccHdlError:
+                default:
+                {
+                    // all other not handled cases are not allowed -> error
+
+                    DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Invalid handle status!\n");
+
+                    // do ordinary SDO sequence processing / reset flow control manipulation
+                    EplSdoAsySeqAppFlowControl(0, FALSE);
+
+                    // Abort all not empty handles of segmented transfer
+                    EplRet = EplAppDefObdAccCleanupHistory();
+                    if (EplRet != kEplSuccessful)
+                    {
+                        goto Exit;
+                    }
+
+                    EplRet = kEplInvalidParam;
+                    goto Exit;
+
+                    //break;
+                }
+
+            } // switch (pFoundHdl->m_Status)
 
             // count all finished handles
             EplRet = EplAppDefObdAccCountHdlStatus(
