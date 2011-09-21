@@ -21,10 +21,12 @@ OBJDICTDIR=../../objDicts/PDI
 
 ###############################################################################
 # include project configuration
+PWD=`pwd`
 
 . ../../project.config  						#POWERLINK stack path
 EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path
 GENERIC_DIR=../generic
+PCP_DIR=$PWD/..
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
 
@@ -79,8 +81,8 @@ done
 INCLUDES="\
 . \
 ${EDRV_DIR}/openmac/include \
-${GENERIC_DIR}/target/altera \
-${GENERIC_DIR}/include \
+${PCP_DIR}/generic/target/altera \
+${PCP_DIR}/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
@@ -123,6 +125,7 @@ pcpStateMachine.c \
 pcpEvent.c \
 ${GENERIC_DIR}/target/altera/FpgaCfg.c \
 ${GENERIC_DIR}/target/altera/fwUpdate.c \
+${GENERIC_DIR}/target/altera/boot.c \
 ${GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
