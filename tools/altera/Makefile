@@ -9,12 +9,18 @@ INCLUDES=-I ../../powerlink/include -I ../../libCnApi/include
 CFLAGS=-O2 -Wall $(INCLUDES)
 
 # mkfirmware
-MKFIRMWARE_OBJS=mkfirmware.o crc32.o  
+MKFIRMWARE_OBJS=mkfirmware.o crc32.o
+
+# mkiib
+MKIIB_OBJS=mkiib.o crc32.o  
 
 
-all:	mkfirmware
+all:	mkfirmware mkiib
 
 mkfirmware: $(MKFIRMWARE_OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
+
+mkiib: $(MKIIB_OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
 

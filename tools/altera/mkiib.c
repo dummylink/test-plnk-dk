@@ -1,8 +1,8 @@
 /**
 ********************************************************************************
-\file        mkfirmware.c
+\file        mkiib.c
 
-\brief       Firmware file creation tool
+\brief       Image Information Block creation tool
 
 \author      Josef Baumgartner
 
@@ -10,13 +10,8 @@
 
 (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 
-This file contains the sources for the firmware creation tool mkfirmware.
-The tool concatenates the binary files of the FPGA configuration the PCP
-software and the AP software if available. Additionally it creates the firmware
-header and stores it at the beginning of the firmware file.
-
-Additionally the tool can analyze an existing firmware file and print
-the information.
+This file contains the sources for the Image Information Block (IIB) creation tool.
+The tool generates a binary file containing the IIB.
 *******************************************************************************/
 
 /******************************************************************************/
@@ -39,7 +34,7 @@ the information.
 
 #include "cnApiGlobal.h"
 #include "firmware.h"
-#include "mkfirmware.h"
+#include "mkiib.h"
 
 /******************************************************************************/
 /* defines */
@@ -53,8 +48,6 @@ the information.
 #define OPTION_PCPVERS  0x0010
 #define OPTION_APVERS   0x0020
 #define OPTION_OUTPUT   0x0040
-#define OPTION_DEVICE   0x0080
-#define OPTION_HWREV    0x0100
 #define OPTION_INFO     0x0200
 
 /******************************************************************************/
@@ -69,33 +62,26 @@ tOptions        options_g;
 *******************************************************************************/
 void usage(void)
 {
-    printf("\nopenPOWERLINK Slave Development Toolkit: mkfirmware Version %s\n\n", VERSION);
-    printf("mkfirmware creates a valid firmware file. It concatenates a FPGA\n");
-    printf("configuration, a PCP software, an AP software and prepends a\n");
-    printf("firmware file header.\n\n");
+    printf("\nopenPOWERLINK Slave Development Toolkit: mkiib Version %s\n\n", VERSION);
+    printf("mkiib creates a binary file containing an Image Information Block (IIB).");
     printf("Usage:\n");
-    printf("mkfirmware [-o|--output <firmware>\n"
+    printf("mkiib     [-o|--output <iib>\n"
            "           -f|--fpgacfg <fpgaconfig> --fpgavers <fpga_verssion>\n"
            "           -p|--pcpsw <pcpsw> --pcpvers <pcpsw_version>\n"
            "           -a|--apsw <apsw> --apvers <apsw_version>\n"
-           "           -d|--device <deviceId> -r|--hwrev <hwRevision>\n"
            "           [--appswdate <appsw_date>] [--appswtime <appsw_time>]\n");
-    printf("mkfirmware -i|--info <firmware>\n");
-    printf("mkfirmware -h|--help\n\n");
+    printf("mkiib      -i|--info <iib>\n");
+    printf("mkiib      -h|--help\n\n");
     printf("Available options:\n");
     printf(" -h                         Print this help\n");
-    printf(" -i|--info <firmware>       Print information on this firmware\n");
+    printf(" -i|--info <iib>            Print information on this IIB file\n");
     printf(" -f|--fpgacfg <fpgaconfig>  FPGA configuration file to insert in firmware\n"
            " --fpgavers <fpga_version>  Version number of FPGA configuration\n"
            " -p|--pcpsw <pcpsw>         PCP software to insert in firmware\n"
            " --pcpvers <pcpsw_version>  Version number of PCP software\n"
            " -a|--apsw <apsw>           AP software to insert in firmware\n"
            " --apvers <apsw_version>    Version number of AP software\n"
-           " -o|--output <firmware>     Firmware file to create\n"
-           " -d|--device <deviceId>     Device Id of device this firmware is used for\n"
-           "                            Specified as 5-digit decimal value\n"
-           " -r|--hwrev <hwReveision>   Hardware revision of device this firmware is used for\n"
-           "                            Specified as 2-digit decimal value\n"
+           " -o|--output <iib>          IIB file to create\n"
            " --appswdate <appswdate>    Application software date (days since 01.01.1984)\n"
            " --appswtime <appswtime>    Application software time (milliseconds since midnight)\n"
            "                            and time fields. If no date is specified\n"
@@ -128,8 +114,6 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
                 {"fpgavers",  required_argument, 0,   2  },
                 {"apsw",      required_argument, 0,  'a' },
                 {"apvers",    required_argument, 0,   4  },
-                {"device",    required_argument, 0,  'd' },
-                {"hwrev",     required_argument, 0,  'r' },
                 {"info",      required_argument, 0,  'i' },
                 {"appswdate", required_argument, 0,   0  },
                 {"appswtime", required_argument, 0,   1  },
@@ -140,7 +124,7 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
     if (iArgc_p <= 1)
         return ERROR;
 
-    while ((opt = getopt_long(iArgc_p, caArgv_p, "hf:p:a:o:i:d:r:",
+    while ((opt = getopt_long(iArgc_p, caArgv_p, "hf:p:a:o:i:",
                               long_options, &index)) != -1)
     {
         switch (opt)
@@ -220,28 +204,6 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
             optcheck |= OPTION_OUTPUT;
             break;
 
-        case 'd':
-            pOpts_p->m_deviceId = strtoul(optarg, NULL, 10);
-            if ((pOpts_p->m_deviceId > 99999) ||
-                (strspn(optarg,"0123456789") != strlen(optarg)))
-            {
-                printf ("Invalid device ID (0..99999)!\n");
-                return ERROR;
-            }
-            optcheck |= OPTION_DEVICE;
-            break;
-
-        case 'r':
-            pOpts_p->m_hwRevision = strtoul(optarg, NULL, 10);
-            if ((pOpts_p->m_hwRevision > 99) ||
-                (strspn(optarg,"0123456789") != strlen(optarg)))
-            {
-                printf ("Invalid hardware revision (0..99)!\n");
-                return ERROR;
-            }
-            optcheck |= OPTION_HWREV;
-            break;
-
         case 'i':
             strncpy(pOpts_p->m_outFileName, optarg, MAX_NAME_LEN);
             pOpts_p->m_fPrintInfo = TRUE;
@@ -256,13 +218,13 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
     /* check for valid option combinations */
     if (
         (optcheck != OPTION_INFO) &&
-        (optcheck != (OPTION_OUTPUT | OPTION_FPGA | OPTION_PCPSW | OPTION_DEVICE |
-                      OPTION_HWREV | OPTION_FPGAVERS | OPTION_PCPVERS)) &&
-        (optcheck != (OPTION_OUTPUT | OPTION_FPGA | OPTION_PCPSW | OPTION_APSW | OPTION_DEVICE |
-                      OPTION_HWREV | OPTION_FPGAVERS | OPTION_PCPVERS | OPTION_APVERS))
+        (optcheck != (OPTION_OUTPUT | OPTION_FPGA | OPTION_PCPSW |
+                      OPTION_FPGAVERS | OPTION_PCPVERS)) &&
+        (optcheck != (OPTION_OUTPUT | OPTION_FPGA | OPTION_PCPSW | OPTION_APSW |
+                      OPTION_FPGAVERS | OPTION_PCPVERS | OPTION_APVERS))
        )
     {
-        printf ("--- Wrong options! ---\n");
+        printf ("--- Wrong options! %08x ---\n", optcheck);
         return ERROR;
     }
 
@@ -271,39 +233,48 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
 
 /**
 ********************************************************************************
-\brief    print firmware header info
+\brief    print IIB info
 
-printFwInfo() analyzes the firmware header and prints out the contained
+printIibInfo() analyzes the IIB file and prints out the contained
 information.
 
 \param        pHeader_p       pointer to firmware header
 *******************************************************************************/
-void printFwInfo(tFwHeader *pHeader_p)
+void printIibInfo(tIib *pHeader_p)
 {
-    printf ("Firmware Header Version: %d.%d\n",
-            ((ntohs(pHeader_p->m_version) >> 8) & 0xff),
-            (ntohs(pHeader_p->m_version) & 0xff));
-    printf ("Device ID:               %d\n", (UINT32)ntohs(pHeader_p->m_deviceId));
-    printf ("Hardware Revision:       %d\n", ntohs(pHeader_p->m_hwRevision));
+    int         version = ntohl(pHeader_p->m_magic) & 0xff;
+
+    if ((version != 1) && (version != 2))
+    {
+        printf ("Invalid IIB Version %d!\n", version);
+        return;
+    }
+
+    printf ("Image Information Block Version: %d\n", version);
+
     printf ("Application SW Date:     %d\n", (UINT32)ntohl(pHeader_p->m_applicationSwDate));
     printf ("Application SW Time:     %d\n", (UINT32)ntohl(pHeader_p->m_applicationSwTime));
-    printf ("Header CRC:              0x%08x\n", (UINT32)ntohl(pHeader_p->m_headerCrc));
+    printf ("IIB CRC:                 0x%08x\n", (UINT32)ntohl(pHeader_p->m_iibCrc));
 
     printf ("-------------------------------------------------\n");
     printf ("FPGA configuration:\n");
+    printf ("Adrs/Offset:             %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigAdrs));
     printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigVersion));
     printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigSize));
     printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigCrc));
     printf ("-------------------------------------------------\n");
     printf ("PCP software:\n");
+    printf ("Adrs/Offset:             %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwAdrs));
     printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwVersion));
     printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwSize));
     printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_pcpSwCrc));
 
-    if (pHeader_p->m_apSwSize > 0)
+    /* IIB version 2 contains AP information */
+    if (version == 2)
     {
         printf ("-------------------------------------------------\n");
         printf ("AP software:\n");
+        printf ("Adrs/Offset:             %d\n", (UINT32)ntohl(pHeader_p->m_apSwAdrs));
         printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_apSwVersion));
         printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_apSwSize));
         printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_apSwCrc));
@@ -315,60 +286,8 @@ void printFwInfo(tFwHeader *pHeader_p)
 ********************************************************************************
 \brief  calculate checksum of firmware file part
 
-checkFileCrc() reads a part of a firmware file, calculates the CRC32 checksum
-and compares it to the expected checksum which was stored in the firmware
-header.
+calcImageCrc() calculates the CRC32 checksum of a firmware file part.
 
-\param fd_p             file descriptor of opened firmware file
-\param len_p            length of firmware part to check
-\param expectedCrc_p    the expected CRC checksum of the firmware part
-
-\retval 0           If CRC comparison was ok
-\retval -1          If an error occured while reading the file
-\retval -2          If the calculated CRC does not match the expected CRC
-*******************************************************************************/
-int checkFileCrc(int fd_p, size_t len_p, UINT32 expectedCrc_p)
-{
-#define BUF_SIZE        512
-
-    UINT8               buf[BUF_SIZE];
-    size_t              readLen;
-    UINT32              crc;
-
-    crc = 0;
-    while (len_p > 0)
-    {
-        if (len_p > BUF_SIZE)
-            readLen = BUF_SIZE;
-        else
-            readLen = len_p;
-
-        if (read(fd_p, buf, readLen) != readLen)
-        {
-            return -1;
-        }
-        crc = crc32(crc, buf, readLen);
-        len_p -= readLen;
-    }
-
-    if (crc != expectedCrc_p)
-    {
-        return -2;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-/**
-********************************************************************************
-\brief  copy binary and calculate CRC
-
-copyImageCrc() copies a binary file into the firmware file and calculates the
-CRC32 checksum.
-
-\param fwFd_p       file descriptor of firmware file
 \param inputFd_p    file descriptor of binary file which is copied into the
                     firmware file
 \param uiCrc_p      pointer to store the calculated CRC32 checksum
@@ -377,8 +296,9 @@ CRC32 checksum.
 \retval OK          if file was successfully copied
 \retval ERROR       if an error occured while copying
 *******************************************************************************/
-int copyImageCrc (int fwFd_p, int inputFd_p, UINT32 *uiCrc_p, UINT32 *size_p)
+int calcImageCrc (int inputFd_p, UINT32 *uiCrc_p, UINT32 *size_p)
 {
+#define BUF_SIZE        512
 
     int         len = 0;
     int         size = 0;
@@ -395,11 +315,6 @@ int copyImageCrc (int fwFd_p, int inputFd_p, UINT32 *uiCrc_p, UINT32 *size_p)
          if (len > 0)
          {
              crc = crc32(crc, buf, len);
-
-             if (write (fwFd_p, buf, len) != len)
-             {
-                 return ERROR;
-             }
          }
          size += len;
      } while (len > 0);
@@ -412,128 +327,81 @@ int copyImageCrc (int fwFd_p, int inputFd_p, UINT32 *uiCrc_p, UINT32 *size_p)
 
 /**
 *******************************************************************************
-\brief       check firmware file
+\brief       check Image Information Block
 
-checkFirmware() checks a firmware file for validity and prints out firmware
-information.
+checkIib() checks a Iib for validity and prints out the contained information.
 
 \return        OK if successfull, ERROR otherwise
 ******************************************************************************/
-int checkFirmware(void)
+int checkIib(void)
 {
-    tFwHeader           fwHeader;
+    tIib                iib;
     int                 fd;
-    int                 iResult;
     UINT32              crc;
 
-    printf ("Checking firmware file: %s ...\n\n", options_g.m_outFileName);
+    printf ("Checking IIB file: %s ...\n\n", options_g.m_outFileName);
 
-    /* open firmware file */
+    /* open IIB file */
     if ((fd = open(options_g.m_outFileName, O_RDONLY)) == -1)
     {
-        printf ("Couldn't open firmware file (%s)\n", strerror(errno));
+        printf ("Couldn't open IIB file (%s)\n", strerror(errno));
         return ERROR;
     }
 
-    /* read header */
-    if (read (fd, &fwHeader, sizeof(fwHeader)) != sizeof(fwHeader))
+    /* read IIB */
+    if (read (fd, &iib, sizeof(tIib)) != sizeof(tIib))
     {
-        printf ("Couldn't read firmware header!\n");
+        printf ("Couldn't read IIB!\n");
         close(fd);
         return ERROR;
     }
 
-    /* check header CRC */
-    if ((crc = crc32(0, &fwHeader, sizeof(fwHeader) - sizeof(DWORD))) != ntohl(fwHeader.m_headerCrc))
+    /* check IIB CRC */
+    if ((crc = crc32(0, &iib, sizeof(tIib) - sizeof(DWORD))) != ntohl(iib.m_iibCrc))
     {
-        printf ("Invalid firmware header checksum! (%08x : %08x)\n", crc, (UINT32)ntohl(fwHeader.m_headerCrc));
+        printf ("Invalid IIB checksum! (%08x : %08x)\n", crc, (UINT32)ntohl(iib.m_iibCrc));
         close (fd);
         return ERROR;
     }
 
-    /* check fpga Configuration CRC */
-    iResult = checkFileCrc(fd, ntohl(fwHeader.m_fpgaConfigSize), ntohl(fwHeader.m_fpgaConfigCrc));
-    if (iResult == -1)
-    {
-        printf ("Error reading FPGA configuration in firmware file!\n");
-        goto errorExit;
-    }
-
-    if (iResult == -2)
-    {
-        printf ("Invalid checksum of FPGA configuration!\n");
-        goto errorExit;
-    }
-
-    /* check PCP software CRC */
-    iResult = checkFileCrc(fd, ntohl(fwHeader.m_pcpSwSize), ntohl(fwHeader.m_pcpSwCrc));
-    if (iResult == -1)
-    {
-        printf ("Error reading PCP software in firmware file!\n");
-        goto errorExit;
-    }
-
-    if (iResult == -2)
-    {
-        printf ("Invalid checksum of PCP software!\n");
-        goto errorExit;
-    }
-
-    /* check AP software CRC */
-    if (fwHeader.m_apSwSize != 0)
-    {
-        iResult = checkFileCrc(fd, ntohl(fwHeader.m_apSwSize), ntohl(fwHeader.m_apSwCrc));
-        if (iResult == -1)
-        {
-            printf ("Error reading AP software in firmware file!\n");
-            goto errorExit;
-        }
-
-        if (iResult == -2)
-        {
-            printf ("Invalid checksum of AP software!\n");
-            goto errorExit;
-        }
-    }
-
-    printFwInfo(&fwHeader);
+    printIibInfo(&iib);
 
     close (fd);
     return OK;
-
-errorExit:
-    close (fd);
-    return ERROR;
-
 }
 
 /**
 *******************************************************************************
-\brief       create firmware file
+\brief       create Image Information Block
 
-createFirmware() creates the firmware file.
+createIib() creates a binary file containing an image information block.
 
 \return        OK if successfull created, ERROR otherwise
 ******************************************************************************/
-int createFirmware(void)
+int createIib(void)
 {
-    tFwHeader           fwHeader;
-    int                 fwFd;
+    tIib                iib;
+    int                 iibFd;
     int                 inputFd;
     UINT32              crc;
     UINT32              size;
     struct tm           tmTime;
     time_t              tim;
     struct timeval      now;
+    UINT32              adrs;
 
-    printf ("Creating firmware file: %s ...\n\n", options_g.m_outFileName);
+    printf ("Creating IIB file: %s ...\n\n", options_g.m_outFileName);
 
     /* initialize header */
-    memset (&fwHeader, 0x00, sizeof(tFwHeader));
-    fwHeader.m_magic = htons(FW_HEADER_MAGIC);
-    fwHeader.m_version = htons(FW_HEADER_VERSION);
-    fwHeader.m_deviceId = htons(options_g.m_deviceId);
-    fwHeader.m_hwRevision = htons(options_g.m_hwRevision);
+    memset (&iib, 0x00, sizeof(tIib));
+    if (options_g.m_apSwName[0] == '\0')
+    {
+        iib.m_magic = htonl(IIB_MAGIC | 1);
+    }
+    else
+    {
+        iib.m_magic = htonl(IIB_MAGIC | 2);
+    }
 
     /* check if application software date and time is specified or if current
      * system time should be used.
@@ -550,7 +418,7 @@ int createFirmware(void)
         tmTime.tm_year = 84;
         tim = mktime (&tmTime);
 
-        fwHeader.m_applicationSwDate = htonl((now.tv_sec - tim) / (60 * 60 * 24));
+        iib.m_applicationSwDate = htonl((now.tv_sec - tim) / (60 * 60 * 24));
 
         /* calculate milliseconds since midnight */
         localtime_r(&now.tv_sec, &tmTime);
@@ -559,46 +427,45 @@ int createFirmware(void)
         tmTime.tm_sec = 0;
         tim = mktime (&tmTime);
 
-        fwHeader.m_applicationSwTime = htonl(((now.tv_sec - tim) * 1000) + (now.tv_usec / 1000));
+        iib.m_applicationSwTime = htonl(((now.tv_sec - tim) * 1000) + (now.tv_usec / 1000));
     }
     else
     {
-        fwHeader.m_applicationSwDate = htonl(options_g.m_applicationSwDate);
-        fwHeader.m_applicationSwTime = htonl(options_g.m_applicationSwTime);
+        iib.m_applicationSwDate = htonl(options_g.m_applicationSwDate);
+        iib.m_applicationSwTime = htonl(options_g.m_applicationSwTime);
     }
 
     /*------------------------------------------------------------------------*/
-    /* create firmware file */
-    if ((fwFd = open(options_g.m_outFileName, O_RDWR | O_CREAT,
+    /* create IIB file */
+    if ((iibFd = open(options_g.m_outFileName, O_RDWR | O_CREAT,
                      S_IRWXU | S_IRGRP | S_IROTH)) == -1)
     {
-        printf ("Couldn't create firmware image file (%s)\n", strerror(errno));
+        printf ("Couldn't create IIB file (%s)\n", strerror(errno));
         return ERROR;
     }
 
-    /* position to start of fpga configuration */
-    lseek(fwFd, sizeof(fwHeader), SEEK_SET);
-
     /*------------------------------------------------------------------------*/
-    /* copy fpga configuration */
+    /* calculate CRC of fpga configuration */
     if ((inputFd = open(options_g.m_fpgaCfgName, O_RDONLY)) == -1)
     {
         printf ("Couldn't open fpga configuration (%s)\n", strerror(errno));
-        close (fwFd);
+        close (iibFd);
         return ERROR;
     }
 
-    if (copyImageCrc (fwFd, inputFd, &crc, &size) < 0)
+    if (calcImageCrc (inputFd, &crc, &size) < 0)
     {
-        printf ("Error copying fpga configuration into firmware file!\n");
-        close (fwFd);
+        printf ("Error calculating CRC of FPGA configuration file!\n");
+        close (iibFd);
         close (inputFd);
         return ERROR;
     }
 
-    fwHeader.m_fpgaConfigCrc = htonl(crc);
-    fwHeader.m_fpgaConfigSize = htonl(size);
-    fwHeader.m_fpgaConfigVersion = htonl(options_g.m_fpgaConfigVersion);
+    iib.m_fpgaConfigAdrs = htonl(0);
+    iib.m_fpgaConfigCrc = htonl(crc);
+    iib.m_fpgaConfigSize = htonl(size);
+    iib.m_fpgaConfigVersion = htonl(options_g.m_fpgaConfigVersion);
+    adrs = size;
     close (inputFd);
 
     /*------------------------------------------------------------------------*/
@@ -606,20 +473,22 @@ int createFirmware(void)
     if ((inputFd = open(options_g.m_pcpSwName, O_RDONLY)) == -1)
     {
         printf ("Couldn't open PCP software (%s)\n", strerror(errno));
-        close (fwFd);
+        close (iibFd);
         return ERROR;
     }
 
-    if (copyImageCrc (fwFd, inputFd, &crc, &size) < 0)
+    if (calcImageCrc (inputFd, &crc, &size) < 0)
     {
-        printf ("Error copying PCP software into firmware file!\n");
-        close (fwFd);
+        printf ("Error calculating CRC of PCP software file!\n");
+        close (iibFd);
         close (inputFd);
         return ERROR;
     }
-    fwHeader.m_pcpSwCrc = htonl(crc);
-    fwHeader.m_pcpSwSize = htonl(size);
-    fwHeader.m_pcpSwVersion = htonl(options_g.m_pcpSwVersion);
+    iib.m_pcpSwAdrs = htonl(adrs);
+    iib.m_pcpSwCrc = htonl(crc);
+    iib.m_pcpSwSize = htonl(size);
+    iib.m_pcpSwVersion = htonl(options_g.m_pcpSwVersion);
+    adrs += size;
     close (inputFd);
 
     /*------------------------------------------------------------------------*/
@@ -629,42 +498,37 @@ int createFirmware(void)
         if ((inputFd = open(options_g.m_apSwName, O_RDONLY)) == -1)
         {
             printf ("Couldn't open AP software (%s)\n", strerror(errno));
-            close (fwFd);
+            close (iibFd);
             return ERROR;
         }
 
-        if (copyImageCrc (fwFd, inputFd, &crc, &size) < 0)
+        if (calcImageCrc (inputFd, &crc, &size) < 0)
         {
-            printf ("Error copying AP software  into firmware file!\n");
-            close (fwFd);
+            printf ("Error calculating CRC of AP software file!\n");
+            close (iibFd);
             close (inputFd);
             return ERROR;
         }
-        fwHeader.m_apSwCrc = htonl(crc);
-        fwHeader.m_apSwSize = htonl(size);
-        fwHeader.m_apSwVersion = htonl(options_g.m_apSwVersion);
+        iib.m_apSwAdrs = htonl(adrs);
+        iib.m_apSwCrc = htonl(crc);
+        iib.m_apSwSize = htonl(size);
+        iib.m_apSwVersion = htonl(options_g.m_apSwVersion);
         close (inputFd);
     }
-    else
-    {
-        fwHeader.m_apSwCrc = 0;
-        fwHeader.m_apSwSize = 0;
-        fwHeader.m_apSwVersion = 0;
-    }
 
-    /* calculate checkum of header */
-    fwHeader.m_headerCrc = htonl(crc32(0, &fwHeader, sizeof(fwHeader) -  sizeof(DWORD)));
-    lseek (fwFd, 0, SEEK_SET);
-    if (write (fwFd, &fwHeader, sizeof(fwHeader)) != sizeof(fwHeader))
+    /* calculate checksum of IIB */
+    iib.m_iibCrc = htonl(crc32(0, &iib, sizeof(tIib) -  sizeof(DWORD)));
+
+    if (write (iibFd, &iib, sizeof(tIib)) != sizeof(tIib))
     {
-        printf ("Error writing header of firmware file!\n");
-        close (fwFd);
+        printf ("Error writing IIB file!\n");
+        close (iibFd);
         return ERROR;
     }
 
-    close (fwFd);
+    close (iibFd);
 
-    printFwInfo(&fwHeader);
+    printIibInfo(&iib);
 
     return OK;
 }
@@ -692,11 +556,11 @@ int main(int argc, char* argv[])
 
     if (options_g.m_fPrintInfo)
     {
-      iResult = checkFirmware();
+      iResult = checkIib();
     }
     else
     {
-      iResult = createFirmware();
+      iResult = createIib();
     }
 
     return iResult;
