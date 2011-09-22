@@ -68,6 +68,7 @@
 
 ****************************************************************************/
 #include "global.h"
+#include "cnApiDebug.h"
 #include "EplErrDef.h"
 #include "user/EplSdoComu.h"
 
@@ -2270,7 +2271,7 @@ BYTE            bFlag;
                                                 uiSizeOfFrame,
                                                 pFrame,
                                                 pSdoComCon_p);
-            printf("ERROR: SDO Aborted!\n");
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"ERROR: SDO Aborted!\n");
 
             break;
         }
@@ -2343,7 +2344,7 @@ tEplSdoComCon*  pSdoComCon;
     }
 
 //Exit:
-    //printf("Abort code: 0x%08x Ret: 0x%04x\n", pObdParam_p->m_dwAbortCode, Ret);
+    //DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO,"Abort code: 0x%08x Ret: 0x%04x\n", pObdParam_p->m_dwAbortCode, Ret);
     return Ret;
 }
 #endif
@@ -3057,7 +3058,7 @@ unsigned int    uiSizeOfFrame;
                                         pFrame);
             if (Ret == kEplSdoSeqConnectionBusy)
             {
-                PRINTF2("%s tried to send abort 0x%lX while connection is already closed\n",
+                DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO,"%s tried to send abort 0x%lX while connection is already closed\n",
                     __func__, (unsigned long) dwAbortCode_p);
                 Ret = kEplSuccessful;
             }
