@@ -196,43 +196,43 @@ typedef struct
 // local function prototypes
 //---------------------------------------------------------------------------
 
-static tEplKernel EplSdoAsySeqProcess(unsigned int  uiHandle_p,
-                                         unsigned int       uiDataSize_p,
-                                         tEplFrame*         pData_p,
-                                         tEplAsySdoSeq*     pRecFrame_p,
-                                         tEplAsySdoSeqEvent Event_p);
+//static tEplKernel EplSdoAsySeqProcess(unsigned int  uiHandle_p,
+//                                         unsigned int       uiDataSize_p,
+//                                         tEplFrame*         pData_p,
+//                                         tEplAsySdoSeq*     pRecFrame_p,
+//                                         tEplAsySdoSeqEvent Event_p);
+//
+//static tEplKernel EplSdoAsySeqSendIntern(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                         unsigned int       uiDataSize_p,
+//                                         tEplFrame*         pData_p,
+//                                         BOOL               fFrameInHistory);
+//
+//static tEplKernel EplSdoAsySeqSendLowerLayer(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                         unsigned int       uiDataSize_p,
+//                                         tEplFrame*         pEplFrame_p);
+//
+//tEplKernel PUBLIC EplSdoAsyReceiveCb (tEplSdoConHdl       ConHdl_p,
+//                                        tEplAsySdoSeq*      pSdoSeqData_p,
+//                                        unsigned int        uiDataSize_p);
 
-static tEplKernel EplSdoAsySeqSendIntern(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                         unsigned int       uiDataSize_p,
-                                         tEplFrame*         pData_p,
-                                         BOOL               fFrameInHistory);
+//static tEplKernel EplSdoAsyInitHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p);
 
-static tEplKernel EplSdoAsySeqSendLowerLayer(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                         unsigned int       uiDataSize_p,
-                                         tEplFrame*         pEplFrame_p);
+//static tEplKernel EplSdoAsyAddFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                        tEplFrame*      pFrame_p,
+//                                        unsigned int    uiSize_p);
 
-tEplKernel PUBLIC EplSdoAsyReceiveCb (tEplSdoConHdl       ConHdl_p,
-                                        tEplAsySdoSeq*      pSdoSeqData_p,
-                                        unsigned int        uiDataSize_p);
+//static tEplKernel EplSdoAsyAckFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                        BYTE   bRecSeqNumber_p);
 
-static tEplKernel EplSdoAsyInitHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p);
+//static tEplKernel EplSdoAsyReadFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                           tEplFrame**      ppFrame_p,
+//                                           unsigned int*    puiSize_p,
+//                                           BOOL             fInitRead);
 
-static tEplKernel EplSdoAsyAddFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                        tEplFrame*      pFrame_p,
-                                        unsigned int    uiSize_p);
+//static unsigned int EplSdoAsyGetFreeEntriesFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p);
 
-static tEplKernel EplSdoAsyAckFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                        BYTE   bRecSeqNumber_p);
-
-static tEplKernel EplSdoAsyReadFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                           tEplFrame**      ppFrame_p,
-                                           unsigned int*    puiSize_p,
-                                           BOOL             fInitRead);
-
-static unsigned int EplSdoAsyGetFreeEntriesFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p);
-
-static tEplKernel EplSdoAsySeqSetTimer(tEplAsySdoSeqCon* pAsySdoSeqCon_p,
-                                        unsigned long    ulTimeout);
+//static tEplKernel EplSdoAsySeqSetTimer(tEplAsySdoSeqCon* pAsySdoSeqCon_p,
+//                                        unsigned long    ulTimeout);
 
 /***************************************************************************/
 /*                                                                         */
@@ -509,18 +509,18 @@ tEplKernel PUBLIC EplSdoAsySeqDelCon(tEplSdoSeqConHdl SdoSeqConHdl_p)
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsySeqProcess(unsigned int  uiHandle_p,
-                                         unsigned int       uiDataSize_p,
-                                         tEplFrame*         pData_p,
-                                         tEplAsySdoSeq*     pRecFrame_p,
-                                         tEplAsySdoSeqEvent Event_p)
-
-{
-    tEplKernel      Ret = kEplSuccessful;
-
-        return Ret;
-
-}
+//static tEplKernel EplSdoAsySeqProcess(unsigned int  uiHandle_p,
+//                                         unsigned int       uiDataSize_p,
+//                                         tEplFrame*         pData_p,
+//                                         tEplAsySdoSeq*     pRecFrame_p,
+//                                         tEplAsySdoSeqEvent Event_p)
+//
+//{
+//    tEplKernel      Ret = kEplSuccessful;
+//
+//        return Ret;
+//
+//}
 
 //---------------------------------------------------------------------------
 //
@@ -546,15 +546,15 @@ static tEplKernel EplSdoAsySeqProcess(unsigned int  uiHandle_p,
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsySeqSendIntern(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                         unsigned int       uiDataSize_p,
-                                         tEplFrame*         pData_p,
-                                         BOOL               fFrameInHistory_p)
-{
-    tEplKernel      Ret = kEplSuccessful;
-
-        return Ret;
-}
+//static tEplKernel EplSdoAsySeqSendIntern(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                         unsigned int       uiDataSize_p,
+//                                         tEplFrame*         pData_p,
+//                                         BOOL               fFrameInHistory_p)
+//{
+//    tEplKernel      Ret = kEplSuccessful;
+//
+//        return Ret;
+//}
 
 //---------------------------------------------------------------------------
 //
@@ -573,14 +573,14 @@ static tEplKernel EplSdoAsySeqSendIntern(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsySeqSendLowerLayer(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                         unsigned int       uiDataSize_p,
-                                         tEplFrame*         pEplFrame_p)
-{
-    tEplKernel      Ret = kEplSuccessful;
-
-        return Ret;
-}
+//static tEplKernel EplSdoAsySeqSendLowerLayer(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                         unsigned int       uiDataSize_p,
+//                                         tEplFrame*         pEplFrame_p)
+//{
+//    tEplKernel      Ret = kEplSuccessful;
+//
+//        return Ret;
+//}
 
 //---------------------------------------------------------------------------
 //
@@ -628,12 +628,12 @@ tEplKernel PUBLIC EplSdoAsyReceiveCb (
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsyInitHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p)
-{
-    tEplKernel      Ret = kEplSuccessful;
-
-        return Ret;
-}
+//static tEplKernel EplSdoAsyInitHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p)
+//{
+//    tEplKernel      Ret = kEplSuccessful;
+//
+//        return Ret;
+//}
 
 
 //---------------------------------------------------------------------------
@@ -656,14 +656,14 @@ static tEplKernel EplSdoAsyInitHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p)
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsyAddFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                        tEplFrame*      pFrame_p,
-                                        unsigned int    uiSize_p)
-{
-    tEplKernel      Ret = kEplSuccessful;
-
-        return Ret;
-}
+//static tEplKernel EplSdoAsyAddFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                        tEplFrame*      pFrame_p,
+//                                        unsigned int    uiSize_p)
+//{
+//    tEplKernel      Ret = kEplSuccessful;
+//
+//        return Ret;
+//}
 
 
 //---------------------------------------------------------------------------
@@ -684,13 +684,13 @@ static tEplKernel EplSdoAsyAddFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsyAckFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                        BYTE   bRecSeqNumber_p)
-{
-    tEplKernel      Ret = kEplSuccessful;
-
-        return Ret;
-}
+//static tEplKernel EplSdoAsyAckFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                        BYTE   bRecSeqNumber_p)
+//{
+//    tEplKernel      Ret = kEplSuccessful;
+//
+//        return Ret;
+//}
 
 //---------------------------------------------------------------------------
 //
@@ -713,16 +713,16 @@ static tEplKernel EplSdoAsyAckFrameToHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsyReadFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
-                                           tEplFrame**      ppFrame_p,
-                                           unsigned int*    puiSize_p,
-                                           BOOL             fInitRead_p)
-{
-    tEplKernel      Ret = kEplSuccessful;
-
-        return Ret;
-
-}
+//static tEplKernel EplSdoAsyReadFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
+//                                           tEplFrame**      ppFrame_p,
+//                                           unsigned int*    puiSize_p,
+//                                           BOOL             fInitRead_p)
+//{
+//    tEplKernel      Ret = kEplSuccessful;
+//
+//        return Ret;
+//
+//}
 
 //---------------------------------------------------------------------------
 //
@@ -741,10 +741,10 @@ static tEplKernel EplSdoAsyReadFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p,
 // State:
 //
 //---------------------------------------------------------------------------
-static unsigned int EplSdoAsyGetFreeEntriesFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p)
-{
-    return 0;
-}
+//static unsigned int EplSdoAsyGetFreeEntriesFromHistory(tEplAsySdoSeqCon*  pAsySdoSeqCon_p)
+//{
+//    return 0;
+//}
 
 //---------------------------------------------------------------------------
 //
@@ -764,13 +764,13 @@ static unsigned int EplSdoAsyGetFreeEntriesFromHistory(tEplAsySdoSeqCon*  pAsySd
 // State:
 //
 //---------------------------------------------------------------------------
-static tEplKernel EplSdoAsySeqSetTimer(tEplAsySdoSeqCon* pAsySdoSeqCon_p,
-                                        unsigned long    ulTimeout)
-{
-tEplKernel      Ret = kEplSuccessful;
-
-    return Ret;
-}
+//static tEplKernel EplSdoAsySeqSetTimer(tEplAsySdoSeqCon* pAsySdoSeqCon_p,
+//                                        unsigned long    ulTimeout)
+//{
+//tEplKernel      Ret = kEplSuccessful;
+//
+//    return Ret;
+//}
 
 // EOF
 

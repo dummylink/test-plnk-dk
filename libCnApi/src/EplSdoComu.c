@@ -111,10 +111,6 @@ static tEplKernel EplSdoComSearchConIntern(tEplSdoSeqConHdl    SdoSeqConHdl_p,
                                          tEplSdoComConEvent SdoComConEvent_p,
                                          tEplAsySdoCom*     pAsySdoCom_p);
 
-static tEplKernel EplSdoComTransferFinished(tEplSdoComConHdl   SdoComCon_p,
-                                            tEplSdoComCon*     pSdoComCon_p,
-                                            tEplSdoComConState SdoComConState_p);
-
 #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOS)) != 0)
 static tEplKernel EplSdoComServerInitReadByIndex(tEplSdoComCon*     pSdoComCon_p,
                                          tEplAsySdoCom*     pAsySdoCom_p);
@@ -139,6 +135,10 @@ static tEplKernel EplSdoComClientProcessFrame(tEplSdoComConHdl   SdoComCon_p,
 
 static tEplKernel EplSdoComClientSendAbort(tEplSdoComCon* pSdoComCon_p,
                                            DWORD          dwAbortCode_p);
+
+static tEplKernel EplSdoComTransferFinished(tEplSdoComConHdl   SdoComCon_p,
+                                            tEplSdoComCon*     pSdoComCon_p,
+                                            tEplSdoComConState SdoComConState_p);
 #endif
 
 
@@ -1245,7 +1245,7 @@ unsigned int        uiSize;
                             EPL_MEMSET(&ObdParam, 0, sizeof (ObdParam));
                             ObdParam.m_SegmentSize = (tEplObdSize) uiSize;
                             ObdParam.m_TransferSize = (tEplObdSize) pSdoComCon->m_uiTransSize;
-                            ObdParam.m_SegmentOffset = (tEplObdSize) pSdoComCon->m_pData;
+                            ObdParam.m_SegmentOffset = pSdoComCon->m_uiCurSegOffs;
                             ObdParam.m_uiIndex = pSdoComCon->m_uiTargetIndex;
                             ObdParam.m_uiSubIndex = pSdoComCon->m_uiTargetSubIndex;
                             ObdParam.m_pData = &pAsySdoCom_p->m_le_abCommandData[0];
@@ -1253,7 +1253,8 @@ unsigned int        uiSize;
                             ObdParam.m_pfnAccessFinished = EplSdoComServerCbExpeditedWriteFinished;
                             ObdParam.m_pRemoteAddress = &SdoAddress;
 
-                            pSdoComCon->m_pData += uiSize;
+                            // save next offset in m_pData for later use in case of segmented transfer
+                            pSdoComCon->m_uiCurSegOffs += uiSize;
 
                             Ret = EplObdWriteEntryFromLe(&ObdParam);
                             if (Ret == kEplObdAccessAdopted)
@@ -2423,6 +2424,7 @@ tEplSdoAddress  SdoAddress;
     pSdoComCon_p->m_SdoServiceType = kEplSdoServiceWriteByIndex;
 
     pSdoComCon_p->m_uiTransferredByte = 0;
+    pSdoComCon_p->m_uiCurSegOffs = 0;
 
     EPL_MEMSET(&SdoAddress, 0, sizeof (SdoAddress));
     SdoAddress.m_SdoAddrType = kEplSdoAddrTypeNodeId;
@@ -2437,9 +2439,6 @@ tEplSdoAddress  SdoAddress;
     ObdParam.m_pHandle = pSdoComCon_p;
     ObdParam.m_pfnAccessFinished = EplSdoComServerCbExpeditedWriteFinished;
     ObdParam.m_pRemoteAddress = &SdoAddress;
-
-    // save next offset in m_pData for later use in case of segmented transfer
-    pSdoComCon_p->m_pData = (BYTE*) uiSegmentSize;
 
     Ret = EplObdWriteEntryFromLe(&ObdParam);
     if (Ret == kEplObdAccessAdopted)
@@ -3103,7 +3102,6 @@ unsigned int    uiSizeOfFrame;
 
     return Ret;
 }
-#endif
 
 //---------------------------------------------------------------------------
 //
@@ -3166,6 +3164,7 @@ tEplKernel      Ret;
 
     return Ret;
 }
+#endif // (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
 
 // EOF
 

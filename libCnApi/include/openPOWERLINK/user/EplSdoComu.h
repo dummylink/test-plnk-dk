@@ -171,6 +171,7 @@ typedef struct
     tEplSdoServiceType  m_SdoServiceType;   // WriteByIndex, ReadByIndex
     tEplSdoType         m_SdoProtType;      // protocol layer: Auto, Udp, Asnd, Pdo
     BYTE*               m_pData;            // pointer to data
+    unsigned int        m_uiCurSegOffs;     // current segment offset of segmented transfer
     unsigned int        m_uiTransSize;      // number of bytes
                                             // to transfer
     unsigned int        m_uiTransferredByte;// number of bytes

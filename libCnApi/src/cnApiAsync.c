@@ -401,6 +401,9 @@ tPdiAsyncStatus CnApi_doCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
         goto exit;
     }
 
+    /* assign handle */
+    pMsgHdl = (tCnApiObjCreateObjLinksHdl *) pMsgDescr_p->pUserHdl_m;
+
     /* check if object list pointer is assigned */
     if (pMsgHdl->pObj_m == NULL)
     {
@@ -451,7 +454,6 @@ tPdiAsyncStatus CnApi_doCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
 
     /* handle Tx Message */
     /* build up CreateObjLksReq */
-    pMsgHdl = (tCnApiObjCreateObjLinksHdl *) pMsgDescr_p->pUserHdl_m;
 
     /* calculate maximum number of objects which can be created in one createObjLinksReq Call */
     wMaxObjs = (dwMaxTxBufSize_p - sizeof(pCreateObjLksReq)) / sizeof(tCnApiObjId);
