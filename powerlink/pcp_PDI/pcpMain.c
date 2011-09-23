@@ -1,12 +1,12 @@
 /**
 ********************************************************************************
-\file		pcpMain.c
+\file        pcpMain.c
 
-\brief		main module of powerlink stack for PCP, supporting an external SW API
+\brief        main module of powerlink stack for PCP, supporting an external SW API
 
-\author		Josef Baumgartner
+\author        Josef Baumgartner
 
-\date		06.04.2010
+\date        06.04.2010
 
 (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 
@@ -53,10 +53,10 @@
 //---------------------------------------------------------------------------
 // module global vars
 //---------------------------------------------------------------------------
-tPcpCtrlReg		* volatile pCtrlReg_g;               ///< ptr. to PCP control register
-tCnApiInitParm 	initParm_g;                ///< Powerlink initialization parameter
-BOOL 			fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
-int				iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
+tPcpCtrlReg        * volatile pCtrlReg_g;     ///< ptr. to PCP control register
+tCnApiInitParm     initParm_g;                ///< Powerlink initialization parameter
+BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
+int                iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 
 static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< segmented object access management
@@ -111,41 +111,41 @@ extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 
 /**
 ********************************************************************************
-\brief	get string of NMT state
+\brief    get string of NMT state
 *******************************************************************************/
 char * getNmtState (tEplNmtState state)
 {
-	switch (state)
-	{
-	case kEplNmtGsOff: return "NmtGsOff";
-	case kEplNmtGsInitialising: return "NmtGsInitialising";
-	case kEplNmtGsResetApplication: return "NmtGsResetApplication";
-	case kEplNmtGsResetCommunication: return "NmtGsResetCommunication";
-	case kEplNmtGsResetConfiguration: return "NmtGsResetConfiguration";
-	case kEplNmtCsNotActive: return "NmtCsNotActive";
-	case kEplNmtCsPreOperational1: return "NmtCsPreOperational1";
-	case kEplNmtCsStopped: return "NmtCsStopped";
-	case kEplNmtCsPreOperational2: return "NmtCsPreOperational2";
-	case kEplNmtCsReadyToOperate: return "NmtCsReadyToOperate";
-	case kEplNmtCsOperational: return "NmtCsOperational";
-	case kEplNmtCsBasicEthernet: return "NmtCsBasicEthernet";
-	case kEplNmtMsNotActive: return "NmtMsNotActive";
-	case kEplNmtMsPreOperational1: return "NmtMsPreOperational1";
-	case kEplNmtMsPreOperational2: return "NmtMsPreOperational2";
-	case kEplNmtMsReadyToOperate: return "NmtMsReadyToOperate";
-	case kEplNmtMsOperational: return "NmtMsOperational";
-	case kEplNmtMsBasicEthernet: return "NmtMsBasicEthernet";
-	default: return "--";
-	}
+    switch (state)
+    {
+    case kEplNmtGsOff: return "NmtGsOff";
+    case kEplNmtGsInitialising: return "NmtGsInitialising";
+    case kEplNmtGsResetApplication: return "NmtGsResetApplication";
+    case kEplNmtGsResetCommunication: return "NmtGsResetCommunication";
+    case kEplNmtGsResetConfiguration: return "NmtGsResetConfiguration";
+    case kEplNmtCsNotActive: return "NmtCsNotActive";
+    case kEplNmtCsPreOperational1: return "NmtCsPreOperational1";
+    case kEplNmtCsStopped: return "NmtCsStopped";
+    case kEplNmtCsPreOperational2: return "NmtCsPreOperational2";
+    case kEplNmtCsReadyToOperate: return "NmtCsReadyToOperate";
+    case kEplNmtCsOperational: return "NmtCsOperational";
+    case kEplNmtCsBasicEthernet: return "NmtCsBasicEthernet";
+    case kEplNmtMsNotActive: return "NmtMsNotActive";
+    case kEplNmtMsPreOperational1: return "NmtMsPreOperational1";
+    case kEplNmtMsPreOperational2: return "NmtMsPreOperational2";
+    case kEplNmtMsReadyToOperate: return "NmtMsReadyToOperate";
+    case kEplNmtMsOperational: return "NmtMsOperational";
+    case kEplNmtMsBasicEthernet: return "NmtMsBasicEthernet";
+    default: return "--";
+    }
 }
 
 /**
 ********************************************************************************
-\brief	main function of generic POWERLINK CN interface
+\brief    main function of generic POWERLINK CN interface
 *******************************************************************************/
 int main (void)
 {
-	/* flush all caches */
+    /* flush all caches */
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
@@ -194,6 +194,9 @@ int main (void)
 
     Gi_init();
 
+    // TODO where to place ? jba
+    initFirmwareUpdate(4744, 1);
+
      DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
 
 #ifdef STATUS_LED_PIO_BASE
@@ -209,98 +212,98 @@ exit:
 
 /**
 ********************************************************************************
-\brief	initialize openPOWERLINK stack
+\brief    initialize openPOWERLINK stack
 *******************************************************************************/
 int initPowerlink(tCnApiInitParm *pInitParm_p)
 {
-	DWORD		 			ip = IP_ADDR;      ///< ip address
-	static tEplApiInitParam EplApiInitParam;   ///< epl init parameter
-	tEplKernel 				EplRet;
+    DWORD                     ip = IP_ADDR;      ///< ip address
+    static tEplApiInitParam EplApiInitParam;   ///< epl init parameter
+    tEplKernel                 EplRet;
 
-	DEBUG_FUNC;
+    DEBUG_FUNC;
 
-	/* check if NodeID has been set to 0x00 by AP -> use node switches */
+    /* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef SET_NODE_ID_BY_HW
-	if(pInitParm_p->m_bNodeId == 0x00)
-	{   /* read port configuration input pins and overwrite parameter */
-	    pInitParm_p->m_bNodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
-	}
+    if(pInitParm_p->m_bNodeId == 0x00)
+    {   /* read port configuration input pins and overwrite parameter */
+        pInitParm_p->m_bNodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
+    }
 #endif /* SET_NODE_ID_BY_HW */
 
     /* setup the POWERLINK stack */
-	/* calc the IP address with the nodeid */
-	ip &= 0xFFFFFF00;                          ///< dump the last byte
-	ip |= pInitParm_p->m_bNodeId;              ///< and mask it with the node id
+    /* calc the IP address with the nodeid */
+    ip &= 0xFFFFFF00;                          ///< dump the last byte
+    ip |= pInitParm_p->m_bNodeId;              ///< and mask it with the node id
 
-	/* set EPL init parameters */
-	EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
-	EPL_MEMCPY(EplApiInitParam.m_abMacAddress, pInitParm_p->m_abMac, sizeof(EplApiInitParam.m_abMacAddress));
-	EplApiInitParam.m_uiNodeId = pInitParm_p->m_bNodeId;
-	EplApiInitParam.m_dwIpAddress = ip;
-	EplApiInitParam.m_uiIsochrTxMaxPayload = 256; // TODO: use system.h define?
-	EplApiInitParam.m_uiIsochrRxMaxPayload = 256; // TODO: use system.h define?
-	EplApiInitParam.m_dwPresMaxLatency = 2000; // ns
-	EplApiInitParam.m_dwAsndMaxLatency = 2000; // ns
-	EplApiInitParam.m_fAsyncOnly = FALSE;
-	EplApiInitParam.m_dwFeatureFlags = -1;                  // depends on openPOWERLINK module integration
-	EplApiInitParam.m_dwCycleLen = DEFAULT_CYCLE_LEN;
-	EplApiInitParam.m_uiPreqActPayloadLimit = 36;                              //TODO: use system.h define?
-	EplApiInitParam.m_uiPresActPayloadLimit = 36;                              //TODO: use system.h define?
-	EplApiInitParam.m_uiMultiplCycleCnt = 0;
-	EplApiInitParam.m_uiAsyncMtu = 1500;
-	EplApiInitParam.m_uiPrescaler = 2;
-	EplApiInitParam.m_dwLossOfFrameTolerance = 500000000;
-	EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
-	EplApiInitParam.m_dwWaitSocPreq = 0;
-	EplApiInitParam.m_dwDeviceType = pInitParm_p->m_dwDeviceType;
-	EplApiInitParam.m_dwVendorId = pInitParm_p->m_dwVendorId;
-	EplApiInitParam.m_dwProductCode = pInitParm_p->m_dwProductCode;
-	EplApiInitParam.m_dwRevisionNumber = pInitParm_p->m_dwRevision;
-	EplApiInitParam.m_dwSerialNumber = pInitParm_p->m_dwSerialNum;
-	//EplApiInitParam.m_dwVerifyConfigurationDate;
-	//EplApiInitParam.m_dwVerifyConfigurationTime;
-	EplApiInitParam.m_dwApplicationSwDate = 1;
-	EplApiInitParam.m_dwApplicationSwTime = 1;
-	EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
-	EplApiInitParam.m_dwDefaultGateway = 0;
-	EplApiInitParam.m_pfnCbEvent = AppCbEvent;
+    /* set EPL init parameters */
+    EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
+    EPL_MEMCPY(EplApiInitParam.m_abMacAddress, pInitParm_p->m_abMac, sizeof(EplApiInitParam.m_abMacAddress));
+    EplApiInitParam.m_uiNodeId = pInitParm_p->m_bNodeId;
+    EplApiInitParam.m_dwIpAddress = ip;
+    EplApiInitParam.m_uiIsochrTxMaxPayload = 256; // TODO: use system.h define?
+    EplApiInitParam.m_uiIsochrRxMaxPayload = 256; // TODO: use system.h define?
+    EplApiInitParam.m_dwPresMaxLatency = 2000; // ns
+    EplApiInitParam.m_dwAsndMaxLatency = 2000; // ns
+    EplApiInitParam.m_fAsyncOnly = FALSE;
+    EplApiInitParam.m_dwFeatureFlags = -1;                  // depends on openPOWERLINK module integration
+    EplApiInitParam.m_dwCycleLen = DEFAULT_CYCLE_LEN;
+    EplApiInitParam.m_uiPreqActPayloadLimit = 36;                              //TODO: use system.h define?
+    EplApiInitParam.m_uiPresActPayloadLimit = 36;                              //TODO: use system.h define?
+    EplApiInitParam.m_uiMultiplCycleCnt = 0;
+    EplApiInitParam.m_uiAsyncMtu = 1500;
+    EplApiInitParam.m_uiPrescaler = 2;
+    EplApiInitParam.m_dwLossOfFrameTolerance = 500000000;
+    EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
+    EplApiInitParam.m_dwWaitSocPreq = 0;
+    EplApiInitParam.m_dwDeviceType = pInitParm_p->m_dwDeviceType;
+    EplApiInitParam.m_dwVendorId = pInitParm_p->m_dwVendorId;
+    EplApiInitParam.m_dwProductCode = pInitParm_p->m_dwProductCode;
+    EplApiInitParam.m_dwRevisionNumber = pInitParm_p->m_dwRevision;
+    EplApiInitParam.m_dwSerialNumber = pInitParm_p->m_dwSerialNum;
+    //EplApiInitParam.m_dwVerifyConfigurationDate;
+    //EplApiInitParam.m_dwVerifyConfigurationTime;
+    EplApiInitParam.m_dwApplicationSwDate = 1;
+    EplApiInitParam.m_dwApplicationSwTime = 1;
+    EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
+    EplApiInitParam.m_dwDefaultGateway = 0;
+    EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
     EplApiInitParam.m_pfnDefaultObdCallback = EplAppCbDefaultObdAccess; // called if objects do not exist in local OBD
-	EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
+    EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 
-	DEBUG_TRACE1(DEBUG_LVL_09, "INFO: NODE ID is set to 0x%02x\n", EplApiInitParam.m_uiNodeId);
+    DEBUG_TRACE1(DEBUG_LVL_09, "INFO: NODE ID is set to 0x%02x\n", EplApiInitParam.m_uiNodeId);
 
-	/* inform AP about current node ID */
-	pCtrlReg_g->m_wNodeId = EplApiInitParam.m_uiNodeId;
-	Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
+    /* inform AP about current node ID */
+    pCtrlReg_g->m_wNodeId = EplApiInitParam.m_uiNodeId;
+    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
 
-	/* initialize POWERLINK stack */
-	DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
-	EplRet = EplApiInitialize(&EplApiInitParam);
-	if(EplRet != kEplSuccessful)
-	{
+    /* initialize POWERLINK stack */
+    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
+    EplRet = EplApiInitialize(&EplApiInitParam);
+    if(EplRet != kEplSuccessful)
+    {
         DEBUG_TRACE1(DEBUG_LVL_28, "init POWERLINK Stack... error %X\n\n", EplRet);
     }
-	else
-	{
-		DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...ok\n\n");
-		fPLisInitalized_g = TRUE;
-	}
+    else
+    {
+        DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...ok\n\n");
+        fPLisInitalized_g = TRUE;
+    }
     return EplRet;
 }
 
 /**
 ********************************************************************************
-\brief	start the POWERLINK stack
+\brief    start the POWERLINK stack
 *******************************************************************************/
 int startPowerlink(void)
 {
-	tEplKernel 				EplRet;
+    tEplKernel                 EplRet;
 
-	// start the POWERLINK stack
+    // start the POWERLINK stack
     DEBUG_TRACE0(DEBUG_LVL_29, "start EPL Stack...\n");
-	EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
+    EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
     if (EplRet != kEplSuccessful)
     {
         DEBUG_TRACE0(DEBUG_LVL_29, "start EPL Stack... error\n\n");
@@ -308,14 +311,14 @@ int startPowerlink(void)
     }
     else
     {
-    	DEBUG_TRACE0(DEBUG_LVL_29, "start POWERLINK Stack... ok\n\n");
-    	return OK;
+        DEBUG_TRACE0(DEBUG_LVL_29, "start POWERLINK Stack... ok\n\n");
+        return OK;
     }
 }
 
 /**
 ********************************************************************************
-\brief	process POWERLINK
+\brief    process POWERLINK
 *******************************************************************************/
 void processPowerlink(void)
 {
@@ -350,21 +353,21 @@ void processPowerlink(void)
 
 /**
 ********************************************************************************
-\brief	event callback function called by EPL API layer
+\brief    event callback function called by EPL API layer
 
 AppCbEvent() is the event callback function called by EPL API layer within
 the user part (low priority).
 
 
-\param	EventType_p     		event type (IN)
-\param	pEventArg_p     		pointer to union, which describes the event in
+\param    EventType_p             event type (IN)
+\param    pEventArg_p             pointer to union, which describes the event in
                                 detail (IN)
-\param	pUserArg_p      		user specific argument
+\param    pUserArg_p              user specific argument
 
 \return error code (tEplKernel)
-\retval	kEplSuccessful		no error
-\retval	kEplReject 			reject further processing
-\retval	otherwise 			post error event to API layer
+\retval    kEplSuccessful        no error
+\retval    kEplReject             reject further processing
+\retval    otherwise             post error event to API layer
 *******************************************************************************/
 tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                              tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
@@ -484,7 +487,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     break;
 
                 case kEplNmtCsOperational:
-                	setPowerlinkEvent(kPowerlinkEventEnterOperational);
+                    setPowerlinkEvent(kPowerlinkEventEnterOperational);
                     break;
 
                 default:
@@ -521,13 +524,13 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplEventSourceDllk:
                 {   // error occured within the data link layer (e.g. interrupt processing)
                     // the DWORD argument contains the DLL state and the NMT event
-                	DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, " val=%lX\n", pEventArg_p->m_InternalError.m_Arg.m_dwArg);
+                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, " val=%lX\n", pEventArg_p->m_InternalError.m_Arg.m_dwArg);
                     break;
                 }
 
                 default:
                 {
-                	DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "\n");
+                    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "\n");
                     break;
                 }
             }
@@ -539,10 +542,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
             //Gi_pcpEventPost(kPcpPdiEventStackLed, pEventArg_p->m_Led.m_LedType);
 
-        	switch (pEventArg_p->m_Led.m_LedType)
+            switch (pEventArg_p->m_Led.m_LedType)
             {
                 case kEplLedTypeStatus:
-                	Gi_controlLED(kEplLedTypeStatus, pEventArg_p->m_Led.m_fOn);
+                    Gi_controlLED(kEplLedTypeStatus, pEventArg_p->m_Led.m_fOn);
                     break;
                 case kEplLedTypeError:
                     Gi_controlLED(kEplLedTypeError, pEventArg_p->m_Led.m_fOn);
@@ -812,6 +815,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         // this triggers an Ack of the last received SDO sequence in case of remote access
                         EplRet = EplAppDefObdAccFinished(&pFoundHdl->m_pObdParam);
 
+
                         // correct history status
                         pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
                         pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
@@ -820,7 +824,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                         if (EplRet != kEplSuccessful)
                         {
-                            goto Exit;
+                            // goto Exit;
                         }
 
                     }
@@ -830,7 +834,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
             {   // go on processing the history without calling m_pfnAccessFinished
 
                 // prevent SDO from ack the last received frame
-                EplSdoAsySeqAppFlowControl(wFinishedHistoryCnt, TRUE);
+                EplSdoAsySeqAppFlowControl((OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bObdSegWriteAccHistoryEmptyCnt_g), TRUE);
 
                 EplRet = EplAppDefObdAccGetStatusDependantHdl(
                         0,
@@ -991,16 +995,16 @@ Exit:
 
 /**
 ********************************************************************************
-\brief	sync event callback function called by event module
+\brief    sync event callback function called by event module
 
 AppCbSync() implements the event callback function called by event module
 within kernel part (high priority). This function sets the outputs, reads the
 inputs and runs the control loop.
 
-\return	error code (tEplKernel)
+\return    error code (tEplKernel)
 
-\retval	kEplSuccessful			no error
-\retval	otherwise				post error event to API layer
+\retval    kEplSuccessful            no error
+\retval    otherwise                post error event to API layer
 *******************************************************************************/
 tEplKernel PUBLIC AppCbSync(void)
 {
@@ -1022,33 +1026,33 @@ tEplKernel PUBLIC AppCbSync(void)
 
 /**
 ********************************************************************************
-\brief	get command from AP
+\brief    get command from AP
 
 getCommandFromAp() gets the command from the application processor(AP).
 
-\return		command from AP
+\return        command from AP
 *******************************************************************************/
 BYTE getCommandFromAp(void)
 {
-	return pCtrlReg_g->m_wCommand;
+    return pCtrlReg_g->m_wCommand;
 }
 
 /**
 ********************************************************************************
-\brief	store the state the PCP is in
+\brief    store the state the PCP is in
 *******************************************************************************/
 void storePcpState(BYTE bState_p)
 {
-	pCtrlReg_g->m_wState = bState_p;
+    pCtrlReg_g->m_wState = bState_p;
 }
 
 /**
 ********************************************************************************
-\brief	get the state of the PCP state machine
+\brief    get the state of the PCP state machine
 *******************************************************************************/
 BYTE getPcpState(void)
 {
-	return pCtrlReg_g->m_wState;
+    return pCtrlReg_g->m_wState;
 }
 
 /**
@@ -1078,16 +1082,16 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 
 /**
 ********************************************************************************
-\brief	basic initializations
+\brief    basic initializations
 *******************************************************************************/
 
 void Gi_init(void)
 {
     int iRet= OK;
 
-	/* Setup PCP Control Register in DPRAM */
+    /* Setup PCP Control Register in DPRAM */
 
-    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;	   ///< set address of control register - equals DPRAM base address
+    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;       ///< set address of control register - equals DPRAM base address
 
     // TODO: update pCtrlReg_g->m_dwAppDate and pCtrlReg_g->m_dwAppTime
 
@@ -1145,14 +1149,14 @@ void Gi_shutdown(void)
 
 /**
 ********************************************************************************
-\brief	enable the synchronous PDI interrupt
+\brief    enable the synchronous PDI interrupt
 *******************************************************************************/
 void Gi_enableSyncInt(void)
 {
 
     //TODO: set HW triggered, if timer is present (system.h define)
 
-	// enable IRQ and set mode to "IR generation by SW"
+    // enable IRQ and set mode to "IR generation by SW"
     pCtrlReg_g->m_wSyncIrqControl = ((1 << SYNC_IRQ_ENABLE) & ~(1 << SYNC_IRQ_MODE));
 }
 
@@ -1178,55 +1182,55 @@ BOOL Gi_checkSyncIrqRequired(void)
 
 /**
 ********************************************************************************
-\brief	calculate sync interrupt period
+\brief    calculate sync interrupt period
 *******************************************************************************/
 void Gi_calcSyncIntPeriod(void)
 {
-	int				iNumCycles;
-	int				iSyncPeriod;
-	unsigned int	uiCycleTime;
-	unsigned int	uiSize;
-	tEplKernel 		EplRet = kEplSuccessful;
+    int                iNumCycles;
+    int                iSyncPeriod;
+    unsigned int    uiCycleTime;
+    unsigned int    uiSize;
+    tEplKernel         EplRet = kEplSuccessful;
 
-	uiSize = sizeof(uiCycleTime);
-	EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
-	if (EplRet != kEplSuccessful)
-	{
-	    Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-		iSyncIntCycle_g = 0;
-		return;
-	}
-
-	if (pCtrlReg_g->m_dwMinCycleTime == 0 &&
-	    pCtrlReg_g->m_dwMaxCycleTime == 0 &&
-	    pCtrlReg_g->m_wMaxCycleNum == 0)
+    uiSize = sizeof(uiCycleTime);
+    EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
+    if (EplRet != kEplSuccessful)
     {
-	    /* no need to trigger IR signal - polling mode is applied */
-	    iSyncIntCycle_g = 0;
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
+        iSyncIntCycle_g = 0;
         return;
     }
 
-	iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;	/* do it this way to round up integer division! */
-	iSyncPeriod = iNumCycles * uiCycleTime;
+    if (pCtrlReg_g->m_dwMinCycleTime == 0 &&
+        pCtrlReg_g->m_dwMaxCycleTime == 0 &&
+        pCtrlReg_g->m_wMaxCycleNum == 0)
+    {
+        /* no need to trigger IR signal - polling mode is applied */
+        iSyncIntCycle_g = 0;
+        return;
+    }
 
-	DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%lu --> syncPeriod=%d\n",
-			       uiCycleTime, pCtrlReg_g->m_dwMinCycleTime, iSyncPeriod);
+    iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;    /* do it this way to round up integer division! */
+    iSyncPeriod = iNumCycles * uiCycleTime;
 
-	if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
-	{
-	    Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-		iSyncIntCycle_g = 0;
-		return;
-	}
+    DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%lu --> syncPeriod=%d\n",
+                   uiCycleTime, pCtrlReg_g->m_dwMinCycleTime, iSyncPeriod);
 
-	if (iSyncPeriod > pCtrlReg_g->m_dwMaxCycleTime)
-	{
-	    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
+    if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
+    {
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
+        iSyncIntCycle_g = 0;
+        return;
+    }
 
-	    Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-		iSyncIntCycle_g = 0;
-		return;
-	}
+    if (iSyncPeriod > pCtrlReg_g->m_dwMaxCycleTime)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
+
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
+        iSyncIntCycle_g = 0;
+        return;
+    }
     if (iSyncPeriod < pCtrlReg_g->m_dwMinCycleTime)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
@@ -1236,50 +1240,50 @@ void Gi_calcSyncIntPeriod(void)
         return;
     }
 
-	iSyncIntCycle_g = iNumCycles;
-	pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
+    iSyncIntCycle_g = iNumCycles;
+    pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
-	return;
+    return;
 }
 
 /**
 ********************************************************************************
-\brief	generate the PCP -> AP synchronization interrupt
+\brief    generate the PCP -> AP synchronization interrupt
 *******************************************************************************/
 void Gi_generateSyncInt(void)
 {
-	/* Throw interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
+    /* Throw interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
     pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_SET); //set IRQ_SET bit to high
-	return;
+    return;
 }
 
 /**
 ********************************************************************************
-\brief	disable the PCP -> AP synchronization interrupt
+\brief    disable the PCP -> AP synchronization interrupt
 *******************************************************************************/
 void Gi_disableSyncInt(void)
 {
-	/* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
+    /* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
     pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_ENABLE); // set enable bit to low
-	return;
+    return;
 }
 
 /**
 ********************************************************************************
-\brief	set the PCP -> AP synchronization interrupt timer value for delay mode
+\brief    set the PCP -> AP synchronization interrupt timer value for delay mode
 *******************************************************************************/
 void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
 {
-	/* set timer value by writing to the SYNC_IRQ_TIMER_VALUE_REGISTER */
+    /* set timer value by writing to the SYNC_IRQ_TIMER_VALUE_REGISTER */
     // pCtrlReg_g->m_dwPcpIrqTimerValue = uiTimeValue; TODO: This is not in PDI, but in openMAC (2nd timer)! Check doku.
-	pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_MODE); ///< set mode bit to high -> HW assertion
-	return;
+    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_MODE); ///< set mode bit to high -> HW assertion
+    return;
 }
 
 /**
 ********************************************************************************
-\brief	control LED outputs of POWERLINK IP core
+\brief    control LED outputs of POWERLINK IP core
 *******************************************************************************/
 void Gi_controlLED(BYTE bType_p, BOOL bOn_p)
 {
@@ -2206,6 +2210,7 @@ int fwUpdateAbortCb(void * pHandle)
 {
     int         iRet;
 
+    printf (":::::::::::::::Abort callback!\n");
 
     ((tDefObdAccHdl *)pHandle)->m_Status = kEplObdDefAccHdlError;
 
@@ -2230,7 +2235,7 @@ int fwUpdateSegFinishCb(void * pHandle)
     int         iRet;
 
     ((tDefObdAccHdl *)pHandle)->m_Status = kEplObdDefAccHdlProcessingFinished;
-    DEBUG_TRACE1(DEBUG_LVL_14, "OBD ACC cnt processed: %d\n",
+    DEBUG_TRACE2(DEBUG_LVL_14, "::%s() OBD ACC cnt processed: %d\n", __func__,
                 ((tDefObdAccHdl *)pHandle)->m_wSeqCnt);
 
     // trigger event

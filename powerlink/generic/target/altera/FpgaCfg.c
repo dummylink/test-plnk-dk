@@ -363,6 +363,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 {
     tFpgaCfgRetVal Ret = kFpgaCfgInvalidRetVal;
     BOOL fApplicationImageFailed = FALSE;
+    DWORD dwTriggerCondition;
 
 #ifdef SYSID_BASE
     DEBUG_TRACE2(DEBUG_LVL_ALWAYS, "Reconfigured with system time stamp: %ul \nand system ID: %ul\n",
@@ -385,32 +386,34 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
         case 0x00:
         {/* factory mode */
 
-            DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "Factory image triggered by: %#lx", FpgaCfg_getPast1ReconfigTriggerCondition());
-            if (FpgaCfg_getPast1ReconfigTriggerCondition() == 0x00)
+            dwTriggerCondition = FpgaCfg_getPast1ReconfigTriggerCondition();
+
+            DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "Factory image triggered by: %#lx", dwTriggerCondition);
+            if (dwTriggerCondition == 0x00)
             {
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (power up)\n");
             }
-            if (FpgaCfg_getPast1ReconfigTriggerCondition() & 0x01)
+            if (dwTriggerCondition & 0x01)
             {
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (remote update core)\n");
             }
-            if (FpgaCfg_getPast1ReconfigTriggerCondition() & 0x02)
+            if (dwTriggerCondition & 0x02)
             {
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (watchdog timeout)\n");
                 fApplicationImageFailed = TRUE;
             }
-            if (FpgaCfg_getPast1ReconfigTriggerCondition() & 0x04)
+            if (dwTriggerCondition & 0x04)
             {
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (nSTATUS assertion)\n");
                 // no valid application image presen at FLASH_FPGA_USER_IMAGE_ADR
                 fApplicationImageFailed = TRUE;
             }
-            if (FpgaCfg_getPast1ReconfigTriggerCondition() & 0x08)
+            if (dwTriggerCondition & 0x08)
             {
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (config CRC error)\n");
                 fApplicationImageFailed = TRUE;
             }
-            if (FpgaCfg_getPast1ReconfigTriggerCondition() & 0x010)
+            if (dwTriggerCondition & 0x010)
             {
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (external nCONFIG reset)\n");
             }
@@ -425,6 +428,10 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
             }
             else
             { /* trigger application image reconfiguration */
+
+                // JBA insert code here!
+
+
 
                 /* Watchdog is enabled per default in factory mode, so enabling is not necessary. */
 #ifdef DEFAULT_DISABLE_WATCHDOG
