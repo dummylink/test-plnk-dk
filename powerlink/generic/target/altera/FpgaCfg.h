@@ -22,7 +22,7 @@
 #define FPGACFG_H_
 /******************************************************************************/
 /* includes */
-#include "global.h"
+
 #include "Debug.h"
 #include "system.h"
 #include <sys/alt_flash.h>
@@ -35,7 +35,7 @@
 /* User adjustable defines          */
 /*                                  */
 #define DEFAULT_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
-#define NO_FACTORY_IMG_IN_FLASH             ///< this define skips triggering
+#undef NO_FACTORY_IMG_IN_FLASH             ///< this define skips triggering
                                             ///< user image reconfiguration
 // do not reset to Flash memory, if no image is stored there yet
 // activate this define, if you use only JTAG programming!

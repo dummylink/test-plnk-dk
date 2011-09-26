@@ -1,7 +1,7 @@
 /*******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
 */
 
 /**
@@ -21,8 +21,12 @@
 *******************************************************************************/
 /* includes */
 #include "FpgaCfg.h"
+#include "EplInc.h"
+#include "cnApiGlobal.h"
+#include "fwUpdate.h"
 #include "altera_avalon_pio_regs.h"
 #include <string.h>                      //for memcpy()
+
 #ifdef SYSID_BASE
 #include "altera_avalon_sysid.h"
 #include "altera_avalon_sysid_regs.h"
@@ -427,10 +431,17 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 goto exit;
             }
             else
-            { /* trigger application image reconfiguration */
+            { /* trigger user image reconfiguration */
 
                 // JBA insert code here!
-
+                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Checking user image ...\n");
+                if (checkfwImage(USER_IMAGE_FLASH_ADRS, USER_IIB_FLASH_ADRS, USER_IIB_VERSION) == ERROR)
+                {
+                    Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
+                    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "... INVALID!\n");
+                    break;
+                }
+                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "... OK!\n");
 
 
                 /* Watchdog is enabled per default in factory mode, so enabling is not necessary. */
@@ -447,7 +458,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 #ifndef NO_FACTORY_IMG_IN_FLASH
                 //usleep(1000*10000); //activate this line for debugging
                 /* trigger reconfiguration of application image */
-                FpgaCfg_reloadFromFlash(FLASH_FPGA_USER_IMAGE_ADR);
+                FpgaCfg_reloadFromFlash(USER_IMAGE_FLASH_ADRS);
 #endif /* not NO_FACTORY_IMG_IN_FLASH */
             }
             break;
@@ -1122,13 +1133,13 @@ exit:
 *
 * License Agreement
 *
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1  
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 * All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms,
 * with or without modification,
 * are permitted provided that the following conditions are met:
-* 
+*
 *   * Redistributions of source code must retain the above copyright notice,
 *     this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above copyright notice,
@@ -1138,7 +1149,7 @@ exit:
 *   * Neither the name of the B&R nor the names of its contributors
 *     may be used to endorse or promote products derived from this software
 *     without specific prior written permission.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
