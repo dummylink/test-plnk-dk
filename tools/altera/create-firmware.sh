@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################################
 # create-firmware.sh
 #
@@ -99,7 +99,7 @@ do
         -v|--verbose)       VERBOSE="1";;
         --)                 shift; break;;
         -h|--help)          usage ;;
-        -*|*)   usage ;;
+        -*|*)               echo -e "\nInvalid option: $1\n"; usage ;;
     esac
     shift
 done

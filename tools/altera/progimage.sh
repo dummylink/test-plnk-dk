@@ -1,8 +1,8 @@
 #!/bin/sh
 ################################################################################
-# progfactory.sh
+# progimage.sh
 #
-# progfactory.sh is used to program an openPOWERLINK Slave DevKit factory image
+# progimage.sh is used to program an openPOWERLINK Slave DevKit image
 # containing FPGA configuration, PCP software, AP software and Image
 # Information block.
 #
@@ -26,7 +26,7 @@ FPGACFG_SOF=
 FPGACFG_VERS=
 PCPSW_ELF=
 PCPSW_VERS=
-APSW_BIN=
+APSW_FILE=
 APSW_VERS=
 CABLE=
 INSTANCE=0
@@ -52,9 +52,9 @@ MKIIB=./mkiib
 usage()
 {
 echo -e >&2 \
-"\nopenPOWERLINK Slave Development Toolkit: progFactory.sh\n"\
-"progFactory.sh programs a factory image onto a SlaveDevKit hardware. It "\
-"reads a FPGA configuration in .sof format and a PCP software in .elf format"\
+"\nopenPOWERLINK Slave Development Toolkit: progimage.sh\n"\
+"progimage.sh programs a factory image onto a SlaveDevKit hardware. It\n"\
+"reads a FPGA configuration in .sof format and a PCP software in .elf format\n"\
 "and optionally an AP software in binary format.\n"\
 "It creates a valid Image Information Block (IIB) and programs all parts\n"\
 "into the flash memory.\n\n"\
@@ -66,8 +66,7 @@ echo -e >&2 \
 "                   [--imageoff <image offset>] [--iiboff <IIB offset>]\n"\
 "                   [--cable <cable name>] [--device <device index>]\n"\
 "                   [--instance <instance>]\n"\
-
-"progfacroy.sh      -h|--help\n\n"\
+"progimage.sh      -h|--help\n\n"\
 "Available options:\n"\
 " -h                         Print this help\n"\
 " -f|--fpgacfg <fpgaconfig>  FPGA configuration file to program\n"\
@@ -82,11 +81,11 @@ echo -e >&2 \
 "                            the current system date is used!\n"\
 " --imageoff <image offset>  Offset of the image region in flash\n"\
 " --iiboff <IIB offset>      Offset of the IIB in flash\n"\
-" --cable <cable name>		 Specifies which download cable to use\n"\
+" --cable <cable name>         Specifies which download cable to use\n"\
 "                            (see nios2-flash-programmer manual)\n"\
-" --device <device index>	 Specifies the FPGA's device number in JTAG chain\n"\
+" --device <device index>     Specifies the FPGA's device number in JTAG chain\n"\
 "                            (see nios2-flash-programmer manual)\n"\
-" --instance <instance>		 Specifies which Nios II JTAG debug module to look at\n"\
+" --instance <instance>         Specifies which Nios II JTAG debug module to look at\n"\
 "                            (see nios2-flash-programmer manual)\n"
 exit 1
 }
@@ -102,19 +101,19 @@ do
         --fpgavers)         FPGACFG_VERS="$2"; let "options|=2"; shift;;
         -p|--pcpsw)         PCPSW_ELF="$2"; let "options|=4"; shift;;
         --pcpvers)          PCPSW_VERS="$2"; let "options|=8"; shift;;
-        -a|--apsw)          APSW_BIN="$2"; let "options|=16"; shift;;
+        -a|--apsw)          APSW_FILE="$2"; let "options|=16"; shift;;
         --apvers)           APSW_VERS="$2"; let "options|=32"; shift;;
         --appswdate)        APPSWDATE="$2"; shift;;
         --appswtime)        APPSWTIME="$2"; shift;;
-        --imageoff)			IMAGE_REGION_START="$2"; shift;;
-        --iiboff)			IIB_REGION_START="$2"; shift;;
-        --cable)			CABLE="$2"; shift;;
-        --device)			DEVICE="$2"; shift;;
-        --instance)			INSTANCE="$2"; shift;;
+        --imageoff)         IMAGE_REGION_START="$2"; shift;;
+        --iiboff)           IIB_REGION_START="$2"; shift;;
+        --cable)            CABLE="$2"; shift;;
+        --device)           DEVICE="$2"; shift;;
+        --instance)         INSTANCE="$2"; shift;;
         -v|--verbose)       VERBOSE="1";;
         --)                 shift; break;;
         -h|--help)          usage ;;
-        -*|*)   usage ;;
+        -*|*)               echo -e "\nInvalid option: $1"; usage ;;
     esac
     shift
 done
@@ -126,16 +125,16 @@ if [[ ! ${FPGACFG_SOF##*.} == "sof" ]]; then
     exit
 fi
 
-if [[ ! ${PCPSW_ELF##*.} == "elf" ]]; then
+if [[ ! "${PCPSW_ELF##*.}" == "elf" ]]; then
     echo -e "\nPlease specifiy a .elf file for PCP software!"
     exit
 fi
 
-if [[ ! "$APSW_BIN" == "" ]]; then
-	if [[ ! ${APSW_BIN##*.} == "bin" ]]; then
-	    echo -e "\nPlease specifiy a .bin file for AP software!"
-	    exit
-	fi
+if [[ ! "$APSW_FILE" == "" ]]; then
+    if [[ ! "${APSW_FILE##*.}" == "bin" ]] && [[ ! "${APSW_FILE##*.}" == "elf" ]]; then
+        echo -e "\nPlease specifiy a .bin/.elf file for AP software!"
+        exit
+    fi
 fi
 
 if ([[ "$APPSWDATE" == "" ]] && [[ ! "$APPSWTIME" == "" ]]) ||
@@ -156,10 +155,14 @@ fi
 
 ################################################################################
 # get basenames
-FPGACFG_BASE=`basename $FPGACFG_SOF .sof`
-PCPSW_BASE=`basename $PCPSW_ELF .elf`
-APSW_BASE=`basename $APSW_BIN .bin`
-IIB_BASE=`basename $IIB_BIN .bin`
+FPGACFG_BASE=FPGA_`basename $FPGACFG_SOF .sof`
+PCPSW_BASE=PCP_`basename $PCPSW_ELF .elf`
+if [[ "${APSW_FILE##*.}" == "bin" ]] ; then
+    APSW_BASE=AP_`basename $APSW_FILE .bin`
+else
+    APSW_BASE=AP_`basename $APSW_FILE .elf`
+fi
+IIB_BASE=IIB_`basename $IIB_BIN .bin`
 
 # set options for application date and time depending if they are specified
 # on command line or not
@@ -173,28 +176,32 @@ fi
 # set parameters for nios programmer tool
 #
 if [[ "$CABLE" == "" ]]; then
-	CABOPT=""
+    CABOPT=""
 else
-	CABOPT="--cable ${CABLE}"
+    CABOPT="--cable ${CABLE}"
 fi
 
 if [[ "$DEVICE" == "" ]]; then
-	DEVOPT=""
+    DEVOPT=""
 else
-	DEVOPT="--device ${DEVICE}"
+    DEVOPT="--device ${DEVICE}"
 fi
 
 ################################################################################
 # Creating flash for FPGA and Nios configuration for bootloader
 echo -e "\n-----------------------------------------"
-echo -e "Programming factory image ...\n"
+echo -e "Programming firmware image ...\n"
 echo -e "Using FPGA configuration: $FPGACFG_SOF"
 echo -e "Using PCP software: $PCPSW_ELF"
-echo -e "Using AP software: $APSW_BIN\n"
+if [[ "$options" -eq 63 ]]; then
+    echo -e "Using AP software: $APSW_FILE\n"
+fi
 
 echo -e "FPGA configuration version $FPGACFG_VERS"
 echo -e "PCP software version $PCPSW_VERS"
-echo -e "AP software version $APSW_VERS"
+if [[ "$options" -eq 63 ]]; then
+    echo -e "AP software version $APSW_VERS"
+fi
 echo -e "Application software date: $APPSWDATE"
 echo -e "Application software time: $APPSWTIME"
 echo -e "-----------------------------------------"
@@ -211,22 +218,30 @@ $ELF2FLASH --epcs --input="${PCPSW_ELF}" --output="${PCPSW_BASE}.flash" --after=
 $OBJCOPY -I srec -O binary "${PCPSW_BASE}.flash" "${PCPSW_BASE}.bin"
 PCPFILESIZE=`ls -l ${PCPSW_BASE}.bin | awk '{print $5}'`
 
-# AP software is already specified in binary format. We create an srecord to be
-# programmed into flash
-APOFFSET=$[$FPGAFILESIZE + PCPFILESIZE]
-$BIN2FLASH --epcs --input="${APSW_BIN}" --output="${APSW_BASE}.flash" --location=$APOFFSET
-
+if [[ "$options" -eq 63 ]]; then
+    if [[ "${APSW_FILE##*.}" == "elf" ]] ; then
+        $ELF2FLASH --epcs --input="${APSW_FILE}" --output="${APSW_BASE}.flash" --after="${PCPSW_BASE}.flash"
+        $OBJCOPY -I srec -O binary "${APSW_BASE}.flash" "${APSW_BASE}.bin"
+    else
+        # AP software is already specified in binary format. We create an srecord to be
+        # programmed into flash
+        APOFFSET=$[$FPGAFILESIZE + PCPFILESIZE]
+        $BIN2FLASH --epcs --input="${APSW_BASE}.bin" --output="${APSW_BASE}.flash" --location=$APOFFSET
+    fi
+fi
 
 # Now we create the IIB
-if [[ "$options" == 15 ]]; then
-    $MKIIB 	-f ${TMPDIR}/${FPGACFG_BASE}.bin --fpgavers $FPGACFG_VERS \
-        	-p ${TMPDIR}/${PCPSW_BASE}.bin --pcpvers $PCPSW_VERS \
-			${APPSWOPT} -o ${IIB_BIN}
+if [[ "$options" -eq 15 ]]; then
+    $MKIIB  -f ${TMPDIR}/${FPGACFG_BASE}.bin --fpgavers $FPGACFG_VERS \
+            -p ${TMPDIR}/${PCPSW_BASE}.bin --pcpvers $PCPSW_VERS \
+            --imageoff $IMAGE_REGION_START \
+            ${APPSWOPT} -o ${IIB_BIN}
 else
-    $MKIIB 	-f ${TMPDIR}/${FPGACFG_BASE}.bin --fpgavers $FPGACFG_VERS \
-        	-p ${TMPDIR}/${PCPSW_BASE}.bin --pcpvers $PCPSW_VERS \
-        	-a ${TMPDIR}/${APSW_BIN} --apvers $APSW_VERS \
-			${APPSWOPT} -o ${IIB_BIN}
+    $MKIIB  -f ${TMPDIR}/${FPGACFG_BASE}.bin --fpgavers $FPGACFG_VERS \
+            -p ${TMPDIR}/${PCPSW_BASE}.bin --pcpvers $PCPSW_VERS \
+            -a ${TMPDIR}/${APSW_BASE}.bin --apvers $APSW_VERS \
+            --imageoff $IMAGE_REGION_START \
+            ${APPSWOPT} -o ${IIB_BIN}
 fi
 
 $BIN2FLASH --epcs --input="${IIB_BIN}" --output="${IIB_BASE}.flash" --location=${IIB_REGION_START}
@@ -234,12 +249,12 @@ $BIN2FLASH --epcs --input="${IIB_BIN}" --output="${IIB_BASE}.flash" --location=$
 # program files into flash
 $NIOS_PROG --epcs --base=0 ${FPGACFG_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
 $NIOS_PROG --epcs --base=0 ${PCPSW_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
-$NIOS_PROG --epcs --base=0 ${APSW_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
+if [[ "$options" -eq 63 ]]; then
+    $NIOS_PROG --epcs --base=0 ${APSW_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
+fi
 
 # program IIB into flash
 $NIOS_PROG --epcs --base=0 ${IIB_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
-
-exit
 
 ################################################################################
 # Delete temporary files

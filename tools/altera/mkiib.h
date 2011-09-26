@@ -39,6 +39,7 @@ typedef struct {
     UINT32      m_fpgaConfigVersion;
     UINT32      m_pcpSwVersion;
     UINT32      m_apSwVersion;
+    UINT32      m_imgOffset;
 } tOptions;
 
 /******************************************************************************/

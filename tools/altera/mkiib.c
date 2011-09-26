@@ -69,6 +69,7 @@ void usage(void)
            "           -f|--fpgacfg <fpgaconfig> --fpgavers <fpga_verssion>\n"
            "           -p|--pcpsw <pcpsw> --pcpvers <pcpsw_version>\n"
            "           -a|--apsw <apsw> --apvers <apsw_version>\n"
+           "           [--imageoff <image offset>]\n"
            "           [--appswdate <appsw_date>] [--appswtime <appsw_time>]\n");
     printf("mkiib      -i|--info <iib>\n");
     printf("mkiib      -h|--help\n\n");
@@ -81,6 +82,7 @@ void usage(void)
            " --pcpvers <pcpsw_version>  Version number of PCP software\n"
            " -a|--apsw <apsw>           AP software to insert in firmware\n"
            " --apvers <apsw_version>    Version number of AP software\n"
+           " --imageoff <image offset>  Offset of the image region in flash\n"
            " -o|--output <iib>          IIB file to create\n"
            " --appswdate <appswdate>    Application software date (days since 01.01.1984)\n"
            " --appswtime <appswtime>    Application software time (milliseconds since midnight)\n"
@@ -117,6 +119,7 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
                 {"info",      required_argument, 0,  'i' },
                 {"appswdate", required_argument, 0,   0  },
                 {"appswtime", required_argument, 0,   1  },
+                {"imageoff",  required_argument, 0,   5  },
                 {0,           0,                 0,   0  }
             };
 
@@ -179,6 +182,15 @@ int parseCmdLine(int iArgc_p, char* caArgv_p[], tOptions *pOpts_p)
                 return ERROR;
             }
             optcheck |= OPTION_APVERS;
+            break;
+
+        case 5: // Offset of image in flash memory
+            pOpts_p->m_imgOffset = strtoul(optarg, NULL, 16);
+            if (pOpts_p->m_imgOffset > 0xF0000000)
+            {
+                printf ("Invalid Image offset (0..0xF0000000)!\n");
+                return ERROR;
+            }
             break;
 
         case 'h':
@@ -258,13 +270,13 @@ void printIibInfo(tIib *pHeader_p)
 
     printf ("-------------------------------------------------\n");
     printf ("FPGA configuration:\n");
-    printf ("Adrs/Offset:             %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigAdrs));
+    printf ("Adrs/Offset:             0x%08x\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigAdrs));
     printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigVersion));
     printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigSize));
     printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_fpgaConfigCrc));
     printf ("-------------------------------------------------\n");
     printf ("PCP software:\n");
-    printf ("Adrs/Offset:             %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwAdrs));
+    printf ("Adrs/Offset:             0x%08x\n", (UINT32)ntohl(pHeader_p->m_pcpSwAdrs));
     printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwVersion));
     printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_pcpSwSize));
     printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_pcpSwCrc));
@@ -274,7 +286,7 @@ void printIibInfo(tIib *pHeader_p)
     {
         printf ("-------------------------------------------------\n");
         printf ("AP software:\n");
-        printf ("Adrs/Offset:             %d\n", (UINT32)ntohl(pHeader_p->m_apSwAdrs));
+        printf ("Adrs/Offset:             0x%08x\n", (UINT32)ntohl(pHeader_p->m_apSwAdrs));
         printf ("Version:                 %d\n", (UINT32)ntohl(pHeader_p->m_apSwVersion));
         printf ("Size:                    %d\n", (UINT32)ntohl(pHeader_p->m_apSwSize));
         printf ("CRC:                     0x%08x\n", (UINT32)ntohl(pHeader_p->m_apSwCrc));
@@ -461,11 +473,11 @@ int createIib(void)
         return ERROR;
     }
 
-    iib.m_fpgaConfigAdrs = htonl(0);
+    iib.m_fpgaConfigAdrs = htonl(options_g.m_imgOffset);
     iib.m_fpgaConfigCrc = htonl(crc);
     iib.m_fpgaConfigSize = htonl(size);
     iib.m_fpgaConfigVersion = htonl(options_g.m_fpgaConfigVersion);
-    adrs = size;
+    adrs = options_g.m_imgOffset + size;
     close (inputFd);
 
     /*------------------------------------------------------------------------*/
