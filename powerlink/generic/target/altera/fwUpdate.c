@@ -107,6 +107,7 @@ typedef struct {
     void *              m_pHandle;
     UINT32              m_uiUpdateState;
     alt_flash_fd *      m_flashFd;
+    UINT32              m_uiLastSegmentOffset;
 } tUpdateInfo;
 
 /******************************************************************************/
@@ -211,7 +212,7 @@ default state.
 static void abortUpdate(void)
 {
     /* call abort callback function */
-    updateInfo_g.m_pfnAbortCb();
+    updateInfo_g.m_pfnAbortCb(updateInfo_g.m_pHandle);
 
     /* close the flash device */
     alt_flash_close_dev(updateInfo_g.m_flashFd);
@@ -243,7 +244,7 @@ static void programFlashCrc(alt_flash_fd * flashFd_p, char * pData_p,
     crc = crc32(*pCrc_p, pData_p, uiDataSize_p);
 
     /* write data to flash */
-    alt_write_flash(flashFd_p, uiProgOffset_p, pData_p, uiDataSize_p);
+    //alt_write_flash(flashFd_p, uiProgOffset_p, pData_p, uiDataSize_p);
 
     *pCrc_p = crc;
 }
@@ -264,6 +265,9 @@ sector aligned!
 static int eraseFlash(alt_flash_fd * flashFd_p, UINT32 uiSector_p, UINT32 uiSize_p)
 {
     int         iRet;
+
+    printf ("erase at: %08x\n", uiSector_p);
+    return 0;
 
     iRet = alt_erase_flash_block(flashFd_p, uiSector_p, uiSize_p);
 
@@ -297,8 +301,8 @@ static int programFirmware(void)
     if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
     {
         iRet = eraseFlash(updateInfo_g.m_flashFd,
-                                         updateInfo_g.m_uiEraseOffset,
-                                         updateInfo_g.m_uiSectorSize);
+                          updateInfo_g.m_uiEraseOffset,
+                          updateInfo_g.m_uiSectorSize);
 
         switch (iRet)
         {
@@ -347,8 +351,8 @@ static int programFirmware(void)
             if (updateInfo_g.m_uiEraseOffset == updateInfo_g.m_uiProgOffset)
             {
                 iRet = eraseFlash(updateInfo_g.m_flashFd,
-                                                 updateInfo_g.m_uiEraseOffset,
-                                                 updateInfo_g.m_uiSectorSize);
+                                  updateInfo_g.m_uiEraseOffset,
+                                  updateInfo_g.m_uiSectorSize);
                 if (iRet == -EIO)
                 {
                     DEBUG_TRACE0(DEBUG_LVL_15, "Abort\n");
@@ -376,6 +380,7 @@ static int programFirmware(void)
             /* Data crosses a sector boundary. Only data in this sector
              * can be programmed. Then an erase of the next sector is
              * initiated */
+
             size = updateInfo_g.m_uiEraseOffset - updateInfo_g.m_uiProgOffset;
 
             programFlashCrc(updateInfo_g.m_flashFd,
@@ -390,8 +395,8 @@ static int programFirmware(void)
             updateInfo_g.m_pData += size;
 
             iRet = eraseFlash(updateInfo_g.m_flashFd,
-                                                 updateInfo_g.m_uiEraseOffset,
-                                                 updateInfo_g.m_uiSectorSize);
+                              updateInfo_g.m_uiEraseOffset,
+                              updateInfo_g.m_uiSectorSize);
             if (iRet == -EIO)
             {
                 DEBUG_TRACE0(DEBUG_LVL_15, "Abort!\n");
@@ -440,7 +445,7 @@ static int programFirmware(void)
              * the next call. */
             if (updateInfo_g.m_uiDataSize == 0)
             {
-                DEBUG_TRACE0(DEBUG_LVL_15, "Segment/Part finished!\n");
+                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Segment/Part finished!\n");
                 /* Segment finished and image part finished */
                 iResult = eUpdateResultPartFinish | eUpdateResultSegFinish;
             }
@@ -448,7 +453,7 @@ static int programFirmware(void)
             {
                 /* Image part finished, but segment contains data of next
                  * part. */
-                DEBUG_TRACE0(DEBUG_LVL_15, "Part finished!\n");
+                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Part finished!\n");
                 iResult = eUpdateResultPartFinish;
             }
         }
@@ -525,7 +530,7 @@ static void updateStateStart(void)
 
     if (iRet == 0)
     {
-        DEBUG_TRACE1(DEBUG_LVL_15, "%s: IIB erased!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: IIB erased!\n", __func__);
         updateInfo_g.m_uiProgOffset = updateInfo_g.m_uiUserImageOffset;
         /* FPGA configuration must always start on a sector boundary */
         updateInfo_g.m_uiEraseOffset = updateInfo_g.m_uiProgOffset;
@@ -557,7 +562,7 @@ static void updateStateFpga(void)
 
     if (FLAG_ISSET(iRet, eUpdateResultPartFinish))
     {
-        DEBUG_TRACE1(DEBUG_LVL_15, "%s: FPGA programming ready!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: FPGA programming ready!\n", __func__);
 
         /* FPGA part of image finished, check CRC */
         if (updateInfo_g.m_uiCrc == fwHeader_g.m_fpgaConfigCrc)
@@ -568,7 +573,7 @@ static void updateStateFpga(void)
             /* roundup erase offset to next sector start */
             updateInfo_g.m_uiEraseOffset = (updateInfo_g.m_uiProgOffset +
                     updateInfo_g.m_uiSectorSize - 1) &
-                    (updateInfo_g.m_uiSectorSize - 1);
+                    ~(updateInfo_g.m_uiSectorSize - 1);
             updateInfo_g.m_uiRemainingSize = fwHeader_g.m_pcpSwSize;
             updateInfo_g.m_uiCrc = 0;
             updateInfo_g.m_uiUpdateState = eUpdateStatePcp;
@@ -582,6 +587,8 @@ static void updateStateFpga(void)
         else
         {
             /* abort due to wrong CRC */
+            DEBUG_TRACE3(DEBUG_LVL_ERROR, "%s(): Wrong FPGA CRC is %08x, should be %08x\n",
+                         __func__, updateInfo_g.m_uiCrc, fwHeader_g.m_fpgaConfigCrc);
             abortUpdate();
         }
     }
@@ -610,6 +617,7 @@ static void updateStatePcp(void)
 
     if (FLAG_ISSET(iRet, eUpdateResultAbort))
     {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s() Abort\n", __func__);
         abortUpdate();
         return;
     }
@@ -617,7 +625,7 @@ static void updateStatePcp(void)
     /* check if the PCP part is finished */
     if (FLAG_ISSET(iRet, eUpdateResultPartFinish))
     {
-        DEBUG_TRACE1(DEBUG_LVL_15, "%s: PCP programming ready!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: PCP programming ready!\n", __func__);
 
         /* PCP software part of image finished, check CRC */
         if (updateInfo_g.m_uiCrc == fwHeader_g.m_pcpSwCrc)
@@ -644,7 +652,7 @@ static void updateStatePcp(void)
                 /* roundup erase offset to next sector start */
                 updateInfo_g.m_uiEraseOffset = (updateInfo_g.m_uiProgOffset +
                         updateInfo_g.m_uiSectorSize - 1) &
-                        (updateInfo_g.m_uiSectorSize - 1);
+                        ~(updateInfo_g.m_uiSectorSize - 1);
                 updateInfo_g.m_uiRemainingSize = fwHeader_g.m_apSwSize;
                 updateInfo_g.m_uiCrc = 0;
                 updateInfo_g.m_uiUpdateState = eUpdateStateAp;
@@ -688,7 +696,7 @@ static void updateStateAp(void)
     /* check if the AP part is finished */
     if (FLAG_ISSET(iRet, eUpdateResultPartFinish))
     {
-        DEBUG_TRACE1(DEBUG_LVL_15, "%s: AP programming ready!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: AP programming ready!\n", __func__);
 
         /* AP software part of image finished, check CRC */
         if (updateInfo_g.m_uiCrc == fwHeader_g.m_apSwCrc)
@@ -754,11 +762,14 @@ static void updateStateIib(void)
     crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
 
     /* program IIB into flash */
-    alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
-                    sizeof(iib));
+    /*alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
+                    sizeof(iib));*/
 
     /* close the flash device */
     alt_flash_close_dev(updateInfo_g.m_flashFd);
+
+    DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: IIB programming ready!\n", __func__);
+
     updateInfo_g.m_uiUpdateState = eUpdateStateNone;
 }
 
@@ -810,8 +821,8 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
     flash_region*       aFlashRegions;  ///< flash regions array
     unsigned short      wNumOfRegions;  ///< number of flash regions
 
-    DEBUG_TRACE2 (DEBUG_LVL_15, "\n---> %s: segment offset: %d\n", __func__,
-                  uiSegmentOff_p);
+    DEBUG_TRACE3 (DEBUG_LVL_15, "\n---> %s: segment offset: %d Handle:%p\n", __func__,
+                  uiSegmentOff_p, pHandle_p);
 
     /* The first segment of the SDO transfer starts with the firmware header */
     if (uiSegmentOff_p == 0)
@@ -851,9 +862,20 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
         updateInfo_g.m_pData = pData_p + sizeof(tFwHeader);
         updateInfo_g.m_uiDataSize = uiSegmentSize_p - sizeof(tFwHeader);
         updateInfo_g.m_uiUpdateState = eUpdateStateStart;
+        updateInfo_g.m_uiLastSegmentOffset = uiSegmentOff_p;
     }
     else
     {
+        printf ("Segment offset: %d Last segment: %d\n",
+                uiSegmentOff_p, updateInfo_g.m_uiLastSegmentOffset);
+        if (uiSegmentOff_p < updateInfo_g.m_uiLastSegmentOffset)
+        {
+            DEBUG_TRACE2(DEBUG_LVL_ERROR,
+                         "%s: Error: Invalid segment received. Offset: %d!\n",
+                         __func__, uiSegmentOff_p);
+            return ERROR;
+        }
+
         /* check if last segment is not yet processed */
         if (updateInfo_g.m_uiDataSize != 0)
         {
@@ -872,6 +894,7 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
     updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
     updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;
     updateInfo_g.m_pHandle = pHandle_p;
+    updateInfo_g.m_uiLastSegmentOffset = uiSegmentOff_p;
 
     return OK;
 }

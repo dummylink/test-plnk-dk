@@ -171,7 +171,10 @@ C_SRCS += ../generic/openPOWERLINK_CNDKPatched/EplStack/amiarm.c
 C_SRCS += ../generic/openPOWERLINK_CNDKPatched/SharedBuff/SharedBuff.c
 C_SRCS += ../generic/openPOWERLINK_CNDKPatched/SharedBuff/ShbIpc-NoOS.c
 C_SRCS += ../generic/openPOWERLINK_CNDKPatched/Target/altera_nios2/no_os/gnu/generic/ShbTarget_Nios2.c
-C_SRCS += ../generic/target/FpgaCfg.c
+C_SRCS += ../generic/target/altera/boot.c
+C_SRCS += ../generic/target/altera/fpgaCfg.c
+C_SRCS += ../generic/target/altera/fwUpdate.c
+C_SRCS += ../generic/utils/crc32.c
 C_SRCS += pcpAsync.c
 C_SRCS += pcpAsyncSm.c
 C_SRCS += pcpEvent.c
@@ -219,7 +222,8 @@ BSP_ROOT_DIR := ./bsp
 # List of application specific include directories, library directories and library names
 APP_INCLUDE_DIRS += .
 APP_INCLUDE_DIRS += ../generic/POWERLINK_IP_Edrv/openmac/include
-APP_INCLUDE_DIRS += ../generic/POWERLINK_IP_Edrv/../target
+APP_INCLUDE_DIRS += c:/Data/Source/work/openPOWERLINK_CNDK_mh_work/powerlink/generic/target/altera
+APP_INCLUDE_DIRS += c:/Data/Source/work/openPOWERLINK_CNDK_mh_work/powerlink/include
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/Include
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/Include/user
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/SharedBuff
@@ -236,7 +240,7 @@ APP_LIBRARY_NAMES :=
 BUILD_PRE_PROCESS :=
 BUILD_POST_PROCESS :=
 
-CFLAGS := -D_DEBUG -DCN_API_FLAGS= -DDEF_DEBUG_LVL=0xEC000F00L -DMAKE_BUILD_PCP
+CFLAGS := -D_DEBUG -DCN_API_FLAGS= -DDEF_DEBUG_LVL=0xEC006F00L -DMAKE_BUILD_PCP
 CREATE_OBJDUMP := 0
 OBJDUMP_INCLUDE_SOURCE := 1
 QUARTUS_PROJECT_DIR := ../../fpga/altera/TERASIC_DE2-115/ink_ap_pcp_intavalon
@@ -1114,7 +1118,7 @@ SOF_FILE := $(wildcard $(QUARTUS_PROJECT_DIR)/*.sof)
 .PHONY : $(PROGRAM_EPCS_TARGET)
 $(PROGRAM_EPCS_TARGET) : $(ELF)
 
-	@$(ECHO) Info: Programming $(basename $@).flash	
+	@$(ECHO) Info: Programming $(basename $@).flash
 	@if [ -n "$($(basename $@)_EPCS_FLAGS)" ]; \
 	then \
 		nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \

@@ -91,7 +91,7 @@ echo -e >&2 \
 "It creates a valid Image Information Block (IIB) and programs all parts\n"\
 "into the flash memory.\n\n"\
 "Usage:\n"\
-"progfactory.sh     -f|--fpgacfg <fpgaconfig> --fpgavers <fpga_verssion>\n"\
+"progimage.sh      -f|--fpgacfg <fpgaconfig> --fpgavers <fpga_verssion>\n"\
 "                   -p|--pcpsw <pcpsw> --pcpvers <pcpsw_version>\n"\
 "                   [-a|--apsw <apsw> --apvers <apsw_version>]\n"\
 "                   [--appswdate <appsw_date>] [--appswtime <appsw_time>]\n"\
