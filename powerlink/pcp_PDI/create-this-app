@@ -26,7 +26,8 @@ PWD=`pwd`
 . ../../project.config  						#POWERLINK stack path
 EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path
 GENERIC_DIR=../generic
-PCP_DIR=$PWD/..
+PCP_DIR=$PWD/..                                 # use absolute path to be able to include
+                                                # from different source directories
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
 
@@ -103,6 +104,7 @@ ${LIBAPIDIR}/utils"
 # 0x00000400L DEBUG_LVL_11 (= DEBUG_LVL_CNAPI_INFO)
 # 0x00001000L DEBUG_LVL_13 (= DEBUG_LVL_CNAPI_ASYNC_INFO)
 # 0x00002000L DEBUG_LVL_14 (= DEBUG_LVL_DEFAULT_OBD_ACC)
+# 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
 # 0x20000000L DEBUG_LVL_ASSERT
 # 0x80000000L DEBUG_LVL_ERROR
 # 0x40000000L DEBUG_LVL_ALWAYS
@@ -123,7 +125,7 @@ pcpPdo.c \
 pcpAsyncSm.c \
 pcpStateMachine.c \
 pcpEvent.c \
-${GENERIC_DIR}/target/altera/FpgaCfg.c \
+${GENERIC_DIR}/target/altera/fpgaCfg.c \
 ${GENERIC_DIR}/target/altera/fwUpdate.c \
 ${GENERIC_DIR}/target/altera/boot.c \
 ${GENERIC_DIR}/utils/crc32.c \

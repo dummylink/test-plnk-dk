@@ -4,13 +4,40 @@
 
 \brief      firmware boot functions
 
-\author     Josef Baumgartner
-
-\date       06.09.2011
-
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
-
 This module contains all functions implementing the firmware boot process.
+
+********************************************************************************
+
+License Agreement
+
+Copyright (C) 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved.
+
+Redistribution and use in source and binary forms,
+with or without modification,
+are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+  * Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with the
+    distribution.
+  * Neither the name of the B&R nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
@@ -18,8 +45,8 @@ This module contains all functions implementing the firmware boot process.
 /* includes */
 #include "EplInc.h"
 #include "system.h"
-#include "FpgaCfg.h"
-#include "../../include/firmware.h"
+#include "firmware.h"
+#include "fwUpdate.h"
 
 #include <sys/alt_flash.h>
 #include <alt_types.h>
@@ -38,12 +65,17 @@ UINT32 crc32(UINT32 uiCrc_p, const void *pBuf_p, unsigned int uiSize_p);
 ********************************************************************************
 \brief  read image information block from flash
 
-checkIib() checks if a valid image information block is located at pIib.
+getIib() reads an image information block (IIB) from flash.
+
+\param  pIib_p          pointer to store IIB
+\param  uiIibAdrs       flash address of IIB
+
+\return OK or ERROR if flash could not be read
 *******************************************************************************/
-int getIib(tIib *pIib_p, UINT32 uiIibAdrs)
+static int getIib(tIib *pIib_p, UINT32 uiIibAdrs)
 {
     alt_flash_fd *  pFlashInst = NULL;
-    int iRet = TRUE;
+    int iRet = OK;
 
     /* get pointer to flash instance structure */
     if ((pFlashInst = alt_flash_open_dev(FLASH_CTRL_NAME)) == NULL)
@@ -71,9 +103,15 @@ exit:
 ********************************************************************************
 \brief  check CRC of block in flash
 
-checkFlashCrc() checks the CRC of a data block in flash
+checkFlashCrc() checks the CRC of a data block in flash.
+
+\param  uiFlashAdrs_p           flash address of data block
+\param  uiSize_p                size of data block
+\param  uiCrc_p                 CRC32 checksum of block
+
+\return Returns OK if checksum could successfully verified or ERROR otherwise.
 *******************************************************************************/
-int checkFlashCrc(UINT32 uiFlashAdrs_p, UINT32 uiSize_p, UINT32 uiCrc_p)
+static int checkFlashCrc(UINT32 uiFlashAdrs_p, UINT32 uiSize_p, UINT32 uiCrc_p)
 {
 #define CRC_CALC_BUF_SIZE       256
     UINT32              uiCrc = 0;
@@ -127,11 +165,19 @@ exit:
 
 /**
 ********************************************************************************
-\brief  check image information block
+\brief  check firmware image
 
-checkIib() checks if a valid image information block is located at pIib.
+checkfwImage() checks if a valid firmware image is located in the flash memory.
+It checks for a valid image information block (IIB) and verifies the checksum
+of all image parts described in the IIB.
+
+\param  uiImgAdrs_p             flash address of firmware image
+\param  uiIibAdrs_p             flash address of IIB
+\param  uiIibVersion_p          version of IIB
+
+\retval
 *******************************************************************************/
-int checkfwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
+int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
 {
     UINT32              uiCrc;
     tIib                iib;
@@ -139,7 +185,7 @@ int checkfwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     /* read IIB from flash */
     if (getIib(&iib, uiIibAdrs_p) < 0)
     {
-        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Invalid IIB\n");
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
         return ERROR;
     }
 
@@ -204,4 +250,4 @@ int checkfwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     return OK;
 }
 
-
+/* END-OF-FILE */

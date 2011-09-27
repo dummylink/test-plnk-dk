@@ -29,7 +29,7 @@
 #include "pcp.h"
 #include "pcpStateMachine.h"
 #include "pcpEvent.h"
-#include "FpgaCfg.h"
+#include "fpgaCfg.h"
 #include "fwUpdate.h"
 
 #include "cnApiIntern.h"
@@ -2210,7 +2210,7 @@ int fwUpdateAbortCb(void * pHandle)
 {
     int         iRet;
 
-    printf (":::::::::::::::Abort callback!\n");
+    DEBUG_TRACE0 (DEBUG_LVL_15, "<--- Abort callback!\n\n");
 
     ((tDefObdAccHdl *)pHandle)->m_Status = kEplObdDefAccHdlError;
 
@@ -2234,8 +2234,10 @@ int fwUpdateSegFinishCb(void * pHandle)
 {
     int         iRet;
 
+    DEBUG_TRACE0 (DEBUG_LVL_15, "<--- Segment finished callback!\n\n");
+
     ((tDefObdAccHdl *)pHandle)->m_Status = kEplObdDefAccHdlProcessingFinished;
-    DEBUG_TRACE2(DEBUG_LVL_14, "::%s() OBD ACC cnt processed: %d\n", __func__,
+    DEBUG_TRACE2(DEBUG_LVL_14, "<--- %s() OBD ACC cnt processed: %d\n\n", __func__,
                 ((tDefObdAccHdl *)pHandle)->m_wSeqCnt);
 
     // trigger event

@@ -11,8 +11,13 @@ POWERLINK CN Development Kit (CNDK)
 
 Contents
 ---------
-
 - POWERLINK SW for PCP (Powerlink Communication Processor).
+
+This demo implements the software for a Powerlink Communication Processor (PCP).
+The PCP contains all Powerlink functionality of a POWERLINK CN node. It is
+designed to be connected to an Application Processor (AP) which contains the
+application code.
+
 
 Performance Data
 -----------------
@@ -25,8 +30,9 @@ Performance Data
 
 Requirements
 -------------
-
-- Development Board EBV DBC3C40 (Mercury Board)
+- Development Boards
+  * EBV DBC3C40 (Mercury Board)
+  * TERASIC DE2-115 (INK Board)
 
 - Altera Quartus II v10.1 SP1 or newer (Web Edition is also possible)
 
@@ -37,6 +43,11 @@ Requirements
 - POWERLINK network with Configuration Manager.
   The corresponding XDD for this node can be found in the subdirectory
   ObjDicts\PDI.
+
+
+Configuration
+-------------
+TBD
 
 
 How to run the demo

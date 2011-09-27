@@ -4,13 +4,39 @@
 
 \brief      firmware update functions
 
-\author     Josef Baumgartner
-
-\date       06.09.2011
-
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
-
 This module contains firmware update functions.
+********************************************************************************
+
+License Agreement
+
+Copyright (C) 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved.
+
+Redistribution and use in source and binary forms,
+with or without modification,
+are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+  * Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with the
+    distribution.
+  * Neither the name of the B&R nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
@@ -27,7 +53,7 @@ This module contains firmware update functions.
 #include <string.h>
 
 #include "../../include/firmware.h"
-#include "FpgaCfg.h"
+#include "fwUpdate.h"
 
 /******************************************************************************/
 /* defines */
@@ -37,6 +63,10 @@ This module contains firmware update functions.
 
 /******************************************************************************/
 /* type definitions */
+
+/**
+ *  valid result values for update function
+ */
 typedef enum {
     eUpdateResultAbort =        0x0001,
     eUpdateResultPending =      0x0002,
@@ -46,6 +76,9 @@ typedef enum {
     eUpdateResultEraseFinish =  0x0020
 } tUpdateResult;
 
+/**
+ * states of update state machine
+ */
 typedef enum {
     eUpdateStateNone = 0,
     eUpdateStateStart,
@@ -55,6 +88,9 @@ typedef enum {
     eUpdateStateIib
 } tUpdateState;
 
+/**
+ * structure with information needed by the update state machine
+ */
 typedef struct {
     UINT32              m_uiDeviceId;
     UINT32              m_uiHwRev;
@@ -110,7 +146,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     {
         /* wrong CRC */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Header CRC is %08x, should be %08x\n",
-                     uiCrc, AmiGetDwordFromBe(&pHeader_p->m_headerCrc));
+                     uiCrc, (UINT32)AmiGetDwordFromBe(&pHeader_p->m_headerCrc));
         return ERROR;
     }
 
@@ -131,8 +167,8 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     {
         /* firmware for another device or hardware revision */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid Device HWRev is %08x %08x\n",
-                     AmiGetDwordFromBe(&pHeader_p->m_deviceId),
-                     AmiGetDwordFromBe(&pHeader_p->m_hwRevision));
+                     (UINT32)AmiGetDwordFromBe(&pHeader_p->m_deviceId),
+                     (UINT32)AmiGetDwordFromBe(&pHeader_p->m_hwRevision));
         return ERROR;
     }
 
@@ -154,13 +190,12 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     fwHeader_g.m_apSwCrc = AmiGetDwordFromBe(&pHeader_p->m_apSwCrc);
     fwHeader_g.m_headerCrc = AmiGetDwordFromBe(&pHeader_p->m_headerCrc);
 
-    printf ("fwHeader:\n");
-    printf ("Device ID:                     %d\n", fwHeader_g.m_deviceId);
-    printf ("Hardware Revision:             %d\n", fwHeader_g.m_hwRevision);
-    printf ("FPGA Config Size:              %d\n", fwHeader_g.m_fpgaConfigSize);
-    printf ("PCP SW Size:                   %d\n", fwHeader_g.m_pcpSwSize);
-    printf ("AP SW Size:                    %d\n", fwHeader_g.m_apSwSize);
-
+    DEBUG_TRACE0(DEBUG_LVL_15, "fwHeader:\n");
+    DEBUG_TRACE1(DEBUG_LVL_15, "Device ID:             %d\n", fwHeader_g.m_deviceId);
+    DEBUG_TRACE1(DEBUG_LVL_15, "Hardware Revision:     %d\n", fwHeader_g.m_hwRevision);
+    DEBUG_TRACE1(DEBUG_LVL_15, "FPGA Config Size:      %d\n", fwHeader_g.m_fpgaConfigSize);
+    DEBUG_TRACE1(DEBUG_LVL_15, "PCP SW Size:           %d\n", fwHeader_g.m_pcpSwSize);
+    DEBUG_TRACE1(DEBUG_LVL_15, "AP SW Size:            %d\n", fwHeader_g.m_apSwSize);
 
     return OK;
 }
@@ -168,6 +203,10 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
 /**
 ********************************************************************************
 \brief  abort update
+
+abortUpdate() will be called to abort the update. It calls the abort callback
+function, closes the flash device and resets the state machine to the
+default state.
 *******************************************************************************/
 static void abortUpdate(void)
 {
@@ -184,9 +223,19 @@ static void abortUpdate(void)
 /**
 ********************************************************************************
 \brief  program flash and calculate CRC
+
+programFlashCrc() programs a data block into flash and calculates the CRC
+checksum of the programmed block.
+
+\param  flashFd_p               flash memory device descriptor
+\param  pData_p                 pointer to data block
+\param  uiDataSize_p            size of the data block
+\param  uiProgOffset_p          address in flash memory to program the block to
+\param  pCrc_p                  pointer to store the calculated checksum
 *******************************************************************************/
-static void programFlashCrc(char * pData_p, UINT32 uiDataSize_p,
-                            UINT32 uiProgOffset_p, UINT32 * pCrc_p)
+static void programFlashCrc(alt_flash_fd * flashFd_p, char * pData_p,
+                            UINT32 uiDataSize_p, UINT32 uiProgOffset_p,
+                            UINT32 * pCrc_p)
 {
     UINT32      crc;
 
@@ -194,17 +243,28 @@ static void programFlashCrc(char * pData_p, UINT32 uiDataSize_p,
     crc = crc32(*pCrc_p, pData_p, uiDataSize_p);
 
     /* write data to flash */
-    alt_write_flash(updateInfo_g.m_flashFd, uiProgOffset_p, pData_p,
-                    uiDataSize_p);
+    alt_write_flash(flashFd_p, uiProgOffset_p, pData_p, uiDataSize_p);
 
     *pCrc_p = crc;
 }
 
+/**
+********************************************************************************
+\brief  erase flash
+
+eraseFlash() erases a flash memory block. The block to be specified must be
+sector aligned!
+
+\param  flashFd_p               flash memory device descriptor
+\param  pSector_p               start address of erase block
+\param  uiSize_p                size of the erase block
+
+\return forwards return value delivered by alt_erase_flash_block()
+*******************************************************************************/
 static int eraseFlash(alt_flash_fd * flashFd_p, UINT32 uiSector_p, UINT32 uiSize_p)
 {
     int         iRet;
 
-    return 0;
     iRet = alt_erase_flash_block(flashFd_p, uiSector_p, uiSize_p);
 
     return iRet;
@@ -213,6 +273,13 @@ static int eraseFlash(alt_flash_fd * flashFd_p, UINT32 uiSector_p, UINT32 uiSize
 /**
 ********************************************************************************
 \brief  program firmware data into flash
+
+programFirmware() is called to program the firmware data into flash memory.
+
+\retval eUpdateResultPending
+\retval eUpdateResultAbort
+\retval eUpdateResultSegFinish
+\retval eUpdateResultPartFinish
 *******************************************************************************/
 static int programFirmware(void)
 {
@@ -248,7 +315,7 @@ static int programFirmware(void)
         case -EIO:
         default:
             /* error occured, return abort */
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Abort\n");
+            DEBUG_TRACE0(DEBUG_LVL_15, "Abort\n");
             return eUpdateResultAbort;
             break;
         }
@@ -265,9 +332,10 @@ static int programFirmware(void)
         {
             /* All data is located in the same sector and could be
              * immediately programmed */
-            programFlashCrc(updateInfo_g.m_pData, updateInfo_g.m_uiDataSize,
+            programFlashCrc(updateInfo_g.m_flashFd,
+                            updateInfo_g.m_pData, updateInfo_g.m_uiDataSize,
                             updateInfo_g.m_uiProgOffset, &updateInfo_g.m_uiCrc);
-            DEBUG_TRACE2(DEBUG_LVL_ALWAYS, "%s Programmed all %d Bytes\n",
+            DEBUG_TRACE2(DEBUG_LVL_15, "%s Programmed all %d Bytes\n",
                          __func__, updateInfo_g.m_uiDataSize);
 
             updateInfo_g.m_uiProgOffset += updateInfo_g.m_uiDataSize;
@@ -283,18 +351,18 @@ static int programFirmware(void)
                                                  updateInfo_g.m_uiSectorSize);
                 if (iRet == -EIO)
                 {
-                    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Abort\n");
+                    DEBUG_TRACE0(DEBUG_LVL_15, "Abort\n");
                     iResult = eUpdateResultAbort;
                 }
                 else
                 {
                     if (iRet == 0)
                     {
-                        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Erased Sector!\n");
+                        DEBUG_TRACE0(DEBUG_LVL_15, "Erased Sector!\n");
                         /* sector was successfully erased, increas erase Offset */
                         updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
                     }
-                    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Segment finished!\n");
+                    DEBUG_TRACE0(DEBUG_LVL_15, "Segment finished!\n");
                     iResult = eUpdateResultSegFinish;
                 }
             }
@@ -310,10 +378,10 @@ static int programFirmware(void)
              * initiated */
             size = updateInfo_g.m_uiEraseOffset - updateInfo_g.m_uiProgOffset;
 
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "p");
-            programFlashCrc(updateInfo_g.m_pData, size,
+            programFlashCrc(updateInfo_g.m_flashFd,
+                            updateInfo_g.m_pData, size,
                             updateInfo_g.m_uiProgOffset, &updateInfo_g.m_uiCrc);
-            DEBUG_TRACE2(DEBUG_LVL_ALWAYS, "%s Programmed %d Bytes up to sector boundary\n",
+            DEBUG_TRACE2(DEBUG_LVL_15, "%s Programmed %d Bytes up to sector boundary\n",
                          __func__, size);
 
             updateInfo_g.m_uiProgOffset += size;
@@ -321,21 +389,20 @@ static int programFirmware(void)
             updateInfo_g.m_uiDataSize -= size;
             updateInfo_g.m_pData += size;
 
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "e");
             iRet = eraseFlash(updateInfo_g.m_flashFd,
                                                  updateInfo_g.m_uiEraseOffset,
                                                  updateInfo_g.m_uiSectorSize);
             if (iRet == -EIO)
             {
-                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "A");
+                DEBUG_TRACE0(DEBUG_LVL_15, "Abort!\n");
                 iResult = eUpdateResultAbort;
             }
             else
             {
                 if (iRet == 0)
                 {
-                    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "E");
-                    /* sector was successfully erased, increas erase Offset */
+                    DEBUG_TRACE0(DEBUG_LVL_15, "Erase Sector!\n");
+                    /* sector was successfully erased, increase erase Offset */
                     updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
                 }
                 iResult = eUpdateResultPending;
@@ -355,9 +422,10 @@ static int programFirmware(void)
              * could be immediately programmed, so this image part is finished. */
             size = updateInfo_g.m_uiRemainingSize;
 
-            programFlashCrc(updateInfo_g.m_pData, size,
+            programFlashCrc(updateInfo_g.m_flashFd,
+                            updateInfo_g.m_pData, size,
                             updateInfo_g.m_uiProgOffset,&updateInfo_g.m_uiCrc);
-            DEBUG_TRACE2(DEBUG_LVL_ALWAYS, "%s Programmed %d Bytes up to part boundary\n",
+            DEBUG_TRACE2(DEBUG_LVL_15, "%s Programmed %d Bytes up to part boundary\n",
                          __func__, size);
 
             updateInfo_g.m_uiProgOffset += size;
@@ -372,7 +440,7 @@ static int programFirmware(void)
              * the next call. */
             if (updateInfo_g.m_uiDataSize == 0)
             {
-                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "IS");
+                DEBUG_TRACE0(DEBUG_LVL_15, "Segment/Part finished!\n");
                 /* Segment finished and image part finished */
                 iResult = eUpdateResultPartFinish | eUpdateResultSegFinish;
             }
@@ -380,7 +448,7 @@ static int programFirmware(void)
             {
                 /* Image part finished, but segment contains data of next
                  * part. */
-                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "I");
+                DEBUG_TRACE0(DEBUG_LVL_15, "Part finished!\n");
                 iResult = eUpdateResultPartFinish;
             }
         }
@@ -391,10 +459,10 @@ static int programFirmware(void)
              * initiated */
             size = updateInfo_g.m_uiEraseOffset - updateInfo_g.m_uiProgOffset;
 
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "p");
-            programFlashCrc(updateInfo_g.m_pData, size,
+            programFlashCrc(updateInfo_g.m_flashFd,
+                            updateInfo_g.m_pData, size,
                             updateInfo_g.m_uiProgOffset, &updateInfo_g.m_uiCrc);
-            DEBUG_TRACE2(DEBUG_LVL_ALWAYS, "%s Programmed %d Bytes up to segment boundary\n",
+            DEBUG_TRACE2(DEBUG_LVL_15, "%s Programmed %d Bytes up to segment boundary\n",
                          __func__, size);
 
             updateInfo_g.m_uiProgOffset += size;
@@ -407,14 +475,14 @@ static int programFirmware(void)
                                                  updateInfo_g.m_uiSectorSize);
             if (iRet == -EIO)
             {
-                DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Abort\n");
+                DEBUG_TRACE0(DEBUG_LVL_15, "Abort\n");
                 iResult = eUpdateResultAbort;
             }
             else
             {
                 if (iRet == 0)
                 {
-                    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "ErasedFlash\n");
+                    DEBUG_TRACE0(DEBUG_LVL_15, "Erased Flash Sector!\n");
                     /* sector was successfully erased, increas erase Offset */
                     updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
                 }
@@ -430,31 +498,34 @@ static int programFirmware(void)
 /**
 ********************************************************************************
 \brief  start state
+
+updateStateStart() implements the state where firmware programming is started.
 *******************************************************************************/
 static void updateStateStart(void)
 {
     int iRet;
     static int lock = FALSE;
 
+    /* todo jba only for debugging, remove later */
     if (lock == FALSE)
     {
         lock = TRUE;
         printf ("updateStateStart!\n");
     }
 
-    iRet = eraseFlash(updateInfo_g.m_flashFd, USER_IIB_FLASH_ADRS,
+    iRet = eraseFlash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS,
                                  updateInfo_g.m_uiSectorSize);
 
     if (iRet == -EIO)
     {
-        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s Abort\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_15, "%s Abort\n", __func__);
         abortUpdate();
         lock = FALSE;
     }
 
     if (iRet == 0)
     {
-        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: IIB erased!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_15, "%s: IIB erased!\n", __func__);
         updateInfo_g.m_uiProgOffset = updateInfo_g.m_uiUserImageOffset;
         /* FPGA configuration must always start on a sector boundary */
         updateInfo_g.m_uiEraseOffset = updateInfo_g.m_uiProgOffset;
@@ -468,6 +539,9 @@ static void updateStateStart(void)
 /**
 ********************************************************************************
 \brief  fpga update state
+
+updateStateFpga() implements the state where the FPGA configuration is
+programmed.
 *******************************************************************************/
 static void updateStateFpga(void)
 {
@@ -483,7 +557,7 @@ static void updateStateFpga(void)
 
     if (FLAG_ISSET(iRet, eUpdateResultPartFinish))
     {
-        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: FPGA programming ready!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_15, "%s: FPGA programming ready!\n", __func__);
 
         /* FPGA part of image finished, check CRC */
         if (updateInfo_g.m_uiCrc == fwHeader_g.m_fpgaConfigCrc)
@@ -524,6 +598,9 @@ static void updateStateFpga(void)
 /**
 ********************************************************************************
 \brief  pcp software update state
+
+updateStatePcp() implements the state where the PCP software is
+programmed.
 *******************************************************************************/
 static void updateStatePcp(void)
 {
@@ -540,7 +617,7 @@ static void updateStatePcp(void)
     /* check if the PCP part is finished */
     if (FLAG_ISSET(iRet, eUpdateResultPartFinish))
     {
-        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: PCP programming ready!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_15, "%s: PCP programming ready!\n", __func__);
 
         /* PCP software part of image finished, check CRC */
         if (updateInfo_g.m_uiCrc == fwHeader_g.m_pcpSwCrc)
@@ -592,6 +669,9 @@ static void updateStatePcp(void)
 /**
 ********************************************************************************
 \brief  AP software update state
+
+updateStateAp() implements the state where the AP software is
+programmed.
 *******************************************************************************/
 static void updateStateAp(void)
 {
@@ -608,7 +688,7 @@ static void updateStateAp(void)
     /* check if the AP part is finished */
     if (FLAG_ISSET(iRet, eUpdateResultPartFinish))
     {
-        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: AP programming ready!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_15, "%s: AP programming ready!\n", __func__);
 
         /* AP software part of image finished, check CRC */
         if (updateInfo_g.m_uiCrc == fwHeader_g.m_apSwCrc)
@@ -650,6 +730,9 @@ static void updateStateAp(void)
 /**
 ********************************************************************************
 \brief  IIB setup state
+
+updateStateIib() implements the state where the image information block is
+programmed.
 *******************************************************************************/
 static void updateStateIib(void)
 {
@@ -671,7 +754,8 @@ static void updateStateIib(void)
     crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
 
     /* program IIB into flash */
-    alt_write_flash(updateInfo_g.m_flashFd, USER_IIB_FLASH_ADRS, &iib, sizeof(iib));
+    alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
+                    sizeof(iib));
 
     /* close the flash device */
     alt_flash_close_dev(updateInfo_g.m_flashFd);
@@ -696,7 +780,7 @@ int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
 {
     updateInfo_g.m_uiDeviceId = deviceId_p;
     updateInfo_g.m_uiHwRev = hwRev_p;
-    updateInfo_g.m_uiUserImageOffset = USER_IMAGE_FLASH_ADRS;
+    updateInfo_g.m_uiUserImageOffset = CONFIG_USER_IMAGE_FLASH_ADRS;
     return OK;
 }
 
@@ -705,7 +789,10 @@ int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
 \brief	update the firmware
 
 updateFirmware() updates the firmware of the device. It will be called by the
-SDO object handler for object 0x1F50. If
+SDO object handler for object 0x1F50. If the first segment is received the
+firmware header is examined and the firmware programming is set up. The
+real programming will be done in updateFirmwarePeriodic() so that this function
+can immediately return.
 
 \param uiSegmentOff_p	       offset of the current segment
 \param uiSegmentSize_p         size of current segment
@@ -723,7 +810,8 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
     flash_region*       aFlashRegions;  ///< flash regions array
     unsigned short      wNumOfRegions;  ///< number of flash regions
 
-    DEBUG_TRACE2 (DEBUG_LVL_ALWAYS, "\n---> %s: segment offset: %d\n", __func__, uiSegmentOff_p);
+    DEBUG_TRACE2 (DEBUG_LVL_15, "\n---> %s: segment offset: %d\n", __func__,
+                  uiSegmentOff_p);
 
     /* The first segment of the SDO transfer starts with the firmware header */
     if (uiSegmentOff_p == 0)
@@ -769,7 +857,9 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
         /* check if last segment is not yet processed */
         if (updateInfo_g.m_uiDataSize != 0)
         {
-            DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s: Error got next segment before previous was ready!\n", __func__);
+            DEBUG_TRACE1(DEBUG_LVL_ERROR,
+                         "%s: Error got next segment before previous was ready!\n",
+                         __func__);
             return ERROR;
         }
         else
@@ -795,8 +885,7 @@ update state machine.
 *******************************************************************************/
 void updateFirmwarePeriodic(void)
 {
-    static int lock = FALSE;
-    //DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s:\n", __func__);
+    static int lock = FALSE;    /* todo only for debug */
 
     switch (updateInfo_g.m_uiUpdateState)
     {
@@ -828,7 +917,7 @@ void updateFirmwarePeriodic(void)
             lock = TRUE;
         }
         break;
-
     }
 }
 
+/* END-OF-FILE */
