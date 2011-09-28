@@ -5,31 +5,29 @@ POWERLINK CN Development Kit (CNDK)
 -------------------------------------------------------------------------------
 
 
-	openPOWERLINK - Demo for EBV DBC3C40 and INK-Board
-	===========================================================
+Demo for PCP (Powerlink Communication Processor) with SPI/Parallel Interface
+============================================================================
 
-
-Contents
----------
-- POWERLINK SW for PCP (Powerlink Communication Processor).
-
+1. Introduction
+---------------
 This demo implements the software for a Powerlink Communication Processor (PCP).
 The PCP contains all Powerlink functionality of a POWERLINK CN node. It is
 designed to be connected to an Application Processor (AP) which contains the
-application code.
+application code. The AP can be implemented on a second NIOS2 processor or on
+an external microprocessor connected to the PCP through a SPI or parallel
+interface.
 
 
-Performance Data
------------------
-
+2. Performance Data
+-------------------
 - Minimum cycle length: TBD
 - PReq-PRes Latency: 1 µs
 - Process data: 4 bytes input and 4 bytes output
 - There are 3 RPDOs and 1 TPDO available.
 
 
-Requirements
--------------
+3. Requirements
+---------------
 - Development Boards
   * EBV DBC3C40 (Mercury Board)
   * TERASIC DE2-115 (INK Board)
@@ -45,13 +43,21 @@ Requirements
   ObjDicts\PDI.
 
 
-Configuration
--------------
-TBD
+4.Configuration
+---------------
+Miscellaneous parameters of the openPOWERLINK stack and the PCP application
+can be configured through defines in EplCfg.h. The following section contains
+a desription of miscellaneous configuration parameters.
+
+4.1 Firmware Update and Remote configuration
+  The PCP contains support for a safe firmware update feature through POWERLINK.
+  Therefore
 
 
-How to run the demo
---------------------
+
+
+5. How to run the demo
+----------------------
 
 For Windows:
 

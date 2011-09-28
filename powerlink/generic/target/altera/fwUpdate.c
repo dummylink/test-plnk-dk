@@ -55,6 +55,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../include/firmware.h"
 #include "fwUpdate.h"
 
+/*TODO only for debugging */
+#include "EplObd.h"
+
 /******************************************************************************/
 /* defines */
 
@@ -244,7 +247,7 @@ static void programFlashCrc(alt_flash_fd * flashFd_p, char * pData_p,
     crc = crc32(*pCrc_p, pData_p, uiDataSize_p);
 
     /* write data to flash */
-    //alt_write_flash(flashFd_p, uiProgOffset_p, pData_p, uiDataSize_p);
+    alt_write_flash(flashFd_p, uiProgOffset_p, pData_p, uiDataSize_p);
 
     *pCrc_p = crc;
 }
@@ -266,8 +269,8 @@ static int eraseFlash(alt_flash_fd * flashFd_p, UINT32 uiSector_p, UINT32 uiSize
 {
     int         iRet;
 
-    printf ("erase at: %08x\n", uiSector_p);
-    return 0;
+    //printf ("erase at: %08x\n", uiSector_p);
+    //return 0;
 
     iRet = alt_erase_flash_block(flashFd_p, uiSector_p, uiSize_p);
 
@@ -762,8 +765,8 @@ static void updateStateIib(void)
     crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
 
     /* program IIB into flash */
-    /*alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
-                    sizeof(iib));*/
+    alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
+                    sizeof(iib));
 
     /* close the flash device */
     alt_flash_close_dev(updateInfo_g.m_flashFd);
@@ -822,7 +825,7 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
     unsigned short      wNumOfRegions;  ///< number of flash regions
 
     DEBUG_TRACE3 (DEBUG_LVL_15, "\n---> %s: segment offset: %d Handle:%p\n", __func__,
-                  uiSegmentOff_p, pHandle_p);
+                  uiSegmentOff_p, ((tDefObdAccHdl *)pHandle_p)->m_pObdParam);
 
     /* The first segment of the SDO transfer starts with the firmware header */
     if (uiSegmentOff_p == 0)
