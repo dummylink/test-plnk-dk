@@ -51,9 +51,28 @@ a desription of miscellaneous configuration parameters.
 
 4.1 Firmware Update and Remote configuration
   The PCP contains support for a safe firmware update feature through POWERLINK.
-  Therefore
+  The following options could be configured
 
+  CONFIG_FACTORY_IIB_FLASH_ADRS
+ 	Specifies at which address in flash memory the Factory Image Information
+ 	Block(IIB) is located.
 
+  CONFIG_USER_IIB_FLASH_ADRS
+ 	Specifies at which address in flash memory the User Image Information
+ 	Block(IIB) is located.
+
+  CONFIG_USER_IMAGE_FLASH_ADRS
+    The address in flash memory where the user image is located.
+
+  CONFIG_USER_IIB_VERSION
+    The version of the used IIB.
+
+  CONFIG_DISABLE_WATCHDOG
+    Disable watchdog provided by the remote update core.
+
+  CONFIG_USER_IMAGE_IN_FLASH
+    Specifies if a user image is located in flash. Should be disabled if
+    image is loaded through JTAG interface for development.
 
 
 5. How to run the demo
