@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*TODO only for debugging */
 #include "EplObd.h"
+#include "EplSdo.h"
 
 /******************************************************************************/
 /* defines */
@@ -107,6 +108,7 @@ typedef struct {
     UINT32              m_uiCrc;
     void                (*m_pfnAbortCb)();
     void                (*m_pfnSegFinishCb)();
+    void                (*m_pfnStartEraseCb)();
     void *              m_pHandle;
     UINT32              m_uiUpdateState;
     alt_flash_fd *      m_flashFd;
@@ -269,12 +271,50 @@ static int eraseFlash(alt_flash_fd * flashFd_p, UINT32 uiSector_p, UINT32 uiSize
 {
     int         iRet;
 
-    //printf ("erase at: %08x\n", uiSector_p);
+   // printf ("erase at: %08x\n", uiSector_p);
     //return 0;
 
     iRet = alt_erase_flash_block(flashFd_p, uiSector_p, uiSize_p);
 
     return iRet;
+}
+
+/**
+********************************************************************************
+\brief  IIB setup state
+
+updateStateIib() implements the state where the image information block is
+programmed.
+*******************************************************************************/
+static void updateIib(void)
+{
+    tIib                iib;
+
+    /* setup IIB */
+    iib.m_magic = IIB_MAGIC_V2;
+    iib.m_applicationSwDate = fwHeader_g.m_applicationSwDate;
+    iib.m_applicationSwTime = fwHeader_g.m_applicationSwTime;
+    iib.m_fpgaConfigCrc = fwHeader_g.m_fpgaConfigCrc;
+    iib.m_fpgaConfigSize = fwHeader_g.m_fpgaConfigSize;
+    iib.m_pcpSwCrc = fwHeader_g.m_pcpSwCrc;
+    iib.m_pcpSwSize = fwHeader_g.m_pcpSwSize;
+    iib.m_apSwCrc = fwHeader_g.m_apSwCrc;
+    iib.m_apSwSize = fwHeader_g.m_apSwSize;
+    memset(iib.m_reserved, 0, sizeof (iib.m_reserved));
+
+    /* calculate CRC of IIB */
+    crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
+
+    /* program IIB into flash */
+    alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
+                    sizeof(iib));
+
+    /* close the flash device */
+    alt_flash_close_dev(updateInfo_g.m_flashFd);
+
+    DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: IIB programming ready!\n", __func__);
+
+    updateInfo_g.m_uiUpdateState = eUpdateStateNone;
 }
 
 /**
@@ -509,17 +549,10 @@ static int programFirmware(void)
 
 updateStateStart() implements the state where firmware programming is started.
 *******************************************************************************/
-static void updateStateStart(void)
+static tEplSdoComConState updateStateStart(void)
 {
     int iRet;
-    static int lock = FALSE;
-
-    /* todo jba only for debugging, remove later */
-    if (lock == FALSE)
-    {
-        lock = TRUE;
-        printf ("updateStateStart!\n");
-    }
+    int iResult = kEplSdoComTransferRunning;
 
     iRet = eraseFlash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS,
                                  updateInfo_g.m_uiSectorSize);
@@ -528,7 +561,7 @@ static void updateStateStart(void)
     {
         DEBUG_TRACE1(DEBUG_LVL_15, "%s Abort\n", __func__);
         abortUpdate();
-        lock = FALSE;
+        iResult = kEplSdoComTransferRxAborted;
     }
 
     if (iRet == 0)
@@ -540,8 +573,10 @@ static void updateStateStart(void)
         updateInfo_g.m_uiRemainingSize = fwHeader_g.m_fpgaConfigSize;
         updateInfo_g.m_uiCrc = 0;
         updateInfo_g.m_uiUpdateState = eUpdateStateFpga;
-        lock = FALSE;
+        iResult = kEplSdoComTransferRunning;
     }
+
+    return iResult;
 }
 
 /**
@@ -551,16 +586,17 @@ static void updateStateStart(void)
 updateStateFpga() implements the state where the FPGA configuration is
 programmed.
 *******************************************************************************/
-static void updateStateFpga(void)
+static tEplSdoComConState updateStateFpga(void)
 {
-    int         iRet;
+    int                         iRet;
+    tEplSdoComConState          iResult = kEplSdoComTransferRunning;
 
     iRet = programFirmware();
 
     if (FLAG_ISSET(iRet, eUpdateResultAbort))
     {
         abortUpdate();
-        return;
+        iResult = kEplSdoComTransferRxAborted;
     }
 
     if (FLAG_ISSET(iRet, eUpdateResultPartFinish))
@@ -585,6 +621,7 @@ static void updateStateFpga(void)
             if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
             {
                 updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+                iResult = kEplSdoComTransferFinished;
             }
         }
         else
@@ -593,6 +630,7 @@ static void updateStateFpga(void)
             DEBUG_TRACE3(DEBUG_LVL_ERROR, "%s(): Wrong FPGA CRC is %08x, should be %08x\n",
                          __func__, updateInfo_g.m_uiCrc, fwHeader_g.m_fpgaConfigCrc);
             abortUpdate();
+            iResult = kEplSdoComTransferRxAborted;
         }
     }
     else
@@ -601,8 +639,11 @@ static void updateStateFpga(void)
         if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
         {
             updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+            iResult = kEplSdoComTransferFinished;
         }
     }
+
+    return iResult;
 }
 
 /**
@@ -612,9 +653,10 @@ static void updateStateFpga(void)
 updateStatePcp() implements the state where the PCP software is
 programmed.
 *******************************************************************************/
-static void updateStatePcp(void)
+static tEplSdoComConState updateStatePcp(void)
 {
-    int         iRet;
+    int                 iRet;
+    tEplSdoComConState  iResult = kEplSdoComTransferRunning;
 
     iRet = programFirmware();
 
@@ -622,7 +664,7 @@ static void updateStatePcp(void)
     {
         DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s() Abort\n", __func__);
         abortUpdate();
-        return;
+        iResult = kEplSdoComTransferRxAborted;
     }
 
     /* check if the PCP part is finished */
@@ -639,13 +681,15 @@ static void updateStatePcp(void)
             if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
             {
                 updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+                iResult = kEplSdoComTransferFinished;
             }
 
             /* check if AP software is contained in update */
             if (fwHeader_g.m_apSwSize == 0)
             {
                 /* no ap software, continue with setting up IIB */
-                updateInfo_g.m_uiUpdateState = eUpdateStateIib;
+                //updateInfo_g.m_uiUpdateState = eUpdateStateIib;
+                updateIib();
             }
             else
             {
@@ -665,6 +709,7 @@ static void updateStatePcp(void)
         {
             /* abort due to wrong CRC */
             abortUpdate();
+            iResult = kEplSdoComTransferRxAborted;
         }
     }
     else
@@ -673,8 +718,11 @@ static void updateStatePcp(void)
         if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
         {
             updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+            iResult = kEplSdoComTransferFinished;
         }
     }
+
+    return iResult;
 }
 
 /**
@@ -684,16 +732,17 @@ static void updateStatePcp(void)
 updateStateAp() implements the state where the AP software is
 programmed.
 *******************************************************************************/
-static void updateStateAp(void)
+static tEplSdoComConState updateStateAp(void)
 {
-    int         iRet;
+    int                 iRet;
+    tEplSdoComConState  iResult = kEplSdoComTransferRunning;
 
     iRet = programFirmware();
 
     if (FLAG_ISSET(iRet, eUpdateResultAbort))
     {
         abortUpdate();
-        return;
+        iResult = kEplSdoComTransferRxAborted;
     }
 
     /* check if the AP part is finished */
@@ -705,7 +754,8 @@ static void updateStateAp(void)
         if (updateInfo_g.m_uiCrc == fwHeader_g.m_apSwCrc)
         {
             /* CRC is right, we could continue with the IIB */
-            updateInfo_g.m_uiUpdateState = eUpdateStateIib;
+            //updateInfo_g.m_uiUpdateState = eUpdateStateIib;
+            updateIib();
 
             /* notifiy SDO stack if segment is finished
              * NOTE: should always be the case because it
@@ -714,18 +764,21 @@ static void updateStateAp(void)
             if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
             {
                 updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+                iResult = kEplSdoComTransferFinished;
             }
             else
             {
                 /* we are finished with the AP part but there is
                  * remaining data! Abort the update! */
                 abortUpdate();
+                iResult = kEplSdoComTransferRxAborted;
             }
         }
         else
         {
             /* abort due to wrong CRC */
             abortUpdate();
+            iResult = kEplSdoComTransferRxAborted;
         }
     }
     else
@@ -734,46 +787,11 @@ static void updateStateAp(void)
         if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
         {
             updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+            iResult = kEplSdoComTransferFinished;
         }
     }
-}
 
-/**
-********************************************************************************
-\brief  IIB setup state
-
-updateStateIib() implements the state where the image information block is
-programmed.
-*******************************************************************************/
-static void updateStateIib(void)
-{
-    tIib        iib;
-
-    /* setup IIB */
-    iib.m_magic = IIB_MAGIC_V2;
-    iib.m_applicationSwDate = fwHeader_g.m_applicationSwDate;
-    iib.m_applicationSwTime = fwHeader_g.m_applicationSwTime;
-    iib.m_fpgaConfigCrc = fwHeader_g.m_fpgaConfigCrc;
-    iib.m_fpgaConfigSize = fwHeader_g.m_fpgaConfigSize;
-    iib.m_pcpSwCrc = fwHeader_g.m_pcpSwCrc;
-    iib.m_pcpSwSize = fwHeader_g.m_pcpSwSize;
-    iib.m_apSwCrc = fwHeader_g.m_apSwCrc;
-    iib.m_apSwSize = fwHeader_g.m_apSwSize;
-    memset(iib.m_reserved, 0, sizeof (iib.m_reserved));
-
-    /* calculate CRC of IIB */
-    crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
-
-    /* program IIB into flash */
-    alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
-                    sizeof(iib));
-
-    /* close the flash device */
-    alt_flash_close_dev(updateInfo_g.m_flashFd);
-
-    DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: IIB programming ready!\n", __func__);
-
-    updateInfo_g.m_uiUpdateState = eUpdateStateNone;
+    return iResult;
 }
 
 /******************************************************************************/
@@ -795,6 +813,7 @@ int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
     updateInfo_g.m_uiDeviceId = deviceId_p;
     updateInfo_g.m_uiHwRev = hwRev_p;
     updateInfo_g.m_uiUserImageOffset = CONFIG_USER_IMAGE_FLASH_ADRS;
+    updateInfo_g.m_uiUpdateState = eUpdateStateNone;
     return OK;
 }
 
@@ -817,15 +836,22 @@ can immediately return.
 
 \return		return                  ERROR if something went wrong, OK otherwise
 *******************************************************************************/
-int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p,
+tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p,
         void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p)
 {
-    int                 iRet;
-    flash_region*       aFlashRegions;  ///< flash regions array
-    unsigned short      wNumOfRegions;  ///< number of flash regions
+
+    tEplSdoComConState          iResult;
+    int                         iRet;
+    flash_region*               aFlashRegions;  ///< flash regions array
+    unsigned short              wNumOfRegions;  ///< number of flash regions
 
     DEBUG_TRACE3 (DEBUG_LVL_15, "\n---> %s: segment offset: %d Handle:%p\n", __func__,
                   uiSegmentOff_p, ((tDefObdAccHdl *)pHandle_p)->m_pObdParam);
+
+    updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
+    updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;
+    updateInfo_g.m_pHandle = pHandle_p;
+    updateInfo_g.m_uiLastSegmentOffset = uiSegmentOff_p;
 
     /* The first segment of the SDO transfer starts with the firmware header */
     if (uiSegmentOff_p == 0)
@@ -838,7 +864,10 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
                         updateInfo_g.m_uiHwRev) == ERROR)
         {
             DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s: Invalid firmware header!\n", __func__);
-            return ERROR;
+
+            /* call abort callback function */
+            updateInfo_g.m_pfnAbortCb(updateInfo_g.m_pHandle);
+            return kEplSdoComTransferRxAborted;
         }
 
         printf ("Got valid header!\n");
@@ -848,7 +877,10 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
                 alt_flash_open_dev(FLASH_CTRL_NAME)) == NULL)
         {
             DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s: Error opening flash!\n", __func__);
-            return ERROR;
+
+            /* call abort callback function */
+            updateInfo_g.m_pfnAbortCb(updateInfo_g.m_pHandle);
+            return kEplSdoComTransferRxAborted;
         }
         /* get some flash information */
         if ((iRet = alt_get_flash_info(updateInfo_g.m_flashFd,
@@ -856,11 +888,12 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
                                        (int*) &wNumOfRegions)) != 0)
         {
             DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s: Error get flash info!\n", __func__);
-            return ERROR;
+
+            /* call abort callback function */
+            updateInfo_g.m_pfnAbortCb(updateInfo_g.m_pHandle);
+            return kEplSdoComTransferRxAborted;
         }
         updateInfo_g.m_uiSectorSize = aFlashRegions->block_size;
-
-
 
         updateInfo_g.m_pData = pData_p + sizeof(tFwHeader);
         updateInfo_g.m_uiDataSize = uiSegmentSize_p - sizeof(tFwHeader);
@@ -876,7 +909,8 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
             DEBUG_TRACE2(DEBUG_LVL_ERROR,
                          "%s: Error: Invalid segment received. Offset: %d!\n",
                          __func__, uiSegmentOff_p);
-            return ERROR;
+            abortUpdate();
+            return kEplSdoComTransferRxAborted;
         }
 
         /* check if last segment is not yet processed */
@@ -885,7 +919,8 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
             DEBUG_TRACE1(DEBUG_LVL_ERROR,
                          "%s: Error got next segment before previous was ready!\n",
                          __func__);
-            return ERROR;
+            abortUpdate();
+            return kEplSdoComTransferRxAborted;
         }
         else
         {
@@ -894,12 +929,10 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
         }
     }
 
-    updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
-    updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;
-    updateInfo_g.m_pHandle = pHandle_p;
-    updateInfo_g.m_uiLastSegmentOffset = uiSegmentOff_p;
+    /* Immediately start processing of frame */
+    iResult = updateFirmwarePeriodic();
 
-    return OK;
+    return iResult;
 }
 
 /**
@@ -909,41 +942,41 @@ int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p
 updateFirmwarePeriodic() must be periodically be called to execute the firmware
 update state machine.
 *******************************************************************************/
-void updateFirmwarePeriodic(void)
+tEplSdoComConState updateFirmwarePeriodic(void)
 {
-    static int lock = FALSE;    /* todo only for debug */
+    tEplSdoComConState         iResult;
 
     switch (updateInfo_g.m_uiUpdateState)
     {
+    case eUpdateStateNone:
+        iResult = kEplSdoComTransferFinished;
+        break;
+
     case eUpdateStateStart:
-        lock = FALSE;
-        updateStateStart();
+        iResult = updateStateStart();
         break;
 
     case eUpdateStateFpga:
-        updateStateFpga();
+        iResult = updateStateFpga();
         break;
 
     case eUpdateStatePcp:
-        updateStatePcp();
+        iResult = updateStatePcp();
         break;
 
     case eUpdateStateAp:
-        updateStateAp();
-        break;
-
-    case eUpdateStateIib:
-        updateStateIib();
+        iResult = updateStateAp();
         break;
 
     default:
-        if (! lock)
-        {
-            printf ("*** Update State None ***\n");
-            lock = TRUE;
-        }
+        /* we never should come here */
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "%s() Invalid update state %d!\n", __func__,
+                updateInfo_g.m_uiUpdateState);
+        iResult = kEplSdoComTransferRxAborted;
         break;
     }
+
+    return iResult;
 }
 
 /* END-OF-FILE */

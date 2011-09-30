@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* includes */
 #include "cnApiGlobal.h"
 #include "firmware.h"
+#include "EplSdo.h"
 
 /******************************************************************************/
 /* defines */
@@ -60,9 +61,9 @@ extern "C" {
 #endif
 
 int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p);
-int updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p,
-                   void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p);
-void updateFirmwarePeriodic(void);
+tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
+        char * pData_p, void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p);
+tEplSdoComConState updateFirmwarePeriodic(void);
 int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p);
 
 

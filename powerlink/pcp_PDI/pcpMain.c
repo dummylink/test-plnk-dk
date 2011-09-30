@@ -100,10 +100,14 @@ static tEplKernel EplAppDefObdAccCountHdlStatus(
         WORD wSubIndex_p,
         WORD *  pwCntRet_p,
         tEplObdDefAccStatus ReqStatus_p);
-static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p);
+static tEplKernel EplAppDefObdAccWriteObdSegmented(
+        tDefObdAccHdl *  pDefObdAccHdl_p,
+        void * pfnSegmentFinishedCb_p,
+        void * pfnSegmentAbortCb_p);
 static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
 static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
-
+int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle);
+int EplAppDefObdAccWriteSegmentedAbortCb(void * pHandle);
 /* forward declarations */
 int openPowerlink(void);
 void processPowerlink(void);
@@ -350,46 +354,6 @@ void processPowerlink(void)
 
     return;
 }
-/**
-********************************************************************************
-*******************************************************************************/
-static void doFlowControl(void)
-{
-    WORD wFinishedHistoryCnt = 0;
-    int EplRet;
-
-    // count all finished handles
-    EplRet = EplAppDefObdAccCountHdlStatus(
-            0,
-            0,
-            &wFinishedHistoryCnt,
-            kEplObdDefAccHdlProcessingFinished);
-
-    if (EplRet != kEplSuccessful)
-    {
-        DEBUG_TRACE1 (DEBUG_LVL_ERROR, "%s() EplAppDefObdAccCountHdlStatus failed!\n",
-                      __func__);
-        return;
-    }
-
-    // check if segmented write history is full (flow control for SDO)
-    if ((OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bObdSegWriteAccHistoryEmptyCnt_g <=    //occupied elements
-         OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD)                 ||
-        (OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bObdSegWriteAccHistoryEmptyCnt_g ==    // occupied elements
-         wFinishedHistoryCnt)                                               )// should all be finished
-    {   // call m_pfnAccessFinished - this will set the handle status to "empty"
-
-        // do ordinary SDO sequence processing / reset flow control manipulation
-        EplSdoAsySeqAppFlowControl(0, FALSE);
-    }
-    else
-    {   // go on processing the history without calling m_pfnAccessFinished
-
-        // prevent SDO from ack the last received frame
-        EplSdoAsySeqAppFlowControl((OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bObdSegWriteAccHistoryEmptyCnt_g), TRUE);
-    }
-}
-
 
 /**
 ********************************************************************************
@@ -646,7 +610,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         tDefObdAccHdl * pFoundHdl;                 ///< pointer to OBD access handle
 //        tEplTimerArg    TimerArg;                ///< timer event posting
 //        tEplTimerHdl    EplTimerHdl;             ///< timer event posting
-        volatile WORD     wFinishedHistoryCnt = 0; ///< counter finished history elements
 
             // assign user argument
             pObdParam = (tEplObdParam *) pEventArg_p->m_pUserArg;
@@ -782,26 +745,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     // -------- do OBD write -----
                     // write access might take some time ... but it should be not be blocking for more then 1s
                     // it might be interrupted by new remote OBD accesses (Rx IR)
-                    EplRet = EplAppDefObdAccWriteObdSegmented(pFoundHdl);
-
-                    if (EplRet != kEplSuccessful)
-                    {   // signal write error if write operation went wrong
-                        DEBUG_TRACE2(DEBUG_LVL_ERROR, "%s(): EplAppDefObdAccWriteObdSegmented failed! (%d)\n",
-                                   __func__, EplRet);
-                        pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                        EplRet = EplAppDefObdAccFinished(&pObdParam);
-                        // correct history status
-                        pFoundHdl->m_Status = kEplObdDefAccHdlEmpty;
-                        pFoundHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
-                        bObdSegWriteAccHistoryEmptyCnt_g++;
-
-                        // Abort all not empty handles of segmented transfer
-                        EplRet = EplAppDefObdAccCleanupHistory();
-
-                        // do ordinary SDO sequence processing / reset flow control manipulation
-                        EplSdoAsySeqAppFlowControl(0, FALSE);
-                        goto Exit;
-                    }
+                    EplRet = EplAppDefObdAccWriteObdSegmented(pFoundHdl,
+                                     EplAppDefObdAccWriteSegmentedFinishCb,
+                                     EplAppDefObdAccWriteSegmentedAbortCb);
 
                     break;
                 }
@@ -848,9 +794,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 Exit:
     return EplRet;
 }
-
-
-
 
 /**
  ********************************************************************************
@@ -2198,28 +2141,49 @@ Exit:
 ********************************************************************************
 \brief abort callback function
 
-fwUpdateAbortCb() will be called if firmware update is aborted.
+EplAppDefObdAccWriteSegmentedAbortCb() will be called if a segmented write
+transfer should be aborted.
 
 \param  pHandle         pointer to default object access handle
 
 \returns OK, or ERROR if event posting failed
 *******************************************************************************/
-int fwUpdateAbortCb(void * pHandle)
+int EplAppDefObdAccWriteSegmentedAbortCb(void * pHandle)
 {
     int                 iRet = OK;
     tDefObdAccHdl *     pDefObdHdl = (tDefObdAccHdl *)pHandle;
+    tEplKernel          EplRet = kEplSuccessful;
 
-    DEBUG_TRACE1 (DEBUG_LVL_15, "<--- Abort callback Handle:%p!\n\n",
-                  pDefObdHdl->m_pObdParam);
+    pDefObdHdl->m_pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
 
-    pDefObdHdl->m_Status = kEplObdDefAccHdlError;
+    EplRet = EplAppDefObdAccFinished(&pDefObdHdl->m_pObdParam);
 
-    // trigger event
-    iRet = EplApiPostUserEvent((void*)pDefObdHdl->m_pObdParam);
-    if (iRet != kEplSuccessful)
+    // correct history status
+    pDefObdHdl->m_Status = kEplObdDefAccHdlEmpty;
+    pDefObdHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
+    bObdSegWriteAccHistoryEmptyCnt_g++;
+
+    // check if segmented write history is empty enough to disable flow control
+    if (bObdSegWriteAccHistoryEmptyCnt_g >= OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD)
     {
-        DEBUG_TRACE1 (DEBUG_LVL_ERROR, "%s(): Error posting user event!\n",
-                      __func__);
+        // do ordinary SDO sequence processing / reset flow control manipulation
+        EplSdoAsySeqAppFlowControl(0, FALSE);
+    }
+
+    // Abort all not empty handles of segmented transfer
+    EplRet = EplAppDefObdAccCleanupHistory();
+    if (EplRet != kEplSuccessful)
+    {
+        goto Exit;
+    }
+
+Exit:
+    DEBUG_TRACE1 (DEBUG_LVL_15, "<--- Abort callback Handle:%p!\n\n",
+            pDefObdHdl->m_pObdParam);
+
+    if (EplRet != kEplSuccessful)
+    {
+        iRet = ERROR;
     }
     return iRet;
 }
@@ -2228,10 +2192,10 @@ int fwUpdateAbortCb(void * pHandle)
 ********************************************************************************
 \brief segment finished callback function
 
-fwUpdateSegFinishCb() will be called if a segment is successfully programmed
-to flash memory.
+EplAppDefObdAccWriteSegmentedFinishCb() will be called if a segmented write
+transfer is finished.
 *******************************************************************************/
-int fwUpdateSegFinishCb(void * pHandle)
+int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle)
 {
     int                 iRet = OK;
     tDefObdAccHdl *     pDefObdHdl = (tDefObdAccHdl *)pHandle;
@@ -2319,7 +2283,10 @@ Exit:
  \param pDefObdAccHdl_p pointer to default OBD access for segmented access
  \retval tEplKernel value
  *******************************************************************************/
-static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHdl_p)
+static tEplKernel EplAppDefObdAccWriteObdSegmented(
+        tDefObdAccHdl *  pDefObdAccHdl_p,
+        void * pfnSegmentFinishedCb_p,
+        void * pfnSegmentAbortCb_p)
 {
     tEplKernel Ret = kEplSuccessful;
     int iRet = OK;
@@ -2340,18 +2307,13 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHd
             {
                 case 0x01:
                 {
-#if 1
                     iRet = updateFirmware(
                               pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
                               pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
                               (void*) pDefObdAccHdl_p->m_pObdParam->m_pData,
-                              fwUpdateAbortCb, fwUpdateSegFinishCb,
+                              pfnSegmentAbortCb_p,
+                              pfnSegmentFinishedCb_p,
                               (void *)pDefObdAccHdl_p);
-#else
-
-                    usleep(1000); //TODO: delete this test delay
-                    iRet = OK;    //TODO: delete this line
-#endif
                     if (iRet == ERROR)
                     {   //update operation went wrong
                         Ret = kEplObdAccessViolation;
@@ -2374,17 +2336,7 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *  pDefObdAccHd
         break;
     }
 
-#if 0
-    // mark handle as processed
-    pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlProcessingFinished;
-    DEBUG_TRACE1(DEBUG_LVL_14, "OBD ACC cnt processed: %d\n", pDefObdAccHdl_p->m_wSeqCnt);
-#endif
-
 Exit:
-    if (Ret != kEplSuccessful)
-    {   // overwrite handle status
-        pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlError;
-    }
 
     return Ret;
 }
