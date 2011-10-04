@@ -172,9 +172,10 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
         (AmiGetDwordFromBe(&pHeader_p->m_hwRevision) != hwRev_p))
     {
         /* firmware for another device or hardware revision */
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid Device HWRev is %08x %08x\n",
+        DEBUG_TRACE4(DEBUG_LVL_ERROR, "Invalid Device/HWRev %08x:%08x should be %08x:%08x\n",
                      (UINT32)AmiGetDwordFromBe(&pHeader_p->m_deviceId),
-                     (UINT32)AmiGetDwordFromBe(&pHeader_p->m_hwRevision));
+                     (UINT32)AmiGetDwordFromBe(&pHeader_p->m_hwRevision),
+                     deviceId_p, hwRev_p);
         return ERROR;
     }
 
@@ -249,7 +250,7 @@ static void programFlashCrc(alt_flash_fd * flashFd_p, char * pData_p,
     crc = crc32(*pCrc_p, pData_p, uiDataSize_p);
 
     /* write data to flash */
-    alt_write_flash(flashFd_p, uiProgOffset_p, pData_p, uiDataSize_p);
+    alt_write_flash_block(flashFd_p, 0, uiProgOffset_p, pData_p, uiDataSize_p);
 
     *pCrc_p = crc;
 }
@@ -306,8 +307,8 @@ static void updateIib(void)
     crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
 
     /* program IIB into flash */
-    alt_write_flash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS, &iib,
-                    sizeof(iib));
+    alt_write_flash_block(updateInfo_g.m_flashFd, 0, CONFIG_USER_IIB_FLASH_ADRS,
+                          &iib, sizeof(iib));
 
     /* close the flash device */
     alt_flash_close_dev(updateInfo_g.m_flashFd);
@@ -356,6 +357,7 @@ static int programFirmware(void)
 
         case 0:
             /* sector was successfully erased, increase erase Offset */
+            DEBUG_TRACE0(DEBUG_LVL_15, "Erased Sector!\n");
             updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
             break;
 
@@ -449,7 +451,7 @@ static int programFirmware(void)
             {
                 if (iRet == 0)
                 {
-                    DEBUG_TRACE0(DEBUG_LVL_15, "Erase Sector!\n");
+                    DEBUG_TRACE0(DEBUG_LVL_15, "Erased Sector!\n");
                     /* sector was successfully erased, increase erase Offset */
                     updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
                 }
@@ -530,7 +532,7 @@ static int programFirmware(void)
             {
                 if (iRet == 0)
                 {
-                    DEBUG_TRACE0(DEBUG_LVL_15, "Erased Flash Sector!\n");
+                    DEBUG_TRACE0(DEBUG_LVL_15, "Erased Sector!\n");
                     /* sector was successfully erased, increas erase Offset */
                     updateInfo_g.m_uiEraseOffset += updateInfo_g.m_uiSectorSize;
                 }
