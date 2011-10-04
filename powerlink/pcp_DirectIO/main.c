@@ -1,12 +1,12 @@
 /**
 ********************************************************************************
-\file		DigitalIoMain.c
+\file        DigitalIoMain.c
 
-\brief		main module of digital I/O user interface
+\brief        main module of digital I/O user interface
 
-\author		Josef Baumgartner
+\author        Josef Baumgartner
 
-\date		06.04.2010
+\date        06.04.2010
 
 (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 
@@ -24,8 +24,9 @@
 #endif // __NIOS2__
 
 #include <unistd.h>
-#include "FpgaCfg.h"
+#include "fpgaCfg.h"
 #include "omethlib.h"
+#include "fwUpdate.h"
 
 #ifdef LCD_BASE
 #include "lcd.h"
@@ -42,12 +43,12 @@
 #define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
 
 #define CYCLE_LEN   1000 // [us]
-#define MAC_ADDR	0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
+#define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
 #define IP_ADDR     0xc0a86401  // 192.168.100.1 // don't care the last byte!
 #define SUBNET_MASK 0xFFFFFF00  // 255.255.255.0
 
 #define LATCHED_IOPORT_BASE (void*) POWERLINK_0_SMP_BASE
-#define LATCHED_IOPORT_CFG	(void*) (LATCHED_IOPORT_BASE + 4)
+#define LATCHED_IOPORT_CFG    (void*) (LATCHED_IOPORT_BASE + 4)
 
 
 // This function is the entry point for your object dictionary. It is defined
@@ -76,9 +77,9 @@ static char aStrNmtState_l[9][17] = {"INVALID         ",
                                      "OPERATIONAL     "};
 #endif
 
-BYTE		portIsOutput[4];
-BYTE		digitalIn[4];
-BYTE		digitalOut[4];
+BYTE        portIsOutput[4];
+BYTE        digitalIn[4];
+BYTE        digitalOut[4];
 
 static BOOL     fShutdown_l = FALSE;
 
@@ -92,7 +93,7 @@ WORD GetNodeId (void);
 
 /**
 ********************************************************************************
-\brief	main function of digital I/O interface
+\brief    main function of digital I/O interface
 
 *******************************************************************************/
 int main (void)
@@ -101,7 +102,7 @@ int main (void)
 
     alt_icache_flush_all();
     alt_dcache_flush_all();
-    
+
     switch (FpgaCfg_handleReconfig())
     {
         case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
@@ -123,11 +124,21 @@ int main (void)
             FpgaCfg_resetWatchdogTimer(); // do this periodically!
             break;
         }
-    
+
+        case kFgpaCfgWrongSystemID:
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
+            goto exit; // fatal error
+            break;
+        }
+
         default:
-            //error, this shall not be reached
+#ifdef CONFIG_USER_IMAGE_IN_FLASH
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
+            goto exit; // this is fatal error only, if image was loaded from flash
+#endif
         break;
-    }     
+    }
 
 #ifdef LCD_BASE
     LCD_Test();
@@ -138,10 +149,10 @@ int main (void)
 
     while (1) {
         if (openPowerlink() != 0) {
-        	PRINTF("openPowerlink was shut down because of an error\n");
+            PRINTF("openPowerlink was shut down because of an error\n");
             break;
         } else {
-        	PRINTF("openPowerlink was shut down, restart...\n\n");
+            PRINTF("openPowerlink was shut down, restart...\n\n");
         }
         /* wait some time until we restart the stack */
         for (iCnt=0; iCnt<1000000; iCnt++);
@@ -149,82 +160,88 @@ int main (void)
 
     PRINTF1("shut down NIOS II...\n%c", 4);
 
+exit:
     return 0;
 }
 
 /**
 ********************************************************************************
-\brief	main function of digital I/O interface
+\brief    main function of digital I/O interface
 
 *******************************************************************************/
 int openPowerlink(void) {
-	DWORD		 				ip = IP_ADDR; // ip address
+    DWORD                         ip = IP_ADDR; // ip address
 
-	const BYTE 				abMacAddr[] = {MAC_ADDR};
-	static tEplApiInitParam EplApiInitParam; //epl init parameter
-	// needed for process var
-	tEplObdSize         	ObdSize;
-	tEplKernel 				EplRet;
-	unsigned int			uiVarEntries;
+    const BYTE                 abMacAddr[] = {MAC_ADDR};
+    static tEplApiInitParam EplApiInitParam; //epl init parameter
+    // needed for process var
+    tEplObdSize             ObdSize;
+    tEplKernel                 EplRet;
+    unsigned int            uiVarEntries;
 
     fShutdown_l = FALSE;
 
     /* initialize port configuration */
     InitPortConfiguration(portIsOutput);
 
-    /* setup the POWERLINK stack */
-	
-	// calc the IP address with the nodeid
-	ip &= 0xFFFFFF00; //dump the last byte
-	ip |= GetNodeId(); // and mask it with the node id
 
-	// set EPL init parameters
-	EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
-	EPL_MEMCPY(EplApiInitParam.m_abMacAddress, abMacAddr, sizeof(EplApiInitParam.m_abMacAddress));
-	EplApiInitParam.m_uiNodeId = GetNodeId();
-	EplApiInitParam.m_dwIpAddress = ip;
-	EplApiInitParam.m_uiIsochrTxMaxPayload = 256;
-	EplApiInitParam.m_uiIsochrRxMaxPayload = 256;
-	EplApiInitParam.m_dwPresMaxLatency = 2000;
-	EplApiInitParam.m_dwAsndMaxLatency = 2000;
-	EplApiInitParam.m_fAsyncOnly = FALSE;
-	EplApiInitParam.m_dwFeatureFlags = -1;
-	EplApiInitParam.m_dwCycleLen = CYCLE_LEN;
-	EplApiInitParam.m_uiPreqActPayloadLimit = 36;
-	EplApiInitParam.m_uiPresActPayloadLimit = 36;
-	EplApiInitParam.m_uiMultiplCycleCnt = 0;
-	EplApiInitParam.m_uiAsyncMtu = 1500;
-	EplApiInitParam.m_uiPrescaler = 2;
-	EplApiInitParam.m_dwLossOfFrameTolerance = 5000000;
-	EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
-	EplApiInitParam.m_dwWaitSocPreq = 0;
-	EplApiInitParam.m_dwDeviceType = -1;
-	EplApiInitParam.m_dwVendorId = -1;
-	EplApiInitParam.m_dwProductCode = -1;
-	EplApiInitParam.m_dwRevisionNumber = -1;
-	EplApiInitParam.m_dwSerialNumber = -1;
-	EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
-	EplApiInitParam.m_dwDefaultGateway = 0;
-	EplApiInitParam.m_pfnCbEvent = AppCbEvent;
+    /* initialize firmware update */
+    initFirmwareUpdate(CONFIG_IDENT_PRODUCT_CODE,
+                       CONFIG_IDENT_REVISION);
+
+    /* setup the POWERLINK stack */
+
+    // calc the IP address with the nodeid
+    ip &= 0xFFFFFF00; //dump the last byte
+    ip |= GetNodeId(); // and mask it with the node id
+
+    // set EPL init parameters
+    EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
+    EPL_MEMCPY(EplApiInitParam.m_abMacAddress, abMacAddr, sizeof(EplApiInitParam.m_abMacAddress));
+    EplApiInitParam.m_uiNodeId = GetNodeId();
+    EplApiInitParam.m_dwIpAddress = ip;
+    EplApiInitParam.m_uiIsochrTxMaxPayload = 256;
+    EplApiInitParam.m_uiIsochrRxMaxPayload = 256;
+    EplApiInitParam.m_dwPresMaxLatency = 2000;
+    EplApiInitParam.m_dwAsndMaxLatency = 2000;
+    EplApiInitParam.m_fAsyncOnly = FALSE;
+    EplApiInitParam.m_dwFeatureFlags = -1;
+    EplApiInitParam.m_dwCycleLen = CYCLE_LEN;
+    EplApiInitParam.m_uiPreqActPayloadLimit = 36;
+    EplApiInitParam.m_uiPresActPayloadLimit = 36;
+    EplApiInitParam.m_uiMultiplCycleCnt = 0;
+    EplApiInitParam.m_uiAsyncMtu = 1500;
+    EplApiInitParam.m_uiPrescaler = 2;
+    EplApiInitParam.m_dwLossOfFrameTolerance = 5000000;
+    EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
+    EplApiInitParam.m_dwWaitSocPreq = 0;
+    EplApiInitParam.m_dwDeviceType = -1;
+    EplApiInitParam.m_dwVendorId = -1;
+    EplApiInitParam.m_dwProductCode = -1;
+    EplApiInitParam.m_dwRevisionNumber = -1;
+    EplApiInitParam.m_dwSerialNumber = -1;
+    EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
+    EplApiInitParam.m_dwDefaultGateway = 0;
+    EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
-	
-	
-	PRINTF1("\nNode ID is set to: %d\n", EplApiInitParam.m_uiNodeId);
-	
+
+
+    PRINTF1("\nNode ID is set to: %d\n", EplApiInitParam.m_uiNodeId);
+
     /************************/
-	/* initialize POWERLINK stack */
+    /* initialize POWERLINK stack */
     PRINTF("init POWERLINK stack:\n");
-	EplRet = EplApiInitialize(&EplApiInitParam);
-	if(EplRet != kEplSuccessful) {
-		PRINTF1("init POWERLINK Stack... error %X\n\n", EplRet);
-		goto Exit;
+    EplRet = EplApiInitialize(&EplApiInitParam);
+    if(EplRet != kEplSuccessful) {
+        PRINTF1("init POWERLINK Stack... error %X\n\n", EplRet);
+        goto Exit;
     }
-	PRINTF("init POWERLINK Stack...ok\n\n");
+    PRINTF("init POWERLINK Stack...ok\n\n");
 
     /**********************************************************/
-	/* link process variables used by CN to object dictionary */
-	PRINTF("linking process vars:\n");
+    /* link process variables used by CN to object dictionary */
+    PRINTF("linking process vars:\n");
 
     ObdSize = sizeof(digitalIn[0]);
     uiVarEntries = 4;
@@ -246,11 +263,11 @@ int openPowerlink(void) {
 
     PRINTF("linking process vars... ok\n\n");
 
-	// start the POWERLINK stack
+    // start the POWERLINK stack
     PRINTF("start EPL Stack...\n");
-	EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
+    EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
     if (EplRet != kEplSuccessful) {
-    	PRINTF("start EPL Stack... error\n\n");
+        PRINTF("start EPL Stack... error\n\n");
         goto ExitShutdown;
     }
 
@@ -271,35 +288,35 @@ int openPowerlink(void) {
     }
 
 ExitShutdown:
-	PRINTF("Shutdown EPL Stack\n");
+    PRINTF("Shutdown EPL Stack\n");
     EplApiShutdown(); //shutdown node
 
 Exit:
-	return EplRet;
+    return EplRet;
 }
 
 /**
 ********************************************************************************
-\brief	event callback function called by EPL API layer
+\brief    event callback function called by EPL API layer
 
 AppCbEvent() is the event callback function called by EPL API layer within
 the user part (low priority).
 
 
-\param	EventType_p     		event type (IN)
-\param	pEventArg_p     		pointer to union, which describes the event in
+\param    EventType_p             event type (IN)
+\param    pEventArg_p             pointer to union, which describes the event in
                                 detail (IN)
-\param	pUserArg_p      		user specific argument
+\param    pUserArg_p              user specific argument
 
 \return error code (tEplKernel)
-\retval	kEplSuccessful		no error
-\retval	kEplReject 			reject further processing
-\retval	otherwise 			post error event to API layer
+\retval    kEplSuccessful        no error
+\retval    kEplReject             reject further processing
+\retval    otherwise             post error event to API layer
 *******************************************************************************/
 tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
-		                     tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
+                             tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
 {
-	tEplKernel          EplRet = kEplSuccessful;
+    tEplKernel          EplRet = kEplSuccessful;
 
     // check if NMT_GS_OFF is reached
     switch (EventType_p)
@@ -431,11 +448,11 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {
                     if (pEventArg_p->m_Led.m_fOn != FALSE)
                     {
-                    	IOWR_ALTERA_AVALON_PIO_CLEAR_BITS(STATUS_LED_PIO_BASE, 1);
+                        IOWR_ALTERA_AVALON_PIO_CLEAR_BITS(STATUS_LED_PIO_BASE, 1);
                     }
                     else
                     {
-                    	IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 1);
+                        IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 1);
                     }
                     break;
 
@@ -447,11 +464,11 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {
                     if (pEventArg_p->m_Led.m_fOn != FALSE)
                     {
-                    	IOWR_ALTERA_AVALON_PIO_CLEAR_BITS(STATUS_LED_PIO_BASE, 2);
+                        IOWR_ALTERA_AVALON_PIO_CLEAR_BITS(STATUS_LED_PIO_BASE, 2);
                     }
                     else
                     {
-                    	IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 2);
+                        IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 2);
                     }
                     break;
                 }
@@ -472,40 +489,40 @@ Exit:
 
 /**
 ********************************************************************************
-\brief	sync event callback function called by event module
+\brief    sync event callback function called by event module
 
 AppCbSync() implements the event callback function called by event module
 within kernel part (high priority). This function sets the outputs, reads the
 inputs and runs the control loop.
 
-\return	error code (tEplKernel)
+\return    error code (tEplKernel)
 
-\retval	kEplSuccessful			no error
-\retval	otherwise				post error event to API layer
+\retval    kEplSuccessful            no error
+\retval    otherwise                post error event to API layer
 *******************************************************************************/
 tEplKernel PUBLIC AppCbSync(void)
 {
-	tEplKernel 		EplRet = kEplSuccessful;
-    register int	iCnt;
-    DWORD			ports; //<<< 4 byte input or output ports
-    DWORD*			ulDigInputs = LATCHED_IOPORT_BASE;
-    DWORD*			ulDigOutputs = LATCHED_IOPORT_BASE;
+    tEplKernel         EplRet = kEplSuccessful;
+    register int    iCnt;
+    DWORD            ports; //<<< 4 byte input or output ports
+    DWORD*            ulDigInputs = LATCHED_IOPORT_BASE;
+    DWORD*            ulDigOutputs = LATCHED_IOPORT_BASE;
 
     /* read digital input ports */
-    ports = *ulDigInputs; 
-	
+    ports = *ulDigInputs;
+
     for (iCnt = 0; iCnt <= 3; iCnt++)
     {
-	
+
         if (portIsOutput[iCnt])
         {
-        	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
-        	ports = (ports & ~(0xff << (iCnt * 8))) | (digitalOut[iCnt] << (iCnt * 8));
+            /* configured as output -> overwrite invalid input values with RPDO mapped variables */
+            ports = (ports & ~(0xff << (iCnt * 8))) | (digitalOut[iCnt] << (iCnt * 8));
         }
         else
         {
-        	/* configured as input -> store in TPDO mapped variable */
-        	digitalIn[iCnt] = (ports >> (iCnt * 8)) & 0xff;
+            /* configured as input -> store in TPDO mapped variable */
+            digitalIn[iCnt] = (ports >> (iCnt * 8)) & 0xff;
         }
     }
 
@@ -517,77 +534,77 @@ tEplKernel PUBLIC AppCbSync(void)
 
 /**
 ********************************************************************************
-\brief	init port configuration
+\brief    init port configuration
 
 InitPortConfiguration() reads the port configuration inputs. The port
 configuration inputs are connected to general purpose I/O pins IO3V3[16..12].
 The read port configuration if stored at the port configuration outputs to
 set up the input/output selection logic.
 
-\param	portIsOutput		pointer to array where output flags are stored
+\param    portIsOutput        pointer to array where output flags are stored
 *******************************************************************************/
 void InitPortConfiguration (char *p_portIsOutput)
 {
-	register int	iCnt;
-	volatile BYTE	portconf;
-	unsigned int	direction = 0;
+    register int    iCnt;
+    volatile BYTE    portconf;
+    unsigned int    direction = 0;
 
-	/* read port configuration input pins */
-	memcpy((BYTE *) &portconf, LATCHED_IOPORT_CFG, 1);
-	portconf = (~portconf) & 0x0f;
+    /* read port configuration input pins */
+    memcpy((BYTE *) &portconf, LATCHED_IOPORT_CFG, 1);
+    portconf = (~portconf) & 0x0f;
 
-	PRINTF1("\nPort configuration register value = %#1X \n", portconf);
+    PRINTF1("\nPort configuration register value = %#1X \n", portconf);
 
-	for (iCnt = 0; iCnt <= 3; iCnt++)
-	{
-		if (portconf & (1 << iCnt))
-		{
-			direction |= 0xff << (iCnt * 8);
-			p_portIsOutput[iCnt] = TRUE;
-		}
-		else
-		{
-			direction &= ~(0xff << (iCnt * 8));
-			p_portIsOutput[iCnt] = FALSE;
-		}
-	}
+    for (iCnt = 0; iCnt <= 3; iCnt++)
+    {
+        if (portconf & (1 << iCnt))
+        {
+            direction |= 0xff << (iCnt * 8);
+            p_portIsOutput[iCnt] = TRUE;
+        }
+        else
+        {
+            direction &= ~(0xff << (iCnt * 8));
+            p_portIsOutput[iCnt] = FALSE;
+        }
+    }
 }
 
 /**
 ********************************************************************************
-\brief	get node ID
+\brief    get node ID
 
 GetNodeId() reads the node switches connected to the node switch inputs and
 returns the node ID.
 
-\retval	nodeID		the node ID which was read
+\retval    nodeID        the node ID which was read
 *******************************************************************************/
 WORD GetNodeId (void)
 {
-	WORD 	nodeId;
+    WORD     nodeId;
 #ifdef LCD_BASE
     char TextNodeID[17];
 #endif
 
 #ifdef NODE_SWITCH_PIO_BASE
-	/* read port configuration input pins */
-	nodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
+    /* read port configuration input pins */
+    nodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
 #endif
 
 #ifdef SET_NODE_ID_PER_SW
-	/* overwrite node ID */
-	nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
+    /* overwrite node ID */
+    nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
 #endif
 
 #ifdef LCD_BASE
-	sprintf(TextNodeID, "NodeID: 0x%02X", nodeId );
-	//itoa(TextNodeID, (int)nodeId);
-	usleep(5000000);
+    sprintf(TextNodeID, "NodeID: 0x%02X", nodeId );
+    //itoa(TextNodeID, (int)nodeId);
+    usleep(5000000);
     LCD_Clear();
-	LCD_Show_Text(TextNodeID);
+    LCD_Show_Text(TextNodeID);
 #endif
 
-	return nodeId;
+    return nodeId;
 }
 
 #ifdef LCD_BASE

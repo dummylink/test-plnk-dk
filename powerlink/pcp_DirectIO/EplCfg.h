@@ -252,6 +252,32 @@
 //#define EPL_API_PROCESS_IMAGE_SIZE_IN 0 //disable
 //#define EPL_API_PROCESS_IMAGE_SIZE_OUT 0 //disable
 
+// =========================================================================
+// defines for flash update function
+// =========================================================================
+#define CONFIG_FACTORY_IIB_FLASH_ADRS          0x00400000      ///< flash address of factory IIB
+#define CONFIG_USER_IIB_FLASH_ADRS             0x00410000      ///< flash address of user IIB
+#define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000      ///< flash address of user image
+#define CONFIG_USER_IIB_VERSION                2               ///< used IIB version
+
+// =========================================================================
+// defines for FPGA reconfiguration
+// =========================================================================
+#define CONFIG_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
+#undef  CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
+
+// =========================================================================
+// defines for POWERLINK identification
+// =========================================================================
+#define CONFIG_IDENT_PRODUCT_CODE           815
+#define CONFIG_IDENT_REVISION               1
+
+
+
+
+
+
+
 #endif //_EPLCFG_H_
 
 

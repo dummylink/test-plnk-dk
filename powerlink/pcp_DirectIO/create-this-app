@@ -1,7 +1,7 @@
 #!/bin/bash
 ###############################################################################
 # This script creates the application in the current directory.
-# It invokes create-this-bsp. 
+# It invokes create-this-bsp.
 ###############################################################################
 
 ###############################################################################
@@ -15,10 +15,16 @@ DBG_MODE=_DEBUG	# compile printfs()
 
 ###############################################################################
 # include project configuration
+PWD=`pwd`
 
 . ../../project.config  						#POWERLINK stack path
-EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path 
+EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path
+GENERIC_DIR=../generic
+PCP_DIR=$PWD/..                                 # use absolute path to be able to include
+                                                # from different source directoriesBSP_DIR=./bsp
+
 BSP_DIR=./bsp
+LIBAPIDIR=../../libCnApi
 
 # replace this path to the object dictionary you wish to include
 OBJDICTDIR=../../objDicts/Direct_IO
@@ -66,7 +72,7 @@ do
 		 SOPC_DIR=$1
 		 echo SOPC_DIR set to \"$SOPC_DIR\"
 		 echo -------------------------------
-		 ;;		  
+		 ;;
   esac
   shift
 done
@@ -76,12 +82,15 @@ done
 INCLUDES="\
 . \
 ${EDRV_DIR}/openmac/include \
-${EDRV_DIR}/../target/altera \
+${PCP_DIR}/generic/target/altera \
+${PCP_DIR}/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
 ${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
-${OBJDICTDIR}"
+${OBJDICTDIR} \
+${LIBAPIDIR}/include \
+${LIBAPIDIR}/utils"
 
 ###############################################################################
 # handle --debug parameter
@@ -92,13 +101,16 @@ else
 	DEF_DEBUG_LVL="0xEC00FF00L" # all useful debugs
 fi
 
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}" 
+CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
 
 ###############################################################################
 # source files
 SRCFILES="main.c \
 lcd.c \
-${EDRV_DIR}/../target/altera/FpgaCfg.c \
+${GENERIC_DIR}/target/altera/fpgaCfg.c \
+${GENERIC_DIR}/target/altera/fwUpdate.c \
+${GENERIC_DIR}/target/altera/boot.c \
+${GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
@@ -206,7 +218,7 @@ SOF_FILE := $(wildcard $(QUARTUS_PROJECT_DIR)/*.sof)
 .PHONY : $(PROGRAM_EPCS_TARGET)
 $(PROGRAM_EPCS_TARGET) : $(ELF)
 
-	@$(ECHO) Info: Programming $(basename $@).flash	
+	@$(ECHO) Info: Programming $(basename $@).flash
 	@if [ -n "$($(basename $@)_EPCS_FLAGS)" ]; \
 	then \
 		nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \
@@ -222,8 +234,8 @@ if [ -z "$SKIP_MAKE" ]; then
 	cmd="make"
 
 	echo "make clean first..."
-	make clean	
-	
+	make clean
+
 	echo "create-this-app: Running \"$cmd\""
 	$cmd || {
     	echo "make failed"
