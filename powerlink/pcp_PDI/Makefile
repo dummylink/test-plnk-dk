@@ -222,8 +222,8 @@ BSP_ROOT_DIR := ./bsp
 # List of application specific include directories, library directories and library names
 APP_INCLUDE_DIRS += .
 APP_INCLUDE_DIRS += ../generic/POWERLINK_IP_Edrv/openmac/include
-APP_INCLUDE_DIRS += c:/Data/Source/work/openPOWERLINK_CNDK_mh_work/powerlink/generic/target/altera
-APP_INCLUDE_DIRS += c:/Data/Source/work/openPOWERLINK_CNDK_mh_work/powerlink/include
+APP_INCLUDE_DIRS += c:/Work/RepositoryWORK/openPOWERLINK_CNDK/powerlink/generic/target/altera
+APP_INCLUDE_DIRS += c:/Work/RepositoryWORK/openPOWERLINK_CNDK/powerlink/include
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/Include
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/Include/user
 APP_INCLUDE_DIRS += ../generic/openPOWERLINK_CNDKPatched/SharedBuff
@@ -240,7 +240,7 @@ APP_LIBRARY_NAMES :=
 BUILD_PRE_PROCESS :=
 BUILD_POST_PROCESS :=
 
-CFLAGS := -D_DEBUG -DCN_API_FLAGS= -DDEF_DEBUG_LVL=0xEC006F00L -DMAKE_BUILD_PCP
+CFLAGS := -D_DEBUG -DCN_API_FLAGS= -DDEF_DEBUG_LVL=0xEC004F00L -DMAKE_BUILD_PCP
 CREATE_OBJDUMP := 0
 OBJDUMP_INCLUDE_SOURCE := 1
 QUARTUS_PROJECT_DIR := ../../fpga/altera/TERASIC_DE2-115/ink_ap_pcp_intavalon

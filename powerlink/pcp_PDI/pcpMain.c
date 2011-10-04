@@ -19,6 +19,7 @@
 #include "EplPdou.h"
 #include "EplSdoComu.h"
 #include "user/EplSdoAsySequ.h"
+#include "kernel/EplTimerSynck.h"
 
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
@@ -47,7 +48,7 @@
 //---------------------------------------------------------------------------
 // defines
 //---------------------------------------------------------------------------
-#define OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD 5  ///< count of history entries, where 0BD accesses will still be acknowledged
+#define OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD 3  ///< count of history entries, where 0BD accesses will still be acknowledged
 #define OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE 20              ///< maximum possible history elements
 #define OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID   0xFFFFUL
 //---------------------------------------------------------------------------
@@ -152,6 +153,12 @@ int main (void)
     /* flush all caches */
     alt_icache_flush_all();
     alt_dcache_flush_all();
+
+//    while(1)
+//        {
+//        usleep(10000);
+//        printf("TimeStamp: %lu\n", EplTimerSynckGetDeltaTimeMs());
+//        }
 
     switch (FpgaCfg_handleReconfig())
     {
@@ -377,6 +384,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                              tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
 {
     tEplKernel          EplRet = kEplSuccessful;
+printf("AppCbEventEnter\n");
+EplTimerSynckGetAndPrintDeltaTimeMs();
 
     /* check if NMT_GS_OFF is reached */
     switch (EventType_p)
@@ -792,6 +801,8 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
     }
 
 Exit:
+printf("AppCbEventExit\n");
+EplTimerSynckGetAndPrintDeltaTimeMs();
     return EplRet;
 }
 
@@ -1914,7 +1925,7 @@ BYTE bArrayNum;                 ///< loop counter and array element
             if (bObdSegWriteAccHistoryEmptyCnt_g < OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD)
             {
                 // prevent SDO from ack the last received frame
-                EplSdoAsySeqAppFlowControl((OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - bObdSegWriteAccHistoryEmptyCnt_g), TRUE);
+                EplSdoAsySeqAppFlowControl(TRUE, TRUE);
             }
 
             goto Exit;
@@ -2307,6 +2318,8 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(
             {
                 case 0x01:
                 {
+                    printf("Start updateFirmware\n");
+                    EplTimerSynckGetAndPrintDeltaTimeMs();
                     iRet = updateFirmware(
                               pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
                               pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
@@ -2314,6 +2327,14 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(
                               pfnSegmentAbortCb_p,
                               pfnSegmentFinishedCb_p,
                               (void *)pDefObdAccHdl_p);
+
+                    if (iRet == kEplSdoComTransferRunning)
+                    {
+                        EplSdoAsySeqAppFlowControl(TRUE, TRUE);
+                    }
+
+                    printf("Exit updateFirmware\n");
+                    EplTimerSynckGetAndPrintDeltaTimeMs();
                     if (iRet == ERROR)
                     {   //update operation went wrong
                         Ret = kEplObdAccessViolation;
