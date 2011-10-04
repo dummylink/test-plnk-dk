@@ -198,9 +198,6 @@ int main (void)
 
     Gi_init();
 
-    // TODO where to place ? jba
-    initFirmwareUpdate(4744, 1);
-
      DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
 
 #ifdef STATUS_LED_PIO_BASE
@@ -281,6 +278,9 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     /* inform AP about current node ID */
     pCtrlReg_g->m_wNodeId = EplApiInitParam.m_uiNodeId;
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
+
+    /* initialize firmware update */
+    initFirmwareUpdate(pInitParm_p->m_dwProductCode, pInitParm_p->m_dwRevision);
 
     /* initialize POWERLINK stack */
     DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
