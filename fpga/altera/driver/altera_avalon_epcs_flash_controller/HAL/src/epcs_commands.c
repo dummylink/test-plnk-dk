@@ -70,15 +70,10 @@ static ALT_INLINE int epcs_test_wip(alt_u32 base)
 
 static ALT_INLINE int epcs_await_wip_released(alt_u32 base)
 {
-#if 0
   /* Wait until the WIP bit goes low. */
   while (epcs_test_wip(base))
   {
   }
-#else
-  if (epcs_test_wip(base))
-      return -EAGAIN;
-#endif
 }
 
 int epcs_sector_erase(alt_u32 base, alt_u32 offset)
@@ -119,7 +114,7 @@ int epcs_sector_erase(alt_u32 base, alt_u32 offset)
       }
   }
 
-  if (epcs_await_wip_released(base) == -EAGAIN)
+  if (epcs_test_wip(base))
   {
       eraseInProgress = 1;
       return -EAGAIN;
