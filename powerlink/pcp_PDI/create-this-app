@@ -112,7 +112,7 @@ ${LIBAPIDIR}/utils"
 if [ -z "$NO_OPT" ]; then
 	DEF_DEBUG_LVL="0xEC000000L" # only ASSERT, ERROR and ALWAYS messages + Powerlink stack debugs
 else
-	DEF_DEBUG_LVL="0xEC000F00L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs + CN API messages
+	DEF_DEBUG_LVL="0xEC002F00L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs + CN API messages
 fi
 
 CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP"

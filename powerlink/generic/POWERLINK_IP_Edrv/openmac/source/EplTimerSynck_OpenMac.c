@@ -951,6 +951,30 @@ DWORD                       dwCurrentTime;
 #define TIMERCMP_REG_OFF_STATUS     4
 #define TIMERCMP_REG_OFF_TIME_VAL   0
 
+#define PRINT_DELTA_TIME_MS_THLD    10
+static DWORD dwLastTimeTicks_l = 0;
+// delta time calculation
+// First call will not return a "delta time"
+DWORD PUBLIC EplTimerSynckGetAndPrintDeltaTimeMs (void)
+{
+    DWORD dwTimeTicks, dwDeltaTimeTicks, dwRetDeltaMs;
+
+    dwTimeTicks = IORD_32DIRECT( EPL_TIMER_SYNC_BASE, TIMERCMP_REG_OFF_TIME_VAL );
+    dwDeltaTimeTicks = dwTimeTicks - dwLastTimeTicks_l;
+
+    // save time tick value for next calculation
+    dwLastTimeTicks_l = dwTimeTicks;
+
+    dwRetDeltaMs = OMETH_TICKS_2_MS(dwDeltaTimeTicks);
+
+    if (dwRetDeltaMs > PRINT_DELTA_TIME_MS_THLD)
+    {
+        printf("(%lu)\n", dwRetDeltaMs);
+    }
+
+    return dwRetDeltaMs;
+
+}
 
 static inline void EplTimerSynckDrvCompareInterruptDisable (void)
 {

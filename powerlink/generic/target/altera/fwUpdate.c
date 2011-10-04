@@ -556,8 +556,10 @@ static tEplSdoComConState updateStateStart(void)
     int iRet;
     int iResult = kEplSdoComTransferRunning;
 
+    //printf("Erase Flash(%ul)..\n", EplTimerSynckGetDeltaTimeMs()); //DEBUG_MH
     iRet = eraseFlash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS,
                                  updateInfo_g.m_uiSectorSize);
+    //printf(".. finished(%ul)\n", EplTimerSynckGetDeltaTimeMs()); //DEBUG_MH
 
     if (iRet == -EIO)
     {
@@ -568,7 +570,7 @@ static tEplSdoComConState updateStateStart(void)
 
     if (iRet == 0)
     {
-        DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "%s: IIB erased!\n", __func__);
+        printf("%s: IIB erased! \n", __func__); //DEBUG_MH
         updateInfo_g.m_uiProgOffset = updateInfo_g.m_uiUserImageOffset;
         /* FPGA configuration must always start on a sector boundary */
         updateInfo_g.m_uiEraseOffset = updateInfo_g.m_uiProgOffset;
@@ -872,7 +874,7 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
             return kEplSdoComTransferRxAborted;
         }
 
-        printf ("Got valid header!\n");
+        printf ("Got valid header!\n"); //DEBUG_MH
 
         /* open flash device */
         if ((updateInfo_g.m_flashFd =
