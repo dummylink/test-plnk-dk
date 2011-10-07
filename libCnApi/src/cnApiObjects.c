@@ -55,7 +55,7 @@ int CnApi_initObjects(DWORD dwMaxLinks_p)
 {
 
 	/* allocate memory for object table */
-	if ((pObjTbl_l = malloc (sizeof(tObjTbl) * dwMaxLinks_p)) == NULL)
+	if ((pObjTbl_l = CNAPI_MALLOC (sizeof(tObjTbl) * dwMaxLinks_p)) == NULL)
 	{
 		return ERROR;
 	}
@@ -72,7 +72,7 @@ int CnApi_initObjects(DWORD dwMaxLinks_p)
 *******************************************************************************/
 void CnApi_cleanupObjects(void)
 {
-	free (pObjTbl_l);
+    CNAPI_FREE (pObjTbl_l);
 }
 
 /**
