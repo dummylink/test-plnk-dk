@@ -50,6 +50,10 @@ a dual ported RAM (DPRAM) area.
 
 /******************************************************************************/
 /* defines */
+#define DEMO_PRODUCT_CODE   4744
+#define DEMO_REVISION       1
+#define DEMO_SERIAL_NUMBER  0x12345678
+
 
 /*----------------------------------------------------------------------------*/
 /* USER OPTIONS */
@@ -234,13 +238,12 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
     memcpy(pInitParm_p->m_abMac, pMac_p, sizeof(pInitParm_p->m_abMac));
     pInitParm_p->m_dwDeviceType = -1;
     pInitParm_p->m_dwVendorId = -1;
-    pInitParm_p->m_dwProductCode = -1;
-    pInitParm_p->m_dwRevision = -1;
-    pInitParm_p->m_dwSerialNum = -1;
+    pInitParm_p->m_dwProductCode = DEMO_PRODUCT_CODE;
+    pInitParm_p->m_dwRevision = DEMO_REVISION;
+    pInitParm_p->m_dwSerialNum = DEMO_SERIAL_NUMBER;
 
     pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;     //address of DPRAM area
 }
-
 
 /**
 ********************************************************************************
@@ -254,7 +257,7 @@ void workInputOutput(void)
 	register BYTE iCnt;
 	DWORD dwOutPort = 0;
 	BYTE cInPort;
-	
+
 	///> Digital IN: read push- and joystick buttons
 	cInPort = IORD_ALTERA_AVALON_PIO_DATA(INPORT_AP_BASE);
 	digitalIn[0] = cInPort;    // 6000/01
@@ -681,12 +684,12 @@ tEplKernel       Ret = kEplSuccessful;
         Ret = kEplInvalidParam;
     }
 
-//    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
-//           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
-//        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
-//        pObdParam_p->m_ObdEvent,
-//        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
-//        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
+    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
+           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+        pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
+        pObdParam_p->m_ObdEvent,
+        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
+        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     // return error for all non existing objects
     // if not known yet, this can also be done by settig m_dwAbortCode appropriately
