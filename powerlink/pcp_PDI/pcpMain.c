@@ -60,7 +60,7 @@ tCnApiInitParm     initParm_g;                ///< Powerlink initialization para
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 int                iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 
-static BOOL     fShutdown_l = FALSE;       ///< Powerlink shutdown flag
+static BOOL     fShutdown_l = FALSE;          ///< Powerlink shutdown flag
 static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< segmented object access management
 
 /* counter of currently empty OBD segmented write history elements for default OBD access */
@@ -442,7 +442,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtCsBasicEthernet:                        ///< this state is only indicated  by Led
                 {
                     // clean OBD access application history buffers
-                    EplRet = EplAppDefObdAccCleanupHistory(); //TODO: move to other place?
+                    EplAppDefObdAccCleanupHistory(); //TODO: move to other place?
                     if (EplRet != kEplSuccessful)
                     {
                         goto Exit;
@@ -769,7 +769,6 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
  *******************************************************************************/
 void EplAppDefObdAccCleanupHistory(void)
 {
-    tEplKernel      EplRet = kEplSuccessful;
     tDefObdAccHdl * pObdDefAccHdl = NULL;
     BYTE            bArrayNum;                 ///< loop counter and array element
 
@@ -1333,7 +1332,6 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
                         // only one segmented transfer at once is allowed!
                         if (bObdSegWriteAccHistoryEmptyCnt_g < OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE)
                         {
-                            printf ("dieser da?\n");
                             Ret = kEplObdOutOfMemory;
                             pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
                             goto Exit;
@@ -2066,7 +2064,8 @@ int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle)
     }
 
     // check if segmented write history is empty enough to disable flow control
-    if (bObdSegWriteAccHistoryEmptyCnt_g >= OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD)
+    if (bObdSegWriteAccHistoryEmptyCnt_g >=
+        OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE - OBD_DEFAULT_SEG_WRITE_HISTORY_ACK_FINISHED_THLD)
     {
         // do ordinary SDO sequence processing / reset flow control manipulation
         EplSdoAsySeqAppFlowControl(0, FALSE);
@@ -2111,22 +2110,22 @@ Exit:
 This function writes to an object which does not exist in the local object
 dictionary by using segmented access (to domain object)
 
-\param pDefObdAccHdl_p pointer to default OBD access for segmented access
+\param  pDefObdAccHdl_p             pointer to default OBD access for segmented
+                                    access
+\param  pfnSegmentFinishedCb_p      pointer to finished callback function
+\param  pfnSegmentAbortCb_p         pointer to abort callback function
 
 \retval tEplKernel value
 *******************************************************************************/
-static tEplKernel EplAppDefObdAccWriteObdSegmented(
-        tDefObdAccHdl *  pDefObdAccHdl_p,
-        void * pfnSegmentFinishedCb_p,
-        void * pfnSegmentAbortCb_p)
+static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl * pDefObdAccHdl_p,
+        void * pfnSegmentFinishedCb_p, void * pfnSegmentAbortCb_p)
 {
     tEplKernel Ret = kEplSuccessful;
     int iRet = OK;
 
     if (pDefObdAccHdl_p == NULL)
     {
-        Ret = kEplApiInvalidParam;
-        goto Exit;
+        return kEplApiInvalidParam;
     }
 
     pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlInUse;
@@ -2141,8 +2140,7 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(
                               pDefObdAccHdl_p->m_pObdParam->m_SegmentOffset,
                               pDefObdAccHdl_p->m_pObdParam->m_SegmentSize,
                               (void*) pDefObdAccHdl_p->m_pObdParam->m_pData,
-                              pfnSegmentAbortCb_p,
-                              pfnSegmentFinishedCb_p,
+                              pfnSegmentAbortCb_p, pfnSegmentFinishedCb_p,
                               (void *)pDefObdAccHdl_p);
 
                     if (iRet == kEplSdoComTransferRunning)
@@ -2152,13 +2150,12 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(
                     if (iRet == ERROR)
                     {   //update operation went wrong
                         Ret = kEplObdAccessViolation;
-                        goto Exit;
                     }
                     break;
 
                 default:
                     Ret = kEplObdSubindexNotExist;
-                    goto Exit;
+                    break;
             }
             break;
 
@@ -2166,7 +2163,6 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(
             break;
     }
 
-Exit:
     return Ret;
 }
 
