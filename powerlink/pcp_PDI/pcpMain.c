@@ -59,6 +59,7 @@ tPcpCtrlReg        * volatile pCtrlReg_g;     ///< ptr. to PCP control register
 tCnApiInitParm     initParm_g;                ///< Powerlink initialization parameter
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 int                iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
+BOOL               fIsUserImage_g;            ///< if set user image is booted
 
 static BOOL     fShutdown_l = FALSE;          ///< Powerlink shutdown flag
 static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< segmented object access management
@@ -105,6 +106,8 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *pDefObdAccHdl_
                     void * pfnSegmentFinishedCb_p, void * pfnSegmentAbortCb_p);
 static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
 static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
+static int getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
+                                  UINT32 *pUiApplicationSwTime_p);
 
 int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle);
 int EplAppDefObdAccWriteSegmentedAbortCb(void * pHandle);
@@ -161,39 +164,35 @@ int main (void)
     switch (FpgaCfg_handleReconfig())
     {
         case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
-        {
             // user image reconfiguration failed
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Factory image loaded.\n");
             DEBUG_TRACE0(DEBUG_LVL_ERROR, "Last user image timed out or failed!\n");
+            fIsUserImage_g = FALSE;
             break;
-        }
+
         case kFpgaCfgUserImageLoadedWatchdogDisabled:
-        {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+            fIsUserImage_g = TRUE;
             break;
-        }
+
         case kFpgaCfgUserImageLoadedWatchdogEnabled:
-        {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
             // watchdog timer has to be reset periodically
             FpgaCfg_resetWatchdogTimer(); // do this periodically!
+            fIsUserImage_g = TRUE;
             break;
-        }
+
         case kFgpaCfgWrongSystemID:
-        {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
             goto exit; // fatal error
             break;
-        }
 
         default:
-        {
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
             goto exit; // this is fatal error only, if image was loaded from flash
 #endif
         break;
-        }
     }
 
     DEBUG_TRACE0(DEBUG_LVL_09, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
@@ -203,7 +202,7 @@ int main (void)
 
     Gi_init();
 
-     DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
+    DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
 
 #ifdef STATUS_LED_PIO_BASE
     IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
@@ -222,9 +221,11 @@ exit:
 *******************************************************************************/
 int initPowerlink(tCnApiInitParm *pInitParm_p)
 {
-    DWORD                     ip = IP_ADDR;      ///< ip address
-    static tEplApiInitParam EplApiInitParam;   ///< epl init parameter
-    tEplKernel                 EplRet;
+    DWORD                       ip = IP_ADDR;      ///< ip address
+    static tEplApiInitParam     EplApiInitParam;   ///< epl init parameter
+    tEplKernel                  EplRet;
+    UINT32                      uiApplicationSwDate = 0;
+    UINT32                      uiApplicationSwTime = 0;
 
     DEBUG_FUNC;
 
@@ -236,6 +237,9 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     }
 #endif /* SET_NODE_ID_BY_HW */
 
+    /* Read application software date and time */
+    getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
+
     /* setup the POWERLINK stack */
     /* calc the IP address with the nodeid */
     ip &= 0xFFFFFF00;                          ///< dump the last byte
@@ -243,7 +247,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 
     /* set EPL init parameters */
     EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
-    EPL_MEMCPY(EplApiInitParam.m_abMacAddress, pInitParm_p->m_abMac, sizeof(EplApiInitParam.m_abMacAddress));
+    EPL_MEMCPY(EplApiInitParam.m_abMacAddress, pInitParm_p->m_abMac,
+               sizeof(EplApiInitParam.m_abMacAddress));
     EplApiInitParam.m_uiNodeId = pInitParm_p->m_bNodeId;
     EplApiInitParam.m_dwIpAddress = ip;
     EplApiInitParam.m_uiIsochrTxMaxPayload = 256; // TODO: use system.h define?
@@ -251,10 +256,10 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_dwPresMaxLatency = 2000; // ns
     EplApiInitParam.m_dwAsndMaxLatency = 2000; // ns
     EplApiInitParam.m_fAsyncOnly = FALSE;
-    EplApiInitParam.m_dwFeatureFlags = -1;                  // depends on openPOWERLINK module integration
+    EplApiInitParam.m_dwFeatureFlags = -1;       // depends on openPOWERLINK module integration
     EplApiInitParam.m_dwCycleLen = DEFAULT_CYCLE_LEN;
-    EplApiInitParam.m_uiPreqActPayloadLimit = 36;                              //TODO: use system.h define?
-    EplApiInitParam.m_uiPresActPayloadLimit = 36;                              //TODO: use system.h define?
+    EplApiInitParam.m_uiPreqActPayloadLimit = 36;   //TODO: use system.h define?
+    EplApiInitParam.m_uiPresActPayloadLimit = 36;   //TODO: use system.h define?
     EplApiInitParam.m_uiMultiplCycleCnt = 0;
     EplApiInitParam.m_uiAsyncMtu = 1500;
     EplApiInitParam.m_uiPrescaler = 2;
@@ -268,8 +273,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_dwSerialNumber = pInitParm_p->m_dwSerialNum;
     //EplApiInitParam.m_dwVerifyConfigurationDate;
     //EplApiInitParam.m_dwVerifyConfigurationTime;
-    EplApiInitParam.m_dwApplicationSwDate = 1;
-    EplApiInitParam.m_dwApplicationSwTime = 1;
+    EplApiInitParam.m_dwApplicationSwDate = dwApplicationSwDate;
+    EplApiInitParam.m_dwApplicationSwTime = dwApplicationSwTime;
     EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
     EplApiInitParam.m_dwDefaultGateway = 0;
     EplApiInitParam.m_pfnCbEvent = AppCbEvent;
@@ -954,13 +959,17 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 *******************************************************************************/
 void Gi_init(void)
 {
-    int iRet= OK;
+    int         iRet= OK;
+    UINT32      dwApplicationSwDate = 0;
+    UINT32      dwApplicationSwTime = 0;
+
+    getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
 
     /* Setup PCP Control Register in DPRAM */
-
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;       ///< set address of control register - equals DPRAM base address
 
-    // TODO: update pCtrlReg_g->m_dwAppDate and pCtrlReg_g->m_dwAppTime
+    pCtrlReg_g->m_dwAppDate = dwApplicationSwDate;
+    pCtrlReg_g->m_dwAppTime = dwApplicationSwTime;
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
 
@@ -2258,6 +2267,29 @@ tEplKernel          EplRet;
 
 exit:
     return Ret;
+}
+
+/**
+********************************************************************************
+\brief     get application software date/time of current image
+
+This function reads the application software date and time of the currently
+used firmware image.
+
+\param  pUiApplicationSwDate_p      pointer to store application software date
+\param  pUiApplicationSwTime_p      pointer to store application software time
+
+\return OK, or ERROR if data couldn't be read
+*******************************************************************************/
+static int getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
+                                  UINT32 *pUiApplicationSwTime_p)
+{
+    UINT32      uiIibAdrs;
+
+    uiIibAdrs = fIsUserImage_g ? CONFIG_USER_IIB_FLASH_ADRS
+                               : CONFIG_FACTORY_IIB_FLASH_ADRS;
+    return getApplicationSwDateTime(uiIibAdrs, pUiApplicationSwDate_p,
+                                    pUiApplicationSwTime_p);
 }
 
 /**

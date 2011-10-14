@@ -169,13 +169,14 @@ exit:
 
 checkfwImage() checks if a valid firmware image is located in the flash memory.
 It checks for a valid image information block (IIB) and verifies the checksum
-of all image parts described in the IIB.
+of all image parts described in the IIB. The application software date/time
+will be saved if pUiApplicationSwDate_p/pUiApplicationSwTime_p is not NULL.
 
 \param  uiImgAdrs_p             flash address of firmware image
 \param  uiIibAdrs_p             flash address of IIB
 \param  uiIibVersion_p          version of IIB
 
-\retval
+\return OK, or ERROR if no valid IIB was found
 *******************************************************************************/
 int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
 {
@@ -192,7 +193,7 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     /* check IIB magic */
     if (AmiGetDwordFromBe(&iib.m_magic) != (IIB_MAGIC | uiIibVersion_p))
     {
-        /* todo jba: create individual error codes! */
+        /* todo create individual error codes! */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
                      uiIibAdrs_p, AmiGetDwordFromBe(&iib.m_magic));
 
@@ -246,6 +247,58 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
             return ERROR;
         }
     }
+
+    return OK;
+}
+
+/**
+********************************************************************************
+\brief  get application software date and time
+
+getApplicationSwDateTime() reads the application software date and time from
+the IIB and stores it at the specified locations.
+
+\param  uiIibAdrs_p             flash address of IIB
+\param  pUiApplicationSwDate_p  pointer to store application software date
+\param  pUiApplicationSwTime_p  pointer to store application software time
+
+\return OK, or ERROR if no valid IIB was found
+*******************************************************************************/
+int getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
+                             UINT32 *pUiApplicationSwTime_p)
+{
+    UINT32              uiCrc;
+    tIib                iib;
+
+    /* read IIB from flash */
+    if (getIib(&iib, uiIibAdrs_p) < 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
+        return ERROR;
+    }
+
+    /* check IIB magic */
+    if ((AmiGetDwordFromBe(&iib.m_magic) & 0xFFFFFF00) != IIB_MAGIC)
+    {
+        /* todo create individual error codes! */
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
+                     uiIibAdrs_p, AmiGetDwordFromBe(&iib.m_magic));
+
+        return ERROR;
+    }
+
+    /* check IIB crc */
+    uiCrc = crc32(0, &iib, sizeof(tIib) - sizeof(UINT32));
+    if (uiCrc != AmiGetDwordFromBe(&iib.m_iibCrc))
+    {
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is %08x : should be %08x\n",
+                     uiCrc, AmiGetDwordFromBe(&iib.m_iibCrc));
+        return ERROR;
+    }
+
+    /* store application software date and time */
+    *pUiApplicationSwDate_p = AmiGetDwordFromBe(&iib.m_applicationSwDate);
+    *pUiApplicationSwTime_p = AmiGetDwordFromBe(&iib.m_applicationSwTime);
 
     return OK;
 }
