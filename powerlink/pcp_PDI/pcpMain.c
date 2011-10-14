@@ -273,8 +273,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_dwSerialNumber = pInitParm_p->m_dwSerialNum;
     //EplApiInitParam.m_dwVerifyConfigurationDate;
     //EplApiInitParam.m_dwVerifyConfigurationTime;
-    EplApiInitParam.m_dwApplicationSwDate = dwApplicationSwDate;
-    EplApiInitParam.m_dwApplicationSwTime = dwApplicationSwTime;
+    EplApiInitParam.m_dwApplicationSwDate = uiApplicationSwDate;
+    EplApiInitParam.m_dwApplicationSwTime = uiApplicationSwTime;
     EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
     EplApiInitParam.m_dwDefaultGateway = 0;
     EplApiInitParam.m_pfnCbEvent = AppCbEvent;
@@ -960,16 +960,16 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 void Gi_init(void)
 {
     int         iRet= OK;
-    UINT32      dwApplicationSwDate = 0;
-    UINT32      dwApplicationSwTime = 0;
+    UINT32      uiApplicationSwDate = 0;
+    UINT32      uiApplicationSwTime = 0;
 
     getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
 
     /* Setup PCP Control Register in DPRAM */
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;       ///< set address of control register - equals DPRAM base address
 
-    pCtrlReg_g->m_dwAppDate = dwApplicationSwDate;
-    pCtrlReg_g->m_dwAppTime = dwApplicationSwTime;
+    pCtrlReg_g->m_dwAppDate = uiApplicationSwDate;
+    pCtrlReg_g->m_dwAppTime = uiApplicationSwTime;
 
     pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
 
