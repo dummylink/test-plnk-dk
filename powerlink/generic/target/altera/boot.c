@@ -67,15 +67,17 @@ UINT32 crc32(UINT32 uiCrc_p, const void *pBuf_p, unsigned int uiSize_p);
 
 getIib() reads an image information block (IIB) from flash.
 
-\param  pIib_p          pointer to store IIB
 \param  uiIibAdrs       flash address of IIB
+\param  pIib_p          pointer to store IIB
+\param  pUiCrc_p        pointer to store calculated IIB checksum
 
 \return OK or ERROR if flash could not be read
 *******************************************************************************/
-static int getIib(tIib *pIib_p, UINT32 uiIibAdrs)
+static int getIib(UINT32 uiIibAdrs, tIib *pIib_p, UINT32 *pUiCrc_p)
 {
     alt_flash_fd *  pFlashInst = NULL;
     int iRet = OK;
+    tIib    iibBigEndian;
 
     /* get pointer to flash instance structure */
     if ((pFlashInst = alt_flash_open_dev(FLASH_CTRL_NAME)) == NULL)
@@ -85,7 +87,7 @@ static int getIib(tIib *pIib_p, UINT32 uiIibAdrs)
         goto exit;
     }
 
-    if (alt_read_flash(pFlashInst, uiIibAdrs, pIib_p, sizeof(tIib)) != 0)
+    if (alt_read_flash(pFlashInst, uiIibAdrs, &iibBigEndian, sizeof(tIib)) != 0)
     {
         DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: alt_read_flash() failed! \n");
         iRet = ERROR;
@@ -93,6 +95,33 @@ static int getIib(tIib *pIib_p, UINT32 uiIibAdrs)
     }
 
     alt_flash_close_dev(pFlashInst);
+
+    /* calculate checkusm of IIB */
+    *pUiCrc_p = crc32(0, &iibBigEndian, sizeof(tIib) - sizeof(UINT32));
+
+    pIib_p->m_magic = AmiGetDwordFromBe(&iibBigEndian.m_magic);
+    pIib_p->m_applicationSwDate = AmiGetDwordFromBe(&iibBigEndian.m_applicationSwDate);
+    pIib_p->m_applicationSwTime = AmiGetDwordFromBe(&iibBigEndian.m_applicationSwTime);
+    pIib_p->m_fpgaConfigCrc = AmiGetDwordFromBe(&iibBigEndian.m_fpgaConfigCrc);
+    pIib_p->m_fpgaConfigSize = AmiGetDwordFromBe(&iibBigEndian.m_fpgaConfigSize);
+    pIib_p->m_fpgaConfigAdrs = AmiGetDwordFromBe(&iibBigEndian.m_fpgaConfigAdrs);
+    pIib_p->m_fpgaConfigVersion = AmiGetDwordFromBe(&iibBigEndian.m_fpgaConfigVersion);
+
+    pIib_p->m_pcpSwCrc = AmiGetDwordFromBe(&iibBigEndian.m_pcpSwCrc);
+    pIib_p->m_pcpSwSize = AmiGetDwordFromBe(&iibBigEndian.m_pcpSwSize);
+    pIib_p->m_pcpSwAdrs = AmiGetDwordFromBe(&iibBigEndian.m_pcpSwAdrs);
+    pIib_p->m_pcpSwVersion = AmiGetDwordFromBe(&iibBigEndian.m_pcpSwVersion);
+
+    if (pIib_p->m_magic == IIB_MAGIC_V2)
+    {
+        pIib_p->m_apSwCrc = AmiGetDwordFromBe(&iibBigEndian.m_apSwCrc);
+        pIib_p->m_apSwSize = AmiGetDwordFromBe(&iibBigEndian.m_apSwSize);
+        pIib_p->m_apSwSize = AmiGetDwordFromBe(&iibBigEndian.m_apSwSize);
+        pIib_p->m_apSwAdrs = AmiGetDwordFromBe(&iibBigEndian.m_apSwAdrs);
+        pIib_p->m_apSwVersion = AmiGetDwordFromBe(&iibBigEndian.m_apSwVersion);
+    }
+
+    pIib_p->m_iibCrc = AmiGetDwordFromBe(&iibBigEndian.m_iibCrc);
 
 exit:
     return iRet;
@@ -184,14 +213,14 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     tIib                iib;
 
     /* read IIB from flash */
-    if (getIib(&iib, uiIibAdrs_p) < 0)
+    if (getIib(uiIibAdrs_p, &iib, &uiCrc) < 0)
     {
         DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
         return ERROR;
     }
 
     /* check IIB magic */
-    if (AmiGetDwordFromBe(&iib.m_magic) != (IIB_MAGIC | uiIibVersion_p))
+    if (iib.m_magic != (IIB_MAGIC | uiIibVersion_p))
     {
         /* todo create individual error codes! */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
@@ -202,13 +231,13 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     }
 
     /* check IIB crc */
-    uiCrc = crc32(0, &iib, sizeof(tIib) - sizeof(UINT32));
-    if (uiCrc != AmiGetDwordFromBe(&iib.m_iibCrc))
+    if (iib.m_iibCrc != uiCrc)
     {
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is %08x : should be %08x\n",
-                     uiCrc, AmiGetDwordFromBe(&iib.m_iibCrc));
+                     uiCrc, iib.m_iibCrc);
         return ERROR;
     }
+    DEBUG_TRACE1(DEBUG_LVL_15, "IIB CRC 0x%08x OK!\n", uiCrc);
 
 #if 0
     /* we don't check the FPGA configuration to save time. If the FPGA
@@ -217,9 +246,9 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
      */
 
     /* check CRC of FPGA configuration */
-    if (checkFlashCrc (AmiGetDwordFromBe(&iib.m_fpgaConfigAdrs),
-                       AmiGetDwordFromBe(&iib.m_fpgaConfigSize),
-                       AmiGetDwordFromBe(&iib.m_fpgaConfigCrc)) == ERROR)
+    if (checkFlashCrc (iib.m_fpgaConfigAdrs,
+                       iib.m_fpgaConfigSize,
+                       iib.m_fpgaConfigCrc) == ERROR)
     {
         DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid FPGA configuration!\n");
         return ERROR;
@@ -227,9 +256,11 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
 #endif
 
     /* check CRC of PCP software */
-    if (checkFlashCrc (AmiGetDwordFromBe(&iib.m_pcpSwAdrs),
-                       AmiGetDwordFromBe(&iib.m_pcpSwSize),
-                       AmiGetDwordFromBe(&iib.m_pcpSwCrc)) == ERROR)
+    DEBUG_TRACE3(DEBUG_LVL_15, "Check PCP SW, Adrs:0x%08x, Size:0x%08x, CRC:0x%08x\n",
+                 iib.m_pcpSwAdrs, iib.m_pcpSwSize, iib.m_pcpSwCrc);
+    if (checkFlashCrc (iib.m_pcpSwAdrs,
+                       iib.m_pcpSwSize,
+                       iib.m_pcpSwCrc) == ERROR)
     {
         DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid PCP software!\n");
         return ERROR;
@@ -239,9 +270,9 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     if (uiIibVersion_p == 2)
     {
         /* check CRC of AP software */
-        if (checkFlashCrc (AmiGetDwordFromBe(&iib.m_apSwAdrs),
-                           AmiGetDwordFromBe(&iib.m_apSwSize),
-                           AmiGetDwordFromBe(&iib.m_apSwCrc)) == ERROR)
+        if (checkFlashCrc (iib.m_apSwAdrs,
+                           iib.m_apSwSize,
+                           iib.m_apSwCrc) == ERROR)
         {
             DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid AP software!\n");
             return ERROR;
@@ -271,34 +302,33 @@ int getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
     tIib                iib;
 
     /* read IIB from flash */
-    if (getIib(&iib, uiIibAdrs_p) < 0)
+    if (getIib(uiIibAdrs_p, &iib, &uiCrc) < 0)
     {
         DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
         return ERROR;
     }
 
     /* check IIB magic */
-    if ((AmiGetDwordFromBe(&iib.m_magic) & 0xFFFFFF00) != IIB_MAGIC)
+    if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
     {
         /* todo create individual error codes! */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
-                     uiIibAdrs_p, AmiGetDwordFromBe(&iib.m_magic));
+                     uiIibAdrs_p, iib.m_magic);
 
         return ERROR;
     }
 
     /* check IIB crc */
-    uiCrc = crc32(0, &iib, sizeof(tIib) - sizeof(UINT32));
-    if (uiCrc != AmiGetDwordFromBe(&iib.m_iibCrc))
+    if (uiCrc != iib.m_iibCrc)
     {
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is %08x : should be %08x\n",
-                     uiCrc, AmiGetDwordFromBe(&iib.m_iibCrc));
+                     uiCrc, iib.m_iibCrc);
         return ERROR;
     }
 
     /* store application software date and time */
-    *pUiApplicationSwDate_p = AmiGetDwordFromBe(&iib.m_applicationSwDate);
-    *pUiApplicationSwTime_p = AmiGetDwordFromBe(&iib.m_applicationSwTime);
+    *pUiApplicationSwDate_p = iib.m_applicationSwDate;
+    *pUiApplicationSwTime_p = iib.m_applicationSwTime;
 
     return OK;
 }

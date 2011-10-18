@@ -270,7 +270,7 @@
 // defines for FPGA reconfiguration
 // =========================================================================
 #define CONFIG_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
-#undef  CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
+#define CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
 
 #endif //_EPLCFG_H_
 

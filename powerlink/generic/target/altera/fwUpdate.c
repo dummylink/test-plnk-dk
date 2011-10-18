@@ -286,25 +286,40 @@ static int eraseFlash(alt_flash_fd * flashFd_p, UINT32 uiSector_p, UINT32 uiSize
 
 updateStateIib() implements the state where the image information block is
 programmed.
+
+\param  uiImageAdrs_p       address of image in flash memory
 *******************************************************************************/
-static void updateIib(void)
+static void updateIib(UINT32 uiImageAdrs_p)
 {
     tIib                iib;
+    UINT32              uiMagic = IIB_MAGIC_V2;
+    UINT32              uiCrc;
+    UINT32              uiAdrs;
 
     /* setup IIB */
-    iib.m_magic = IIB_MAGIC_V2;
-    iib.m_applicationSwDate = fwHeader_g.m_applicationSwDate;
-    iib.m_applicationSwTime = fwHeader_g.m_applicationSwTime;
-    iib.m_fpgaConfigCrc = fwHeader_g.m_fpgaConfigCrc;
-    iib.m_fpgaConfigSize = fwHeader_g.m_fpgaConfigSize;
-    iib.m_pcpSwCrc = fwHeader_g.m_pcpSwCrc;
-    iib.m_pcpSwSize = fwHeader_g.m_pcpSwSize;
-    iib.m_apSwCrc = fwHeader_g.m_apSwCrc;
-    iib.m_apSwSize = fwHeader_g.m_apSwSize;
+    iib.m_magic = AmiGetDwordFromBe(&uiMagic);
+    iib.m_applicationSwDate = AmiGetDwordFromBe(&fwHeader_g.m_applicationSwDate);
+    iib.m_applicationSwTime = AmiGetDwordFromBe(&fwHeader_g.m_applicationSwTime);
+    uiAdrs = uiImageAdrs_p;
+    iib.m_fpgaConfigAdrs = AmiGetDwordFromBe(&uiAdrs);
+    iib.m_fpgaConfigVersion = AmiGetDwordFromBe(&fwHeader_g.m_fpgaConfigVersion);
+    iib.m_fpgaConfigCrc = AmiGetDwordFromBe(&fwHeader_g.m_fpgaConfigCrc);
+    iib.m_fpgaConfigSize = AmiGetDwordFromBe(&fwHeader_g.m_fpgaConfigSize);
+    uiAdrs += fwHeader_g.m_fpgaConfigSize;
+    iib.m_pcpSwAdrs = AmiGetDwordFromBe(&uiAdrs);
+    iib.m_pcpSwVersion = AmiGetDwordFromBe(&fwHeader_g.m_pcpSwVersion);
+    iib.m_pcpSwCrc = AmiGetDwordFromBe(&fwHeader_g.m_pcpSwCrc);
+    iib.m_pcpSwSize = AmiGetDwordFromBe(&fwHeader_g.m_pcpSwSize);
+    uiAdrs += fwHeader_g.m_pcpSwSize;
+    iib.m_apSwAdrs = AmiGetDwordFromBe(&uiAdrs);
+    iib.m_apSwVersion = AmiGetDwordFromBe(&fwHeader_g.m_apSwVersion);
+    iib.m_apSwCrc = AmiGetDwordFromBe(&fwHeader_g.m_apSwCrc);
+    iib.m_apSwSize = AmiGetDwordFromBe(&fwHeader_g.m_apSwSize);
     memset(iib.m_reserved, 0, sizeof (iib.m_reserved));
 
     /* calculate CRC of IIB */
-    crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
+    uiCrc = crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));
+    iib.m_iibCrc = AmiGetDwordFromBe(&uiCrc);
 
     /* program IIB into flash */
     alt_write_flash_block(updateInfo_g.m_flashFd, 0, CONFIG_USER_IIB_FLASH_ADRS,
@@ -693,7 +708,7 @@ static tEplSdoComConState updateStatePcp(void)
             {
                 /* no ap software, continue with setting up IIB */
                 //updateInfo_g.m_uiUpdateState = eUpdateStateIib;
-                updateIib();
+                updateIib(updateInfo_g.m_uiUserImageOffset);
             }
             else
             {
@@ -759,7 +774,7 @@ static tEplSdoComConState updateStateAp(void)
         {
             /* CRC is right, we could continue with the IIB */
             //updateInfo_g.m_uiUpdateState = eUpdateStateIib;
-            updateIib();
+            updateIib(updateInfo_g.m_uiUserImageOffset);
 
             /* notifiy SDO stack if segment is finished
              * NOTE: should always be the case because it

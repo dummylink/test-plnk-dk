@@ -361,7 +361,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 
 #ifdef SYSID_BASE
     DEBUG_TRACE2(DEBUG_LVL_15,
-                 "Reconfigured with system time stamp: %ul \nand system ID: %ul\n",
+                 "Reconfigured with system time stamp: %lu \nand system ID: %lu\n",
                  IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE),
                  IORD_ALTERA_AVALON_SYSID_ID(SYSID_BASE));
 
