@@ -57,7 +57,7 @@ FPGACFG_SOF=
 FPGACFG_VERS=
 PCPSW_ELF=
 PCPSW_VERS=
-APSW_BIN=
+APSW_FILE=
 APSW_VERS=
 DEVICE=
 HW_REVISION=
@@ -121,13 +121,13 @@ do
         --fpgavers)         FPGACFG_VERS="$2"; let "options|=2"; shift;;
         -p|--pcpsw)         PCPSW_ELF="$2"; let "options|=4"; shift;;
         --pcpvers)          PCPSW_VERS="$2"; let "options|=8"; shift;;
-        -a|--apsw)          APSW_BIN="$2"; let "options|=256"; shift;;
+        -a|--apsw)          APSW_FILE="$2"; let "options|=256"; shift;;
         --apvers)           APSW_VERS="$2"; let "options|=512"; shift;;
         -o|--output)        FIRMWARE="$2"; let "options|=16"; shift;;
         --appswdate)        APPSWDATE="$2"; shift;;
         --appswtime)        APPSWTIME="$2"; shift;;
-        --device)           DEVICE="$2"; let "options|=32"; shift;;
-        --hwrev)            HW_REVISION="$2"; let "options|=64"; shift;;
+        -d|--device)        DEVICE="$2"; let "options|=32"; shift;;
+        -r|--hwrev)         HW_REVISION="$2"; let "options|=64"; shift;;
         -v|--verbose)       VERBOSE="1";;
         --)                 shift; break;;
         -h|--help)          usage ;;
@@ -148,11 +148,11 @@ if [[ ! ${PCPSW_ELF##*.} == "elf" ]]; then
     exit
 fi
 
-if [[ ! "$APSW_BIN" == "" ]]; then
-	if [[ ! ${APSW_BIN##*.} == "bin" ]]; then
-	    echo -e "\nPlease specifiy a .bin file for AP software!"
-	    exit
-	fi
+if [[ ! "$APSW_FILE" == "" ]]; then
+    if [[ ! "${APSW_FILE##*.}" == "bin" ]] && [[ ! "${APSW_FILE##*.}" == "elf" ]]; then
+        echo -e "\nPlease specifiy a .bin/.elf file for AP software!"
+        exit
+    fi
 fi
 
 if ([[ "$APPSWDATE" == "" ]] && [[ ! "$APPSWTIME" == "" ]]) ||
@@ -175,7 +175,12 @@ fi
 # get basenames
 FPGACFG_BASE=`basename $FPGACFG_SOF .sof`
 PCPSW_BASE=`basename $PCPSW_ELF .elf`
-APSW_BASE=`basename $APSW_BIN .bin`
+if [[ "${APSW_FILE##*.}" == "bin" ]] ; then
+    APSW_BASE=`basename $APSW_FILE .bin`
+else
+    APSW_BASE=AP_`basename $APSW_FILE .elf`
+fi
+
 
 # set options for application date and time depending if they are specified
 # on command line or not
@@ -185,15 +190,13 @@ else
     APPSWOPT="--appswdate ${APPSWDATE} --appswtime ${APPSWTIME} "
 fi
 
-echo $APPSWOPT
-
 ################################################################################
 # Creating flash for FPGA and Nios configuration for bootloader
 echo -e "\n-----------------------------------------"
 echo -e "Creating firmware file: ${FIRMWARE}\n"
 echo -e "Using FPGA configuration: $FPGACFG_SOF"
 echo -e "Using PCP software: $PCPSW_ELF"
-echo -e "Using AP software: $APSW_BIN\n"
+echo -e "Using AP software: $APSW_FILE\n"
 
 echo -e "FPGA configuration version $FPGACFG_VERS"
 echo -e "PCP software version $PCPSW_VERS"
@@ -212,7 +215,13 @@ $OBJCOPY -I srec -O binary ${FPGACFG_BASE}.flash ${FPGACFG_BASE}.bin
 $ELF2FLASH --epcs --input="${PCPSW_ELF}" --output="${PCPSW_BASE}.flash" --after="${FPGACFG_BASE}.flash"
 $OBJCOPY -I srec -O binary "${PCPSW_BASE}.flash" "${PCPSW_BASE}.bin"
 
-# AP software is already specified in binary format. We don't care about the contents of the file!
+# Convert PCP software into binary file if specified as elf file
+if [[ "$options" -eq 895 ]]; then
+    if [[ "${APSW_FILE##*.}" == "elf" ]] ; then
+        $ELF2FLASH --epcs --input="${APSW_FILE}" --output="${APSW_BASE}.flash" --after="${PCPSW_BASE}.flash"
+        $OBJCOPY -I srec -O binary "${APSW_BASE}.flash" "${APSW_BASE}.bin"
+    fi
+fi
 
 # Create firmware file
 #
@@ -225,7 +234,7 @@ if [[ "$options" == 127 ]]; then
 else
     $MKFW -f ${TMPDIR}/${FPGACFG_BASE}.bin --fpgavers $FPGACFG_VERS \
           -p ${TMPDIR}/${PCPSW_BASE}.bin --pcpvers $PCPSW_VERS \
-          -a ${TMPDIR}/${APSW_BIN} --apvers $APSW_VERS \
+          -a ${TMPDIR}/${APSW_BASE}.bin --apvers $APSW_VERS \
           -o ${FIRMWARE} ${APPSWOPT} --device $DEVICE --hwrev $HW_REVISION
 fi
 
@@ -234,5 +243,6 @@ fi
 #
 rm -f ${FPGACFG_BASE}.flash
 rm -f ${PCPSW_BASE}.flash
+rm -f ${APSW_BASE}.flash
 rm -f ${FPGACFG_BASE}.bin
 rm -f ${PCPSW_BASE}.bin
