@@ -560,8 +560,8 @@ int createFirmware(void)
     memset (&fwHeader, 0x00, sizeof(tFwHeader));
     fwHeader.m_magic = htons(FW_HEADER_MAGIC);
     fwHeader.m_version = htons(FW_HEADER_VERSION);
-    fwHeader.m_deviceId = htons(options_g.m_deviceId);
-    fwHeader.m_hwRevision = htons(options_g.m_hwRevision);
+    fwHeader.m_deviceId = htonl(options_g.m_deviceId);
+    fwHeader.m_hwRevision = htonl(options_g.m_hwRevision);
 
     /* check if application software date and time is specified or if current
      * system time should be used.
