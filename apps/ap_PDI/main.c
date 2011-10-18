@@ -50,7 +50,8 @@ a dual ported RAM (DPRAM) area.
 
 /******************************************************************************/
 /* defines */
-#define DEMO_PRODUCT_CODE   4744
+#define DEMO_VENDOR_ID      0x0100006C
+#define DEMO_PRODUCT_CODE   49819
 #define DEMO_REVISION       1
 #define DEMO_SERIAL_NUMBER  0x12345678
 
@@ -237,7 +238,7 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
     pInitParm_p->m_bNodeId = bNodeId_p;
     memcpy(pInitParm_p->m_abMac, pMac_p, sizeof(pInitParm_p->m_abMac));
     pInitParm_p->m_dwDeviceType = -1;
-    pInitParm_p->m_dwVendorId = -1;
+    pInitParm_p->m_dwVendorId = DEMO_VENDOR_ID;
     pInitParm_p->m_dwProductCode = DEMO_PRODUCT_CODE;
     pInitParm_p->m_dwRevision = DEMO_REVISION;
     pInitParm_p->m_dwSerialNum = DEMO_SERIAL_NUMBER;
