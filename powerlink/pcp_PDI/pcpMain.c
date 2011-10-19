@@ -108,6 +108,7 @@ static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
 static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
 static int getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
                                   UINT32 *pUiApplicationSwTime_p);
+static void rebootCN(void);
 
 int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle);
 int EplAppDefObdAccWriteSegmentedAbortCb(void * pHandle);
@@ -217,6 +218,16 @@ exit:
 
 /**
 ********************************************************************************
+\brief    reboot the CN
+*******************************************************************************/
+void rebootCN(void)
+{
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Reboot CN ...\n");
+    FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
+}
+
+/**
+********************************************************************************
 \brief    initialize openPOWERLINK stack
 *******************************************************************************/
 int initPowerlink(tCnApiInitParm *pInitParm_p)
@@ -281,6 +292,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
     EplApiInitParam.m_pfnDefaultObdCallback = EplAppCbDefaultObdAccess; // called if objects do not exist in local OBD
+    EplApiInitParam.m_pfnRebootCb = rebootCN;
+
     EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 
     DEBUG_TRACE1(DEBUG_LVL_09, "INFO: NODE ID is set to 0x%02x\n", EplApiInitParam.m_uiNodeId);
