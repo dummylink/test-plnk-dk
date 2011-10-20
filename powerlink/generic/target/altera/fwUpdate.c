@@ -203,7 +203,8 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     DEBUG_TRACE1(DEBUG_LVL_15, "FPGA Config Size:      %d\n", fwHeader_g.m_fpgaConfigSize);
     DEBUG_TRACE1(DEBUG_LVL_15, "PCP SW Size:           %d\n", fwHeader_g.m_pcpSwSize);
     DEBUG_TRACE1(DEBUG_LVL_15, "AP SW Size:            %d\n", fwHeader_g.m_apSwSize);
-
+    DEBUG_TRACE1(DEBUG_LVL_15, "Application SW Date:   %d\n", fwHeader_g.m_applicationSwDate);
+    DEBUG_TRACE1(DEBUG_LVL_15, "Application SW Time:   %d\n", fwHeader_g.m_applicationSwTime);
     return OK;
 }
 

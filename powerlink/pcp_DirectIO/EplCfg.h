@@ -264,19 +264,15 @@
 // defines for FPGA reconfiguration
 // =========================================================================
 #define CONFIG_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
-#undef  CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
+#define CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
 
 // =========================================================================
 // defines for POWERLINK identification
 // =========================================================================
-#define CONFIG_IDENT_PRODUCT_CODE           815
+#define CONFIG_IDENT_PRODUCT_CODE           49819
 #define CONFIG_IDENT_REVISION               1
-
-
-
-
-
-
+#define CONFIG_IDENT_VENDOR_ID              0x0100006C
+#define CONFIG_IDENT_SERIAL_NUMBER          0x12345678
 
 #endif //_EPLCFG_H_
 
