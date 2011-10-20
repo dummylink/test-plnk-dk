@@ -331,6 +331,9 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_dwApplicationSwTime = uiApplicationSwTime;
     EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
     EplApiInitParam.m_dwDefaultGateway = 0;
+    EplApiInitParam.m_pszDevName = pInitParm_p->m_strDevName;
+    EplApiInitParam.m_pszHwVersion = pInitParm_p->m_strHwVersion;
+    EplApiInitParam.m_pszSwVersion = pInitParm_p->m_strSwVersion;
     EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;

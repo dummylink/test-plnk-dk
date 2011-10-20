@@ -251,6 +251,9 @@ typedef struct sCnApiInitParm {
 	DWORD			m_dwVendorId;
 	DWORD			m_dwProductCode;
 	DWORD			m_dwDeviceType;
+	BYTE            m_strDevName[32];
+	BYTE            m_strHwVersion[32];
+	BYTE            m_strSwVersion[32];
 	DWORD			m_dwDpramBase;
 } tCnApiInitParm;
 

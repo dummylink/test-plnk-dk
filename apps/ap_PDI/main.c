@@ -242,6 +242,9 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
     pInitParm_p->m_dwProductCode = DEMO_PRODUCT_CODE;
     pInitParm_p->m_dwRevision = DEMO_REVISION;
     pInitParm_p->m_dwSerialNum = DEMO_SERIAL_NUMBER;
+    pInitParm_p->m_strDevName[32] = "POWERLINK CN B&R DEMO";
+    pInitParm_p->m_strHwVersion[32] = 0;
+    pInitParm_p->m_strSwVersion[32] = 0;
 
     pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;     //address of DPRAM area
 }

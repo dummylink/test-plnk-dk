@@ -286,14 +286,20 @@ tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYT
 
      /* handle Rx Message */
 	/* store data from InitPcpReq */
-	memcpy (pInitParm->m_abMac, pInitPcpReq->m_abMac,
-			sizeof(pInitPcpReq->m_abMac));
+    EPL_MEMCPY(pInitParm->m_abMac, pInitPcpReq->m_abMac,
+               sizeof(pInitPcpReq->m_abMac)             );
 	pInitParm->m_dwDeviceType = pInitPcpReq->m_dwDeviceType;
 	pInitParm->m_bNodeId = pInitPcpReq->m_dwNodeId;
 	pInitParm->m_dwRevision = pInitPcpReq->m_dwRevision;
 	pInitParm->m_dwSerialNum = pInitPcpReq->m_dwSerialNum;
 	pInitParm->m_dwVendorId = pInitPcpReq->m_dwVendorId;
 	pInitParm->m_dwProductCode = pInitPcpReq->m_dwProductCode;
+	EPL_MEMCPY (pInitParm->m_strDevName, pInitPcpReq->m_strDevName,
+	            sizeof(pInitPcpReq->m_strDevName));
+	EPL_MEMCPY (pInitParm->m_strHwVersion, pInitPcpReq->m_strHwVersion,
+	            sizeof(pInitPcpReq->m_strHwVersion));
+	EPL_MEMCPY (pInitParm->m_strSwVersion, pInitPcpReq->m_strSwVersion,
+	            sizeof(pInitPcpReq->m_strSwVersion));
 
 	/* setup response */
 	pInitPcpResp->m_bReqId = pInitPcpReq->m_bReqId;
