@@ -691,13 +691,6 @@ static tEplSdoComConState updateStatePcp(void)
         {
             /* CRC is right, we could continue with the AP software */
 
-            /* notify SDO stack if segment is finished */
-            if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
-            {
-                updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
-                iResult = kEplSdoComTransferFinished;
-            }
-
             /* check if AP software is contained in update */
             if (fwHeader_g.m_apSwSize == 0)
             {
@@ -719,6 +712,13 @@ static tEplSdoComConState updateStatePcp(void)
             }
             else
             {
+                /* notify SDO stack if segment is finished */
+                if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
+                {
+                    updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+                    iResult = kEplSdoComTransferFinished;
+                }
+
                 updateInfo_g.m_uiProgOffset = updateInfo_g.m_uiUserImageOffset +
                                               fwHeader_g.m_fpgaConfigSize +
                                               fwHeader_g.m_pcpSwSize;
@@ -869,7 +869,7 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
     tEplSdoComConState          iResult;
     int                         iRet;
     flash_region*               aFlashRegions;  ///< flash regions array
-    unsigned short              wNumOfRegions;  ///< number of flash regions
+    int                         iNumOfRegions;  ///< number of flash regions
 
     DEBUG_TRACE3 (DEBUG_LVL_15, "\n---> %s: segment offset: %d Handle:%p\n", __func__,
                   uiSegmentOff_p, ((tDefObdAccHdl *)pHandle_p)->m_pObdParam);
@@ -909,7 +909,7 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
         /* get some flash information */
         if ((iRet = alt_get_flash_info(updateInfo_g.m_flashFd,
                                        &aFlashRegions,
-                                       (int*) &wNumOfRegions)) != 0)
+                                       &iNumOfRegions)) != 0)
         {
             DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s: Error get flash info!\n", __func__);
 
