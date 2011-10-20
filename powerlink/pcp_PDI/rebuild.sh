@@ -67,12 +67,47 @@ else
 	DEBUG_FLAG=
 fi
 
+echo "rebuild.sh: Started"
+
+#######################################
+###    Rebuild the FPGA config      ###
+CURPATH=`pwd`
+ENHANCED_EPCS_BOOTLOADER=${CURPATH}/../../fpga/altera/addons/epcs_flash_controller_ipcore/epcs_flash_controller_0_boot_rom_synth.hex
+
+if [ -f ${ENHANCED_EPCS_BOOTLOADER} ]; then
+  echo "rebuild.sh: Replace default epcs_bootloader with ${ENHANCED_EPCS_BOOTLOADER}"
+else
+  echo "Error: ${ENHANCED_EPCS_BOOTLOADER} not preset!"
+  exit 1
+fi
+
+# Overwrite default altera epcs bootloader with enhanced boot loader which is 
+# capable to load the NIOS II SW of a firmware image stored at a different
+# offset then the epcs base offset (0).
+# Note: The bootloader requires the remote-update core to be located at  a fixed
+#       base address 0x800 because it reads the reset address from the remote
+#       update core.
+cp ${ENHANCED_EPCS_BOOTLOADER} ${SOPC_DIR}
+
+# Recompile the Quartus generated sof file again with the enhanced epcs bootloader
+cmd="quartus_cdb ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac --update_mif"
+$cmd || {
+    echo -e "create-this-app failed!"
+    exit 1
+}
+
+cmd="quartus_asm --read_settings_files=on --write_settings_files=off ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac"
+$cmd || {
+    echo -e "create-this-app failed!"
+    exit 1
+}
+
 #######################################
 ###        Rebuild the SW           ###
 cmd="./create-this-app --sopcdir $SOPC_DIR --rebuild ${DEBUG_FLAG}"
 echo "rebuild.sh: Running \"$cmd\""
 $cmd || {
-    echo -e "\ncreate-this-app failed!\nVerify openPOWERLINK stack path setting in 'project.config'!\n"
+    echo -e "create-this-app failed!\nVerify openPOWERLINK stack path setting in 'project.config'!"
     exit 1
 }
 
