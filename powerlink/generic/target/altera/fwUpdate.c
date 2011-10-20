@@ -273,9 +273,6 @@ static int eraseFlash(alt_flash_fd * flashFd_p, UINT32 uiSector_p, UINT32 uiSize
 {
     int         iRet;
 
-   // printf ("erase at: %08x\n", uiSector_p);
-    //return 0;
-
     iRet = alt_erase_flash_block(flashFd_p, uiSector_p, uiSize_p);
 
     return iRet;
@@ -572,10 +569,8 @@ static tEplSdoComConState updateStateStart(void)
     int iRet;
     int iResult = kEplSdoComTransferRunning;
 
-    //printf("Erase Flash(%ul)..\n", EplTimerSynckGetDeltaTimeMs()); //DEBUG_MH
     iRet = eraseFlash(updateInfo_g.m_flashFd, CONFIG_USER_IIB_FLASH_ADRS,
                                  updateInfo_g.m_uiSectorSize);
-    //printf(".. finished(%ul)\n", EplTimerSynckGetDeltaTimeMs()); //DEBUG_MH
 
     if (iRet == -EIO)
     {
@@ -586,7 +581,6 @@ static tEplSdoComConState updateStateStart(void)
 
     if (iRet == 0)
     {
-        printf("%s: IIB erased! \n", __func__); //DEBUG_MH
         updateInfo_g.m_uiProgOffset = updateInfo_g.m_uiUserImageOffset;
         /* FPGA configuration must always start on a sector boundary */
         updateInfo_g.m_uiEraseOffset = updateInfo_g.m_uiProgOffset;
@@ -708,8 +702,20 @@ static tEplSdoComConState updateStatePcp(void)
             if (fwHeader_g.m_apSwSize == 0)
             {
                 /* no ap software, continue with setting up IIB */
-                //updateInfo_g.m_uiUpdateState = eUpdateStateIib;
                 updateIib(updateInfo_g.m_uiUserImageOffset);
+
+                if (FLAG_ISSET(iRet, eUpdateResultSegFinish))
+                {
+                    updateInfo_g.m_pfnSegFinishCb(updateInfo_g.m_pHandle);
+                    iResult = kEplSdoComTransferFinished;
+                }
+                else
+                {
+                    /* we are finished with the AP part but there is
+                     * remaining data! Abort the update! */
+                    abortUpdate();
+                    iResult = kEplSdoComTransferRxAborted;
+                }
             }
             else
             {
@@ -890,8 +896,6 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
             return kEplSdoComTransferRxAborted;
         }
 
-        printf ("Got valid header!\n"); //DEBUG_MH
-
         /* open flash device */
         if ((updateInfo_g.m_flashFd =
                 alt_flash_open_dev(FLASH_CTRL_NAME)) == NULL)
@@ -922,7 +926,7 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
     }
     else
     {
-        printf ("Segment offset: %d Last segment: %d\n",
+        DEBUG_TRACE2 (DEBUG_LVL_15, "Segment offset: %d Last segment: %d\n",
                 uiSegmentOff_p, updateInfo_g.m_uiLastSegmentOffset);
         if (uiSegmentOff_p < updateInfo_g.m_uiLastSegmentOffset)
         {
