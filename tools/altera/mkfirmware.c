@@ -311,8 +311,8 @@ void printFwInfo(tFwHeader *pHeader_p)
     printf ("Firmware Header Version: %d.%d\n",
             ((ntohs(pHeader_p->m_version) >> 8) & 0xff),
             (ntohs(pHeader_p->m_version) & 0xff));
-    printf ("Device ID:               %d\n", (UINT32)ntohs(pHeader_p->m_deviceId));
-    printf ("Hardware Revision:       %d\n", ntohs(pHeader_p->m_hwRevision));
+    printf ("Device ID:               %d\n", (UINT32)ntohl(pHeader_p->m_deviceId));
+    printf ("Hardware Revision:       %d\n", (UINT32)ntohl(pHeader_p->m_hwRevision));
     printf ("Application SW Date:     %d\n", (UINT32)ntohl(pHeader_p->m_applicationSwDate));
     printf ("Application SW Time:     %d\n", (UINT32)ntohl(pHeader_p->m_applicationSwTime));
     printf ("Header CRC:              0x%08x\n", (UINT32)ntohl(pHeader_p->m_headerCrc));
@@ -597,7 +597,7 @@ int createFirmware(void)
 
     /*------------------------------------------------------------------------*/
     /* create firmware file */
-    if ((fwFd = open(options_g.m_outFileName, O_RDWR | O_CREAT,
+    if ((fwFd = open(options_g.m_outFileName, O_RDWR | O_CREAT | O_TRUNC,
                      S_IRWXU | S_IRGRP | S_IROTH)) == -1)
     {
         printf ("Couldn't create firmware image file (%s)\n", strerror(errno));
