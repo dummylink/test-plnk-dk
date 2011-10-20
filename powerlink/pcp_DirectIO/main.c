@@ -79,6 +79,7 @@ tEplKernel PUBLIC AppCbEvent(
 
 #ifdef LCD_BASE
 void LCD_printState(tEplNmtState NmtState_p);
+void LCD_printNodeInfo (BOOL fIsUser_p, WORD wNodeId_p);
 
 static char aStrNmtState_l[9][17] = {"INVALID         ",
                                      "OFF             ",
@@ -109,7 +110,7 @@ tApiPdiComCon ApiPdiComInstance_g;
 
 /******************************************************************************/
 /* forward declarations */
-int openPowerlink(void);
+int openPowerlink(WORD wNodeId_p);
 void InitPortConfiguration (char *p_portIsOutput);
 WORD GetNodeId (void);
 
@@ -1253,7 +1254,8 @@ static int getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
 *******************************************************************************/
 int main (void)
 {
-    int iCnt=0;
+    WORD    wNodeId;
+    int     iCnt = 0;
 
     alt_icache_flush_all();
     alt_dcache_flush_all();
@@ -1272,6 +1274,8 @@ int main (void)
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
             fIsUserImage_g = TRUE;
+            LCD_Clear();
+            LCD_Show_Text("USER");
             break;
         }
         case kFpgaCfgUserImageLoadedWatchdogEnabled:
@@ -1305,8 +1309,11 @@ int main (void)
     PRINTF("\n\nDigital I/O interface is running...\n");
     PRINTF("starting openPowerlink...\n\n");
 
+    wNodeId = GetNodeId();
+    LCD_printNodeInfo(fIsUserImage_g, wNodeId);
+
     while (1) {
-        if (openPowerlink() != 0) {
+        if (openPowerlink(wNodeId) != 0) {
             PRINTF("openPowerlink was shut down because of an error\n");
             break;
         } else {
@@ -1327,7 +1334,7 @@ exit:
 \brief    main function of digital I/O interface
 
 *******************************************************************************/
-int openPowerlink(void)
+int openPowerlink(WORD wNodeId_p)
 {
     DWORD                       ip = IP_ADDR; // ip address
 
@@ -1360,7 +1367,7 @@ int openPowerlink(void)
     // set EPL init parameters
     EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
     EPL_MEMCPY(EplApiInitParam.m_abMacAddress, abMacAddr, sizeof(EplApiInitParam.m_abMacAddress));
-    EplApiInitParam.m_uiNodeId = GetNodeId();
+    EplApiInitParam.m_uiNodeId = wNodeId_p;
     EplApiInitParam.m_dwIpAddress = ip;
     EplApiInitParam.m_uiIsochrTxMaxPayload = 256;
     EplApiInitParam.m_uiIsochrRxMaxPayload = 256;
@@ -1755,9 +1762,6 @@ returns the node ID.
 WORD GetNodeId (void)
 {
     WORD     nodeId;
-#ifdef LCD_BASE
-    char TextNodeID[17];
-#endif
 
 #ifdef NODE_SWITCH_PIO_BASE
     /* read port configuration input pins */
@@ -1767,14 +1771,6 @@ WORD GetNodeId (void)
 #ifdef SET_NODE_ID_PER_SW
     /* overwrite node ID */
     nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
-#endif
-
-#ifdef LCD_BASE
-    sprintf(TextNodeID, "NodeID: 0x%02X", nodeId );
-    //itoa(TextNodeID, (int)nodeId);
-    usleep(5000000);
-    LCD_Clear();
-    LCD_Show_Text(TextNodeID);
 #endif
 
     return nodeId;
@@ -1807,6 +1803,32 @@ void LCD_printState(tEplNmtState NmtState_p)
         LCD_Show_Text(aStrNmtState_l[0]);
         break;
     }
+}
+
+/**
+********************************************************************************
+\brief    print node info on LCD
+
+GetNodeId() reads the node switches connected to the node switch inputs and
+returns the node ID.
+
+\retval    nodeID        the node ID which was read
+*******************************************************************************/
+void LCD_printNodeInfo (BOOL fIsUser_p, WORD wNodeId_p)
+{
+    char TextNodeID[17];
+
+    if (fIsUser_p)
+    {
+        sprintf(TextNodeID, "User/ID:0x%02X", wNodeId_p);
+    }
+    else
+    {
+        sprintf(TextNodeID, "Factory/ID:0x%02X", wNodeId_p);
+    }
+
+    LCD_Clear();
+    LCD_Show_Text(TextNodeID);
 }
 #endif
 
