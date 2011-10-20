@@ -196,11 +196,15 @@ echo -e "\n-----------------------------------------"
 echo -e "Creating firmware file: ${FIRMWARE}\n"
 echo -e "Using FPGA configuration: $FPGACFG_SOF"
 echo -e "Using PCP software: $PCPSW_ELF"
-echo -e "Using AP software: $APSW_FILE\n"
+if [[ "$options" -eq 895 ]]; then
+    echo -e "Using AP software: $APSW_FILE\n"
+fi    
 
 echo -e "FPGA configuration version $FPGACFG_VERS"
 echo -e "PCP software version $PCPSW_VERS"
-echo -e "AP software version $APSW_VERS"
+if [[ "$options" -eq 895 ]]; then
+    echo -e "AP software version $APSW_VERS"
+fi    
 echo -e "Application software date: $APPSWDATE"
 echo -e "Application software time: $APPSWTIME"
 echo -e "Device ID: $DEVICE"
