@@ -20,6 +20,7 @@
 #include "system.h"
 #include "altera_avalon_pio_regs.h"
 #include "alt_types.h"
+#include "nios2.h"
 #include <sys/alt_cache.h>
 #endif // __NIOS2__
 
@@ -98,6 +99,7 @@ BYTE        digitalOut[4];
 
 static BOOL     fShutdown_l = FALSE;
 BOOL            fIsUserImage_g;            ///< if set user image is booted
+UINT32          uiFpgaConfigVersion_g = 0;
 
 static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< segmented object access management
 
@@ -1217,11 +1219,36 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl * pDefObdAccHdl
 /**
 ********************************************************************************
 \brief    reboot the CN
+
+This function reboots the CN. It checks if the FPGA configuration of the running
+firmware and the user image is different. If it is the same version it only
+performs a PCP software reset. If it is differnt it triggers a complete
+FPGA reconfiguration.
 *******************************************************************************/
 void rebootCN(void)
 {
-    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Reboot CN ...\n");
-    FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
+    UINT32  uiFpgaConfigVersion;
+
+    /* read FPGA configuration version of user image */
+    getSwVersions(CONFIG_USER_IIB_FLASH_ADRS, &uiFpgaConfigVersion, NULL, NULL);
+
+    /* if the FPGA configuration version is different we have to do
+     * a complete FPGA reconfiguration.*/
+    if (uiFpgaConfigVersion != uiFpgaConfigVersion_g)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
+        //usleep(4000000);
+        FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
+    }
+    else
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "PCP Software Reset of CN ...\n");
+        //usleep(4000000);
+        // We only have to reset the PCP software
+        NIOS2_WRITE_STATUS(0);
+        NIOS2_WRITE_IENABLE(0);
+        ((void (*) (void)) NIOS2_RESET_ADDR) ();
+    }
 }
 
 /**
@@ -1245,6 +1272,31 @@ static int getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
                                : CONFIG_FACTORY_IIB_FLASH_ADRS;
     return getApplicationSwDateTime(uiIibAdrs, pUiApplicationSwDate_p,
                                     pUiApplicationSwTime_p);
+}
+
+/**
+********************************************************************************
+\brief     get application software date/time of current image
+
+This function read the software versions of the currently used firmware image.
+The version is store at the specific pointer if it is not NULL.
+
+\param pUiFpgaConfigVersion_p   pointer to store FPGA configuration version
+\param pUiPcpSwVersion_p        pointer to store the PCP software version
+\param pUiApSwVersion_p         pointer to store the AP software version
+
+\return OK, or ERROR if data couldn't be read
+*******************************************************************************/
+int getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersion_p,
+                       UINT32 *pUiApSwVersion_p)
+{
+    UINT32      uiIibAdrs;
+
+    uiIibAdrs = fIsUserImage_g ? CONFIG_USER_IIB_FLASH_ADRS
+                               : CONFIG_FACTORY_IIB_FLASH_ADRS;
+
+    return getSwVersions(uiIibAdrs, pUiFpgaConfigVersion_p, pUiPcpSwVersion_p,
+                         pUiApSwVersion_p);
 }
 
 /**
@@ -1354,6 +1406,9 @@ int openPowerlink(WORD wNodeId_p)
 
     /* Read application software date and time */
     getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
+
+    /* Read FPGA configuration version of current used image */
+    getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL);
 
     /* initialize firmware update */
     initFirmwareUpdate(CONFIG_IDENT_PRODUCT_CODE, CONFIG_IDENT_REVISION);

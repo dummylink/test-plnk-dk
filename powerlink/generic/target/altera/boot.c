@@ -224,7 +224,7 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     {
         /* todo create individual error codes! */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
-                     uiIibAdrs_p, AmiGetDwordFromBe(&iib.m_magic));
+                     uiIibAdrs_p, (UINT32)AmiGetDwordFromBe(&iib.m_magic));
 
         return ERROR;
 
@@ -329,6 +329,80 @@ int getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
     /* store application software date and time */
     *pUiApplicationSwDate_p = iib.m_applicationSwDate;
     *pUiApplicationSwTime_p = iib.m_applicationSwTime;
+
+    return OK;
+}
+
+/**
+********************************************************************************
+\brief  get software versions
+
+This function reads the software version stored in the IIB. It stores the
+version at the specified pointer if it is not NULL. The AP software version
+is only stored if the IIB version is 2 otherwise a 0 is returned.
+
+\param  uiIibAdrs_p             flash address of IIB
+\param  pUiFpgaConfigVersion_p  pointer to store FPGA configuration version
+\param  pUiPcpSwVersion_p       pointer to store PCP software version
+\param  pUiapSwVersion_p        pointer to store AP software version
+
+\return OK, or ERROR if no valid IIB was found
+*******************************************************************************/
+int getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
+                  UINT32 *pUiPcpSwVersion_p, UINT32 *pUiApSwVersion_p)
+{
+    UINT32              uiCrc;
+    tIib                iib;
+
+    /* read IIB from flash */
+    if (getIib(uiIibAdrs_p, &iib, &uiCrc) < 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
+        return ERROR;
+    }
+
+    /* check IIB magic */
+    if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
+    {
+        /* todo create individual error codes! */
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
+                     uiIibAdrs_p, iib.m_magic);
+
+        return ERROR;
+    }
+
+    /* check IIB crc */
+    if (uiCrc != iib.m_iibCrc)
+    {
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is %08x : should be %08x\n",
+                     uiCrc, iib.m_iibCrc);
+        return ERROR;
+    }
+
+    /* store application software date and time */
+    if (pUiFpgaConfigVersion_p != NULL)
+    {
+        *pUiFpgaConfigVersion_p = iib.m_fpgaConfigVersion;
+    }
+
+    if (pUiPcpSwVersion_p != NULL)
+    {
+        *pUiPcpSwVersion_p = iib.m_pcpSwVersion;
+    }
+
+    if (iib.m_magic & 0xff == 2)
+    {
+
+        if (pUiApSwVersion_p != NULL)
+        {
+
+            *pUiApSwVersion_p = iib.m_apSwVersion;
+        }
+        else
+        {
+            *pUiApSwVersion_p = 0;
+        }
+    }
 
     return OK;
 }
