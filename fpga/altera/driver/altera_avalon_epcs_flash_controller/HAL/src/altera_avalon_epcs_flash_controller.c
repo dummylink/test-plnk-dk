@@ -374,14 +374,11 @@ int alt_epcs_flash_erase_block(alt_flash_dev* flash_info, int block_offset)
     /* Execute a WREN instruction */
     epcs_write_enable(f->register_base);
 
-        printf("After epcs_write_enable():(%lu)..\n", EplTimerSynckGetDeltaTimeMs()); //DEBUG_MH
-    
     /* Send the Sector Erase command, whose 3 address bytes are anywhere
      * within the chosen sector.
      */
     ret_code = epcs_sector_erase(f->register_base, block_offset);
     
-        printf("After epcs_sector_erase():(%lu)..\n", EplTimerSynckGetDeltaTimeMs()); //DEBUG_MH
   }
   return ret_code;
 }
