@@ -11,19 +11,23 @@ DBG_MODE=_DEBUG	# compile printfs()
 # DBG_MODE=NDEBUG # This define overwrites all others printf-debug defines
 				# -> no printfs() will be compiled!
 
-				
-CN_API_FLAGS= 	# empty	
+
+CN_API_FLAGS= 	# empty
 
 # replace this path to the object dictionary you wish to include
-OBJDICTDIR=../../objDicts/PDI		
+OBJDICTDIR=../../objDicts/PDI
                                                                               #
 ###############################################################################
 
 ###############################################################################
 # include project configuration
+PWD=`pwd`
 
 . ../../project.config  						#POWERLINK stack path
-EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path 
+EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path
+GENERIC_DIR=../generic
+PCP_DIR=$PWD/..                                 # use absolute path to be able to include
+                                                # from different source directories
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
 
@@ -68,7 +72,7 @@ do
 		 SOPC_DIR=$1
 		 echo SOPC_DIR set to \"$SOPC_DIR\"
 		 echo -------------------------------
-		 ;;		  
+		 ;;
   esac
   shift
 done
@@ -78,7 +82,8 @@ done
 INCLUDES="\
 . \
 ${EDRV_DIR}/openmac/include \
-${EDRV_DIR}/../target
+${PCP_DIR}/generic/target/altera \
+${PCP_DIR}/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
@@ -99,14 +104,15 @@ ${LIBAPIDIR}/utils"
 # 0x00000400L DEBUG_LVL_11 (= DEBUG_LVL_CNAPI_INFO)
 # 0x00001000L DEBUG_LVL_13 (= DEBUG_LVL_CNAPI_ASYNC_INFO)
 # 0x00002000L DEBUG_LVL_14 (= DEBUG_LVL_DEFAULT_OBD_ACC)
-# 0x20000000L DEBUG_LVL_ASSERT                
+# 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
+# 0x20000000L DEBUG_LVL_ASSERT
 # 0x80000000L DEBUG_LVL_ERROR
 # 0x40000000L DEBUG_LVL_ALWAYS
 
 if [ -z "$NO_OPT" ]; then
 	DEF_DEBUG_LVL="0xEC000000L" # only ASSERT, ERROR and ALWAYS messages + Powerlink stack debugs
 else
-	DEF_DEBUG_LVL="0xEC000F00L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs + CN API messages
+	DEF_DEBUG_LVL="0xEC002F00L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs + CN API messages
 fi
 
 CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP"
@@ -119,7 +125,10 @@ pcpPdo.c \
 pcpAsyncSm.c \
 pcpStateMachine.c \
 pcpEvent.c \
-${EDRV_DIR}/../target/FpgaCfg.c \
+${GENERIC_DIR}/target/altera/fpgaCfg.c \
+${GENERIC_DIR}/target/altera/fwUpdate.c \
+${GENERIC_DIR}/target/altera/boot.c \
+${GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
@@ -163,15 +172,16 @@ fi
 
 NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
---set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
+--set CFLAGS=${CFLAGS} --set APP_INCLUDE_DIRS=${INCLUDES} --src-files $SRCFILES"
 
 if [ -z "$SOPC_DIR" ]; then
-echo "No SOPC directory specified !"
-echo "Use parameter: --sopcdir <SOPC_directory>"
-exit 1
+    echo "No SOPC directory specified !"
+    echo "Use parameter: --sopcdir <SOPC_directory>"
+    exit 1
 fi
 
 if [ -z "$NO_OPT" ]; then
+    echo $NIOS2_APP_GEN_ARGS
     NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O2"
 else
 # in case of --debug option ("-g" means to insert debug information)
@@ -227,7 +237,7 @@ SOF_FILE := $(wildcard $(QUARTUS_PROJECT_DIR)/*.sof)
 .PHONY : $(PROGRAM_EPCS_TARGET)
 $(PROGRAM_EPCS_TARGET) : $(ELF)
 
-	@$(ECHO) Info: Programming $(basename $@).flash	
+	@$(ECHO) Info: Programming $(basename $@).flash
 	@if [ -n "$($(basename $@)_EPCS_FLAGS)" ]; \
 	then \
 		nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \
@@ -244,7 +254,7 @@ if [ -z "$SKIP_MAKE" ]; then
 
 	echo "make clean first..."
 	make clean
-	
+
 	echo "create-this-app: Running \"$cmd\""
 	$cmd || {
     	echo "make failed"

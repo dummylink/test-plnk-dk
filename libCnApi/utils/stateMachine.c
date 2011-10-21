@@ -16,7 +16,7 @@ This module contains the state machine engine used to implement state machines.
 
 /******************************************************************************/
 /* includes */
-#include "StateMachine.h"
+#include "stateMachine.h"
 
 /******************************************************************************/
 /* defines */

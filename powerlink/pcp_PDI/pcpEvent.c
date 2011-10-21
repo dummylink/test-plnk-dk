@@ -123,7 +123,6 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
 
     wEventAck = pCtrlReg_g->m_wEventAck;
 
-
     /* check if previous event has been confirmed by AP */
     if ((wEventAck & (1 << EVT_GENERIC)) == 0)
     { //confirmed -> set event
@@ -134,12 +133,52 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
         /* set GE bit to signal event to AP; If desired by AP,
          *  an IR signal will be asserted in addition */
         pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+
+        // special treatment for reset event
+        if ((wEventType_p == kPcpPdiEventGeneric)   &&
+            (wArg_p == kPcpGenEventResetNodeRequest)  )
+        {
+            // PCP signals AP to reset
+            while((pCtrlReg_g->m_wEventAck & (1 << EVT_GENERIC)) != 0)
+            {
+                // Wait until AP has acknowledged this event!
+                asm("NOP;");
+            }
+        }
     }
     else // not confirmed -> do not overwrite
     {
+        // special treatment for reset event
+        if ((wEventType_p == kPcpPdiEventGeneric)   &&
+            (wArg_p == kPcpGenEventResetNodeRequest)  )
+        {
+            // PCP signals AP to reset
+
+            while((pCtrlReg_g->m_wEventAck & (1 << EVT_GENERIC)) != 0)
+            {
+                // Wait until AP has acknowledged the previous event!
+                asm("NOP;");
+            }
+
+            // immediately set the reset event as next event
+            pCtrlReg_g->m_wEventType = wEventType_p;
+            pCtrlReg_g->m_wEventArg = wArg_p;
+
+            /* set GE bit to signal event to AP; If desired by AP,
+             *  an IR signal will be asserted in addition */
+            pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+
+            while((pCtrlReg_g->m_wEventAck & (1 << EVT_GENERIC)) != 0)
+            {
+                // Wait until AP has acknowledged the reset event!
+                asm("NOP;");
+            }
+        }
+
+        // event posting to fifo buffer required
         if((ucRet = pcp_EventFifoInsert(wEventType_p, wArg_p)) == kPcpEventFifoFull)
         {
-            // set the full event into memory
+            // set the buffer overflow event into memory
             pCtrlReg_g->m_wEventType = kPcpPdiEventGenericError;
             pCtrlReg_g->m_wEventArg = kPcpGenErrEventBuffOverflow;
 

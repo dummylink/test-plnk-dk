@@ -258,6 +258,20 @@
 #define TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 #define EPL_MODULE_API_PDI
 
+// =========================================================================
+// defines for flash update function
+// =========================================================================
+#define CONFIG_FACTORY_IIB_FLASH_ADRS          0x00400000      ///< flash address of factory IIB
+#define CONFIG_USER_IIB_FLASH_ADRS             0x00410000      ///< flash address of user IIB
+#define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000      ///< flash address of user image
+#define CONFIG_USER_IIB_VERSION                2               ///< used IIB version
+
+// =========================================================================
+// defines for FPGA reconfiguration
+// =========================================================================
+#define CONFIG_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
+#define CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
+
 #endif //_EPLCFG_H_
 
 

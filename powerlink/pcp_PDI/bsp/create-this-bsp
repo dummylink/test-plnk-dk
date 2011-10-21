@@ -2,13 +2,15 @@
 #
 ###############################################################################
 # This script creates the bsp files in the current directory.
-# 
+#
 ###############################################################################
 
 INPUT_VARS=$@
 
 echo --- This is create-this-bsp ---
 echo input parameters: $INPUT_VARS
+
+
 
 BSP_TYPE=hal
 BSP_DIR=.
@@ -31,7 +33,7 @@ do
 		  if [ -f makefile ]; then
 		  make clean
 		  fi
-		  rm -f ./public.mk ./settings.bsp		  
+		  rm -f ./public.mk ./settings.bsp
           ;;
       --debug)
           NO_OPT=1
@@ -58,7 +60,7 @@ fi
 if [ -z "$NO_OPT" ]; then
     NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2"
 else
-    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2" # for deuggig also at O2 for now.	
+    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2" # for deuggig also at O2 for now.
 fi
 
 # Run nios2-bsp utility to create a hal BSP in this directory

@@ -137,7 +137,6 @@ DWORD dwTimeDiffTicks;
 
 }
 
-
 //---------------------------------------------------------------------------
 //
 // Function:    EplTgtTimeStampAlloc()
