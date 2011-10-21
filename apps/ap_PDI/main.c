@@ -372,6 +372,12 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         break;
                     }
 
+                    case kPcpGenEventNodeIdConfigured:
+                    {
+                        // do reconfiguration of this node here
+                        break;
+                    }
+
                     case kPcpGenEventUserTimer:
                     {
                         //TODO: This is only a test! -> delete

@@ -232,26 +232,38 @@ void rebootCN(void)
 {
     UINT32  uiFpgaConfigVersion;
 
+    // inform AP about reset event - at this special event, wait until
+    // AP has confirmed the reception.
+    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetNodeRequest);
+
     /* read FPGA configuration version of user image */
     getSwVersions(CONFIG_USER_IIB_FLASH_ADRS, &uiFpgaConfigVersion, NULL, NULL);
 
-    /* if the FPGA configuration version is different we have to do
-     * a complete FPGA reconfiguration.*/
+    /* if the FPGA configuration version changed since boot-up, we have to do
+     * a complete FPGA reconfiguration. */
     if (uiFpgaConfigVersion != uiFpgaConfigVersion_g)
     {
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
         //usleep(4000000);
+
+        // no external reset, so trigger reset on our own
+        // remark: if we are in user image, this command will trigger a
+        //         reconfiguration of the factory image!
         FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
     }
     else
-    {
+    {   // only reset the PCP software
+
+        // TODO: verify user image if only PCP SW was updated (at bootup or now?)!
+
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "PCP Software Reset of CN ...\n");
         //usleep(4000000);
-        // We only have to reset the PCP software
+
         NIOS2_WRITE_STATUS(0);
         NIOS2_WRITE_IENABLE(0);
         ((void (*) (void)) NIOS2_RESET_ADDR) ();
     }
+
 }
 
 /**

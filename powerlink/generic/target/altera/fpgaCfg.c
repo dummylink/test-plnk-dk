@@ -461,7 +461,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
 
                 /* we never should come here because we triggered
-                 * FPGA reconguration! */
+                 * FPGA reconfiguration! */
 
 
 #endif /* CONFIG_USER_IMAGE_IN_FLASH */
