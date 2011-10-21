@@ -5,38 +5,68 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.toolchain.gnu.cygwin.base.1624616849">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cygwin.base.1624616849" moduleId="org.eclipse.cdt.core.settings" name="Default">
-				<externalSettings/>
-				<extensions>
-					<extension id="org.eclipse.cdt.core.Cygwin_PE" point="org.eclipse.cdt.core.BinaryParser"/>
-					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-				</extensions>
-			</storageModule>
+<externalSettings/>
+<extensions>
+<extension id="org.eclipse.cdt.core.Cygwin_PE" point="org.eclipse.cdt.core.BinaryParser"/>
+<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+</extensions>
+</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration buildProperties="" id="cdt.managedbuild.toolchain.gnu.cygwin.base.1624616849" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
-					<folderInfo id="cdt.managedbuild.toolchain.gnu.cygwin.base.1624616849.2129835192" name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.cygwin.base.447910675" name="cdt.managedbuild.toolchain.gnu.cygwin.base" superClass="cdt.managedbuild.toolchain.gnu.cygwin.base">
-							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.Cygwin_PE" id="cdt.managedbuild.target.gnu.platform.cygwin.base.200150148" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.cygwin.base"/>
-							<builder id="cdt.managedbuild.target.gnu.builder.cygwin.base.1981037833" managedBuildOn="false" name="Gnu Make Builder.Default" superClass="cdt.managedbuild.target.gnu.builder.cygwin.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.assembler.cygwin.base.820708066" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.cygwin.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.archiver.cygwin.base.314432089" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.cygwin.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base.888600699" name="Cygwin C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.c.compiler.cygwin.base.1627388017" name="Cygwin C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.cygwin.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.c.linker.cygwin.base.514505536" name="Cygwin C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.cygwin.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base.1758403811" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base"/>
-						</toolChain>
-					</folderInfo>
-				</configuration>
-			</storageModule>
+<configuration buildProperties="" id="cdt.managedbuild.toolchain.gnu.cygwin.base.1624616849" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+<folderInfo id="cdt.managedbuild.toolchain.gnu.cygwin.base.1624616849.2129835192" name="/" resourcePath="">
+<toolChain id="cdt.managedbuild.toolchain.gnu.cygwin.base.447910675" name="cdt.managedbuild.toolchain.gnu.cygwin.base" superClass="cdt.managedbuild.toolchain.gnu.cygwin.base">
+<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.Cygwin_PE" id="cdt.managedbuild.target.gnu.platform.cygwin.base.200150148" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.cygwin.base"/>
+<builder id="cdt.managedbuild.target.gnu.builder.cygwin.base.1981037833" managedBuildOn="false" name="Gnu Make Builder.Default" superClass="cdt.managedbuild.target.gnu.builder.cygwin.base"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.cygwin.base.820708066" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.cygwin.base">
+<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1584696163" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.archiver.cygwin.base.314432089" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.cygwin.base"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base.888600699" name="Cygwin C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base"/>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.cygwin.base.1627388017" name="Cygwin C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.cygwin.base">
+<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.1055640582" superClass="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.cygwin.base.514505536" name="Cygwin C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.cygwin.base">
+<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.2040256521" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
+<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+</inputType>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base.1758403811" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base"/>
+</toolChain>
+</folderInfo>
+</configuration>
+</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
-		</cconfiguration>
+		<storageModule moduleId="scannerConfiguration"/>
+<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+<buildTargets>
+<target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>make</buildCommand>
+<buildArguments/>
+<buildTarget>clean</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>true</runAllBuilders>
+</target>
+<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>make</buildCommand>
+<buildArguments/>
+<buildTarget>all</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>true</runAllBuilders>
+</target>
+</buildTargets>
+</storageModule>
+</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="altera_firmware_tools.null.1644835333" name="altera_firmware_tools"/>
-	</storageModule>
+<project id="altera_firmware_tools.null.1644835333" name="altera_firmware_tools"/>
+</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 	</storageModule>

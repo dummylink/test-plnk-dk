@@ -5349,7 +5349,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4E64854F</b> (timestamp: Mon Sep 5, 2011 @10:16 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4EA184B4</b> (timestamp: Fri Oct 21, 2011 @4:41 PM)";
             MESSAGES 
             {
             }
@@ -5358,7 +5358,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "1u";
-         timestamp = "1315210575u";
+         timestamp = "1319208116u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5367,7 +5367,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=1 --timestamp=1315210575";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=1 --timestamp=1319208116";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

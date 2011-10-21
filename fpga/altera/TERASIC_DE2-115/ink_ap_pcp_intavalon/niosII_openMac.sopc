@@ -76,6 +76,14 @@
          type = "String";
       }
    }
+   element jtag_uart_1.avalon_jtag_slave
+   {
+      datum baseAddress
+      {
+         value = "2128";
+         type = "long";
+      }
+   }
    element jtag_uart_0.avalon_jtag_slave
    {
       datum _lockedAddress
@@ -86,14 +94,6 @@
       datum baseAddress
       {
          value = "2416";
-         type = "long";
-      }
-   }
-   element jtag_uart_1.avalon_jtag_slave
-   {
-      datum baseAddress
-      {
-         value = "2128";
          type = "long";
       }
    }
@@ -264,14 +264,6 @@
          type = "boolean";
       }
    }
-   element ap_cpu.jtag_debug_module
-   {
-      datum baseAddress
-      {
-         value = "4096";
-         type = "long";
-      }
-   }
    element pcp_cpu.jtag_debug_module
    {
       datum _lockedAddress
@@ -282,6 +274,14 @@
       datum baseAddress
       {
          value = "21022720";
+         type = "long";
+      }
+   }
+   element ap_cpu.jtag_debug_module
+   {
+      datum baseAddress
+      {
+         value = "4096";
          type = "long";
       }
    }
@@ -438,24 +438,19 @@
          type = "long";
       }
    }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2096";
+         type = "long";
+      }
+   }
    element node_switch_pio.s1
    {
       datum baseAddress
       {
          value = "2384";
-         type = "long";
-      }
-   }
-   element system_timer.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2304";
          type = "long";
       }
    }
@@ -466,38 +461,6 @@
          value = "1";
          type = "boolean";
       }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum baseAddress
-      {
-         value = "268435456";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2336";
-         type = "long";
-      }
-   }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2096";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
       datum baseAddress
       {
          value = "2048";
@@ -517,6 +480,38 @@
          type = "long";
       }
    }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2080";
+         type = "long";
+      }
+   }
+   element sdram_0.s1
+   {
+      datum baseAddress
+      {
+         value = "268435456";
+         type = "long";
+      }
+   }
+   element system_timer_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2336";
+         type = "long";
+      }
+   }
    element tc_i_mem_pcp.s1
    {
       datum _lockedAddress
@@ -530,11 +525,16 @@
          type = "long";
       }
    }
-   element outport_ap.s1
+   element system_timer.s1
    {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
       datum baseAddress
       {
-         value = "2080";
+         value = "2304";
          type = "long";
       }
    }
@@ -685,7 +685,7 @@
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="7929233553" />
- <parameter name="timeStamp" value="1315210575043" />
+ <parameter name="timeStamp" value="1319208116460" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
