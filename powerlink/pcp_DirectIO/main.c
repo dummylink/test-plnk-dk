@@ -99,7 +99,7 @@ BYTE        digitalOut[4];
 
 static BOOL     fShutdown_l = FALSE;
 BOOL            fIsUserImage_g;            ///< if set user image is booted
-UINT32          uiFpgaConfigVersion_g = 0;
+UINT32          uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 
 static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< segmented object access management
 

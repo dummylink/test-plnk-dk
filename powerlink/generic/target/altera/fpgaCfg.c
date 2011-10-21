@@ -48,18 +48,18 @@
 
 /******************************************************************************/
 /* function declarations */
-static void FpgaCfg_disableWatchdog(void);
-static void FpgaCfg_enableWatchdog(void);
-static void FpgaCfg_enableEarlyCnfDoneCheck(void);
-static void FpgaCfg_enableInternalOscStartUp(void);
-static void FpgaCfg_setWatchdogTimer(WORD wTimeout_p);
-static DWORD FpgaCfg_getWatchdogCounterSetting(void);
-static DWORD FpgaCfg_getWatchdogStatus(void);
-static DWORD FpgaCfg_getCurRemoteUpdateCoreState(void);
-static DWORD FpgaCfg_getCurFactoryBootAdr(void);
-static DWORD FpgaCfg_getPast1BootAdr(void);
-static DWORD FpgaCfg_getPast2BootAdr(void);
-static DWORD FpgaCfg_getPast1ReconfigTriggerCondition(void);
+void FpgaCfg_disableWatchdog(void);
+void FpgaCfg_enableWatchdog(void);
+void FpgaCfg_enableEarlyCnfDoneCheck(void);
+void FpgaCfg_enableInternalOscStartUp(void);
+void FpgaCfg_setWatchdogTimer(WORD wTimeout_p);
+DWORD FpgaCfg_getWatchdogCounterSetting(void);
+DWORD FpgaCfg_getWatchdogStatus(void);
+DWORD FpgaCfg_getCurRemoteUpdateCoreState(void);
+DWORD FpgaCfg_getCurFactoryBootAdr(void);
+DWORD FpgaCfg_getPast1BootAdr(void);
+DWORD FpgaCfg_getPast2BootAdr(void);
+DWORD FpgaCfg_getPast1ReconfigTriggerCondition(void);
 
 /******************************************************************************/
 /* private functions */
@@ -443,7 +443,6 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 FpgaCfg_enableInternalOscStartUp();
 
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
-                //usleep(1000*10000); //activate this line for debugging
 
                 DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
                 if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
@@ -456,8 +455,15 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 }
                 DEBUG_TRACE0(DEBUG_LVL_15, "... OK!\n");
 
+                //usleep(1000*10000); //activate this line for debugging
+
                 /* trigger reconfiguration of user image */
                 FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
+
+                /* we never should come here because we triggered
+                 * FPGA reconguration! */
+
+
 #endif /* CONFIG_USER_IMAGE_IN_FLASH */
             }
             break;

@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include <string.h>
 
-#include "../../include/firmware.h"
 #include "fwUpdate.h"
 
 /*TODO only for debugging */

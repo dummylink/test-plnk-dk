@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file           firmware.h
+\file           fwUpdate.h
 
 \brief          Header file contains definitions for firmware update function
 
