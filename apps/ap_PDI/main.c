@@ -375,7 +375,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         break;
                     }
 
-                    case kPcpGenEventNodeIdConfigured:
+                    case kPcpGenEventResetNodeRequest:
                     {
                         // do reconfiguration of this node here
                         break;
