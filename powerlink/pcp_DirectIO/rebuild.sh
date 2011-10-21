@@ -92,18 +92,38 @@ cp ${ENHANCED_EPCS_BOOTLOADER} ${SOPC_DIR}
 # Recompile the Quartus generated sof file again with the enhanced epcs bootloader
 cmd="quartus_cdb ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac --update_mif"
 $cmd || {
-    echo -e "create-this-app failed!"
+    echo -e "rebuild.sh: failed!"
     exit 1
 }
 
 cmd="quartus_asm --read_settings_files=on --write_settings_files=off ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac"
 $cmd || {
-    echo -e "create-this-app failed!"
+    echo -e "rebuild.sh: failed!"
     exit 1
 }
 
 #######################################
 ###        Rebuild the SW           ###
+
+# add search path to modified altera drivers for BSP
+TMP=$PWD
+cd $SOPC_DIR
+cmd="ip-make-ipx --source-directory=../../driver --thorough-descent=true"
+echo "rebuild.sh: Running \"$cmd\""
+$cmd || {
+    echo -e "rebuild.sh: failed!"
+    exit 1
+}
+cd $TMP
+
+if [ -f ${SOPC_DIR}/components.ipx ]; then
+  echo "rebuild.sh: $PWD/${SOPC_DIR}/components.ipx generated."
+else
+  echo "Error: $PWD/${SOPC_DIR}/components.ipx generation failed!"
+  exit 1
+fi
+
+# rebuild sw
 cmd="./create-this-app --sopcdir $SOPC_DIR --rebuild ${DEBUG_FLAG}"
 echo "rebuild.sh: Running \"$cmd\""
 $cmd || {
