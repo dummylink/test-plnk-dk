@@ -232,10 +232,6 @@ void rebootCN(void)
 {
     UINT32  uiFpgaConfigVersion;
 
-    // inform AP about reset event - at this special event, wait until
-    // AP has confirmed the reception.
-    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetNodeRequest);
-
     /* read FPGA configuration version of user image */
     getSwVersions(CONFIG_USER_IIB_FLASH_ADRS, &uiFpgaConfigVersion, NULL, NULL);
 
@@ -245,6 +241,10 @@ void rebootCN(void)
     {
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
         //usleep(4000000);
+
+        // inform AP about reset event - at this special event, wait until
+        // AP has confirmed the reception.
+        Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetNodeRequest);
 
         // no external reset, so trigger reset on our own
         // remark: if we are in user image, this command will trigger a
@@ -259,9 +259,9 @@ void rebootCN(void)
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "PCP Software Reset of CN ...\n");
         //usleep(4000000);
 
-        NIOS2_WRITE_STATUS(0);
-        NIOS2_WRITE_IENABLE(0);
-        ((void (*) (void)) NIOS2_RESET_ADDR) ();
+//        NIOS2_WRITE_STATUS(0);
+//        NIOS2_WRITE_IENABLE(0);
+//        ((void (*) (void)) NIOS2_RESET_ADDR) ();
     }
 
 }
