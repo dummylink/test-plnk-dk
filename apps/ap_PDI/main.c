@@ -50,11 +50,6 @@ a dual ported RAM (DPRAM) area.
 
 /******************************************************************************/
 /* defines */
-#define DEMO_VENDOR_ID      0x0100006C
-#define DEMO_PRODUCT_CODE   49819
-#define DEMO_REVISION       1
-#define DEMO_SERIAL_NUMBER  0x12345678
-
 
 /*----------------------------------------------------------------------------*/
 /* USER OPTIONS */
@@ -63,6 +58,15 @@ a dual ported RAM (DPRAM) area.
 #define DEFAULT_NODEID      0x00    // default node ID to use, should be NOT 0xF0 (=MN)
 
 #define USE_POLLING_MODE // or IR synchronization mode by commenting this define
+
+#define DEMO_VENDOR_ID      0x0100006C
+#define DEMO_PRODUCT_CODE   49819
+#define DEMO_REVISION       1
+#define DEMO_SERIAL_NUMBER  0x12345678
+#define DEMO_DEVICE_NAME "POWERLINK CN DEMO"
+#define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
+#define IP_ADDR     0xc0a86401                                  ///< 192.168.100.1 // don't care the last byte!
+#define SUBNET_MASK 0xFFFFFF00                                  ///< netmask 255.255.255.0
 
 /*----------------------------------------------------------------------------*/
 
@@ -82,14 +86,14 @@ a dual ported RAM (DPRAM) area.
 #define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects
 #define NUM_OBJECTS         (NUM_INPUT_OBJS + NUM_OUTPUT_OBJS)  ///< number of objects to be linked to the object dictionary
 
-#define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
-#define IP_ADDR     0xc0a86401                                  ///< 192.168.100.1 // don't care the last byte!
-#define SUBNET_MASK 0xFFFFFF00                                  ///< netmask 255.255.255.0
-
 /******************************************************************************/
 /* global variables */
 static WORD     nodeId;                                         ///< The node ID, which can overwrite the node switches if != 0x00
 static BYTE     abMacAddr_l[] = { MAC_ADDR };                   ///< The MAC address to be used
+static BYTE   strDevName[] = DEMO_DEVICE_NAME;
+static BYTE   strHwVersion[] = "";
+static BYTE   strSwVersion[] = "";
+
 static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values of the digital input pins of the board will be stored here
 static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here
 static BOOL     fOperational_l = FALSE;                         ///< indicates AP Operation state
@@ -100,7 +104,12 @@ static tEplObdParam *   pAllocObdParam_l = NULL; ///< pointer to allocated memor
 
 /******************************************************************************/
 /* forward declarations */
-void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *pMac_p);
+void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
+                            BYTE bNodeId_p,
+                            BYTE * pMac_p,
+                            BYTE * pstrDevName_p,
+                            BYTE * pstrHwVersion_p,
+                            BYTE * pstrSwVersion_p);
 void workInputOutput(void);
 int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
 
@@ -120,7 +129,7 @@ APs state machine will be updated and input/output ports will be processed.
 int main (void)
 {
     tCnApiStatus        status;
-    tCnApiInitParm      initParm;
+    tCnApiInitParm      initParm = {0};
 
     alt_icache_flush_all();
     alt_dcache_flush_all();
@@ -129,7 +138,12 @@ int main (void)
     CNAPI_USLEEP(1000000);		                                // wait 1 s, so you can see the LEDs
 
     nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
-    setPowerlinkInitValues(&initParm, nodeId, (BYTE *)abMacAddr_l);             // initialize POWERLINK parameters
+    setPowerlinkInitValues(&initParm,
+                           nodeId,
+                           (BYTE *)abMacAddr_l,
+                           strDevName,
+                           strHwVersion,
+                           strSwVersion);             // initialize POWERLINK parameters
 
     status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  // initialize and start the CN API
     if (status > 0)
@@ -229,11 +243,19 @@ int main (void)
 setPowerlinkInitValues() sets up the initialization values for the
 openPOWERLINK stack.
 
-\param	pInitParm_p         pointer to initialization parameter structure
-\param	bNodeId_p           node ID to use for CN
-\param	pMac_p              pointer to MAC address
+\param  pInitParm_p         pointer to initialization parameter structure
+\param  bNodeId_p           node ID to use for CN
+\param  pMac_p              pointer to MAC address
+\param  pstrDevName_p       pointer to string of device name (object 0x1008/0 Pcp OD)
+\param  pstrHwVersion_p     pointer to string of HW version  (object 0x1009/0 Pcp OD)
+\param  pstrSwVersion_p     pointer to string of SW version  (object 0x100A/0 Pcp OD)
 *******************************************************************************/
-void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *pMac_p)
+void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
+                            BYTE bNodeId_p,
+                            BYTE * pMac_p,
+                            BYTE * pstrDevName_p,
+                            BYTE * pstrHwVersion_p,
+                            BYTE * pstrSwVersion_p)
 {
     pInitParm_p->m_bNodeId = bNodeId_p;
     memcpy(pInitParm_p->m_abMac, pMac_p, sizeof(pInitParm_p->m_abMac));
@@ -242,9 +264,9 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p, BYTE bNodeId_p, BYTE *p
     pInitParm_p->m_dwProductCode = DEMO_PRODUCT_CODE;
     pInitParm_p->m_dwRevision = DEMO_REVISION;
     pInitParm_p->m_dwSerialNum = DEMO_SERIAL_NUMBER;
-    pInitParm_p->m_strDevName[32] = "POWERLINK CN B&R DEMO";
-    pInitParm_p->m_strHwVersion[32] = 0;
-    pInitParm_p->m_strSwVersion[32] = 0;
+    memcpy(pInitParm_p->m_strDevName, pstrDevName_p, sizeof(pInitParm_p->m_strDevName));
+    memcpy(pInitParm_p->m_strHwVersion, pstrHwVersion_p, sizeof(pInitParm_p->m_strHwVersion));
+    memcpy(pInitParm_p->m_strSwVersion, pstrSwVersion_p, sizeof(pInitParm_p->m_strSwVersion));
 
     pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;     //address of DPRAM area
 }

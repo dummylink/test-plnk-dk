@@ -134,15 +134,16 @@ typedef struct sInitPcpReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     BYTE                    m_abMac[6];
+    BYTE                    m_strDevName[32];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
+    BYTE                    m_strHwVersion[32]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
+    BYTE                    m_strSwVersion[32]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)
     DWORD                   m_dwRevision;       // NMT_IdentityObject_REC.RevisionNo_U32
     DWORD                   m_dwSerialNum;      // NMT_IdentityObject_REC.SerialNo_U32
     DWORD                   m_dwVendorId;       // NMT_IdentityObject_REC.VendorId_U32
     DWORD                   m_dwProductCode;    // NMT_IdentityObject_REC.ProductCode_U32
     DWORD                   m_dwDeviceType;     // NMT_DeviceType_U32
     DWORD                   m_dwNodeId;
-    BYTE                    m_strDevName[32];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
-    BYTE                    m_strHwVersion[32]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
-    BYTE                    m_strSwVersion[32]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)
+
 } PACK_STRUCT tInitPcpReq;
 
 /**

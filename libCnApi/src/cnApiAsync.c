@@ -333,13 +333,16 @@ tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsg
     /* handle Tx Message */
     /* build up InitPcpReq */
     memset (pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    memcpy (&pInitPcpReq->m_abMac, pInitParmLE_g->m_abMac, sizeof(pInitParmLE_g->m_abMac));
+    memcpy (pInitPcpReq->m_abMac, pInitParmLE_g->m_abMac, sizeof(pInitParmLE_g->m_abMac));
     pInitPcpReq->m_dwDeviceType = pInitParmLE_g->m_dwDeviceType;
     pInitPcpReq->m_dwNodeId = pInitParmLE_g->m_bNodeId;
     pInitPcpReq->m_dwRevision = pInitParmLE_g->m_dwRevision;
     pInitPcpReq->m_dwSerialNum = pInitParmLE_g->m_dwSerialNum;
     pInitPcpReq->m_dwVendorId = pInitParmLE_g->m_dwVendorId;
     pInitPcpReq->m_dwProductCode = pInitParmLE_g->m_dwProductCode;
+    memcpy(pInitPcpReq->m_strDevName, pInitParmLE_g->m_strDevName, sizeof(pInitParmLE_g->m_strDevName));
+    memcpy(pInitPcpReq->m_strHwVersion, pInitParmLE_g->m_strHwVersion, sizeof(pInitParmLE_g->m_strHwVersion));
+    memcpy(pInitPcpReq->m_strSwVersion, pInitParmLE_g->m_strSwVersion, sizeof(pInitParmLE_g->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 
