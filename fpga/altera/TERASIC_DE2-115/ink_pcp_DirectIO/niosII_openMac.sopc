@@ -144,19 +144,19 @@
          type = "boolean";
       }
    }
-   element lcd.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
    element sysid.control_slave
    {
       datum baseAddress
       {
          value = "16536";
+         type = "long";
+      }
+   }
+   element lcd.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2304";
          type = "long";
       }
    }
@@ -319,6 +319,14 @@
          type = "long";
       }
    }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "16480";
+         type = "long";
+      }
+   }
    element system_timer.s1
    {
       datum _lockedAddress
@@ -345,6 +353,14 @@
          type = "long";
       }
    }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "16448";
+         type = "long";
+      }
+   }
    element tc_i_mem_pcp.s1
    {
       datum _lockedAddress
@@ -358,14 +374,6 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "16416";
-         type = "long";
-      }
-   }
    element clock_crossing_0.s1
    {
       datum baseAddress
@@ -374,19 +382,11 @@
          type = "long";
       }
    }
-   element node_switch_pio.s1
+   element status_led_pio.s1
    {
       datum baseAddress
       {
-         value = "16480";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "16448";
+         value = "16416";
          type = "long";
       }
    }
@@ -508,8 +508,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="8860336714" />
- <parameter name="timeStamp" value="1309496945246" />
+ <parameter name="systemHash" value="8486104201" />
+ <parameter name="timeStamp" value="1319212876815" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -763,10 +763,9 @@
   <parameter name="configApSpi_IRQ" value="High Active" />
   <parameter name="rpdoNum" value="3" />
   <parameter name="rpdo0size" value="1" />
-  <parameter name="rpdo1size" value="1" />
-  <parameter name="rpdo2size" value="1" />
   <parameter name="tpdoNum" value="1" />
   <parameter name="tpdo0size" value="1" />
+  <parameter name="genLedGadget" value="true" />
   <parameter name="asyncBuf1Size" value="1514" />
   <parameter name="asyncBuf2Size" value="1514" />
   <parameter name="phyIF" value="MII" />

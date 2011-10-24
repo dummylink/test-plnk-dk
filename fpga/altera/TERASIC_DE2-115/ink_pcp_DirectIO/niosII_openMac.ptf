@@ -3977,6 +3977,13 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
+         PORT phy1_link
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
+            Is_Enabled = "1";
+         }
          PORT phy0_SMIClk
          {
             type = "export";
@@ -3996,6 +4003,13 @@ SYSTEM niosII_openMac
             type = "export";
             width = "1";
             direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT phy0_link
+         {
+            type = "export";
+            width = "1";
+            direction = "input";
             Is_Enabled = "1";
          }
       }
@@ -4304,8 +4318,9 @@ SYSTEM niosII_openMac
       {
          CONFIG = "0";
          CONFIGAPENDIAN = "0";
-         FPGAREV = "35";
+         FPGAREV = "1";
          HWACC = "1";
+         LEDGADGET = "TRUE";
          MACBUFSIZE = "6896";
          MACRXBUFFERS = "16";
          MACRXBUFSIZE = "0";
@@ -5016,7 +5031,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4E0D5671</b> (timestamp: Fri Jul 1, 2011 @7:09 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4EA1974D</b> (timestamp: Fri Oct 21, 2011 @6:01 PM)";
             MESSAGES 
             {
             }
@@ -5025,7 +5040,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "1u";
-         timestamp = "1309496945u";
+         timestamp = "1319212877u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5034,7 +5049,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01004098 --id=1 --timestamp=1309496945";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x01004098 --id=1 --timestamp=1319212877";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
