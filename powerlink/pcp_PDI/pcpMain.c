@@ -277,6 +277,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     tEplKernel                  EplRet;
     UINT32                      uiApplicationSwDate = 0;
     UINT32                      uiApplicationSwTime = 0;
+    unsigned int                uiVarEntries;
+    tEplObdSize                 ObdSize;
 
     DEBUG_FUNC;
 
@@ -370,7 +372,17 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     }
 
     // link object variables used by CN to object dictionary (if needed)
-
+#ifdef CONFIG_USE_SDC_OBJECTS
+    // SDC object "SDC_IOPrescaler"
+    // remark: wSyncIntCycle_g will be calculated right after EnableReadyToOperate command from MN
+    ObdSize = sizeof(wSyncIntCycle_g);
+    uiVarEntries = 1;
+    EplRet = EplApiLinkObject(0x5020, &wSyncIntCycle_g, &uiVarEntries, &ObdSize, 0x02);
+    if (EplRet != kEplSuccessful)
+    {
+        goto Exit;
+    }
+#endif // CONFIG_USE_SDC_OBJECTS
 
 Exit:
     return EplRet;
@@ -1762,6 +1774,23 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
                     goto Exit_not_existing;
             }
             break;
+
+#ifdef CONFIG_USE_SDC_OBJECTS
+        case 0x5020:
+            switch (pObdParam_p->m_uiSubIndex)
+            {
+                // those SDC objects exist locally
+                case 0x00:
+                case 0x02:
+                    // exit immediately and do not adopt the OBD access
+                    return Ret;
+                default:
+                    break;
+            }
+            // do not break here, because default case should forward all
+            // remaining sub-indices
+
+#endif // CONFIG_USE_SDC_OBJECTS
 
         default:
             // Tell calling function that all objects
