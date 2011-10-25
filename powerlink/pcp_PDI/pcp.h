@@ -56,7 +56,7 @@ typedef struct sApiPdiComCon {
 extern tPcpCtrlReg     * volatile pCtrlReg_g;       ///< ptr. to PCP control register
 extern tCnApiInitParm  initParm_g;        ///< Powerlink initialization parameter
 extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after boot-up flag
-extern int             iSyncIntCycle_g;   ///< IR synchronization factor (multiple cycle time)
+extern WORD            wSyncIntCycle_g;   ///< IR synchronization factor (multiple cycle time)
 extern BOOL            fIrqSyncMode_g;    ///< synchronization mode flag
 
 extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp side according to AP message

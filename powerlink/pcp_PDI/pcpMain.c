@@ -59,7 +59,7 @@
 tPcpCtrlReg        * volatile pCtrlReg_g;     ///< ptr. to PCP control register
 tCnApiInitParm     initParm_g;                ///< Powerlink initialization parameter
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
-int                iSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
+WORD               wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 BOOL               fIsUserImage_g;            ///< if set user image is booted
 UINT32             uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 
@@ -363,6 +363,16 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
         DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...ok\n\n");
         fPLisInitalized_g = TRUE;
     }
+
+    if (EplRet != kEplSuccessful)
+    {
+        goto Exit;
+    }
+
+    // link object variables used by CN to object dictionary (if needed)
+
+
+Exit:
     return EplRet;
 }
 
@@ -945,9 +955,9 @@ tEplKernel PUBLIC AppCbSync(void)
     static  unsigned int iCycleCnt = 0;
 
     /* check if interrupts are enabled */
-    if ((iSyncIntCycle_g != 0)) //TODO: enable PDI IRs in Operational, and disable for any other state
+    if ((wSyncIntCycle_g != 0)) //TODO: enable PDI IRs in Operational, and disable for any other state
     {
-        if ((iCycleCnt++ % iSyncIntCycle_g) == 0)
+        if ((iCycleCnt++ % wSyncIntCycle_g) == 0)
         {
             Gi_generateSyncInt();// TODO: To avoid jitter, synchronize on openMAC Sync interrupt instead of IR throwing by SW
         }
@@ -1131,7 +1141,7 @@ void Gi_calcSyncIntPeriod(void)
     if (EplRet != kEplSuccessful)
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        iSyncIntCycle_g = 0;
+        wSyncIntCycle_g = 0;
         return;
     }
 
@@ -1140,7 +1150,7 @@ void Gi_calcSyncIntPeriod(void)
         pCtrlReg_g->m_wMaxCycleNum == 0)
     {
         /* no need to trigger IR signal - polling mode is applied */
-        iSyncIntCycle_g = 0;
+        wSyncIntCycle_g = 0;
         return;
     }
 
@@ -1153,7 +1163,7 @@ void Gi_calcSyncIntPeriod(void)
     if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        iSyncIntCycle_g = 0;
+        wSyncIntCycle_g = 0;
         return;
     }
 
@@ -1162,7 +1172,7 @@ void Gi_calcSyncIntPeriod(void)
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        iSyncIntCycle_g = 0;
+        wSyncIntCycle_g = 0;
         return;
     }
     if (iSyncPeriod < pCtrlReg_g->m_dwMinCycleTime)
@@ -1170,11 +1180,11 @@ void Gi_calcSyncIntPeriod(void)
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        iSyncIntCycle_g = 0;
+        wSyncIntCycle_g = 0;
         return;
     }
 
-    iSyncIntCycle_g = iNumCycles;
+    wSyncIntCycle_g = iNumCycles;
     pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
@@ -1281,11 +1291,11 @@ static void EplAppCbDefaultObdAssignDatatype(tEplObdParam *pObdParam_p)
     // check object size and type
     switch (pObdParam_p->m_uiIndex)
     {
-        case 0x1010:
-        //case 0x1011:
-            pObdParam_p->m_Type = kEplObdTypUInt32;
-            pObdParam_p->m_ObjSize = 4;
-            break;
+//        case 0x1010:
+//        case 0x1011:
+//            pObdParam_p->m_Type = kEplObdTypUInt32;
+//            pObdParam_p->m_ObjSize = 4;
+//            break;
 
         case 0x1F50:
             pObdParam_p->m_Type = kEplObdTypDomain;
@@ -1319,9 +1329,6 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
 
     // do not return kEplSuccessful in this case,
     // only error or kEplObdAccessAdopted is allowed!
-
-    // TODO: Do I really need to allocate a buffer for Default OBD (write) access ?
-    // TODO: block all transfers of same index/subindex which are already processing
 
     // verify caller - if it is local, then write access to read only object is fine
     if (pObdParam_p->m_pRemoteAddress != NULL)
@@ -1362,12 +1369,9 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
     // different pre-access verification for all write objects (previous to handle storing)
     switch (pObdParam_p->m_uiIndex)
     {
-        case 0x1010:
+        //case 0x1010:
         //case 0x1011:
-            break;
-
-//      case 0x1F50:
-//          break;
+        //    break;
 
         default:
             if(pObdParam_p->m_uiIndex >= 0x2000)
@@ -1423,8 +1427,9 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
                 {   // non domain object
                     // should be handled in the switch-cases above, not in the default case
                 }
-            break;
-        } // else -> all remaining objects
+
+                break;
+            } // else -> all remaining objects
     } // end of switch (pObdParam_p->m_uiIndex)
 
     // allocate memory for handle
@@ -1441,31 +1446,9 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
     // different treatment for all write objects (after handle storing)
     switch (pObdParam_p->m_uiIndex)
     {
-        case 0x1010:
+        //case 0x1010:
         //case 0x1011:
-#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-            TimerArg.m_EventSink = kEplEventSinkApi;
-            TimerArg.m_Arg.m_pVal = pAllocObdParam;
-
-            if(EplTimerHdl == 0)
-            {   // create new timer
-                Ret = EplTimeruSetTimerMs(&EplTimerHdl, 6000, TimerArg);
-            }
-            else
-            {   // modify exisiting timer
-                Ret = EplTimeruModifyTimerMs(&EplTimerHdl, 6000, TimerArg);
-            }
-            if(Ret != kEplSuccessful)
-            {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
-                EPL_FREE(pAllocObdParam);
-                goto Exit;
-            }
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-            break;
-
-//      case 0x1F50:
-//          break;
+        //    break;
 
         default:
             if(pObdParam_p->m_uiIndex >= 0x2000)
@@ -1606,9 +1589,9 @@ static tEplKernel EplAppCbDefaultObdPreRead(tEplObdParam *pObdParam_p)
     // different pre-access verification for all read objects (previous to handle storing)
     switch (pObdParam_p->m_uiIndex)
     {
-        case 0x1010:
+        //case 0x1010:
         //case 0x1011:
-            break;
+        //    break;
 
         case 0x1F50:
             break;
@@ -1648,33 +1631,9 @@ static tEplKernel EplAppCbDefaultObdPreRead(tEplObdParam *pObdParam_p)
     // different treatment for all read objects (after handle storing)
     switch (pObdParam_p->m_uiIndex)
     {
-        case 0x1010:
+        //case 0x1010:
         //case 0x1011:
-#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-            TimerArg.m_EventSink = kEplEventSinkApi;
-            TimerArg.m_Arg.m_pVal = pAllocObdParam;
-
-            if(EplTimerHdl == 0)
-            {   // create new timer
-                Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                            6000,
-                                            TimerArg);
-            }
-            else
-            {   // modify exisiting timer
-                Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
-                                            6000,
-                                            TimerArg);
-
-            }
-            if(Ret != kEplSuccessful)
-            {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
-                EPL_FREE(pAllocObdParam);
-                goto Exit;
-            }
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-            break;
+        //    break;
 
         case 0x1F50:
             break;
@@ -1772,16 +1731,16 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
     // return error for all non existing objects
     switch (pObdParam_p->m_uiIndex)
     {
-#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-        case 0x1010:
-            switch (pObdParam_p->m_uiSubIndex)
-            {
-                case 0x01:
-                    break;
-                default:
-                    goto Exit_not_existing;
-            }
-            break;
+
+//        case 0x1010:
+//            switch (pObdParam_p->m_uiSubIndex)
+//            {
+//                case 0x01:
+//                    break;
+//                default:
+//                    goto Exit_not_existing;
+//            }
+//            break;
 
 //        case 0x1011:
 //            switch (pObdParam_p->m_uiSubIndex)
@@ -1794,8 +1753,6 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
 //            }
 //            break;
 
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-
         case 0x1F50:
             switch (pObdParam_p->m_uiSubIndex)
             {
@@ -1807,6 +1764,11 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
             break;
 
         default:
+            // Tell calling function that all objects
+            // >= 0x2000 exist per default.
+            // The actual verification will take place
+            // with the write or read access.
+
             if(pObdParam_p->m_uiIndex < 0x2000)
             {   // remaining PCP objects do not exist
                 goto Exit_not_existing;
