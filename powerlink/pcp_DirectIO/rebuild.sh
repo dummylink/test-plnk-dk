@@ -106,15 +106,28 @@ $cmd || {
 ###        Rebuild the SW           ###
 
 # add search path to modified altera drivers for BSP
-TMP=$PWD
+
+# save path
+CURPATH=$PWD
+MOD_DRIVER_PATH=${CURPATH}/../../fpga/altera/driver
+
+if [ ! -d ${MOD_DRIVER_PATH} ]; then
+  echo "Error: ${MOD_DRIVER_PATH} not present!"
+  exit 1
+fi
+
+# change path for execution of cmd
 cd $SOPC_DIR
-cmd="ip-make-ipx --source-directory=../../driver --thorough-descent=true"
+
+cmd="ip-make-ipx --source-directory=${MOD_DRIVER_PATH} --thorough-descent=true"
 echo "rebuild.sh: Running \"$cmd\""
 $cmd || {
     echo -e "rebuild.sh: failed!"
     exit 1
 }
-cd $TMP
+
+# restore path
+cd $CURPATH
 
 if [ -f ${SOPC_DIR}/components.ipx ]; then
   echo "rebuild.sh: $PWD/${SOPC_DIR}/components.ipx generated."
