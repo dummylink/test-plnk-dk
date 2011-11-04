@@ -275,7 +275,7 @@
 // =========================================================================
 // defines for application features
 // =========================================================================
-#define CONFIG_USE_SDC_OBJECTS             ///< include objects and object handling for smart device control
+
 
 #endif //_EPLCFG_H_
 
