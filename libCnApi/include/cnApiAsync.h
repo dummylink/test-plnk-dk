@@ -42,6 +42,8 @@
 
 #define INVALID_ELEMENT            0xFF ///< indicator for invalid array element
 
+#define INIT_PCP_REQ_STRNG_SIZE (CN_API_INIT_PARAM_STRNG_SIZE - 1)
+
 // renaming of functions which have exactly the same functionality
 //#define cnApiAsync_doObjAccResp     cnApiAsync_doObjAccReq
 //#define cnApiAsync_handleObjAccResp cnApiAsync_handleObjAccReq
@@ -134,9 +136,9 @@ typedef struct sInitPcpReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     BYTE                    m_abMac[6];
-    BYTE                    m_strDevName[32];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
-    BYTE                    m_strHwVersion[32]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
-    BYTE                    m_strSwVersion[32]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)
+    BYTE                    m_strDevName[INIT_PCP_REQ_STRNG_SIZE];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
+    BYTE                    m_strHwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
+    BYTE                    m_strSwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)
     DWORD                   m_dwRevision;       // NMT_IdentityObject_REC.RevisionNo_U32
     DWORD                   m_dwSerialNum;      // NMT_IdentityObject_REC.SerialNo_U32
     DWORD                   m_dwVendorId;       // NMT_IdentityObject_REC.VendorId_U32

@@ -118,6 +118,8 @@ This header file contains definitions for the CN API.
 /* Timer definitions */
 #define PCP_PRESENCE_TIMEOUT 50
 
+/* CN Api initialization */
+#define CN_API_INIT_PARAM_STRNG_SIZE 33
 /******************************************************************************/
 /* type definitions */
 
@@ -251,9 +253,9 @@ typedef struct sCnApiInitParm {
 	DWORD			m_dwVendorId;
 	DWORD			m_dwProductCode;
 	DWORD			m_dwDeviceType;
-	BYTE            m_strDevName[32];
-	BYTE            m_strHwVersion[32];
-	BYTE            m_strSwVersion[32];
+	BYTE            m_strDevName[CN_API_INIT_PARAM_STRNG_SIZE];
+	BYTE            m_strHwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
+	BYTE            m_strSwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
 	DWORD			m_dwDpramBase;
 } tCnApiInitParm;
 

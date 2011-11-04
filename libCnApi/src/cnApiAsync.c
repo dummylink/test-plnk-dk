@@ -340,9 +340,9 @@ tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsg
     pInitPcpReq->m_dwSerialNum = pInitParmLE_g->m_dwSerialNum;
     pInitPcpReq->m_dwVendorId = pInitParmLE_g->m_dwVendorId;
     pInitPcpReq->m_dwProductCode = pInitParmLE_g->m_dwProductCode;
-    memcpy(pInitPcpReq->m_strDevName, pInitParmLE_g->m_strDevName, sizeof(pInitParmLE_g->m_strDevName));
-    memcpy(pInitPcpReq->m_strHwVersion, pInitParmLE_g->m_strHwVersion, sizeof(pInitParmLE_g->m_strHwVersion));
-    memcpy(pInitPcpReq->m_strSwVersion, pInitParmLE_g->m_strSwVersion, sizeof(pInitParmLE_g->m_strSwVersion));
+    memcpy(pInitPcpReq->m_strDevName, pInitParmLE_g->m_strDevName, sizeof(pInitPcpReq->m_strDevName));
+    memcpy(pInitPcpReq->m_strHwVersion, pInitParmLE_g->m_strHwVersion, sizeof(pInitPcpReq->m_strHwVersion));
+    memcpy(pInitPcpReq->m_strSwVersion, pInitParmLE_g->m_strSwVersion, sizeof(pInitPcpReq->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 

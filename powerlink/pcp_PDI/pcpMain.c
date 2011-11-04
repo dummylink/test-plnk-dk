@@ -57,7 +57,7 @@
 // module global vars
 //---------------------------------------------------------------------------
 tPcpCtrlReg        * volatile pCtrlReg_g;     ///< ptr. to PCP control register
-tCnApiInitParm     initParm_g;                ///< Powerlink initialization parameter
+tCnApiInitParm     initParm_g = {0};          ///< Powerlink initialization parameter
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 WORD               wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 BOOL               fIsUserImage_g;            ///< if set user image is booted
