@@ -354,21 +354,15 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     initFirmwareUpdate(pInitParm_p->m_dwProductCode, pInitParm_p->m_dwRevision);
 
     /* initialize POWERLINK stack */
-    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack:\n");
+    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack...:\n");
     EplRet = EplApiInitialize(&EplApiInitParam);
     if(EplRet != kEplSuccessful)
     {
-        DEBUG_TRACE1(DEBUG_LVL_28, "init POWERLINK Stack... error %X\n\n", EplRet);
+        goto Exit;
     }
     else
     {
-        DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...ok\n\n");
         fPLisInitalized_g = TRUE;
-    }
-
-    if (EplRet != kEplSuccessful)
-    {
-        goto Exit;
     }
 
     // link object variables used by CN to object dictionary (if needed)

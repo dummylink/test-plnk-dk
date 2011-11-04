@@ -161,7 +161,12 @@ FUNC_DOACT(kPcpStateBooted)
 		}
 		if (iStatus == kEplSuccessful)
 		{
+		    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack... ok!\n\n");
 			fEvent = TRUE;
+		}
+		else
+		{
+		    DEBUG_TRACE1(DEBUG_LVL_28, "init POWERLINK Stack... error! Ret: 0x%X\n\n", iStatus);
 		}
 	}
 }
