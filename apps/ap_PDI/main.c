@@ -403,6 +403,12 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         break;
                     }
 
+                    case kPcpGenEventResetApSwRequest:
+                    {
+                        // reset AP SW here
+                        break;
+                    }
+
                     case kPcpGenEventUserTimer:
                     {
                         //TODO: This is only a test! -> delete

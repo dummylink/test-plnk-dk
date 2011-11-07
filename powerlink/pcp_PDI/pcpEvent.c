@@ -136,7 +136,8 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
 
         // special treatment for reset event
         if ((wEventType_p == kPcpPdiEventGeneric)   &&
-            (wArg_p == kPcpGenEventResetNodeRequest)  )
+            (   (wArg_p == kPcpGenEventResetNodeRequest)
+             || (wArg_p == kPcpGenEventResetApSwRequest)))
         {
             // PCP signals AP to reset
             while((pCtrlReg_g->m_wEventAck & (1 << EVT_GENERIC)) != 0)
@@ -150,7 +151,8 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
     {
         // special treatment for reset event
         if ((wEventType_p == kPcpPdiEventGeneric)   &&
-            (wArg_p == kPcpGenEventResetNodeRequest)  )
+            (   (wArg_p == kPcpGenEventResetNodeRequest)
+             || (wArg_p == kPcpGenEventResetApSwRequest)))
         {
             // PCP signals AP to reset
 
