@@ -1,3 +1,3 @@
 [submodule "powerlink/generic/openPOWERLINK_CNDKPatched"]
 	path = powerlink/generic/openPOWERLINK_CNDKPatched
-	url = ssh://ategge1109/home/git/openPOWERLINK.git
+	url = ssh://ategge1109/home/git/openPOWERLINK_hoggerm.git
