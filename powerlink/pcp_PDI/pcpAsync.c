@@ -181,7 +181,7 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, cnApiAsync_handleObjAccResp, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, 0);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -219,7 +219,7 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     //TODO: This is blocking asynchronous traffic, because it waits for a response
     //      Issue: ReqId has to be saved somehow (= another handle history)
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, cnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, 0);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
