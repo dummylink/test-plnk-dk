@@ -436,11 +436,11 @@ int createIib(void)
     memset (&iib, 0x00, sizeof(tIib));
     if (options_g.m_apSwName[0] == '\0')
     {
-        iib.m_magic = htonl(IIB_MAGIC | 1);
+        iib.m_magic = IIB_MAGIC | 0x01;
     }
     else
     {
-        iib.m_magic = htonl(IIB_MAGIC | 2);
+        iib.m_magic = IIB_MAGIC | 0x02;
     }
 
     /* check if application software date and time is specified or if current

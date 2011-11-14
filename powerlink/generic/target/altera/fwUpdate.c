@@ -294,7 +294,7 @@ static void updateIib(UINT32 uiImageAdrs_p)
     UINT32              uiAdrs;
 
     /* setup IIB */
-    iib.m_magic = AmiGetDwordFromBe(&uiMagic);
+    iib.m_magic = uiMagic; // this is as string, so no endian will be considered
     iib.m_applicationSwDate = AmiGetDwordFromBe(&fwHeader_g.m_applicationSwDate);
     iib.m_applicationSwTime = AmiGetDwordFromBe(&fwHeader_g.m_applicationSwTime);
     uiAdrs = uiImageAdrs_p;
