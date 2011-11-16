@@ -73,7 +73,8 @@ FUNC_EVT(kApStateBooted,kApStateReadyToInit, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateBooted)
 {
-
+    /* send reboot cmd to PCP in order to ensure same state (Booted) */
+    pCtrlReg_g->m_wCommand = kApCmdReset;
 }
 /*============================================================================*/
 /* State: READY_TO_INIT */
@@ -266,7 +267,7 @@ FUNC_EVT(kApStateOperational, kApStateInit, 1)
 FUNC_EVT(kApStateOperational, kApStatePreop1, 1)
 {
 	/* check for PCP state: PCP_PREOP */
-	if (CnApi_getPcpState() == kPcpStatePreop1)
+	if (CnApi_getPcpState() != kPcpStateOperational)
 		return TRUE;
 	else
 		return FALSE;
@@ -372,8 +373,21 @@ void CnApi_activateApStateMachine(void)
 {
     CnApi_initApStateMachine();
 
-	sm_reset(&apStateMachine);
-	fErrorEvent = FALSE;
+    CnApi_resetApStateMachine();
+}
+
+/**
+********************************************************************************
+\brief  reset state machine
+*******************************************************************************/
+void CnApi_resetApStateMachine(void)
+{
+    DEBUG_FUNC;
+
+    fErrorEvent = FALSE;
+
+    /* initialize state machine */
+    sm_reset(&apStateMachine);
 }
 
 /**

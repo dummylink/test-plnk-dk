@@ -81,12 +81,15 @@ static BOOL checkPowerlinkEvent(tPowerlinkEvent event_p)
 *******************************************************************************/
 static BOOL checkApCommand(BYTE cmd_p)
 {
-	if (getCommandFromAp() == cmd_p)
-	{
-		if (cmd_p != kApCmdReset) // reset AP command will take place in state 'kPcpStateBooted'
-		{
-		    pCtrlReg_g->m_wCommand = kApCmdNone;	///< reset AP command
-		}
+    if (getCommandFromAp() == cmd_p)
+    {
+        if (cmd_p == kApCmdReset) // reset AP command will take place in state 'kPcpStateBooted'
+        {
+            fEvent = FALSE;
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get kApCmdReset\n", __func__);
+        }
+
+        pCtrlReg_g->m_wCommand = kApCmdNone;    ///< reset AP command
 
 		return TRUE;
 	}
@@ -125,14 +128,8 @@ static BOOL checkEvent(void)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateBooted)
 {
-	while(!checkApCommand(kApCmdReset)) 	// AP has to start bootup procedure
-	{
-		asm("NOP;");
-	}
-
 	pCtrlReg_g->m_wCommand = kApCmdNone;	// reset AP command
 	pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
-
 
 	Gi_controlLED(kEplLedTypeTestAll, TRUE); // set "bootup indicator LEDs"
 
@@ -140,40 +137,27 @@ FUNC_ENTRYACT(kPcpStateBooted)
 	if(fPLisInitalized_g == TRUE)
 	{
 		EplNmtuNmtEvent(kEplNmtEventSwitchOff); // shutdown and cleanup POWERLINK
-	    fPLisInitalized_g = FALSE;
 	}
+
 	storePcpState(kPcpStateBooted);
 	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateBooted);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateBooted)
 {
-	int iStatus = kEplSuccessful;
-
     storePcpState(kPcpStateBooted);
 
-	if (checkApCommand(kApCmdInit))
-	{
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
-		if(fPLisInitalized_g == FALSE) // POWERLINK is not initialized yet
-		{
-			iStatus = initPowerlink(&initParm_g);
-		}
-		if (iStatus == kEplSuccessful)
-		{
-		    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack... ok!\n\n");
-			fEvent = TRUE;
-		}
-		else
-		{
-		    DEBUG_TRACE1(DEBUG_LVL_28, "init POWERLINK Stack... error! Ret: 0x%X\n\n", iStatus);
-		}
-	}
+    if (checkApCommand(kApCmdInit))
+    {
+        // kApCmdInit will be received as soon as AP got the IniPcpResponse message
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
+        fEvent = TRUE;
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateBooted,kPcpStateInit,1)
 {
-	return checkEvent(); 					// Transition, if event occured
+    return checkEvent();        // Transition, if event occured
 }
 
 /*============================================================================*/
@@ -181,8 +165,34 @@ FUNC_EVT(kPcpStateBooted,kPcpStateInit,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateInit)
 {
-	storePcpState(kPcpStateInit);
-	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateInit);
+    int iStatus = kEplSuccessful;
+
+    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...\n");
+    if(fPLisInitalized_g == FALSE) // POWERLINK is not initialized yet
+    {
+        iStatus = initPowerlink(&initParm_g);
+        if (iStatus == kEplSuccessful)
+        {
+            DEBUG_TRACE0(DEBUG_LVL_28, "...ok!\n\n");
+        }
+        else
+        {
+            DEBUG_TRACE1(DEBUG_LVL_28, "... error! Ret: 0x%X\n\n", iStatus);
+            // TODO: Do error handling. Introduce "STOPPED" or "ERROR" state.
+            return;
+        }
+    }
+    else
+    {
+        // powerlink should not be initialized again, because this
+        // would disable the hub functionality for some time!
+        DEBUG_TRACE0(DEBUG_LVL_28, "... skipped (already initialized)!\n\n");
+
+        // simply proceed as usual, because this happens at reset
+    }
+
+    storePcpState(kPcpStateInit);
+    Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateInit);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateInit)
@@ -211,7 +221,15 @@ FUNC_EVT(kPcpStateInit,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReset);
+    if(checkApCommand(kApCmdReset)            ||
+       checkPowerlinkEvent(kPowerlinkEventReset))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 /*============================================================================*/
@@ -243,7 +261,15 @@ FUNC_EVT(kPcpStatePreop1,kPcpStatePreop2,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReset);
+    if(checkApCommand(kApCmdReset)            ||
+       checkPowerlinkEvent(kPowerlinkEventReset))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 /*============================================================================*/
@@ -293,7 +319,15 @@ FUNC_EVT(kPcpStatePreop2,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReset);
+    if(checkApCommand(kApCmdReset)            ||
+       checkPowerlinkEvent(kPowerlinkEventReset))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 /*============================================================================*/
@@ -322,7 +356,15 @@ FUNC_EVT(kPcpStateReadyToOperate,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateReadyToOperate,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReset);
+    if(checkApCommand(kApCmdReset)            ||
+       checkPowerlinkEvent(kPowerlinkEventReset))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 /*============================================================================*/
@@ -351,7 +393,15 @@ FUNC_EVT(kPcpStateOperational,kPcpStatePreop1,1)
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,kPcpStateBooted,1)
 {
-	return checkApCommand(kApCmdReset);
+    if(checkApCommand(kApCmdReset)            ||
+       checkPowerlinkEvent(kPowerlinkEventReset))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,STATE_FINAL,1)
@@ -431,7 +481,18 @@ void initStateMachine(void)
 
 /**
 ********************************************************************************
-\brief	activate state machine
+\brief  start state machine
+*******************************************************************************/
+void activateStateMachine(void)
+{
+    initStateMachine();
+
+    resetStateMachine();
+}
+
+/**
+********************************************************************************
+\brief  reset state machine
 *******************************************************************************/
 void resetStateMachine(void)
 {

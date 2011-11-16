@@ -204,7 +204,6 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     }
 
     pCtrlReg_g->m_wState = kPcpStateInvalid;      ///< set invalid PCP state
-    pCtrlReg_g->m_wCommand = kApCmdReset;         ///< send reboot cmd to PCP
 
 #ifdef AP_IS_BIG_ENDIAN
     pCtrlRegLE_g->m_wState   = AmiGetWordToLe((BYTE*)&pCtrlReg_g->m_wState);
@@ -234,10 +233,10 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     CnApi_activateApStateMachine();
 
     /* initialize asynchronous transfer functions */
-    iStatus = CnApiAsync_init();
+    iStatus = CnApiAsync_create();
     if (iStatus != OK)
     {
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_init() failed!\n");
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_create() failed!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }

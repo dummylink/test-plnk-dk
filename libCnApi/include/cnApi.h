@@ -377,6 +377,7 @@ extern tCnApiInitParm   * volatile pInitParmLE_g;         // pointer to POWERLIN
 extern tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p);
 extern void CnApi_exit(void);
 extern void CnApi_activateApStateMachine(void);
+extern void CnApi_resetApStateMachine(void);
 extern BOOL CnApi_processApStateMachine(void);
 extern void CnApi_enterApStateReadyToOperate();
 extern int CnApi_initObjects(DWORD dwMaxLinks_p);

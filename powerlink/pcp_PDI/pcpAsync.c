@@ -78,14 +78,34 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void);
 
 /**
 ********************************************************************************
-\brief	initialize asynchronous functions
+\brief activate asynchronous functions
+*******************************************************************************/
+int CnApiAsync_create(void)
+{
+    int iRet;
+
+    CnApi_activateAsyncStateMachine();
+
+    iRet = CnApiAsync_init();
+    if (iRet != OK )
+    {
+        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
+        goto exit;
+    }
+
+    return OK;
+exit:
+    return ERROR;
+}
+
+/**
+********************************************************************************
+\brief  initialize asynchronous functions
 *******************************************************************************/
 int CnApiAsync_init(void)
 {
     register WORD wCnt;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
-
-    CnApi_activateAsyncStateMachine();
 
     CNAPI_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
     CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
@@ -145,7 +165,6 @@ int CnApiAsync_init(void)
 exit:
     return ERROR;
 }
-
 
 /**
 ********************************************************************************

@@ -403,9 +403,18 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         break;
                     }
 
-                    case kPcpGenEventResetApSwRequest:
+                    case kPcpGenEventResetCommunication:
                     {
-                        // reset AP SW here
+                        int iStatus;
+
+                        // reset asynchronous PCP <-> AP communication
+//                        CnApi_resetAsyncStateMachine();
+//                        iStatus = CnApiAsync_init();
+//                        if (iStatus != OK)
+//                        {
+//                            DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_init() failed!\n");
+//                        }
+
                         break;
                     }
 

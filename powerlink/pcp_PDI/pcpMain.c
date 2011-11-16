@@ -323,8 +323,6 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     unsigned int                uiVarEntries;
     tEplObdSize                 ObdSize;
 
-    DEBUG_FUNC;
-
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef SET_NODE_ID_BY_HW
     if(pInitParm_p->m_bNodeId == 0x00)
@@ -403,7 +401,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     initFirmwareUpdate(pInitParm_p->m_dwProductCode, pInitParm_p->m_dwRevision);
 
     /* initialize POWERLINK stack */
-    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack...:\n");
+    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack API...\n");
     EplRet = EplApiInitialize(&EplApiInitParam);
     if(EplRet != kEplSuccessful)
     {
@@ -570,24 +568,48 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtGsResetApplication:
                 case kEplNmtCsBasicEthernet:                        ///< this state is only indicated  by Led
                 {
-                    // clean OBD access application history buffers
-                    EplAppDefObdAccCleanupHistory(); //TODO: move to other place?
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
-
-                    setPowerlinkEvent(kPowerlinkEventReset);        ///< fall back to PCP_PREOP1 (API-STATE)
                     break;
                 }
 
                 case kEplNmtGsResetCommunication:
                 {
+                    int iRet;
                     BYTE    bNodeId = 0xF0;
                     DWORD   dwNodeAssignment = EPL_NODEASSIGN_NODE_EXISTS;
                     WORD    wPresPayloadLimit = 256;
 
-                    setPowerlinkEvent(kPowerlinkEventReset);        ///< fall back to PCP_PREOP1 (API-STATE)
+                    printf("kEplNmtGsResetCommunication\n");
+                    // reset asynchronous PCP <-> AP communication
+                    CnApi_resetAsyncStateMachine();
+                    iRet = CnApiAsync_init();
+                    if (iRet != OK )
+                    {
+                        while(1)
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
+                        }
+                        EplRet = kEplApiInvalidParam;
+                        goto Exit;
+                    }
+
+                    // clean OBD access application history buffers
+                    EplAppDefObdAccCleanupHistory(); // ignore return value
+
+                    // delete forwarded OBD accesses
+                    if (ApiPdiComInstance_g.apObdParam_m[0] != 0)
+                    {
+                        EPL_FREE(ApiPdiComInstance_g.apObdParam_m[0]);
+                        ApiPdiComInstance_g.apObdParam_m[0]= NULL;
+                    }
+
+                    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetCommunication);
+
+                    // synchronize API state
+                    if (getPcpState() > kPcpStatePreop1)
+                    {
+                        // fall back to PCP_PREOP1 (API-STATE)
+                        setPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
+                    }
 
                     EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
                     if (EplRet != kEplSuccessful)
@@ -1104,28 +1126,27 @@ void Gi_init(void)
 
     Gi_disableSyncInt();
 
-    // Starting PCP state machines
-    initStateMachine();
-    resetStateMachine();
+    // start PCP API state machine
+    activateStateMachine();
 
-    iRet = CnApiAsync_init();
+    // init asynchronous PCP <-> AP communication
+    iRet = CnApiAsync_create();
     if (iRet != OK )
     {
         Gi_pcpEventPost(0, 0);
-        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
+        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_create() FAILED!\n");
         //TODO: set error flag at Cntrl Reg
         goto exit;
     }
 
+    // init cyclic object processing
     iRet = Gi_initPdo();
     if (iRet != OK )
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
         DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
-        //TODO: set error flag at Cntrl Reg
         goto exit;
     }
-
 
     // init event fifo queue
     Gi_pcpEventFifoInit();

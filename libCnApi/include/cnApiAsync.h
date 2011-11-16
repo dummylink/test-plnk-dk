@@ -386,6 +386,7 @@ extern tLinkPdosResp LinkPdosResp_g;        ///< Link Pdos Response message
 
 /******************************************************************************/
 /* functions */
+extern int CnApiAsync_create(void);
 extern int CnApiAsync_init(void);
 extern tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
                                            const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p, tPdiAsyncMsgType RespMsgType_p,
