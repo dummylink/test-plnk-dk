@@ -1238,7 +1238,11 @@ void rebootCN(void)
     {
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
         //usleep(4000000);
-        FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
+
+        // trigger FPGA reconfiguration
+        // remark: if we are in user image, this command will trigger a
+        //         reconfiguration of the factory image regardless of its argument!
+        FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS); // restart factory image
     }
     else
     {   // only reset the PCP software
@@ -1252,6 +1256,7 @@ void rebootCN(void)
         NIOS2_WRITE_IENABLE(0);
         ((void (*) (void)) NIOS2_RESET_ADDR) ();
     }
+
 }
 
 /**
@@ -1325,36 +1330,79 @@ int main (void)
             fIsUserImage_g = FALSE;
             break;
         }
+
         case kFpgaCfgUserImageLoadedWatchdogDisabled:
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+
+#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
+            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                             CONFIG_USER_IIB_FLASH_ADRS,
+                             CONFIG_USER_IIB_VERSION) == ERROR)
+            {
+                usleep(5000000); // wait 5 seconds
+
+                // user image was loaded, but has invalid IIB
+                // -> reset to factory image
+                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            }
+#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+
             fIsUserImage_g = TRUE;
             LCD_Clear();
             LCD_Show_Text("USER");
             break;
         }
+
         case kFpgaCfgUserImageLoadedWatchdogEnabled:
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+
+#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
+            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                             CONFIG_USER_IIB_FLASH_ADRS,
+                             CONFIG_USER_IIB_VERSION) == ERROR)
+            {
+                usleep(5000000); // wait 5 seconds
+
+                // user image was loaded, but has invalid IIB
+                // -> reset to factory image
+                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            }
+#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+
             // watchdog timer has to be reset periodically
-            FpgaCfg_resetWatchdogTimer(); // do this periodically!
+            //FpgaCfg_resetWatchdogTimer(); // do this periodically!
             fIsUserImage_g = TRUE;
             break;
         }
 
         case kFgpaCfgWrongSystemID:
         {
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
+            usleep(5000000); // wait 5 seconds
+
+            // reset to factory image
+            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+
             goto exit; // fatal error
             break;
         }
 
         default:
+        {
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
+            usleep(5000000); // wait 5 seconds
+
+            // reset to factory image
+            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
             goto exit; // this is fatal error only, if image was loaded from flash
 #endif
-        break;
+            break;
+        }
     }
 
 #ifdef LCD_BASE

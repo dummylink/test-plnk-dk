@@ -32,6 +32,7 @@
 /* defines */
 #define RESET_TIMER 1 //register bit offset
 #define REMOTE_UPDATE_CORE_BASE  REMOTE_UPDATE_CYCLONEIII_0_BASE //from system.h
+#define CONFIG_FACTORY_IMAGE_FLASH_ADRS 0x00 // fixed for this remote update core!
 
 /******************************************************************************/
 /* typedefs */

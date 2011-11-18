@@ -162,35 +162,84 @@ int main (void)
     switch (FpgaCfg_handleReconfig())
     {
         case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
+        {
             // user image reconfiguration failed
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Factory image loaded.\n");
             DEBUG_TRACE0(DEBUG_LVL_ERROR, "Last user image timed out or failed!\n");
             fIsUserImage_g = FALSE;
             break;
+        }
 
         case kFpgaCfgUserImageLoadedWatchdogDisabled:
+        {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+
+#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
+            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                             CONFIG_USER_IIB_FLASH_ADRS,
+                             CONFIG_USER_IIB_VERSION) == ERROR)
+            {
+                usleep(5000000); // wait 5 seconds
+
+                // user image was loaded, but has invalid IIB
+                // -> reset to factory image
+                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            }
+#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+
             fIsUserImage_g = TRUE;
             break;
+        }
 
         case kFpgaCfgUserImageLoadedWatchdogEnabled:
+        {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+
+#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
+            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                             CONFIG_USER_IIB_FLASH_ADRS,
+                             CONFIG_USER_IIB_VERSION) == ERROR)
+            {
+                usleep(5000000); // wait 5 seconds
+
+                // user image was loaded, but has invalid IIB
+                // -> reset to factory image
+                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            }
+#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+
             // watchdog timer has to be reset periodically
-            FpgaCfg_resetWatchdogTimer(); // do this periodically!
+            //FpgaCfg_resetWatchdogTimer(); // do this periodically!
             fIsUserImage_g = TRUE;
             break;
+        }
 
         case kFgpaCfgWrongSystemID:
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
+            usleep(5000000); // wait 5 seconds
+
+            // reset to factory image
+            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+
             goto exit; // fatal error
             break;
+        }
 
         default:
+        {
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Shutdown!\n");
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
+            usleep(5000000); // wait 5 seconds
+
+            // reset to factory image
+            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
             goto exit; // this is fatal error only, if image was loaded from flash
 #endif
-        break;
+            break;
+        }
     }
 
     DEBUG_TRACE0(DEBUG_LVL_09, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
@@ -242,8 +291,8 @@ void rebootCN(void)
 
         // trigger FPGA reconfiguration
         // remark: if we are in user image, this command will trigger a
-        //         reconfiguration of the factory image!
-        FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
+        //         reconfiguration of the factory image regardless of its argument!
+        FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS); // restart factory image
     }
     else
     {   // only reset the PCP software
