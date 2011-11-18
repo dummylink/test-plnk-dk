@@ -84,6 +84,20 @@ update core.
 *******************************************************************************/
 void FpgaCfg_reloadFromFlash(DWORD dwResetAdr_p)
 {
+    if(dwResetAdr_p == CONFIG_FACTORY_IMAGE_FLASH_ADRS)
+    {
+        // If reset to factoy image is required, this workaround is
+        // needed to fall back into factory mode image again.
+        // Otherwise the remote update core state will tell
+        // that is has the user image even is loaded from
+        // CONFIG_FACTORY_IMAGE_FLASH_ADRS, because it can not
+        // distinguish its mode according to the reset address.
+        FpgaCfg_enableWatchdog();
+
+        //set lowest possible timeout and expect an immediate reconfiguration
+        FpgaCfg_setWatchdogTimer(1);
+    }
+
     //set base address of image to be loaded
     IOWR(REMOTE_UPDATE_CORE_BASE, 0x00 | 0x04, dwResetAdr_p >> 2);
     //trigger reconfiguration
