@@ -1649,6 +1649,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                             pEventArg_p->m_NmtStateChange.m_NewNmtState,
                             pEventArg_p->m_NmtStateChange.m_NmtEvent);
 
+                    // reset flow control manipulation
+                    EplSdoAsySeqAppFlowControl(FALSE, FALSE);
+
                     // clean all default OBD accesses
                     EplAppDefObdAccCleanupAllPending();
 
