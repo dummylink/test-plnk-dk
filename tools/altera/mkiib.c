@@ -282,7 +282,7 @@ information.
 *******************************************************************************/
 void printIibInfo(tIib *pHeader_p)
 {
-    int         version = ntohl(pHeader_p->m_magic) & 0xff;
+    int         version = pHeader_p->m_magic & 0xff;
 
     if ((version != 1) && (version != 2))
     {

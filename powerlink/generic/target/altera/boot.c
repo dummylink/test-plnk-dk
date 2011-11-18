@@ -99,7 +99,7 @@ static int getIib(UINT32 uiIibAdrs, tIib *pIib_p, UINT32 *pUiCrc_p)
     /* calculate checkusm of IIB */
     *pUiCrc_p = crc32(0, &iibBigEndian, sizeof(tIib) - sizeof(UINT32));
 
-    pIib_p->m_magic = AmiGetDwordFromBe(&iibBigEndian.m_magic);
+    pIib_p->m_magic = iibBigEndian.m_magic; // this is as string, so don't consider endian
     pIib_p->m_applicationSwDate = AmiGetDwordFromBe(&iibBigEndian.m_applicationSwDate);
     pIib_p->m_applicationSwTime = AmiGetDwordFromBe(&iibBigEndian.m_applicationSwTime);
     pIib_p->m_fpgaConfigCrc = AmiGetDwordFromBe(&iibBigEndian.m_fpgaConfigCrc);
