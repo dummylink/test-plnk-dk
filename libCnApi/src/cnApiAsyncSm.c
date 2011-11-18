@@ -2014,6 +2014,12 @@ BOOL CnApiAsync_saveMsgContext(void)
  *******************************************************************************/
 BOOL CnApiAsync_restoreMsgContext(void)
 {
+    if (PdiAsyncStateMachine_l.m_fResetInProgress == TRUE)
+    {
+        // state change not allowed
+        return FALSE;
+    }
+
     if (PdiAsyncPendTrfContext_l.fMsgPending_m == TRUE)
     {
         PdiAsyncStateMachine_l.m_bCurrentState = PdiAsyncPendTrfContext_l.bState_m; //TODO: is this state machine manipulation working (for DO-Action)?
@@ -2043,6 +2049,15 @@ BOOL CnApiAsync_restoreMsgContext(void)
     {
         return FALSE;
     }
+}
+
+/**
+********************************************************************************
+\brief  resets the log counter after a Async SM reset
+*******************************************************************************/
+void CnApiAsync_resetMsgLogCounter(void)
+{
+    bLinkLogCounter_l = 0;
 }
 
 /**

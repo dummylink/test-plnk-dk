@@ -98,6 +98,7 @@ typedef struct sTransition {
 typedef struct sStateMachine {
 	BYTE			m_bInitState;				///< the initial state of this state machine
 	BYTE			m_bCurrentState;			///< the current state of the state machine
+	BOOL			m_fResetInProgress;			///< state machine reset is in progress
 
 	tTransition		*m_pTransitions;			///< pointer to the array of transitions
 	BYTE			m_bMaxTransitions;			///< maximum number of transition entries

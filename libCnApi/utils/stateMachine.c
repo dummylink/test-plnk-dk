@@ -237,6 +237,7 @@ remains in this state until it will be activated by sm_activate().
 *******************************************************************************/
 void sm_reset(tStateMachine *pStateMachine_p)
 {
+	pStateMachine_p->m_fResetInProgress = TRUE;
 	pStateMachine_p->m_bCurrentState = STATE_INITIAL;
 }
 
@@ -257,6 +258,7 @@ BOOL sm_update(tStateMachine *pStateMachine_p)
 	tState			*pTargetState, *pCurrentState;
 	tTransition 	*pTransition;
 
+
 	/* if state machine is in FINAL state we do nothing. The state machine
 	 * first has to be reseted to start again.
 	 */
@@ -269,6 +271,7 @@ BOOL sm_update(tStateMachine *pStateMachine_p)
 	if (pStateMachine_p->m_bCurrentState == STATE_INITIAL)
 	{
 		sm_activate(pStateMachine_p);
+		pStateMachine_p->m_fResetInProgress = FALSE;
 		return TRUE;
 	}
 

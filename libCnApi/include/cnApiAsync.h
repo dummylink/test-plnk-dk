@@ -380,6 +380,7 @@ extern tLinkPdosResp LinkPdosResp_g;        ///< Link Pdos Response message
 
 /******************************************************************************/
 /* function declarations */
+int CnApiAsync_init(void);
 
 /******************************************************************************/
 /* private functions */
@@ -387,11 +388,13 @@ extern tLinkPdosResp LinkPdosResp_g;        ///< Link Pdos Response message
 /******************************************************************************/
 /* functions */
 extern int CnApiAsync_create(void);
-extern int CnApiAsync_init(void);
+extern int CnApiAsync_reset(void);
 extern tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
                                            const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p, tPdiAsyncMsgType RespMsgType_p,
                                            tPdiAsyncTransferType TransferType_p, tAsyncChannel ChanType_p,
                                            const tPcpStates * paValidNmtList_p, WORD wTimeout_p);
+
+extern void CnApiAsync_resetMsgLogCounter(void);
 
 extern tPdiAsyncStatus CnApiAsync_finishMsgInit(void);
 extern tPdiAsyncStatus CnApiAsync_postMsg(

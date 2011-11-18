@@ -580,14 +580,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                     printf("kEplNmtGsResetCommunication\n");
                     // reset asynchronous PCP <-> AP communication
-                    CnApi_resetAsyncStateMachine();
-                    iRet = CnApiAsync_init();
+                    iRet = CnApiAsync_reset();
                     if (iRet != OK )
                     {
-                        while(1)
-                        {
-                            DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
-                        }
+                        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_reset() FAILED!\n");
                         EplRet = kEplApiInvalidParam;
                         goto Exit;
                     }

@@ -168,6 +168,31 @@ exit:
 
 /**
 ********************************************************************************
+\brief  reset asynchronous functions
+*******************************************************************************/
+int CnApiAsync_reset(void)
+{
+    register WORD wCnt;
+    int iRet;
+    tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
+
+    //reset the state machine
+    CnApi_resetAsyncStateMachine();
+
+    iRet = CnApiAsync_init();
+    if (iRet != OK )
+    {
+        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
+        goto exit;
+    }
+
+    return OK;
+exit:
+    return ERROR;
+}
+
+/**
+********************************************************************************
 \brief  initialize asynchronous messages using the internal channel
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
@@ -180,6 +205,9 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     tPcpStates * pNmtList = NULL;
     WORD wTout = 0;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
+
+    // reset initialized messages counter
+    CnApiAsync_resetMsgLogCounter();
 
     /* Rx messages */
     Dir = kCnApiDirReceive; // transfer type doesn't matter -> chosen according to Rx messsage size
