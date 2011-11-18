@@ -1649,6 +1649,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                             pEventArg_p->m_NmtStateChange.m_NewNmtState,
                             pEventArg_p->m_NmtStateChange.m_NmtEvent);
 
+                    // clean all default OBD accesses
+                    EplAppDefObdAccCleanupAllPending();
+
                     EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
                     if (EplRet != kEplSuccessful)
                     {
