@@ -159,12 +159,6 @@ int main (void)
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
-//    while(1)
-//        {
-//        usleep(10000);
-//        printf("TimeStamp: %lu\n", EplTimerSynckGetDeltaTimeMs());
-//        }
-
     switch (FpgaCfg_handleReconfig())
     {
         case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
@@ -242,11 +236,11 @@ void rebootCN(void)
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
         //usleep(4000000);
 
-        // inform AP about reset event - at this special event, wait until
-        // AP has confirmed the reception.
+        // inform AP about reset event - at this special event, do blocking wait
+        // until AP has confirmed the reception.
         Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetNodeRequest);
 
-        // no external reset, so trigger reset on our own
+        // trigger FPGA reconfiguration
         // remark: if we are in user image, this command will trigger a
         //         reconfiguration of the factory image!
         FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
@@ -291,10 +285,16 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
 #endif /* SET_NODE_ID_BY_HW */
 
     /* Read application software date and time */
-    getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
+    if (getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime) == ERROR);
+    {
+        PRINTF("ERROR in getImageApplicationSwDateTime()\n");
+    }
 
     /* Read FPGA configuration version of current used image */
-    getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL);
+    if (getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL == ERROR));
+    {
+        PRINTF("ERROR in getImageSwVersions()\n");
+    }
 
     /* setup the POWERLINK stack */
     /* calc the IP address with the nodeid */

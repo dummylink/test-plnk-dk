@@ -186,11 +186,11 @@ void FpgaCfg_setWatchdogTimer(WORD wTimeout_p)
     }
 
     // max value can be 0xFFFh
-    DEBUG_TRACE1(DEBUG_LVL_15, "Input reg. watchdog timeout: %#x\n",
+    DEBUG_TRACE1(DEBUG_LVL_15, "Input reg. watchdog timeout: 0x%x\n",
             IORD(REMOTE_UPDATE_CORE_BASE, 0x18 | 0x02));
 
     // max value can be 0x1FFE0000h ==> apprx 53 seconds (with 10 Mhz)
-    DEBUG_TRACE1(DEBUG_LVL_15, "Actual watchdog timeout set: %#x\n",
+    DEBUG_TRACE1(DEBUG_LVL_15, "Actual watchdog timeout set: 0x%x\n",
                  0x20000 * IORD(REMOTE_UPDATE_CORE_BASE, 0x18 | 0x02));
 }
 
@@ -361,7 +361,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 
 #ifdef SYSID_BASE
     DEBUG_TRACE2(DEBUG_LVL_15,
-                 "Reconfigured with system time stamp: %lu \nand system ID: %lu\n",
+                 "Reconfigured with system time stamp: %d \nand system ID: %d\n",
                  IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE),
                  IORD_ALTERA_AVALON_SYSID_ID(SYSID_BASE));
 
@@ -385,7 +385,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 
             dwTriggerCondition = FpgaCfg_getPast1ReconfigTriggerCondition();
 
-            DEBUG_TRACE1(DEBUG_LVL_15, "Factory image triggered by: %#lx",
+            DEBUG_TRACE1(DEBUG_LVL_15, "Factory image triggered by: 0x%lx",
                          dwTriggerCondition);
             if (dwTriggerCondition == 0x00)
             {
@@ -416,13 +416,13 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (external nCONFIG reset)\n");
             }
 
-            DEBUG_TRACE1(DEBUG_LVL_15, "and loaded from address: %#lx\n",
+            DEBUG_TRACE1(DEBUG_LVL_15, "and loaded from address: 0x%08lx\n",
                          FpgaCfg_getCurFactoryBootAdr());
 
             if (fApplicationImageFailed)
             { /* do not trigger application configuration again */
                 DEBUG_TRACE1(DEBUG_LVL_15,
-                             "Bad application image at address: %#lx\n",
+                             "Bad application image at address: 0x%08lx\n",
                              FpgaCfg_getPast1BootAdr());
                 Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
                 goto exit;
@@ -453,7 +453,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                     DEBUG_TRACE0(DEBUG_LVL_15, "... INVALID!\n");
                     break;
                 }
-                DEBUG_TRACE0(DEBUG_LVL_15, "... OK!\n");
+                DEBUG_TRACE0(DEBUG_LVL_15, "... OK! Reset to User Image...\n");
 
                 //usleep(1000*10000); //activate this line for debugging
 
@@ -476,7 +476,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
         }
         case 0x03:
         { /* application mode - watchdog enabled -> application needs to reset timer periodically */
-            DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "Watchdog timeout set to: %#lx\n", FpgaCfg_getWatchdogCounterSetting());
+            DEBUG_TRACE1(DEBUG_LVL_ALWAYS, "Watchdog timeout set to: 0x%lx\n", FpgaCfg_getWatchdogCounterSetting());
             Ret = kFpgaCfgUserImageLoadedWatchdogEnabled;
             break;
         }

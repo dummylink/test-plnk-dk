@@ -149,7 +149,7 @@ static int checkFlashCrc(UINT32 uiFlashAdrs_p, UINT32 uiSize_p, UINT32 uiCrc_p)
     char                buf[CRC_CALC_BUF_SIZE];
     UINT32              uiSize;
 
-    DEBUG_TRACE3(DEBUG_LVL_ERROR, "Check Flash at:%08x size:%d CRC:%08x\n",
+    DEBUG_TRACE3(DEBUG_LVL_ERROR, "Check Flash at:0x%08x size:%d CRC:0x%08x\n",
             uiFlashAdrs_p, uiSize_p, uiCrc_p);
 
     /* get pointer to flash instance structure */
@@ -223,17 +223,22 @@ int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
     if (iib.m_magic != (IIB_MAGIC | uiIibVersion_p))
     {
         /* todo create individual error codes! */
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
-                     uiIibAdrs_p, (UINT32)AmiGetDwordFromBe(&iib.m_magic));
+        DEBUG_TRACE3(DEBUG_LVL_ERROR, "Invalid IIB magic at 0x%08x. Is: 0x%08x Expected: 0x%08x\n",
+                     uiIibAdrs_p, iib.m_magic, (IIB_MAGIC | uiIibVersion_p));
 
         return ERROR;
 
+    }
+    else
+    {
+        DEBUG_TRACE1(DEBUG_LVL_15, "IIB magic 0x%08x OK!\n",
+                     iib.m_magic);
     }
 
     /* check IIB crc */
     if (iib.m_iibCrc != uiCrc)
     {
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is %08x : should be %08x\n",
+        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is 0x%08x : should be 0x%08x\n",
                      uiCrc, iib.m_iibCrc);
         return ERROR;
     }
@@ -312,17 +317,13 @@ int getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
     if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
     {
         /* todo create individual error codes! */
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
-                     uiIibAdrs_p, iib.m_magic);
-
         return ERROR;
     }
 
     /* check IIB crc */
     if (uiCrc != iib.m_iibCrc)
     {
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is %08x : should be %08x\n",
-                     uiCrc, iib.m_iibCrc);
+        /* todo create individual error codes! */
         return ERROR;
     }
 
@@ -365,17 +366,13 @@ int getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
     if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
     {
         /* todo create individual error codes! */
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB magic at %08x : %08x\n",
-                     uiIibAdrs_p, iib.m_magic);
-
         return ERROR;
     }
 
     /* check IIB crc */
     if (uiCrc != iib.m_iibCrc)
     {
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid IIB CRC is %08x : should be %08x\n",
-                     uiCrc, iib.m_iibCrc);
+        /* todo create individual error codes! */
         return ERROR;
     }
 

@@ -197,6 +197,8 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     fwHeader_g.m_headerCrc = AmiGetDwordFromBe(&pHeader_p->m_headerCrc);
 
     DEBUG_TRACE0(DEBUG_LVL_15, "fwHeader:\n");
+    DEBUG_TRACE1(DEBUG_LVL_15, "Magic('FW'):           0x%04x\n", fwHeader_g.m_magic);
+    DEBUG_TRACE1(DEBUG_LVL_15, "Version:               0x%04x\n", fwHeader_g.m_version);
     DEBUG_TRACE1(DEBUG_LVL_15, "Device ID:             %d\n", fwHeader_g.m_deviceId);
     DEBUG_TRACE1(DEBUG_LVL_15, "Hardware Revision:     %d\n", fwHeader_g.m_hwRevision);
     DEBUG_TRACE1(DEBUG_LVL_15, "FPGA Config Size:      %d\n", fwHeader_g.m_fpgaConfigSize);
@@ -294,7 +296,7 @@ static void updateIib(UINT32 uiImageAdrs_p)
     UINT32              uiAdrs;
 
     /* setup IIB */
-    iib.m_magic = uiMagic; // this is as string, so no endian will be considered
+    iib.m_magic = uiMagic; // this is as string, so don't consider endian
     iib.m_applicationSwDate = AmiGetDwordFromBe(&fwHeader_g.m_applicationSwDate);
     iib.m_applicationSwTime = AmiGetDwordFromBe(&fwHeader_g.m_applicationSwTime);
     uiAdrs = uiImageAdrs_p;

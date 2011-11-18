@@ -1232,8 +1232,8 @@ void rebootCN(void)
     /* read FPGA configuration version of user image */
     getSwVersions(CONFIG_USER_IIB_FLASH_ADRS, &uiFpgaConfigVersion, NULL, NULL);
 
-    /* if the FPGA configuration version is different we have to do
-     * a complete FPGA reconfiguration.*/
+    /* if the FPGA configuration version changed since boot-up, we have to do
+     * a complete FPGA reconfiguration. */
     if (uiFpgaConfigVersion != uiFpgaConfigVersion_g)
     {
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
@@ -1241,10 +1241,13 @@ void rebootCN(void)
         FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
     }
     else
-    {
+    {   // only reset the PCP software
+
+        // TODO: verify user image if only PCP SW was updated (at bootup or now?)!
+
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "PCP Software Reset of CN ...\n");
         //usleep(4000000);
-        // We only have to reset the PCP software
+
         NIOS2_WRITE_STATUS(0);
         NIOS2_WRITE_IENABLE(0);
         ((void (*) (void)) NIOS2_RESET_ADDR) ();
@@ -1405,10 +1408,16 @@ int openPowerlink(WORD wNodeId_p)
     InitPortConfiguration(portIsOutput);
 
     /* Read application software date and time */
-    getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
+    if (getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime) == ERROR);
+    {
+        PRINTF("ERROR in getImageApplicationSwDateTime()\n");
+    }
 
     /* Read FPGA configuration version of current used image */
-    getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL);
+    if (getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL == ERROR));
+    {
+        PRINTF("ERROR in getImageSwVersions()\n");
+    }
 
     /* initialize firmware update */
     initFirmwareUpdate(CONFIG_IDENT_PRODUCT_CODE, CONFIG_IDENT_REVISION);
