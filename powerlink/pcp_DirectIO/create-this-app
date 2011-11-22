@@ -52,27 +52,31 @@ SAVE_ARGS=$@
 SKIP_MAKE=
 REBUILD=
 NO_OPT=
+DEBUG_LVL_IN=
 while [ $# -gt 0 ]
 do
   case "$1" in
       # Don't run make if create-this-app script is called with --no-make arg
       --no-make)
-          SKIP_MAKE=1
-          ;;
+         SKIP_MAKE=1
+         ;;
       --rebuild)
-          rm -f ./Makefile
-          REBUILD=1
-          ;;
+         rm -f ./Makefile
+         REBUILD=1
+         ;;
       --debug)
-          NO_OPT=1
-          ;;
+         NO_OPT=1
+         shift
+         DEBUG_LVL_IN="$1"
+         echo INFO: DEBUG_LVL_IN set to \"$DEBUG_LVL_IN\"          
+         ;;
 	  --sopcdir)
 		 shift
 		 #relative path!
 		 SOPC_DIR=$1
-		 echo SOPC_DIR set to \"$SOPC_DIR\"
+		 echo INFO: SOPC_DIR set to \"$SOPC_DIR\"
 		 echo -------------------------------
-		 ;;
+		 ;; 
   esac
   shift
 done
@@ -96,9 +100,23 @@ ${LIBAPIDIR}/utils"
 # handle --debug parameter
 
 if [ -z "$NO_OPT" ]; then
-	DEF_DEBUG_LVL="0xEC000000L" # only critical debugs
+    DBG_MODE=NDEBUG	# Do not compile printf macros. This define overwrites all others printf-debug defines
+    DEF_DEBUG_LVL="0x00000000L" # additionally disables all print macros
 else
-	DEF_DEBUG_LVL="0xEC00FF00L" # all useful debugs
+    case "$DEBUG_LVL_IN" in
+      1)
+          DBG_MODE=_DEBUG	# compile printfs()
+          DEF_DEBUG_LVL="0xEC00FF00L" # all useful debug messages
+          ;;
+      2)
+          DBG_MODE=_DEBUG	# compile printfs()      
+          DEF_DEBUG_LVL="0xEC000200L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs
+          ;;
+      *)
+          echo ERROR: Wrong parameter DEBUG_LVL_IN: \"$DEBUG_LVL_IN\"
+          exit 1
+          ;;
+    esac
 fi
 
 CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"

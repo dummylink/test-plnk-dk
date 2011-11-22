@@ -53,19 +53,32 @@ fi
 # user input - chose between debug and release
 a=
 while [ -z "$a" ]; do
-	echo -n "Select between debug[1] or release[2]: "
+    echo    "Select between [1] debug"
+    echo    "               [2] debug with reduced printouts"
+    echo -n "               [3] or release :"    
 	read a
-	a=${a##*[^1-2]*} #eliminate other characters then 1 or 2
+	a=${a##*[^1-3]*} #eliminate other characters then [1 .. 3]
+    
 if [ -z "$a" ]; then
 	echo Invalid input!
 fi	
 done
 
-if [ "$a" == 1 ]; then
-	DEBUG_FLAG="--debug"
-else
+case "$a" in
+  # Don't run make if create-this-app script is called with --no-make arg
+  1)
+	DEBUG_FLAG="--debug 1"
+      ;;
+  2)
+	DEBUG_FLAG="--debug 2"
+      ;;
+  3)
 	DEBUG_FLAG=
-fi
+      ;; 
+  *)
+    exit 1
+      ;;
+esac  
 
 echo "rebuild.sh: Started"
 
