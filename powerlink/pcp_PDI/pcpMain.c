@@ -334,13 +334,13 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     /* Read application software date and time */
     if (getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime) == ERROR);
     {
-        PRINTF("ERROR in getImageApplicationSwDateTime()\n");
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR in getImageApplicationSwDateTime()\n");
     }
 
     /* Read FPGA configuration version of current used image */
     if (getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL == ERROR));
     {
-        PRINTF("ERROR in getImageSwVersions()\n");
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR in getImageSwVersions()\n");
     }
 
     /* setup the POWERLINK stack */
@@ -581,7 +581,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     // reset flow control manipulation
                     EplSdoAsySeqAppFlowControl(FALSE, FALSE);
 
-                    printf("kEplNmtGsResetCommunication\n");
                     // reset asynchronous PCP <-> AP communication
                     iRet = CnApiAsync_reset();
                     if (iRet != OK )
