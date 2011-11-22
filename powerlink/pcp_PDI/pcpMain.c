@@ -282,40 +282,14 @@ FPGA reconfiguration.
 *******************************************************************************/
 void rebootCN(void)
 {
-    UINT32  uiFpgaConfigVersion;
+    // inform AP about reset event - at this special event, do blocking wait
+    // until AP has confirmed the reception.
+    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetNodeRequest);
 
-    /* read FPGA configuration version of user image */
-    getSwVersions(CONFIG_USER_IIB_FLASH_ADRS, &uiFpgaConfigVersion, NULL, NULL);
-
-    /* if the FPGA configuration version changed since boot-up, we have to do
-     * a complete FPGA reconfiguration. */
-    if (uiFpgaConfigVersion != uiFpgaConfigVersion_g)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
-        //usleep(4000000);
-
-        // inform AP about reset event - at this special event, do blocking wait
-        // until AP has confirmed the reception.
-        Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetNodeRequest);
-
-        // trigger FPGA reconfiguration
-        // remark: if we are in user image, this command will trigger a
-        //         reconfiguration of the factory image regardless of its argument!
-        FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS); // restart factory image
-    }
-    else
-    {   // only reset the PCP software
-
-        // TODO: verify user image if only PCP SW was updated (at bootup or now?)!
-
-        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "PCP Software Reset of CN ...\n");
-        //usleep(4000000);
-
-//        NIOS2_WRITE_STATUS(0);
-//        NIOS2_WRITE_IENABLE(0);
-//        ((void (*) (void)) NIOS2_RESET_ADDR) ();
-    }
-
+    // trigger FPGA reconfiguration
+    // remark: if we are in user image, this command will trigger a
+    //         reconfiguration of the factory image regardless of its argument!
+    FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS); // restart factory image
 }
 
 /**
