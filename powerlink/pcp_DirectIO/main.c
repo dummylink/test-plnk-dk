@@ -1328,6 +1328,15 @@ int main (void)
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Factory image loaded.\n");
             DEBUG_TRACE0(DEBUG_LVL_ERROR, "Last user image timed out or failed!\n");
             fIsUserImage_g = FALSE;
+
+            if (checkFwImage(CONFIG_FACTORY_IMAGE_FLASH_ADRS,
+                             CONFIG_FACTORY_IIB_FLASH_ADRS,
+                             CONFIG_USER_IIB_VERSION) == ERROR)
+            {
+                // factory image was loaded, but has invalid IIB
+                // checkFwImage() prints error, don't do anything
+                // else here for now
+            }
             break;
         }
 
