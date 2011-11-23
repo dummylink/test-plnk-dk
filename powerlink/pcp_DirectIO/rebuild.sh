@@ -67,10 +67,10 @@ done
 case "$a" in
   # Don't run make if create-this-app script is called with --no-make arg
   1)
-	DEBUG_FLAG="--debug 1"
+	DEBUG_FLAG="--debug --debug_lvl 1"
       ;;
   2)
-	DEBUG_FLAG="--debug 2"
+	DEBUG_FLAG="--debug --debug_lvl 2"
       ;;
   3)
 	DEBUG_FLAG=

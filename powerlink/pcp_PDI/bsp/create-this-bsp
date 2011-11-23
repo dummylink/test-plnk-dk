@@ -38,6 +38,10 @@ do
       --debug)
           NO_OPT=1
           ;;
+      --debug_lvl)
+         shift
+         # argument currently not used
+         ;; 
 	  --sopcdir)
 		 shift
 		 SOPC_DIR=../$1

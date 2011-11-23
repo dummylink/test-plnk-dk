@@ -66,6 +66,8 @@ do
          ;;
       --debug)
          NO_OPT=1
+         ;;
+      --debug_lvl)
          shift
          DEBUG_LVL_IN="$1"
          echo INFO: DEBUG_LVL_IN set to \"$DEBUG_LVL_IN\"          
