@@ -468,7 +468,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
                 if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
                                  CONFIG_USER_IIB_FLASH_ADRS,
-                                 CONFIG_USER_IIB_VERSION) == ERROR)
+                                 CONFIG_USER_IIB_VERSION) != kFwRetSuccessful)
                 {
                     Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
                     DEBUG_TRACE0(DEBUG_LVL_15, "... INVALID!\n");

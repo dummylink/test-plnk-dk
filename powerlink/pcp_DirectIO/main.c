@@ -1295,7 +1295,7 @@ used firmware image.
 
 \return OK, or ERROR if data couldn't be read
 *******************************************************************************/
-static int getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
+static tFwRet getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
                                   UINT32 *pUiApplicationSwTime_p)
 {
     UINT32      uiIibAdrs;
@@ -1319,7 +1319,7 @@ The version is store at the specific pointer if it is not NULL.
 
 \return OK, or ERROR if data couldn't be read
 *******************************************************************************/
-int getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersion_p,
+tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersion_p,
                        UINT32 *pUiApSwVersion_p)
 {
     UINT32      uiIibAdrs;
@@ -1344,22 +1344,25 @@ int main (void)
     alt_icache_flush_all();
     alt_dcache_flush_all();
 
+    tFwRet FwRetVal;
+
     switch (FpgaCfg_handleReconfig())
     {
         case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
         {
             // user image reconfiguration failed
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Factory image loaded.\n");
-            DEBUG_TRACE0(DEBUG_LVL_ERROR, "Last user image timed out or failed!\n");
             fIsUserImage_g = FALSE;
 
-            if (checkFwImage(CONFIG_FACTORY_IMAGE_FLASH_ADRS,
-                             CONFIG_FACTORY_IIB_FLASH_ADRS,
-                             CONFIG_USER_IIB_VERSION) == ERROR)
+            FwRetVal = checkFwImage(CONFIG_FACTORY_IMAGE_FLASH_ADRS,
+                                    CONFIG_FACTORY_IIB_FLASH_ADRS,
+                                    CONFIG_USER_IIB_VERSION);
+            if(FwRetVal != kFwRetSuccessful)
             {
                 // factory image was loaded, but has invalid IIB
                 // checkFwImage() prints error, don't do anything
                 // else here for now
+                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of factory image failed with 0x%x\n", FwRetVal);
             }
             break;
         }
@@ -1369,11 +1372,13 @@ int main (void)
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
 
 #ifndef DEBUG_CONFIG_NO_IIB_PRESENT
-            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
-            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
-                             CONFIG_USER_IIB_FLASH_ADRS,
-                             CONFIG_USER_IIB_VERSION) == ERROR)
+            FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                                    CONFIG_USER_IIB_FLASH_ADRS,
+                                    CONFIG_USER_IIB_VERSION);
+            if(FwRetVal != kFwRetSuccessful)
             {
+                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
+
                 usleep(5000000); // wait 5 seconds
 
                 // user image was loaded, but has invalid IIB
@@ -1393,11 +1398,13 @@ int main (void)
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
 
 #ifndef DEBUG_CONFIG_NO_IIB_PRESENT
-            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
-            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
-                             CONFIG_USER_IIB_FLASH_ADRS,
-                             CONFIG_USER_IIB_VERSION) == ERROR)
+            FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                                    CONFIG_USER_IIB_FLASH_ADRS,
+                                    CONFIG_USER_IIB_VERSION);
+            if(FwRetVal != kFwRetSuccessful)
             {
+                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
+
                 usleep(5000000); // wait 5 seconds
 
                 // user image was loaded, but has invalid IIB
@@ -1482,6 +1489,7 @@ int openPowerlink(WORD wNodeId_p)
     unsigned int                uiVarEntries;
     UINT32                      uiApplicationSwDate = 0;
     UINT32                      uiApplicationSwTime = 0;
+    tFwRet                      FwRetVal;
 
     fShutdown_l = FALSE;
 
@@ -1489,15 +1497,17 @@ int openPowerlink(WORD wNodeId_p)
     InitPortConfiguration(portIsOutput);
 
     /* Read application software date and time */
-    if (getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime) == ERROR);
+    FwRetVal = getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
+    if (FwRetVal != kFwRetSuccessful)
     {
-        PRINTF("ERROR in getImageApplicationSwDateTime()\n");
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageApplicationSwDateTime() failed with 0x%x\n", FwRetVal);
     }
 
     /* Read FPGA configuration version of current used image */
-    if (getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL == ERROR));
+    FwRetVal = getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL);
+    if (FwRetVal != kFwRetSuccessful)
     {
-        PRINTF("ERROR in getImageSwVersions()\n");
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageSwVersions() failed with 0x%x\n", FwRetVal);
     }
 
     /* initialize firmware update */

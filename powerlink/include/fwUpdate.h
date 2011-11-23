@@ -64,10 +64,10 @@ int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p);
 tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
         char * pData_p, void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p);
 tEplSdoComConState updateFirmwarePeriodic(void);
-int checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p);
-int getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
+tFwRet checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p);
+tFwRet getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
                              UINT32 *pUiApplicationSwTime_p);
-int getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
+tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
                   UINT32 *pUiPcpSwVersion_p, UINT32 *pUiApSwVersion_p);
 
 #ifdef __cplusplus

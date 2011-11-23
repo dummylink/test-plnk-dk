@@ -105,6 +105,19 @@ typedef struct {
     UINT32      m_iibCrc;               ///< checksum of IIB
 } tIib;
 
+typedef enum eFirmwareRetVal {
+  kFwRetSuccessful,
+  kFwRetInvalidIib,
+  kFwRetInvalidIibMagic,
+  kFwRetInvalidIibCrc,
+  kFwRetInvalidIibPcpFpgaCrc,
+  kFwRetInvalidIibPcpSwCrc,
+  kFwRetInvalidIibApCrc,
+  kFwRetInvalidBlockCrc,
+  kFwRetFlashAccessError,
+  kFwRetGeneralError,
+} tFwRet;
+
 #endif /* FIRMWARE_H_ */
 
 /* END-OF-FILE */
