@@ -126,6 +126,7 @@ static tEplKernel EplAppDefObdAccGetObdHdl(tEplObdParam * pObdAccParam_p,
                     tDefObdAccHdl **ppDefObdAccHdl_p);
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *pDefObdAccHdl_p,
                     void * pfnSegmentFinishedCb_p, void * pfnSegmentAbortCb_p);
+void EplAppDefObdAccCleanupAllPending(void);
 void EplAppDefObdAccCleanupHistory(void);
 tEplKernel EplAppDefObdAccFinished(tEplObdParam ** pObdParam_p);
 int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle);
@@ -267,6 +268,29 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
     } /* else -- handle already in progress */
 
     return EplRet;
+}
+
+/**
+ ********************************************************************************
+ \brief deletes all pending default OBD accesses
+
+ This function clears all allocated memory used for default OBD accesses and
+ resets the OBD default access instance
+ *******************************************************************************/
+void EplAppDefObdAccCleanupAllPending(void)
+{
+    tDefObdAccHdl * pObdDefAccHdl = NULL;
+    BYTE            bArrayNum;                 ///< loop counter and array element
+
+    // clean domain OBD access history buffers
+    EplAppDefObdAccCleanupHistory(); // ignore return value
+
+    // clean forwarded OBD accesses
+    if (ApiPdiComInstance_g.apObdParam_m[0] != 0)
+    {
+        EPL_FREE(ApiPdiComInstance_g.apObdParam_m[0]);
+        ApiPdiComInstance_g.apObdParam_m[0]= NULL;
+    }
 }
 
 /**
