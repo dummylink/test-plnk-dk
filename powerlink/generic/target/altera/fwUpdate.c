@@ -314,7 +314,8 @@ static void updateIib(UINT32 uiImageAdrs_p)
     iib.m_apSwVersion = AmiGetDwordFromBe(&fwHeader_g.m_apSwVersion);
     iib.m_apSwCrc = AmiGetDwordFromBe(&fwHeader_g.m_apSwCrc);
     iib.m_apSwSize = AmiGetDwordFromBe(&fwHeader_g.m_apSwSize);
-    memset(iib.m_reserved, 0, sizeof (iib.m_reserved));
+    // set reserved bytes to default value
+    memset(iib.m_reserved, 0xff, sizeof (iib.m_reserved));
 
     /* calculate CRC of IIB */
     uiCrc = crc32 (0, &iib, sizeof(iib) - sizeof(UINT32));

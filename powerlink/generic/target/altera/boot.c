@@ -97,6 +97,7 @@ static int getIib(UINT32 uiIibAdrs, tIib *pIib_p, UINT32 *pUiCrc_p)
     alt_flash_close_dev(pFlashInst);
 
     /* calculate checkusm of IIB */
+    /* don not consider CRC value itself */
     *pUiCrc_p = crc32(0, &iibBigEndian, sizeof(tIib) - sizeof(UINT32));
 
     pIib_p->m_magic = iibBigEndian.m_magic; // this is as string, so don't consider endian
@@ -173,7 +174,7 @@ static int checkFlashCrc(UINT32 uiFlashAdrs_p, UINT32 uiSize_p, UINT32 uiCrc_p)
         }
 
 
-        /* check IIB crc */
+        /* check crc of the block */
         uiCrc = crc32(uiCrc, buf, uiSize);
 
         uiFlashAdrs_p += uiSize;
