@@ -100,6 +100,12 @@ ${LIBAPIDIR}/utils"
 
 ###############################################################################
 # handle --debug parameter
+# for explanation:
+# 0x00002000L DEBUG_LVL_14 (= DEBUG_LVL_DEFAULT_OBD_ACC)
+# 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
+# 0x20000000L DEBUG_LVL_ASSERT
+# 0x80000000L DEBUG_LVL_ERROR
+# 0x40000000L DEBUG_LVL_ALWAYS
 
 if [ -z "$NO_OPT" ]; then
     DBG_MODE=NDEBUG	# Do not compile printf macros. This define overwrites all others printf-debug defines
@@ -112,7 +118,7 @@ else
           ;;
       2)
           DBG_MODE=_DEBUG	# compile printfs()      
-          DEF_DEBUG_LVL="0xEC000200L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs
+          DEF_DEBUG_LVL="0xE0000000L" # only ASSERT, ERROR and ALWAYS
           ;;
       *)
           echo ERROR: Wrong parameter DEBUG_LVL_IN: \"$DEBUG_LVL_IN\"

@@ -372,9 +372,10 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
     tFpgaCfgRetVal Ret = kFpgaCfgInvalidRetVal;
     BOOL fApplicationImageFailed = FALSE;
     DWORD dwTriggerCondition;
+    tFwRet FwRetVal = kFwRetSuccessful;
 
 #ifdef SYSID_BASE
-    DEBUG_TRACE2(DEBUG_LVL_15,
+    DEBUG_TRACE2(DEBUG_LVL_ALWAYS,
                  "Reconfigured with system time stamp: %d \nand system ID: %d\n",
                  IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE),
                  IORD_ALTERA_AVALON_SYSID_ID(SYSID_BASE));
@@ -406,7 +407,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 
             dwTriggerCondition = FpgaCfg_getPast1ReconfigTriggerCondition();
 
-            DEBUG_TRACE1(DEBUG_LVL_15, "Factory image triggered by: 0x%lx",
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "Factory image triggered by: 0x%lx",
                          dwTriggerCondition);
             if (dwTriggerCondition == 0x00)
             {
@@ -437,20 +438,19 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 DEBUG_TRACE0(DEBUG_LVL_ERROR, " (external nCONFIG reset)\n");
             }
 
-            DEBUG_TRACE1(DEBUG_LVL_15, "and loaded from address: 0x%08lx\n",
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "and loaded from address: 0x%08lx\n",
                          FpgaCfg_getCurFactoryBootAdr());
 
             if (fApplicationImageFailed)
             { /* do not trigger application configuration again */
-                DEBUG_TRACE1(DEBUG_LVL_15,
+                DEBUG_TRACE1(DEBUG_LVL_ERROR,
                              "Bad application image at address: 0x%08lx\n",
                              FpgaCfg_getPast1BootAdr());
 
-                // If the "application image" was not the factory image then prevent
-                // reconfiguration to user image again.
                 if (FpgaCfg_getPast1BootAdr() != CONFIG_FACTORY_IMAGE_FLASH_ADRS)
                 {
-
+                    // If the "application image" was not the factory image then prevent
+                    // reconfiguration to user image again.
                     Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
                     goto exit;
                 }
@@ -475,16 +475,17 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
 
-            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
-            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
-                             CONFIG_USER_IIB_FLASH_ADRS,
-                             CONFIG_USER_IIB_VERSION) != kFwRetSuccessful)
+            FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                                    CONFIG_USER_IIB_FLASH_ADRS,
+                                    CONFIG_USER_IIB_VERSION);
+            if(FwRetVal != kFwRetSuccessful)
             {
+                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
+
                 Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
-                DEBUG_TRACE0(DEBUG_LVL_15, "... INVALID!\n");
                 break;
             }
-            DEBUG_TRACE0(DEBUG_LVL_15, "... OK! Reset to User Image...\n");
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image check: OK! Reset to User Image...\n");
 
             //usleep(1000*10000); //activate this line for debugging
 

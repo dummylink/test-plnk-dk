@@ -150,7 +150,7 @@ static tFwRet checkFlashCrc(UINT32 uiFlashAdrs_p, UINT32 uiSize_p, UINT32 uiCrc_
     char                buf[CRC_CALC_BUF_SIZE];
     UINT32              uiSize;
 
-    DEBUG_TRACE3(DEBUG_LVL_ALWAYS, "Check Flash at:0x%08x size:%d CRC:0x%08x\n",
+    DEBUG_TRACE3(DEBUG_LVL_15, "Check Flash at:0x%08x size:%d CRC:0x%08x\n",
             uiFlashAdrs_p, uiSize_p, uiCrc_p);
 
     /* get pointer to flash instance structure */
