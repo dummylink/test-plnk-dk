@@ -445,48 +445,56 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                 DEBUG_TRACE1(DEBUG_LVL_15,
                              "Bad application image at address: 0x%08lx\n",
                              FpgaCfg_getPast1BootAdr());
-                Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
-                goto exit;
-            }
-            else
-            { /* trigger user image reconfiguration */
 
-                /* Watchdog is enabled per default in factory mode, so enabling
-                 * is not necessary. */
+                // If the "application image" was not the factory image then prevent
+                // reconfiguration to user image again.
+                if (FpgaCfg_getPast1BootAdr() != CONFIG_FACTORY_IMAGE_FLASH_ADRS)
+                {
+
+                    Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
+                    goto exit;
+                }
+
+                // It was the factory image which cause the failed application image,
+                // this is ok (used as workaround)! Go on with resetting to user image.
+            }
+
+            /* trigger user image reconfiguration */
+
+            /* Watchdog is enabled per default in factory mode, so enabling
+             * is not necessary. */
 #ifdef CONFIG_DISABLE_WATCHDOG
-                FpgaCfg_disableWatchdog();
+            FpgaCfg_disableWatchdog();
 #else
-                FpgaCfg_setWatchdogTimer(0xfff); // max value is 0xfff -> apprx. 53 seconds
+            FpgaCfg_setWatchdogTimer(0xfff); // max value is 0xfff -> apprx. 53 seconds
 #endif /* CONFIG_DISABLE_WATCHDOG */
 
-                /* set special bits - recommended by Altera */
-                FpgaCfg_enableEarlyCnfDoneCheck();
-                FpgaCfg_enableInternalOscStartUp();
+            /* set special bits - recommended by Altera */
+            FpgaCfg_enableEarlyCnfDoneCheck();
+            FpgaCfg_enableInternalOscStartUp();
 
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
 
-                DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
-                if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
-                                 CONFIG_USER_IIB_FLASH_ADRS,
-                                 CONFIG_USER_IIB_VERSION) != kFwRetSuccessful)
-                {
-                    Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
-                    DEBUG_TRACE0(DEBUG_LVL_15, "... INVALID!\n");
-                    break;
-                }
-                DEBUG_TRACE0(DEBUG_LVL_15, "... OK! Reset to User Image...\n");
+            DEBUG_TRACE0(DEBUG_LVL_15, "Checking user image ...\n");
+            if (checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                             CONFIG_USER_IIB_FLASH_ADRS,
+                             CONFIG_USER_IIB_VERSION) != kFwRetSuccessful)
+            {
+                Ret = kFgpaCfgFactoryImageLoadedNoUserImagePresent;
+                DEBUG_TRACE0(DEBUG_LVL_15, "... INVALID!\n");
+                break;
+            }
+            DEBUG_TRACE0(DEBUG_LVL_15, "... OK! Reset to User Image...\n");
 
-                //usleep(1000*10000); //activate this line for debugging
+            //usleep(1000*10000); //activate this line for debugging
 
-                /* trigger reconfiguration of user image */
-                FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
+            /* trigger reconfiguration of user image */
+            FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
 
-                /* we never should come here because we triggered
-                 * FPGA reconfiguration! */
-
+            /* we never should come here because we triggered
+             * FPGA reconfiguration! */
 
 #endif /* CONFIG_USER_IMAGE_IN_FLASH */
-            }
             break;
         }
 
