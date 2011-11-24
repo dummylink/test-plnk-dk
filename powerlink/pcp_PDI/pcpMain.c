@@ -1125,17 +1125,16 @@ void Gi_init(void)
     }
 
     /* Setup PCP Control Register in DPRAM */
-    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;       ///< set address of control register - equals DPRAM base address
+    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;     // set address of control register - equals DPRAM base address
 
     pCtrlReg_g->m_dwAppDate = uiApplicationSwDate;
     pCtrlReg_g->m_dwAppTime = uiApplicationSwTime;
+    pCtrlReg_g->m_dwFpgaSysId = SYSID_ID;               // FPGA system ID from system.h
+    pCtrlReg_g->m_wEventType = 0x00;                    // invalid event TODO: structure
+    pCtrlReg_g->m_wEventArg = 0x00;                     // invalid event argument TODO: structure
+    pCtrlReg_g->m_wState = kPcpStateInvalid;            // set invalid PCP state
 
-    pCtrlReg_g->m_dwMagic = PCP_MAGIC;                 ///< unique identifier
-
-    pCtrlReg_g->m_dwFpgaSysId = SYSID_ID;              // FPGA system ID from system.h
-    pCtrlReg_g->m_wEventType = 0x00;                   ///< invalid event TODO: structure
-    pCtrlReg_g->m_wEventArg = 0x00;                    ///< invalid event argument TODO: structure
-    pCtrlReg_g->m_wState = kPcpStateInvalid;           ///< set invalid PCP state
+    pCtrlReg_g->m_dwMagic = PCP_MAGIC;      // unique identifier set as last value because its verified first at AP
 
     Gi_disableSyncInt();
 
