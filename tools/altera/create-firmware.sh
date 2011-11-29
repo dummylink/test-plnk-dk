@@ -176,7 +176,7 @@ fi
 FPGACFG_BASE=`basename $FPGACFG_SOF .sof`
 PCPSW_BASE=`basename $PCPSW_ELF .elf`
 if [[ "${APSW_FILE##*.}" == "bin" ]] ; then
-    APSW_BASE=`basename $APSW_FILE .bin`
+    APSW_BASE=AP_`basename $APSW_FILE .bin`
 else
     APSW_BASE=AP_`basename $APSW_FILE .elf`
 fi
@@ -198,13 +198,13 @@ echo -e "Using FPGA configuration: $FPGACFG_SOF"
 echo -e "Using PCP software: $PCPSW_ELF"
 if [[ "$options" -eq 895 ]]; then
     echo -e "Using AP software: $APSW_FILE\n"
-fi    
+fi
 
 echo -e "FPGA configuration version $FPGACFG_VERS"
 echo -e "PCP software version $PCPSW_VERS"
 if [[ "$options" -eq 895 ]]; then
     echo -e "AP software version $APSW_VERS"
-fi    
+fi
 echo -e "Application software date: $APPSWDATE"
 echo -e "Application software time: $APPSWTIME"
 echo -e "Device ID: $DEVICE"
@@ -224,6 +224,8 @@ if [[ "$options" -eq 895 ]]; then
     if [[ "${APSW_FILE##*.}" == "elf" ]] ; then
         $ELF2FLASH --epcs --input="${APSW_FILE}" --output="${APSW_BASE}.flash" --after="${PCPSW_BASE}.flash"
         $OBJCOPY -I srec -O binary "${APSW_BASE}.flash" "${APSW_BASE}.bin"
+    else
+        cp ${APSW_FILE} ${APSW_BASE}.bin
     fi
 fi
 
@@ -250,3 +252,5 @@ rm -f ${PCPSW_BASE}.flash
 rm -f ${APSW_BASE}.flash
 rm -f ${FPGACFG_BASE}.bin
 rm -f ${PCPSW_BASE}.bin
+rm -f ${APSW_BASE}.bin
+
