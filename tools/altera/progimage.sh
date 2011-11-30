@@ -257,6 +257,7 @@ if [[ "$options" -eq 63 ]]; then
     else
         # AP software is already specified in binary format. We create an srecord to be
         # programmed into flash
+        cp ${APSW_FILE} ${APSW_BASE}.bin
         APOFFSET=$[$FPGAFILESIZE + PCPFILESIZE]
         $BIN2FLASH --epcs --input="${APSW_BASE}.bin" --output="${APSW_BASE}.flash" --location=$APOFFSET
     fi
@@ -296,6 +297,7 @@ rm -f ${PCPSW_BASE}.flash
 rm -f ${APSW_BASE}.flash
 rm -f ${FPGACFG_BASE}.bin
 rm -f ${PCPSW_BASE}.bin
+rm -f ${APSW_BASE}.bin
 rm -f ${IIB_BIN}
 rm -f ${IIB_BASE}.bin
 rm -f ${IIB_BASE}.flash
