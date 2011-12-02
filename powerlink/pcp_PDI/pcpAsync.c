@@ -139,9 +139,15 @@ int CnApiAsync_init(void)
             DEBUG_TRACE4(DEBUG_LVL_11, "%s: RX Async Buffer %d: adrs. %08x (max payload %d)\n",
                          __func__, wCnt,(unsigned int)aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m,
                          aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m);
-            /* reset headers */
-            memset(aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m, 0 ,sizeof(tAsyncMsg));
-            memset(aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m, 0 ,sizeof(tAsyncMsg));
+
+            /* reset headers and buffer payload */
+            memset(aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m,
+                   0x00,
+                   aPcpPdiAsyncTxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader));
+
+            memset(aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m,
+                   0x00,
+                   aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader));
 
             /* free buffers */
             aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m->m_header.m_bSync = kMsgBufWriteOnly;
