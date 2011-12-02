@@ -1826,7 +1826,9 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
 //                case 0x01:
 //                    break;
 //                default:
-//                    goto Exit_not_existing;
+//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+//                    Ret = kEplObdSubindexNotExist;
+//                    goto Exit;
 //            }
 //            break;
 
@@ -1837,7 +1839,9 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
 //                    break;
 //
 //                default:
-//                    goto Exit_not_existing;
+//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+//                    Ret = kEplObdSubindexNotExist;
+//                    goto Exit;
 //            }
 //            break;
 
@@ -1847,7 +1851,9 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
                 case 0x01:
                     break;
                 default:
-                    goto Exit_not_existing;
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+                    Ret = kEplObdSubindexNotExist;
+                    goto Exit;
             }
             break;
 
@@ -1876,7 +1882,9 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
 
             if(pObdParam_p->m_uiIndex < 0x2000)
             {   // remaining PCP objects do not exist
-                goto Exit_not_existing;
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                Ret = kEplObdIndexNotExist;
+                goto Exit;
             }
             break;
     } /* switch (pObdParam_p->m_uiIndex) */
@@ -1910,12 +1918,8 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
         default:
             break;
     }
-    return Ret;
 
-    /* This is the exit point for non existing objects */
-Exit_not_existing:
-    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
-    Ret = kEplObdSubindexNotExist;
+Exit:
     return Ret;
 }
 
