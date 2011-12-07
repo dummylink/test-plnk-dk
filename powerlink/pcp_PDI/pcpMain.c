@@ -914,9 +914,13 @@ void EplAppDefObdAccCleanupAllPending(void)
     // clean forwarded OBD accesses
     if (ApiPdiComInstance_g.apObdParam_m[0] != 0)
     {
+        //TODO: for loop to reset array
         EPL_FREE(ApiPdiComInstance_g.apObdParam_m[0]);
         ApiPdiComInstance_g.apObdParam_m[0]= NULL;
     }
+
+    // TODO: reset PDI communication
+    //memset(&ApiPdiComInstance_g, 0x00, sizeof(ApiPdiComInstance_g));
 }
 
 /**
@@ -2317,7 +2321,9 @@ static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p)
     }
     else if (PdiRet != kPdiAsyncStatusSuccessful)
     {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: CnApiAsync_postMsg() retval 0x%x\n", PdiRet);
         pObdParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
+
         Ret = kEplInvalidOperation;
         goto Exit;
     }
