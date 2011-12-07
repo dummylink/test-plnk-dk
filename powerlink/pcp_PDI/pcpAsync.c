@@ -506,9 +506,11 @@ tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr
 		/* allocate memory in HEAP */
 	    if (pObjData[bReqSeqnc_l] != NULL)
 	    {
-	        free(pObjData[bReqSeqnc_l]); ///< memory has been allocated before! overwrite it...
+	        EPL_FREE(pObjData[bReqSeqnc_l]); ///< memory has been allocated before! overwrite it...
 	    }
-		if ((pObjData[bReqSeqnc_l] = malloc(iSize)) == NULL)
+
+	    pObjData[bReqSeqnc_l] = EPL_MALLOC(iSize);
+		if (pObjData[bReqSeqnc_l] == NULL)
 		{
 		    /* prepare response msg */
 			/*----------------------------------------------------------------------------*/

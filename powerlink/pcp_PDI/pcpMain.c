@@ -1098,7 +1098,8 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
         EPL_FREE(pPcpLinkedObjs_g);
     }
     /* allocate memory for object table */
-    if ((pPcpLinkedObjs_g = malloc (sizeof(tObjTbl) * dwMaxLinks_p)) == NULL)
+    pPcpLinkedObjs_g = EPL_MALLOC (sizeof(tObjTbl) * dwMaxLinks_p);
+    if (pPcpLinkedObjs_g == NULL)
     {
         return ERROR;
     }

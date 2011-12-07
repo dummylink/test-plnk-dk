@@ -693,7 +693,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                             fError = TRUE;
                             goto exit;
                         }
-                        CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+                        EPL_FREE(pLclAsyncTxMsgBuffer_l);
                         pLclAsyncTxMsgBuffer_l = NULL;
                         aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                     }
@@ -743,7 +743,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                     {
                         if (pLclAsyncRxMsgBuffer_l != NULL)
                         {
-                            CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+                            EPL_FREE(pLclAsyncRxMsgBuffer_l);
                             pLclAsyncRxMsgBuffer_l = NULL;
                         }
                         break;
@@ -867,7 +867,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
 
             /* allocate data block for Rx message payload */
-            pLclAsyncRxMsgBuffer_l = (BYTE *) CNAPI_MALLOC(pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen);
+            pLclAsyncRxMsgBuffer_l = (BYTE *) EPL_MALLOC(pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen);
 
             if (pLclAsyncRxMsgBuffer_l == NULL)
             {
@@ -1081,7 +1081,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                 {
                     if (pLclAsyncRxMsgBuffer_l != NULL)
                     {
-                        CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+                        EPL_FREE(pLclAsyncRxMsgBuffer_l);
                         pLclAsyncRxMsgBuffer_l = NULL;
                     }
                     break;
@@ -1314,7 +1314,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
         {
-            CNAPI_FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
+            EPL_FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
             aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         }
@@ -1360,14 +1360,14 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     /* free buffers */
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
-        CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+        EPL_FREE(pLclAsyncTxMsgBuffer_l);
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         pLclAsyncTxMsgBuffer_l = NULL;
     }
 
     if (pLclAsyncRxMsgBuffer_l != NULL)
     {
-        CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+        EPL_FREE(pLclAsyncRxMsgBuffer_l);
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
         pLclAsyncRxMsgBuffer_l = NULL;
     }
@@ -1717,7 +1717,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 goto exit;
             }
 
-            pMsgDescr->MsgHdl_m.pLclBuf_m = CNAPI_MALLOC(MAX_ASYNC_STREAM_LENGTH);
+            pMsgDescr->MsgHdl_m.pLclBuf_m = EPL_MALLOC(MAX_ASYNC_STREAM_LENGTH);
             if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL)
             {
                 Ret = kPdiAsyncStatusNoResource;
@@ -1738,7 +1738,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 {
                     if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
                     {
-                        CNAPI_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                        EPL_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
                         pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     }
                     goto exit;

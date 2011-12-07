@@ -155,7 +155,7 @@ tEplTgtTimeStamp* PUBLIC EplTgtTimeStampAlloc (void)
 {
 tEplTgtTimeStamp* pTimeStamp;
 
-    pTimeStamp = malloc(sizeof (struct _tEplTgtTimeStamp));
+    pTimeStamp = EPL_MALLOC(sizeof (struct _tEplTgtTimeStamp));
 
     return pTimeStamp;
 
@@ -180,7 +180,7 @@ tEplTgtTimeStamp* pTimeStamp;
 void PUBLIC EplTgtTimeStampFree (tEplTgtTimeStamp* pTimeStamp_p)
 {
 
-    free(pTimeStamp_p);
+    EPL_FREE(pTimeStamp_p);
 
 }
 
