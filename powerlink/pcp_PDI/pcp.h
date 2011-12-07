@@ -107,9 +107,6 @@ extern tEplKernel EplAppDefObdAccFinished(tEplObdParam ** pObdParam_p);
 extern void EplAppDefObdAccCleanupHistory(void);
 extern void EplAppDefObdAccCleanupAllPending(void);
 
-//Tests
-extern void EplAppDumpData(void* pData_p, unsigned long ulDataSize_p);
-
 #endif /* GENERICIF_H_ */
 
 /* END-OF-FILE */

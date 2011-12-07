@@ -262,7 +262,6 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 	BYTE                bNodeId;
 	QWORD               qwObjectMapping;
 	BYTE                bMappSubindex;
-	BYTE                *pTempAdrs;                 ///< Address of linked object
 	BYTE                bObdSubIdxCount = 0;
 	BYTE                bAddedDecrEntries;          ///< added descriptor entry counter
 

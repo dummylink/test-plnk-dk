@@ -389,7 +389,7 @@ tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
         *pUiPcpSwVersion_p = iib.m_pcpSwVersion;
     }
 
-    if (iib.m_magic & 0xff == 2)
+    if ((iib.m_magic & 0xff) == 2)
     {
 
         if (pUiApSwVersion_p != NULL)

@@ -63,14 +63,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __NIOS2__
 #include "system.h" // FPGA system definitions
+#include <sys/alt_cache.h>
+#include <sys/alt_irq.h>
+#include <alt_types.h>
 #endif // __NIOS2__
 #include "omethlib.h" // openMAC header
 
 #include "EplTgtTimeStamp_openMac.h"
 
-#include <sys/alt_cache.h>
-#include <sys/alt_irq.h>
-#include <alt_types.h>
+
 
 
 //---------------------------------------------------------------------------

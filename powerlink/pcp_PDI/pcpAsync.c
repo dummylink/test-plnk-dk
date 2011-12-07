@@ -178,9 +178,7 @@ exit:
 *******************************************************************************/
 int CnApiAsync_reset(void)
 {
-    register WORD wCnt;
     int iRet;
-    tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
     //reset the state machine
     CnApi_resetAsyncStateMachine();

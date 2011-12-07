@@ -57,7 +57,7 @@
 // module global vars
 //---------------------------------------------------------------------------
 tPcpCtrlReg        * volatile pCtrlReg_g;     ///< ptr. to PCP control register
-tCnApiInitParm     initParm_g = {0};          ///< Powerlink initialization parameter
+tCnApiInitParm     initParm_g = {{0}};        ///< Powerlink initialization parameter
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 WORD               wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 BOOL               fIsUserImage_g;            ///< if set user image is booted
@@ -310,8 +310,6 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     tEplKernel                  EplRet;
     UINT32                      uiApplicationSwDate = 0;
     UINT32                      uiApplicationSwTime = 0;
-    unsigned int                uiVarEntries;
-    tEplObdSize                 ObdSize;
     tFwRet                      FwRetVal = kFwRetSuccessful;
 
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
@@ -905,9 +903,6 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
  *******************************************************************************/
 void EplAppDefObdAccCleanupAllPending(void)
 {
-    tDefObdAccHdl * pObdDefAccHdl = NULL;
-    BYTE            bArrayNum;                 ///< loop counter and array element
-
     // clean domain OBD access history buffers
     EplAppDefObdAccCleanupHistory(); // ignore return value
 
@@ -2426,74 +2421,6 @@ static tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpS
     return getSwVersions(uiIibAdrs, pUiFpgaConfigVersion_p, pUiPcpSwVersion_p,
                          pUiApSwVersion_p);
 }
-
-/**
-********************************************************************************
-\brief     function print out data in hexadecimal value
-
-This function writes to an object which does not exist in the local object
-dictionary by using segmented access (to domain object)
-
-\param  pData_P             pointer to data
-\param  ulDataSize_p        size of data in byte
-*******************************************************************************/
-#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
-void EplAppDumpData(void* pData_p, unsigned long ulDataSize_p)
-{
-unsigned long   ulCount;
-unsigned long   ulOffset;
-BYTE*           pbData;
-char            szBuffer[17];
-
-    if (pData_p == NULL)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_14, "Null pointer!\n");
-        return;
-    }
-
-    szBuffer[16] = '\0';
-
-    pbData = (BYTE*)pData_p;
-
-    ulCount = 0;
-    ulOffset = 0;
-    // printout data
-    while (ulCount < ulDataSize_p)
-    {
-        DEBUG_TRACE1(DEBUG_LVL_14, " %02X", (WORD)*pbData);
-        if (isgraph(*pbData))
-        {
-            szBuffer[ulOffset] = *pbData;
-        }
-        else
-        {
-            szBuffer[ulOffset] = '.';
-        }
-        pbData++;
-        ulCount++;
-        ulOffset++;
-        if (ulOffset == 16)
-        {
-            DEBUG_TRACE1(DEBUG_LVL_14, "  %s\n", szBuffer);
-            ulOffset = 0;
-        }
-    }
-
-    if (ulOffset != 0)
-    {
-        szBuffer[ulOffset] = '\0';
-        for (; ulOffset < 16; ulOffset++)
-        {
-            DEBUG_TRACE0(DEBUG_LVL_14,"   ");
-        }
-        DEBUG_TRACE1(DEBUG_LVL_14, "  %s\n", szBuffer);
-    }
-    else
-    {
-        DEBUG_TRACE0(DEBUG_LVL_14,"\n");
-    }
-}
-#endif
 
 /* EOF */
 /*********************************************************************************/
