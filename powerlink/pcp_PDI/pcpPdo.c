@@ -256,7 +256,6 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 
 	/* linking function temporary variables */
     BYTE *  pData = NULL;
-    unsigned int uiVarEntries = 0;
     int iSize;
 
 	tEplObdSize         ObdSize;
@@ -382,6 +381,9 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
                 else
                 {
                     /* first, link object according to mapping */
+
+                    iSize = uiMapSize;
+
                     if (PdoDir == TPdo)
                     { // link directly to TPDO buffer
                         pData = aTPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
@@ -391,6 +393,19 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
                             (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
+                            fRet = FALSE;
+                            goto exit;
+                        }
+
+                        /* directly link to DPRAM TPDO buffer */
+                        Ret = EplApiLinkPdiMappObject(uiMapIndex,
+                                                      pData,
+                                                      NULL,
+                                                      &iSize,
+                                                      uiMapSubIndex);
+                        if (Ret != kEplSuccessful)
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
                             fRet = FALSE;
                             goto exit;
                         }
@@ -407,6 +422,19 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
                             fRet = FALSE;
                             goto exit;
                         }
+
+                        /* directly link to DPRAM RPDO buffer */
+                        Ret = EplApiLinkPdiMappObject(uiMapIndex,
+                                                      NULL,
+                                                      pData,
+                                                      &iSize,
+                                                      uiMapSubIndex);
+                        if (Ret != kEplSuccessful)
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
+                            fRet = FALSE;
+                            goto exit;
+                        }
                     }
                     else
                     { // should not occur -> error
@@ -414,45 +442,26 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
                         goto exit;
                     }
 
-                    uiVarEntries = 1;
-                    iSize = uiMapSize;
-
-                    /* directly link to DPRAM*/
-                    Ret = EplApiLinkObject(uiMapIndex, pData, &uiVarEntries, &iSize, uiMapSubIndex);
-                    if (Ret != kEplSuccessful)
-                    {
-                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
-                        fRet = FALSE;
-                        goto exit;
-                    }
-
                     /* now setup PDO buffer descriptor message */
-			        pTempAdrs = EplObdGetObjectDataPtr(uiMapIndex, uiMapSubIndex);
-			        if(pTempAdrs == NULL)
-			        {
-			            DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "%04x/%02x not linked (only mapped). Skipped.\n", uiMapIndex, (BYTE)uiMapSubIndex);
-			        }
-			        else
-			        {
-			            // write descriptor entry
-			            pPdoDescEntry->m_wPdoIndex = uiMapIndex;
-			            pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;
-			            // pPdoDescEntry->m_wOffset = uiMapOffset; //TODO: use this line for real PDO frame
-			            pPdoDescEntry->m_wOffset = uiOffsetCnt; //TODO: delete this line for real PDO frame
-			            pPdoDescEntry->m_wSize = uiMapSize;
 
-			            DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size: %d linkadr: %p",
-			                    uiMapIndex,
-			                    (BYTE)uiMapSubIndex,
-			                    uiMapSize,
-			                    pData);
-	                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: %04x\n", pPdoDescEntry->m_wOffset); //TODO: comment this line and add \n to last printf
+		            // write descriptor entry
+			        pPdoDescEntry->m_wPdoIndex = uiMapIndex;
+			        pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;
+			        // pPdoDescEntry->m_wOffset = uiMapOffset; //TODO: use this line for real PDO frame
+			        pPdoDescEntry->m_wOffset = uiOffsetCnt; //TODO: delete this line for real PDO frame
+			        pPdoDescEntry->m_wSize = uiMapSize;
 
-			            pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
-			            bAddedDecrEntries++;             ///< count added entries
-			            dwSumMappingSize_g += uiMapSize; ///< count bytes of mapped size
-			            uiOffsetCnt += uiMapSize; ///< TODO: delete this variable (and line) for real PDO frame
-			        }
+			        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size: %d linkadr: %p",
+			                uiMapIndex,
+			                (BYTE)uiMapSubIndex,
+			                uiMapSize,
+			                pData);
+	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: %04x\n", pPdoDescEntry->m_wOffset); //TODO: comment this line and add \n to last printf
+
+			        pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
+			        bAddedDecrEntries++;             ///< count added entries
+			        dwSumMappingSize_g += uiMapSize; ///< count bytes of mapped size
+			        uiOffsetCnt += uiMapSize; ///< TODO: delete this variable (and line) for real PDO frame
 			    }
 			}
 
