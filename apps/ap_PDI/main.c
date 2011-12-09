@@ -405,15 +405,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                     case kPcpGenEventResetCommunication:
                     {
-                        int iRet;
-
-                        // reset asynchronous PCP <-> AP communication
-                        iRet = CnApiAsync_reset();
-                        if (iRet != OK )
-                        {
-                            DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_reset() FAILED!\n");
-                        }
-
+                        // do application specific asynchronous communication reset here
                         break;
                     }
 

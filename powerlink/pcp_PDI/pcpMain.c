@@ -572,6 +572,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     // reset flow control manipulation
                     EplSdoAsySeqAppFlowControl(FALSE, FALSE);
 
+                    // clean all default OBD accesses
+                    EplAppDefObdAccCleanupAllPending();
+
                     // reset asynchronous PCP <-> AP communication
                     iRet = CnApiAsync_reset();
                     if (iRet != OK )
@@ -580,12 +583,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         EplRet = kEplApiInvalidParam;
                         goto Exit;
                     }
-
-                    // clean all default OBD accesses
-                    EplAppDefObdAccCleanupAllPending();
-
-                    // signal reset to AP
-                    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetCommunication);
 
                     // synchronize API state
                     if (getPcpState() > kPcpStatePreop1)

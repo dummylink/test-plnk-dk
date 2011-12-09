@@ -270,6 +270,36 @@ void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEvent
             CnApiEvent.Typ_m = kCnApiEventPcp;
             CnApiEvent.Arg_m.PcpEventGen_m = Event.Arg_m.Gen_m;
             fInformApplication = TRUE;
+
+            switch (wEventArg_p.GenErr_m)
+            {
+                case kPcpGenEventResetCommunication:
+                {
+                    int iRet;
+
+                    // reset asynchronous PCP <-> AP communication
+                    iRet = CnApiAsync_reset();
+                    if (iRet != OK )
+                    {
+                        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_reset() FAILED!\n");
+                    }
+
+                    break;
+                }
+
+                case kPcpGenEventResetCommunicationDone:
+                {
+                    CnApi_enableAsyncSmProcessing();
+                    break;
+                }
+
+                case kPcpGenEventSyncCycleCalcSuccessful:
+                case kPcpGenEventNodeIdConfigured:
+                case kPcpGenEventResetNodeRequest:
+                case kPcpGenEventUserTimer:
+                default:
+                break;
+            }
             break;
         }
         case kPcpPdiEventGenericError:

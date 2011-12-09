@@ -407,6 +407,8 @@ extern void CnApi_activateAsyncStateMachine(void);
 extern void CnApi_resetAsyncStateMachine(void);
 extern BOOL CnApi_processAsyncStateMachine(void);
 extern BOOL CnApi_checkAsyncStateMachineRunning(void);
+extern void CnApi_enableAsyncSmProcessing(void);
+extern void CnApi_disableAsyncSmProcessing(void);
 
 /* functions for asynchronous transfers */
 extern tPdiAsyncStatus CnApi_doInitPcpReq(

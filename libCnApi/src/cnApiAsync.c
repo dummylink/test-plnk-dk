@@ -116,6 +116,8 @@ int CnApiAsync_reset(void)
     int iRet;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
+    CnApi_disableAsyncSmProcessing();
+
     //reset the state machine
     CnApi_resetAsyncStateMachine();
 

@@ -48,7 +48,8 @@ typedef enum ePcpPdiEventGeneric {
     kPcpGenEventSyncCycleCalcSuccessful,         ///< synchronization interrupt cycle time calculation was successful
     kPcpGenEventNodeIdConfigured,                ///< Powerlink Node Id has been configured
     kPcpGenEventResetNodeRequest,                ///< PCP requests AP to do a complete node reboot (e.g. after finished firmware transfer)
-    kPcpGenEventResetCommunication,                ///< PCP requests AP to reset its SW
+    kPcpGenEventResetCommunication,              ///< PCP requests AP to reset its asynchronous communication
+    kPcpGenEventResetCommunicationDone,          ///< asynchronous communication reset has finished at PCP side
     kPcpGenEventUserTimer,                       ///< timer event triggered by PCP
 } tPcpPdiEventGeneric;
 

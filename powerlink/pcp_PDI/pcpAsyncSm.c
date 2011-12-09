@@ -54,6 +54,7 @@ char * strAsyncStateNames_l[] = { "INITIAL", "FINAL", "ASYNC_WAIT",   \
 static tStateMachine        PdiAsyncStateMachine_l;
 static tState               aPdiAsyncStates_l[kPdiNumAsyncStates];
 static tTransition          aPdiAsyncTransitions_l[MAX_TRANSITIONS_PER_STATE * kPdiNumAsyncStates];
+static BOOL                 fSmProcessingAllowed_l = TRUE;  ///< flag to block state machine processing
 static BOOL                 fError = FALSE;                 ///< transition event
 static BOOL                 fTimeout = FALSE;               ///< transition event
 static BOOL                 fReset = FALSE;                 ///< transition event
@@ -1996,7 +1997,12 @@ void CnApi_resetAsyncStateMachine(void)
 *******************************************************************************/
 BOOL CnApi_processAsyncStateMachine(void)
 {
-    return sm_update(&PdiAsyncStateMachine_l);
+    if(fSmProcessingAllowed_l)
+    {
+        return sm_update(&PdiAsyncStateMachine_l);
+    }
+
+    return FALSE;
 }
 
 /**
@@ -2009,6 +2015,24 @@ BOOL CnApi_checkAsyncStateMachineRunning(void)
         return TRUE;
     else
         return FALSE;
+}
+
+/**
+********************************************************************************
+\brief  start state machine processing again
+*******************************************************************************/
+void CnApi_enableAsyncSmProcessing(void)
+{
+    fSmProcessingAllowed_l = TRUE;
+}
+
+/**
+********************************************************************************
+\brief  block state machine processing
+*******************************************************************************/
+void CnApi_disableAsyncSmProcessing(void)
+{
+    fSmProcessingAllowed_l = FALSE;
 }
 
 /*******************************************************************************

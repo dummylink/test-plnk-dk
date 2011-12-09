@@ -17,6 +17,7 @@
 
 #include "cnApi.h"
 #include "cnApiAsync.h"
+#include "cnApiEvent.h"
 #include "pcp.h"
 
 #include "Epl.h"
@@ -180,6 +181,11 @@ int CnApiAsync_reset(void)
 {
     int iRet;
 
+    CnApi_disableAsyncSmProcessing();
+
+    // signal reset to AP
+    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetCommunication);
+
     //reset the state machine
     CnApi_resetAsyncStateMachine();
 
@@ -189,6 +195,11 @@ int CnApiAsync_reset(void)
         DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
         goto exit;
     }
+
+    CnApi_enableAsyncSmProcessing();
+
+    // signal reset to AP
+    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetCommunicationDone);
 
     return OK;
 exit:
