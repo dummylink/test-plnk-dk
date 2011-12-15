@@ -532,8 +532,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 }
 
                 case kEplNmtCsPreOperational1:
+                case kEplNmtCsStopped:
                 {
-                    setPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
+                    setPowerlinkEvent(kPowerlinkEventEnterPreOp);
 
                     break;
                 }
@@ -541,7 +542,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtCsPreOperational2:
                 {
 
-                    setPowerlinkEvent(kPowerlinkEventEnterPreop2);
+                    setPowerlinkEvent(kPowerlinkEventEnterPreOp);
 
                     EplRet = kEplReject; // prevent automatic change to kEplNmtCsReadyToOperate
                     break;
@@ -585,10 +586,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     }
 
                     // synchronize API state
-                    if (getPcpState() > kPcpStatePreop1)
+                    if (getPcpState() > kPcpStatePreOp)
                     {
-                        // fall back to PCP_PREOP1 (API-STATE)
-                        setPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
+                        // fall back to PCP_PREOP (API-STATE)
+                        setPowerlinkEvent(kPowerlinkEventEnterPreOp);
                     }
 
                     EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));

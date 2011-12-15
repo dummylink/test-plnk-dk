@@ -264,8 +264,7 @@ typedef enum eApStates{
 	kApStateBooted = 0,
 	kApStateReadyToInit,
 	kApStateInit,
-	kApStatePreop1,
-	kApStatePreop2,
+	kApStatePreOp,
 	kApStateReadyToOperate,
 	kApStateOperational,
 	kApStateError,
@@ -276,11 +275,10 @@ typedef enum eApStates{
 typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct values!
 	kPcpStateBooted = 0x00,
 	kPcpStateInit = 0x01,
-	kPcpStatePreop1 = 0x02,
-	kPcpStatePreop2 = 0x03,
-	kPcpStateReadyToOperate = 0x04,
-	kPcpStateOperational = 0x05,
-	kNumPcpStates = 0x06,
+	kPcpStatePreOp = 0x02,
+	kPcpStateReadyToOperate = 0x03,
+	kPcpStateOperational = 0x04,
+	kNumPcpStates = 0x05,
 	kPcpStateInvalid = 0xEE,
 } tPcpStates;
 

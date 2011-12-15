@@ -47,10 +47,11 @@ static tTransition 			apTransitions[MAX_TRANSITIONS_PER_STATE * kNumApState];
 
 static BOOL					fErrorEvent = FALSE;
 static BOOL                 fEnterReadyToOperate = FALSE;
+static BOOL                 fBlockTransition_l = FALSE;
 
 
-char	*strCnApiStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INIT", "PREOP1",
-		                       "PREOP2", "READY_TO_OPERATE", "OPERATIONAL", "ERROR"};
+char	*strCnApiStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INIT", "PREOP",
+                                    "READY_TO_OPERATE", "OPERATIONAL", "ERROR"};
 
 /******************************************************************************/
 /* function declarations */
@@ -127,15 +128,14 @@ FUNC_DOACT(kApStateReadyToInit)
 /*============================================================================*/
 /* State: INIT */
 /*============================================================================*/
-FUNC_EVT(kApStateInit, kApStatePreop1, 1)
+FUNC_EVT(kApStateInit, kApStatePreOp, 1)
 {
     tPcpStates ePcpStateTmp;
 
     /* check for PCP state: PCP_PREOP */
     ePcpStateTmp = CnApi_getPcpState();
 
-    if ((ePcpStateTmp == kPcpStatePreop1) ||
-        (ePcpStateTmp == kPcpStatePreop2)   )
+    if ((ePcpStateTmp == kPcpStatePreOp))
     {
         CnApi_setApCommand(kApCmdNone);
         return TRUE;
@@ -160,35 +160,9 @@ FUNC_DOACT(kApStateInit)
 }
 
 /*============================================================================*/
-/* State: PRE_OPERATIONAL1 */
+/* State: PRE_OPERATIONAL */
 /*============================================================================*/
-FUNC_EVT(kApStatePreop1, kApStatePreop2, 1)
-{
-	/* check for PCP state: PCP_PREOP2 */
-	if (CnApi_getPcpState() == kPcpStatePreop2)
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
-}
-/*----------------------------------------------------------------------------*/
-FUNC_ENTRYACT(kApStatePreop1)
-{
-
-}
-/*----------------------------------------------------------------------------*/
-FUNC_DOACT(kApStatePreop1)
-{
-
-}
-
-/*============================================================================*/
-/* State: PRE_OPERATIONAL2 */
-/*============================================================================*/
-FUNC_EVT(kApStatePreop2, kApStateReadyToOperate, 1)
+FUNC_EVT(kApStatePreOp, kApStateReadyToOperate, 1)
 {
 	/* check for event which triggers state change */
 	if (fEnterReadyToOperate == TRUE)
@@ -201,22 +175,14 @@ FUNC_EVT(kApStatePreop2, kApStateReadyToOperate, 1)
 		return FALSE;
 	}
 }
+
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kApStatePreop2, kApStatePreop1, 1)
-{
-	/* check for PCP state: PCP_PREOP */
-	if (CnApi_getPcpState() == kPcpStatePreop1)
-		return TRUE;
-	else
-		return FALSE;
-}
-/*----------------------------------------------------------------------------*/
-FUNC_ENTRYACT(kApStatePreop2)
+FUNC_ENTRYACT(kApStatePreOp)
 {
 
 }
 /*----------------------------------------------------------------------------*/
-FUNC_DOACT(kApStatePreop2)
+FUNC_DOACT(kApStatePreOp)
 {
 
 }
@@ -233,10 +199,11 @@ FUNC_EVT(kApStateReadyToOperate, kApStateOperational, 1)
 		return FALSE;
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kApStateReadyToOperate, kApStatePreop1, 1)
+FUNC_EVT(kApStateReadyToOperate, kApStatePreOp, 1)
 {
 	/* check for PCP state: PCP_PREOP */
-	if (CnApi_getPcpState() == kPcpStatePreop1)
+	if ((CnApi_getPcpState() == kPcpStatePreOp) &&
+	    (fBlockTransition_l == FALSE)             )
 	{
 		return TRUE;
 	}
@@ -249,11 +216,21 @@ FUNC_EVT(kApStateReadyToOperate, kApStatePreop1, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateReadyToOperate)
 {
+    // cause PCP to enter ReadyToOperateState
     CnApi_setApCommand(kApCmdReadyToOperate);
+
+    // block transition back to PreOp, because PCP is still in PreOp
+    // and needs time to enter ReadyToOperate
+    fBlockTransition_l = TRUE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kApStateReadyToOperate)
 {
+    /* check for PCP state: PCP_PREOP */
+    if (CnApi_getPcpState() == kPcpStateReadyToOperate)
+    {
+        fBlockTransition_l = FALSE;
+    }
 }
 
 /*============================================================================*/
@@ -264,7 +241,7 @@ FUNC_EVT(kApStateOperational, kApStateInit, 1)
 	return FALSE;
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kApStateOperational, kApStatePreop1, 1)
+FUNC_EVT(kApStateOperational, kApStatePreOp, 1)
 {
 	/* check for PCP state: PCP_PREOP */
 	if (CnApi_getPcpState() != kPcpStateOperational)
@@ -337,26 +314,21 @@ void CnApi_initApStateMachine(void)
 	SM_ADD_ACTION_110(&apStateMachine, kApStateReadyToInit);
 
 	/* State: INIT */
-	SM_ADD_TRANSITION(&apStateMachine, kApStateInit, kApStatePreop1, 1);
+	SM_ADD_TRANSITION(&apStateMachine, kApStateInit, kApStatePreOp, 1);
 	SM_ADD_ACTION_110(&apStateMachine, kApStateInit);
 
-	/* State: PREOP1 */
-	SM_ADD_TRANSITION(&apStateMachine, kApStatePreop1, kApStatePreop2, 1);
-	SM_ADD_ACTION_110(&apStateMachine, kApStatePreop1);
-
-	/* State: PREOP2 */
-	SM_ADD_TRANSITION(&apStateMachine, kApStatePreop2, kApStateReadyToOperate, 1);
-	SM_ADD_TRANSITION(&apStateMachine, kApStatePreop2, kApStatePreop1, 1);
-	SM_ADD_ACTION_110(&apStateMachine, kApStatePreop2);
+	/* State: PRE-OPERATIONAL */
+	SM_ADD_TRANSITION(&apStateMachine, kApStatePreOp, kApStateReadyToOperate, 1);
+	SM_ADD_ACTION_110(&apStateMachine, kApStatePreOp);
 
 	/* State: READY_TO_OPERATE */
 	SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToOperate, kApStateOperational, 1);
-	SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToOperate, kApStatePreop1, 1);
+	SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToOperate, kApStatePreOp, 1);
 	SM_ADD_ACTION_110(&apStateMachine, kApStateReadyToOperate);
 
 	/* State: OPERATIONAL */
 	SM_ADD_TRANSITION(&apStateMachine, kApStateOperational, kApStateInit, 1);
-	SM_ADD_TRANSITION(&apStateMachine, kApStateOperational, kApStatePreop1, 1);
+	SM_ADD_TRANSITION(&apStateMachine, kApStateOperational, kApStatePreOp, 1);
 	SM_ADD_ACTION_110(&apStateMachine, kApStateOperational);
 
 	/* State: ERROR */

@@ -46,7 +46,7 @@ static BOOL					fEvent = FALSE;
 static tPowerlinkEvent		powerlinkEvent;
 
 
-char	*strPcpStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "INIT", "PREOP1", "PREOP2", "READY_TO_OPERATE", "OPERATIONAL"};
+char	*strPcpStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "INIT", "PREOP", "READY_TO_OPERATE", "OPERATIONAL"};
 
 
 /******************************************************************************/
@@ -211,9 +211,9 @@ FUNC_DOACT(kPcpStateInit)
 	}
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStateInit,kPcpStatePreop1,1)
+FUNC_EVT(kPcpStateInit,kPcpStatePreOp,1)
 {
-    if(checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1) && checkEvent())
+    if(checkPowerlinkEvent(kPowerlinkEventEnterPreOp) && checkEvent())
     {
         return TRUE;
     }
@@ -234,59 +234,20 @@ FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
 }
 
 /*============================================================================*/
-/* State: PRE_OPERATIONAL1 */
+/* State: PRE_OPERATIONAL*/
 /*============================================================================*/
-FUNC_ENTRYACT(kPcpStatePreop1)
+FUNC_ENTRYACT(kPcpStatePreOp)
 {
-	storePcpState(kPcpStatePreop1);
-	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStatePreop1);
+	storePcpState(kPcpStatePreOp);
+	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStatePreOp);
 }
 /*----------------------------------------------------------------------------*/
-FUNC_DOACT(kPcpStatePreop1)
+FUNC_DOACT(kPcpStatePreOp)
 {
 
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStatePreop1,kPcpStatePreop2,1)
-{
-    if(checkPowerlinkEvent(kPowerlinkEventEnterPreop2))
-    {
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-/*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStatePreop1,kPcpStateBooted,1)
-{
-    if(checkApCommand(kApCmdReset)            ||
-       checkPowerlinkEvent(kPowerlinkEventReset))
-    {
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-
-/*============================================================================*/
-/* State: PRE_OPERATIONAL2 */
-/*============================================================================*/
-FUNC_ENTRYACT(kPcpStatePreop2)
-{
-	storePcpState(kPcpStatePreop2);
-	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStatePreop2);
-}
-/*----------------------------------------------------------------------------*/
-FUNC_DOACT(kPcpStatePreop2)
-{
-
-}
-/*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
+FUNC_EVT(kPcpStatePreOp,kPcpStateReadyToOperate,1)
 {
     BOOL fRet = FALSE;
 
@@ -295,6 +256,12 @@ FUNC_EVT(kPcpStatePreop2,kPcpStateReadyToOperate,1)
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdReadyToOperate\n", __func__);
         if (CnApiAsync_checkApLinkingStatus() == kPdiAsyncStatusSuccessful)
         { // state change allowed
+
+            // clear transition flag if it is set to kPowerlinkEventEnterPreOp
+            // to prevent side effects, because this flag is not checked for this
+            // transition and we are already in kPcpStatePreOp
+            checkPowerlinkEvent(kPowerlinkEventEnterPreOp);
+
             fRet = TRUE;
             goto Exit;
         }
@@ -312,12 +279,7 @@ Exit:
     return fRet;
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStatePreop2,kPcpStatePreop1,1)
-{
-	return checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
-}
-/*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStatePreop2,kPcpStateBooted,1)
+FUNC_EVT(kPcpStatePreOp,kPcpStateBooted,1)
 {
     if(checkApCommand(kApCmdReset)            ||
        checkPowerlinkEvent(kPowerlinkEventReset))
@@ -342,6 +304,7 @@ FUNC_ENTRYACT(kPcpStateReadyToOperate)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateReadyToOperate)
 {
+
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateReadyToOperate,kPcpStateOperational,1)
@@ -349,9 +312,9 @@ FUNC_EVT(kPcpStateReadyToOperate,kPcpStateOperational,1)
 	return checkPowerlinkEvent(kPowerlinkEventEnterOperational);
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStateReadyToOperate,kPcpStatePreop1,1)
+FUNC_EVT(kPcpStateReadyToOperate,kPcpStatePreOp,1)
 {
-	return checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
+	return checkPowerlinkEvent(kPowerlinkEventEnterPreOp);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateReadyToOperate,kPcpStateBooted,1)
@@ -384,11 +347,19 @@ FUNC_ENTRYACT(kPcpStateOperational)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateOperational)
 {
+
 }
 /*----------------------------------------------------------------------------*/
-FUNC_EVT(kPcpStateOperational,kPcpStatePreop1,1)
+FUNC_EVT(kPcpStateOperational,kPcpStatePreOp,1)
 {
-	return checkPowerlinkEvent(kPowerlinkEventEnterPreOperational1);
+    if(checkPowerlinkEvent(kPowerlinkEventEnterPreOp))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,kPcpStateBooted,1)
@@ -451,29 +422,23 @@ void initStateMachine(void)
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateBooted);
 
 	/* state: INIT */
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateInit, kPcpStatePreop1, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateInit, kPcpStatePreOp, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateInit, kPcpStateBooted, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateInit);
 
 	/* state: PREOP */
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop1, kPcpStatePreop2, 1);
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop1, kPcpStateBooted, 1);
-	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStatePreop1);
-
-	/* state: WAIT_READY_TO_OPERATE */
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop2, kPcpStateReadyToOperate, 1);
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop2, kPcpStatePreop1, 1);
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreop2, kPcpStateBooted, 1);
-	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStatePreop2);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreOp, kPcpStateReadyToOperate, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStatePreOp, kPcpStateBooted, 1);
+	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStatePreOp);
 
 	/* state: READY_TO_OPERATE */
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateReadyToOperate, kPcpStateOperational, 1);
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateReadyToOperate, kPcpStatePreop1, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateReadyToOperate, kPcpStatePreOp, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateReadyToOperate, kPcpStateBooted, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateReadyToOperate);
 
 	/* state: OPERATIONAL */
-	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, kPcpStatePreop1, 1);
+	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, kPcpStatePreOp, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, kPcpStateBooted, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, STATE_FINAL, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateOperational);

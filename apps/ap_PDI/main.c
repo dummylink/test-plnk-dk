@@ -349,8 +349,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                     case kApStateBooted:
                     case kApStateReadyToInit:
                     case kApStateInit:
-                    case kApStatePreop1:
-                    case kApStatePreop2:
+                    case kApStatePreOp:
                         break;
 
                     case kApStateReadyToOperate:
@@ -372,6 +371,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 #endif
                         break;
                     }
+
                     case kApStateError:
                     break;
                     default:
