@@ -641,6 +641,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         }
 
         case kEplApiEventCriticalError:
+        {
+            Gi_controlLED(kEplLedTypeError, TRUE);
+            // fall through
+        }
         case kEplApiEventWarning:
         {   // error or warning occured within the stack or the application
             // on error the API layer stops the NMT state machine

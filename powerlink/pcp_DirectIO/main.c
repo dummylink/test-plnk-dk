@@ -1738,6 +1738,11 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         }
 
         case kEplApiEventCriticalError:
+        {
+            // set error LED
+            IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 2);
+            // fall through
+        }
         case kEplApiEventWarning:
         {   // error or warning occured within the stack or the application
             // on error the API layer stops the NMT state machine
