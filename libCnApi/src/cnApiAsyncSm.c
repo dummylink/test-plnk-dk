@@ -781,6 +781,8 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
         }
         else /* it was the last segment */
         {
+            dwTimeoutWait_l = 0; // reset to initial value
+
             aPdiAsyncTxMsgs[bActivTxMsg_l].dwPendTranfSize_m = 0; // finished
             fMsgTransferFinished = TRUE;
 
@@ -1109,6 +1111,8 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     /* Rx transfer has finished -> handle Rx message */
     if (pMsgDescr->MsgStatus_m == kPdiAsyncMsgStatusTransferCompleted)
     {
+        dwTimeoutWait_l = 0; // reset to initial value
+
         if (pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m != NULL)
         {/* prepare Rx call back */
 
@@ -1449,10 +1453,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     /* handle errors */
 
     /* timeout handling */
-    if (ErrorHistory_l == kPdiAsyncStatusTimeout)
-    { /* reset timeout counter */
-        dwTimeoutWait_l = 0;
-    }
+    dwTimeoutWait_l = 0;  // reset timeout counter
 
     DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s status: %s\n",
                                 __func__, getStrgCurError(ErrorHistory_l));
