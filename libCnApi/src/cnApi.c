@@ -146,18 +146,21 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     }
 #endif /* CN_API_USING_SPI */
 
+    CnApi_setApCommand(kApCmdReset);
+
     /* check if PCP interface is present */
     for(iCnt = 0; iCnt < PCP_PRESENCE_TIMEOUT; iCnt++)
     {
-        if(PCP_MAGIC == CnApi_getPcpMagic())
+        if((CnApi_getPcpState() == kPcpStateBooted) &&
+            CnApi_getPcpMagic() == PCP_MAGIC          )
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..", pCtrlReg_g->m_dwMagic);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: PCP_BOOTED ..", pCtrlReg_g->m_dwMagic);
             fPcpPresent = TRUE;
             break;
         }
         else
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..", pCtrlReg_g->m_dwMagic);
+            DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: %d ..", pCtrlReg_g->m_dwMagic, CnApi_getPcpState());
         }
         CNAPI_USLEEP(1000000);
     }
@@ -202,24 +205,6 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
         FncRet = kCnApiStatusError;
         goto exit;
     }
-
-    pCtrlReg_g->m_wState = kPcpStateInvalid;      ///< set invalid PCP state
-
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wState   = AmiGetWordToLe((BYTE*)&pCtrlReg_g->m_wState);
-    pCtrlRegLE_g->m_wCommand = AmiGetWordToLe((BYTE*)&pCtrlReg_g->m_wCommand);
-#endif // AP_IS_BIG_ENDIAN
-
-#ifdef CN_API_USING_SPI
-    /* update PCP state register */
-    CnApi_Spi_write(PCP_CTRLREG_STATE_OFFSET,
-                    sizeof(pCtrlRegLE_g->m_wState),
-                    (BYTE*) &pCtrlRegLE_g->m_wState);
-    /* update PCP command register */
-    CnApi_Spi_write(PCP_CTRLREG_CMD_OFFSET,
-                    sizeof(pCtrlRegLE_g->m_wCommand),
-                    (BYTE*) &pCtrlRegLE_g->m_wCommand);
-#endif /* CN_API_USING_SPI */
 
     /* assign callback for all objects which don't exist in local OBD */
     EplRet = EplObdSetDefaultObdCallback(CnApi_CbDefaultObdAccess);

@@ -1129,14 +1129,18 @@ void Gi_init(void)
     /* Setup PCP Control Register in DPRAM */
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;     // set address of control register - equals DPRAM base address
 
+    // Note:
+    // pCtrlReg_g->m_dwMagic and pCtrlReg_g->m_wPcpPdiRev are set by the Powerlink IP-core.
+    // Other FPGA memory initialization values right after FPGA configuration:
+    // pCtrlReg_g->m_wState: 0x00EE
+    // pCtrlReg_g->m_wCommand: 0xFFFF
+
     pCtrlReg_g->m_dwAppDate = uiApplicationSwDate;
     pCtrlReg_g->m_dwAppTime = uiApplicationSwTime;
     pCtrlReg_g->m_dwFpgaSysId = SYSID_ID;               // FPGA system ID from system.h
     pCtrlReg_g->m_wEventType = 0x00;                    // invalid event TODO: structure
     pCtrlReg_g->m_wEventArg = 0x00;                     // invalid event argument TODO: structure
     pCtrlReg_g->m_wState = kPcpStateInvalid;            // set invalid PCP state
-
-    pCtrlReg_g->m_dwMagic = PCP_MAGIC;      // unique identifier set as last value because its verified first at AP
 
     Gi_disableSyncInt();
 
@@ -1145,11 +1149,11 @@ void Gi_init(void)
 
     // init asynchronous PCP <-> AP communication
     iRet = CnApiAsync_create();
+
     if (iRet != OK )
     {
-        Gi_pcpEventPost(0, 0);
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
         DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_create() FAILED!\n");
-        //TODO: set error flag at Cntrl Reg
         goto exit;
     }
 

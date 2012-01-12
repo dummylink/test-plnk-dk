@@ -116,7 +116,7 @@ This header file contains definitions for the CN API.
 #endif /* CN_API_USING_SPI */
 
 /* Timer definitions */
-#define PCP_PRESENCE_TIMEOUT 50
+#define PCP_PRESENCE_TIMEOUT 5
 
 /* CN Api initialization */
 #define CN_API_INIT_PARAM_STRNG_SIZE 33

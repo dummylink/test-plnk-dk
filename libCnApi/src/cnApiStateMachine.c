@@ -75,7 +75,7 @@ FUNC_EVT(kApStateBooted,kApStateReadyToInit, 1)
 FUNC_ENTRYACT(kApStateBooted)
 {
     /* send reboot cmd to PCP in order to ensure same state (Booted) */
-    pCtrlReg_g->m_wCommand = kApCmdReset;
+    CnApi_setApCommand(kApCmdReset);
 }
 /*============================================================================*/
 /* State: READY_TO_INIT */
