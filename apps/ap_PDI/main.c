@@ -57,7 +57,17 @@ a dual ported RAM (DPRAM) area.
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
 #define DEFAULT_NODEID      0x00    // default node ID to use, should be NOT 0xF0 (=MN)
 
-#define USE_POLLING_MODE // or IR synchronization mode by commenting this define
+//#define USE_POLLING_MODE_SYNC // or IR synchronization mode by commenting this define
+#define USE_POLLING_MODE_ASYNC // comment this out to enable the async event interrupt
+
+#if defined(CN_API_INT_AVALON) && !defined(USE_POLLING_MODE_ASYNC)
+    #error "Dual-Nios design can not use 2 interrupts -> interrupt mode for events is not possible!"
+#endif
+
+#if defined(CN_API_USING_SPI) && !defined(USE_POLLING_MODE_ASYNC)
+    #error "In the current implementation the asynchronous interrupt is not usable with SPI because the access function is not interrupt safe!"
+    /* it should be possible to use a different SPI master IP-Core (for example the "Avalon-ST Serial Peripheral Interface Core") */
+#endif
 
 #define DEMO_VENDOR_ID      0x0100006C
 #define DEMO_PRODUCT_CODE   49819
@@ -75,12 +85,6 @@ a dual ported RAM (DPRAM) area.
 #else
     #define PDI_DPRAM_BASE_AP 0x00                              ///< no base address necessary
 #endif /* CN_API_USING_SPI */
-
-#ifndef USE_POLLING_MODE
-    #ifdef CN_API_INT_AVALON
-#error Dual-Nios design can not use 2 interrupts -> polling mode is required!
-    #endif //CN_API_INT_AVALON
-#endif //USE_POLLING_MODE
 
 #define NUM_INPUT_OBJS      4                                   ///< number of used input objects
 #define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects
@@ -111,7 +115,8 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
                             BYTE * pstrHwVersion_p,
                             BYTE * pstrSwVersion_p);
 void workInputOutput(void);
-int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
+int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
+int initAsyncInterrupt(int irq);
 
 #ifdef CN_API_USING_SPI
 int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p);
@@ -129,7 +134,7 @@ APs state machine will be updated and input/output ports will be processed.
 int main (void)
 {
     tCnApiStatus        status;
-    tCnApiInitParm      initParm = {0};
+    tCnApiInitParm      initParm = {{0}};
 
     alt_icache_flush_all();
     alt_dcache_flush_all();
@@ -180,19 +185,31 @@ int main (void)
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
-#ifdef USE_POLLING_MODE
+#ifdef USE_POLLING_MODE_SYNC
     CnApi_disableSyncInt();
-    CnApi_disableAsyncEventIRQ();
 
     CnApi_initSyncInt(0, 0, 0); // tell PCP that we want polling mode
 #else
     /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us , maxCycleNum = 10 */
     #ifdef CN_API_USING_SPI
-    initInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 100000, 10);  ///< local AP IRQ is enabled here
+    initSyncInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 100000, 10);  ///< local AP IRQ is enabled here
     #else
-    initInterrupt(POWERLINK_0_PDI_AP_IRQ, 1000, 100000, 10);
+    initSyncInterrupt(POWERLINK_0_IRQ, 3000, 100000, 10);
     #endif /* CN_API_USING_SPI */
-#endif /* USE_POLLING_MODE */
+#endif /* USE_POLLING_MODE_SYNC */
+
+#ifdef USE_POLLING_MODE_ASYNC
+    CnApi_disableAsyncEventIRQ();
+#else
+    /* initialize Async interrupt handler */
+    #ifdef CN_API_USING_SPI
+    initAsyncInterrupt(ASYNC_IRQ_FROM_PCP_IRQ);  ///< local AP IRQ is enabled here
+    #else
+        #ifndef CN_API_INT_AVALON
+            initAsyncInterrupt(POWERLINK_0_IRQ);
+        #endif
+    #endif /* CN_API_USING_SPI */
+#endif /* USE_POLLING_MODE_ASYNC */
 
     /* Start periodic main loop */
     TRACE("API example is running...\n");
@@ -209,7 +226,7 @@ int main (void)
 
         CnApi_processAsyncStateMachine();
 
-#ifdef USE_POLLING_MODE
+#ifdef USE_POLLING_MODE_SYNC
         /*--- TASK 2: START ---*/
         if (fOperational_l == TRUE)
         {
@@ -217,14 +234,11 @@ int main (void)
             CnApi_AppCbSync();             // call application specific synchronization function
         }
         /*--- TASK 2: END   ---*/
+#endif /* USE_POLLING_MODE_SYNC */
 
+#ifdef USE_POLLING_MODE_ASYNC
         CnApi_pollAsyncEvent();            // check if PCP event occurred
-#endif /* USE_POLLING_MODE */
-
-#ifdef CN_API_INT_AVALON
-        //workaround, because in this case we have only 1 IR for sync and async
-        CnApi_pollAsyncEvent();            // check if PCP event occurred
-#endif /* CN_API_INT_AVALON */
+#endif /* USE_POLLING_MODE_ASYNC */
     }
 
     TRACE("shut down application...\n");
@@ -337,11 +351,11 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                 fOperational_l = FALSE;
 
-#ifndef USE_POLLING_MODE
+#ifndef USE_POLLING_MODE_SYNC
                 CnApi_disableSyncInt();    // disable synchronous IR signal of PCP
                 // Note: this is not really necessary, because this IR will only be triggered
                 // in PCP's OPERATIONAL state, but it disables the IRQs in any case.
-#endif /* USE_POLLING_MODE */
+#endif /* USE_POLLING_MODE_SYNC */
 
                 switch (pEventArg_p->NewApState_m)
                 {
@@ -366,7 +380,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                     {
                         fOperational_l = TRUE;
 
-#ifndef USE_POLLING_MODE
+#ifndef USE_POLLING_MODE_SYNC
                         CnApi_enableSyncInt();    // enable synchronous IR signal of PCP
 #endif
                         break;
@@ -504,7 +518,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             case kPcpPdiEventHistoryEntry:
                             {
                                 // PCP will change state, stop processing or restart
-                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Error history entry code: %#04x\n",
+                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Error history entry code: %#04lx\n",
                                 pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.wErrorHistoryCode_m);
                                 break;
                             }
@@ -596,7 +610,7 @@ the interrupt when periodic data is ready to transfer.
 See the Altera NIOSII Reference manual for further details of interrupt
 handlers.
 *******************************************************************************/
-#ifndef USE_POLLING_MODE
+#ifndef USE_POLLING_MODE_SYNC
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
 static void syncIntHandler(void* pArg_p)
 #else
@@ -604,7 +618,6 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 #endif
 {
 #ifdef CN_API_USING_SPI
-    //TODO: ifdef not Avalon IF
     alt_ic_irq_disable(0, SYNC_IRQ_FROM_PCP_IRQ);  // disable specific IRQ Number
 #endif
 
@@ -612,7 +625,7 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 
     CnApi_AppCbSync();                 // call application specific synchronization function
 
-	CnApi_ackSyncIrq();                // acknowledge IR from PCP
+    CnApi_ackSyncIrq();                // acknowledge IR from PCP
 
 #ifdef CN_API_USING_SPI
     // Temporary Workaround:
@@ -622,12 +635,45 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
     alt_ic_irq_enable(0, SYNC_IRQ_FROM_PCP_IRQ);  // enable specific IRQ Number
 #endif /* CN_API_USING_SPI */
 }
-#endif /* USE_POLLING_MODE */
+#endif /* USE_POLLING_MODE_SYNC */
+
+
+/**
+********************************************************************************
+\brief  asynchronous interrupt handler
+
+asyncIntHandler() implements the asynchronous data interrupt. The PCP asserts
+the interrupt when an event is ready to transfer.
+
+See the Altera NIOSII Reference manual for further details of interrupt
+handlers.
+*******************************************************************************/
+#ifndef USE_POLLING_MODE_ASYNC
+#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
+static void asyncIntHandler(void* pArg_p)
+#else
+static void asyncIntHandler(void* pArg_p, void* dwInt_p)
+#endif
+{
+#ifdef CN_API_USING_SPI
+    //TODO: ifdef not Avalon IF
+    alt_ic_irq_disable(0, ASYNC_IRQ_FROM_PCP_IRQ);  // disable specific IRQ Number
+#endif
+
+    CnApi_pollAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
+
+#ifdef CN_API_USING_SPI
+    alt_ic_irq_enable(0, ASYNC_IRQ_FROM_PCP_IRQ);  // enable specific IRQ Number
+#endif /* CN_API_USING_SPI */
+}
+#endif /* USE_POLLING_MODE_SYNC */
+
+
 /**
 ********************************************************************************
 \brief	initialize synchronous interrupt
 
-initInterrupt() initializes the synchronous interrupt. The timing parameters
+initSyncInterrupt() initializes the synchronous interrupt. The timing parameters
 will be initialized, the interrupt handler will be connected and the interrupt
 will be enabled.
 
@@ -638,12 +684,11 @@ will be enabled.
 
 \return	OK, or ERROR if interrupt couldn't be connected
 *******************************************************************************/
-#ifndef USE_POLLING_MODE
-int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum_p)
+#ifndef USE_POLLING_MODE_SYNC
+int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum_p)
 {
 	CnApi_initSyncInt(dwMinCycleTime_p, dwMaxCycleTime_p, bMaxCycleNum_p);
 	CnApi_disableSyncInt();
-	CnApi_disableAsyncEventIRQ();
 
 	/* register interrupt handler */
 #ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
@@ -659,26 +704,67 @@ int initInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE 
 #endif
 
     /* enable interrupt from PCP to AP */
-    //TODO: ifdef not Avalon IF
 #ifdef CN_API_USING_SPI
     alt_ic_irq_enable(0, irq);      // enable specific IRQ Number
     IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_FROM_PCP_BASE, 0x01);
-    //TODO: endif not Avalon IF
 #endif /* CN_API_USING_SPI */
-
-
-    //TODO: register and enable your IR for asynchronous event
-    //      event handling here, and execute CnApi_pollAsyncEvent()
-    //      within your handler.
-
-#ifndef CN_API_INT_AVALON
-    //workaround, because in this case we have only 1 IR for sync and async
-    CnApi_enableAsyncEventIRQ();
-#endif /* CN_API_INT_AVALON */
 
 	return OK;
 }
-#endif /* USE_POLLING_MODE */
+#endif /* USE_POLLING_MODE_SYNC */
+
+
+/**
+********************************************************************************
+\brief  initialize asynchronous interrupt
+
+initAsyncInterrupt() initializes the asynchronous interrupt. The interrupt handler
+will be connected and the interrupt will be enabled.
+
+\param  irq                 Interrupt number of synchronous interrupt (from BSP)
+
+\return OK, or ERROR if interrupt couldn't be connected
+*******************************************************************************/
+#ifndef USE_POLLING_MODE_ASYNC
+int initAsyncInterrupt(int irq)
+{
+    CnApi_Spi_read(PCP_CTRLREG_NODE_ID_OFFSET,
+                   sizeof(pCtrlRegLE_g->m_wNodeId),
+                   (BYTE*) &pCtrlRegLE_g->m_wNodeId);
+
+    CnApi_Spi_write(PCP_CTRLREG_NODE_ID_OFFSET,
+                   sizeof(pCtrlRegLE_g->m_wNodeId),
+                   (BYTE*) &pCtrlRegLE_g->m_wNodeId);
+
+
+    /* register interrupt handler */
+#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
+    if (alt_ic_isr_register(0, irq, asyncIntHandler, NULL, 0))
+    {
+        return ERROR;
+    }
+#else
+    if (alt_irq_register(irq, NULL, asyncIntHandler))
+    {
+        return ERROR;
+    }
+#endif
+
+    /* now enable the async interrupt in the pdi */
+    CnApi_enableAsyncEventIRQ();
+
+    /* enable interrupt from PCP to AP */
+#ifdef CN_API_USING_SPI
+    alt_ic_irq_enable(0, irq);      // enable specific IRQ Number
+    IOWR_ALTERA_AVALON_PIO_IRQ_MASK(ASYNC_IRQ_FROM_PCP_BASE, 0x01);
+#endif /* CN_API_USING_SPI */
+
+
+
+    return OK;
+}
+#endif /* USE_POLLING_MODE_ASYNC */
+
 
 #ifdef CN_API_USING_SPI
 int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
