@@ -137,6 +137,7 @@ DWORD dwTimeDiffTicks;
 
 }
 
+
 //---------------------------------------------------------------------------
 //
 // Function:    EplTgtTimeStampAlloc()
@@ -155,7 +156,7 @@ tEplTgtTimeStamp* PUBLIC EplTgtTimeStampAlloc (void)
 {
 tEplTgtTimeStamp* pTimeStamp;
 
-    pTimeStamp = EPL_MALLOC(sizeof (struct _tEplTgtTimeStamp));
+    pTimeStamp = malloc(sizeof (struct _tEplTgtTimeStamp));
 
     return pTimeStamp;
 
@@ -180,7 +181,7 @@ tEplTgtTimeStamp* pTimeStamp;
 void PUBLIC EplTgtTimeStampFree (tEplTgtTimeStamp* pTimeStamp_p)
 {
 
-    EPL_FREE(pTimeStamp_p);
+    free(pTimeStamp_p);
 
 }
 

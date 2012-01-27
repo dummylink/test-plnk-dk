@@ -123,6 +123,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 											location (pktLoc).
 										- ometh_config_typ added pktLoc
 	21.02.2011	zelenkaj	added:		- missing Microblaze support (minor)
+	09.08.2011	zelenkaj	changed:	- RX buffer allocation for
+											hook pending RX packets
+	12.09.2011	zelenkaj	bugfix		- phyId on little endian incorrect
+	03.11.2011	zelenkaj	reverted previous Microblaze changes, since hw
+							supports endian correctly
 
 ----------------------------------------------------------------------------*/
 
@@ -165,10 +170,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	MICREL_KS8721_IPG		40			// due to phy runtime of 460ns the ipg can be reduced to 40 (40+2*460 = 960 ... minimum ipg)
 
 //IPG compensation valid for EBV DBC3C40 with two National phys...
-#define NATIONAL_DP83640_PHY_ID	0x5ce1200
+#define NATIONAL_DP83640_PHY_ID	0x20005CE
 #define NATIONAL_DP83640_IPG	~0	//TODO: measure IPG and compensate
 
-#define MARVELL_88E1111_PHY_ID	0x5678 //TODO: obtain phy ID
+#define MARVELL_88E1111_PHY_ID	0x001410CC
 #define MARVELL_88E1111_IPG		~0	//TODO: measure IPG and compensate
 
 
@@ -536,10 +541,19 @@ static OMETH_H		omethCreateInt
 		if(hEth->phyCount==0) return hEth;	// error ... no phys found
 
 		// get phy IDs (Reg 2 and 3) to 32Bit var phyId
-		omethPhyRead(hEth, 0, 2, &data);
-        phyId = data;
+		// note: big endian reads reg 2 first, otherwise reg 3 is read first
+#if OMETH_HW_MODE == 1 //little
 		omethPhyRead(hEth, 0, 3, &data);
-        phyId |= (data << 16);
+#else //big
+		omethPhyRead(hEth, 0, 2, &data);
+#endif
+        phyId = data;
+#if OMETH_HW_MODE == 1 //little
+		omethPhyRead(hEth, 0, 2, &data);
+#else //big
+		omethPhyRead(hEth, 0, 3, &data);
+#endif
+        phyId |= ((unsigned long)data << 16);
 		phyId = phyId >> 4;	// remove revision number
 	}
 
@@ -1443,7 +1457,31 @@ OMETH_HOOK_H	omethHookCreate
 
 		hHook->pFreeRead = hHook->free;
 
-		pBuf = calloc(len * maxPending, 1);
+		//pBuf = calloc(len * maxPending, 1);
+		//------------------------------------------------------------------------------
+		if(hEth->config.pktLoc == OMETH_PKT_LOC_MACINT)
+		{
+			//pool has to be allocated in MAC internal packet buffer
+			pBuf = (ometh_buf_typ*)hEth->pTxBufBase;
+
+			//increment TX buffer base
+			/* FIXME: There is no check done if we are out of memory, host has to provide
+			 * sufficiently large internal memory!
+			 */
+			hEth->pTxBufBase = (unsigned char*)pBuf + len * maxPending;
+		}
+		else if(hEth->config.pktLoc == OMETH_PKT_LOC_HEAP)
+		{
+			//pool has to be allocated in heap, since RX packets are stored there
+			pBuf = (ometh_buf_typ*)OMETH_MAKE_NONCACHABLE(calloc(len * maxPending, 1));
+		}
+		else
+		{
+			//error
+			return 0;
+		}
+		//------------------------------------------------------------------------------
+
 		assert(pBuf);
 		if(pBuf==0) return 0;
 
@@ -1617,7 +1655,6 @@ int				omethFilterSetPattern
 
 	pFilterEntry = pFilterData->pFilterWriteOnly;	// access to filter data
 
-#if defined(__NIOS2__)
 	i = pFilterData->len;
 	while(i--)
 	{
@@ -1629,17 +1666,6 @@ int				omethFilterSetPattern
 
 		pFilterEntry++;
 	}
-#elif defined(__MICROBLAZE__)
-	for(i=0; i<pFilterData->len; i++)
-	{
-		pFilterEntry->mask  = *(unsigned char*)(pMask + (i ^ 1));
-		pFilterEntry->value = *(unsigned char*)(pValue + (i ^ 1));
-
-		pFilterEntry++;
-	}
-#else
-	#error "Unknown CPU!"
-#endif
 	// restore old command flag
 	*pFilterData->pCommand = pFilterData->cmd;
 
@@ -1662,13 +1688,7 @@ void			omethFilterSetByteMask
  unsigned char	mask		/* mask to set										*/
 )
 {
-#ifdef __NIOS2__
 	hFilter->pFilterData->pFilterWriteOnly[offset].mask = mask;
-#elif defined(__MICROBLAZE__)
-	hFilter->pFilterData->pFilterWriteOnly[offset^1].mask = mask;
-#else
-#error "unknown CPU"
-#endif
 }
 
 /*****************************************************************************
@@ -2457,7 +2477,24 @@ int				omethDestroy
 	hHook = hEth->pHookList;
 	while(hHook)
 	{
-		freePtr(hHook->pRxBufBase);	// free frame buffers allocated from the hooks
+
+		//freePtr(hHook->pRxBufBase);	// free frame buffers allocated from the hooks
+		//------------------------------------------------------------------------------
+		if(hEth->config.pktLoc == OMETH_PKT_LOC_MACINT)
+		{
+			//nothing to do here...
+		}
+		else if(hEth->config.pktLoc == OMETH_PKT_LOC_HEAP)
+		{
+			//frame buffer pool is in heap, so free it...
+			freePtr(hHook->pRxBufBase);	// free frame buffers allocated from the hooks
+		}
+		else
+		{
+			//error
+			return -1;
+		}
+		//------------------------------------------------------------------------------
 
 		hFree = hHook;			// store handle to free it after overtakeing the next-pointer
 		hHook = hHook->pNext;	// get next hook handle
