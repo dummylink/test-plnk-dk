@@ -337,12 +337,6 @@ FUNC_ENTRYACT(kPcpStateOperational)
 {
 	storePcpState(kPcpStateOperational);
 	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateOperational);
-
-	/* enable the synchronization interrupt */
-    if(wSyncIntCycle_g != 0)   // true if Sync IR is required by AP
-    {
-        Gi_enableSyncInt();    // enable IR trigger possibility
-    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateOperational)

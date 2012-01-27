@@ -56,8 +56,6 @@ typedef struct sApiPdiComCon {
 extern tPcpCtrlReg     * volatile pCtrlReg_g;       ///< ptr. to PCP control register
 extern tCnApiInitParm  initParm_g;        ///< Powerlink initialization parameter
 extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after boot-up flag
-extern WORD            wSyncIntCycle_g;   ///< IR synchronization factor (multiple cycle time)
-extern BOOL            fIrqSyncMode_g;    ///< synchronization mode flag
 
 extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp side according to AP message
 extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp side
@@ -90,13 +88,6 @@ extern BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                             WORD *pCurrentDescrOffset_p,
                             tLinkPdosReq *pLinkPdoReq_p,
                             WORD wMaxStoreSpace);
-
-extern void Gi_enableSyncInt(void);
-extern BOOL Gi_checkSyncIrqRequired(void);
-extern void Gi_calcSyncIntPeriod(void);
-extern void Gi_generateSyncInt(void);
-extern void Gi_disableSyncInt(void);
-extern void Gi_SetTimerSyncInt(UINT32 uiTimeValue);
 
 extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 

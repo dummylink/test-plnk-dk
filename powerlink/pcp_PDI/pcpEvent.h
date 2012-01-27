@@ -18,6 +18,10 @@
 \since      26.08.2011
 
 *******************************************************************************/
+
+#ifndef PCPEVENT_H_
+#define PCPEVENT_H_
+
 /* includes */
 #include "cnApiGlobal.h"
 #include "cnApi.h"
@@ -61,9 +65,6 @@ inline UCHAR Gi_pcpEventFifoProcess(tPcpCtrlReg* volatile pCtrlReg_g);
 
 /******************************************************************************/
 /* functions */
-
-#ifndef PCPEVENT_H_
-#define PCPEVENT_H_
 
 
 #endif /* PCPEVENT_H_ */

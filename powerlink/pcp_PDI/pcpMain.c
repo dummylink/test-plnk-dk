@@ -31,6 +31,7 @@
 #include "pcp.h"
 #include "pcpStateMachine.h"
 #include "pcpEvent.h"
+#include "pcpTimeSync.h"
 #include "fpgaCfg.h"
 #include "fwUpdate.h"
 
@@ -90,7 +91,12 @@ extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 
 /******************************************************************************/
 /* forward declarations */
-tEplKernel PUBLIC AppCbSync(void);
+#if EPL_DLL_SOCTIME_FORWARD == TRUE
+    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp socTimeStamp_p);
+#else
+    tEplKernel PUBLIC AppCbSync(void);
+#endif
+
 tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                              tEplApiEventArg* pEventArg_p,
                              void GENERIC*pUserArg_p);
@@ -629,7 +635,14 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     break;
 
                 case kEplNmtCsOperational:
+                    /* enable the synchronization interrupt */
+                    if(wSyncIntCycle_g != 0)   // true if Sync IR is required by AP
+                    {
+                        Gi_enableSyncInt(wSyncIntCycle_g);    // enable IR trigger possibility
+                    }
+
                     setPowerlinkEvent(kPowerlinkEventEnterOperational);
+
                     break;
 
                 default:
@@ -717,7 +730,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
 
                     /* setup the synchronization interrupt time period */
-                    Gi_calcSyncIntPeriod();   // calculate multiple of cycles
+                    wSyncIntCycle_g = Gi_calcSyncIntPeriod();   // calculate multiple of cycles
 
                     /* prepare PDO mapping */
 
@@ -1037,17 +1050,37 @@ inputs and runs the control loop.
 \retval    kEplSuccessful            no error
 \retval    otherwise                post error event to API layer
 *******************************************************************************/
-tEplKernel PUBLIC AppCbSync(void)
+#if EPL_DLL_SOCTIME_FORWARD == TRUE
+    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp socTimeStamp_p)
+#else
+    tEplKernel PUBLIC AppCbSync(void)
+#endif
 {
     tEplKernel  EplRet = kEplSuccessful;
     static  unsigned int iCycleCnt = 0;
 
     /* check if interrupts are enabled */
-    if ((wSyncIntCycle_g != 0)) //TODO: enable PDI IRs in Operational, and disable for any other state
+    if ((wSyncIntCycle_g != 0) && (getPcpState() == kPcpStateOperational))
     {
         if ((iCycleCnt++ % wSyncIntCycle_g) == 0)
         {
-            Gi_generateSyncInt();// TODO: To avoid jitter, synchronize on openMAC Sync interrupt instead of IR throwing by SW
+#if EPL_DLL_SOCTIME_FORWARD == TRUE
+            if(socTimeStamp_p.m_fSocRelTimeValid == TRUE)
+                pcp_setNetTime(socTimeStamp_p.m_netTime.m_dwSec,socTimeStamp_p.m_netTime.m_dwNanoSec);
+
+            EplRet = pcp_setRelativeTime(socTimeStamp_p.m_qwRelTime,socTimeStamp_p.m_fSocRelTimeValid);
+
+            #if POWERLINK_0_MAC_CMP_CMPTIMERCNT == 1
+            /* Sync interrupt is generated in SW */
+                Gi_generateSyncInt();
+            #endif  //POWERLINK_0_MAC_CMP_CMPTIMERCNT
+#else
+            EplRet = pcp_setRelativeTime(0,FALSE);
+            #if POWERLINK_0_MAC_CMP_CMPTIMERCNT == 1
+            /* Sync interrupt is generated in SW */
+                Gi_generateSyncInt();
+            #endif  //POWERLINK_0_MAC_CMP_CMPTIMERCNT
+#endif  //EPL_DLL_SOCTIME_FORWARD
         }
     }
 
@@ -1144,7 +1177,8 @@ void Gi_init(void)
     pCtrlReg_g->m_wEventArg = 0x00;                     // invalid event argument TODO: structure
     pCtrlReg_g->m_wState = kPcpStateInvalid;            // set invalid PCP state
 
-    Gi_disableSyncInt();
+    // init time sync module
+    pcp_initTimeSync();
 
     // start PCP API state machine
     activateStateMachine();
@@ -1185,140 +1219,6 @@ void Gi_shutdown(void)
     EPL_FREE(pPcpLinkedObjs_g);
 
     //TODO: free other things
-}
-
-/**
-********************************************************************************
-\brief    enable the synchronous PDI interrupt
-*******************************************************************************/
-void Gi_enableSyncInt(void)
-{
-
-    //TODO: set HW triggered, if timer is present (system.h define)
-
-    // enable IRQ and set mode to "IR generation by SW"
-    pCtrlReg_g->m_wSyncIrqControl = ((1 << SYNC_IRQ_ENABLE) & ~(1 << SYNC_IRQ_MODE));
-}
-
-/**
-********************************************************************************
-\brief  read control register sync mode flags
-*******************************************************************************/
-BOOL Gi_checkSyncIrqRequired(void)
-{
-    WORD wSyncModeFlags;
-
-    wSyncModeFlags = pCtrlReg_g->m_wSyncIrqControl;
-
-    if(wSyncModeFlags &= (1 << SYNC_IRQ_REQ))
-    {
-        return TRUE;  ///< Sync IR is required
-    }
-    else
-    {
-        return FALSE; ///< Sync IR is not required -> AP applies polling
-    }
-}
-
-/**
-********************************************************************************
-\brief    calculate sync interrupt period
-*******************************************************************************/
-void Gi_calcSyncIntPeriod(void)
-{
-    int                iNumCycles;
-    int                iSyncPeriod;
-    unsigned int    uiCycleTime;
-    unsigned int    uiSize;
-    tEplKernel         EplRet = kEplSuccessful;
-
-    uiSize = sizeof(uiCycleTime);
-    EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
-    if (EplRet != kEplSuccessful)
-    {
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
-        return;
-    }
-
-    if (pCtrlReg_g->m_dwMinCycleTime == 0 &&
-        pCtrlReg_g->m_dwMaxCycleTime == 0 &&
-        pCtrlReg_g->m_wMaxCycleNum == 0)
-    {
-        /* no need to trigger IR signal - polling mode is applied */
-        wSyncIntCycle_g = 0;
-        return;
-    }
-
-    iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;    /* do it this way to round up integer division! */
-    iSyncPeriod = iNumCycles * uiCycleTime;
-
-    DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%lu --> syncPeriod=%d\n",
-                   uiCycleTime, pCtrlReg_g->m_dwMinCycleTime, iSyncPeriod);
-
-    if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
-    {
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
-        return;
-    }
-
-    if (iSyncPeriod > pCtrlReg_g->m_dwMaxCycleTime)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
-
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
-        return;
-    }
-    if (iSyncPeriod < pCtrlReg_g->m_dwMinCycleTime)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
-
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
-        return;
-    }
-
-    wSyncIntCycle_g = iNumCycles;
-    pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
-    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
-
-    return;
-}
-
-/**
-********************************************************************************
-\brief    generate the PCP -> AP synchronization interrupt
-*******************************************************************************/
-void Gi_generateSyncInt(void)
-{
-    /* Throw interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_SET); //set IRQ_SET bit to high
-    return;
-}
-
-/**
-********************************************************************************
-\brief    disable the PCP -> AP synchronization interrupt
-*******************************************************************************/
-void Gi_disableSyncInt(void)
-{
-    /* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_ENABLE); // set enable bit to low
-    return;
-}
-
-/**
-********************************************************************************
-\brief    set the PCP -> AP synchronization interrupt timer value for delay mode
-*******************************************************************************/
-void Gi_SetTimerSyncInt(UINT32 uiTimeValue)
-{
-    /* set timer value by writing to the SYNC_IRQ_TIMER_VALUE_REGISTER */
-    // pCtrlReg_g->m_dwPcpIrqTimerValue = uiTimeValue; TODO: This is not in PDI, but in openMAC (2nd timer)! Check doku.
-    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_MODE); ///< set mode bit to high -> HW assertion
-    return;
 }
 
 /**
