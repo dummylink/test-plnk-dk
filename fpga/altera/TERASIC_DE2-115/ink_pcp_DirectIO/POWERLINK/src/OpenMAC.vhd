@@ -39,12 +39,18 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
---	           V0.00-0.30   First generation.
--- 2009-08-07  V0.31        Converted to official version.
--- 2010-04-12  V0.40		Added Auto-Response Delay functionality (TxDel)
--- 2010-06-28  V0.41		Bug Fix: exit sDel if Tx_Off, set Tx_Del_Run without Ipg consideration
--- 2010-08-02  V0.42		Added Timer triggered TX functionality (TxSyncOn)
--- 2011-01-25  V0.43		Changed IPG preload value from 900ns to 960ns
+--	           	V0.00-0.30   First generation.
+-- 2009-08-07  	V0.31   			Converted to official version.
+-- 2010-04-12  	V0.40	zelenkaj	Added Auto-Response Delay functionality (TxDel)
+-- 2010-06-28  	V0.41	zelenkaj	Bug Fix: exit sDel if Tx_Off, set Tx_Del_Run without Ipg consideration
+-- 2010-08-02  	V0.42	zelenkaj	Added Timer triggered TX functionality (TxSyncOn)
+-- 2011-01-25  	V0.43	zelenkaj	Changed IPG preload value from 900ns to 960ns
+-- 2011-11-28	V0.44	zelenkaj	Changed reset level to high-active
+--									Clean up
+--									Added Dma qualifiers (Rd/Wr done)
+-- 2011-12-02	V0.45	zelenkaj	Added Dma Request Overflow
+-- 2011-12-05	V0.46	zelenkaj	Minor change of constants (logic level)
+-- 2011-12-23   V0.47   zelenkaj    Improvement of Dma Request Overflow determination
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -59,7 +65,7 @@ ENTITY OpenMAC IS
 			 TxDel					: IN	boolean := false;
              Simulate               : IN    boolean := false
            );
-	PORT ( nRes, Clk                : IN    std_logic;
+	PORT ( Rst, Clk					: IN    std_logic;
            -- Processor
            s_nWr, Sel_Ram, Sel_Cont	: IN    std_logic := '0';
            S_nBe                    : IN    std_logic_vector( 1 DOWNTO 0);
@@ -69,8 +75,11 @@ ENTITY OpenMAC IS
            nTx_Int, nRx_Int			: OUT   std_logic;
            nTx_BegInt               : OUT   std_logic;
            -- DMA
+		   Dma_Rd_Done				: OUT	std_logic;
+		   Dma_Wr_Done				: OUT	std_logic;
            Dma_Req, Dma_Rw          : OUT   std_logic;
            Dma_Ack                  : IN    std_logic;
+		   Dma_Req_Overflow			: OUT	std_logic;
            Dma_Addr                 : OUT   std_logic_vector(HighAdr DOWNTO 1);
            Dma_Dout                 : OUT   std_logic_vector(15 DOWNTO 0);
            Dma_Din                  : IN    std_logic_vector(15 DOWNTO 0);
@@ -85,14 +94,16 @@ ENTITY OpenMAC IS
 END ENTITY OpenMAC;
 
 ARCHITECTURE struct OF OpenMAC IS
-	CONSTANT	log0					: std_logic := '0';
-	CONSTANT	log1					: std_logic := '1';
+	CONSTANT	cInactivated			: std_logic := '0';
+	CONSTANT	cActivated				: std_logic := '1';
 	SIGNAL	Rx_Dv						: std_logic;						
 	SIGNAL	R_Req						: std_logic;
 	SIGNAL	Auto_Desc					: std_logic_vector( 3 DOWNTO 0);
 	SIGNAL	Zeit						: std_logic_vector(31 DOWNTO 0);	
 	SIGNAL	Tx_Dma_Req,  Rx_Dma_Req		: std_logic;
 	SIGNAL	Tx_Dma_Ack,  Rx_Dma_Ack		: std_logic;
+	SIGNAL	Tx_Dma_Req_Overflow			: std_logic;
+	SIGNAL	Rx_Dma_Req_Overflow			: std_logic;
 	SIGNAL	Tx_Ram_Dat,  Rx_Ram_Dat		: std_logic_vector(15 DOWNTO 0);
 	SIGNAL	Tx_Reg,		 Rx_Reg			: std_logic_vector(15 DOWNTO 0);
 	SIGNAL	Dma_Tx_Addr, Dma_Rx_Addr	: std_logic_vector(Dma_Addr'RANGE);	
@@ -108,6 +119,8 @@ BEGIN
 				Rx_Reg;
 
 	Mac_Zeit <= Zeit;
+	
+	Dma_Req_Overflow <= Tx_Dma_Req_Overflow or Rx_Dma_Req_Overflow;
 
 b_Dma:	BLOCK
 	SIGNAL	Rx_Dma, Tx_Dma	: std_logic;
@@ -119,10 +132,10 @@ BEGIN
 
 	Rx_Dma_Ack <= '1'	WHEN	Rx_Dma = '1' AND Dma_Ack = '1'	ELSE '0';
 
-pDmaArb: PROCESS( Clk, nRes )	 IS
+pDmaArb: PROCESS( Clk, Rst )	 IS
 BEGIN
 
-	IF nRes = '0'	THEN
+	IF Rst = '1'	THEN
 		Rx_Dma <= '0'; Tx_Dma <= '0'; Tx_Dma_Ack <= '0'; 
 		Tx_LatchH <= (OTHERS => '0'); Tx_LatchL <= (OTHERS => '0');
 		Zeit <= (OTHERS => '0'); 
@@ -186,10 +199,10 @@ BEGIN
 	rTx_En  <= Tx_En;
 	rTx_Dat <= Tx_Dat;
 
-pTxSm: PROCESS ( Clk, nRes )	 IS
+pTxSm: PROCESS ( Clk, Rst )	 IS
 BEGIN
 
-	IF nRes = '0'	THEN
+	IF Rst = '1'	THEN
 		Sm_Tx <= R_Idl;
 	ELSIF rising_edge( Clk ) THEN
 		IF	Sm_Tx = R_Idl OR Sm_Tx = R_Bop OR Dibl_Cnt = "11" 	THEN
@@ -214,12 +227,12 @@ BEGIN
 END PROCESS pTxSm;
 
 
-pTxCtl: PROCESS ( Clk, nRes )	 IS
+pTxCtl: PROCESS ( Clk, Rst )	 IS
 	VARIABLE	Preload		:	std_logic_vector(Tx_Timer'RANGE);
 	VARIABLE	Load		:	std_logic;
 BEGIN
 
-	IF nRes = '0'	THEN
+	IF Rst = '1'	THEN
 		Tx_Dat <= "00"; Tx_En <= '0'; Dibl_Cnt <= "00"; F_End <= '0'; F_Val <= '0'; Tx_Col  <= '0'; Was_Col <= '0'; Block_Col <= '0';
 		Ipg_Cnt <= (OTHERS => '0'); Tx_Timer <= (OTHERS => '0'); Tx_Sr <= (OTHERS => '0'); 
 	ELSIF rising_edge( Clk ) 	THEN
@@ -291,9 +304,9 @@ BEGIN
 
 END PROCESS pTxCtl;
 
-pBackDel: PROCESS ( Clk, nRes )	IS
+pBackDel: PROCESS ( Clk, Rst )	IS
 BEGIN
-	IF nRes = '0'	THEN
+	IF Rst = '1'	THEN
 		Rnd_Num   <= (OTHERS => '0');		
 		Col_Cnt   <= (OTHERS => '0');		
 		Retry_Cnt <= (OTHERS => '0');
@@ -404,9 +417,23 @@ bTxDesc:	BLOCK
 	SIGNAL	Tx_Del_Cnt							: std_logic_vector(32 downto 0);
 	 ALIAS	Tx_Del_End							: std_logic is Tx_Del_Cnt(Tx_Del_Cnt'high);
 	SIGNAL	Tx_Del_Run							: std_logic;
+	signal	Tx_Done								: std_logic;
 	
 BEGIN
 
+	Dma_Rd_Done <= Tx_Done;
+	
+	Tx_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
+    
+    --Read request overflows...
+    -- * before preamble ends
+    -- * during transfer before every 8th cycle (halfx) or 4th cycle (fullx)
+    -- * after exiting crc state (data feteched by dma is not used since crc is calc in hw)
+    Tx_Dma_Req_Overflow <=  '1' when Dibl_Cnt = "01" and Sm_Tx = R_Pre and Tx_Timer(7) = '1' else
+                            '1' when Dibl_Cnt = "10" and Sm_Tx = R_Txd and H_Byte = '0' else
+                            '1' when Dibl_Cnt = "10" and Sm_Tx = R_Crc and Tx_Timer(7) = '1' else
+                            '0';
+        
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
 	Ram_Be(1) <= '1' WHEN	s_nWr = '1' OR s_nBE(1) = '0'						ELSE '0';
 	Ram_Be(0) <= '1' WHEN	s_nWr = '1' OR s_nBE(0) = '0'						ELSE '0';
@@ -452,7 +479,7 @@ END GENERATE;
 RamH:	ENTITY	work.Dpr_16_16
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,					CLKB	=> Clk,
-				EnA		=> log1,				Enb		=> log1,
+				EnA		=> cActivated,			Enb		=> cActivated,
 				BEA		=> Ram_Be,				
 				WEA		=> Ram_Wr,				WEB		=> Desc_We,
 				ADDRA	=> s_Adr(8 DOWNTO 1),	ADDRB	=> Desc_Addr,
@@ -464,7 +491,7 @@ RamH:	ENTITY	work.Dpr_16_16
 		REPORT "TxSyncOn needs Timer!" 
 			severity failure;
 			
-pTxSm: PROCESS( nRes, Clk, Dsm, 
+pTxSm: PROCESS( Rst, Clk, Dsm, 
 				Tx_On, TX_OWN, Retry_Cnt, Ext_Tx, Tx_Wait,
 				Tx_Sync, Sm_Tx, F_End, Tx_Col, Ext_Ack, Tx_Del, Tx_Beg )
 BEGIN
@@ -512,15 +539,15 @@ BEGIN
 			WHEN OTHERS	 =>
 		END CASE;
 
-	IF	nRes = '0'					THEN	Dsm <= sIdle;
+	IF	Rst = '1'					THEN	Dsm <= sIdle;
 	ELSIF	rising_edge( Clk )		THEN	Dsm <= Tx_Dsm_Next;
 	END IF;
 
 END PROCESS pTxSm;
-pTxControl: PROCESS( nRes, Clk )
+pTxControl: PROCESS( Rst, Clk )
 BEGIN
 
-	IF	nRes = '0'	THEN
+	IF	Rst = '1'	THEN
 		Last_Desc <= '0'; Start_TxS <= '0'; Tx_Dma_Req  <= '0'; H_Byte <= '0'; 
 		Tx_Beg <= '0'; Tx_BegSet <= '0'; Tx_Early <= '0'; Auto_Coll <= '0'; Tx_Dma_Out <= '0';
 		Ext_Tx <= '0'; Ext_Ack <= '0'; ClrCol <= '0'; Ext_Desc <= (OTHERS => '0'); Tx_Sync <= '0'; Max_Retry <= (others => '0');
@@ -653,14 +680,16 @@ END PROCESS pTxControl;
 	Sel_TxL <= '1'	WHEN s_nWr = '0' AND Sel_Cont = '1' AND s_Adr(3) = '0' AND	Ram_Be(0) = '1'	ELSE	'0';
 
 	Tx_Desc <= Tx_Desc_One;
+	
+	Tx_SoftInt <= '0';
 
-pTxRegs: PROCESS( nRes, Clk )
+pTxRegs: PROCESS( Rst, Clk )
 BEGIN
 
-	IF	nRes = '0'	THEN
+	IF	Rst = '1'	THEN
 		Tx_On   <= '0'; Tx_Ie <= '0'; Tx_Half  <= '0'; Tx_Wait  <= '0'; nTx_BegInt <= '0';
 		Tx_Desc_One <= (OTHERS => '0');
-		Tx_Icnt <= (OTHERS => '0'); TxInt <= '0'; Tx_SoftInt <= '0'; Tx_BegInt  <= '0';
+		Tx_Icnt <= (OTHERS => '0'); TxInt <= '0'; Tx_BegInt  <= '0';
 		Tx_Ipg  <= conv_std_logic_vector( 42, 6);	
 	ELSIF	rising_edge( Clk )	THEN
 
@@ -755,10 +784,10 @@ BEGIN
 
 	nCrc_Ok <= '1' WHEN nCrc = x"C704DD7B"	ELSE '0';	
 
-rxsm: PROCESS ( Clk, nRes )	 IS
+rxsm: PROCESS ( Clk, Rst )	 IS
 BEGIN
 
-	IF nRes = '0'	THEN
+	IF Rst = '1'	THEN
 		Sm_Rx <= R_Idl;
 	ELSIF rising_edge( Clk ) 	THEN
 		IF	Sm_Rx = R_Idl OR Sm_Rx = R_Rxd OR Sm_Rx = R_Sof OR Dibl_Cnt = "11"	THEN
@@ -774,12 +803,12 @@ BEGIN
 
 END PROCESS rxsm;
 
-pRxCtl: PROCESS ( Clk, nRes )	 IS
+pRxCtl: PROCESS ( Clk, Rst )	 IS
 	VARIABLE	Preload		:	std_logic_vector(Tx_Timer'RANGE);
 	VARIABLE	Load		:	std_logic;
 BEGIN
 
-	IF nRes = '0'	THEN
+	IF Rst = '1'	THEN
 		Rx_DatL <= "00"; Rx_Dat <= "00"; Rx_Dv <= '0'; Dibl_Cnt <= "00"; PreCount <= (OTHERS => '0');
 		F_End <= '0'; F_Err <= '0';  F_Val <= '0'; Crc_Ok <= '0'; 
 		A_Err <= '0'; N_Err <= '0'; P_Err <= '0'; PreBeg <= '0'; PreErr <= '0';
@@ -916,8 +945,19 @@ bRxDesc:	BLOCK
 	SIGNAL	Rx_Idle, RxInt			 				: std_logic;
 	SIGNAL	Hub_Rx_L								: std_logic_vector( 1 DOWNTO 0);
 	SIGNAL	Rx_Dma_Out								: std_logic;
+    signal  Rx_Done                                 : std_logic;
 
 BEGIN
+	
+    Rx_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
+    
+    Dma_Wr_Done <= Rx_Done;
+	
+	Rx_Dma_Req_Overflow <=  '1' when Dsm = sOdd and Rx_Ovr = '0' else
+                            '1' when Dsm = sData and Rx_Ovr = '0' and F_Val = '1' and Rx_Count(0) = '1' and RX_Count > 1 else
+                            '1' when Rx_Done = '1' else
+                            '0';
+	
 	WrDescStat <= '1' WHEN Dsm = sStat	ELSE '0';	
 
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
@@ -956,7 +996,7 @@ END GENERATE;
 RxRam:	ENTITY	work.Dpr_16_16
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,					CLKB	=> Clk,
-				EnA		=> log1,				Enb		=> log1,
+				EnA		=> cActivated,			Enb		=> cActivated,
 				BEA		=> Ram_Be,				
 				WEA		=> Ram_Wr,				WEB		=> Desc_We,
 				ADDRA	=> s_Adr(8 DOWNTO 1),	ADDRB	=> Desc_Addr,
@@ -965,7 +1005,7 @@ RxRam:	ENTITY	work.Dpr_16_16
 			);
 
 
-pRxSm: PROCESS( nRes, Clk, Dsm,
+pRxSm: PROCESS( Rst, Clk, Dsm,
 				Rx_Beg, Rx_On, RX_OWN, F_End, F_Err, Diag, Rx_Count )
 BEGIN
 
@@ -994,16 +1034,16 @@ BEGIN
 			WHEN OTHERS	 =>
 		END CASE;
 
-	IF		nRes = '0'				THEN	Dsm <= sIdle;
+	IF		Rst = '1'				THEN	Dsm <= sIdle;
 	ELSIF	rising_edge( Clk )		THEN	Dsm <= Rx_Dsm_Next;
 	END IF;
 
 END PROCESS pRxSm;
 
-pRxControl: PROCESS( nRes, Clk )
+pRxControl: PROCESS( Rst, Clk )
 BEGIN
 
-	IF	nRes = '0'	THEN
+	IF	Rst = '1'	THEN
 		Rx_Ovr <= '0'; Rx_Dma_Req  <= '0'; Last_Desc <= '0'; Rx_Dma_Out <= '0';
 		Rx_Count <= (OTHERS => '0');
 		Rx_Buf <= (OTHERS => '0'); Rx_LatchL <= (OTHERS => '0'); Rx_LatchH <= (OTHERS => '0');
@@ -1116,7 +1156,7 @@ BEGIN
 FiltRamH:	ENTITY	work.Dpr_16_32
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,			CLKB	=> Clk,
-				EnA		=> log1,		EnB		=> log1,
+				EnA		=> cActivated,	EnB		=> cActivated,
 				BEA		=> Ram_BeH,		
 				WEA		=> Ram_Wr,
 				ADDRA	=> Ram_Addr,	ADDRB	=> Filter_Addr,
@@ -1126,7 +1166,7 @@ FiltRamH:	ENTITY	work.Dpr_16_32
 FiltRamL:	ENTITY	work.Dpr_16_32
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,			CLKB	=> Clk,
-				EnA		=> log1,		EnB		=> log1,
+				EnA		=> cActivated,	EnB		=> cActivated,
 				BEA		=> Ram_BeL,		
 				WEA		=> Ram_Wr,
 				ADDRA	=> Ram_Addr,	ADDRB	=> Filter_Addr,
@@ -1142,20 +1182,20 @@ genMatSel:	FOR i IN 0 TO 3 GENERATE
 	Mat_Sel(i) <=	Mat_Reg( 0 + i)	WHEN  Filt_Idx = "00"	ELSE
 					Mat_Reg( 4 + i)	WHEN  Filt_Idx = "01"	ELSE
 					Mat_Reg( 8 + i)	WHEN  Filt_Idx = "10"	ELSE
-					Mat_Reg(12 + i)	WHEN  Filt_Idx = "11";
+					Mat_Reg(12 + i); --	WHEN  Filt_Idx = "11";
 END GENERATE;
 	
-	M_Prio <= "000" WHEN    Filt_Cmp = '0' OR Match = '1'													ELSE		
+	M_Prio <= "000" WHEN    Filt_Cmp = '0' OR Match = '1'							ELSE		
 			  "100"	WHEN	Mat_Sel(0) = '1'  AND On_0 = '1' AND (DIRON_0 = '0')	ELSE	
 			  "101"	WHEN	Mat_Sel(1) = '1'  AND On_1 = '1' AND (DIRON_1 = '0')	ELSE	
 			  "110"	WHEN	Mat_Sel(2) = '1'  AND On_2 = '1' AND (DIRON_2 = '0')	ELSE	
 			  "111"	WHEN	Mat_Sel(3) = '1'  AND On_3 = '1' AND (DIRON_3 = '0')	ELSE
 			  "000";
 
-pFilter: PROCESS( nRes, Clk )
+pFilter: PROCESS( Rst, Clk )
 BEGIN
 
-	IF	nRes = '0'	THEN
+	IF	Rst = '1'	THEN
 		Filt_Idx <= "00"; Match <= '0'; 
 		Filt_Cmp <= '0'; Mat_Reg <= (OTHERS => '0'); Byte_Cnt <= (OTHERS =>'0');
 		Match_Desc <= (OTHERS => '0');Auto_Desc <= (OTHERS =>'0'); Answer_Tx <= '0';
@@ -1202,10 +1242,10 @@ END BLOCK  bFilter;
 	Sel_RxH <= '1'	WHEN s_nWr = '0' AND Sel_Cont = '1' AND s_Adr(3) = '1' AND	s_nBe(1) = '0'	ELSE	'0';
 	Sel_RxL <= '1'	WHEN s_nWr = '0' AND Sel_Cont = '1' AND s_Adr(3) = '1' AND	s_nBe(0) = '0'	ELSE	'0';
 
-pRxRegs: PROCESS( nRes, Clk )
+pRxRegs: PROCESS( Rst, Clk )
 BEGIN
 
-	IF	nRes = '0'	THEN
+	IF	Rst = '1'	THEN
 		Rx_Desc <= (OTHERS => '0');	 Rx_On  <= '0';
 		Rx_Ie   <= '0';	Rx_Lost <= '0';	Rx_Icnt <= (OTHERS => '0'); RxInt <= '0'; Diag  <= '0';
 	ELSIF	rising_edge( Clk )	THEN

@@ -63,6 +63,10 @@
 -- 2011-07-25	V0.29	zelenkaj	LED gadget and asynchronous buffer optional
 -- 2011-08-08	V0.30	zelenkaj	LED gadget enhancement -> added 8 general purpose outputs
 -- 2011-08-16	V0.31	zelenkaj	status/control register enhanced by 8 bytes (again...)
+-- 2011-11-21	V0.32	zelenkaj	added time synchronization feature
+-- 2011-11-28	V0.33	zelenkaj	added waitrequest signals
+-- 2011-11-29	V0.34	zelenkaj	event support is optional
+-- 2011-12-20	V0.35	zelenkaj	changed 2xbuf switch source to AP
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -82,6 +86,8 @@ entity pdi is
 			genABuf1_g					:		boolean := true; --if false iABuf1_g must be set to 0!
 			genABuf2_g					:		boolean := true; --if false iABuf2_g must be set to 0!
 			genLedGadget_g				:		boolean := false;
+			genTimeSync_g				:		boolean := false;
+			genEvent_g					:		boolean := false;
 			--PDO buffer size *3
 			iTpdoBufSize_g				:		integer := 100;
 			iRpdo0BufSize_g				:		integer := 116; --includes header
@@ -105,6 +111,7 @@ entity pdi is
             pcp_address               	: in    std_logic_vector(12 DOWNTO 0);
             pcp_writedata             	: in    std_logic_vector(31 DOWNTO 0);
             pcp_readdata              	: out   std_logic_vector(31 DOWNTO 0);
+			pcp_waitrequest				: out	std_logic;
 			pcp_irq						: in	std_logic; --should be connected to the Time Cmp Toggle of openMAC!
 		-- Avalon Slave Interface for AP
             ap_chipselect               : in    std_logic;
@@ -114,6 +121,7 @@ entity pdi is
             ap_address                  : in    std_logic_vector(12 DOWNTO 0);
             ap_writedata                : in    std_logic_vector(31 DOWNTO 0);
             ap_readdata                 : out   std_logic_vector(31 DOWNTO 0);
+			ap_waitrequest				: out	std_logic;
 			ap_irq						: out	std_logic; --Sync Irq to the AP
 		-- async interrupt
 			ap_asyncIrq					: out	std_logic; --Async Irq to the Ap
@@ -153,7 +161,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#78#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#98#);
 ----asynchronous buffers
 constant	extABuf1Tx_c				: memoryMapping_t := (16#0800#, iABuf1_g); --header is included in generic value!
 constant	extABuf1Rx_c				: memoryMapping_t := (16#1000#, iABuf1_g); --header is included in generic value!
@@ -166,7 +174,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 11 * 4); --bytes mapped to dpr (dword alignment!!!)
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 22 * 4); --bytes mapped to dpr (dword alignment!!!), note: 4 times a double buffer!
 ----asynchronous buffers
 constant	intABuf1Tx_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extABuf1Tx_c.span));
 constant	intABuf1Rx_c				: memoryMapping_t := (intABuf1Tx_c.base + intABuf1Tx_c.span, align32(extABuf1Rx_c.span));
@@ -285,6 +293,10 @@ signal		ap_ledForce_s,
 			ap_ledSet_s					: std_logic_vector(15 downto 0) := (others => '0');
 signal		hw_ledForce_s,
 			hw_ledSet_s					: std_logic_vector(15 downto 0) := (others => '0');
+
+--TIME SYNCHRONIZATION
+signal		pcp_timeSyncDBufSel			: std_logic;
+signal		ap_timeSyncDBufSel			: std_logic;
 begin
 	
 	ASSERT NOT(iRpdos_g < 1 or iRpdos_g > 3)
@@ -457,6 +469,9 @@ begin
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
 			iDprAddrWidth_g				=> dprCntStReg_s.pcp.addr'length,
 			iRpdos_g					=> iRpdos_g,
+			genLedGadget_g				=> genLedGadget_g,
+			genTimeSync_g				=> genTimeSync_g,
+			genEvent_g					=> genEvent_g,
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
@@ -506,6 +521,10 @@ begin
 			ledCnfgOut 					=> pcp_ledForce_s,
 			ledCtrlIn 					=> pcp_ledSet_s,
 			ledCtrlOut 					=> pcp_ledSet_s,
+			---time synchronization
+			doubleBufSel_out			=> open, --PCP is the sink
+			doubleBufSel_in				=> pcp_timeSyncDBufSel,
+			timeSyncIrq					=> '0', --pcp is not interested
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					=> dprCntStReg_s.pcp.addrOff,
 			dprDin						=> dprCntStReg_s.pcp.din,
@@ -530,8 +549,21 @@ begin
 			doSync_g => not genOnePdiClkDomain_g
 		)
 		port map (
-			inData => apIrqControlApOut(15),
-			outData => apIrqControlPcp2(15),
+			din => apIrqControlApOut(15),
+			dout => apIrqControlPcp2(15),
+			clk => pcp_clk,
+			rst => pcp_reset
+		);
+	
+	--sync double buffer select for time sync to AP if the feature is enabled
+	-- note: signal toggles on PCP side when NETTIME [seconds] is written
+	syncDBuf_TimeSync : entity work.sync
+		generic map (
+			doSync_g => not genOnePdiClkDomain_g
+		)
+		port map (
+			dout => pcp_timeSyncDBufSel,
+			din => ap_timeSyncDBufSel,
 			clk => pcp_clk,
 			rst => pcp_reset
 		);
@@ -545,6 +577,9 @@ begin
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
 			iDprAddrWidth_g				=> dprCntStReg_s.ap.addr'length,
 			iRpdos_g					=> iRpdos_g,
+			genLedGadget_g				=> genLedGadget_g,
+			genTimeSync_g				=> genTimeSync_g,
+			genEvent_g					=> genEvent_g,
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
@@ -594,6 +629,10 @@ begin
 			ledCnfgOut 					=> ap_ledForce_s,
 			ledCtrlIn 					=> ap_ledSet_s,
 			ledCtrlOut 					=> ap_ledSet_s,
+			---time synchronization
+			doubleBufSel_out			=> ap_timeSyncDBufSel,
+			doubleBufSel_in				=> '0', --AP is the source
+			timeSyncIrq					=> ap_irq_s,
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					=> dprCntStReg_s.ap.addrOff,
 			dprDin						=> dprCntStReg_s.ap.din,
@@ -657,94 +696,97 @@ begin
 		);
 	end generate;
 	
-	theEventBlock : block
-		--set here the number of events
-		constant iSwEvent_c : integer := 1;
-		constant iHwEvent_c : integer := 2;
-		
-		signal eventSetA	: std_logic_vector(iSwEvent_c-1 downto 0);
-		signal eventReadA	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
-		
-		signal eventAckB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
-		signal eventReadB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+	genEventComp : if genEvent_g generate
 	begin
-		
-		--event mapping: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
-		-- in register    x  x  x  x  x  x  x  x hw hw  x  x  x  x  x sw
-		-- in pdiEvent                                          hw hw sw
-		eventSetA <= pcp_eventSet_s(0 downto 0); --pcp sets sw event (I know, its called generic event, bla...)
-		pcp_eventRead <= x"00" & eventReadA(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
-						"00000" & eventReadA(iSwEvent_c-1 downto 0);
-		
-		eventAckB <= ap_eventAck_p(7 downto 6) & ap_eventAck_p(0); --ap acks events
-		ap_eventAck <= x"00" & eventReadB(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
-						"00000" & eventReadB(iSwEvent_c-1 downto 0);
-		
-		theEventStuff : entity work.pdiEvent
-		--16 bit
-		-- sw is at bit 0
-		-- hw is at bit 6 and 7
-		generic map (
-				genOnePdiClkDomain_g => genOnePdiClkDomain_g,
-				iSwEvent_g => 1,
-				iHwEvent_g => 2
-		)
-				
-		port map (  
-				--port A -> PCP
-				clkA						=> pcp_clk,
-				rstA						=> pcp_reset,
-				eventSetA					=> eventSetA,
-				eventReadA					=> eventReadA,
-				--port B -> AP
-				clkB						=> ap_clk,
-				rstB						=> ap_reset,
-				eventAckB					=> eventAckB,
-				eventReadB					=> eventReadB,
-				--hw event set pulse (must be synchronous to clkB!)
-				hwEventSetPulseB			=> phyLinkEvent
-		);
-		
-		--generate async interrupt
-		asyncIrq : process(ap_eventAck)
-		variable tmp : std_logic;
-		begin
-			tmp := '0';
-			for i in ap_eventAck'range loop
-				tmp := tmp or ap_eventAck(i);
-			end loop;
-			ap_asyncIrq_s <= tmp;
-		end process;
-		--IRQ is asserted if enabled by AP
-		ap_asyncIrq <= ap_asyncIrq_s and asyncIrqCtrlOut_s(15);
-		
-		asyncIrqCtrlIn_s(15) <= asyncIrqCtrlOut_s(15);
-		asyncIrqCtrlIn_s(14 downto 1) <= (others => '0'); --ignoring the rest
-		asyncIrqCtrlIn_s(0) <= ap_asyncIrq_s; --AP may poll IRQ level
-		
-		syncPhyLinkGen : for i in phyLink'range generate
-			syncPhyLink : entity work.sync
-				generic map (
-					doSync_g => not genOnePdiClkDomain_g
-				)
-				port map (
-					inData => phyLink(i),
-					outData => phyLink_s(i),
-					clk => ap_clk,
-					rst => ap_reset
-				);
+		theEventBlock : block
+			--set here the number of events
+			constant iSwEvent_c : integer := 1;
+			constant iHwEvent_c : integer := 2;
 			
-			detPhyLinkEdge : entity work.edgeDet
-				port map (
-					inData => phyLink_s(i),
-					rising => open,
-					falling => phyLinkEvent(i), --if phy link deasserts - EVENT!!!
-					any => open,
-					clk => ap_clk,
-					rst => ap_reset
-				);
-		end generate;
-	end block;
+			signal eventSetA	: std_logic_vector(iSwEvent_c-1 downto 0);
+			signal eventReadA	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+			
+			signal eventAckB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+			signal eventReadB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+		begin
+			
+			--event mapping: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+			-- in register    x  x  x  x  x  x  x  x hw hw  x  x  x  x  x sw
+			-- in pdiEvent                                          hw hw sw
+			eventSetA <= pcp_eventSet_s(0 downto 0); --pcp sets sw event (I know, its called generic event, bla...)
+			pcp_eventRead <= x"00" & eventReadA(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
+							"00000" & eventReadA(iSwEvent_c-1 downto 0);
+			
+			eventAckB <= ap_eventAck_p(7 downto 6) & ap_eventAck_p(0); --ap acks events
+			ap_eventAck <= x"00" & eventReadB(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
+							"00000" & eventReadB(iSwEvent_c-1 downto 0);
+			
+			theEventStuff : entity work.pdiEvent
+			--16 bit
+			-- sw is at bit 0
+			-- hw is at bit 6 and 7
+			generic map (
+					genOnePdiClkDomain_g => genOnePdiClkDomain_g,
+					iSwEvent_g => 1,
+					iHwEvent_g => 2
+			)
+					
+			port map (  
+					--port A -> PCP
+					clkA						=> pcp_clk,
+					rstA						=> pcp_reset,
+					eventSetA					=> eventSetA,
+					eventReadA					=> eventReadA,
+					--port B -> AP
+					clkB						=> ap_clk,
+					rstB						=> ap_reset,
+					eventAckB					=> eventAckB,
+					eventReadB					=> eventReadB,
+					--hw event set pulse (must be synchronous to clkB!)
+					hwEventSetPulseB			=> phyLinkEvent
+			);
+			
+			--generate async interrupt
+			asyncIrq : process(ap_eventAck)
+			variable tmp : std_logic;
+			begin
+				tmp := '0';
+				for i in ap_eventAck'range loop
+					tmp := tmp or ap_eventAck(i);
+				end loop;
+				ap_asyncIrq_s <= tmp;
+			end process;
+			--IRQ is asserted if enabled by AP
+			ap_asyncIrq <= ap_asyncIrq_s and asyncIrqCtrlOut_s(15);
+			
+			asyncIrqCtrlIn_s(15) <= asyncIrqCtrlOut_s(15);
+			asyncIrqCtrlIn_s(14 downto 1) <= (others => '0'); --ignoring the rest
+			asyncIrqCtrlIn_s(0) <= ap_asyncIrq_s; --AP may poll IRQ level
+			
+			syncPhyLinkGen : for i in phyLink'range generate
+				syncPhyLink : entity work.sync
+					generic map (
+						doSync_g => not genOnePdiClkDomain_g
+					)
+					port map (
+						din => phyLink(i),
+						dout => phyLink_s(i),
+						clk => ap_clk,
+						rst => ap_reset
+					);
+				
+				detPhyLinkEdge : entity work.edgeDet
+					port map (
+						din => phyLink_s(i),
+						rising => open,
+						falling => phyLinkEvent(i), --if phy link deasserts - EVENT!!!
+						any => open,
+						clk => ap_clk,
+						rst => ap_reset
+					);
+			end generate;
+		end block;
+	end generate;
 ------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -1198,914 +1240,72 @@ genRpdo2 : if iRpdos_g >= 3 generate
 ------------------------------------------------------------------------------------------------------------------------
 end generate;
 
-end architecture rtl;
-
 ------------------------------------------------------------------------------------------------------------------------
--- package for memory mapping
-------------------------------------------------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-package memMap is
-	type memoryMapping_t is
-	record
-		base 							: integer;
-		span 							: integer;
-	end record;
-	
-	function align32 (inVal : integer) return integer;
-end package memMap;
-
-package body memMap is
-	function align32 (inVal : integer) return integer is
-	variable tmp : std_logic_vector(31 downto 0);
-	variable result : integer;
+-- waitrequest signals
+	theWaitrequestGenerators : block
+		signal pcp_wr, pcp_rd, pcp_rd_ack, pcp_wr_ack : std_logic;
+		signal ap_wr, ap_rd, ap_rd_ack, ap_wr_ack : std_logic;
 	begin
-		tmp := (conv_std_logic_vector(inVal, tmp'length) + x"00000003") and not x"00000003";
-		result := conv_integer(tmp);
-		return result;
-	end function;
-end package body memMap;
-
-------------------------------------------------------------------------------------------------------------------------
--- entity for those events
-------------------------------------------------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
---the order of events:
--- e.g. sw event = 1 and hw event = 2
--- event = (HW1 & HW0 & SW0)
--- pcp only sets SW0, but can read SW0
--- ap ack all events
-
-entity pdiEvent is
-	generic (
-		genOnePdiClkDomain_g		:		boolean := false;
-		iSwEvent_g					:		integer := 1;
-		iHwEvent_g					:		integer := 2
-	);
-			
-	port (  
-			--port A -> PCP
-			clkA						: in	std_logic;
-			rstA						: in	std_logic;
-			eventSetA					: in	std_logic_vector(iSwEvent_g-1 downto 0); --to set event (pulse!)
-			eventReadA					: out	std_logic_vector(iSwEvent_g+iHwEvent_g-1 downto 0); --to read event set (can be acked by ap!!!)
-			--port B -> AP
-			clkB						: in	std_logic;
-			rstB						: in	std_logic;
-			eventAckB					: in	std_logic_vector(iSwEvent_g+iHwEvent_g-1 downto 0); --to ack events (pulse!)
-			eventReadB					: out	std_logic_vector(iSwEvent_g+iHwEvent_g-1 downto 0); --to read event set
-			--hw event set pulse (must be synchronous to clkB!)
-			hwEventSetPulseB			: in	std_logic_vector(iHwEvent_g-1 downto 0)
-	);
-end entity pdiEvent;
-
-architecture rtl of pdiEvent is
---in clk domain A
-signal	eventA_s, --stores the events in A domain
-		eventA_ackPulse --ack the event (by ap)
-										:		std_logic_vector(iSwEvent_g+iHwEvent_g-1 downto 0);
-signal	eventA_setPulse --sets the sw event only (by pcp)
-										:		std_logic_vector(iSwEvent_g-1 downto 0);
-signal	hwEventA_setPulse --sets the hw event only
-										:		std_logic_vector(iHwEvent_g-1 downto 0);
---in clk domain B
-signal	eventB_s, --stores the events in B domain
-		eventB_ackPulse --ack the event (by ap)
-										:		std_logic_vector(iSwEvent_g+iHwEvent_g-1 downto 0);
-signal	eventB_setPulse --sets the sw event only (by pcp)
-										:		std_logic_vector(iSwEvent_g-1 downto 0);
-begin
-	
-	--pcp
-	eventReadA <= eventA_s;
-	
-	--eventA_s stores all events
-	--eventA_ackPulse sends acks for all events
-	--eventA_setPulse sends set for sw event only
-	eventA_setPulse <= eventSetA;
-	--hwEventA_setPulse sends set for hw event only
-	process(clkA, rstA)
-	variable event_var : std_logic_vector(eventA_s'range);		
-	begin  
-		if rstA = '1' then
-			eventA_s <= (others => '0');
-		elsif clkA = '1' and clkA'event then
-			--get event state to do magic
-			event_var := eventA_s;
-			
-			--first let the ack does its work...
-			event_var := event_var and not eventA_ackPulse;
-			
-			--second the sw events may overwrite the ack...
-			event_var(iSwEvent_g-1 downto 0) := event_var(iSwEvent_g-1 downto 0) or
-			eventA_setPulse(iSwEvent_g-1 downto 0);
-			
-			--last but not least, the hw events have its chance too
-			event_var(iSwEvent_g+iHwEvent_g-1 downto iSwEvent_g) := event_var(iSwEvent_g+iHwEvent_g-1 downto iSwEvent_g) or
-			hwEventA_setPulse(iHwEvent_g-1 downto 0);
-			
-			--and now, export it
-			eventA_s <= event_var;
-		end if;
-	end process;	
-	
-	--ap
-	eventReadB <= eventB_s;
-	
-	--eventB_s stores all events
-	--eventB_ackPulse sends acks for all events
-	eventB_ackPulse <= eventAckB;
-	--eventB_setPulse sends set for sw event only
-	--hwEventSetPulseB sends set for hw event only
-	process(clkB, rstB)
-	variable event_var : std_logic_vector(eventB_s'range);
-	begin  
-		if rstB = '1' then
-			eventB_s <= (others => '0');
-		elsif clkB = '1' and clkB'event then
-			--I know, its almost the same as for A, but for clarity...
-			--get event state
-			event_var := eventB_s;
-			
-			--doing ack
-			event_var := event_var and not eventB_ackPulse;
-			
-			--sw events may overwrite
-			event_var(iSwEvent_g-1 downto 0) := event_var(iSwEvent_g-1 downto 0) or 
-			eventB_setPulse(iSwEvent_g-1 downto 0);
-			
-			--hw events may overwrite too
-			event_var(iSwEvent_g+iHwEvent_g-1 downto iSwEvent_g) := event_var(iSwEvent_g+iHwEvent_g-1 downto iSwEvent_g) or 
-			hwEventSetPulseB(iHwEvent_g-1 downto 0);
-			
-			--and let's export
-			eventB_s <= event_var;
-		end if;
-	end process;
-	
-	--xing the domains a to b
-	syncEventSetGen : for i in 0 to iSwEvent_g-1 generate
-		--only the software events are transferred!
-		syncEventSet : entity work.slow2fastSync
-			generic map (
-				doSync_g => not genOnePdiClkDomain_g
-			)
-			port map (
-				clkSrc => clkA,
-				rstSrc => rstA,
-				dataSrc => eventA_setPulse(i),
-				clkDst => clkB,
-				rstDst => rstB,
-				dataDst => eventB_setPulse(i)
-			);
-		end generate;
-	
-	--xing the domains b to a
-	syncEventAckGen : for i in eventB_s'range generate
-		--all events are transferred
-		syncEventAck : entity work.slow2fastSync
-			generic map (
-				doSync_g => not genOnePdiClkDomain_g
-			)
-			port map (
-				clkSrc => clkB,
-				rstSrc => rstB,
-				dataSrc => eventB_ackPulse(i),
-				clkDst => clkA,
-				rstDst => rstA,
-				dataDst => eventA_ackPulse(i)
-			);
-		end generate;
-	
-	syncHwEventGen : for i in 0 to iHwEvent_g-1 generate
-		--hw events are transferred
-		syncEventAck : entity work.slow2fastSync
-			generic map (
-				doSync_g => not genOnePdiClkDomain_g
-			)
-			port map (
-				clkSrc => clkB,
-				rstSrc => rstB,
-				dataSrc => hwEventSetPulseB(i),
-				clkDst => clkA,
-				rstDst => rstA,
-				dataDst => hwEventA_setPulse(i)
-			);
-		end generate;
-end architecture rtl;
-
-------------------------------------------------------------------------------------------------------------------------
--- entity for led gadget
-------------------------------------------------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
---the led gadget can be set by three different sources
--- source A, B and C
--- the highest priority has C
-
-entity pdiLed is
-	generic (
-		iLedWidth_g						:		integer := 8
-	);
-	port (
-		--src A
-		srcAled							: in	std_logic_vector(iLedWidth_g-1 downto 0);
-		srcAforce						: in	std_logic_vector(iLedWidth_g-1 downto 0);
-		--src B
-		srcBled							: in	std_logic_vector(iLedWidth_g-1 downto 0);
-		srcBforce						: in	std_logic_vector(iLedWidth_g-1 downto 0);
-		--src C
-		srcCled							: in	std_logic_vector(iLedWidth_g-1 downto 0);
-		srcCforce						: in	std_logic_vector(iLedWidth_g-1 downto 0);
-		--led output
-		ledOut							: out	std_logic_vector(iLedWidth_g-1 downto 0)
-	);
-end entity pdiLed;
-
-architecture rtl of pdiLed is
-begin
-	theLedGadget : process(srcAled, srcAforce, srcBled, srcBforce, srcCled, srcCforce)
-		variable tmp_led : std_logic_vector(ledOut'range);
-	begin
-		tmp_led := (others => '0');
 		
-		for i in tmp_led'range loop
-			--okay, src A may drive if forced
-			if srcAforce(i) = '1' then
-				tmp_led(i) := srcAled(i);
-			end if;
-			
-			--same vaild for src B, but it overrules src A
-			if srcBforce(i) = '1' then
-				tmp_led(i) := srcBled(i);
-			end if;
-			
-			--and the head of the logics => src C
-			if srcCforce(i) = '1' then
-				tmp_led(i) := srcCled(i);
-			end if;
-		end loop;
-		
-		--let's export and go for a coffee...
-		ledOut <= tmp_led;		
-	end process;
-end architecture rtl;
-
-------------------------------------------------------------------------------------------------------------------------
--- entity for control status register
-------------------------------------------------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-entity pdiControlStatusReg is
-	generic (
-			bIsPcp						:		boolean := true;
-			iAddrWidth_g				:		integer := 8;
-			iBaseDpr_g					:		integer := 16#4#; --base address (in external mapping) of content in dpr
-			iSpanDpr_g					:		integer := 12; --span of content in dpr
-			iBaseMap2_g					:		integer := 0; --base address in dpr
-			iDprAddrWidth_g				:		integer := 11;
-			iRpdos_g					:		integer := 3;
-			--register content
-			---constant values
-			magicNumber					: 		std_Logic_vector(31 downto 0) := (others => '0');
-			pdiRev						: 		std_logic_vector(15 downto 0) := (others => '0');
-			tPdoBuffer					: 		std_logic_vector(31 downto 0) := (others => '0');
-			rPdo0Buffer					: 		std_logic_vector(31 downto 0) := (others => '0');
-			rPdo1Buffer					: 		std_logic_vector(31 downto 0) := (others => '0');
-			rPdo2Buffer					: 		std_logic_vector(31 downto 0) := (others => '0');
-			asyncBuffer1Tx				: 		std_logic_vector(31 downto 0) := (others => '0');
-			asyncBuffer1Rx				: 		std_logic_vector(31 downto 0) := (others => '0');
-			asyncBuffer2Tx				: 		std_logic_vector(31 downto 0) := (others => '0');
-			asyncBuffer2Rx				:		std_logic_vector(31 downto 0) := (others => '0')
-	);
-			
-	port (   
-			--memory mapped interface
-			clk							: in    std_logic;
-			rst                  		: in    std_logic;
-			sel							: in	std_logic;
-			wr							: in	std_logic;
-			rd							: in	std_logic;
-			addr						: in	std_logic_vector(iAddrWidth_g-1 downto 0);
-			be							: in	std_logic_vector(3 downto 0);
-			din							: in	std_logic_vector(31 downto 0);
-			dout						: out	std_logic_vector(31 downto 0);
-			--register content
-			---virtual buffer control signals
-			rpdo_change_tog				: in	std_logic_vector(2 downto 0); --change buffer from hw acc
-			tpdo_change_tog				: in	std_logic; --change buffer from hw acc
-			pdoVirtualBufferSel			: in	std_logic_vector(31 downto 0); 	--for debugging purpose from SW side
-																				--TXPDO_ACK | RXPDO2_ACK | RXPDO1_ACK | RXPDO0_ACK
-			tPdoTrigger					: out	std_logic; --TPDO virtual buffer change trigger
-			rPdoTrigger					: out	std_logic_vector(2 downto 0); --RPDOs virtual buffer change triggers
-			---is used for Irq Generation and should be mapped to apIrqGen
-			apIrqControlOut				: out	std_logic_vector(15 downto 0);
-			apIrqControlIn				: in	std_logic_vector(15 downto 0);
-			---event registers
-			eventAckIn 					: in	std_logic_vector(15 downto 0);
-			eventAckOut					: out	std_logic_vector(15 downto 0);
-			---async irq (by event)
-			asyncIrqCtrlIn				: In	std_logic_vector(15 downto 0); --Ap only
-			asyncIrqCtrlOut				: out	std_logic_vector(15 downto 0); --Ap only
-			---led stuff
-			ledCnfgIn 					: in	std_logic_vector(15 downto 0);
-			ledCnfgOut 					: out	std_logic_vector(15 downto 0);
-			ledCtrlIn 					: in	std_logic_vector(15 downto 0);
-			ledCtrlOut 					: out	std_logic_vector(15 downto 0);
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					: out	std_logic_vector(iDprAddrWidth_g downto 0);
-			dprDin						: out	std_logic_vector(31 downto 0);
-			dprDout						: in	std_logic_vector(31 downto 0);
-			dprBe						: out	std_logic_vector(3 downto 0);
-			dprWr						: out	std_logic
-			
-	);
-end entity pdiControlStatusReg;
-
-architecture rtl of pdiControlStatusReg is
-signal selDpr							:		std_logic; --if '1' get/write content from/to dpr
-signal nonDprDout						:		std_logic_vector(31 downto 0);
-signal addrRes							:		std_logic_vector(dprAddrOff'range);
---signal apIrqValue_s						: 		std_logic_vector(31 downto 0); --pcp only
-
-signal virtualBufferSelectTpdo			:		std_logic_vector(15 downto 0);
-signal virtualBufferSelectRpdo0			:		std_logic_vector(15 downto 0);
-signal virtualBufferSelectRpdo1			:		std_logic_vector(15 downto 0);
-signal virtualBufferSelectRpdo2			:		std_logic_vector(15 downto 0);
-
---edge detection
-signal rpdo_change_tog_l				: 		std_logic_vector(2 downto 0); --change buffer from hw acc
-signal tpdo_change_tog_l				: 		std_logic; --change buffer from hw acc
-begin	
-	--map to 16bit register
-	--TXPDO_ACK | RXPDO2_ACK | RXPDO1_ACK | RXPDO0_ACK
-	virtualBufferSelectRpdo0 <= pdoVirtualBufferSel( 7 downto  0) & pdoVirtualBufferSel( 7 downto  0);
-	virtualBufferSelectRpdo1 <= pdoVirtualBufferSel(15 downto  8) & pdoVirtualBufferSel(15 downto  8);
-	virtualBufferSelectRpdo2 <= pdoVirtualBufferSel(23 downto 16) & pdoVirtualBufferSel(23 downto 16);
-	virtualBufferSelectTpdo  <= pdoVirtualBufferSel(31 downto 24) & pdoVirtualBufferSel(31 downto 24);
-	
-	--generate dpr select signal
-	selDpr	<=	sel		when	(conv_integer(addr) >= iBaseDpr_g AND
-								 conv_integer(addr) <  iBaseDpr_g + iSpanDpr_g)
-						else	'0';
-
-	--assign content depending on selDpr
-	dprDin		<=	din;
-	dprBe		<=	be;
-	dprWr		<=	wr		when	selDpr = '1'	else
-					'0';
-	dout		<=	dprDout	when	selDpr = '1'	else
-					nonDprDout;
-	dprAddrOff	<=	addrRes when	selDpr = '1'	else
-					(others => '0');
-	
-	--address conversion
-	---map external address mapping into dpr
-	addrRes <= 	conv_std_logic_vector(iBaseMap2_g - iBaseDpr_g, addrRes'length);
-	
-	--non dpr read
-	with conv_integer(addr)*4 select
-		nonDprDout <=	magicNumber 					when 16#00#,
-						(x"0000" & pdiRev) 				when 16#04#,
-						--STORED IN DPR 				when 16#08#,
-						--STORED IN DPR 				when 16#0C#,
-						--STORED IN DPR 				when 16#10#,
-						--STORED IN DPR 				when 16#14#,
-						--STORED IN DPR 				when 16#18#,
-						--STORED IN DPR 				when 16#1C#,
-						--STORED IN DPR 				when 16#20#,
-						--STORED IN DPR 				when 16#24#,
-						--STORED IN DPR 				when 16#28#,
-						--STORED IN DPR					when 16#2C#,
-						--STORED IN DPR					when 16#30#,
-						(eventAckIn & asyncIrqCtrlIn) 	when 16#34#,
-						tPdoBuffer 						when 16#38#,
-						rPdo0Buffer 					when 16#3C#,
-						rPdo1Buffer 					when 16#40#,
-						rPdo2Buffer 					when 16#44#,
-						asyncBuffer1Tx 					when 16#48#,
-						asyncBuffer1Rx 					when 16#4C#,
-						asyncBuffer2Tx 					when 16#50#,
-						asyncBuffer2Rx 					when 16#54#,
-						--RESERVED 						when 16#58#,
-						--RESERVED 						when 16#5C#,
-						(virtualBufferSelectRpdo0 & 
-						virtualBufferSelectTpdo) 		when 16#60#,
-						(virtualBufferSelectRpdo2 & 
-						virtualBufferSelectRpdo1) 		when 16#64#,
-						(x"0000" & apIrqControlIn) 		when 16#68#,
-						--RESERVED						when 16#6C#,
-						--RESERVED 						when 16#70#,
-						(ledCnfgIn & ledCtrlIn) 		when 16#74#,
-						(others => '0') 				when others;
-	
-	--ignored values
-	asyncIrqCtrlOut(14 downto 1) <= (others => '0');
-	eventAckOut(15 downto 8) <= (others => '0');
-	--non dpr write
-	process(clk, rst)
-	begin
-		if rst = '1' then
-			tPdoTrigger <= '0';
-			rPdoTrigger <= (others => '0');
-			apIrqControlOut <= (others => '0');
-			asyncIrqCtrlOut(0) <= '0';
-			asyncIrqCtrlOut(15) <= '0';
-			eventAckOut(7 downto 0) <= (others => '0');
-			ledCtrlOut(7 downto 0) <= (others => '0');
-			ledCnfgOut(7 downto 0) <= (others => '0');
-			if bIsPcp then
-				rpdo_change_tog_l <= (others => '0');
-				tpdo_change_tog_l <= '0';
-			end if;
-		elsif clk = '1' and clk'event then
-			--default assignments
-			tPdoTrigger <= '0';
-			rPdoTrigger <= (others => '0');
-			apIrqControlOut(0) <= '0'; --PCP: set pulse // AP: ack pulse
-			eventAckOut(7 downto 0) <= (others => '0'); --PCP: set pulse // AP: ack pulse
-			
-			if bIsPcp then
-				--shift register for edge det
-				rpdo_change_tog_l <= rpdo_change_tog;
-				tpdo_change_tog_l <= tpdo_change_tog;
-				
-				--edge detection
-				---tpdo
-				if tpdo_change_tog_l /= tpdo_change_tog then
-					tPdoTrigger <= '1';
-				end if;
-				---rpdo
-				for i in rpdo_change_tog'range loop
-					if rpdo_change_tog_l(i) /= rpdo_change_tog(i) then
-						rPdoTrigger(i) <= '1';
-					end if;
-				end loop;
-			end if;
-			
-			if wr = '1' and sel = '1' and selDpr = '0' then
-				case conv_integer(addr)*4 is
-					when 16#00# =>
-						--RO
-					when 16#04# =>
-						--RO
-					when 16#08# =>
-						--STORED IN DPR
-					when 16#0C# =>
-						--STORED IN DPR
-					when 16#10# =>
-						--STORED IN DPR
-					when 16#14# =>
-						--STORED IN DPR
-					when 16#18# =>
-						--STORED IN DPR
-					when 16#1C# =>
-						--STORED IN DPR
-					when 16#20# =>
-						--STORED IN DPR
-					when 16#24# =>
-						--STORED IN DPR
-					when 16#28# =>
-						--STORED IN DPR
-					when 16#2C# =>
-						--STORED IN DPR
-					when 16#30# =>
-						--STORED IN DPR
-					
-					when 16#34# =>
-						--AP ONLY
-						if be(0) = '1' and bIsPcp = false then
-							--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
-							asyncIrqCtrlOut(0) <= din(0); --rest is ignored
-						end if;
-						if be(1) = '1' and bIsPcp = false then
-							--asyncIrqCtrlOut(15 downto 8) <= din(15 downto 8);
-							asyncIrqCtrlOut(15) <= din(15); --rest is ignored
-						end if;
-						if be(2) = '1' then
-							eventAckOut(7 downto 0) <= din(23 downto 16);
-						end if;
---ignore higher byte of event ack
---						if be(3) = '1' then
---							eventAckOut(15 downto 8) <= din(31 downto 24);
---						end if;
-					when 16#38# =>
-						--RO
-					when 16#3C# =>
-						--RO
-					when 16#40# =>
-						--RO
-					when 16#44# =>
-						--RO
-					when 16#48# =>
-						--RO
-					when 16#4C# =>
-						--RO
-					when 16#50# =>
-						--RO
-					when 16#54# =>
-						--RO
-					when 16#58# =>
-						--RESERVED
-					when 16#5C# =>
-						--RESERVED
-					when 16#60# =>
-						if be(0) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(1) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(2) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
-						if be(3) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
-					when 16#64# =>
-						if be(0) = '1' then
-							rPdoTrigger(1) <= '1';
-						end if;
-						if be(1) = '1' then
-							rPdoTrigger(1) <= '1';
-						end if;
-						if be(2) = '1' then
-							rPdoTrigger(2) <= '1';
-						end if;
-						if be(3) = '1' then
-							rPdoTrigger(2) <= '1';
-						end if;
-					when 16#68# =>
-						if be(0) = '1' then
-							apIrqControlOut(7 downto 0) <= din(7 downto 0);
-						end if;
-						if be(1) = '1' then
-							apIrqControlOut(15 downto 8) <= din(15 downto 8);
-						end if;
-					when 16#6C# =>
-						--RESERVED
-					when 16#70# =>
-						--RESERVED
-					when 16#74# =>
-						if be(0) = '1' then
-							ledCtrlOut(7 downto 0) <= din(7 downto 0);
-						end if;
-						if be(1) = '1' then
-							ledCtrlOut(15 downto 8) <= din(15 downto 8);
-						end if;
-						if be(2) = '1' then
-							ledCnfgOut(7 downto 0) <= din(23 downto 16);
-						end if;
-						if be(3) = '1' then
-							ledCnfgOut(15 downto 8) <= din(31 downto 24);
-						end if;
-					when others =>
-				end case;
-			end if;
-		end if;
-	end process;
-		
-end architecture rtl;
-
-------------------------------------------------------------------------------------------------------------------------
--- entity for AP IRQ generation
-------------------------------------------------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-entity apIrqGen is
-	generic (
-		genOnePdiClkDomain_g		:		boolean := false
-	);
-	port (
-		--CLOCK DOMAIN PCP
-		clkA							: in	std_logic;
-		rstA							: in	std_logic;
-		irqA							: in	std_logic; --toggle from MAC
-		enableA							: in	std_logic; --APIRQ_CONTROL / IRQ_En
-		modeA							: in	std_logic; --APIRQ_CONTROL / IRQ_MODE
-		setA							: in	std_logic; --APIRQ_CONTROL / IRQ_SET
-		--CLOCK DOMAIN AP
-		clkB							: in	std_logic;
-		rstB							: in	std_logic;
-		ackB							: in	std_logic; --APIRQ_CONTROL / IRQ_ACK
-		irqB							: out	std_logic
-	);
-end entity apIrqGen;
-
-architecture rtl of apIrqGen is
-type fsm_t is (wait4event, setIrq, wait4ack);
-signal fsm								:		fsm_t;
-signal enable, mode, irq, toggle, set	:		std_logic;
-begin
-	
-	--everything is done in clkB domain!
-	theFsm : process(clkB, rstB)
-	begin
-		if rstB = '1' then
-			irqB <= '0';
-			fsm <= wait4event;
-		elsif clkB = '1' and clkB'event then
-			if enable = '1' then
-				case fsm is
-					when wait4event =>
-						if mode = '0' and set = '1' then
-							fsm <= setIrq;
-						elsif mode = '1' and irq = '1' then
-							fsm <= setIrq;
-						else
-							fsm <= wait4event;
-						end if;
-					when setIrq =>
-						irqB <= '1';
-						fsm <= wait4ack;
-					when wait4ack =>
-						if ackB = '1' then
-							irqB <= '0';
-							fsm <= wait4event;
-						else
-							fsm <= wait4ack;
-						end if;
-				end case;
-			else
-				irqB <= '0';
-				fsm <= wait4event;
-			end if;
-		end if;
-	end process;
-	
-	syncEnable : entity work.sync
+		-- PCP
+		thePcpWrWaitReqAckGen : entity work.req_ack
 		generic map (
-			doSync_g => not genOnePdiClkDomain_g
+			zero_delay_g => true
 		)
 		port map (
-			inData => enableA,
-			outData => enable,
-			clk => clkB,
-			rst => rstB
+			clk => pcp_clk,
+			rst => pcp_reset,
+			enable => pcp_wr,
+			ack => pcp_wr_ack
 		);
-	
-	syncSet : entity work.slow2fastSync
+		
+		thePcpRdWaitReqAckGen : entity work.req_ack
 		generic map (
-			doSync_g => not genOnePdiClkDomain_g
+			ack_delay_g => 2,
+			zero_delay_g => false
 		)
 		port map (
-			dataSrc => setA,
-			dataDst => set,
-			clkSrc => clkA,
-			rstSrc => rstA,
-			clkDst => clkB,
-			rstDst => rstB
+			clk => pcp_clk,
+			rst => pcp_reset,
+			enable => pcp_rd,
+			ack => pcp_rd_ack
 		);
-	
-	syncMode : entity work.sync
+		
+		pcp_wr <= pcp_chipselect and pcp_write;
+		pcp_rd <= pcp_chipselect and pcp_read;
+		pcp_waitrequest <= not(pcp_rd_ack or pcp_wr_ack);
+		
+		-- AP
+		theApWrWaitReqAckGen : entity work.req_ack
 		generic map (
-			doSync_g => not genOnePdiClkDomain_g
+			zero_delay_g => true
 		)
 		port map (
-			inData => modeA,
-			outData => mode,
-			clk => clkB,
-			rst => rstB
+			clk => ap_clk,
+			rst => ap_reset,
+			enable => ap_wr,
+			ack => ap_wr_ack
 		);
-	
-	syncToggle : entity work.sync
+		
+		theApRdWaitReqAckGen : entity work.req_ack
 		generic map (
-			doSync_g => not genOnePdiClkDomain_g
+			ack_delay_g => 2,
+			zero_delay_g => false
 		)
 		port map (
-			inData => irqA,
-			outData => toggle,
-			clk => clkB,
-			rst => rstB
+			clk => ap_clk,
+			rst => ap_reset,
+			enable => ap_rd,
+			ack => ap_rd_ack
 		);
-	
-	toggleEdgeDet : entity work.edgeDet
-		port map (
-			inData => toggle,
-			rising => open,
-			falling => open,
-			any => irq,
-			clk => clkB,
-			rst => rstB
-		);
-	
-end architecture rtl;
+		
+		ap_wr <= ap_chipselect and ap_write;
+		ap_rd <= ap_chipselect and ap_read;
+		ap_waitrequest <= not(ap_rd_ack or ap_wr_ack);
+		
+	end block;
 
+--
 ------------------------------------------------------------------------------------------------------------------------
--- entity for asynchronous Tx/Rx buffers, and Tpdo/Rpdo descriptors (simple dpr mapping)
-------------------------------------------------------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
 
-entity pdiSimpleReg is
-	generic (
-			iAddrWidth_g				:		integer := 10; --only use effective addr range (e.g. 2kB leads to iAddrWidth_g := 10)
-			iBaseMap2_g					:		integer := 0; --base address in dpr
-			iDprAddrWidth_g				:		integer := 12
-	);
-			
-	port (   
-			--memory mapped interface
-			sel							: in	std_logic;
-			wr							: in	std_logic;
-			rd							: in	std_logic;
-			addr						: in	std_logic_vector(iAddrWidth_g-1 downto 0);
-			be							: in	std_logic_vector(3 downto 0);
-			din							: in	std_logic_vector(31 downto 0);
-			dout						: out	std_logic_vector(31 downto 0);
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					: out	std_logic_vector(iDprAddrWidth_g downto 0);
-			dprDin						: out	std_logic_vector(31 downto 0);
-			dprDout						: in	std_logic_vector(31 downto 0);
-			dprBe						: out	std_logic_vector(3 downto 0);
-			dprWr						: out	std_logic
-			
-	);
-end entity pdiSimpleReg;
-
-architecture rtl of pdiSimpleReg is
-signal addrRes							:		std_logic_vector(dprAddrOff'range);
-begin
-	
-	--assign content to dpr
-	dprDin		<=	din;
-	dprBe		<=	be;
-	dprWr		<=	wr		when	sel = '1'		else
-					'0';
-	dout		<=	dprDout	when	sel = '1'		else
-					(others => '0');
-	dprAddrOff	<=	addrRes when	sel = '1'		else
-					(others => '0');
-	
-	--address conversion
-	---map external address mapping into dpr
-	addrRes <= '0' & conv_std_logic_vector(iBaseMap2_g, addrRes'length - 1);
-		
 end architecture rtl;
-
-----------------
---synchronizer--
-----------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-ENTITY sync IS
-	GENERIC (
-			doSync_g					:		BOOLEAN := TRUE
-	);
-	PORT (
-			inData						: IN	STD_LOGIC;
-			outData						: OUT	STD_LOGIC;
-			clk							: IN	STD_LOGIC;
-			rst							: IN	STD_LOGIC
-	);
-END ENTITY sync;
-
-ARCHITECTURE rtl OF sync IS
-SIGNAL sync1_s, sync2_s					: STD_LOGIC;
-BEGIN
-	
-	outData <= sync2_s when doSync_g = TRUE else inData;
-	
-	genSync : IF doSync_g = TRUE GENERATE
-		syncShiftReg : PROCESS(clk, rst)
-		BEGIN
-			IF rst = '1' THEN
-				sync1_s <= '0';
-				sync2_s <= '0';
-			ELSIF clk = '1' AND clk'EVENT THEN
-				sync1_s <= inData; --1st ff
-				sync2_s <= sync1_s; --2nd ff
-			END IF;
-		END PROCESS syncShiftReg;
-	END GENERATE;
-END ARCHITECTURE rtl;
-
------------------
---edge detector--
------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-ENTITY edgeDet IS
-	PORT (
-			inData						: IN	STD_LOGIC;
-			rising						: OUT	STD_LOGIC;
-			falling						: OUT	STD_LOGIC;
-			any							: OUT	STD_LOGIC;
-			clk							: IN	STD_LOGIC;
-			rst							: IN	STD_LOGIC
-	);
-END ENTITY edgeDet;
-
-ARCHITECTURE rtl OF edgeDet IS
-SIGNAL sreg								: STD_LOGIC_VECTOR(1 downto 0);
-BEGIN
-	
-	any <= sreg(1) xor sreg(0);
-	falling <= sreg(1) and not sreg(0);
-	rising <= not sreg(1) and sreg(0);
-	
-	shiftReg : PROCESS(clk, rst)
-	BEGIN
-		IF rst = '1' THEN
-			sreg <= (others => '0');
-		ELSIF clk = '1' AND clk'EVENT THEN
-			sreg <= sreg(0) & inData;
-		END IF;
-	END PROCESS;
-	
-END ARCHITECTURE rtl;
-
---------------------------
---slow2fast synchronizer--
---------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-ENTITY slow2fastSync IS
-	GENERIC (
-			doSync_g					:		BOOLEAN := TRUE
-	);
-	PORT (
-			dataSrc						: IN	STD_LOGIC;
-			dataDst						: OUT	STD_LOGIC;
-			clkSrc						: IN	STD_LOGIC;
-			rstSrc						: IN	STD_LOGIC;
-			clkDst						: IN	STD_LOGIC;
-			rstDst						: IN	STD_LOGIC
-	);
-END ENTITY slow2fastSync;
-
-ARCHITECTURE rtl OF slow2fastSync IS
-signal toggle, toggleSync, pulse, dataDst_s : std_logic;
-begin
-	
-	dataDst <= dataDst_s when doSync_g = TRUE else dataSrc;
-	
-	genSync : IF doSync_g = TRUE GENERATE
-		firstEdgeDet : entity work.edgeDet
-			port map (
-				inData => dataSrc,
-				rising => pulse,
-				falling => open,
-				any => open,
-				clk => clkSrc,
-				rst => rstSrc
-			);
-		
-		process(clkSrc, rstSrc)
-		begin
-			if rstSrc = '1' then
-				toggle <= '0';
-			elsif clkSrc = '1' and clkSrc'event then
-				if pulse = '1' then
-					toggle <= not toggle;
-				end if;
-			end if;
-		end process;
-		
-		sync : entity work.sync
-			port map (
-				inData => toggle,
-				outData => toggleSync,
-				clk => clkDst,
-				rst => rstDst
-			);
-		
-		secondEdgeDet : entity work.edgeDet
-			port map (
-				inData => toggleSync,
-				rising => open,
-				falling => open,
-				any => dataDst_s,
-				clk => clkDst,
-				rst => rstDst
-			);
-	END GENERATE;
-		
-END ARCHITECTURE rtl;

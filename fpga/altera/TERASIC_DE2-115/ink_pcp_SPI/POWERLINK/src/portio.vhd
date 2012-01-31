@@ -40,6 +40,7 @@
 -- 2010-11-23	V0.03	zelenkaj	Added Operational Flag to portio
 --									Added counter for valid assertion duration
 -- 2010-04-20	V0.10	zelenkaj	Added synchronizer at inputs
+-- 2011-12-02	V0.11	zelenkaj	Added I, O and T instead of IO ports
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -49,7 +50,8 @@ USE ieee.std_logic_unsigned.all;
 
 entity portio is
 	generic (
-		pioValLen_g 	:		integer := 50 --clock ticks of pcp_clk
+		pioValLen_g 	:		integer := 50; --clock ticks of pcp_clk
+		pioGenIoBuf_g	:		boolean := true
 	);
 	port (
 		s0_address    	: in    std_logic;
@@ -58,12 +60,16 @@ entity portio is
 		s0_write      	: in    std_logic;
 		s0_writedata  	: in    std_logic_vector(31 downto 0);
 		s0_byteenable 	: in    std_logic_vector(3 downto 0);
+		s0_waitrequest	: out	std_logic;
 		clk        		: in    std_logic;
 		reset      		: in    std_logic;
 		x_pconfig    	: in    std_logic_vector(3 downto 0);
 		x_portInLatch	: in 	std_logic_vector(3 downto 0);
 		x_portOutValid 	: out 	std_logic_vector(3 downto 0);
 		x_portio     	: inout std_logic_vector(31 downto 0);
+		x_portio_I		: in 	std_logic_vector(31 downto 0) := (others => '0');
+		x_portio_O		: out	std_logic_vector(31 downto 0);
+		x_portio_T		: out	std_logic_vector(31 downto 0);
 		x_operational 	: out 	std_logic
 	);
 end entity portio;
@@ -81,10 +87,22 @@ begin
 	x_operational <= x_operational_s;
 	
 	portGen : for i in 3 downto 0 generate
-		--if port configuration bit is set to '0', the appropriate port-byte is an output
-		x_portio((i+1)*8-1 downto (i+1)*8-8) 	<= sPortOut((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '0' else (others => 'Z');
-		--if port configuration bit is set to '1', the appropriate port-byte is forwarded to the portio registers for the PCP
-		sPortIn((i+1)*8-1 downto (i+1)*8-8)		<= x_portio((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '1' else (others => '0');
+		genIoBuf : if pioGenIoBuf_g generate
+		begin
+			--if port configuration bit is set to '0', the appropriate port-byte is an output
+			x_portio((i+1)*8-1 downto (i+1)*8-8) 	<= sPortOut((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '0' else (others => 'Z');
+			--if port configuration bit is set to '1', the appropriate port-byte is forwarded to the portio registers for the PCP
+			sPortIn((i+1)*8-1 downto (i+1)*8-8)		<= x_portio((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '1' else (others => '0');
+		end generate;
+		
+		dontGenIoBuf : if not pioGenIoBuf_g generate
+		begin
+			x_portio_O((i+1)*8-1 downto (i+1)*8-8) 	<= sPortOut((i+1)*8-1 downto (i+1)*8-8);
+			sPortIn((i+1)*8-1 downto (i+1)*8-8)		<= x_portio_I((i+1)*8-1 downto (i+1)*8-8);
+			--if port configuration bit is set to '0', the appropriate port-byte is an output ('0')
+			--if port configuration bit is set to '1', the appropriate port-byte is an input ('1')
+			x_portio_T((i+1)*8-1 downto (i+1)*8-8)	<= (others => '0') when sPortConfig(i) = '0' else (others => '1');
+		end generate;
 	end generate;
 	
 	--Avalon interface
@@ -159,12 +177,43 @@ begin
 		end if;
 	end process;
 	
+	-- waitrequest signals
+	theWaitrequestGenerators : block
+		signal s0_rd_ack, s0_wr_ack : std_logic;
+	begin
+		
+		-- PCP
+		thePcpWrWaitReqAckGen : entity work.req_ack
+		generic map (
+			zero_delay_g => true
+		)
+		port map (
+			clk => clk,
+			rst => reset,
+			enable => s0_write,
+			ack => s0_wr_ack
+		);
+		
+		thePcpRdWaitReqAckGen : entity work.req_ack
+		generic map (
+			zero_delay_g => true
+		)
+		port map (
+			clk => clk,
+			rst => reset,
+			enable => s0_read,
+			ack => s0_rd_ack
+		);
+		
+		s0_waitrequest <= not(s0_rd_ack or s0_wr_ack);
+	end block;
+	
 	--synchronize input signals
 	genSyncInputs : for i in sPortIn'range generate
 		syncInputs : entity work.sync
 			port map (
-				inData => sPortIn(i),
-				outData => sPortIn_s(i),
+				din => sPortIn(i),
+				dout => sPortIn_s(i),
 				clk => clk,
 				rst => reset
 			);
@@ -174,71 +223,11 @@ begin
 	genSyncLatch : for i in x_portInLatch'range generate
 		syncInputs : entity work.sync
 			port map (
-				inData => x_portInLatch(i),
-				outData => x_portInLatch_s(i),
+				din => x_portInLatch(i),
+				dout => x_portInLatch_s(i),
 				clk => clk,
 				rst => reset
 			);
-	end generate;
-	
-end architecture rtl;
-
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-entity portio_cnt is
-	generic (
-		maxVal 			:		integer := 50 --clock ticks of pcp_clk
-	);
-	port (
-		clk				:		in std_logic;
-		rst				:		in std_logic;
-		pulse			:		in std_logic;
-		valid			:		out std_logic
-	);
-end entity portio_cnt;
-
-architecture rtl of portio_cnt is
-signal cnt : integer range 0 to maxVal-2;
-signal tc, en : std_logic;
-begin
-	genCnter : if maxVal > 1 generate
-		tc <= '1' when cnt = maxVal-2 else '0';
-		valid <= en or pulse;
-		
-		counter : process(clk, rst)
-		begin
-			if rst = '1' then
-				cnt <= 0;
-			elsif clk = '1' and clk'event then
-				if tc = '1' then
-					cnt <= 0;
-				elsif en = '1' then
-					cnt <= cnt + 1;
-				else
-					cnt <= 0;
-				end if;
-			end if;
-		end process;
-		
-		enGen : process(clk, rst)
-		begin
-			if rst = '1' then
-				en <= '0';
-			elsif clk = '1' and clk'event then
-				if pulse = '1' then
-					en <= '1';
-				elsif tc = '1' then
-					en <= '0';
-				end if;
-			end if;
-		end process;
-	end generate;
-	
-	genSimple : if maxVal = 1 generate
-		valid <= pulse;
 	end generate;
 	
 end architecture rtl;

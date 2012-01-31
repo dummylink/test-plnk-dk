@@ -43,6 +43,7 @@
 -- 2010-11-29	V0.05	zelenkaj	full endianness consideration
 -- 2011-03-21	V0.06	zelenkaj	clean up
 -- 2011-04-04	V0.10	zelenkaj	change of concept
+-- 2011-12-02	V0.11	zelenkaj	Added I, O and T instead of IO ports
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -52,9 +53,10 @@ USE ieee.std_logic_unsigned.all;
 
 entity pdi_par is
 	generic (
-	papDataWidth_g				:		integer := 8;
-	--16bit data is big endian if true
-	papBigEnd_g					:		boolean := false
+		papDataWidth_g				:		integer := 8;
+		--16bit data is big endian if true
+		papBigEnd_g					:		boolean := false;
+		papGenIoBuf_g				:		boolean := true
 	);
 			
 	port (   
@@ -65,6 +67,9 @@ entity pdi_par is
 			pap_be						: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 			pap_addr 					: in    std_logic_vector(15 downto 0);
 			pap_data					: inout	std_logic_vector(papDataWidth_g-1 downto 0);
+			pap_data_I					: in 	std_logic_vector(papDataWidth_g-1 downto 0) := (others => '0');
+			pap_data_O					: out	std_logic_vector(papDataWidth_g-1 downto 0);
+			pap_data_T					: out	std_logic;
 			pap_ack						: out	std_logic;
 		-- clock for AP side
 			ap_reset					: in    std_logic;
@@ -78,7 +83,10 @@ entity pdi_par is
             ap_writedata                : out	std_logic_vector(31 DOWNTO 0);
             ap_readdata                 : in	std_logic_vector(31 DOWNTO 0);
 		-- GPIO
-			pap_gpio					: inout	std_logic_vector(1 downto 0)
+			pap_gpio					: inout	std_logic_vector(1 downto 0);
+			pap_gpio_I					: in 	std_logic_vector(1 downto 0) := (others => '0');
+			pap_gpio_O					: out	std_logic_vector(1 downto 0);
+			pap_gpio_T					: out	std_logic_vector(1 downto 0)
 	);
 end entity pdi_par;
 
@@ -104,12 +112,25 @@ architecture rtl of pdi_par is
 begin
 	
 	--reserved for further features not yet defined
+	genIoGpBuf : if papGenIoBuf_g generate
+	begin
+		pap_gpio <= "00" when pap_gpiooe_s = "11" else (others => 'Z');
+	end generate;
+	
 	pap_gpiooe_s <= (others => '1');
-	pap_gpio <= "00" when pap_gpiooe_s = "11" else (others => 'Z');
+	
+	pap_gpio_O <= "00";
+	pap_gpio_T <= not pap_gpiooe_s; --'1' = In, '0' = Out
 	
 	-------------------------------------------------------------------------------------
 	-- tri-state buffer
-	pap_data <= pap_rddata_s when pap_doe_s = '1' else (others => 'Z');
+	genIoDatBuf : if papGenIoBuf_g generate
+	begin
+		pap_data <= pap_rddata_s when pap_doe_s = '1' else (others => 'Z');
+	end generate;
+	
+	pap_data_O <= pap_rddata_s;
+	pap_data_T <= not pap_doe_s; --'1' = In, '0' = Out
 	
 	-- write data register
 	-- latches data at falling edge of pap_wr if pap_cs is set
@@ -119,7 +140,11 @@ begin
 			writeRegister <= (others => '0');
 		elsif pap_wr = '0' and pap_wr'event then
 			if pap_cs = '1' then
-				writeRegister <= pap_data;
+				if papGenIoBuf_g then
+					writeRegister <= pap_data;
+				else
+					writeRegister <= pap_data_I;
+				end if;
 			end if;
 		end if;
 	end process;
@@ -135,7 +160,7 @@ begin
 	--falling edge latches write data, sync'd write strobe  falls too
 	wrEdgeDet : entity work.edgeDet
 		port map (
-			inData => pap_wr_s,
+			din => pap_wr_s,
 			rising => open,
 			falling => ap_write_s,
 			any => open,
@@ -251,8 +276,8 @@ begin
 	syncAddrGen : for i in pap_addr'range generate
 		syncAddr : entity work.sync
 			port map (
-				inData => pap_addr(i),
-				outData => pap_addr_s(i),
+				din => pap_addr(i),
+				dout => pap_addr_s(i),
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -261,8 +286,8 @@ begin
 	syncBeGen : for i in pap_be'range generate
 		syncBe : entity work.sync
 			port map (
-				inData => pap_be(i),
-				outData => pap_be_s(i),
+				din => pap_be(i),
+				dout => pap_be_s(i),
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -271,8 +296,8 @@ begin
 	syncWrRegGen : for i in writeRegister'range generate
 		syncWrReg : entity work.sync
 			port map (
-				inData => writeRegister(i),
-				outData => pap_wrdata_s(i),
+				din => writeRegister(i),
+				dout => pap_wrdata_s(i),
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -283,8 +308,8 @@ begin
 	begin
 		syncCs : entity work.sync
 			port map (
-				inData => pap_cs,
-				outData => pap_cs_tmp,
+				din => pap_cs,
+				dout => pap_cs_tmp,
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -292,8 +317,8 @@ begin
 		
 		syncRd : entity work.sync
 			port map (
-				inData => pap_rd,
-				outData => pap_rd_tmp,
+				din => pap_rd,
+				dout => pap_rd_tmp,
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -301,8 +326,8 @@ begin
 		
 		syncWr : entity work.sync
 			port map (
-				inData => pap_wr,
-				outData => pap_wr_tmp,
+				din => pap_wr,
+				dout => pap_wr_tmp,
 				clk => ap_clk,
 				rst => ap_reset
 			);
