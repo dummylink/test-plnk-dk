@@ -260,22 +260,21 @@ CnApi_initSyncInt() is used to initialize the synchronization interrupt used by
 the PCP to inform the AP that process data must be transfered. The cycle timing
 of the synchronization will be calculated depending on the given parameters.
 
-\param  dwMinCycleTime_p     minimum cycle time
-\param  dwMaxCycleTime_p     maximum cycle time
-\param  bMaxCycleNum_p      maximum number of POWERLINK cycles until a synchronization
-                            interrupt must occur
+\param  dwMinCycleTime_p    minimum cycle time
+\param  dwMaxCycleTime_p    maximum cycle time
+\param  bReserved_p         reserved for future use
 *******************************************************************************/
-void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum_p)
+void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved_p)
 {
     /* initialize interrupt cycle timing registers */
     pCtrlReg_g->m_dwMinCycleTime = dwMinCycleTime_p;
     pCtrlReg_g->m_dwMaxCycleTime = dwMaxCycleTime_p;
-    pCtrlReg_g->m_wMaxCycleNum = bMaxCycleNum_p;
+    pCtrlReg_g->wCycleCalc_Reserved4 = bReserved_p;
 
 #ifdef AP_IS_BIG_ENDIAN
     pCtrlRegLE_g->m_dwMinCycleTime = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->m_dwMinCycleTime));
     pCtrlRegLE_g->m_dwMaxCycleTime = AmiGetDwordToLe((BYTE*)&(pCtrlReg_g->m_dwMaxCycleTime));
-    pCtrlRegLE_g->m_wMaxCycleNum = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->m_wMaxCycleNum));
+    pCtrlRegLE_g->wCycleCalc_Reserved4 = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->wCycleCalc_Reserved4));
 #endif // AP_IS_BIG_ENDIAN
 
 #ifdef CN_API_USING_SPI
@@ -287,8 +286,8 @@ void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMax
                     sizeof(pCtrlRegLE_g->m_dwMaxCycleTime),
                     (BYTE*) &pCtrlRegLE_g->m_dwMaxCycleTime);
     CnApi_Spi_write(PCP_CTRLREG_MAXCYCNUM_OFFSET,
-                    sizeof(pCtrlRegLE_g->m_wMaxCycleNum),
-                    (BYTE*) &pCtrlRegLE_g->m_wMaxCycleNum);
+                    sizeof(pCtrlRegLE_g->wCycleCalc_Reserved4),
+                    (BYTE*) &pCtrlRegLE_g->wCycleCalc_Reserved4);
 #endif
 }
 
@@ -591,7 +590,7 @@ void CnApi_GetCntrlRegfromLe(tPcpCtrlReg * pDest_p, tPcpCtrlReg * pSrcLE_p)
         pDest_p->m_dwMaxCycleTime    = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwMaxCycleTime);
         pDest_p->m_dwMinCycleTime    = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwMinCycleTime);
         pDest_p->m_wCycleCorrect     = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wCycleCorrect);
-        pDest_p->m_wMaxCycleNum      = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wMaxCycleNum);
+        pDest_p->wCycleCalc_Reserved4      = AmiGetWordFromLe((BYTE*)&pSrcLE_p->wCycleCalc_Reserved4);
         pDest_p->m_dwSyncIntCycTime  = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwSyncIntCycTime);
         pDest_p->m_wEventType        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wEventType);
         pDest_p->m_wEventArg         = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wEventArg);

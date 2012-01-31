@@ -237,9 +237,8 @@ void Gi_calcSyncIntPeriod(void)
         return;
     }
 
-    if (pCtrlReg_g->m_dwMinCycleTime == 0 &&
-        pCtrlReg_g->m_dwMaxCycleTime == 0 &&
-        pCtrlReg_g->m_wMaxCycleNum == 0)
+    if ((pCtrlReg_g->m_dwMinCycleTime == 0) &&
+        (pCtrlReg_g->m_dwMaxCycleTime == 0)   )
     {
         /* no need to trigger IR signal - polling mode is applied */
         wSyncIntCycle_g = 0;
@@ -251,13 +250,6 @@ void Gi_calcSyncIntPeriod(void)
 
     DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%lu --> syncPeriod=%d\n",
                    uiCycleTime, pCtrlReg_g->m_dwMinCycleTime, iSyncPeriod);
-
-    if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
-    {
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
-        return;
-    }
 
     if (iSyncPeriod > pCtrlReg_g->m_dwMaxCycleTime)
     {

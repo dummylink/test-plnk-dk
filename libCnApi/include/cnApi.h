@@ -70,8 +70,7 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_STATE_OFFSET                offsetof(tPcpCtrlReg, m_wState)             //0x1A
 #define PCP_CTRLREG_MAXCYCT_OFFSET              offsetof(tPcpCtrlReg, m_dwMaxCycleTime)     //0x1C
 #define PCP_CTRLREG_MINCYCT_OFFSET              offsetof(tPcpCtrlReg, m_dwMinCycleTime)     //0x20
-#define PCP_CTRLREG_CYCCRCT_OFFSET              offsetof(tPcpCtrlReg, m_wCycleCorrect)      //0x24
-#define PCP_CTRLREG_MAXCYCNUM_OFFSET            offsetof(tPcpCtrlReg, m_wMaxCycleNum)       //0x26
+#define PCP_CTRLREG_CYCCAL_RESERVED_OFFSET      offsetof(tPcpCtrlReg, wCycleCalc_Reserved4) //0x26
 #define PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET       offsetof(tPcpCtrlReg, m_dwSyncIntCycTime)   //0x28
 // reserved                                                                                 //0x2C
 #define PCP_CTRLREG_EVENT_TYPE_OFFSET           offsetof(tPcpCtrlReg, m_wEventType)         //0x30
@@ -318,21 +317,21 @@ struct sPcpControlReg {
     volatile WORD       m_wState;              ///< state of the PCP
     volatile DWORD      m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process
     volatile DWORD      m_dwMinCycleTime;      ///< lower limit of synchronous-IR cycle time the AP can process
-    volatile WORD       m_wCycleCorrect;       ///< correction factor(-- currently not used --)
-    volatile WORD       m_wMaxCycleNum;        ///< multiple of Powerlink cyle time for synchronous-IR
+    volatile WORD       wReserved3;            ///< correction factor(-- currently not used --)
+    volatile WORD       wCycleCalc_Reserved4;  ///< multiple of Powerlink cyle time for synchronous-IR
     volatile DWORD      m_dwSyncIntCycTime;    ///< cycle time of synchronous-IR issued to the AP for PDO processing
-    volatile DWORD      dwReserved3;          
+    volatile DWORD      dwReserved5;
     volatile WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)
     volatile WORD       m_wEventArg;           ///< event argument, if applicable (e.g. error code, state, ...)
-    volatile DWORD      dwReserved4;
-    volatile DWORD      dwReserved5;
     volatile DWORD      dwReserved6;
+    volatile DWORD      dwReserved7;
+    volatile DWORD      dwReserved8;
     volatile DWORD      m_dwRelativeTimeLow;   ///< low dword of SoC relative time
     volatile DWORD      m_dwRelativeTimeHigh;  ///< high dword of SoC relative time
     volatile DWORD      m_dwNetTimeNanoSec;    ///< low dword of SoC nettime
     volatile DWORD      m_dwNetTimeSec;        ///< high dword of SoC nettime
     volatile WORD       m_wTimeAfterSync;      ///< time elapsed after the last synchronisation interrupt
-    volatile WORD       wReserved7;
+    volatile WORD       wReserved9;
     volatile WORD       m_wAsyncIrqControl;    ///< asynchronous IRQ control register, contains IR acknowledge (at AP side)
     volatile WORD       m_wEventAck;           ///< acknowledge for events and asynchronous IR signal
     volatile WORD       m_wTxPdo0BufSize;      ///< buffer size for TPDO communication AP -> PCP
@@ -351,18 +350,18 @@ struct sPcpControlReg {
     volatile WORD       m_wTxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication AP -> PCP
     volatile WORD       m_wRxAsyncBuf1Size;    ///< buffer size for asynchronous communication PCP -> AP
     volatile WORD       m_wRxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication PCP -> AP
-    volatile WORD       wReserved8;
-    volatile WORD       wReserved9;
     volatile WORD       wReserved10;
     volatile WORD       wReserved11;
+    volatile WORD       wReserved12;
+    volatile WORD       wReserved13;
     volatile WORD       m_wTxPdo0Ack;          ///< address acknowledge register of TPDO buffer nr. 0
     volatile WORD       m_wRxPdo0Ack;          ///< address acknowledge register of RPDO buffer nr. 0
     volatile WORD       m_wRxPdo1Ack;          ///< address acknowledge register of RPDO buffer nr. 1
     volatile WORD       m_wRxPdo2Ack;          ///< address acknowledge register of RPDO buffer nr. 2
     volatile WORD       m_wSyncIrqControl;     ///< PDO synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
-    volatile WORD       wReserved12;
-    volatile DWORD      dwReserved13;
-    volatile DWORD      dwReserved14;
+    volatile WORD       wReserved14;
+    volatile DWORD      dwReserved15;
+    volatile DWORD      dwReserved16;
     volatile WORD       m_wLedControl;         ///< Powerlink IP-core Led output control register
     volatile WORD       m_wLedConfig;          ///< Powerlink IP-core Led output configuration register
 } PACK_STRUCT;
@@ -414,7 +413,7 @@ extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p);
 #endif
 
 /* functions for interrupt synchronization */
-extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
+extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved);
 extern void CnApi_enableSyncInt(void);
 extern void CnApi_disableSyncInt(void);
 extern void CnApi_ackSyncIrq(void);

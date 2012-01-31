@@ -115,7 +115,7 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
                             BYTE * pstrHwVersion_p,
                             BYTE * pstrSwVersion_p);
 void workInputOutput(void);
-int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum);
+int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved);
 int initAsyncInterrupt(int irq);
 
 #ifdef CN_API_USING_SPI
@@ -190,11 +190,11 @@ int main (void)
 
     CnApi_initSyncInt(0, 0, 0); // tell PCP that we want polling mode
 #else
-    /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us , maxCycleNum = 10 */
+    /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us */
     #ifdef CN_API_USING_SPI
-    initSyncInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 100000, 10);  ///< local AP IRQ is enabled here
+    initSyncInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 100000, 0);  ///< local AP IRQ is enabled here
     #else
-    initSyncInterrupt(POWERLINK_0_IRQ, 3000, 100000, 10);
+    initSyncInterrupt(POWERLINK_0_IRQ, 3000, 100000, 0);
     #endif /* CN_API_USING_SPI */
 #endif /* USE_POLLING_MODE_SYNC */
 
@@ -671,23 +671,23 @@ static void asyncIntHandler(void* pArg_p, void* dwInt_p)
 
 /**
 ********************************************************************************
-\brief	initialize synchronous interrupt
+\brief  initialize synchronous interrupt
 
 initSyncInterrupt() initializes the synchronous interrupt. The timing parameters
 will be initialized, the interrupt handler will be connected and the interrupt
 will be enabled.
 
-\param	irq					Interrupt number of synchronous interrupt (from BSP)
-\param	dwMinCycleTime_p		The minimum cycle time for the interrupt
-\param	dwMaxCycleTime_p		The maximum cycle time for the interrupt
-\param	bMaxCycleNum_p		The maximum number of POWERLINK cycles allowed between two interrupts
+\param  irq                  Interrupt number of synchronous interrupt (from BSP)
+\param  dwMinCycleTime_p     The minimum cycle time for the interrupt
+\param  dwMaxCycleTime_p     The maximum cycle time for the interrupt
+\param  bReserved_p          Reserved for future use
 
 \return	OK, or ERROR if interrupt couldn't be connected
 *******************************************************************************/
 #ifndef USE_POLLING_MODE_SYNC
-int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bMaxCycleNum_p)
+int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved_p)
 {
-	CnApi_initSyncInt(dwMinCycleTime_p, dwMaxCycleTime_p, bMaxCycleNum_p);
+	CnApi_initSyncInt(dwMinCycleTime_p, dwMaxCycleTime_p, bReserved_p);
 	CnApi_disableSyncInt();
 
 	/* register interrupt handler */
