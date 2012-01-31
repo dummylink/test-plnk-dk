@@ -83,39 +83,6 @@ esac
 echo "rebuild.sh: Started"
 
 #######################################
-###    Rebuild the FPGA config      ###
-CURPATH=`pwd`
-ENHANCED_EPCS_BOOTLOADER=${CURPATH}/../../fpga/altera/addons/epcs_flash_controller_ipcore/epcs_flash_controller_0_boot_rom_synth.hex
-
-if [ -f ${ENHANCED_EPCS_BOOTLOADER} ]; then
-  echo "rebuild.sh: Replace default epcs_bootloader with ${ENHANCED_EPCS_BOOTLOADER}"
-else
-  echo "Error: ${ENHANCED_EPCS_BOOTLOADER} not preset!"
-  exit 1
-fi
-
-# Overwrite default altera epcs bootloader with enhanced boot loader which is 
-# capable to load the NIOS II SW of a firmware image stored at a different
-# offset then the epcs base offset (0).
-# Note: The bootloader requires the remote-update core to be located at  a fixed
-#       base address 0x800 because it reads the reset address from the remote
-#       update core.
-cp ${ENHANCED_EPCS_BOOTLOADER} ${SOPC_DIR}
-
-# Recompile the Quartus generated sof file again with the enhanced epcs bootloader
-cmd="quartus_cdb ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac --update_mif"
-$cmd || {
-    echo -e "rebuild.sh: failed!"
-    exit 1
-}
-
-cmd="quartus_asm --read_settings_files=on --write_settings_files=off ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac"
-$cmd || {
-    echo -e "rebuild.sh: failed!"
-    exit 1
-}
-
-#######################################
 ###        Rebuild the SW           ###
 
 # add search path to modified altera drivers for BSP
@@ -160,6 +127,59 @@ $cmd || {
 # Generate cnApiLib.h in order to inform the LIB about the PCP HW
 ./cfglib.sh
 
+echo "rebuild.sh: SW Rebuild finished."
+echo "rebuild.sh: Update FPGA config..."
+
+#############################################################
+###  Add modified bootloader to the FPGA config (SOF)     ###
+ENHANCED_EPCS_BOOTLOADER=${CURPATH}/../../fpga/altera/addons/epcs_flash_controller_ipcore/bootloader/epcs_flash_controller_0_boot_rom_synth.hex
+ENHANCED_EPCS_BOOTLOADER_PATH=${CURPATH}/../../fpga/altera/addons/epcs_flash_controller_ipcore/bootloader
+
+# Overwrite default altera epcs bootloader with enhanced boot loader which is 
+# capable to load the NIOS II SW of a firmware image stored at a different
+# offset than the epcs base offset (0).
+
+# rebuild bootloader
+# change path for execution of cmd
+cd ${ENHANCED_EPCS_BOOTLOADER_PATH}/src
+cmd="./make_EPCS_bootloader.sh --bspdir ${CURPATH}/bsp"
+echo "rebuild.sh: Running \"$cmd\""
+$cmd || {
+    echo -e "rebuild.sh: failed!"
+    exit 1
+}
+# restore path
+cd $CURPATH
+
+# copy generated bootloader SOF directory
+# verify file presence
+if [ -f ${ENHANCED_EPCS_BOOTLOADER} ]; then
+  echo "rebuild.sh: Replace default epcs_bootloader with ${ENHANCED_EPCS_BOOTLOADER}"
+else
+  echo "Error: ${ENHANCED_EPCS_BOOTLOADER} not preset!"
+  exit 1
+fi
+# copy-job
+cp ${ENHANCED_EPCS_BOOTLOADER} ${SOPC_DIR}
+
+# Recompile the Quartus generated sof file again with the enhanced epcs bootloader
+cmd="quartus_cdb ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac --update_mif"
+$cmd || {
+    echo -e "rebuild.sh: failed!"
+    exit 1
+}
+
+cmd="quartus_asm --read_settings_files=on --write_settings_files=off ${SOPC_DIR}/nios_openMac -c ${SOPC_DIR}/nios_openMac"
+$cmd || {
+    echo -e "rebuild.sh: failed!"
+    exit 1
+}
+
+echo "rebuild.sh: Update FPGA config finished."
+printf 'rebuild.sh: rebuild FINISHED!\n\n\n'
+
+# some user information
 echo -e "You also need to rebuild the API Library and your application\nin order to apply changes!\nDo so by executing ../../apps/rebuild.bat!\n"
 
 exit 0
+
