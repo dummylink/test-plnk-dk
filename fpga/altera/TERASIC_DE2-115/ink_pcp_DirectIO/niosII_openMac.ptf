@@ -70,6 +70,38 @@ SYSTEM niosII_openMac
             Is_Clock_Source = "0";
             display_name = "clk25";
          }
+         CLOCK altpll_0_c3
+         {
+            frequency = "50000000";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c3 from altpll_0";
+            pipeline = "0";
+            clock_module_connection_point_for_c2h = "altpll_0.c3";
+         }
+         CLOCK clkAp
+         {
+            frequency = "50000000";
+            source = "altpll_0_c3";
+            Is_Clock_Source = "0";
+            display_name = "clkAp";
+         }
+         CLOCK altpll_0_c4
+         {
+            frequency = "50000000";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c4 from altpll_0";
+            pipeline = "0";
+            clock_module_connection_point_for_c2h = "altpll_0.c4";
+         }
+         CLOCK clkAp_SDRAM
+         {
+            frequency = "50000000";
+            source = "altpll_0_c4";
+            Is_Clock_Source = "0";
+            display_name = "clkAp_SDRAM";
+         }
       }
       clock_freq = "50000000";
       clock_freq = "50000000";
@@ -4437,7 +4469,7 @@ SYSTEM niosII_openMac
          CONFIGAPENDIAN = "0";
          DMAOBSERV = "FALSE";
          EVENT = "TRUE";
-         FPGAREV = "1";
+         FPGAREV = "2";
          LEDGADGET = "TRUE";
          MACBUFSIZE = "6896";
          MACRXBUFFERS = "16";
@@ -4700,6 +4732,20 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
+         PORT c3
+         {
+            type = "out_clk";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT c4
+         {
+            type = "out_clk";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
          PORT phasedone
          {
             type = "export";
@@ -4708,13 +4754,6 @@ SYSTEM niosII_openMac
             Is_Enabled = "1";
          }
          PORT locked
-         {
-            type = "export";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT c4
          {
             type = "export";
             width = "1";
@@ -5150,7 +5189,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4F227792</b> (timestamp: Fri Jan 27, 2012 @11:08 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4F27DF3A</b> (timestamp: Tue Jan 31, 2012 @1:31 PM)";
             MESSAGES 
             {
             }
@@ -5159,7 +5198,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "1u";
-         timestamp = "1327658898u";
+         timestamp = "1328013114u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5168,7 +5207,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000998 --id=1 --timestamp=1327658898";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000998 --id=1 --timestamp=1328013114";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

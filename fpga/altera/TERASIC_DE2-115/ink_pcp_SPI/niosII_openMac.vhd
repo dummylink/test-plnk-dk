@@ -10916,10 +10916,10 @@ use ieee.std_logic_unsigned.all;
 entity niosII_openMac is 
         port (
               -- 1) global signals:
-                 signal altpll_0_c4 : OUT STD_LOGIC;
                  signal clk25 : OUT STD_LOGIC;
                  signal clk50 : OUT STD_LOGIC;
-                 signal clk50_270deg : OUT STD_LOGIC;
+                 signal clkAp : OUT STD_LOGIC;
+                 signal clkAp_SDRAM : OUT STD_LOGIC;
                  signal clk_0 : IN STD_LOGIC;
                  signal clkpcp : OUT STD_LOGIC;
                  signal reset_n : IN STD_LOGIC;
@@ -12823,10 +12823,10 @@ begin
   internal_clkpcp <= out_clk_altpll_0_c1;
   --clk25 out_clk assignment, which is an e_assign
   internal_clk25 <= out_clk_altpll_0_c2;
-  --clk50_270deg out_clk assignment, which is an e_assign
-  clk50_270deg <= out_clk_altpll_0_c3;
-  --altpll_0_c4 out_clk assignment, which is an e_assign
-  altpll_0_c4 <= out_clk_altpll_0_c4;
+  --clkAp out_clk assignment, which is an e_assign
+  clkAp <= out_clk_altpll_0_c3;
+  --clkAp_SDRAM out_clk assignment, which is an e_assign
+  clkAp_SDRAM <= out_clk_altpll_0_c4;
   --the_altpll_0, which is an e_ptf_instance
   the_altpll_0 : altpll_0
     port map(
@@ -14185,10 +14185,10 @@ architecture europa of test_bench is
 component niosII_openMac is 
            port (
                  -- 1) global signals:
-                    signal altpll_0_c4 : OUT STD_LOGIC;
                     signal clk25 : OUT STD_LOGIC;
                     signal clk50 : OUT STD_LOGIC;
-                    signal clk50_270deg : OUT STD_LOGIC;
+                    signal clkAp : OUT STD_LOGIC;
+                    signal clkAp_SDRAM : OUT STD_LOGIC;
                     signal clk_0 : IN STD_LOGIC;
                     signal clkpcp : OUT STD_LOGIC;
                     signal reset_n : IN STD_LOGIC;
@@ -14258,7 +14258,6 @@ component niosII_openMac is
 end component niosII_openMac;
 
                 signal addr_to_the_sram_0 :  STD_LOGIC_VECTOR (20 DOWNTO 0);
-                signal altpll_0_c4 :  STD_LOGIC;
                 signal ap_asyncIrq_from_the_powerlink_0 :  STD_LOGIC;
                 signal ap_syncIrq_from_the_powerlink_0 :  STD_LOGIC;
                 signal be_n_to_the_sram_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -14266,7 +14265,8 @@ end component niosII_openMac;
                 signal clk :  STD_LOGIC;
                 signal clk25 :  STD_LOGIC;
                 signal clk50 :  STD_LOGIC;
-                signal clk50_270deg :  STD_LOGIC;
+                signal clkAp :  STD_LOGIC;
+                signal clkAp_SDRAM :  STD_LOGIC;
                 signal clk_0 :  STD_LOGIC;
                 signal clkpcp :  STD_LOGIC;
                 signal clock_crossing_0_s1_endofpacket_from_sa :  STD_LOGIC;
@@ -14337,14 +14337,14 @@ begin
   DUT : niosII_openMac
     port map(
       addr_to_the_sram_0 => addr_to_the_sram_0,
-      altpll_0_c4 => altpll_0_c4,
       ap_asyncIrq_from_the_powerlink_0 => ap_asyncIrq_from_the_powerlink_0,
       ap_syncIrq_from_the_powerlink_0 => ap_syncIrq_from_the_powerlink_0,
       be_n_to_the_sram_0 => be_n_to_the_sram_0,
       ce_n_to_the_sram_0 => ce_n_to_the_sram_0,
       clk25 => clk25,
       clk50 => clk50,
-      clk50_270deg => clk50_270deg,
+      clkAp => clkAp,
+      clkAp_SDRAM => clkAp_SDRAM,
       clkpcp => clkpcp,
       dclk_from_the_epcs_flash_controller_0 => dclk_from_the_epcs_flash_controller_0,
       led_error_from_the_powerlink_0 => led_error_from_the_powerlink_0,

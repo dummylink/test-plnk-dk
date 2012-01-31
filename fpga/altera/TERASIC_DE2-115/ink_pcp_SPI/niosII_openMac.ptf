@@ -79,21 +79,28 @@ SYSTEM niosII_openMac
             pipeline = "0";
             clock_module_connection_point_for_c2h = "altpll_0.c3";
          }
-         CLOCK clk50_270deg
+         CLOCK clkAp
          {
             frequency = "50000000";
             source = "altpll_0_c3";
             Is_Clock_Source = "0";
-            display_name = "clk50_270deg";
+            display_name = "clkAp";
          }
          CLOCK altpll_0_c4
          {
-            frequency = "25000000";
-            source = "altpll_0_c4";
-            Is_Clock_Source = "0";
-            display_name = "altpll_0_c4";
+            frequency = "50000000";
+            source = "";
+            Is_Clock_Source = "1";
+            display_name = "c4 from altpll_0";
             pipeline = "0";
             clock_module_connection_point_for_c2h = "altpll_0.c4";
+         }
+         CLOCK clkAp_SDRAM
+         {
+            frequency = "50000000";
+            source = "altpll_0_c4";
+            Is_Clock_Source = "0";
+            display_name = "clkAp_SDRAM";
          }
       }
       clock_freq = "50000000";
@@ -2761,7 +2768,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4F227B2A</b> (timestamp: Fri Jan 27, 2012 @11:23 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4F27BD39</b> (timestamp: Tue Jan 31, 2012 @11:06 AM)";
             MESSAGES 
             {
             }
@@ -2770,7 +2777,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1327659818u";
+         timestamp = "1328004409u";
          regenerate_values = "0";
          MAKE 
          {
@@ -2779,7 +2786,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000998 --id=0 --timestamp=1327659818";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000998 --id=0 --timestamp=1328004409";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -4252,7 +4259,7 @@ SYSTEM niosII_openMac
          CONFIGAPENDIAN = "0";
          DMAOBSERV = "FALSE";
          EVENT = "TRUE";
-         FPGAREV = "1";
+         FPGAREV = "2";
          LEDGADGET = "TRUE";
          MACBUFSIZE = "7080";
          MACRXBUFFERS = "16";

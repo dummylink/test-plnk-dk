@@ -9,10 +9,10 @@
 ##  (under "Compilation Report" - "TimeQuest Timing Analyzer" - "Clocks")
 set ext_clk		EXT_CLK
 set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-#set clk100		inst|the_altpll_0|sd1|pll7|clk[1]
-set clkPcp		inst|the_altpll_0|sd1|pll7|clk[2]
+set clkPcp		inst|the_altpll_0|sd1|pll7|clk[1]
+set clk25		inst|the_altpll_0|sd1|pll7|clk[2]
 set clkAp		inst|the_altpll_0|sd1|pll7|clk[3]
-set clk25		inst|the_altpll_0|sd1|pll7|clk[4]
+
 
 set p0TxClk		PHY0_TXCLK
 set p0RxClk		PHY0_RXCLK
@@ -47,7 +47,7 @@ derive_clock_uncertainty
 create_generated_clock -source $clkSRAM -name CLKSRAM_virt
 
 # cut reset input
-set_false_path -from [get_ports RESET_n] -to [get_registers *]
+#set_false_path -from [get_ports RESET_n] -to [get_registers *]
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------
