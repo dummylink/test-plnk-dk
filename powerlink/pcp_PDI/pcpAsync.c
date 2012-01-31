@@ -763,7 +763,7 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     }
 
     /* check if expected Tx message size exceeds the buffer */
-    if ( sizeof(tLinkPdosReq) > dwMaxTxBufSize_p) //TODO: estimated size?? max mapp objects??
+    if ( sizeof(tLinkPdosReq) > dwMaxTxBufSize_p)
     {
         /* reject transfer, because direct access can not be processed */
         Ret = kPdiAsyncStatusDataTooLong;
@@ -780,7 +780,10 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
     dwSumMappingSize_g = 0;        ///< reset overall sum of mapping size
 
-    fRet = Gi_setupPdoDesc(kCnApiDirReceive, &wCurDescrPayloadOffset, pLinkPdosReq);
+    fRet = Gi_setupPdoDesc(kCnApiDirReceive,
+                           &wCurDescrPayloadOffset,
+                           pLinkPdosReq,
+                           dwMaxTxBufSize_p - sizeof(tLinkPdosReq));
     if (fRet != TRUE)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
@@ -788,7 +791,10 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
         goto exit;
     }
 
-    fRet = Gi_setupPdoDesc(kCnApiDirTransmit, &wCurDescrPayloadOffset, pLinkPdosReq);
+    fRet = Gi_setupPdoDesc(kCnApiDirTransmit,
+                           &wCurDescrPayloadOffset,
+                           pLinkPdosReq,
+                           dwMaxTxBufSize_p - sizeof(tLinkPdosReq));
     if (fRet != TRUE)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
@@ -798,12 +804,12 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
 
     bDescrVers_l++;                     ///< increase descriptor version number
     pLinkPdosReq->m_bDescrVers = bDescrVers_l;
-
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d\n", pLinkPdosReq->m_bDescrVers);
     /*----------------------------------------------------------------------------*/
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset + sizeof(tLinkPdosReq);     // sent size
+
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d, MsgSize: %d.\n", pLinkPdosReq->m_bDescrVers, pMsgDescr_p->dwMsgSize_m);
 
     // reset AP status linking status, because we want the AP to do a new linking now
     ApLinkingStatus_l = kPdiAsyncStatusInvalidState;

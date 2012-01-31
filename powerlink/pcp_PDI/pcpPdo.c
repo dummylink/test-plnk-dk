@@ -232,11 +232,15 @@ by the PCP for copying all objects contained in the mapping.
 
 \param	bDirection_p		       direction of PDO transfer to setup the descriptor
 \param  pCurrentDescrOffset_p      pointer to the current LinkPdoReq payload offset
-\param  pLinkPdoReq_p              pointer to the LinkPdoReq message.
+\param  pLinkPdoReq_p              pointer to the LinkPdoReq message
+\param  wMaxStoreSpace             maximum LinkPdoReq payload offset this function can attach
 
 \return TRUE if successful or FALSE if an error occured.
 *******************************************************************************/
-BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosReq *pLinkPdoReq_p)
+BOOL Gi_setupPdoDesc(BYTE bDirection_p,
+                     WORD *pCurrentDescrOffset_p,
+                     tLinkPdosReq *pLinkPdoReq_p,
+                     WORD wMaxStoreSpace)
 {
 	tEplKernel          Ret = kEplSuccessful;
 	unsigned int        uiCommParamIndex;
@@ -253,6 +257,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 	unsigned int		uiCommObj;
 	unsigned int		uiMaxPdoChannels;
 	unsigned int        uiOffsetCnt = 0;
+    WORD                wLinkPdoMsgPaylForecast = 0; ///< message payload size before actual write
 
 	/* linking function temporary variables */
     BYTE *  pData = NULL;
@@ -304,8 +309,8 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 		if ((Ret == kEplObdIndexNotExist)
 			|| (Ret == kEplObdSubindexNotExist)
 			|| (Ret == kEplObdIllegalPart))
-		{   // PDO does not exist
-			continue;
+		{   // PDO Number does not exist
+			break; //stop counting at first missing communication parameter index
 		}
 		else if (Ret != kEplSuccessful)
 		{   // other fatal error occured
@@ -319,6 +324,16 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 	for (uiIndex = 0; uiIndex < uiPdoChannelCount; uiIndex++)
 	{
 		uiMappParamIndex = uiMapObj + uiIndex;
+
+        // verify if next descriptor fits in remaining message buffer space
+        wLinkPdoMsgPaylForecast = (*pCurrentDescrOffset_p + sizeof(tPdoDescHeader));
+        if ( wLinkPdoMsgPaylForecast >= wMaxStoreSpace )
+        {
+            // not enough space left for this descriptor (-header)
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %d)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
+            fRet = FALSE;
+            goto exit;
+        }
 
         /* prepare PDO descriptor for this PDO channel */
 		pPdoDescHeader->m_bPdoDir = (BYTE) PdoDir;
@@ -385,6 +400,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 
                     if (PdoDir == TPdo)
                     { // link directly to TPDO buffer
+                        // INFO: the buffer number uiIndex is derived from the channel index (16XX)
                         pData = aTPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
 
                         /* verify if this PDO fits into the buffer */
@@ -411,6 +427,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
                     }
                     else if (PdoDir == RPdo)
                     { // link directly to RPDO buffer
+                        // INFO: the buffer number uiIndex is derived from the channel index (1AXX)
                         pData = aRPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
 
                         /* verify if this PDO fits into the buffer */
@@ -441,6 +458,16 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
                         goto exit;
                     }
 
+                    // verify if next entry fits in remaining message buffer space
+                    wLinkPdoMsgPaylForecast = *pCurrentDescrOffset_p + sizeof(tPdoDescHeader) + (bAddedDecrEntries + 1) * sizeof(tPdoDescEntry);
+                    if ( wLinkPdoMsgPaylForecast > wMaxStoreSpace )
+                    {
+                        // not enough space left for this descriptor entry
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %d)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
+                        fRet = FALSE;
+                        goto exit;
+                    }
+
                     /* now setup PDO buffer descriptor message */
 
 		            // write descriptor entry
@@ -450,12 +477,12 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,  WORD *pCurrentDescrOffset_p, tLinkPdosR
 			        pPdoDescEntry->m_wOffset = uiOffsetCnt; //TODO: delete this line for real PDO frame
 			        pPdoDescEntry->m_wSize = uiMapSize;
 
-			        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%04x/%02x size: %d linkadr: %p",
+			        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "0x%04x/0x%02x size: %d linkadr: %p",
 			                uiMapIndex,
 			                (BYTE)uiMapSubIndex,
 			                uiMapSize,
 			                pData);
-	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: %04x\n", pPdoDescEntry->m_wOffset); //TODO: comment this line and add \n to last printf
+	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: 0x%04x\n", pPdoDescEntry->m_wOffset); //TODO: comment this line and add \n to last printf
 
 			        pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
 			        bAddedDecrEntries++;             ///< count added entries

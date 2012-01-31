@@ -714,16 +714,18 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 /*MN sent NMT command EnableReadyToOperate */
                 case kEplNmtBootEventEnableReadyToOp:
                 {
+                    tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
+
                     /* setup the synchronization interrupt time period */
                     Gi_calcSyncIntPeriod();   // calculate multiple of cycles
 
                     /* prepare PDO mapping */
 
                     /* setup PDO <-> DPRAM copy table */
-
-                    if (CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0) !=
-                        kPdiAsyncStatusSuccessful                               )
+                    PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
+                    if (PdiRet != kPdiAsyncStatusSuccessful)
                     {
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Posting kPdiAsyncMsgIntLinkPdosReq failed with: %d\n", PdiRet);
                         EplRet = kEplReject;
                         goto Exit;
                     }

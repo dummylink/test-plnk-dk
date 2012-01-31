@@ -88,7 +88,8 @@ extern void Gi_preparePdiPdoReadAccess(void);
 extern void Gi_signalPdiPdoWriteAccess(void);
 extern BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                             WORD *pCurrentDescrOffset_p,
-                            tLinkPdosReq *pLinkPdoReq_p);
+                            tLinkPdosReq *pLinkPdoReq_p,
+                            WORD wMaxStoreSpace);
 
 extern void Gi_enableSyncInt(void);
 extern BOOL Gi_checkSyncIrqRequired(void);
