@@ -26,12 +26,13 @@ then   # Exit if no such file.
 fi
 
 # Search pattern in system.h
-PATTERN[0]="POWERLINK_0_PDI_PCP_CONFIG "
-PATTERN[1]="POWERLINK_0_PDI_PCP_CONFIGAPENDIAN "
-PATTERN[2]="POWERLINK_0_PDI_PCP_PDIRPDOS "
-PATTERN[3]="POWERLINK_0_PDI_PCP_PDITPDOS "
-PATTERN[4]="POWERLINK_0_MAC_BUF_FPGAREV "
-PATTERN[5]="SYSID_ID "
+PATTERN[0]="POWERLINK_0_PDI_PCP_CONFIG"
+PATTERN[1]="POWERLINK_0_PDI_PCP_CONFIGAPENDIAN"
+PATTERN[2]="POWERLINK_0_PDI_PCP_PDIRPDOS"
+PATTERN[3]="POWERLINK_0_PDI_PCP_PDITPDOS"
+PATTERN[4]="POWERLINK_0_MAC_BUF_FPGAREV"
+PATTERN[5]="SYSID_ID"
+PATTERN[6]="POWERLINK_0_PDI_PCP_TIME_AFTER_SYNC_ENABLE"
 
 ###################################################################
 
@@ -44,14 +45,26 @@ a rebuild of the PCP software is executed. */
 
 /* Defines for CN API Library */" > $OUT_FILE
 
-
+# pattern search - loop
 cnt=0
-while [ $cnt -lt 6 ] ; do
-	
-pattern=${PATTERN[$cnt]}
-PCPDefineValue=$(grep "$pattern" ${IN_FILE} | grep \#define | cut -d ' ' -f 3) #-d = delimiter (Space) -f= 3rd fragment is value of define
-echo "Pattern taken from system.h: $pattern= $PCPDefineValue"
+while [ $cnt -lt 7 ] ; do
 
+pattern=${PATTERN[$cnt]}
+
+#check if pattern can be found in the file
+match_count=$(grep -w -c "$pattern" ${IN_FILE})
+
+if [ "$match_count" != "1" ]; then
+    echo "match_count = ${match_count}"
+	echo "File ${IN_FILE} does not or to often contain pattern ${PATTERN[$cnt]}"	
+    exit 1
+fi
+
+# get define value
+PCPDefineValue=$(grep -w "$pattern" ${IN_FILE} | grep \#define | grep -v //\# | awk '{split($0,a," "); print a[3]}')
+echo "Pattern taken from ${IN_FILE}: $pattern= $PCPDefineValue"
+
+# pattern treatment
 case  $cnt  in
     0)
 	case $PCPDefineValue in
@@ -72,16 +85,16 @@ case  $cnt  in
 	;;
     2)
 	if [ "$PCPDefineValue" -gt "0" ]; then
-		echo "#define ${PATTERN[$cnt]}$PCPDefineValue" >> $OUT_FILE 
+		echo "#define ${PATTERN[$cnt]} $PCPDefineValue" >> $OUT_FILE 
 	else
-		echo "#define ${PATTERN[$cnt]}0" >> $OUT_FILE	
+		echo "#define ${PATTERN[$cnt]} 0" >> $OUT_FILE	
 	fi
 	;;	
     3)
 	if [ "$PCPDefineValue" -gt "0" ]; then
-		echo "#define ${PATTERN[$cnt]}$PCPDefineValue" >> $OUT_FILE 
+		echo "#define ${PATTERN[$cnt]} $PCPDefineValue" >> $OUT_FILE 
 	else
-		echo "#define ${PATTERN[$cnt]}0" >> $OUT_FILE
+		echo "#define ${PATTERN[$cnt]} 0" >> $OUT_FILE
 	fi
 	;;
     4)
@@ -96,6 +109,13 @@ case  $cnt  in
 		echo "#define PCP_FPGA_SYSID_ID $PCPDefineValue" >> $OUT_FILE 
 	else
 		echo "#define PCP_FPGA_SYSID_ID //INVALID" >> $OUT_FILE	
+	fi
+	;;
+	6)
+	if [ "$PCPDefineValue" ]; then
+		echo "#define ${PATTERN[$cnt]} $PCPDefineValue" >> $OUT_FILE 
+	else
+		echo "#define ${PATTERN[$cnt]} 0" >> $OUT_FILE
 	fi
 	;;
     *)echo Not a valid loop count!
