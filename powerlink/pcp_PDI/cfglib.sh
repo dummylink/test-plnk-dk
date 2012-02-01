@@ -32,7 +32,7 @@ PATTERN[2]="POWERLINK_0_PDI_PCP_PDIRPDOS"
 PATTERN[3]="POWERLINK_0_PDI_PCP_PDITPDOS"
 PATTERN[4]="POWERLINK_0_MAC_BUF_FPGAREV"
 PATTERN[5]="SYSID_ID"
-PATTERN[6]="POWERLINK_0_PDI_PCP_TIME_AFTER_SYNC_ENABLE"
+PATTERN[6]="POWERLINK_0_MAC_CMP_TIMESYNCHW"
 
 ###################################################################
 
@@ -113,9 +113,9 @@ case  $cnt  in
 	;;
 	6)
 	if [ "$PCPDefineValue" ]; then
-		echo "#define ${PATTERN[$cnt]} $PCPDefineValue" >> $OUT_FILE 
+		echo "#define PCP_FPGA_TIMESYNCHW $PCPDefineValue" >> $OUT_FILE 
 	else
-		echo "#define ${PATTERN[$cnt]} 0" >> $OUT_FILE
+		echo "#define PCP_FPGA_TIMESYNCHW 0" >> $OUT_FILE
 	fi
 	;;
     *)echo Not a valid loop count!

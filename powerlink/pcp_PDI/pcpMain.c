@@ -31,7 +31,7 @@
 #include "pcp.h"
 #include "pcpStateMachine.h"
 #include "pcpEvent.h"
-#include "pcpTimeSync.h"
+#include "pcpSync.h"
 #include "fpgaCfg.h"
 #include "fwUpdate.h"
 
@@ -60,7 +60,6 @@
 tPcpCtrlReg        * volatile pCtrlReg_g;     ///< ptr. to PCP control register
 tCnApiInitParm     initParm_g = {{0}};        ///< Powerlink initialization parameter
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
-WORD               wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 BOOL               fIsUserImage_g;            ///< if set user image is booted
 UINT32             uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 
@@ -92,7 +91,7 @@ extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 /******************************************************************************/
 /* forward declarations */
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
-    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp socTimeStamp_p);
+    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p);
 #else
     tEplKernel PUBLIC AppCbSync(void);
 #endif
@@ -635,11 +634,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     break;
 
                 case kEplNmtCsOperational:
-                    /* enable the synchronization interrupt */
-                    if(wSyncIntCycle_g != 0)   // true if Sync IR is required by AP
-                    {
-                        Gi_enableSyncInt(wSyncIntCycle_g);    // enable IR trigger possibility
-                    }
+
 
                     setPowerlinkEvent(kPowerlinkEventEnterOperational);
 
@@ -730,7 +725,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
 
                     /* setup the synchronization interrupt time period */
-                    wSyncIntCycle_g = Gi_calcSyncIntPeriod();   // calculate multiple of cycles
+                    Gi_calcSyncIntPeriod();   // calculate multiple of cycles
 
                     /* prepare PDO mapping */
 
@@ -1051,7 +1046,7 @@ inputs and runs the control loop.
 \retval    otherwise                post error event to API layer
 *******************************************************************************/
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
-    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp socTimeStamp_p)
+    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p)
 #else
     tEplKernel PUBLIC AppCbSync(void)
 #endif
@@ -1060,26 +1055,30 @@ inputs and runs the control loop.
     static  unsigned int iCycleCnt = 0;
 
     /* check if interrupts are enabled */
-    if ((wSyncIntCycle_g != 0) && (getPcpState() == kPcpStateOperational))
+    if ((wSyncIntCycle_g != 0))
     {
         if ((iCycleCnt++ % wSyncIntCycle_g) == 0)
         {
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
-            if(socTimeStamp_p.m_fSocRelTimeValid == TRUE)
-                pcp_setNetTime(socTimeStamp_p.m_netTime.m_dwSec,socTimeStamp_p.m_netTime.m_dwNanoSec);
+            #if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
+                /* Sync interrupt is generated in HW */
+                if(SocTimeStamp_p.m_fSocRelTimeValid != FALSE)
+                    Gi_setNetTime(SocTimeStamp_p.m_netTime.m_dwSec,SocTimeStamp_p.m_netTime.m_dwNanoSec);
 
-            EplRet = pcp_setRelativeTime(socTimeStamp_p.m_qwRelTime,socTimeStamp_p.m_fSocRelTimeValid);
+                EplRet = Gi_setRelativeTime(SocTimeStamp_p.m_qwRelTime,SocTimeStamp_p.m_fSocRelTimeValid);
 
-            #if POWERLINK_0_MAC_CMP_CMPTIMERCNT == 1
-            /* Sync interrupt is generated in SW */
+            #else
+                /* Sync interrupt is generated in SW */
                 Gi_generateSyncInt();
-            #endif  //POWERLINK_0_MAC_CMP_CMPTIMERCNT
+            #endif  //POWERLINK_0_MAC_CMP_TIMESYNCHW
 #else
-            EplRet = pcp_setRelativeTime(0,FALSE);
-            #if POWERLINK_0_MAC_CMP_CMPTIMERCNT == 1
-            /* Sync interrupt is generated in SW */
+            #if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
+                /* Sync interrupt is generated in HW */
+                EplRet = Gi_setRelativeTime(0,FALSE);
+            #else
+                /* Sync interrupt is generated in SW */
                 Gi_generateSyncInt();
-            #endif  //POWERLINK_0_MAC_CMP_CMPTIMERCNT
+            #endif  //POWERLINK_0_MAC_CMP_TIMESYNCHW
 #endif  //EPL_DLL_SOCTIME_FORWARD
         }
     }
@@ -1178,7 +1177,7 @@ void Gi_init(void)
     pCtrlReg_g->m_wState = kPcpStateInvalid;            // set invalid PCP state
 
     // init time sync module
-    pcp_initTimeSync();
+    Gi_initSync();
 
     // start PCP API state machine
     activateStateMachine();

@@ -7,7 +7,7 @@
 /**
 ********************************************************************************
 
-\file       pcpTime.c
+\file       pcpSync.c
 
 \brief      Module for writing the Time information into the PDI
 
@@ -22,7 +22,7 @@ by the powerlink master
 
 *******************************************************************************/
 
-#include "pcpTimeSync.h"
+#include "pcpSync.h"
 #include "kernel/EplTimerSynck.h"
 
 
@@ -44,6 +44,8 @@ typedef enum ePcpRelativeTimeState
 /* global variables */
 tPcpRelativeTimeState PcpRelativeTimeState_l = kPcpRelativeTimeStateInit;   ///< state variable of the RelativeTime state machine
 QWORD qwRelativeTime_g = 0;        ///< local relative time counter
+WORD wSyncIntCycle_g = 0;
+
 
 /******************************************************************************/
 /* functions */
@@ -52,7 +54,7 @@ QWORD qwRelativeTime_g = 0;        ///< local relative time counter
 ********************************************************************************
 \brief    inits the timesync field
 *******************************************************************************/
-void pcp_initTimeSync(void)
+void Gi_initSync(void)
 {
     Gi_disableSyncInt();
 
@@ -69,7 +71,7 @@ void pcp_initTimeSync(void)
 ********************************************************************************
 \brief    writes the current relativetime into the pdi
 *******************************************************************************/
-tEplKernel pcp_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p )
+tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p )
 {
     tEplKernel  EplRet = kEplSuccessful;
     DWORD wCycleTime = pCtrlReg_g->m_dwSyncIntCycTime;
@@ -141,7 +143,7 @@ Exit:
 ********************************************************************************
 \brief    writes the current nettime into the pdi
 *******************************************************************************/
-inline void pcp_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p)
+inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p)
 {
 
     pCtrlReg_g->m_dwNetTimeSec = dwNetTimeSeconds_p;
@@ -155,11 +157,11 @@ inline void pcp_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_
 void Gi_enableSyncInt(WORD wSyncIntCycle_p)
 {
 
-#if POWERLINK_0_MAC_CMP_CMPTIMERCNT == 2
+#if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
     // enable IRQ and set mode to "IR generation by HW"
     pCtrlReg_g->m_wSyncIrqControl = ((1 << SYNC_IRQ_ENABLE) | (1 << SYNC_IRQ_MODE));
     /* in addition also enable the hw interrupt in the EPL time sync module*/
-    EplTimerSynckToggleIntEnable(wSyncIntCycle_p);
+    EplTimerSynckCompareTogPdiIntEnable(wSyncIntCycle_p);
 #else
     // enable IRQ and set mode to "IR generation by SW"
     pCtrlReg_g->m_wSyncIrqControl = ((1 << SYNC_IRQ_ENABLE) & ~(1 << SYNC_IRQ_MODE));
@@ -178,9 +180,9 @@ void Gi_disableSyncInt(void)
     pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_ENABLE); // set enable bit to low
     pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_MODE); // set mode bit to low
 
-#if POWERLINK_0_MAC_CMP_CMPTIMERCNT == 2
+#if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
     /* in addition also disable the hw interrupt in the EPL time sync module*/
-    EplTimerSynckToggleIntDisable();
+    EplTimerSynckCompareTogPdiIntDisable();
 #endif
 
     return;
@@ -218,7 +220,7 @@ BOOL Gi_checkSyncIrqRequired(void)
 ********************************************************************************
 \brief    calculate sync interrupt period
 *******************************************************************************/
-DWORD Gi_calcSyncIntPeriod(void)
+void Gi_calcSyncIntPeriod(void)
 {
     int                iNumCycles;
     int                iSyncPeriod;
@@ -231,7 +233,8 @@ DWORD Gi_calcSyncIntPeriod(void)
     if (EplRet != kEplSuccessful)
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        return 0;
+        wSyncIntCycle_g = 0;
+        return;
     }
 
     if (pCtrlReg_g->m_dwMinCycleTime == 0 &&
@@ -239,7 +242,8 @@ DWORD Gi_calcSyncIntPeriod(void)
         pCtrlReg_g->m_wMaxCycleNum == 0)
     {
         /* no need to trigger IR signal - polling mode is applied */
-        return 0;
+        wSyncIntCycle_g = 0;
+        return;
     }
 
     iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;    /* do it this way to round up integer division! */
@@ -251,7 +255,8 @@ DWORD Gi_calcSyncIntPeriod(void)
     if (iNumCycles > pCtrlReg_g->m_wMaxCycleNum)
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        return 0;
+        wSyncIntCycle_g = 0;
+        return;
     }
 
     if (iSyncPeriod > pCtrlReg_g->m_dwMaxCycleTime)
@@ -259,20 +264,23 @@ DWORD Gi_calcSyncIntPeriod(void)
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        return 0;
+        wSyncIntCycle_g = 0;
+        return;
     }
     if (iSyncPeriod < pCtrlReg_g->m_dwMinCycleTime)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        return 0;
+        wSyncIntCycle_g = 0;
+        return;
     }
 
+    wSyncIntCycle_g = iNumCycles;
     pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
-    return iNumCycles;
+    return;
 }
 
 

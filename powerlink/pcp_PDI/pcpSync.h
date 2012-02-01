@@ -7,9 +7,9 @@
 /**
 ********************************************************************************
 
-\file       pcpTime.h
+\file       pcpSync.h
 
-\brief      header file for pcpTime module
+\brief      header file for pcpSync module
 
 \author     mairt
 
@@ -19,18 +19,12 @@
 
 *******************************************************************************/
 
-#ifndef PCPTIME_H_
-#define PCPTIME_H_
+#ifndef PCPSYNC_H_
+#define PCPSYNC_H_
 
-#include "cnApiGlobal.h"
-#include "cnApi.h"
-#include "cnApiIntern.h"
-
+#include "pcp.h"
 #include "pcpEvent.h"
 #include "cnApiEvent.h"
-
-#include "EplErrDef.h"
-
 
 
 /******************************************************************************/
@@ -48,18 +42,18 @@
 
 /******************************************************************************/
 /* function declarations */
-void pcp_initTimeSync(void);
-tEplKernel pcp_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p );
-inline void pcp_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p);
+void Gi_initSync(void);
+tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p );
+inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p);
 
-void Gi_generateSyncInt(void);
-DWORD Gi_calcSyncIntPeriod(void);
-void Gi_enableSyncInt(WORD wSyncIntCycle_p);
+
 void Gi_disableSyncInt(void);
+void Gi_calcSyncIntPeriod(void);
+void Gi_enableSyncInt(WORD wSyncIntCycle_p);
 BOOL Gi_checkSyncIrqRequired(void);
 
 
-#endif /* PCPTIME_H_ */
+#endif /* PCPSYNC_H_ */
 
 /*******************************************************************************
 *

@@ -140,7 +140,7 @@ pcpPdo.c \
 pcpAsyncSm.c \
 pcpStateMachine.c \
 pcpEvent.c \
-pcpTimeSync.c \
+pcpSync.c \
 ${GENERIC_DIR}/target/altera/fpgaCfg.c \
 ${GENERIC_DIR}/target/altera/fwUpdate.c \
 ${GENERIC_DIR}/target/altera/boot.c \
