@@ -9,15 +9,14 @@ echo ======================================================
 echo  Run POWERLINK Communication Processor Direct IO Menu
 echo ======================================================
 echo .
-echo  1: Mercury Board (EBV DBC3C40)
-echo  2: INK Board     (TERASIC DE2-115)
+echo  1: INK Board     (TERASIC DE2-115)
 echo .
 echo ======================================================
 
 :user_entry
 set /p choice= Enter design number:
-if /I "%choice%" == "1" ( goto EBV_directIO )
-if /I "%choice%" == "2" ( goto INK_directIO ) else (
+if /I "%choice%" == "1" ( goto INK_directIO )
+if /I "%choice%" == "2" ( goto DEFAULT ) else (
 set choice=
 echo Invalid input!
 goto user_entry )
@@ -30,6 +29,10 @@ goto start
 :INK_directIO
 set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_pcp_DirectIO
 goto start
+
+:DEFAULT
+echo Invalid input!
+goto user_entry
 
 :start
 

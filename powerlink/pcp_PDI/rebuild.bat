@@ -12,35 +12,30 @@ echo  Choose your desired PCP interface demo:
 echo .
 echo  PCP including an additional NIOS II as AP (in one FPGA)
 echo  -----------------------------------------------
-echo    Mercury Board (EBV DBC3C40)
+echo    INK Board (TERASIC DE2-115)
 echo      1: Avalon
 echo      2: SPI
-echo    INK Board (TERASIC DE2-115)
-echo      3: Avalon
-echo      4: SPI
 echo . 
 echo  Stand alone PCP with FPGA external MCU interface
 echo  -----------------------------------------------
-echo    Mercury Board (EBV DBC3C40)
-echo      5: SPI
-echo      6: 16 Bit parallel
 echo    INK Board (TERASIC DE2-115)
-echo      7: SPI
-echo      8: 16 Bit parallel
+echo      3: SPI
+echo    Example Board
+echo      4: 16 Bit parallel
 echo .
 echo ==================================================
 
 :user_entry
-set /p choice= Enter design number [1-8]:
-if /I "%choice%" == "1" ( goto EBV_PCP_AP_avalon )
-if /I "%choice%" == "2" ( goto EBV_PCP_AP_SPI )
-if /I "%choice%" == "3" ( goto INK_PCP_AP_avalon )
-if /I "%choice%" == "4" ( goto INK_PCP_AP_SPI )
-if /I "%choice%" == "5" ( goto EBV_PCP_SPI )
-if /I "%choice%" == "6" ( goto EBV_PCP_16bitparallel )
-if /I "%choice%" == "7" ( goto INK_PCP_SPI )
-if /I "%choice%" == "8" ( goto INK_PCP_16bitparallel )
-if /I "%choice%" == "9" ( goto ECU_PCP_SPI ) else (
+set /p choice= Enter design number:
+if /I "%choice%" == "1" ( goto INK_PCP_AP_avalon )
+if /I "%choice%" == "2" ( goto INK_PCP_AP_SPI )
+if /I "%choice%" == "3" ( goto INK_PCP_SPI )
+if /I "%choice%" == "4" ( goto EXMPL_PCP_16bitparallel )
+if /I "%choice%" == "5" ( goto DEFAULT )
+if /I "%choice%" == "6" ( goto DEFAULT )
+if /I "%choice%" == "7" ( goto DEFAULT )
+if /I "%choice%" == "8" ( goto DEFAULT )
+if /I "%choice%" == "9" ( goto DEFAULT ) else (
 set choice=
 echo Invalid input!
 goto user_entry )
@@ -74,12 +69,16 @@ goto start
 :INK_PCP_SPI
 set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_pcp_SPI
 goto start
-:INK_PCP_16bitparallel
-set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_pcp_16bitprll
+:EXMPL_PCP_16bitparallel
+set SOPC_DIR=..\..\fpga\altera\CustomBoardExamples\EP4CE6_pcp_16bitprll
 goto start
 :ECU_PCP_SPI
 set SOPC_DIR=..\..\fpga\altera\SYSTEC_ECUcore-EP3C\systec_pcp_SPI
 goto start
+
+:DEFAULT
+echo Invalid input!
+goto user_entry
 
 :start
 

@@ -175,8 +175,5 @@ $cmd || {
 echo "rebuild.sh: Update FPGA config finished."
 printf 'rebuild.sh: rebuild FINISHED!\n\n\n'
 
-# some user information
-echo -e "You also need to rebuild the API Library and your application\nin order to apply changes!\nDo so by executing ../../apps/rebuild.bat!\n"
-
 exit 0
 
