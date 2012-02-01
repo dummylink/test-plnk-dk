@@ -182,38 +182,36 @@ inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 /**
 ********************************************************************************
 \brief  update PDI TPDO triple buffers
+\param bTpdoNum  RPDO PDI buffer number
 
 This function switches all PDI PDO triple buffers to the last updated block.
 It has to be executed before each read access to the TPDO triple buffers.
 *******************************************************************************/
-void Gi_preparePdiPdoReadAccess(void)
+void Gi_preparePdiPdoReadAccess(BYTE bTpdoNum)
 {
-	register int        iCntout;           ///< loop counter
 
-    // acknowledge all RPDO PDI buffer right before read access
-    for (iCntout = 0; iCntout < TPDO_CHANNELS_MAX; ++iCntout)
+    // acknowledge the TPDO PDI buffer right before read access
+    if (bTpdoNum < TPDO_CHANNELS_MAX)
     {
         // switch triple buffer to last updated block
-        CnApi_ackPdoBuffer(aTPdosPdi_l[iCntout].pAck_m);
+        CnApi_ackPdoBuffer(aTPdosPdi_l[bTpdoNum].pAck_m);
     }
 }
 
 /**
 ********************************************************************************
 \brief  update PDI RPDO triple buffers
+\param bRpdoNum  RPDO PDI buffer number
 
 This function switches all PDI PDO triple buffers to the updated block. It has
 to be executed after each write access to the RPDO triple buffers.
 *******************************************************************************/
-void Gi_signalPdiPdoWriteAccess(void)
+void Gi_signalPdiPdoWriteAccess(BYTE bRpdoNum)
 {
-    register int        iCntout;           ///< loop counter
-
-    // acknowledge all RPDO PDI buffer right after write access
-    for (iCntout = 0; iCntout < RPDO_CHANNELS_MAX; ++iCntout)
+    // acknowledge the RPDO PDI buffer right before read access
+    if (bRpdoNum < RPDO_CHANNELS_MAX)
     {
-        // switch triple buffer to updated block
-        CnApi_ackPdoBuffer(aRPdosPdi_l[iCntout].pAck_m);
+        CnApi_ackPdoBuffer(aRPdosPdi_l[bRpdoNum].pAck_m);
     }
 }
 
