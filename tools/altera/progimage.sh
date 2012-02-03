@@ -219,6 +219,59 @@ else
     DEVOPT="--device ${DEVICE}"
 fi
 
+#
+# get EPCS SOPC base offset
+# 
+PCP_SYSTEM_H=`dirname $PCPSW_ELF`/bsp/system.h
+
+# verify input files
+if [ ! -f "$PCP_SYSTEM_H" ]
+then   # Exit if no such file.
+  echo -e "$IN_FILE_SYSTEM_H not found.\n"
+  exit $E_NOSUCHFILE
+fi
+
+# Search pattern in system.h
+PATTERN[0]="EPCS_FLASH_CONTROLLER_0_BASE"
+
+cnt=0
+while [ $cnt -lt 1 ] ; do
+
+# set pattern
+pattern=${PATTERN[$cnt]}
+
+# set input file
+IN_FILE=$PCP_SYSTEM_H
+
+#check if pattern can be found in the file
+match_count=$(grep -w -c "$pattern" ${IN_FILE})
+
+if [ "$match_count" != "1" ]; then
+    echo "match_count = ${match_count}"
+	echo "File ${IN_FILE} does not or to often contain pattern ${PATTERN[$cnt]}"	
+    exit 1
+fi
+
+# get define value
+DefineValue=$(grep -w "$pattern" ${IN_FILE} | grep \#define | grep -v //\# | awk '{split($0,a," "); print a[3]}')
+echo "Pattern taken from ${IN_FILE}: $pattern= $DefineValue" 
+
+case  $cnt  in
+    0)
+        EPCS_CTRL_BASE=${DefineValue}
+        EPCS_CTRL_BASE=$(printf "0x%x\n" $EPCS_CTRL_BASE)
+	;;
+    *)echo Not a valid loop count!
+	;;
+esac
+	
+	cnt=$((cnt + 1))
+	
+done
+
+echo "INFO: extracted from system.h:
+EPCS_CTRL_BASE            : ${EPCS_CTRL_BASE} "
+
 ################################################################################
 # Creating flash for FPGA and Nios configuration for bootloader
 echo -e "\n-----------------------------------------"
@@ -280,14 +333,14 @@ fi
 $BIN2FLASH --epcs --input="${IIB_BIN}" --output="${IIB_BASE}.flash" --location=${IIB_REGION_START}
 
 # program files into flash
-$NIOS_PROG --epcs --base=0 ${FPGACFG_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
-$NIOS_PROG --epcs --base=0 ${PCPSW_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
+$NIOS_PROG --epcs --base=$EPCS_CTRL_BASE ${FPGACFG_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
+$NIOS_PROG --epcs --base=$EPCS_CTRL_BASE ${PCPSW_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
 if [[ "$options" -eq 63 ]]; then
-    $NIOS_PROG --epcs --base=0 ${APSW_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
+    $NIOS_PROG --epcs --base=$EPCS_CTRL_BASE ${APSW_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
 fi
 
 # program IIB into flash
-$NIOS_PROG --epcs --base=0 ${IIB_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
+$NIOS_PROG --epcs --base=$EPCS_CTRL_BASE ${IIB_BASE}.flash ${CABOPT} ${DEVOPT} --instance ${INSTANCE}
 
 ################################################################################
 # Delete temporary files
