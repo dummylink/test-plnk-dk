@@ -557,12 +557,20 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {
                     break;
                 }
+
                 case kEplNmtGsResetConfiguration:
-                {
-                    break;
-                }
                 case kEplNmtGsInitialising:
                 case kEplNmtGsResetApplication:
+                {
+                    // synchronize API state
+                    if (getPcpState() > kPcpStatePreOp)
+                    {
+                        // fall back to PCP_PREOP (API-STATE)
+                        setPowerlinkEvent(kPowerlinkEventEnterPreOp);
+                    }
+                    break;
+                }
+
                 case kEplNmtCsBasicEthernet:                        ///< this state is only indicated  by Led
                 {
                     break;
