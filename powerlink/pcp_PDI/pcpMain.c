@@ -360,7 +360,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_uiPreqActPayloadLimit = 36;   //TODO: use system.h define?
     EplApiInitParam.m_uiPresActPayloadLimit = 36;   //TODO: use system.h define?
     EplApiInitParam.m_uiMultiplCycleCnt = 0;
-    EplApiInitParam.m_uiAsyncMtu = 1500;
+    EplApiInitParam.m_uiAsyncMtu = 300;
     EplApiInitParam.m_uiPrescaler = 2;
     EplApiInitParam.m_dwLossOfFrameTolerance = 500000000;
     EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
