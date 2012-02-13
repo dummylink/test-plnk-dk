@@ -85,6 +85,39 @@ static void DecodeObjectMapping(
                     ((qwObjectMapping_p & 0xFFFF000000000000LL) >> (48 + BYTE_SIZE_SHIFT));
 }
 
+/********************************************************************************
+\brief generates a padding when data is not word/dword aligned
+\param bAddress_p       IN: desired object address
+                        OUT: corrected object address
+\param iSize_p          IN: size of the object
+\param puiOffset_p      IN: desired object offset
+                        OUT: corrected object offset
+*******************************************************************************/
+static void SizeAlignPdiOffset(BYTE **ppbAddress_p,int iSize_p, unsigned int* puiOffset_p)
+{
+    DWORD dwPadding, dwOfstCorrection;
+
+    if(iSize_p == 3)
+    {
+        iSize_p = 4;    //when variable is three bytes long reserve a whole word
+    }
+
+    if((iSize_p > 4) && (iSize_p <8))
+    {
+        iSize_p = 8;    //when variable is longer than a word reserve a whole dword
+    }
+
+    //correct PDI address
+    dwPadding = (DWORD)*ppbAddress_p;
+    dwPadding += (iSize_p - 1);
+    dwPadding &=  ~(iSize_p -1);
+    dwOfstCorrection = dwPadding - (DWORD)*ppbAddress_p;
+    *ppbAddress_p = (BYTE *)dwPadding;
+
+    //correct PDI offset
+    *puiOffset_p += dwOfstCorrection;
+}
+
 /**
 ********************************************************************************
 \brief	initialize asynchronous functions
@@ -328,7 +361,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
         if ( wLinkPdoMsgPaylForecast >= wMaxStoreSpace )
         {
             // not enough space left for this descriptor (-header)
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %d)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %ld)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
             fRet = FALSE;
             goto exit;
         }
@@ -401,6 +434,8 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                         // INFO: the buffer number uiIndex is derived from the channel index (16XX)
                         pData = aTPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
 
+                        SizeAlignPdiOffset(&pData,iSize,&uiOffsetCnt);
+
                         /* verify if this PDO fits into the buffer */
                         if ((uiOffsetCnt + uiMapSize) > aTPdosPdi_l[uiIndex].wSize_m       ||
                             (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
@@ -427,6 +462,8 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                     { // link directly to RPDO buffer
                         // INFO: the buffer number uiIndex is derived from the channel index (1AXX)
                         pData = aRPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
+
+                        SizeAlignPdiOffset(&pData,iSize,&uiOffsetCnt);
 
                         /* verify if this PDO fits into the buffer */
                         if ((uiOffsetCnt + uiMapSize) > aRPdosPdi_l[uiIndex].wSize_m       ||
@@ -461,7 +498,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                     if ( wLinkPdoMsgPaylForecast > wMaxStoreSpace )
                     {
                         // not enough space left for this descriptor entry
-                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %d)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %ld)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
                         fRet = FALSE;
                         goto exit;
                     }
