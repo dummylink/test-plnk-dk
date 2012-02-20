@@ -324,22 +324,6 @@
          type = "long";
       }
    }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2432";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
    element remote_update_cycloneiii_0.s1
    {
       datum _lockedAddress
@@ -353,11 +337,19 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
+   element clock_crossing_0.s1
    {
       datum baseAddress
       {
-         value = "2368";
+         value = "0";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2432";
          type = "long";
       }
    }
@@ -371,6 +363,14 @@
       datum baseAddress
       {
          value = "2304";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2368";
          type = "long";
       }
    }
@@ -469,8 +469,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="7015213660" />
- <parameter name="timeStamp" value="1328004408776" />
+ <parameter name="systemHash" value="4777487020" />
+ <parameter name="timeStamp" value="1329382467297" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -858,6 +858,7 @@
   <parameter name="tpdoNum" value="1" />
   <parameter name="tpdo0size" value="128" />
   <parameter name="genLedGadget" value="true" />
+  <parameter name="genEvent" value="true" />
   <parameter name="asyncBuf1Size" value="50" />
   <parameter name="asyncBuf2Size" value="50" />
   <parameter name="phyIF" value="MII" />
@@ -871,7 +872,6 @@
   <parameter name="macTxBurstSize" value="4" />
   <parameter name="macRxBurstSize" value="4" />
   <parameter name="enDmaObserver" value="false" />
-  <parameter name="genEvent_g" value="true" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
   <parameter name="AUTO_CLKMASTER_CLOCK_RATE" value="100000000" />
   <parameter name="AUTO_CLKPKT_CLOCK_RATE" value="100000000" />

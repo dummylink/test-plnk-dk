@@ -377,12 +377,6 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BANK_SIZE=3" -sec
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BANK_SEL_WIDTH=2" -section_id auto_lai_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_STATE=0" -section_id auto_lai_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ACQ_MODE=0" -section_id auto_lai_0
-set_global_assignment -name SDC_FILE POWERLINK/sdc/PLK_MII_base.sdc
-set_global_assignment -name VHDL_FILE sevsegEncode.vhd
-set_global_assignment -name BDF_FILE nios_pll.bdf
-set_global_assignment -name QIP_FILE niosII_openMac.qip
-set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE ../ink_pcp_SPI/benchmark.lai
-set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE lai1.lai
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][0] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|openmac_ethernet:theOpenMac|OpenMAC:THE_OPENMAC|\\b_Full_Tx:Tx_En" -section_id auto_lai_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][1] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|openmac_ethernet:theOpenMac|OpenMAC:THE_OPENMAC|nTx_Int" -section_id auto_lai_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][2] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|openmac_ethernet:theOpenMac|OpenMAC:THE_OPENMAC|nRx_Int" -section_id auto_lai_0
@@ -392,10 +386,8 @@ set_global_assignment -name MISC_FILE "C:/mairt/workspace/openPOWERLINK_CNDK_mai
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][6] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|ap_syncIrq" -section_id auto_lai_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][7] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|ap_asyncIrq" -section_id auto_lai_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC=6911" -section_id auto_lai_0
-set_global_assignment -name SIGNALTAP_FILE ../../../../../../../Users/mairt/Desktop/stp1.stp
 set_global_assignment -name ENABLE_SIGNALTAP ON
 set_global_assignment -name USE_SIGNALTAP_FILE stp2.stp
-set_global_assignment -name SIGNALTAP_FILE stp2.stp
 set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "niosII_openMac:inst|clk50" -section_id auto_signaltap_0
@@ -570,4 +562,12 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=4096
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=51385" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=58537" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=4096" -section_id auto_signaltap_0
+set_global_assignment -name SDC_FILE PLK_MII_base.sdc
+set_global_assignment -name VHDL_FILE sevsegEncode.vhd
+set_global_assignment -name BDF_FILE nios_pll.bdf
+set_global_assignment -name QIP_FILE niosII_openMac.qip
+set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE ../ink_pcp_SPI/benchmark.lai
+set_global_assignment -name LOGIC_ANALYZER_INTERFACE_FILE lai1.lai
+set_global_assignment -name SIGNALTAP_FILE ../../../../../../../Users/mairt/Desktop/stp1.stp
+set_global_assignment -name SIGNALTAP_FILE stp2.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

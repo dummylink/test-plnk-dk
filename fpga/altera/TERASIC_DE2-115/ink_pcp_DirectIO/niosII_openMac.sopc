@@ -160,19 +160,19 @@
          type = "boolean";
       }
    }
-   element sysid.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2456";
-         type = "long";
-      }
-   }
    element lcd.control_slave
    {
       datum baseAddress
       {
          value = "20983808";
+         type = "long";
+      }
+   }
+   element sysid.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2456";
          type = "long";
       }
    }
@@ -335,61 +335,6 @@
          type = "long";
       }
    }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2336";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
-   element tc_i_mem_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "33554432";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2400";
-         type = "long";
-      }
-   }
    element benchmark_pio.s1
    {
       datum baseAddress
@@ -408,6 +353,61 @@
       datum baseAddress
       {
          value = "2304";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "0";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2336";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "33554432";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2400";
          type = "long";
       }
    }
@@ -529,8 +529,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="13975463216" />
- <parameter name="timeStamp" value="1328013113898" />
+ <parameter name="systemHash" value="11737736576" />
+ <parameter name="timeStamp" value="1329382426724" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -788,6 +788,7 @@
   <parameter name="tpdoNum" value="1" />
   <parameter name="tpdo0size" value="1" />
   <parameter name="genLedGadget" value="true" />
+  <parameter name="genEvent" value="true" />
   <parameter name="asyncBuf1Size" value="1514" />
   <parameter name="asyncBuf2Size" value="1514" />
   <parameter name="phyIF" value="MII" />
@@ -801,7 +802,6 @@
   <parameter name="macTxBurstSize" value="4" />
   <parameter name="macRxBurstSize" value="4" />
   <parameter name="enDmaObserver" value="false" />
-  <parameter name="genEvent_g" value="true" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
   <parameter name="AUTO_CLKMASTER_CLOCK_RATE" value="100000000" />
   <parameter name="AUTO_CLKPKT_CLOCK_RATE" value="100000000" />
