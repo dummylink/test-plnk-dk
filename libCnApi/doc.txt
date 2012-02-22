@@ -2,7 +2,7 @@
 ********************************************************************************
 \file		doc.txt
 
-\brief		Main documentation file of CN API library
+\brief		Main doxygen documentation file of CN API library
 
 \author		Josef Baumgartner
 
@@ -14,10 +14,8 @@
 \mainpage
 The CN API is an API designed to interface an application processor (AP) to a POWERLINK communication Processor (PCP).
 
-
 \section reqs Requirements
 - C standard library functions: malloc(), free(), .....
-
 
 \section targets Targets
 The CN API is prepared to be compiled for miscellaneous processor targets. The following targets are supported
@@ -29,7 +27,5 @@ TODO: explain object dictionary implementation for AP (not POWERLINK object dict
 
 
 \section problems Problems
-- SDO requests should be handled by state-machines instead of polling for answer
-- SDO commands must be handled depending on state machine (e.g. in INIT only InitPcpReq())
 
 *******************************************************************************/

@@ -1,26 +1,26 @@
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 POWERLINK CN Development Kit (CNDK)
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 (C) Bernecker + Rainer, B & R Strasse 1, 5142 Eggelsberg, Austria
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
-
-Demo for PCP (Powerlink Communication Processor) with SPI/Parallel Interface
-============================================================================
+Software Demo for PCP (Powerlink Communication Processor)
+with SPI/Parallel or internal FPGA Interface
+==============================================================================
 
 1. Introduction
 ---------------
 This demo implements the software for a Powerlink Communication Processor (PCP).
 The PCP contains all Powerlink functionality of a POWERLINK CN node. It is
 designed to be connected to an Application Processor (AP) which contains the
-application code. The AP can be implemented on a second NIOS2 processor or on
-an external microprocessor connected to the PCP through a SPI or parallel
-interface.
+application code. The AP can be implemented on a second NIOS2 processor in the
+same FPGA as the PCP or on an external microprocessor connected to the PCP
+through a SPI or parallel interface.
 
 
-2. Performance Data
+2. Performance
 -------------------
-- Minimum cycle length: TBD
+- Minimum cycle length: optimization dependent
 - PReq-PRes Latency: 1 µs
 - Process data: 4 bytes input and 4 bytes output
 - There are 3 RPDOs and 1 TPDO available.
@@ -29,7 +29,7 @@ interface.
 3. Requirements
 ---------------
 - Development Boards
-  * EBV DBC3C40 (Mercury Board)
+
   * TERASIC DE2-115 (INK Board)
 
 - Altera Quartus II v10.1 SP1 or newer (Web Edition is also possible)
@@ -44,22 +44,22 @@ interface.
 
 
 4.Configuration
----------------
+----------------
 Miscellaneous parameters of the openPOWERLINK stack and the PCP application
 can be configured through defines in EplCfg.h. The following section contains
-a desription of miscellaneous configuration parameters.
+a description of those parameters.
 
 4.1 Firmware Update and Remote configuration
   The PCP contains support for a safe firmware update feature through POWERLINK.
   The following options could be configured
 
   CONFIG_FACTORY_IIB_FLASH_ADRS
- 	Specifies at which address in flash memory the Factory Image Information
- 	Block(IIB) is located.
+    Specifies at which address in flash memory the Factory Image Information
+    Block(IIB) is located.
 
   CONFIG_USER_IIB_FLASH_ADRS
- 	Specifies at which address in flash memory the User Image Information
- 	Block(IIB) is located.
+    Specifies at which address in flash memory the User Image Information
+    Block(IIB) is located.
 
   CONFIG_USER_IMAGE_FLASH_ADRS
     The address in flash memory where the user image is located.
@@ -80,19 +80,22 @@ a desription of miscellaneous configuration parameters.
 
 For Windows:
 
-1. Click on "rebuild.bat"
+1. Browse to the directory of your desired Quartus reference design and read the contained
+   "readme.txt". You may take some previous action e.g. rebuild the reference design. 
+    
+2. Click on "rebuild.bat"
 
-2. Choose the desired platform and design by entering a number
+3. Choose the desired platform and design by entering a number
 
-3. A bash script will be invoked, which rebuild the SW.
+4. A bash script will be invoked, which rebuild the SW.
 
-4. Click on "run.bat" - the HW configuration and the PCP SW will be downloaded to the FPGA
+5. Click on "run.bat" - the HW configuration and the PCP SW will be downloaded to the FPGA
 
-5. AFTER rebuilding, goto the "apps/ap_PDI" folder and rebuild
+6. AFTER rebuilding, goto the "apps/ap_PDI" folder and rebuild
    the Application Processor SW. Choose the SAME platform and design as before!
 
-6. Likewise, click on "run.bat" in "apps/ap_PDI"
+7. Likewise, click on "run.bat" in "apps/ap_PDI"
 
-5. Enjoy the terminal outputs and the running POWERLINK network.
+8. Enjoy the terminal outputs and the running POWERLINK network.
 
 

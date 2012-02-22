@@ -1,19 +1,19 @@
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 POWERLINK CN Development Kit (CNDK)
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 (C) Bernecker + Rainer, B & R Strasse 1, 5142 Eggelsberg, Austria
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
-
-	openPOWERLINK - AP Demo for EBV DBC3C40 and INK Board 
-	======================================================
+Software Demo for AP (Application Processor)
+with SPI/Parallel or Internal FPGA Interface
+==============================================================================
 
 Contents
 ---------
 
 - POWERLINK SW for AP (Application Processor).
 
-Performance Data
+Performance 
 -----------------
 
 - The following 8 objects - each has the size 1 Byte - can be mapped:
@@ -31,7 +31,9 @@ Performance Data
 Requirements
 -------------
 
-- Development Board EBV DBC3C40 (Mercury Board)
+- Development Boards
+
+  * TERASIC DE2-115 (INK Board)
 
 - Altera Quartus II v10.1 SP1 or newer (Web Edition is also possible)
 
