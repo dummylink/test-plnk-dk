@@ -247,13 +247,6 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    TfrTyp = kPdiAsyncTrfTypeLclBuffering;
-
-    CnApiAsync_initMsg(kPdiAsyncMsgIntCreateObjLinksReq, Dir, CnApi_doCreateObjLinksReq, pPdiBuf,
-                        kPdiAsyncMsgIntCreateObjLinksResp, TfrTyp, ChanType_p, pNmtList, wTout);
-
-    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
-
 #ifdef CN_API_USING_SPI
     TfrTyp = kPdiAsyncTrfTypeLclBuffering; // has to be buffered locally if serial interface is used
 #else
@@ -294,11 +287,6 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     pPdiBuf = &aPcpPdiAsyncRxMsgBuffer_g[0];
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, CnApi_handleInitPcpResp, pPdiBuf,
-                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
-
-    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
-
-    CnApiAsync_initMsg(kPdiAsyncMsgIntCreateObjLinksResp, Dir, CnApi_handleCreateObjLinksResp, pPdiBuf,
                         kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
@@ -393,173 +381,6 @@ tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsg
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = sizeof(tInitPcpReq); // sent size
-
-exit:
-    return Ret;
-}
-
-/**
-********************************************************************************
-\brief  setup a CreateObjLinksReq command
-\param  pMsgDescr_p         pointer to asynchronous message descriptor
-\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
-\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
-\param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
-
-CnApi_doCreateObjLinksReq() executes a createObjectLinks Request command.
-*******************************************************************************/
-tPdiAsyncStatus CnApi_doCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
-                                   BYTE* pRxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-{
-    tCreateObjLksReq *  pCreateObjLksReq = NULL;        ///< pointer to message (Tx)
-    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
-    tCnApiObjCreateObjLinksHdl * pMsgHdl;
-    char *              pDest;
-    char *              pData;
-    DWORD               dwDataLenght;
-    WORD                wMaxObjs;
-
-    DEBUG_FUNC;
-
-    /* check message descriptor */
-    if (pMsgDescr_p == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-    /* check response message assignment */
-    if (pMsgDescr_p->pRespMsgDescr_m == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* verify all buffer pointers we intend to use */
-    if (pTxMsgBuffer_p == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* verify message handle presence */
-    if (pMsgDescr_p->pUserHdl_m == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* assign handle */
-    pMsgHdl = (tCnApiObjCreateObjLinksHdl *) pMsgDescr_p->pUserHdl_m;
-
-    /* check if object list pointer is assigned */
-    if (pMsgHdl->pObj_m == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* check if expected Tx message size exceeds the buffer */
-    if ( sizeof(tCreateObjLksReq) > dwMaxTxBufSize_p)
-    {
-        /* reject transfer, because direct access can not be processed */
-        Ret = kPdiAsyncStatusDataTooLong;
-        goto exit;
-    }
-
-    /* check if local buffer is assigned (only this transfer method is allowed for now) */
-    if (pMsgDescr_p->MsgHdl_m.pLclBuf_m == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* assign same handle to response message */
-    pMsgDescr_p->pRespMsgDescr_m->pUserHdl_m = pMsgDescr_p->pUserHdl_m;
-
-    switch (pMsgDescr_p->TransfType_m)
-    {
-        case kPdiAsyncTrfTypeDirectAccess:
-        {
-            /* assign buffer payload addresses */
-             pCreateObjLksReq = (tCreateObjLksReq *) pTxMsgBuffer_p;    // Tx buffer
-             break;
-        }
-
-        case kPdiAsyncTrfTypeLclBuffering:
-        {
-            pCreateObjLksReq = (tCreateObjLksReq *) pMsgDescr_p->MsgHdl_m.pLclBuf_m; // Tx buffer
-            break;
-        }
-
-        default:
-        {
-            Ret = kPdiAsyncStatusInvalidInstanceParam;
-            goto exit;
-        }
-
-    }
-
-    /* handle Tx Message */
-    /* build up CreateObjLksReq */
-
-    /* calculate maximum number of objects which can be created in one createObjLinksReq Call */
-    wMaxObjs = (dwMaxTxBufSize_p - sizeof(pCreateObjLksReq)) / sizeof(tCnApiObjId);
-
-    if (pMsgHdl->wCurObjs_m == 0)// indicates first call of this function
-    {
-        pMsgHdl->wCurObjs_m = (pMsgHdl->wNumCreateObjs_m > wMaxObjs) ? wMaxObjs : pMsgHdl->wNumCreateObjs_m; //cap count of objects to be sent
-    }
-    else // there are objects left to be created  from last call
-    {
-        pMsgHdl->wCurObjs_m = (pMsgHdl->wCurObjs_m > wMaxObjs) ? wMaxObjs : pMsgHdl->wCurObjs_m; //cap count of objects to be sent
-    }
-
-    if (pMsgHdl->wCurObjs_m <= 0)
-    {
-        // no objects to be created -> exit;
-        
-        /* setup message header */
-#ifdef AP_IS_LITTLE_ENDIAN
-        pCreateObjLksReq->m_wNumObjs = pMsgHdl->wCurObjs_m;
-#else // AP_IS_BIG_ENDIAN
-        pCreateObjLksReq->m_wNumObjs = AmiGetWordToLe(&pMsgHdl->wCurObjs_m);
-#endif // AP_IS_LITTLE_ENDIAN
-        pCreateObjLksReq->m_bReqId = ++bReqId_l; 
-        goto exit;
-    }
-    /* build up CreateObjReq */
-    pDest = (char *) (pCreateObjLksReq + 1); // payload destination address of this message
-    pData = (char *) pMsgHdl->pObj_m;        // payload source address
-    dwDataLenght = pMsgHdl->wCurObjs_m * sizeof(tCnApiObjId); //payload lenght
-
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Creating %d objects\n", pMsgHdl->wCurObjs_m);
-
-#ifdef AP_IS_LITTLE_ENDIAN
-    memcpy(pDest, pData, dwDataLenght); // copy payload
-#else // AP_IS_BIG_ENDIAN
-    // copy payload, but convert Endian
-    {
-       tCnApiObjId* ptSrc = (tCnApiObjId*)pData;
-       tCnApiObjId* ptDest = (tCnApiObjId*)pDest;
-       tCnApiObjId* ptEnd = ptSrc + pMsgHdl->wCurObjs_m;
-       for (;ptSrc != ptEnd; ptSrc++, ptDest++) {
-          ptDest->m_wIndex = AmiGetWordToLe((BYTE*)&(ptSrc->m_wIndex));
-          ptDest->m_bSubIndex = ptSrc->m_bSubIndex;
-          ptDest->m_bNumEntries = ptSrc->m_bNumEntries;
-       }
-    }
-#endif // AP_IS_LITTLE_ENDIAN
-    /* setup message header */
-#ifdef AP_IS_LITTLE_ENDIAN
-    pCreateObjLksReq->m_wNumObjs = pMsgHdl->wCurObjs_m;
-#else // AP_IS_BIG_ENDIAN
-    pCreateObjLksReq->m_wNumObjs = AmiGetWordToLe(&pMsgHdl->wCurObjs_m);
-#endif // AP_IS_LITTLE_ENDIAN
-    pCreateObjLksReq->m_bReqId = ++bReqId_l;
-
-    /* update size values of message descriptors */
-    pMsgDescr_p->dwMsgSize_m = sizeof(tCreateObjLksReq) + dwDataLenght; // sent size
 
 exit:
     return Ret;
@@ -726,87 +547,6 @@ exit:
 }
 
 /**
-********************************************************************************
-\brief  handle an CreateObjLinksResp
-\param  pMsgDescr_p         pointer to asynchronous message descriptor
-\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
-\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
-\param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
-*******************************************************************************/
-tPdiAsyncStatus CnApi_handleCreateObjLinksResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
-                                        BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-{
-    tCreateObjLksResp * pCreateObjLksResp = NULL;       ///< pointer to response message (Rx)
-    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
-    tCnApiObjCreateObjLinksHdl * pMsgHdl;
-
-#ifdef AP_IS_BIG_ENDIAN
-    tCreateObjLksResp CreateObjLksRespBE; ///< copy of CreateObjLinksResponse message
-                                          ///< in big endian byte order
-#endif // AP_IS_BIG_ENDIAN
-
-    DEBUG_FUNC;
-
-    /* check message descriptor */
-    if (pMsgDescr_p == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* verify all buffer pointers we intend to use */
-    if (pRxMsgBuffer_p == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    /* assign buffer payload addresses */
-#ifdef AP_IS_LITTLE_ENDIAN
-    pCreateObjLksResp = (tCreateObjLksResp *) pRxMsgBuffer_p;    // Rx buffer
-#else // AP_IS_BIG_ENDIAN
-    pCreateObjLksResp = &CreateObjLksRespBE;
-    ConvertCreateObjLksRespEndian(pCreateObjLksResp, (tCreateObjLksResp *) pRxMsgBuffer_p);
-#endif //AP_IS_LITTLE_ENDIAN
-
-    /* handle Rx Message */
-    if (pCreateObjLksResp->m_bReqId != bReqId_l)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Unexpected Request ID!\n");
-        Ret = kPdiAsyncStatusRespError;
-        goto exit;
-    }
-
-    /* verify message handle presence */
-    if (pMsgDescr_p->pUserHdl_m == NULL)
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-    DEBUG_TRACE1(DEBUG_LVL_10, "createObjLinksResp: status = %d\n", pCreateObjLksResp->m_wStatus);
-    if (pCreateObjLksResp->m_wStatus == kCnApiStatusOk)
-    {
-        pMsgHdl = (tCnApiObjCreateObjLinksHdl *) pMsgDescr_p->pUserHdl_m;
-
-        pMsgHdl->pObj_m = pMsgHdl->pObj_m + pMsgHdl->wCurObjs_m; // prepare object list pointer for next sending
-        pMsgHdl->wReqObjs_m += pMsgHdl->wCurObjs_m;              // count finished requests
-        pMsgHdl->wCurObjs_m = pMsgHdl->wNumCreateObjs_m - pMsgHdl->wReqObjs_m; //set new number of objects to be created
-    }
-    else
-    { /* handle link error */
-        DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
-                     "NO OBJECTS WILL BE LINKED!\n\n", __func__, pCreateObjLksResp->m_wErrIndex, pCreateObjLksResp->m_bErrSubindex);
-        Ret = kPdiAsyncStatusRespError;
-        goto exit;
-    }
-
-    exit:
-        return Ret;
-}
-
-/**
  ********************************************************************************
  \brief call back function, invoked if InitPcpResp has finished
  \param  pMsgDescr_p         pointer to asynchronous message descriptor
@@ -820,45 +560,6 @@ tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgD
         CnApi_setApCommand(kApCmdInit);
 
         return kPdiAsyncStatusSuccessful;
-}
-
-/**
- ********************************************************************************
- \brief	call back function, invoked if CreateObjectLinksResponse has finished
- \param  pMsgDescr_p         pointer to asynchronous message descriptor
- \return Ret                 tPdiAsyncStatus value
-
- This function triggers an subsequent call of CnApi_doCreateObjLinksReq()
- if not all objects contained in aObjLinkTbl_l (cnApiObjects.c) have been created.
-
- *******************************************************************************/
-tPdiAsyncStatus CnApi_pfnCbCreateObjLinksRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
-{
-    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
-    tCnApiObjCreateObjLinksHdl * pMsgHdl;
-
-    pMsgHdl = (tCnApiObjCreateObjLinksHdl *) pMsgDescr_p->pUserHdl_m;
-
-    if (pMsgHdl->wCurObjs_m > 0)
-    {/* create remaining objects */
-       Ret = CnApiAsync_postMsg(kPdiAsyncMsgIntCreateObjLinksReq,
-                                (BYTE *) pMsgHdl,
-                                NULL,
-                                CnApi_pfnCbCreateObjLinksRespFinished);
-       if (Ret != kPdiAsyncStatusSuccessful)
-       {
-           goto exit;
-       }
-
-    }
-    else
-    {/* no more objects to be created at PCP side -> issue CMD_PREOP to PCP */
-        CnApi_setApCommand(kApCmdPreop);
-        goto exit;
-    }
-
-    exit:
-        return Ret;
 }
 
 

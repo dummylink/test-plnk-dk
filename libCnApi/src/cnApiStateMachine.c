@@ -148,10 +148,7 @@ FUNC_EVT(kApStateInit, kApStatePreOp, 1)
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateInit)
 {
-	/* object creation and initialization */
-	CnApi_createObjectLinks();
     CnApi_setApCommand(kApCmdPreop); // immediately make PCP move to PreOP
-
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kApStateInit)

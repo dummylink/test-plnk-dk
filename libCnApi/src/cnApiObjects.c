@@ -36,7 +36,7 @@ static tObjTbl		*pObjTbl_l;
 static DWORD		dwNumVarLinks_l; ///< Number local link assignments
 static DWORD		dwMaxLinkEntries_l;
 static DWORD		dwSelectObj_l;
-static tCnApiObjId  aObjLinkTbl_l[MAX_LINKABLE_OBJCS];
+static tCnApiObjId  aObjLinkTbl_l[MAX_MAPPABLE_OBJECTS];
 
 /******************************************************************************/
 /* function declarations */
@@ -194,38 +194,6 @@ int CnApi_getNextObject(tCnApiObjId *pObjId)
 	return 1;
 }
 
-
-
-/**
-********************************************************************************
-\brief	create an object
-
-CnApi_createObjectLinks() creates the PDO links in the openPOWERLINK stack. Precisely
-it commands the PCP to link objects to the heap by creating an object link table.
-This table has to be send in a buffer message to the PCP. The objects
-must exist in the PCPs object dictionary to be created.
-*******************************************************************************/
-void CnApi_createObjectLinks(void)
-{
-	register WORD		wCnt;
-	tCnApiObjId			*pObjId;
-
-	wCnt = 0;
-	pObjId = aObjLinkTbl_l;
-
-	CnApi_resetObjectSelector();
-	while (CnApi_getNextObject(pObjId) != 0) //write entry to object link table
-	{
-		pObjId++;
-		wCnt++;
-		/* Entries for CreatObjLinks command. If exceeded, the command will be split. */
-		if (wCnt > MAX_LINKABLE_OBJCS)
-		{ /* check if PCP restriction is not exceeded */
-	        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Linkable objects limited to %d! Linking stopped!\n", MAX_LINKABLE_OBJCS);
-	        return; //TODO: handle error
-		}
-	}
-}
 
 /**
 ********************************************************************************

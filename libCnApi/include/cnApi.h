@@ -39,13 +39,8 @@ This header file contains definitions for the CN API.
 #define RPDO_CHANNELS_MAX		POWERLINK_0_PDI_PCP_PDIRPDOS ///< Max Number of RxPDO's of this CN
 
 /* asynchronous communication AP <-> PCP */
-/* ObjLinking via asyncr. channel */
-#define OBJ_CREATE_LINKS_REQ_MAX_ENTRIES   100 ///< Max entries for CreatObjLinks command - has to fit in message buffer!
-#define OBJ_CREATE_LINKS_REQ_MAX_SEQ       9   ///< Max sequence nr. for CreatObjLinks command
-#define FST_OBJ_CRT_INDICATOR              2   ///< Asychr. msg counter indicating AP reset and start of CreatObjLinksReq
 
 // object restrictions
-#define MAX_LINKABLE_OBJCS (OBJ_CREATE_LINKS_REQ_MAX_ENTRIES * (OBJ_CREATE_LINKS_REQ_MAX_SEQ +1))
 #define MAX_MAPPABLE_OBJECTS               250
 
 #ifndef POWERLINK_0_PDI_PCP_PDITPDOS

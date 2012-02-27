@@ -158,25 +158,8 @@ typedef struct sInitPcpResp {
 } PACK_STRUCT tInitPcpResp;
 
 /**
- * \brief structure for CreateObjReq command
+ * \brief structure for LinkPdosReq command
  */
-typedef struct sCreateObjReq {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-    WORD                    m_wNumObjs;
-} PACK_STRUCT tCreateObjLksReq;
-
-/**
- * \brief structure for CreateObjResp command
- */
-typedef struct sCreateObjResp {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-    WORD                    m_wStatus;
-    WORD                    m_wErrIndex;
-    BYTE                    m_bErrSubindex;
-} PACK_STRUCT tCreateObjLksResp;
-
 typedef struct sLinkPdosReq {
     BYTE                    m_bDescrCnt;
     BYTE                    m_bDescrVers;
@@ -416,11 +399,6 @@ extern tPdiAsyncStatus CnApi_doInitPcpReq(
                        BYTE * pTxMsgBuffer_p,
                        BYTE * pRxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
-extern tPdiAsyncStatus CnApi_doCreateObjLinksReq(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pTxMsgBuffer_p,
-                       BYTE * pRxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
 extern tPdiAsyncStatus CnApi_doLinkPdosResp(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
                        BYTE* pTxMsgBuffer_p,
@@ -431,12 +409,6 @@ extern tPdiAsyncStatus CnApi_handleInitPcpResp(
                        BYTE * pRxMsgBuffer_p,
                        BYTE * pTxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
-extern tPdiAsyncStatus CnApi_handleCreateObjLinksResp(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pRxMsgBuffer_p,
-                       BYTE * pTxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
-extern tPdiAsyncStatus CnApi_pfnCbCreateObjLinksRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
 extern tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
 extern tPdiAsyncStatus CnApi_handleLinkPdosReq(
                        tPdiAsyncMsgDescr * pMsgDescr_p,

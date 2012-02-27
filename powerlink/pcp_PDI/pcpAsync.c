@@ -30,7 +30,7 @@
 
 /******************************************************************************/
 /* defines */
-#define OBJ_CRT_LNKS_BLKS       OBJ_CREATE_LINKS_REQ_MAX_SEQ+1
+
 
 /******************************************************************************/
 /* typedefs */
@@ -44,8 +44,6 @@ tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 /* global variables */
 
 /* local variables */
-static  BYTE *  pObjData[OBJ_CRT_LNKS_BLKS] = {NULL};
-static  BYTE    bReqSeqnc_l = 0;      ///< sequence counter of split message
 static  BYTE    bDescrVers_l = 0;     ///< descriptor version of LinkPdosReq
 static  BYTE    bReqId_l = 0;         ///< asynchronous msg counter
 /* variable indicates if AP objects have been linked successfully,
@@ -58,8 +56,6 @@ static tPdiAsyncStatus ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
 
 static tPdiAsyncStatus cnApiAsync_handleInitPcpReq(struct sPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                     BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p);
-static tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-                                                           BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 static tPdiAsyncStatus cnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                      BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 static tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
@@ -237,11 +233,6 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntCreateObjLinksReq, Dir, cnApiAsync_handleCreateObjLinksReq, pPdiBuf,
-                        kPdiAsyncMsgIntCreateObjLinksResp, TfrTyp, ChanType_p, pNmtList, wTout);
-
-    if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
-
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, cnApiAsync_handleObjAccResp, &aPcpPdiAsyncRxMsgBuffer_g[1],
                         kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, 0);
 
@@ -371,225 +362,6 @@ tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYT
     pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tInitPcpResp); // sent size
 
 exit:
-    return Ret;
-}
-
-/**
-********************************************************************************
-\brief	handle an createObjLinksReq
-\param  pMsgDescr_p         pointer to asynchronous message descriptor
-\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
-\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
-\param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
-
-This function allocates memory and links objects to HEAP.
-Furthermore it sets up a response.
-*******************************************************************************/
-tPdiAsyncStatus cnApiAsync_handleCreateObjLinksReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
-                                        BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-{
-	register int 	i;
-	WORD			wNumObjs;
-	tCnApiObjId *	pObjId;
-	int				iSize, iEntrySize;
-	unsigned int	uiVarEntries;
-	tEplKernel		EplRet;
-	char *          pData;
-	unsigned int	uiSubindex;
-	tObjTbl *       pObjLinksTable;
-	tCreateObjLksReq * pCreateObjLinksReq = NULL;       ///< pointer to request message (Rx)
-	tCreateObjLksResp * pCreateObjLinksResp = NULL;     ///< pointer to response message (Tx)
-	tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
-
-	DEBUG_FUNC;
-
-	/* check message descriptor */
-	if (pMsgDescr_p == NULL)
-	{
-	    Ret = kPdiAsyncStatusInvalidInstanceParam;
-	    goto exit;
-	}
-	/* check response message assignment */
-	if (pMsgDescr_p->pRespMsgDescr_m == NULL)
-	{
-	    Ret = kPdiAsyncStatusInvalidInstanceParam;
-	    goto exit;
-	}
-
-    /* verify all buffer pointers we intend to use */
-    if ((pRxMsgBuffer_p == NULL) || (pTxMsgBuffer_p == NULL))
-    {
-        Ret = kPdiAsyncStatusInvalidInstanceParam;
-        goto exit;
-    }
-
-	/* check if expected Tx message size exceeds the buffer */
-	if ( sizeof(tCreateObjLksResp) > dwMaxTxBufSize_p)
-	{
-	    /* reject transfer, because direct access can not be processed */
-	    Ret = kPdiAsyncStatusDataTooLong;
-	    goto exit;
-	}
-
-	/* assign buffer payload addresses */
-	pCreateObjLinksReq = (tCreateObjLksReq *) pRxMsgBuffer_p;       // Rx buffer
-	pCreateObjLinksResp = (tCreateObjLksResp *) pTxMsgBuffer_p;      // Tx buffer
-
-    /* handle Rx Message */
-	/*----------------------------------------------------------------------------*/
-	wNumObjs = pCreateObjLinksReq->m_wNumObjs;
-	pObjId = (tCnApiObjId *)(pCreateObjLinksReq + 1);
-	pObjLinksTable = pPcpLinkedObjs_g + dwApObjLinkEntries_g;
-
-	pCreateObjLinksResp->m_wStatus = kCnApiStatusOk;
-
-	/* check if objects are existing and count data size for HEAP allocation */
-	iSize = 0;
-	for (i = 0; i < wNumObjs; i++, pObjId++)
-	{
-		if (pObjId->m_bSubIndex == 0) ///< indicator of subindex chain msg -> check whole index
-		{
-			/* get size of objects for the whole subindex chain */
-			for (uiSubindex = 1; uiSubindex <= pObjId->m_bNumEntries; uiSubindex++)
-			{//TODO: does it make sense to start with Subindex 0 for DomainObject or Arrayobject e.g?
-				// read local entry size (defined in objdict.h)
-				iEntrySize = EplObdGetDataSize(pObjId->m_wIndex, uiSubindex);
-				if (iEntrySize == 0x00)
-				{
-					// invalid entry size (maybe object doesn't exist or entry of type DOMAIN is empty)
-				    /* prepare response msg */
-				    /*----------------------------------------------------------------------------*/
-					pCreateObjLinksResp->m_wStatus = kCnApiStatusObjectNotExist;
-					pCreateObjLinksResp->m_wErrIndex = pObjId->m_wIndex;
-					pCreateObjLinksResp->m_bErrSubindex = pObjId->m_bSubIndex;
-					/*----------------------------------------------------------------------------*/
-
-		            DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
-		                         "No Objects will be linked!\n", __func__, pObjId->m_wIndex, pObjId->m_bSubIndex);
-		            wNumObjs = 0; ///< skip object linking
-		            Ret = kPdiAsyncStatusInvalidOperation;
-		            break;
-				}
-				iSize += iEntrySize;
-			}
-		}
-		else ///< regular single subindex (no subindex chain msg)
-		{
-			if ((iEntrySize = EplObdGetDataSize(pObjId->m_wIndex, pObjId->m_bSubIndex)) == 0)
-			{
-				// invalid entry size (maybe object doesn't exist or entry of type DOMAIN is empty)
-			    /* prepare response msg */
-			    /*----------------------------------------------------------------------------*/
-				pCreateObjLinksResp->m_wStatus = kCnApiStatusObjectNotExist;
-				pCreateObjLinksResp->m_wErrIndex = pObjId->m_wIndex;
-				pCreateObjLinksResp->m_bErrSubindex = pObjId->m_bSubIndex;
-				/*----------------------------------------------------------------------------*/
-				DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "ERROR in %s: 0x%04x/0x%02x does not exist or has invalid size!\n"
-                             "No Objects will be linked!\n", __func__, pObjId->m_wIndex, pObjId->m_bSubIndex);
-				wNumObjs = 0; ///< skip object linking
-				Ret = kPdiAsyncStatusInvalidOperation;
-				break;
-			}
-			iSize += iEntrySize;
-		}
-	}
-
-	/* all objects exist -> link them to HEAP */
-	if (pCreateObjLinksResp->m_wStatus == kCnApiStatusOk)
-	{
-	    if (pCreateObjLinksReq->m_bReqId == FST_OBJ_CRT_INDICATOR)
-	    {// asynchronous message counter 2 indicates a AP restart (workaround)
-	        bReqSeqnc_l = 0;
-	        dwApObjLinkEntries_g = 0;
-	    }
-
-	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO ,"Sequence: %d \n", bReqSeqnc_l);
-	    if (bReqSeqnc_l > OBJ_CREATE_LINKS_REQ_MAX_SEQ)
-	    {
-	        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Invalid sequence %d!\n", bReqSeqnc_l);
-	        Ret = kPdiAsyncStatusInvalidMessage;
-	        goto exit;
-	    }
-
-		/* allocate memory in HEAP */
-	    if (pObjData[bReqSeqnc_l] != NULL)
-	    {
-	        EPL_FREE(pObjData[bReqSeqnc_l]); ///< memory has been allocated before! overwrite it...
-	    }
-
-	    pObjData[bReqSeqnc_l] = EPL_MALLOC(iSize);
-		if (pObjData[bReqSeqnc_l] == NULL)
-		{
-		    /* prepare response msg */
-			/*----------------------------------------------------------------------------*/
-			pCreateObjLinksResp->m_wStatus = kCnApiStatusAllocationFailed;
-			/*----------------------------------------------------------------------------*/
-			DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Couldn't allocate memory for objects!\n");
-			Ret = kPdiAsyncStatusNoResource;
-		}
-
-		else
-		{
-			/* link objects to allocated HEAP memory */
-			pObjId = (tCnApiObjId *)(pCreateObjLinksReq + 1);
-			pData = pObjData[bReqSeqnc_l];
-
-            for (i = 0; i < wNumObjs; i++, pObjId++)
-			{
-
-                if (dwApObjLinkEntries_g > MAX_NUM_LINKED_OBJ_PCP)
-                {
-                  DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "Object link table (size %d) exceeded! Linking stopped!\n", MAX_NUM_LINKED_OBJ_PCP);
-                  Ret = kPdiAsyncStatusNoResource;
-                  goto exit;
-                }
-
-				uiVarEntries = pObjId->m_bNumEntries;
-				iSize = 0;
-
-				DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "Linking variable: 0x%04x/0x%02x to 0x%08x\n", pObjId->m_wIndex, pObjId->m_bSubIndex, (unsigned int)pData);
-
-				EplRet = EplApiLinkObject(pObjId->m_wIndex, pData, &uiVarEntries, &iSize, pObjId->m_bSubIndex);
-				if (EplRet != kEplSuccessful)
-				{
-				    /* prepare response msg */
-					/*----------------------------------------------------------------------------*/
-					pCreateObjLinksResp->m_wStatus = kCnApiStatusObjectNotExist;
-					pCreateObjLinksResp->m_wErrIndex = pObjId->m_wIndex;
-					pCreateObjLinksResp->m_bErrSubindex = pObjId->m_bSubIndex;
-					/*----------------------------------------------------------------------------*/
-					DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
-					Ret = kPdiAsyncStatusInvalidOperation;
-					break;
-				}
-
-				/* add entry to table of linked objects */
-				pObjLinksTable->m_wIndex = pObjId->m_wIndex;
-				pObjLinksTable->m_bSubIndex = pObjId->m_bSubIndex;
-				pObjLinksTable->m_pData = pData;
-				pObjLinksTable->m_wSize = (WORD) iSize;
-
-				/* prepare next iteration*/
-				dwApObjLinkEntries_g++;
-				pObjLinksTable++;
-
-				pData += iSize;
-			}
-		}
-	}
-	bReqSeqnc_l++;
-
-	/* setup response msg header */
-	/*----------------------------------------------------------------------------*/
-	pCreateObjLinksResp->m_bReqId = pCreateObjLinksReq->m_bReqId;
-	/*----------------------------------------------------------------------------*/
-
-	/* update size values of message descriptors */
-	pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tCreateObjLksResp);     // sent size
-
-exit:
-    Ret = kPdiAsyncStatusSuccessful; // Response message has to be delivered -> fake everything is ok
     return Ret;
 }
 
