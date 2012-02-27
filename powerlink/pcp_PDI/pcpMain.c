@@ -1479,11 +1479,11 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
 
                     if(EplTimerHdl == 0)
                     {   // create new timer
-                        Ret = EplTimeruSetTimerMs(&EplTimerHdl, 1000, TimerArg);
+                        Ret = EplTimeruSetTimerMs(&EplTimerHdl, 100, TimerArg);
                     }
                     else
                     {   // modify exisiting timer
-                        Ret = EplTimeruModifyTimerMs(&EplTimerHdl, 1000, TimerArg);
+                        Ret = EplTimeruModifyTimerMs(&EplTimerHdl, 100, TimerArg);
                     }
                     if(Ret != kEplSuccessful)
                     {
@@ -1669,13 +1669,13 @@ static tEplKernel EplAppCbDefaultObdPreRead(tEplObdParam *pObdParam_p)
                     if(EplTimerHdl == 0)
                     {   // create new timer
                         Ret = EplTimeruSetTimerMs(&EplTimerHdl,
-                                                    1000,
+                                                    100,
                                                     TimerArg);
                     }
                     else
                     {   // modify exisiting timer
                         Ret = EplTimeruModifyTimerMs(&EplTimerHdl,
-                                                    1000,
+                                                    100,
                                                     TimerArg);
                     }
                     if(Ret != kEplSuccessful)
