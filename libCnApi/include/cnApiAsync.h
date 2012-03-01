@@ -213,7 +213,7 @@ typedef struct sAsyncMsgHeader {
     BYTE                    m_bMsgType;
     BYTE                    m_bPad;
     WORD                    m_wFrgmtLen;
-    //WORD                  wReserved;
+    WORD                    m_wReserved;
     DWORD                   m_dwStreamLen;
 } PACK_STRUCT tAsyncPdiBufCtrlHeader;
 

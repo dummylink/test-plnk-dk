@@ -179,6 +179,20 @@ echo "rebuild.sh: Update FPGA config finished."
 printf 'rebuild.sh: rebuild FINISHED!\n\n\n'
 
 # some user information
+echo
+echo "To download and run the application:"
+echo "    1. Make sure the board is connected to the system."
+echo "    2. Use 'run.bat'"
+echo " "
+echo "    Alternatively you can manually"
+echo "    2. Run 'nios2-configure-sof -C $SOPC_DIR' to configure the FPGA with the hardware design."
+echo "    3. If you have a stdio device, run 'nios2-terminal' in a different shell."
+echo "    4. Run 'make download-elf' from the application directory."
+echo
+echo "To debug the application:"
+echo "    Import the project into Nios II IDE.  Refer to Nios II IDE Documentation for more information."
+echo
+echo -e ""
 echo -e "You also need to rebuild the API Library and your application\nin order to apply changes!\nDo so by executing ../../apps/rebuild.bat!\n"
 
 exit 0
