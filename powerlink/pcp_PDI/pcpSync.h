@@ -49,7 +49,6 @@ inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p
 
 void Gi_disableSyncInt(void);
 void Gi_calcSyncIntPeriod(void);
-void Gi_enableSyncInt(WORD wSyncIntCycle_p);
 BOOL Gi_checkSyncIrqRequired(void);
 
 

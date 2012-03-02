@@ -90,20 +90,13 @@ static inline void ConvertCreateObjLksRespEndian(tCreateObjLksResp* pDest, tCrea
 *******************************************************************************/
 int CnApiAsync_create(void)
 {
-    int iRet;
+    int iRet = OK;
 
     CnApi_activateAsyncStateMachine();
 
     iRet = CnApiAsync_init();
-    if (iRet != OK )
-    {
-        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
-        goto exit;
-    }
 
-    return OK;
-exit:
-    return ERROR;
+    return iRet;
 }
 
 /**
@@ -112,9 +105,7 @@ exit:
 *******************************************************************************/
 int CnApiAsync_reset(void)
 {
-    register WORD wCnt;
-    int iRet;
-    tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
+    int iRet = OK;
 
     CnApi_disableAsyncSmProcessing();
 
@@ -122,15 +113,8 @@ int CnApiAsync_reset(void)
     CnApi_resetAsyncStateMachine();
 
     iRet = CnApiAsync_init();
-    if (iRet != OK )
-    {
-        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_init() FAILED!\n");
-        goto exit;
-    }
 
-    return OK;
-exit:
-    return ERROR;
+    return iRet;
 }
 
 /**
@@ -198,7 +182,7 @@ int CnApiAsync_init(void)
         goto exit;
     }
 
-    CnApiAsync_finishMsgInit();
+    Ret = CnApiAsync_finishMsgInit();
     if (Ret != kPdiAsyncStatusSuccessful)
     {
         goto exit;

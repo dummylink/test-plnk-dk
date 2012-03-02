@@ -279,9 +279,6 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
  *******************************************************************************/
 void EplAppDefObdAccCleanupAllPending(void)
 {
-    tDefObdAccHdl * pObdDefAccHdl = NULL;
-    BYTE            bArrayNum;                 ///< loop counter and array element
-
     // clean domain OBD access history buffers
     EplAppDefObdAccCleanupHistory(); // ignore return value
 

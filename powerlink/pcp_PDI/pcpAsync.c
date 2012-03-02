@@ -581,7 +581,7 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset + sizeof(tLinkPdosReq);     // sent size
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d, MsgSize: %d.\n", pLinkPdosReq->m_bDescrVers, pMsgDescr_p->dwMsgSize_m);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d, MsgSize: %ld.\n", pLinkPdosReq->m_bDescrVers, pMsgDescr_p->dwMsgSize_m);
 
     // reset AP status linking status, because we want the AP to do a new linking now
     ApLinkingStatus_l = kPdiAsyncStatusInvalidState;

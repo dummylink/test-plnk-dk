@@ -385,8 +385,8 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
     {
         DEBUG_TRACE4(DEBUG_LVL_ERROR,
                      "System mismatch!\n"
-                     "FPGA config: (timestamp: %lu / sysID: %lu)\n"
-                     "SW:          (timestamp: %lu / sysID: %lu)\n" ,
+                     "FPGA config: (timestamp: %u / sysID: %u)\n"
+                     "SW:          (timestamp: %u / sysID: %u)\n" ,
                      IORD_ALTERA_AVALON_SYSID_TIMESTAMP(SYSID_BASE),
                      IORD_ALTERA_AVALON_SYSID_ID(SYSID_BASE),
                      SYSID_TIMESTAMP,

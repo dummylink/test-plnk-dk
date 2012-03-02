@@ -90,7 +90,7 @@ extern BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                             tLinkPdosReq *pLinkPdoReq_p,
                             WORD wMaxStoreSpace);
 
-extern void Gi_generateSyncInt(void);
+extern void Gi_enableSyncInt(WORD wSyncIntCycle_p);
 
 extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 
