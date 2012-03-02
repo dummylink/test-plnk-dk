@@ -1,0 +1,63 @@
+------------------------------------------------------------------------------
+POWERLINK CN Development Kit (CNDK)
+------------------------------------------------------------------------------
+(C) Bernecker + Rainer, B & R Strasse 1, 5142 Eggelsberg, Austria
+------------------------------------------------------------------------------
+
+Update Guide
+==============================================================================
+
+How to generally update to any version (applies always)
+-------------------------------------------------------    
+
+    - POWERLINK IP-core / Quartus Project
+      Update the POWERLINK IP-core folder containments used for your Quartus project
+      with the provided source files and completely rebuild the Quartus project
+      starting with SOPC Builder.
+      Before the rebuild, you need to delete all temporary  Quartus project files !
+
+    - CnApi SW Library:
+      Generate cnApiCfg.h by building the PCP design of the desired CNDK version 
+      and update your Application Processor (AP) sources with the whole CnApi library source code
+      which comes with the CNDK.
+
+How to update from V0.2.0 or V0.2.1 to V0.4.6 
+----------------------------------------------
+
+1. POWERLINK IP-core / Quartus Project
+      
+      In SOPC-Builder you need to specify a global search path for the POWERLINK IP-core once.
+      Go to     
+                "Tools -> Options -> IP Search Path -> Add"
+                
+      and browse to the POWERLINK IP-core folder e.g. in the CNDK
+                
+                <your path>/BR_POWERLINK-SLAVE_ALTERA_V0.4.6/02_Reference_Designs/fpga/altera/IP_core/POWERLINK
+                
+
+2. HW Interface (PCP PDI)
+   
+    - Adapt the timing according to the HW_Design_Guidelines delivered with this package.
+      if you access the PCP over external FPGA interface (serial or parallel).      
+
+3. CnApi SW Library
+     
+    - If you use the CnApi library in an AP
+      to access and control the PCP (Powerlink Communication Processor)
+      then you need to delete the calls to the functions
+       
+        * CnApi_activateApStateMachine()
+        * CnApi_activateAsyncStateMachine()
+        
+      because those functions where shifted to the CnApi_init() function
+      and are called now in the background.
+      Any additional call to those functions will damage the AP to PCP communication!
+      
+    - It is mandatory to handle calls to CnApi_CbDefaultObdAccess() and optional to answer
+      delayed to the object dictionary access with CnApi_DefObdAccFinished().
+      See the documentation "API_Reference_Manual"  for details.
+    
+    - Events forwarded to the user in CnApi_AppCbEvent() can be handled optionally.
+    
+
+    
