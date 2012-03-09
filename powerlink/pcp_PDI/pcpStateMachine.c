@@ -150,7 +150,7 @@ FUNC_DOACT(kPcpStateBooted)
 
     if (checkApCommand(kApCmdInit))
     {
-        // kApCmdInit will be received as soon as AP got the IniPcpResponse message
+        // kApCmdInit will be received as soon as AP got the InitPcpResponse message
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
         fEvent = TRUE;
     }
@@ -198,17 +198,17 @@ FUNC_ENTRYACT(kPcpStateInit)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateInit)
 {
-	int		iStatus;
+    int iStatus;
 
-	if (checkApCommand(kApCmdPreop))
-	{
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdPreop\n", __func__);
-		iStatus = startPowerlink();
-		if (iStatus == kEplSuccessful)
-		{
-			fEvent = TRUE;
-		}
-	}
+    if (checkApCommand(kApCmdPreop))
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdPreop\n", __func__);
+        iStatus = startPowerlink();
+        if (iStatus == kEplSuccessful)
+        {
+            fEvent = TRUE;
+        }
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateInit,kPcpStatePreOp,1)
@@ -238,8 +238,8 @@ FUNC_EVT(kPcpStateInit,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStatePreOp)
 {
-	storePcpState(kPcpStatePreOp);
-	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStatePreOp);
+    storePcpState(kPcpStatePreOp);
+    Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStatePreOp);
 }
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStatePreOp)
@@ -347,7 +347,11 @@ FUNC_ENTRYACT(kPcpStateOperational)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPcpStateOperational)
 {
-
+    if(checkApCommand(kApCmdPreop))
+    {
+        // fall back to PreOp state
+        EplNmtuNmtEvent(kEplNmtEventEnterPreOperational2);
+    }
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kPcpStateOperational,kPcpStatePreOp,1)
