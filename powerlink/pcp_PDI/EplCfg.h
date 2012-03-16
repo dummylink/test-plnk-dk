@@ -135,9 +135,6 @@
 
 /*								| EPL_MODULE_PDOU \ */
 
-
-
-
 // =========================================================================
 // EPL ethernet driver (Edrv) specific defines
 // =========================================================================
@@ -174,7 +171,6 @@
 // openMAC supports auto-response delay
 #define EDRV_AUTO_RESPONSE_DELAY        TRUE
 
-
 // =========================================================================
 // Data Link Layer (DLL) specific defines
 // =========================================================================
@@ -207,17 +203,15 @@
 // Enable forwarding of SoC timestamps
 #define EPL_DLL_SOCTIME_FORWARD         TRUE
 
-
 // =========================================================================
 // OBD specific defines
 // =========================================================================
 
 #define EPL_OBD_USE_KERNEL				TRUE
 
-// switch this define to TRUE if Epl should compare object range
-// automaticly
-#define EPL_OBD_CHECK_OBJECT_RANGE          FALSE
-//#define EPL_OBD_CHECK_OBJECT_RANGE          TRUE
+// switch this define to TRUE if Epl should compare object range automatically
+//#define EPL_OBD_CHECK_OBJECT_RANGE          FALSE
+#define EPL_OBD_CHECK_OBJECT_RANGE          TRUE
 
 // set this define to TRUE if there are strings or domains in OD, which
 // may be changed in object size and/or object data pointer by its object
@@ -227,15 +221,12 @@
 
 #define EPL_OBD_USE_VARIABLE_SUBINDEX_TAB TRUE
 
-
 // =========================================================================
 // Timer module specific defines
 // =========================================================================
 
 // if TRUE the high resolution timer module will be used
 #define EPL_TIMER_USE_HIGHRES           FALSE
-
-
 
 // =========================================================================
 // SDO module specific defines
@@ -246,7 +237,6 @@
 #define EPL_MAX_SDO_SEQ_CON         1
 #define EPL_MAX_SDO_COM_CON         1
 //#define EPL_SDO_MAX_CONNECTION_UDP  50
-
 
 // =========================================================================
 // API Layer specific defines
@@ -264,6 +254,7 @@
 // =========================================================================
 // defines for flash update function
 // =========================================================================
+//#define CONFIG_IIB_IS_PRESENT                                  ///< IIB is stored in flash
 #define CONFIG_FACTORY_IIB_FLASH_ADRS          0x00400000      ///< flash address of factory IIB
 #define CONFIG_USER_IIB_FLASH_ADRS             0x00410000      ///< flash address of user IIB
 #define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000      ///< flash address of user image
@@ -273,11 +264,21 @@
 // defines for FPGA reconfiguration
 // =========================================================================
 #define CONFIG_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
-#define CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
+//#define CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
 
 // =========================================================================
-// defines for application features
+// defines for POWERLINK device identification and configuration
 // =========================================================================
+// identification parameters
+#define CONFIG_IDENT_PRODUCT_CODE           0
+#define CONFIG_IDENT_REVISION               0x10007
+#define CONFIG_IDENT_VENDOR_ID              0
+#define CONFIG_IDENT_SERIAL_NUMBER          0
+#define CONFIG_IDENT_DEVICE_NAME            "POWERLINK CN DEMO"
+
+// PDO size hardware restrictions
+#define CONFIG_ISOCHR_TX_MAX_PAYLOAD   50
+#define CONFIG_ISOCHR_RX_MAX_PAYLOAD   50
 
 
 #endif //_EPLCFG_H_

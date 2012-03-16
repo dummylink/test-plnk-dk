@@ -112,10 +112,12 @@ static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *pDefObdAccHdl_
                     void * pfnSegmentFinishedCb_p, void * pfnSegmentAbortCb_p);
 static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
 static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
+#ifdef CONFIG_IIB_IS_PRESENT
 static tFwRet getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
                                   UINT32 *pUiApplicationSwTime_p);
 static tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersion_p,
                        UINT32 *pUiApSwVersion_p);
+#endif // CONFIG_IIB_IS_PRESENT
 static void rebootCN(void);
 
 int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle);
@@ -191,7 +193,7 @@ int main (void)
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
 
-#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+#ifdef CONFIG_IIB_IS_PRESENT
             FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
                                     CONFIG_USER_IIB_FLASH_ADRS,
                                     CONFIG_USER_IIB_VERSION);
@@ -205,7 +207,7 @@ int main (void)
                 // -> reset to factory image
                 FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
             }
-#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+#endif // CONFIG_IIB_IS_PRESENT
 
             fIsUserImage_g = TRUE;
             break;
@@ -215,7 +217,7 @@ int main (void)
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
 
-#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+#ifdef CONFIG_IIB_IS_PRESENT
             FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
                                     CONFIG_USER_IIB_FLASH_ADRS,
                                     CONFIG_USER_IIB_VERSION);
@@ -229,7 +231,7 @@ int main (void)
                 // -> reset to factory image
                 FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
             }
-#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+#endif // CONFIG_IIB_IS_PRESENT
 
             // watchdog timer has to be reset periodically
             //FpgaCfg_resetWatchdogTimer(); // do this periodically!
@@ -315,7 +317,6 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     tEplKernel                  EplRet;
     UINT32                      uiApplicationSwDate = 0;
     UINT32                      uiApplicationSwTime = 0;
-    tFwRet                      FwRetVal = kFwRetSuccessful;
 
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef SET_NODE_ID_BY_HW
@@ -324,6 +325,9 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
         pInitParm_p->m_bNodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
     }
 #endif /* SET_NODE_ID_BY_HW */
+
+#ifdef CONFIG_IIB_IS_PRESENT
+    tFwRet                      FwRetVal = kFwRetSuccessful;
 
     /* Read application software date and time */
     FwRetVal = getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
@@ -338,6 +342,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     {
         DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageSwVersions() failed with 0x%x\n", FwRetVal);
     }
+#endif // CONFIG_IIB_IS_PRESENT
 
     /* setup the POWERLINK stack */
     /* calc the IP address with the nodeid */
@@ -350,15 +355,15 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
                sizeof(EplApiInitParam.m_abMacAddress));
     EplApiInitParam.m_uiNodeId = pInitParm_p->m_bNodeId;
     EplApiInitParam.m_dwIpAddress = ip;
-    EplApiInitParam.m_uiIsochrTxMaxPayload = 256; // TODO: use system.h define?
-    EplApiInitParam.m_uiIsochrRxMaxPayload = 256; // TODO: use system.h define?
+    EplApiInitParam.m_uiIsochrTxMaxPayload = CONFIG_ISOCHR_TX_MAX_PAYLOAD; // TODO: use system.h define?
+    EplApiInitParam.m_uiIsochrRxMaxPayload = CONFIG_ISOCHR_RX_MAX_PAYLOAD; // TODO: use system.h define?
     EplApiInitParam.m_dwPresMaxLatency = 2000; // ns
     EplApiInitParam.m_dwAsndMaxLatency = 2000; // ns
     EplApiInitParam.m_fAsyncOnly = FALSE;
     EplApiInitParam.m_dwFeatureFlags = -1;       // depends on openPOWERLINK module integration
     EplApiInitParam.m_dwCycleLen = DEFAULT_CYCLE_LEN;
-    EplApiInitParam.m_uiPreqActPayloadLimit = 36;   //TODO: use system.h define?
-    EplApiInitParam.m_uiPresActPayloadLimit = 36;   //TODO: use system.h define?
+    EplApiInitParam.m_uiPreqActPayloadLimit = 36;
+    EplApiInitParam.m_uiPresActPayloadLimit = 36;
     EplApiInitParam.m_uiMultiplCycleCnt = 0;
     EplApiInitParam.m_uiAsyncMtu = 300;
     EplApiInitParam.m_uiPrescaler = 2;
@@ -1160,6 +1165,8 @@ void Gi_init(void)
     int         iRet= OK;
     UINT32      uiApplicationSwDate = 0;
     UINT32      uiApplicationSwTime = 0;
+
+#ifdef CONFIG_IIB_IS_PRESENT
     tFwRet      FwRetVal = kFwRetSuccessful;
 
     FwRetVal = getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
@@ -1167,6 +1174,7 @@ void Gi_init(void)
     {
         DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageApplicationSwDateTime() failed with 0x%x\n", FwRetVal);
     }
+#endif // CONFIG_IIB_IS_PRESENT
 
     /* Setup PCP Control Register in DPRAM */
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;     // set address of control register - equals DPRAM base address
@@ -2301,6 +2309,7 @@ used firmware image.
 
 \return OK, or ERROR if data couldn't be read
 *******************************************************************************/
+#ifdef CONFIG_IIB_IS_PRESENT
 static tFwRet getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
                                   UINT32 *pUiApplicationSwTime_p)
 {
@@ -2336,6 +2345,7 @@ static tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpS
     return getSwVersions(uiIibAdrs, pUiFpgaConfigVersion_p, pUiPcpSwVersion_p,
                          pUiApSwVersion_p);
 }
+#endif // CONFIG_IIB_IS_PRESENT
 
 /* EOF */
 /*********************************************************************************/

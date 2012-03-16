@@ -802,16 +802,18 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
     // return error for all non existing objects
     switch (pObdParam_p->m_uiIndex)
     {
-#ifdef TEST_OBD_ADOPTABLE_FINISHED_TIMERU
-        case 0x1010:
-            switch (pObdParam_p->m_uiSubIndex)
-            {
-                case 0x01:
-                    break;
-                default:
-                    goto Exit_not_existing;
-            }
-            break;
+
+//        case 0x1010:
+//            switch (pObdParam_p->m_uiSubIndex)
+//            {
+//                case 0x01:
+//                    break;
+//                default:
+//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+//                    Ret = kEplObdSubindexNotExist;
+//                    goto Exit;
+//            }
+//            break;
 
 //        case 0x1011:
 //            switch (pObdParam_p->m_uiSubIndex)
@@ -820,11 +822,11 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
 //                    break;
 //
 //                default:
-//                    goto Exit_not_existing;
+//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+//                    Ret = kEplObdSubindexNotExist;
+//                    goto Exit;
 //            }
 //            break;
-
-#endif // TEST_OBD_ADOPTABLE_FINISHED_TIMERU
 
         case 0x1F50:
             switch (pObdParam_p->m_uiSubIndex)
@@ -832,14 +834,23 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
                 case 0x01:
                     break;
                 default:
-                    goto Exit_not_existing;
+                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
+                    Ret = kEplObdSubindexNotExist;
+                    goto Exit;
             }
             break;
 
         default:
+            // Tell calling function that all objects
+            // >= 0x2000 exist per default.
+            // The actual verification will take place
+            // with the write or read access.
+
             if(pObdParam_p->m_uiIndex < 0x2000)
             {   // remaining PCP objects do not exist
-                goto Exit_not_existing;
+                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+                Ret = kEplObdIndexNotExist;
+                goto Exit;
             }
             break;
     } /* switch (pObdParam_p->m_uiIndex) */
@@ -873,12 +884,8 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
         default:
             break;
     }
-    return Ret;
 
-    /* This is the exit point for non existing objects */
-Exit_not_existing:
-    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
-    Ret = kEplObdSubindexNotExist;
+Exit:
     return Ret;
 }
 
@@ -1368,7 +1375,7 @@ int main (void)
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
 
-#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+#ifdef CONFIG_IIB_IS_PRESENT
             FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
                                     CONFIG_USER_IIB_FLASH_ADRS,
                                     CONFIG_USER_IIB_VERSION);
@@ -1382,7 +1389,7 @@ int main (void)
                 // -> reset to factory image
                 FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
             }
-#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+#endif // CONFIG_IIB_IS_PRESENT
 
             fIsUserImage_g = TRUE;
             LCD_Clear();
@@ -1394,7 +1401,7 @@ int main (void)
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
 
-#ifndef DEBUG_CONFIG_NO_IIB_PRESENT
+#ifdef CONFIG_IIB_IS_PRESENT
             FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
                                     CONFIG_USER_IIB_FLASH_ADRS,
                                     CONFIG_USER_IIB_VERSION);
@@ -1408,7 +1415,7 @@ int main (void)
                 // -> reset to factory image
                 FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
             }
-#endif // ndef DEBUG_CONFIG_NO_IIB_PRESENT
+#endif // CONFIG_IIB_IS_PRESENT
 
             // watchdog timer has to be reset periodically
             //FpgaCfg_resetWatchdogTimer(); // do this periodically!
@@ -1531,7 +1538,7 @@ int openPowerlink(WORD wNodeId_p)
     EplApiInitParam.m_uiPreqActPayloadLimit = 36;
     EplApiInitParam.m_uiPresActPayloadLimit = 36;
     EplApiInitParam.m_uiMultiplCycleCnt = 0;
-    EplApiInitParam.m_uiAsyncMtu = 1500;
+    EplApiInitParam.m_uiAsyncMtu = 300;
     EplApiInitParam.m_uiPrescaler = 2;
     EplApiInitParam.m_dwLossOfFrameTolerance = 5000000;
     EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;

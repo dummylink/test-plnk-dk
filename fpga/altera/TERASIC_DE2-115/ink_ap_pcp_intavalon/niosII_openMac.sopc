@@ -194,14 +194,6 @@
          type = "boolean";
       }
    }
-   element lcd.control_slave
-   {
-      datum baseAddress
-      {
-         value = "64";
-         type = "long";
-      }
-   }
    element sysid.control_slave
    {
       datum _lockedAddress
@@ -212,6 +204,14 @@
       datum baseAddress
       {
          value = "376";
+         type = "long";
+      }
+   }
+   element lcd.control_slave
+   {
+      datum baseAddress
+      {
+         value = "64";
          type = "long";
       }
    }
@@ -446,40 +446,6 @@
          type = "long";
       }
    }
-   element tc_i_mem_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "33554432";
-         type = "long";
-      }
-   }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "48";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
    element remote_update_cycloneiii_0.s1
    {
       datum _lockedAddress
@@ -490,6 +456,27 @@
       datum baseAddress
       {
          value = "0";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "32";
+         type = "long";
+      }
+   }
+   element system_timer.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "256";
          type = "long";
       }
    }
@@ -509,32 +496,16 @@
          type = "long";
       }
    }
-   element system_timer.s1
+   element clock_crossing_0.s1
    {
       datum _lockedAddress
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "256";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "32";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "288";
+         value = "0";
          type = "long";
       }
    }
@@ -543,6 +514,35 @@
       datum baseAddress
       {
          value = "268435456";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "48";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "33554432";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "288";
          type = "long";
       }
    }
@@ -692,8 +692,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="15445817099" />
- <parameter name="timeStamp" value="1329381304227" />
+ <parameter name="systemHash" value="16932605019" />
+ <parameter name="timeStamp" value="1331909179030" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1262,9 +1262,9 @@
   <parameter name="configApSpi_CPHA" value="0" />
   <parameter name="configApSpi_IRQ" value="High Active" />
   <parameter name="rpdoNum" value="1" />
-  <parameter name="rpdo0size" value="64" />
+  <parameter name="rpdo0size" value="50" />
   <parameter name="tpdoNum" value="1" />
-  <parameter name="tpdo0size" value="128" />
+  <parameter name="tpdo0size" value="50" />
   <parameter name="genLedGadget" value="true" />
   <parameter name="genEvent" value="true" />
   <parameter name="asyncBuf1Size" value="50" />

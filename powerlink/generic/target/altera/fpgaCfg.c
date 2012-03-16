@@ -372,7 +372,6 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
     tFpgaCfgRetVal Ret = kFpgaCfgInvalidRetVal;
     BOOL fApplicationImageFailed = FALSE;
     DWORD dwTriggerCondition;
-    tFwRet FwRetVal = kFwRetSuccessful;
 
 #ifdef SYSID_BASE
     DEBUG_TRACE2(DEBUG_LVL_ALWAYS,
@@ -474,6 +473,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
             FpgaCfg_enableInternalOscStartUp();
 
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
+            tFwRet FwRetVal = kFwRetSuccessful;
 
             FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
                                     CONFIG_USER_IIB_FLASH_ADRS,

@@ -69,10 +69,10 @@ a dual ported RAM (DPRAM) area.
     /* it should be possible to use a different SPI master IP-Core (for example the "Avalon-ST Serial Peripheral Interface Core") */
 #endif
 
-#define DEMO_VENDOR_ID      0x0100006C
-#define DEMO_PRODUCT_CODE   49819
-#define DEMO_REVISION       1
-#define DEMO_SERIAL_NUMBER  0x12345678
+#define DEMO_VENDOR_ID      0x00000000
+#define DEMO_PRODUCT_CODE   0
+#define DEMO_REVISION       0x00010007
+#define DEMO_SERIAL_NUMBER  0x00000000
 #define DEMO_DEVICE_NAME "POWERLINK CN DEMO"
 #define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
 #define IP_ADDR     0xc0a86401                                  ///< 192.168.100.1 // don't care the last byte!
@@ -95,8 +95,8 @@ a dual ported RAM (DPRAM) area.
 static WORD     nodeId;                                         ///< The node ID, which can overwrite the node switches if != 0x00
 static BYTE     abMacAddr_l[] = { MAC_ADDR };                   ///< The MAC address to be used
 static BYTE   strDevName[] = DEMO_DEVICE_NAME;
-static BYTE   strHwVersion[] = "";
-static BYTE   strSwVersion[] = "";
+static BYTE   strHwVersion[] = "1.00";
+static BYTE   strSwVersion[] = "EPL V2 V1.7 r2";
 
 static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values of the digital input pins of the board will be stored here
 static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here
