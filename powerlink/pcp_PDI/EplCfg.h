@@ -72,7 +72,9 @@
 #define _EPLCFG_H_
 
 #include "EplInc.h"
-
+#ifdef __NIOS2__
+#include "system.h"
+#endif
 
 
 // =========================================================================
@@ -277,8 +279,8 @@
 #define CONFIG_IDENT_DEVICE_NAME            "POWERLINK CN DEMO"
 
 // PDO size hardware restrictions
-#define CONFIG_ISOCHR_TX_MAX_PAYLOAD   50
-#define CONFIG_ISOCHR_RX_MAX_PAYLOAD   50
+#define CONFIG_ISOCHR_TX_MAX_PAYLOAD   POWERLINK_0_PDI_PCP_PDITPDOBUFSIZE0
+#define CONFIG_ISOCHR_RX_MAX_PAYLOAD   POWERLINK_0_PDI_PCP_PDIRPDOBUFSIZE0
 
 
 #endif //_EPLCFG_H_
