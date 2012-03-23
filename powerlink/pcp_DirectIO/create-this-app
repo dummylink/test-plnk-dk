@@ -88,8 +88,7 @@ done
 INCLUDES="\
 . \
 ${EDRV_DIR}/openmac/include \
-${PCP_DIR}/generic/target/altera \
-${PCP_DIR}/include \
+${GENERIC_DIR}/target/altera_nios/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
@@ -132,10 +131,12 @@ CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP"
 ###############################################################################
 # source files
 SRCFILES="main.c \
-lcd.c \
-${GENERIC_DIR}/target/altera/fpgaCfg.c \
-${GENERIC_DIR}/target/altera/fwUpdate.c \
-${GENERIC_DIR}/target/altera/boot.c \
+${GENERIC_DIR}/target/altera_nios/src/lcd.c \
+${GENERIC_DIR}/target/altera_nios/src/Cmp_Lcd.c \
+${GENERIC_DIR}/target/altera_nios/src/fpgaCfg.c \
+${GENERIC_DIR}/target/altera_nios/src/fwUpdate.c \
+${GENERIC_DIR}/target/altera_nios/src/boot.c \
+${GENERIC_DIR}/target/altera_nios/src/systemComponents.c \
 ${GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \

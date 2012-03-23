@@ -16,26 +16,26 @@
 /* includes */
 #include "Epl.h"
 
-#ifdef __NIOS2__
-#include "system.h"
-#include "altera_avalon_pio_regs.h"
-#include "alt_types.h"
-#include "nios2.h"
-#include <sys/alt_cache.h>
-#endif // __NIOS2__
-
-#include <unistd.h>
 #include "fpgaCfg.h"
 #include "omethlib.h"
 #include "fwUpdate.h"
 
-#ifdef LCD_BASE
-#include "lcd.h"
-#endif
-
 #include "EplSdo.h"
 #include "EplAmi.h"
 #include "EplObd.h"
+#include "user/EplSdoAsySequ.h"
+
+#ifdef __NIOS2__
+#include <unistd.h>
+#elif defined(__MICROBLAZE__)
+#include "xilinx_usleep.h"
+#endif
+
+#include "systemComponents.h"
+
+#ifdef LCD_BASE
+#include "Cmp_Lcd.h"
+#endif
 
 
 /******************************************************************************/
@@ -44,20 +44,12 @@
 #define OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE              20          ///< maximum possible history elements
 #define OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID           0xFFFFUL
 
-#ifndef NODE_SWITCH_PIO_BASE
-#define SET_NODE_ID_PER_SW //apply this define if no node switches are connected.
- #warning No Node ID module present in SOPC. Node ID can only be set by SW!
-#endif
-
 #define NODEID      0x01 // should be NOT 0xF0 (=MN) in case of CN
 
 #define CYCLE_LEN   1000 // [us]
 #define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A
 #define IP_ADDR     0xc0a86401  // 192.168.100.1 // don't care the last byte!
 #define SUBNET_MASK 0xFFFFFF00  // 255.255.255.0
-
-#define LATCHED_IOPORT_BASE (void*) POWERLINK_0_SMP_BASE
-#define LATCHED_IOPORT_CFG    (void*) (LATCHED_IOPORT_BASE + 4)
 
 /**
  * \brief structure for object access forwarding to PDI (i.e. AP)
@@ -77,21 +69,6 @@ tEplKernel PUBLIC AppCbEvent(
     tEplApiEventType        EventType_p,   // IN: event type (enum)
     tEplApiEventArg*        pEventArg_p,   // IN: event argument (union)
     void GENERIC*           pUserArg_p);
-
-#ifdef LCD_BASE
-void LCD_printState(tEplNmtState NmtState_p);
-void LCD_printNodeInfo (BOOL fIsUser_p, WORD wNodeId_p);
-
-static char aStrNmtState_l[9][17] = {"INVALID         ",
-                                     "OFF             ",
-                                     "INITIALISATION  ",
-                                     "NOT ACTIVE      ",
-                                     "BASIC ETHERNET  ",
-                                     "PRE_OP1         ",
-                                     "PRE_OP2         ",
-                                     "READY_TO_OP     ",
-                                     "OPERATIONAL     "};
-#endif
 
 BYTE        portIsOutput[4];
 BYTE        digitalIn[4];
@@ -113,7 +90,7 @@ tApiPdiComCon ApiPdiComInstance_g;
 /******************************************************************************/
 /* forward declarations */
 int openPowerlink(WORD wNodeId_p);
-void InitPortConfiguration (char *p_portIsOutput);
+void InitPortConfiguration (BYTE *p_portIsOutput);
 WORD GetNodeId (void);
 
 static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p);
@@ -1280,9 +1257,7 @@ void rebootCN(void)
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "PCP Software Reset of CN ...\n");
         //usleep(4000000);
 
-        NIOS2_WRITE_STATUS(0);
-        NIOS2_WRITE_IENABLE(0);
-        ((void (*) (void)) NIOS2_RESET_ADDR) ();
+        FpgaCfg_resetProcessor();
     }
 
 }
@@ -1343,12 +1318,10 @@ tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersio
 int main (void)
 {
     WORD    wNodeId;
-    int     iCnt = 0;
-
-    alt_icache_flush_all();
-    alt_dcache_flush_all();
 
     tFwRet FwRetVal;
+
+    SysComp_initPeripheral();
 
     switch (FpgaCfg_handleReconfig())
     {
@@ -1392,8 +1365,10 @@ int main (void)
 #endif // CONFIG_IIB_IS_PRESENT
 
             fIsUserImage_g = TRUE;
-            LCD_Clear();
-            LCD_Show_Text("USER");
+#ifdef LCD_BASE
+            SysComp_LcdClear();
+            SysComp_LcdSetText("USER");
+#endif
             break;
         }
 
@@ -1448,16 +1423,21 @@ int main (void)
             break;
         }
     }
-
 #ifdef LCD_BASE
-    LCD_Test();
+    SysComp_LcdTest();
 #endif
 
     PRINTF("\n\nDigital I/O interface is running...\n");
     PRINTF("starting openPowerlink...\n\n");
 
-    wNodeId = GetNodeId();
-    LCD_printNodeInfo(fIsUserImage_g, wNodeId);
+    if((wNodeId = SysComp_getNodeId()) == 0)
+    {
+        wNodeId = NODEID;
+    }
+
+#ifdef LCD_BASE
+    SysComp_LcdPrintNodeInfo(fIsUserImage_g, wNodeId);
+#endif
 
     while (1) {
         if (openPowerlink(wNodeId) != 0) {
@@ -1467,10 +1447,12 @@ int main (void)
             PRINTF("openPowerlink was shut down, restart...\n\n");
         }
         /* wait some time until we restart the stack */
-        for (iCnt=0; iCnt<1000000; iCnt++);
+        usleep(1000000);
     }
 
-    PRINTF1("shut down NIOS II...\n%c", 4);
+    PRINTF1("shut down processor...\n%c", 4);
+
+    SysComp_freeProcessorCache();
 
 exit:
     return 0;
@@ -1521,7 +1503,7 @@ int openPowerlink(WORD wNodeId_p)
 
     // calc the IP address with the nodeid
     ip &= 0xFFFFFF00; //dump the last byte
-    ip |= GetNodeId(); // and mask it with the node id
+    ip |= wNodeId_p; // and mask it with the node id
 
     // set EPL init parameters
     EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
@@ -1607,9 +1589,11 @@ int openPowerlink(WORD wNodeId_p)
 
     PRINTF("Digital I/O interface with openPowerlink is ready!\n\n");
 
-#ifdef STATUS_LED_PIO_BASE
-    IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
+#ifdef STATUS_LEDS_BASE
+    SysComp_setPowerlinkStatus(0xff);
 #endif
+
+    SysComp_enableInterrupts();
 
     while(1)
     {
@@ -1649,6 +1633,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                              tEplApiEventArg* pEventArg_p, void GENERIC* pUserArg_p)
 {
     tEplKernel          EplRet = kEplSuccessful;
+    BYTE                bPwlState;
 
     // check if NMT_GS_OFF is reached
     switch (EventType_p)
@@ -1656,8 +1641,21 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         case kEplApiEventNmtStateChange:
         {
 #ifdef LCD_BASE
-            LCD_printState(pEventArg_p->m_NmtStateChange.m_NewNmtState);
+        	SysComp_LcdPrintState(pEventArg_p->m_NmtStateChange.m_NewNmtState);
 #endif
+
+#ifdef LATCHED_IOPORT_CFG
+            if (pEventArg_p->m_NmtStateChange.m_NewNmtState != kEplNmtCsOperational)
+            {
+                bPwlState = 0x0;
+                memcpy(LATCHED_IOPORT_CFG+3,(BYTE *)&bPwlState,1);    ///< Set PortIO operational pin to low
+            } else {
+                /* reached operational state */
+                bPwlState = 0x80;
+                memcpy(LATCHED_IOPORT_CFG+3,(BYTE *)&bPwlState,1);    ///< Set PortIO operational pin to high
+            }
+#endif //LATCHED_IOPORT_CFG
+
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
             {
                 case kEplNmtGsOff:
@@ -1744,7 +1742,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
         case kEplApiEventCriticalError:
         {
             // set error LED
-            IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 2);
+#ifdef STATUS_LEDS_BASE
+            SysComp_setPowerlinkStatus(0x2);
+#endif
             // fall through
         }
         case kEplApiEventWarning:
@@ -1783,42 +1783,37 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
         case kEplApiEventLed:
         {   // status or error LED shall be changed
-
+#ifdef STATUS_LEDS_BASE
             switch (pEventArg_p->m_Led.m_LedType)
             {
-#ifdef STATUS_LED_PIO_BASE
                 case kEplLedTypeStatus:
                 {
                     if (pEventArg_p->m_Led.m_fOn != FALSE)
                     {
-                        IOWR_ALTERA_AVALON_PIO_CLEAR_BITS(STATUS_LED_PIO_BASE, 1);
+                        SysComp_resetPowerlinkStatus(0x1);
                     }
                     else
                     {
-                        IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 1);
+                        SysComp_setPowerlinkStatus(0x1);
                     }
                     break;
-
                 }
-#endif
-
-#ifdef STATUS_LED_PIO_BASE
                 case kEplLedTypeError:
                 {
                     if (pEventArg_p->m_Led.m_fOn != FALSE)
                     {
-                        IOWR_ALTERA_AVALON_PIO_CLEAR_BITS(STATUS_LED_PIO_BASE, 2);
+                        SysComp_resetPowerlinkStatus(0x2);
                     }
                     else
                     {
-                        IOWR_ALTERA_AVALON_PIO_SET_BITS(STATUS_LED_PIO_BASE, 2);
+                        SysComp_setPowerlinkStatus(0x2);
                     }
                     break;
                 }
-#endif
                 default:
                     break;
             }
+#endif
             break;
         }
 
@@ -1859,7 +1854,7 @@ tEplKernel PUBLIC AppCbSync(void)
     DWORD*            ulDigOutputs = LATCHED_IOPORT_BASE;
 
     /* read digital input ports */
-    ports = *ulDigInputs;
+    ports = AmiGetDwordFromLe((BYTE*) ulDigInputs);;
 
     for (iCnt = 0; iCnt <= 3; iCnt++)
     {
@@ -1877,7 +1872,7 @@ tEplKernel PUBLIC AppCbSync(void)
     }
 
     /* write digital output ports */
-    *ulDigOutputs = ports;
+    AmiSetDwordToLe((BYTE*)ulDigOutputs, ports);
 
     return EplRet;
 }
@@ -1893,7 +1888,7 @@ set up the input/output selection logic.
 
 \param    portIsOutput        pointer to array where output flags are stored
 *******************************************************************************/
-void InitPortConfiguration (char *p_portIsOutput)
+void InitPortConfiguration (BYTE *p_portIsOutput)
 {
     register int    iCnt;
     volatile BYTE    portconf;
@@ -1903,7 +1898,7 @@ void InitPortConfiguration (char *p_portIsOutput)
     memcpy((BYTE *) &portconf, LATCHED_IOPORT_CFG, 1);
     portconf = (~portconf) & 0x0f;
 
-    PRINTF1("\nPort configuration register value = %#1X \n", portconf);
+    PRINTF1("\nPort configuration register value = 0x%1X\n", portconf);
 
     for (iCnt = 0; iCnt <= 3; iCnt++)
     {
@@ -1919,86 +1914,4 @@ void InitPortConfiguration (char *p_portIsOutput)
         }
     }
 }
-
-/**
-********************************************************************************
-\brief    get node ID
-
-GetNodeId() reads the node switches connected to the node switch inputs and
-returns the node ID.
-
-\retval    nodeID        the node ID which was read
-*******************************************************************************/
-WORD GetNodeId (void)
-{
-    WORD     nodeId;
-
-#ifdef NODE_SWITCH_PIO_BASE
-    /* read port configuration input pins */
-    nodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
-#endif
-
-#ifdef SET_NODE_ID_PER_SW
-    /* overwrite node ID */
-    nodeId = NODEID;  ///< Fixed for debugging as long as no node switches are connected!
-#endif
-
-    return nodeId;
-}
-
-#ifdef LCD_BASE
-/**
-********************************************************************************
-\brief  writes NMT state to LCD display
-\param  NmtState_p  IN: current state machine value
-*******************************************************************************/
-void LCD_printState(tEplNmtState NmtState_p)
-{
-    LCD_Line2();
-    switch (NmtState_p)
-    {
-        case kEplNmtGsOff               : LCD_Show_Text(aStrNmtState_l[1]); break;
-        case kEplNmtGsInitialising      : LCD_Show_Text(aStrNmtState_l[2]); break;
-        case kEplNmtGsResetApplication  : LCD_Show_Text(aStrNmtState_l[2]); break;
-        case kEplNmtGsResetCommunication: LCD_Show_Text(aStrNmtState_l[2]); break;
-        case kEplNmtGsResetConfiguration: LCD_Show_Text(aStrNmtState_l[2]); break;
-        case kEplNmtCsNotActive         : LCD_Show_Text(aStrNmtState_l[3]); break;
-        case kEplNmtCsPreOperational1   : LCD_Show_Text(aStrNmtState_l[5]); break;
-        case kEplNmtCsStopped           : LCD_Show_Text(aStrNmtState_l[0]); break;
-        case kEplNmtCsPreOperational2   : LCD_Show_Text(aStrNmtState_l[6]); break;
-        case kEplNmtCsReadyToOperate    : LCD_Show_Text(aStrNmtState_l[7]); break;
-        case kEplNmtCsOperational       : LCD_Show_Text(aStrNmtState_l[8]); break;
-        case kEplNmtCsBasicEthernet     : LCD_Show_Text(aStrNmtState_l[4]); break;
-        default:
-        LCD_Show_Text(aStrNmtState_l[0]);
-        break;
-    }
-}
-
-/**
-********************************************************************************
-\brief    print node info on LCD
-
-GetNodeId() reads the node switches connected to the node switch inputs and
-returns the node ID.
-
-\retval    nodeID        the node ID which was read
-*******************************************************************************/
-void LCD_printNodeInfo (BOOL fIsUser_p, WORD wNodeId_p)
-{
-    char TextNodeID[17];
-
-    if (fIsUser_p)
-    {
-        sprintf(TextNodeID, "User/ID:0x%02X", wNodeId_p);
-    }
-    else
-    {
-        sprintf(TextNodeID, "Factory/ID:0x%02X", wNodeId_p);
-    }
-
-    LCD_Clear();
-    LCD_Show_Text(TextNodeID);
-}
-#endif
 
