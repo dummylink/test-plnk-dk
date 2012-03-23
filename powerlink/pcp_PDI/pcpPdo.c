@@ -16,12 +16,18 @@
 #include "cnApiIntern.h"
 #include "pcp.h"
 
+#ifdef __NIOS2__
+#include <string.h>
+#elif defined(__MICROBLAZE__)
+#include <string.h>
+#endif
+
+#include "systemComponents.h"
+
 #include "EplInc.h"
 #include "EplObd.h"
 #include "user/EplObdu.h"
 #include "Epl.h"
-
-#include <string.h>
 
 /******************************************************************************/
 /* defines */
@@ -134,27 +140,27 @@ int Gi_initPdo(void)
 
     /** group TPDO PDI channels address, size and acknowledge settings */
 #if (TPDO_CHANNELS_MAX >= 1)
-    aTPdosPdi_l[0].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxPdo0BufAoffs);
-    aTPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wTxPdo0BufSize;
+    aTPdosPdi_l[0].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufAoffs)));
+    aTPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufSize));
     aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wTxPdo0Ack);
 #endif /* TPDO_CHANNELS_MAX >= 1 */
 
     /** group RPDO PDI channels address, size and acknowledge settings */
 #if (RPDO_CHANNELS_MAX >= 1)
-    aRPdosPdi_l[0].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxPdo0BufAoffs);
-    aRPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wRxPdo0BufSize;
+    aRPdosPdi_l[0].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufAoffs)));
+    aRPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufSize));
     aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo0Ack);
 #endif /* RPDO_CHANNELS_MAX >= 1 */
 
 #if (RPDO_CHANNELS_MAX >= 2)
-    aRPdosPdi_l[1].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxPdo1BufAoffs);
-    aRPdosPdi_l[1].wSize_m = pCtrlReg_g->m_wRxPdo1BufSize;
+    aRPdosPdi_l[1].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufAoffs)));
+    aRPdosPdi_l[1].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufSize));
     aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo1Ack);
 #endif /* RPDO_CHANNELS_MAX >= 2 */
 
 #if (RPDO_CHANNELS_MAX >= 3)
-    aRPdosPdi_l[2].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxPdo2BufAoffs);
-    aRPdosPdi_l[2].wSize_m = pCtrlReg_g->m_wRxPdo2BufSize;
+    aRPdosPdi_l[2].pAdrs_m = (BYTE*) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufAoffs)));
+    aRPdosPdi_l[2].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufSize));
     aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo2Ack);
 #endif /* RPDO_CHANNELS_MAX >= 3 */
 
@@ -292,7 +298,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 
 	/* linking function temporary variables */
     BYTE *  pData = NULL;
-    int iSize;
+    unsigned int iSize;
 
 	tEplObdSize         ObdSize;
 	BYTE                bNodeId;
@@ -506,18 +512,17 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                     /* now setup PDO buffer descriptor message */
 
 		            // write descriptor entry
-			        pPdoDescEntry->m_wPdoIndex = uiMapIndex;
-			        pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;
-			        // pPdoDescEntry->m_wOffset = uiMapOffset; //TODO: use this line for real PDO frame
-			        pPdoDescEntry->m_wOffset = uiOffsetCnt; //TODO: delete this line for real PDO frame
-			        pPdoDescEntry->m_wSize = uiMapSize;
+                    AmiSetWordToLe((BYTE*)&pPdoDescEntry->m_wPdoIndex, uiMapIndex);
+                    pPdoDescEntry->m_bPdoSubIndex = uiMapSubIndex;
+                    AmiSetWordToLe((BYTE*)&pPdoDescEntry->m_wOffset, uiOffsetCnt); //TODO: delete this line for real PDO frame
+                    AmiSetWordToLe((BYTE*)&pPdoDescEntry->m_wSize, uiMapSize);
 
 			        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "0x%04x/0x%02x size: %d linkadr: %p",
 			                uiMapIndex,
 			                (BYTE)uiMapSubIndex,
 			                uiMapSize,
 			                pData);
-	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: 0x%04x\n", pPdoDescEntry->m_wOffset); //TODO: comment this line and add \n to last printf
+	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: 0x%04x\n", uiOffsetCnt); //TODO: comment this line and add \n to last printf
 
 			        pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
 			        bAddedDecrEntries++;             ///< count added entries
@@ -527,11 +532,12 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 			}
 
 		}
-		pPdoDescHeader->m_wEntryCnt = bAddedDecrEntries;      ///< number of entries of this PDO descriptor
+
+		AmiSetWordToLe((BYTE*)&pPdoDescHeader->m_wEntryCnt, bAddedDecrEntries);       ///< number of entries of this PDO descriptor
 		pLinkPdoReq_p->m_bDescrCnt++;                         ///< update descriptor counter of LinkPdoReq message
 
         DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "Setup PDO Descriptor %d done. DIR:%d BufferNum:%d numObjs:%d\n"
-                ,pLinkPdoReq_p->m_bDescrCnt, bDirection_p, pPdoDescHeader->m_bBufferNum, pPdoDescHeader->m_wEntryCnt);
+                ,pLinkPdoReq_p->m_bDescrCnt, bDirection_p, pPdoDescHeader->m_bBufferNum, bAddedDecrEntries);
 
 		/* prepare for next PDO */
 		wPdoDescSize = sizeof(tPdoDescHeader) + (bAddedDecrEntries * sizeof(tPdoDescEntry));
@@ -543,7 +549,8 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 exit:
     if (fRet != TRUE)
     {
-        pPdoDescHeader->m_wEntryCnt = 0;
+        AmiSetWordToLe((BYTE*)&pPdoDescHeader->m_wEntryCnt, 0);
+
     }
 
     return fRet;

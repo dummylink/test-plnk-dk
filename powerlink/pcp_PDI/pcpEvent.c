@@ -121,18 +121,17 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
     WORD wEventAck;
     UCHAR ucRet;
 
-    wEventAck = pCtrlReg_g->m_wEventAck;
+    wEventAck = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck));
 
     /* check if previous event has been confirmed by AP */
     if ((wEventAck & (1 << EVT_GENERIC)) == 0)
     { //confirmed -> set event
-
-        pCtrlReg_g->m_wEventType = wEventType_p;
-        pCtrlReg_g->m_wEventArg = wArg_p;
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, wEventType_p);
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, wArg_p);
 
         /* set GE bit to signal event to AP; If desired by AP,
          *  an IR signal will be asserted in addition */
-        pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, (1 << EVT_GENERIC));
 
         // special treatment for reset event
         if ((wEventType_p == kPcpPdiEventGeneric)   &&
@@ -140,7 +139,7 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
              || (wArg_p == kPcpGenEventResetCommunication)))
         {
             // PCP signals AP to reset
-            while((pCtrlReg_g->m_wEventAck & (1 << EVT_GENERIC)) != 0)
+            while((AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck)) & (1 << EVT_GENERIC)) != 0)
             {
                 // Wait until AP has acknowledged this event!
                 asm("NOP;");
@@ -156,21 +155,21 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
         {
             // PCP signals AP to reset
 
-            while((pCtrlReg_g->m_wEventAck & (1 << EVT_GENERIC)) != 0)
+            while((AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck)) & (1 << EVT_GENERIC)) != 0)
             {
                 // Wait until AP has acknowledged the previous event!
                 asm("NOP;");
             }
 
             // immediately set the reset event as next event
-            pCtrlReg_g->m_wEventType = wEventType_p;
-            pCtrlReg_g->m_wEventArg = wArg_p;
+            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, wEventType_p);
+            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, wArg_p);
 
             /* set GE bit to signal event to AP; If desired by AP,
              *  an IR signal will be asserted in addition */
-            pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, (1 << EVT_GENERIC));
 
-            while((pCtrlReg_g->m_wEventAck & (1 << EVT_GENERIC)) != 0)
+            while((AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck)) & (1 << EVT_GENERIC)) != 0)
             {
                 // Wait until AP has acknowledged the reset event!
                 asm("NOP;");
@@ -181,10 +180,10 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
         if((ucRet = pcp_EventFifoInsert(wEventType_p, wArg_p)) == kPcpEventFifoFull)
         {
             // set the buffer overflow event into memory
-            pCtrlReg_g->m_wEventType = kPcpPdiEventGenericError;
-            pCtrlReg_g->m_wEventArg = kPcpGenErrEventBuffOverflow;
+            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, kPcpPdiEventGenericError);
+            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, kPcpGenErrEventBuffOverflow);
 
-            pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, (1 << EVT_GENERIC));
 
             pcp_EventFifoFlush();
 
@@ -202,22 +201,22 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
  \brief If the event memory is empty and fifo is not, write new event into memory!
  \param the control register
  *******************************************************************************/
-inline UCHAR Gi_pcpEventFifoProcess(tPcpCtrlReg* volatile pCtrlReg_g)
+inline UCHAR Gi_pcpEventFifoProcess(volatile tPcpCtrlReg*  pCtrlReg_g)
 {
 
-    WORD wEventAck = pCtrlReg_g->m_wEventAck;
+    WORD wEventAck = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck));
 
 
     ///check event FIFO bit
     if (((wEventAck & (1 << EVT_GENERIC)) == 0) && (ucReadPos_g != ucWritePos_g))
     {
         ///Post event from fifo into memory
-        pCtrlReg_g->m_wEventType = a_Fifo_g[ucReadPos_g].wEventType_m;
-        pCtrlReg_g->m_wEventArg = a_Fifo_g[ucReadPos_g].wEventArg_m;
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, a_Fifo_g[ucReadPos_g].wEventType_m);
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, a_Fifo_g[ucReadPos_g].wEventArg_m);
 
         /* set GE bit to signal event to AP; If desired by AP,
          *  an IR signal will be asserted in addition */
-        pCtrlReg_g->m_wEventAck = (1 << EVT_GENERIC);
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, (1 << EVT_GENERIC));
 
         ///modify read pointer
         ucReadPos_g = (ucReadPos_g + 1) % FIFO_SIZE;

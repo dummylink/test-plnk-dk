@@ -24,9 +24,9 @@
 #include "kernel/EplObdk.h"
 #include "EplSdoComu.h"
 
-#include <unistd.h> // for usleep()
-
 #include <string.h>
+
+#include "systemComponents.h"
 
 /******************************************************************************/
 /* defines */
@@ -108,15 +108,15 @@ int CnApiAsync_init(void)
     CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
 
     /* Attention: control register is seen for AP point of view -> PCP Tx is AP Rx and vice versa! */
-    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
-    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBuf0Aoffs);
-    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
 
-    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wRxAsyncBuf1Aoffs);
-    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + pCtrlReg_g->m_wTxAsyncBuf1Aoffs);
-    aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs)));
+    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
 
     for (wCnt = 0; wCnt < PDI_ASYNC_CHANNELS_MAX; ++wCnt)
     {
@@ -341,12 +341,14 @@ tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYT
 	/* store data from InitPcpReq */
     EPL_MEMCPY(pInitParm->m_abMac, pInitPcpReq->m_abMac,
                sizeof(pInitPcpReq->m_abMac)             );
-	pInitParm->m_dwDeviceType = pInitPcpReq->m_dwDeviceType;
-	pInitParm->m_bNodeId = pInitPcpReq->m_dwNodeId;
-	pInitParm->m_dwRevision = pInitPcpReq->m_dwRevision;
-	pInitParm->m_dwSerialNum = pInitPcpReq->m_dwSerialNum;
-	pInitParm->m_dwVendorId = pInitPcpReq->m_dwVendorId;
-	pInitParm->m_dwProductCode = pInitPcpReq->m_dwProductCode;
+
+
+	pInitParm->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
+	pInitParm->m_bNodeId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwNodeId));
+	pInitParm->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));
+	pInitParm->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
+	pInitParm->m_dwVendorId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwVendorId));
+	pInitParm->m_dwProductCode = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwProductCode));
 	EPL_MEMCPY (pInitParm->m_strDevName, pInitPcpReq->m_strDevName,
 	            sizeof(pInitPcpReq->m_strDevName));
 	EPL_MEMCPY (pInitParm->m_strHwVersion, pInitPcpReq->m_strHwVersion,
@@ -356,7 +358,7 @@ tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYT
 
 	/* setup response */
 	pInitPcpResp->m_bReqId = pInitPcpReq->m_bReqId;
-	pInitPcpResp->m_wStatus = kCnApiStatusOk;
+	pInitPcpResp->m_bStatus = kCnApiStatusOk;
 
     /* update size values of message descriptors */
     pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tInitPcpResp); // sent size
@@ -485,7 +487,7 @@ tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, B
         goto exit;
     }
 
-    if (pLinkPdosResp->m_wStatus != kCnApiStatusOk)
+    if (pLinkPdosResp->m_bStatus != kCnApiStatusOk)
     { /* mapping is invalid or linking at AP failed */
         // do not proceed to ReadyToOperate state (per default)!
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: AP object linking failed! Bootup will not proceed!\n");

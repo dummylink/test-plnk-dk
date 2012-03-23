@@ -22,12 +22,6 @@ POWERLINK CN generic interface.
 #include "cnApiEvent.h"
 #include "pcp.h"
 
-#ifdef __NIOS2__
-#include "system.h"
-#endif // __NIOS2__
-#include "altera_avalon_pio_regs.h"
-#include "alt_types.h"
-
 /******************************************************************************/
 /* defines */
 
@@ -89,7 +83,7 @@ static BOOL checkApCommand(BYTE cmd_p)
             DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get kApCmdReset\n", __func__);
         }
 
-        pCtrlReg_g->m_wCommand = kApCmdNone;    ///< reset AP command
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wCommand, kApCmdNone);    ///< reset AP command
 
 		return TRUE;
 	}
@@ -128,8 +122,8 @@ static BOOL checkEvent(void)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateBooted)
 {
-	pCtrlReg_g->m_wCommand = kApCmdNone;	// reset AP command
-	pCtrlReg_g->m_dwSyncIntCycTime = 0x0000;
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wCommand, kApCmdNone);     // reset AP command
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_dwSyncIntCycTime, 0x00);
 
     Gi_controlLED(kEplLedTypeTestAll, TRUE); // set "bootup indicator LEDs"
     Gi_controlLED(kEplLedTypeTestAll, FALSE); // reset "bootup LED" //TODO: status/error LED does not work without this test

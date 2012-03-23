@@ -72,10 +72,8 @@
 #define _EPLCFG_H_
 
 #include "EplInc.h"
-#ifdef __NIOS2__
-#include "system.h"
-#endif
 
+#include "systemComponents.h"
 
 // =========================================================================
 // generic defines which for whole EPL Stack
@@ -120,22 +118,20 @@
 // EPL_MODULE_INTEGRATION defines all modules which are included in
 // EPL application. Please add or delete modules for your application.
 
-#define EPL_MODULE_INTEGRATION 	(0 \
-								| EPL_MODULE_OBDK \
+#define EPL_MODULE_INTEGRATION  (0 \
+                                | EPL_MODULE_OBDK \
                                 | EPL_MODULE_PDOU \
-								| EPL_MODULE_PDOK \
-								| EPL_MODULE_SDOS \
-								| EPL_MODULE_SDOC \
-								| EPL_MODULE_SDO_ASND \
-								| EPL_MODULE_DLLK \
-								| EPL_MODULE_DLLU \
-								| EPL_MODULE_NMT_CN \
-								| EPL_MODULE_NMTK \
-								| EPL_MODULE_NMTU \
+                                | EPL_MODULE_PDOK \
+                                | EPL_MODULE_SDOS \
+                                | EPL_MODULE_SDOC \
+                                | EPL_MODULE_SDO_ASND \
+                                | EPL_MODULE_DLLK \
+                                | EPL_MODULE_DLLU \
+                                | EPL_MODULE_NMT_CN \
+                                | EPL_MODULE_NMTK \
+                                | EPL_MODULE_NMTU \
                                 | EPL_MODULE_LEDU \
-								)
-
-/*								| EPL_MODULE_PDOU \ */
+                                )
 
 // =========================================================================
 // EPL ethernet driver (Edrv) specific defines
@@ -279,9 +275,8 @@
 #define CONFIG_IDENT_DEVICE_NAME            "POWERLINK CN DEMO"
 
 // PDO size hardware restrictions
-#define CONFIG_ISOCHR_TX_MAX_PAYLOAD   POWERLINK_0_PDI_PCP_PDITPDOBUFSIZE0
-#define CONFIG_ISOCHR_RX_MAX_PAYLOAD   POWERLINK_0_PDI_PCP_PDIRPDOBUFSIZE0
-
+#define CONFIG_ISOCHR_TX_MAX_PAYLOAD   PDI_TPDO_MAX_SIZE
+#define CONFIG_ISOCHR_RX_MAX_PAYLOAD   PDI_RPDO_MAX_SIZE
 
 #endif //_EPLCFG_H_
 

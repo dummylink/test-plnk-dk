@@ -539,7 +539,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             /* copy local buffer fragment into the PDI buffer */
             memcpy(&pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan, pCurLclMsgFrgmt, wCopyLength);
 
-            pUtilTxPdiBuf->m_header.m_wFrgmtLen = wCopyLength;  // update  PDI buffer control header
+            AmiSetWordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_wFrgmtLen, wCopyLength); // update  PDI buffer control header
 
             break;
         }
@@ -574,7 +574,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             }
 
             /* setup the buffer header with the actual written size, which the call-back function has updated */
-            pUtilTxPdiBuf->m_header.m_wFrgmtLen = pMsgDescr->dwMsgSize_m; // update  PDI buffer control header
+            AmiSetWordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_wFrgmtLen, (WORD)pMsgDescr->dwMsgSize_m);  // update  PDI buffer control header
 
             break;
         }
@@ -589,7 +589,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
     /* setup PDI buffer control header */
     pUtilTxPdiBuf->m_header.m_bChannel =  pMsgDescr->Param_m.ChanType_m;
     pUtilTxPdiBuf->m_header.m_bMsgType = pMsgDescr->MsgType_m;
-    pUtilTxPdiBuf->m_header.m_dwStreamLen = pMsgDescr->dwMsgSize_m;
+    AmiSetDwordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_dwStreamLen, pMsgDescr->dwMsgSize_m);
     setBuffToReadOnly(pUtilTxPdiBuf); // set sync flag
 
     fFrgmtStored = TRUE; // transit to ASYNC_TX_PENDING;
@@ -822,6 +822,8 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     BYTE *        pRespChan = NULL;         ///< pointer to Tx response message payload
     BYTE *        pRxChan = NULL;           ///< pointer to Rx message payload
     BYTE          bElement = INVALID_ELEMENT;///< function argument for getArrayNumOfMsgDescr()
+    DWORD         dwStreamLength;
+    WORD          wFragmentLength;
 
 
     if (bActivRxMsg_l == INVALID_ELEMENT)
@@ -835,8 +837,10 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     pMsgDescr = &aPdiAsyncRxMsgs[bActivRxMsg_l];
     pUtilRxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m;
 
+    dwStreamLength = AmiGetDwordFromLe((BYTE*)&(pUtilRxPdiBuf->m_header.m_dwStreamLen));
+
     /* verify message type */
-    if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_bMsgType != pMsgDescr->MsgType_m)
+    if (pUtilRxPdiBuf->m_header.m_bMsgType != pMsgDescr->MsgType_m)
     {
         ErrorHistory_l = kPdiAsyncStatusInvalidMessage;
         fError = TRUE;
@@ -849,13 +853,13 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     if (pMsgDescr->dwPendTranfSize_m == 0) //indicates 1st fragment
     {
         /* choose transfer type according to message size */
-        if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > MAX_ASYNC_STREAM_LENGTH)
+        if (dwStreamLength > MAX_ASYNC_STREAM_LENGTH)
         { /* data size exceeded -> reject transfer */
             ErrorHistory_l = kPdiAsyncStatusDataTooLong;
             fError = TRUE;
             goto exit;
         }
-        else if (pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+        else if (dwStreamLength > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
         { /* message fits in local buffer */
             pMsgDescr->TransfType_m = kPdiAsyncTrfTypeLclBuffering;
 
@@ -870,7 +874,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
 
             /* allocate data block for Rx message payload */
-            pLclAsyncRxMsgBuffer_l = (BYTE *) EPL_MALLOC(pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen);
+            pLclAsyncRxMsgBuffer_l = (BYTE *) EPL_MALLOC(dwStreamLength);
 
             if (pLclAsyncRxMsgBuffer_l == NULL)
             {
@@ -889,9 +893,11 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
         }
 
         /* initialize message header values */
-        pMsgDescr->dwMsgSize_m = pMsgDescr->pPdiBuffer_m->pAdr_m->m_header.m_dwStreamLen;
+        pMsgDescr->dwMsgSize_m = dwStreamLength;
         pMsgDescr->dwPendTranfSize_m = pMsgDescr->dwMsgSize_m;
     }/* initialization for 1st fragment finished */
+
+    wFragmentLength = AmiGetWordFromLe((BYTE*)&(pUtilRxPdiBuf->m_header.m_wFrgmtLen));
 
     /* process Rx message */
     switch (pMsgDescr->TransfType_m)
@@ -906,7 +912,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
 
             /* check inconsistent message header values */
-            if (pUtilRxPdiBuf->m_header.m_wFrgmtLen > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+            if (wFragmentLength > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
             {
                 ErrorHistory_l = kPdiAsyncStatusDataTooLong;
                 fError = TRUE;
@@ -914,7 +920,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
             else
             {
-                wCopyLength = pUtilRxPdiBuf->m_header.m_wFrgmtLen;
+                wCopyLength = wFragmentLength;
             }
 
             /* calculate start address of new local buffer fragment */

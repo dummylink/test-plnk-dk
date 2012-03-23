@@ -61,7 +61,7 @@ typedef struct sFifoBuffer {
 /* function declarations */
 void Gi_pcpEventFifoInit(void);
 void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
-inline UCHAR Gi_pcpEventFifoProcess(tPcpCtrlReg* volatile pCtrlReg_g);
+inline UCHAR Gi_pcpEventFifoProcess(volatile tPcpCtrlReg*  pCtrlReg_g);
 
 /******************************************************************************/
 /* functions */

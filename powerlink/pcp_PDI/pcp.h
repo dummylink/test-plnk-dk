@@ -16,9 +16,6 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* includes */
-#ifdef __NIOS2__
-#include "system.h"
-#endif // __NIOS2__
 #include "cnApi.h"
 #include "cnApiAsync.h"
 #include "Debug.h"
@@ -27,15 +24,6 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* defines */
-#define PDI_DPRAM_BASE_PCP      POWERLINK_0_PDI_PCP_BASE  //from system.h
-#define MAX_NUM_LINKED_OBJ_PCP  500 //TODO: system.h
-
-#ifdef NODE_SWITCH_PIO_BASE
-    #define SET_NODE_ID_BY_HW
-#else
-    #warning No Node ID module present in SOPC. NodeID can only be set by SW (AP)!
-#endif
-
 /* Powerlink defaults */
 #define DEFAULT_CYCLE_LEN   1000    ///< [us]
 #define IP_ADDR     0xc0a86401      ///< 192.168.100.1 - last byte will be nodeId
@@ -53,7 +41,7 @@ typedef struct sApiPdiComCon {
 
 /******************************************************************************/
 /* global variables */
-extern tPcpCtrlReg     * volatile pCtrlReg_g;       ///< ptr. to PCP control register
+extern volatile tPcpCtrlReg *     pCtrlReg_g;       ///< ptr. to PCP control register
 extern tCnApiInitParm  initParm_g;        ///< Powerlink initialization parameter
 extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after boot-up flag
 extern WORD            wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)

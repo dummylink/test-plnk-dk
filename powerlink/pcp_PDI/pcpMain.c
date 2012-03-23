@@ -2,9 +2,9 @@
 ********************************************************************************
 \file        pcpMain.c
 
-\brief        main module of powerlink stack for PCP, supporting an external SW API
+\brief       main module of powerlink stack for PCP, supporting an external SW API
 
-\author        Josef Baumgartner
+\author      Josef Baumgartner
 
 \date        06.04.2010
 
@@ -21,17 +21,19 @@
 #include "user/EplSdoAsySequ.h"
 #include "kernel/EplTimerSynck.h"
 
-#include "altera_avalon_pio_regs.h"
-#include "alt_types.h"
-#include "nios2.h"
-#include <sys/alt_cache.h>
-
+#ifdef __NIOS2__
 #include <unistd.h>
+#elif defined(__MICROBLAZE__)
+#include "xilinx_usleep.h"
+#endif
+
+#include "systemComponents.h"
 
 #include "pcp.h"
 #include "pcpStateMachine.h"
 #include "pcpEvent.h"
 #include "pcpSync.h"
+
 #include "fpgaCfg.h"
 #include "fwUpdate.h"
 
@@ -57,7 +59,7 @@
 //---------------------------------------------------------------------------
 // module global vars
 //---------------------------------------------------------------------------
-tPcpCtrlReg        * volatile pCtrlReg_g;     ///< ptr. to PCP control register
+volatile tPcpCtrlReg *         pCtrlReg_g;     ///< ptr. to PCP control register
 tCnApiInitParm     initParm_g = {{0}};        ///< Powerlink initialization parameter
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 BOOL               fIsUserImage_g;            ///< if set user image is booted
@@ -163,11 +165,9 @@ char * getNmtState (tEplNmtState state)
 *******************************************************************************/
 int main (void)
 {
-    /* flush all caches */
-    alt_icache_flush_all();
-    alt_dcache_flush_all();
-
     tFwRet FwRetVal = kFwRetSuccessful;
+
+    SysComp_initPeripheral();
 
     switch (FpgaCfg_handleReconfig())
     {
@@ -275,8 +275,8 @@ int main (void)
 
     DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
 
-#ifdef STATUS_LED_PIO_BASE
-    IOWR_ALTERA_AVALON_PIO_DATA(STATUS_LED_PIO_BASE, 0xFF);
+#ifdef STATUS_LEDS_BASE
+    SysComp_setPowerlinkStatus(0xff);
 #endif
 
     processPowerlink();
@@ -320,10 +320,18 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     UINT32                      uiApplicationSwTime = 0;
 
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
-#ifdef SET_NODE_ID_BY_HW
+#ifdef NODE_SWITCH_BASE
     if(pInitParm_p->m_bNodeId == 0x00)
     {   /* read port configuration input pins and overwrite parameter */
-        pInitParm_p->m_bNodeId = IORD_ALTERA_AVALON_PIO_DATA(NODE_SWITCH_PIO_BASE);
+        pInitParm_p->m_bNodeId = SysComp_getNodeId();
+    }
+#else
+    if(pInitParm_p->m_bNodeId == 0x00)
+    {
+        /* There is no node switch pio and AP wants hardware support so gen error */
+        EplRet = kEplNoResource;
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: There are no hardware node switch modules present on the PCP!\n");
+        goto Exit;
     }
 #endif /* SET_NODE_ID_BY_HW */
 
@@ -398,7 +406,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     DEBUG_TRACE1(DEBUG_LVL_09, "INFO: NODE ID is set to 0x%02x\n", EplApiInitParam.m_uiNodeId);
 
     /* inform AP about current node ID */
-    pCtrlReg_g->m_wNodeId = EplApiInitParam.m_uiNodeId;
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wNodeId, EplApiInitParam.m_uiNodeId);
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
 
     /* initialize firmware update */
@@ -462,6 +470,8 @@ int startPowerlink(void)
 *******************************************************************************/
 void processPowerlink(void)
 {
+	SysComp_enableInterrupts();
+
     while (stateMachineIsRunning())
     {
         /* process Powerlink and it API */
@@ -1082,7 +1092,7 @@ inputs and runs the control loop.
         if ((iCycleCnt++ % wSyncIntCycle_g) == 0)
         {
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
-            #if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
+            #ifdef TIMESYNC_HW
                 /* Sync interrupt is generated in HW */
                 if(SocTimeStamp_p.m_fSocRelTimeValid != FALSE)
                     Gi_setNetTime(SocTimeStamp_p.m_netTime.m_dwSec,SocTimeStamp_p.m_netTime.m_dwNanoSec);
@@ -1092,15 +1102,15 @@ inputs and runs the control loop.
             #else
                 /* Sync interrupt is generated in SW */
                 Gi_generateSyncInt();
-            #endif  //POWERLINK_0_MAC_CMP_TIMESYNCHW
+            #endif  //TIMESYNC_HW
 #else
-            #if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
+            #ifdef TIMESYNC_HW
                 /* Sync interrupt is generated in HW */
                 EplRet = Gi_setRelativeTime(0,FALSE, fOperational);
             #else
                 /* Sync interrupt is generated in SW */
                 Gi_generateSyncInt();
-            #endif  //POWERLINK_0_MAC_CMP_TIMESYNCHW
+            #endif  //TIMESYNC_HW
 #endif  //EPL_DLL_SOCTIME_FORWARD
         }
     }
@@ -1119,7 +1129,7 @@ getCommandFromAp() gets the command from the application processor(AP).
 *******************************************************************************/
 BYTE getCommandFromAp(void)
 {
-    return pCtrlReg_g->m_wCommand;
+    return AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wCommand));
 }
 
 /**
@@ -1128,7 +1138,7 @@ BYTE getCommandFromAp(void)
 *******************************************************************************/
 void storePcpState(BYTE bState_p)
 {
-    pCtrlReg_g->m_wState = bState_p;
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, bState_p);
 }
 
 /**
@@ -1137,7 +1147,7 @@ void storePcpState(BYTE bState_p)
 *******************************************************************************/
 WORD getPcpState(void)
 {
-    return pCtrlReg_g->m_wState;
+    return AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wState));
 }
 
 /**
@@ -1194,12 +1204,12 @@ void Gi_init(void)
     // pCtrlReg_g->m_wState: 0x00EE
     // pCtrlReg_g->m_wCommand: 0xFFFF
 
-    pCtrlReg_g->m_dwAppDate = uiApplicationSwDate;
-    pCtrlReg_g->m_dwAppTime = uiApplicationSwTime;
-    pCtrlReg_g->m_dwFpgaSysId = SYSID_ID;               // FPGA system ID from system.h
-    pCtrlReg_g->m_wEventType = 0x00;                    // invalid event TODO: structure
-    pCtrlReg_g->m_wEventArg = 0x00;                     // invalid event argument TODO: structure
-    pCtrlReg_g->m_wState = kPcpStateInvalid;            // set invalid PCP state
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwFpgaSysId, FPGA_SYSTEM_ID);    // FPGA system ID from system.h
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, 0x00);                // invalid event TODO: structure
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, 0x00);                 // invalid event argument TODO: structure
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, kPcpStateInvalid);        // set invalid PCP state
 
     // init time sync module
     Gi_initSync();
@@ -1252,6 +1262,7 @@ void Gi_shutdown(void)
 void Gi_controlLED(BYTE bType_p, BOOL bOn_p)
 {
     WORD        wRegisterBitNum;
+    WORD        wLedControl;
 
     switch (bType_p)
         {
@@ -1264,39 +1275,39 @@ void Gi_controlLED(BYTE bType_p, BOOL bOn_p)
         case kEplLedTypeTestAll:
             /* This case if for testing the LEDs */
             /* enable forcing for all LEDs */
-            pCtrlReg_g->m_wLedConfig = 0xffff;
+            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedConfig, 0xffff);
             if (bOn_p)  //activate LED output
             {
-                pCtrlReg_g->m_wLedControl = 0xffff; // switch on all LEDs
+                AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedControl, 0xffff);  // switch on all LEDs
             }
             else       // deactive LED output
             {
-                pCtrlReg_g->m_wLedControl = 0x0000; // switch off all LEDs
+                AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedControl, 0x0000); // switch off all LEDs
 
                 /* disable forcing all LEDs except status and error LED (default register value) */
-                pCtrlReg_g->m_wLedConfig = 0x0003;
+                AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedConfig, 0x0003);
             }
             goto exit;
         default:
             goto exit;
         }
 
+    wLedControl = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wLedControl));
+
     if (bOn_p)  //activate LED output
     {
-        pCtrlReg_g->m_wLedControl |= (1 << wRegisterBitNum);
+        wLedControl |= (1 << wRegisterBitNum);
     }
     else        // deactive LED output
     {
-        pCtrlReg_g->m_wLedControl &= ~(1 << wRegisterBitNum);
+        wLedControl &= ~(1 << wRegisterBitNum);
     }
+
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedControl, wLedControl);
 
 exit:
     return;
 }
-
-#ifdef STATUS_LED_PIO_BASE
-#warning Deprecated! Deactivate STATUS_LED_PIO_BASE in SOPC-Builder!
-#endif
 
 /**
 ********************************************************************************

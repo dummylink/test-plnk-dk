@@ -25,6 +25,8 @@ by the powerlink master
 #include "pcpSync.h"
 #include "kernel/EplTimerSynck.h"
 
+#include "systemComponents.h"
+
 
 /******************************************************************************/
 /* typedefs */
@@ -58,12 +60,12 @@ void Gi_initSync(void)
     Gi_disableSyncInt();
 
     /* init the nettime fields */
-    pCtrlReg_g->m_dwNetTimeSec = 0;
-    pCtrlReg_g->m_dwNetTimeNanoSec = 0;
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwNetTimeSec, 0x00);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwNetTimeNanoSec, 0x00);
 
     /* init the relativetime fields */
-    pCtrlReg_g->m_dwRelativeTimeLow = 0;
-    pCtrlReg_g->m_dwRelativeTimeHigh = 0;
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, 0x00);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, 0x00);
 }
 
 /**
@@ -75,12 +77,11 @@ void Gi_resetTimeValues(void)
     PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;
     qwRelativeTime_g = 0;
 
-    pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)0;
-    pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)0;
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, 0x00);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, 0x00);
 
-    pCtrlReg_g->m_dwNetTimeSec = (DWORD)0;
-    pCtrlReg_g->m_dwNetTimeNanoSec = (DWORD)0;
-
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwNetTimeSec, 0x00);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwNetTimeNanoSec, 0x00);
 }
 
 /**
@@ -90,7 +91,8 @@ void Gi_resetTimeValues(void)
 tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fCnIsOperational_p)
 {
     tEplKernel  EplRet = kEplSuccessful;
-    DWORD dwCycleTime = pCtrlReg_g->m_dwSyncIntCycTime;
+
+    DWORD dwCycleTime = AmiGetDwordFromLe((BYTE*)&(pCtrlReg_g->m_dwSyncIntCycTime));
 
     if(dwCycleTime == 0)
     {
@@ -108,14 +110,14 @@ tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fC
                 {
                     qwRelativeTime_g = qwRelativeTime_p;          ///< read the value once and activate relative time
                     qwRelativeTime_g += dwCycleTime;               ///< increment it once to be up to date
-                    pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)qwRelativeTime_g;
-                    pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)(qwRelativeTime_g>>32);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, (DWORD)qwRelativeTime_g);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, (DWORD)(qwRelativeTime_g>>32));
                     PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 } else {
                     /* CN is operational but RelativeTime is still not Valid! (We now start counting without an offset) */
                     qwRelativeTime_g += dwCycleTime;
-                    pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)qwRelativeTime_g;
-                    pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)(qwRelativeTime_g>>32);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, (DWORD)qwRelativeTime_g);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, (DWORD)(qwRelativeTime_g>>32));
                     PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 }
             } else {
@@ -127,8 +129,8 @@ tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fC
         case kPcpRelativeTimeStateActiv:
         {
             qwRelativeTime_g += dwCycleTime;
-            pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)qwRelativeTime_g;
-            pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)(qwRelativeTime_g>>32);
+            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, (DWORD)qwRelativeTime_g);
+            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, (DWORD)(qwRelativeTime_g>>32));
            break;
         }
         case kPcpRelativeTimeStateInvalid:
@@ -151,9 +153,8 @@ Exit:
 *******************************************************************************/
 inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p)
 {
-
-    pCtrlReg_g->m_dwNetTimeSec = dwNetTimeSeconds_p;
-    pCtrlReg_g->m_dwNetTimeNanoSec = dwNetTimeNanoSeconds_p;
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwNetTimeSec, dwNetTimeSeconds_p);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwNetTimeNanoSec, dwNetTimeNanoSeconds_p);
 }
 
 /**
@@ -163,14 +164,14 @@ inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p
 void Gi_enableSyncInt(WORD wSyncIntCycle_p)
 {
 
-#if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
+#ifdef TIMESYNC_HW
     // enable IRQ and set mode to "IR generation by HW"
-    pCtrlReg_g->m_wSyncIrqControl = ((1 << SYNC_IRQ_ENABLE) | (1 << SYNC_IRQ_MODE));
+	AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, ((1 << SYNC_IRQ_ENABLE) | (1 << SYNC_IRQ_MODE)));
     /* in addition also enable the hw interrupt in the EPL time sync module*/
     EplTimerSynckCompareTogPdiIntEnable(wSyncIntCycle_p);
 #else
     // enable IRQ and set mode to "IR generation by SW"
-    pCtrlReg_g->m_wSyncIrqControl = ((1 << SYNC_IRQ_ENABLE) & ~(1 << SYNC_IRQ_MODE));
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, ((1 << SYNC_IRQ_ENABLE) & ~(1 << SYNC_IRQ_MODE)));
 #endif
 
     return;
@@ -182,11 +183,15 @@ void Gi_enableSyncInt(WORD wSyncIntCycle_p)
 *******************************************************************************/
 void Gi_disableSyncInt(void)
 {
-    /* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_ENABLE); // set enable bit to low
-    pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_MODE); // set mode bit to low
+    WORD wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
 
-#if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
+    /* disable interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER */
+    wSyncIrqControl &= ~(1 << SYNC_IRQ_ENABLE); // set enable bit to low
+    wSyncIrqControl &= ~(1 << SYNC_IRQ_MODE); // set mode bit to low
+
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, wSyncIrqControl);
+
+#ifdef TIMESYNC_HW
     /* in addition also disable the hw interrupt in the EPL time sync module*/
     EplTimerSynckCompareTogPdiIntDisable();
 #endif
@@ -200,8 +205,12 @@ void Gi_disableSyncInt(void)
 *******************************************************************************/
 void Gi_generateSyncInt(void)
 {
+    WORD wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
+
     /* Throw interrupt in SW by writing to the SYNC_IRQ_CONTROL_REGISTER */
-    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_SET); //set IRQ_SET bit to high
+    wSyncIrqControl |= (1 << SYNC_IRQ_SET); //set IRQ_SET bit to high
+
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, wSyncIrqControl);
 
     return;
 }
@@ -214,7 +223,7 @@ BOOL Gi_checkSyncIrqRequired(void)
 {
     WORD wSyncModeFlags;
 
-    wSyncModeFlags = pCtrlReg_g->m_wSyncIrqControl;
+    wSyncModeFlags = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
 
     if(wSyncModeFlags &= (1 << SYNC_IRQ_REQ))
         return TRUE;  ///< Sync IR is required
@@ -233,6 +242,8 @@ void Gi_calcSyncIntPeriod(void)
     unsigned int       uiCycleTime;
     unsigned int       uiSize;
     tEplKernel         EplRet = kEplSuccessful;
+    DWORD              dwMinCycleTime = AmiGetDwordFromLe((BYTE*)&(pCtrlReg_g->m_dwMinCycleTime));
+    DWORD              dwMaxCycleTime = AmiGetDwordFromLe((BYTE*)&(pCtrlReg_g->m_dwMaxCycleTime));
 
     uiSize = sizeof(uiCycleTime);
     EplRet = EplApiReadLocalObject(0x1006, 0, &uiCycleTime, &uiSize);
@@ -243,21 +254,21 @@ void Gi_calcSyncIntPeriod(void)
         return;
     }
 
-    if ((pCtrlReg_g->m_dwMinCycleTime == 0) &&
-        (pCtrlReg_g->m_dwMaxCycleTime == 0)   )
+    if ((dwMinCycleTime == 0) &&
+        (dwMaxCycleTime == 0)   )
     {
         /* no need to trigger IR signal - polling mode is applied */
         wSyncIntCycle_g = 0;
         return;
     }
 
-    iNumCycles = (pCtrlReg_g->m_dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;    /* do it this way to round up integer division! */
+    iNumCycles = (dwMinCycleTime + uiCycleTime - 1) / uiCycleTime;    /* do it this way to round up integer division! */
     iSyncPeriod = iNumCycles * uiCycleTime;
 
     DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO, "calcSyncIntPeriod: tCycle=%d tMinTime=%lu --> syncPeriod=%d\n",
-                   uiCycleTime, pCtrlReg_g->m_dwMinCycleTime, iSyncPeriod);
+                   uiCycleTime, dwMinCycleTime, iSyncPeriod);
 
-    if (iSyncPeriod > pCtrlReg_g->m_dwMaxCycleTime)
+    if (iSyncPeriod > dwMaxCycleTime)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
@@ -265,7 +276,7 @@ void Gi_calcSyncIntPeriod(void)
         wSyncIntCycle_g = 0;
         return;
     }
-    if (iSyncPeriod < pCtrlReg_g->m_dwMinCycleTime)
+    if (iSyncPeriod < dwMinCycleTime)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
@@ -275,7 +286,7 @@ void Gi_calcSyncIntPeriod(void)
     }
 
     wSyncIntCycle_g = iNumCycles;
-    pCtrlReg_g->m_dwSyncIntCycTime = iSyncPeriod;  ///< inform AP: write result in control register
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwSyncIntCycTime, iSyncPeriod);   ///< inform AP: write result in control register
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
     return;
