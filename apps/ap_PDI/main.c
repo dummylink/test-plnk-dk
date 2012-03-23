@@ -27,26 +27,15 @@ a dual ported RAM (DPRAM) area.
 #include "cnApiAsync.h"
 #include "cnApiEvent.h"
 #include "EplSdoAc.h"
+#include "EplObd.h"
 
 #ifdef __NIOS2__
-#include "system.h"
-#include "altera_avalon_pio_regs.h"
-#include "alt_types.h"
-#include <sys/alt_cache.h>
-#include <sys/alt_irq.h>
-#include <io.h>
-#endif // __NIOS2__
-
-#ifdef CN_API_USING_SPI
-#ifdef __NIOS2__
-#include "altera_avalon_spi.h"
-#endif // __NIOS2__
-#include "cnApiPdiSpi.h"
-#endif // CN_API_USING_SPI
-
 #include <unistd.h>
-#include <string.h>
-#include <stdio.h>
+#elif defined(__MICROBLAZE__)
+#include "xilinx_usleep.h"
+#endif
+
+#include "systemComponents.h"
 
 /******************************************************************************/
 /* defines */
@@ -57,16 +46,11 @@ a dual ported RAM (DPRAM) area.
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
 #define DEFAULT_NODEID      0x00    // default node ID to use, should be NOT 0xF0 (=MN)
 
-//#define USE_POLLING_MODE_SYNC // or IR synchronization mode by commenting this define
+//#define USE_POLLING_MODE_SYNC // comment this out to enable the sync event interrupt
 #define USE_POLLING_MODE_ASYNC // comment this out to enable the async event interrupt
 
 #if defined(CN_API_INT_AVALON) && !defined(USE_POLLING_MODE_ASYNC)
     #error "Dual-Nios design can not use 2 interrupts -> interrupt mode for events is not possible!"
-#endif
-
-#if defined(CN_API_USING_SPI) && !defined(USE_POLLING_MODE_ASYNC)
-    #error "In the current implementation the asynchronous interrupt is not usable with SPI because the access function is not interrupt safe!"
-    /* it should be possible to use a different SPI master IP-Core (for example the "Avalon-ST Serial Peripheral Interface Core") */
 #endif
 
 #define DEMO_VENDOR_ID      0x00000000
@@ -79,12 +63,6 @@ a dual ported RAM (DPRAM) area.
 #define SUBNET_MASK 0xFFFFFF00                                  ///< netmask 255.255.255.0
 
 /*----------------------------------------------------------------------------*/
-
-#ifndef CN_API_USING_SPI
-    #define PDI_DPRAM_BASE_AP POWERLINK_0_BASE           ///< from system.h
-#else
-    #define PDI_DPRAM_BASE_AP 0x00                              ///< no base address necessary
-#endif /* CN_API_USING_SPI */
 
 #define NUM_INPUT_OBJS      4                                   ///< number of used input objects
 #define NUM_OUTPUT_OBJS     4                                   ///< number of used output objects
@@ -115,12 +93,29 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
                             BYTE * pstrHwVersion_p,
                             BYTE * pstrSwVersion_p);
 void workInputOutput(void);
-int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved);
-int initAsyncInterrupt(int irq);
+
+#ifndef USE_POLLING_MODE_SYNC
+    #if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
+        static void syncIntHandler(void* pArg_p, void* dwInt_p);
+    #else
+        static void syncIntHandler(void* pArg_p);
+    #endif
+#endif //USE_POLLING_MODE_SYNC
+
+#ifndef USE_POLLING_MODE_ASYNC
+    #if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
+        static void asyncIntHandler(void* pArg_p, void* dwInt_p);
+    #else
+        static void asyncIntHandler(void* pArg_p);
+    #endif
+#endif //USE_POLLING_MODE_ASYNC
 
 #ifdef CN_API_USING_SPI
 int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p);
 int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p);
+
+void enableGlobalInterrupts(void);
+void disableGlobalInterrupts(void);
 #endif
 
 /**
@@ -134,13 +129,14 @@ APs state machine will be updated and input/output ports will be processed.
 int main (void)
 {
     tCnApiStatus        status;
+
     tCnApiInitParm      initParm = {{0}};
 
-    alt_icache_flush_all();
-    alt_dcache_flush_all();
+    SysComp_initPeripheral();
 
-    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xabffff); // set hex digits on Mercury-Board to indicate AP presence
-    CNAPI_USLEEP(1000000);		                                // wait 1 s, so you can see the LEDs
+    SysComp_writeOutputPort(0xabffff); // set hex digits on Mercury-Board to indicate AP presence
+
+    CNAPI_USLEEP(1000000);                                // wait 1 s, so you can see the LEDs
 
     nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
     setPowerlinkInitValues(&initParm,
@@ -149,12 +145,16 @@ int main (void)
                            strDevName,
                            strHwVersion,
                            strSwVersion);             // initialize POWERLINK parameters
-
-    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);                  // initialize and start the CN API
+#ifdef CN_API_USING_SPI
+    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm, &CnApi_CbSpiMasterTx, &CnApi_CbSpiMasterRx,    // initialize and start the CN API with SPI
+            enableGlobalInterrupts, disableGlobalInterrupts);
+#else
+    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);   // initialize and start the CN API
+#endif
     if (status > 0)
     {
         TRACE1("\nERROR: CN API library could not be initialized (%d)\n", status);
-        return -1;
+        return ERROR;
     }
     else
     {
@@ -167,7 +167,7 @@ int main (void)
     if (CnApi_initObjects(NUM_OBJECTS) < 0)
     {
         TRACE("ERROR: CN API library initObjects failed\n");
-        return -1;
+        return ERROR;
     }
 
     /* connect local variables to object IDs
@@ -186,36 +186,39 @@ int main (void)
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
 #ifdef USE_POLLING_MODE_SYNC
+    CnApi_initSyncInt(0, 0, 0); ///< tell PCP that we want polling mode
     CnApi_disableSyncInt();
-
-    CnApi_initSyncInt(0, 0, 0); // tell PCP that we want polling mode
 #else
-    /* initialize PCP interrupt handler, minCycle = 1000 us, maxCycle = 100000 us */
-    #ifdef CN_API_USING_SPI
-    initSyncInterrupt(SYNC_IRQ_FROM_PCP_IRQ, 1000, 100000, 0);  ///< local AP IRQ is enabled here
-    #else
-    initSyncInterrupt(POWERLINK_0_IRQ, 3000, 100000, 0);
-    #endif /* CN_API_USING_SPI */
+    CnApi_initSyncInt(3000, 100000, 0);
+    CnApi_disableSyncInt();    ///< interrupt will be enabled when CN is operational
+
+    /* initialize PCP interrupt handler*/
+    if(SysComp_initSyncInterrupt(syncIntHandler) != OK)    ///< local AP IRQ is enabled here
+    {
+        TRACE("ERROR: Unable to init the synchronous interrupt!\n");
+        return ERROR;
+    }
+
 #endif /* USE_POLLING_MODE_SYNC */
 
 #ifdef USE_POLLING_MODE_ASYNC
     CnApi_disableAsyncEventIRQ();
 #else
     /* initialize Async interrupt handler */
-    #ifdef CN_API_USING_SPI
-    initAsyncInterrupt(ASYNC_IRQ_FROM_PCP_IRQ);  ///< local AP IRQ is enabled here
-    #else
-        #ifndef CN_API_INT_AVALON
-            initAsyncInterrupt(POWERLINK_0_IRQ);
-        #endif
-    #endif /* CN_API_USING_SPI */
+    if(SysComp_initAsyncInterrupt(asyncIntHandler) != OK)
+    {
+        TRACE("ERROR: Unable to init the asynchronous interrupt!\n");
+        return ERROR;
+    }
+
+    /* now enable the async interrupt in the pdi */
+    CnApi_enableAsyncEventIRQ();
 #endif /* USE_POLLING_MODE_ASYNC */
 
     /* Start periodic main loop */
     TRACE("API example is running...\n");
 
 	/* main program loop */
-	/* TODO: implement exit of application! */
     while (1)
     {
         /* Instead of this while loop, you can use your own (nonblocking) tasks ! */
@@ -281,8 +284,6 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
     memcpy(pInitParm_p->m_strDevName, pstrDevName_p, sizeof(pInitParm_p->m_strDevName));
     memcpy(pInitParm_p->m_strHwVersion, pstrHwVersion_p, sizeof(pInitParm_p->m_strHwVersion));
     memcpy(pInitParm_p->m_strSwVersion, pstrSwVersion_p, sizeof(pInitParm_p->m_strSwVersion));
-
-    pInitParm_p->m_dwDpramBase = PDI_DPRAM_BASE_AP;     //address of DPRAM area
 }
 
 /**
@@ -298,8 +299,7 @@ void workInputOutput(void)
 	DWORD dwOutPort = 0;
 	BYTE cInPort;
 
-	///> Digital IN: read push- and joystick buttons
-	cInPort = IORD_ALTERA_AVALON_PIO_DATA(INPORT_AP_BASE);
+	cInPort = SysComp_readInputPort(); ///> Digital IN: read push- and joystick buttons
 	digitalIn[0] = cInPort;    // 6000/01
 	digitalIn[1] = cInPort;    // 6000/02
 	digitalIn[2] = cInPort;    // 6000/03
@@ -324,7 +324,7 @@ void workInputOutput(void)
         }
     }
 
-    IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, dwOutPort);
+    SysComp_writeOutputPort(dwOutPort);
 }
 
 /**
@@ -559,11 +559,11 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Mapping or linking failed!\n");
 
                             /* set status */
-                            LinkPdosResp_g.m_wStatus = kCnApiStatusObjectLinkFailed;
+                            LinkPdosResp_g.m_bStatus = kCnApiStatusObjectLinkFailed;
                         }
                         else // successful
                         { /* set status */
-                            LinkPdosResp_g.m_wStatus = kCnApiStatusOk;
+                            LinkPdosResp_g.m_bStatus = kCnApiStatusOk;
                         }
 
                         /* prepare LinkPdosResp message descriptor count (return value of LinkPdosReq message) */
@@ -611,29 +611,18 @@ See the Altera NIOSII Reference manual for further details of interrupt
 handlers.
 *******************************************************************************/
 #ifndef USE_POLLING_MODE_SYNC
-#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
-static void syncIntHandler(void* pArg_p)
-#else
+#if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
 static void syncIntHandler(void* pArg_p, void* dwInt_p)
+#else
+static void syncIntHandler(void* pArg_p)
 #endif
 {
-#ifdef CN_API_USING_SPI
-    alt_ic_irq_disable(0, SYNC_IRQ_FROM_PCP_IRQ);  // disable specific IRQ Number
-#endif
-
-	CnApi_transferPdo();               // Call CN API PDO transfer function
+    CnApi_transferPdo();               // Call CN API PDO transfer function
 
     CnApi_AppCbSync();                 // call application specific synchronization function
 
     CnApi_ackSyncIrq();                // acknowledge IR from PCP
 
-#ifdef CN_API_USING_SPI
-    // Temporary Workaround:
-    workInputOutput();
-    //TODO: this workaround is unnecessary, but otherwise it will not work! IR blocks while() loop somehow.
-
-    alt_ic_irq_enable(0, SYNC_IRQ_FROM_PCP_IRQ);  // enable specific IRQ Number
-#endif /* CN_API_USING_SPI */
 }
 #endif /* USE_POLLING_MODE_SYNC */
 
@@ -649,144 +638,90 @@ See the Altera NIOSII Reference manual for further details of interrupt
 handlers.
 *******************************************************************************/
 #ifndef USE_POLLING_MODE_ASYNC
-#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
-static void asyncIntHandler(void* pArg_p)
-#else
+#if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
 static void asyncIntHandler(void* pArg_p, void* dwInt_p)
+#else
+static void asyncIntHandler(void* pArg_p)
 #endif
 {
-#ifdef CN_API_USING_SPI
-    //TODO: ifdef not Avalon IF
-    alt_ic_irq_disable(0, ASYNC_IRQ_FROM_PCP_IRQ);  // disable specific IRQ Number
-#endif
-
     CnApi_pollAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
 
-#ifdef CN_API_USING_SPI
-    alt_ic_irq_enable(0, ASYNC_IRQ_FROM_PCP_IRQ);  // enable specific IRQ Number
-#endif /* CN_API_USING_SPI */
-}
-#endif /* USE_POLLING_MODE_SYNC */
-
-
-/**
-********************************************************************************
-\brief  initialize synchronous interrupt
-
-initSyncInterrupt() initializes the synchronous interrupt. The timing parameters
-will be initialized, the interrupt handler will be connected and the interrupt
-will be enabled.
-
-\param  irq                  Interrupt number of synchronous interrupt (from BSP)
-\param  dwMinCycleTime_p     The minimum cycle time for the interrupt
-\param  dwMaxCycleTime_p     The maximum cycle time for the interrupt
-\param  bReserved_p          Reserved for future use
-
-\return	OK, or ERROR if interrupt couldn't be connected
-*******************************************************************************/
-#ifndef USE_POLLING_MODE_SYNC
-int initSyncInterrupt(int irq, DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved_p)
-{
-	CnApi_initSyncInt(dwMinCycleTime_p, dwMaxCycleTime_p, bReserved_p);
-	CnApi_disableSyncInt();
-
-	/* register interrupt handler */
-#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
-	if (alt_ic_isr_register(0, irq, syncIntHandler, NULL, 0))
-	{
-		return ERROR;
-	}
-#else
-    if (alt_irq_register(irq, NULL, syncIntHandler))
-    {
-        return ERROR;
-    }
-#endif
-
-    /* enable interrupt from PCP to AP */
-#ifdef CN_API_USING_SPI
-    alt_ic_irq_enable(0, irq);      // enable specific IRQ Number
-    IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_FROM_PCP_BASE, 0x01);
-#endif /* CN_API_USING_SPI */
-
-	return OK;
-}
-#endif /* USE_POLLING_MODE_SYNC */
-
-
-/**
-********************************************************************************
-\brief  initialize asynchronous interrupt
-
-initAsyncInterrupt() initializes the asynchronous interrupt. The interrupt handler
-will be connected and the interrupt will be enabled.
-
-\param  irq                 Interrupt number of synchronous interrupt (from BSP)
-
-\return OK, or ERROR if interrupt couldn't be connected
-*******************************************************************************/
-#ifndef USE_POLLING_MODE_ASYNC
-int initAsyncInterrupt(int irq)
-{
-    CnApi_Spi_read(PCP_CTRLREG_NODE_ID_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wNodeId),
-                   (BYTE*) &pCtrlRegLE_g->m_wNodeId);
-
-    CnApi_Spi_write(PCP_CTRLREG_NODE_ID_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wNodeId),
-                   (BYTE*) &pCtrlRegLE_g->m_wNodeId);
-
-
-    /* register interrupt handler */
-#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
-    if (alt_ic_isr_register(0, irq, asyncIntHandler, NULL, 0))
-    {
-        return ERROR;
-    }
-#else
-    if (alt_irq_register(irq, NULL, asyncIntHandler))
-    {
-        return ERROR;
-    }
-#endif
-
-    /* now enable the async interrupt in the pdi */
-    CnApi_enableAsyncEventIRQ();
-
-    /* enable interrupt from PCP to AP */
-#ifdef CN_API_USING_SPI
-    alt_ic_irq_enable(0, irq);      // enable specific IRQ Number
-    IOWR_ALTERA_AVALON_PIO_IRQ_MASK(ASYNC_IRQ_FROM_PCP_BASE, 0x01);
-#endif /* CN_API_USING_SPI */
-
-
-
-    return OK;
 }
 #endif /* USE_POLLING_MODE_ASYNC */
 
-
 #ifdef CN_API_USING_SPI
+/**
+********************************************************************************
+\brief  SPI master tx
+
+CnApi_CbSpiMasterTx() is the callback function for sending an TX frame
+to the SPI slave
+
+\param  pTxBuf_p             A pointer to the buffer to send
+\param  iBytes_p             The number of bytes to send
+
+\return OK, or ERROR if the frame could not be sent
+*******************************************************************************/
+
 int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
 {
-    alt_avalon_spi_command(
-        SPI_MASTER_BASE, 0, //core base, spi slave
-        iBytes_p, pTxBuf_p, //write bytes, addr of write data
-        0, NULL,            //read bytes, addr of read data
-        0);                 //flags (don't care)
+    if(SysComp_SPICommand(pTxBuf_p,NULL,iBytes_p) != OK)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: SPI Tx failed!");
+        return ERROR;
+    }
+
     return OK;
 }
 
+/**
+********************************************************************************
+\brief  SPI master rx
+
+CnApi_CbSpiMasterRx() is the callback function for receiving an RX frame
+from the SPI slave
+
+\param  pRxBuf_p             A pointer to the buffer where the data should be stored
+\param  iBytes_p             The number of bytes to receive
+
+\return OK, or ERROR if the frame could not be received
+*******************************************************************************/
 int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
 {
-    alt_avalon_spi_command(
-        SPI_MASTER_BASE, 0, //core base, spi slave
-        0, NULL,            //write bytes, addr of write data
-        iBytes_p, pRxBuf_p, //read bytes, addr of read data
-        0);                 //flags (don't care)
+    if(SysComp_SPICommand(NULL,pRxBuf_p,iBytes_p) != OK)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: SPI Rx failed!");
+        return ERROR;
+    }
+
     return OK;
 }
+
+/**
+********************************************************************************
+\brief  SPI callback for interrupt enable
+
+enableGlobalInterrupts() is the callback function for enabling the global interrupts
+of the system
+*******************************************************************************/
+void enableGlobalInterrupts(void)
+{
+    SysComp_enableInterrupts();
+}
+
+/**
+********************************************************************************
+\brief  SPI callback for interrupt disable
+
+disableGlobalInterrupts() is the callback function for disabling the global interrupts
+of the system
+*******************************************************************************/
+void disableGlobalInterrupts(void)
+{
+    SysComp_disableInterrupts();
+}
 #endif /* CN_API_USING_SPI */
+
 
 /**
  ********************************************************************************

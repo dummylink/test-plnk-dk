@@ -23,6 +23,7 @@ CN_API_FLAGS= 	# empty
 POWERLINKDIR=../powerlink/pcp_PDI/${POWERLINKDIR}
 BSP_DIR=./bsp
 LIBAPIDIR=../../libCnApi
+APPDIR=.
 
 ###############################################################################
 INPUT_VARS=$@
@@ -76,7 +77,8 @@ INCLUDES="\
 ${LIBAPIDIR}/include \
 ${LIBAPIDIR}/include/openPOWERLINK \
 ${LIBAPIDIR}/utils \
-${POWERLINKDIR}/Include"
+${POWERLINKDIR}/Include \
+${APPDIR}/target/altera_nios/include"
 
 ###############################################################################
 # Custom libraries
@@ -106,7 +108,8 @@ CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG
 
 ###############################################################################
 # source files
-SRCFILES="main.c"
+SRCFILES="main.c \
+${APPDIR}/target/altera_nios/src/systemComponents.c"
 
 ###############################################################################
 # work-around for bug in Nios2 EDS V9.0
