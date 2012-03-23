@@ -24,40 +24,49 @@ How to generally update to any version (applies always)
 How to update from V0.2.0 or V0.2.1 to V0.4.6 
 ----------------------------------------------
 
-1. POWERLINK IP-core / Quartus Project
+I.   POWERLINK IP-core / Quartus Project
       
-      In SOPC-Builder you need to specify a global search path for the POWERLINK IP-core once.
-      Go to     
-                "Tools -> Options -> IP Search Path -> Add"
-                
-      and browse to the POWERLINK IP-core folder e.g. in the CNDK
-                
-                <your path>/BR_POWERLINK-SLAVE_ALTERA_V0.4.6/02_Reference_Designs/fpga/altera/IP_core/POWERLINK
-                
+        1. In SOPC-Builder you need to specify a global search path for the POWERLINK IP-core once.
+            Go to     
+            "Tools -> Options -> IP Search Path -> Add"
 
-2. HW Interface (PCP PDI)
+            and browse to the POWERLINK IP-core folder e.g. in the CNDK
+
+            <your path>/BR_POWERLINK-SLAVE_ALTERA_V0.4.6/02_Reference_Designs/fpga/altera/IP_core/POWERLINK
+
+        2. Insert the POWERLINK IP-core from "Interface Protocols -> Ethernet -> POWERLINK". It will have the name "powerlink_1"
+        3. Open the "powerlink_1" settings and copy the settings from the already existing IP-core "powerlink_0".
+        4. Connect the bus and clock signals of "powerlink_1" the same way like "powerlink_0".
+        5. Now you can delete the old "powerlink_0" IP-core in the SOPC builder.
+        6. Delete the whole POWERLINK folder in your Quartus project, because the old POWERLINK IP-core is no longer used.
+           Otherwise the SOPC Builder will always find 2 cores (which leads to version issues):
+           The one that you have added to the IP-search path, and the one which is already present in the Quartus project.
+        7. Rename "powerlink_1" to "powerlink_0".
+        8. Compile the SOPC project.
+
+II.  HW Interface (PCP PDI)
    
-    - Adapt the timing according to the HW_Design_Guidelines delivered with this package.
-      if you access the PCP over external FPGA interface (serial or parallel).      
+        - Adapt the timing according to the HW_Design_Guidelines delivered with this package.
+          if you access the PCP over external FPGA interface (serial or parallel).      
 
-3. CnApi SW Library
+III. CnApi SW Library
      
-    - If you use the CnApi library in an AP
-      to access and control the PCP (Powerlink Communication Processor)
-      then you need to delete the calls to the functions
+        - If you use the CnApi library in an AP
+          to access and control the PCP (Powerlink Communication Processor)
+          then you need to delete the calls to the functions
        
-        * CnApi_activateApStateMachine()
-        * CnApi_activateAsyncStateMachine()
+          * CnApi_activateApStateMachine()
+          * CnApi_activateAsyncStateMachine()
         
-      because those functions where shifted to the CnApi_init() function
-      and are called now in the background.
-      Any additional call to those functions will damage the AP to PCP communication!
+          because those functions where shifted to the CnApi_init() function
+          and are called now in the background.
+          Any additional call to those functions will damage the AP to PCP communication!
       
-    - It is mandatory to handle calls to CnApi_CbDefaultObdAccess() and optional to answer
-      delayed to the object dictionary access with CnApi_DefObdAccFinished().
-      See the documentation "API_Reference_Manual"  for details.
+        - It is mandatory to handle calls to CnApi_CbDefaultObdAccess() and optional to answer
+          delayed to the object dictionary access with CnApi_DefObdAccFinished().
+          See the documentation "API_Reference_Manual"  for details.
     
-    - Events forwarded to the user in CnApi_AppCbEvent() can be handled optionally.
+        - Events forwarded to the user in CnApi_AppCbEvent() can be handled optionally.
     
 
     
