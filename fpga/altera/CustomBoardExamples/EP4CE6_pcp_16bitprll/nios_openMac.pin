@@ -270,7 +270,7 @@ GND                          : N7        : gnd    :                   :         
 SRAM_ADDR[13]                : N8        : output : 3.3-V LVTTL       :         : 3         : Y              
 SRAM_ADDR[15]                : N9        : output : 3.3-V LVTTL       :         : 4         : Y              
 GND                          : N10       : gnd    :                   :         :           :                
-SRAM_ADDR[18]                : N11       : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : N11       :        :                   :         : 4         :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : N12       :        :                   :         : 4         :                
 SRAM_DQ[8]                   : N13       : bidir  : 3.3-V LVTTL       :         : 5         : Y              
 SRAM_CE_n                    : N14       : output : 3.3-V LVTTL       :         : 5         : Y              
@@ -313,11 +313,11 @@ NODE_SWITCH[0]               : T2        : input  : 3.3-V LVTTL       :         
 NODE_SWITCH[4]               : T3        : input  : 3.3-V LVTTL       :         : 3         : Y              
 NODE_SWITCH[5]               : T4        : input  : 3.3-V LVTTL       :         : 3         : Y              
 NODE_SWITCH[7]               : T5        : input  : 3.3-V LVTTL       :         : 3         : Y              
-SRAM_ADDR[19]                : T6        : output : 3.3-V LVTTL       :         : 3         : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : T6        :        :                   :         : 3         :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : T7        :        :                   :         : 3         :                
 SRAM_DQ[6]                   : T8        : bidir  : 3.3-V LVTTL       :         : 3         : Y              
 SRAM_DQ[4]                   : T9        : bidir  : 3.3-V LVTTL       :         : 4         : Y              
-RESERVED_INPUT_WITH_WEAK_PULLUP : T10       :        :                   :         : 4         :                
+SRAM_ADDR[0]                 : T10       : output : 3.3-V LVTTL       :         : 4         : N              
 SRAM_DQ[1]                   : T11       : bidir  : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : T12       :        :                   :         : 4         :                
 SRAM_DQ[0]                   : T13       : bidir  : 3.3-V LVTTL       :         : 4         : Y              

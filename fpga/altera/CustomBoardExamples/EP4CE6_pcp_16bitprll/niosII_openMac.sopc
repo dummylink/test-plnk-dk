@@ -6,7 +6,7 @@
    {
       datum baseAddress
       {
-         value = "16384";
+         value = "8192";
          type = "long";
       }
    }
@@ -14,7 +14,7 @@
    {
       datum baseAddress
       {
-         value = "8256";
+         value = "8272";
          type = "long";
       }
    }
@@ -80,7 +80,7 @@
    {
       datum _clockDomain
       {
-         value = "clk50Meg";
+         value = "clk50";
          type = "String";
       }
    }
@@ -88,7 +88,7 @@
    {
       datum _clockDomain
       {
-         value = "pcp_clk";
+         value = "clkPcp";
          type = "String";
       }
    }
@@ -96,7 +96,7 @@
    {
       datum _clockDomain
       {
-         value = "clk100Meg";
+         value = "clk100";
          type = "String";
       }
    }
@@ -104,7 +104,7 @@
    {
       datum _clockDomain
       {
-         value = "clk25Meg";
+         value = "clk25";
          type = "String";
       }
    }
@@ -260,7 +260,7 @@
    {
       datum baseAddress
       {
-         value = "8272";
+         value = "8256";
          type = "long";
       }
    }
@@ -270,11 +270,6 @@
       {
          value = "7";
          type = "int";
-      }
-      datum sopceditor_expanded
-      {
-         value = "1";
-         type = "boolean";
       }
    }
    element remote_update_cycloneiii_0
@@ -306,16 +301,16 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
+   element system_timer.s1
    {
       datum _lockedAddress
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "2048";
+         value = "8192";
          type = "long";
       }
    }
@@ -340,24 +335,24 @@
          type = "long";
       }
    }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
    element clock_crossing_0.s1
    {
       datum baseAddress
       {
          value = "16777216";
-         type = "long";
-      }
-   }
-   element system_timer.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "8192";
          type = "long";
       }
    }
@@ -471,8 +466,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="10420628394" />
- <parameter name="timeStamp" value="1305204940954" />
+ <parameter name="systemHash" value="4399630953" />
+ <parameter name="timeStamp" value="1332511398662" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -547,7 +542,7 @@
   <parameter name="mmu_TLBMissExcSlave" value="" />
   <parameter name="mmu_TLBMissExcOffset" value="0" />
   <parameter name="manuallyAssignCpuID" value="false" />
-  <parameter name="internalIrqMaskSystemInfo" value="31" />
+  <parameter name="internalIrqMaskSystemInfo" value="124" />
   <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='sram_0.s0' start='0x100000' end='0x180000' /></address-map>]]></parameter>
   <parameter name="instAddrWidth" value="21" />
   <parameter name="impl" value="Small" />
@@ -572,12 +567,12 @@
   <parameter name="dcache_numTCDM" value="_0" />
   <parameter name="dcache_lineSize" value="_32" />
   <parameter name="dcache_bursts" value="false" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='node_switch_pio.s1' start='0x900' end='0x910' /><slave name='sysid.control_slave' start='0x910' end='0x918' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='powerlink_0.MAC_BUF' start='0x4000' end='0x6000' /><slave name='powerlink_0.MAC_BUF' start='0x4000' end='0x6000' /><slave name='powerlink_0.PDI_PCP' start='0x8000' end='0x10000' /><slave name='sram_0.s0' start='0x100000' end='0x180000' /><slave name='powerlink_0.MAC_REG' start='0x1000000' end='0x1002000' /><slave name='system_timer.s1' start='0x1002000' end='0x1002020' /><slave name='benchmark_pio.s1' start='0x1002020' end='0x1002040' /><slave name='powerlink_0.MAC_CMP' start='0x1002040' end='0x1002050' /><slave name='altpll_0.pll_slave' start='0x1002050' end='0x1002060' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x1002060' end='0x1002068' /><slave name='tc_i_mem_pcp.s2' start='0x2000000' end='0x2000200' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='node_switch_pio.s1' start='0x900' end='0x910' /><slave name='sysid.control_slave' start='0x910' end='0x918' /><slave name='pcp_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='powerlink_0.MAC_BUF' start='0x2000' end='0x4000' /><slave name='powerlink_0.PDI_PCP' start='0x8000' end='0x10000' /><slave name='sram_0.s0' start='0x100000' end='0x180000' /><slave name='powerlink_0.MAC_REG' start='0x1000000' end='0x1002000' /><slave name='system_timer.s1' start='0x1002000' end='0x1002020' /><slave name='benchmark_pio.s1' start='0x1002020' end='0x1002040' /><slave name='altpll_0.pll_slave' start='0x1002040' end='0x1002050' /><slave name='powerlink_0.MAC_CMP' start='0x1002050' end='0x1002060' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x1002060' end='0x1002068' /><slave name='tc_i_mem_pcp.s2' start='0x2000000' end='0x2000200' /></address-map>]]></parameter>
   <parameter name="dataAddrWidth" value="26" />
   <parameter name="customInstSlavesSystemInfo" value="&lt;info/&gt;" />
   <parameter name="cpuReset" value="false" />
   <parameter name="cpuID" value="0" />
-  <parameter name="clockFrequency" value="90000000" />
+  <parameter name="clockFrequency" value="100000000" />
   <parameter name="breakSlave">pcp_cpu.jtag_debug_module</parameter>
   <parameter name="breakOffset" value="32" />
  </module>
@@ -666,7 +661,7 @@
   <parameter name="bitClearingEdgeCapReg" value="false" />
   <parameter name="bitModifyingOutReg" value="false" />
   <parameter name="captureEdge" value="false" />
-  <parameter name="clockRate" value="90000000" />
+  <parameter name="clockRate" value="100000000" />
   <parameter name="direction" value="Input" />
   <parameter name="edgeType" value="RISING" />
   <parameter name="generateIRQ" value="false" />
@@ -696,38 +691,8 @@
   <parameter name="clockFrequency" value="25000000" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone IV E" />
  </module>
- <module kind="powerlink" version="1.2" enabled="1" name="powerlink_0">
-  <parameter name="clkRateEth" value="100000000" />
-  <parameter name="clkRate50" value="50000000" />
-  <parameter name="clkRatePcp" value="90000000" />
-  <parameter name="configPowerlink">CN with Processor Interface</parameter>
-  <parameter name="configApInterface" value="Parallel" />
-  <parameter name="configApParallelInterface" value="16bit" />
-  <parameter name="configApParSigs" value="High Active" />
-  <parameter name="configApParOutSigs" value="High Active" />
-  <parameter name="configApEndian" value="Little" />
-  <parameter name="configApSpi_CPOL" value="0" />
-  <parameter name="configApSpi_CPHA" value="0" />
-  <parameter name="configApSpi_IRQ" value="High Active" />
-  <parameter name="rpdoNum" value="1" />
-  <parameter name="rpdo0size" value="100" />
-  <parameter name="rpdo1size" value="2" />
-  <parameter name="rpdo2size" value="30" />
-  <parameter name="tpdoNum" value="1" />
-  <parameter name="tpdo0size" value="100" />
-  <parameter name="asyncBuf1Size" value="512" />
-  <parameter name="asyncBuf2Size" value="1" />
-  <parameter name="phyIF" value="RMII" />
-  <parameter name="packetLoc">TX into DPRAM and RX over Avalon Master</parameter>
-  <parameter name="validSet" value="1" />
-  <parameter name="macTxBuf" value="1514" />
-  <parameter name="macRxBuf" value="1514" />
-  <parameter name="mac2cmpTimer" value="false" />
-  <parameter name="mac2phys" value="true" />
-  <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
- </module>
  <module kind="sram" version="1.0" enabled="1" name="sram_0">
-  <parameter name="AUTO_CLOCK_CLOCK_RATE" value="90000000" />
+  <parameter name="AUTO_CLOCK_CLOCK_RATE" value="100000000" />
   <parameter name="sharedPorts" value="s0/data" />
  </module>
  <module
@@ -751,7 +716,7 @@
  <module kind="altpll" version="10.1" enabled="1" name="altpll_0">
   <parameter name="HIDDEN_CUSTOM_ELABORATION">altpll_avalon_elaboration</parameter>
   <parameter name="HIDDEN_CUSTOM_POST_EDIT">altpll_avalon_post_edit</parameter>
-  <parameter name="INTENDED_DEVICE_FAMILY" value="Cyclone III" />
+  <parameter name="INTENDED_DEVICE_FAMILY" value="Cyclone IV E" />
   <parameter name="WIDTH_CLOCK" value="5" />
   <parameter name="WIDTH_PHASECOUNTERSELECT" value="" />
   <parameter name="PRIMARY_CLOCK" value="" />
@@ -782,7 +747,7 @@
   <parameter name="SELF_RESET_ON_GATED_LOSS_LOCK" value="" />
   <parameter name="SELF_RESET_ON_LOSS_LOCK" value="" />
   <parameter name="CLK0_MULTIPLY_BY" value="1" />
-  <parameter name="CLK1_MULTIPLY_BY" value="9" />
+  <parameter name="CLK1_MULTIPLY_BY" value="2" />
   <parameter name="CLK2_MULTIPLY_BY" value="2" />
   <parameter name="CLK3_MULTIPLY_BY" value="1" />
   <parameter name="CLK4_MULTIPLY_BY" value="1" />
@@ -796,7 +761,7 @@
   <parameter name="EXTCLK2_MULTIPLY_BY" value="" />
   <parameter name="EXTCLK3_MULTIPLY_BY" value="" />
   <parameter name="CLK0_DIVIDE_BY" value="1" />
-  <parameter name="CLK1_DIVIDE_BY" value="5" />
+  <parameter name="CLK1_DIVIDE_BY" value="1" />
   <parameter name="CLK2_DIVIDE_BY" value="1" />
   <parameter name="CLK3_DIVIDE_BY" value="1" />
   <parameter name="CLK4_DIVIDE_BY" value="2" />
@@ -905,8 +870,8 @@
   <parameter name="USING_FBMIMICBIDIR_PORT" value="" />
   <parameter name="SCAN_CHAIN_MIF_FILE" value="" />
   <parameter name="AVALON_USE_SEPARATE_SYSCLK" value="NO" />
-  <parameter name="HIDDEN_CONSTANTS">CT#CLK2_DIVIDE_BY 1 CT#PORT_clk5 PORT_UNUSED CT#PORT_clk4 PORT_USED CT#PORT_clk3 PORT_UNUSED CT#PORT_clk2 PORT_USED CT#PORT_clk1 PORT_USED CT#PORT_clk0 PORT_USED CT#CLK0_MULTIPLY_BY 1 CT#PORT_SCANWRITE PORT_UNUSED CT#PORT_SCANACLR PORT_UNUSED CT#PORT_PFDENA PORT_UNUSED CT#CLK3_DUTY_CYCLE 50 CT#CLK3_DIVIDE_BY 1 CT#PORT_PLLENA PORT_UNUSED CT#PORT_SCANDATA PORT_UNUSED CT#CLK3_PHASE_SHIFT -5000 CT#PORT_SCANCLKENA PORT_UNUSED CT#CLK4_DIVIDE_BY 2 CT#WIDTH_CLOCK 5 CT#PORT_SCANDATAOUT PORT_UNUSED CT#CLK4_MULTIPLY_BY 1 CT#LPM_TYPE altpll CT#PLL_TYPE AUTO CT#CLK0_PHASE_SHIFT 0 CT#CLK1_DUTY_CYCLE 50 CT#PORT_PHASEDONE PORT_UNUSED CT#OPERATION_MODE NORMAL CT#PORT_CONFIGUPDATE PORT_UNUSED CT#CLK1_MULTIPLY_BY 9 CT#COMPENSATE_CLOCK CLK0 CT#PORT_CLKSWITCH PORT_UNUSED CT#CLK4_PHASE_SHIFT 0 CT#INCLK0_INPUT_FREQUENCY 20000 CT#CLK4_DUTY_CYCLE 50 CT#PORT_SCANDONE PORT_UNUSED CT#PORT_CLKLOSS PORT_UNUSED CT#PORT_INCLK1 PORT_UNUSED CT#AVALON_USE_SEPARATE_SYSCLK NO CT#PORT_INCLK0 PORT_USED CT#PORT_clkena5 PORT_UNUSED CT#PORT_clkena4 PORT_UNUSED CT#PORT_clkena3 PORT_UNUSED CT#PORT_clkena2 PORT_UNUSED CT#PORT_clkena1 PORT_UNUSED CT#PORT_clkena0 PORT_UNUSED CT#CLK1_PHASE_SHIFT 0 CT#PORT_ARESET PORT_UNUSED CT#BANDWIDTH_TYPE AUTO CT#CLK2_MULTIPLY_BY 2 CT#INTENDED_DEVICE_FAMILY {Cyclone III} CT#PORT_SCANREAD PORT_UNUSED CT#CLK2_DUTY_CYCLE 50 CT#PORT_PHASESTEP PORT_UNUSED CT#PORT_SCANCLK PORT_UNUSED CT#PORT_CLKBAD1 PORT_UNUSED CT#PORT_CLKBAD0 PORT_UNUSED CT#PORT_FBIN PORT_UNUSED CT#PORT_PHASEUPDOWN PORT_UNUSED CT#PORT_extclk3 PORT_UNUSED CT#PORT_extclk2 PORT_UNUSED CT#PORT_extclk1 PORT_UNUSED CT#PORT_PHASECOUNTERSELECT PORT_UNUSED CT#PORT_extclk0 PORT_UNUSED CT#PORT_ACTIVECLOCK PORT_UNUSED CT#CLK2_PHASE_SHIFT 0 CT#CLK0_DUTY_CYCLE 50 CT#CLK0_DIVIDE_BY 1 CT#CLK1_DIVIDE_BY 5 CT#CLK3_MULTIPLY_BY 1 CT#PORT_LOCKED PORT_USED</parameter>
-  <parameter name="HIDDEN_PRIVATES">PT#GLOCKED_FEATURE_ENABLED 0 PT#SPREAD_FEATURE_ENABLED 0 PT#BANDWIDTH_FREQ_UNIT MHz PT#CUR_DEDICATED_CLK c0 PT#INCLK0_FREQ_EDIT 50.000 PT#BANDWIDTH_PRESET Low PT#PLL_LVDS_PLL_CHECK 0 PT#BANDWIDTH_USE_PRESET 0 PT#AVALON_USE_SEPARATE_SYSCLK NO PT#OUTPUT_FREQ_UNIT4 MHz PT#OUTPUT_FREQ_UNIT3 MHz PT#PLL_ENHPLL_CHECK 0 PT#OUTPUT_FREQ_UNIT2 MHz PT#OUTPUT_FREQ_UNIT1 MHz PT#OUTPUT_FREQ_UNIT0 MHz PT#PHASE_RECONFIG_FEATURE_ENABLED 1 PT#CREATE_CLKBAD_CHECK 0 PT#CLKSWITCH_CHECK 0 PT#INCLK1_FREQ_EDIT 100.000 PT#NORMAL_MODE_RADIO 1 PT#SRC_SYNCH_COMP_RADIO 0 PT#PLL_ARESET_CHECK 0 PT#LONG_SCAN_RADIO 1 PT#SCAN_FEATURE_ENABLED 1 PT#USE_CLK4 1 PT#USE_CLK3 1 PT#USE_CLK2 1 PT#PHASE_RECONFIG_INPUTS_CHECK 0 PT#USE_CLK1 1 PT#USE_CLK0 1 PT#PRIMARY_CLK_COMBO inclk0 PT#BANDWIDTH 1.000 PT#GLOCKED_COUNTER_EDIT_CHANGED 1 PT#PLL_FASTPLL_CHECK 0 PT#SPREAD_FREQ_UNIT KHz PT#LVDS_PHASE_SHIFT_UNIT4 deg PT#LVDS_PHASE_SHIFT_UNIT3 deg PT#PLL_AUTOPLL_CHECK 1 PT#OUTPUT_FREQ_MODE4 1 PT#LVDS_PHASE_SHIFT_UNIT2 deg PT#OUTPUT_FREQ_MODE3 1 PT#LVDS_PHASE_SHIFT_UNIT1 deg PT#OUTPUT_FREQ_MODE2 1 PT#LVDS_PHASE_SHIFT_UNIT0 deg PT#OUTPUT_FREQ_MODE1 1 PT#SWITCHOVER_FEATURE_ENABLED 0 PT#MIG_DEVICE_SPEED_GRADE Any PT#OUTPUT_FREQ_MODE0 1 PT#BANDWIDTH_FEATURE_ENABLED 1 PT#INCLK0_FREQ_UNIT_COMBO MHz PT#ZERO_DELAY_RADIO 0 PT#OUTPUT_FREQ4 25.00000000 PT#OUTPUT_FREQ3 50.00000000 PT#OUTPUT_FREQ2 100.00000000 PT#OUTPUT_FREQ1 90.00000000 PT#OUTPUT_FREQ0 50.00000000 PT#SHORT_SCAN_RADIO 0 PT#LVDS_MODE_DATA_RATE_DIRTY 0 PT#CUR_FBIN_CLK e0 PT#PLL_ADVANCED_PARAM_CHECK 0 PT#CLKBAD_SWITCHOVER_CHECK 0 PT#PHASE_SHIFT_STEP_ENABLED_CHECK 0 PT#DEVICE_SPEED_GRADE Any PT#PLL_FBMIMIC_CHECK 0 PT#LVDS_MODE_DATA_RATE {Not Available} PT#PHASE_SHIFT4 0.00000000 PT#LOCKED_OUTPUT_CHECK 1 PT#SPREAD_PERCENT 0.500 PT#PHASE_SHIFT3 -90.00000000 PT#DIV_FACTOR4 1 PT#PHASE_SHIFT2 0.00000000 PT#DIV_FACTOR3 1 PT#DIV_FACTOR2 1 PT#PHASE_SHIFT1 0.00000000 PT#DIV_FACTOR1 1 PT#PHASE_SHIFT0 0.00000000 PT#DIV_FACTOR0 1 PT#CNX_NO_COMPENSATE_RADIO 0 PT#USE_CLKENA4 0 PT#USE_CLKENA3 0 PT#USE_CLKENA2 0 PT#USE_CLKENA1 0 PT#USE_CLKENA0 0 PT#CREATE_INCLK1_CHECK 0 PT#GLOCK_COUNTER_EDIT 1048575 PT#INCLK1_FREQ_UNIT_COMBO MHz PT#EFF_OUTPUT_FREQ_VALUE4 25.000000 PT#EFF_OUTPUT_FREQ_VALUE3 50.000000 PT#EFF_OUTPUT_FREQ_VALUE2 100.000000 PT#EFF_OUTPUT_FREQ_VALUE1 90.000000 PT#EFF_OUTPUT_FREQ_VALUE0 50.000000 PT#SPREAD_FREQ 50.000 PT#USE_MIL_SPEED_GRADE 0 PT#EXPLICIT_SWITCHOVER_COUNTER 0 PT#STICKY_CLK4 1 PT#STICKY_CLK3 1 PT#STICKY_CLK2 1 PT#STICKY_CLK1 1 PT#STICKY_CLK0 1 PT#MIRROR_CLK4 0 PT#MIRROR_CLK3 0 PT#EXT_FEEDBACK_RADIO 0 PT#MIRROR_CLK2 0 PT#MIRROR_CLK1 0 PT#MIRROR_CLK0 0 PT#SWITCHOVER_COUNT_EDIT 1 PT#SELF_RESET_LOCK_LOSS 0 PT#PLL_PFDENA_CHECK 0 PT#INT_FEEDBACK__MODE_RADIO 1 PT#INCLK1_FREQ_EDIT_CHANGED 1 PT#CLKLOSS_CHECK 0 PT#SYNTH_WRAPPER_GEN_POSTFIX 0 PT#PHASE_SHIFT_UNIT4 deg PT#PHASE_SHIFT_UNIT3 deg PT#PHASE_SHIFT_UNIT2 deg PT#PHASE_SHIFT_UNIT1 deg PT#PHASE_SHIFT_UNIT0 deg PT#BANDWIDTH_USE_AUTO 1 PT#HAS_MANUAL_SWITCHOVER 1 PT#MULT_FACTOR4 1 PT#MULT_FACTOR3 1 PT#MULT_FACTOR2 1 PT#MULT_FACTOR1 1 PT#MULT_FACTOR0 1 PT#SPREAD_USE 0 PT#GLOCKED_MODE_CHECK 0 PT#DUTY_CYCLE4 50.00000000 PT#DUTY_CYCLE3 50.00000000 PT#DUTY_CYCLE2 50.00000000 PT#SACN_INPUTS_CHECK 0 PT#DUTY_CYCLE1 50.00000000 PT#INTENDED_DEVICE_FAMILY {Cyclone III} PT#DUTY_CYCLE0 50.00000000 PT#PLL_TARGET_HARCOPY_CHECK 0 PT#INCLK1_FREQ_UNIT_CHANGED 1 PT#RECONFIG_FILE ALTPLL1278675736450526.mif PT#ACTIVECLK_CHECK 0</parameter>
+  <parameter name="HIDDEN_CONSTANTS">CT#CLK2_DIVIDE_BY 1 CT#PORT_clk5 PORT_UNUSED CT#PORT_clk4 PORT_USED CT#PORT_clk3 PORT_UNUSED CT#PORT_clk2 PORT_USED CT#PORT_clk1 PORT_USED CT#PORT_clk0 PORT_USED CT#CLK0_MULTIPLY_BY 1 CT#PORT_SCANWRITE PORT_UNUSED CT#PORT_SCANACLR PORT_UNUSED CT#PORT_PFDENA PORT_UNUSED CT#CLK3_DUTY_CYCLE 50 CT#CLK3_DIVIDE_BY 1 CT#PORT_PLLENA PORT_UNUSED CT#PORT_SCANDATA PORT_UNUSED CT#CLK3_PHASE_SHIFT -5000 CT#PORT_SCANCLKENA PORT_UNUSED CT#CLK4_DIVIDE_BY 2 CT#WIDTH_CLOCK 5 CT#PORT_SCANDATAOUT PORT_UNUSED CT#CLK4_MULTIPLY_BY 1 CT#LPM_TYPE altpll CT#PLL_TYPE AUTO CT#CLK0_PHASE_SHIFT 0 CT#CLK1_DUTY_CYCLE 50 CT#PORT_PHASEDONE PORT_UNUSED CT#OPERATION_MODE NORMAL CT#PORT_CONFIGUPDATE PORT_UNUSED CT#CLK1_MULTIPLY_BY 2 CT#COMPENSATE_CLOCK CLK0 CT#PORT_CLKSWITCH PORT_UNUSED CT#CLK4_PHASE_SHIFT 0 CT#INCLK0_INPUT_FREQUENCY 20000 CT#CLK4_DUTY_CYCLE 50 CT#PORT_SCANDONE PORT_UNUSED CT#PORT_CLKLOSS PORT_UNUSED CT#PORT_INCLK1 PORT_UNUSED CT#AVALON_USE_SEPARATE_SYSCLK NO CT#PORT_INCLK0 PORT_USED CT#PORT_clkena5 PORT_UNUSED CT#PORT_clkena4 PORT_UNUSED CT#PORT_clkena3 PORT_UNUSED CT#PORT_clkena2 PORT_UNUSED CT#PORT_clkena1 PORT_UNUSED CT#PORT_clkena0 PORT_UNUSED CT#CLK1_PHASE_SHIFT 0 CT#PORT_ARESET PORT_UNUSED CT#BANDWIDTH_TYPE AUTO CT#CLK2_MULTIPLY_BY 2 CT#INTENDED_DEVICE_FAMILY {Cyclone IV E} CT#PORT_SCANREAD PORT_UNUSED CT#CLK2_DUTY_CYCLE 50 CT#PORT_PHASESTEP PORT_UNUSED CT#PORT_SCANCLK PORT_UNUSED CT#PORT_CLKBAD1 PORT_UNUSED CT#PORT_CLKBAD0 PORT_UNUSED CT#PORT_FBIN PORT_UNUSED CT#PORT_PHASEUPDOWN PORT_UNUSED CT#PORT_extclk3 PORT_UNUSED CT#PORT_extclk2 PORT_UNUSED CT#PORT_extclk1 PORT_UNUSED CT#PORT_PHASECOUNTERSELECT PORT_UNUSED CT#PORT_extclk0 PORT_UNUSED CT#PORT_ACTIVECLOCK PORT_UNUSED CT#CLK2_PHASE_SHIFT 0 CT#CLK0_DUTY_CYCLE 50 CT#CLK0_DIVIDE_BY 1 CT#CLK1_DIVIDE_BY 1 CT#CLK3_MULTIPLY_BY 1 CT#PORT_LOCKED PORT_USED</parameter>
+  <parameter name="HIDDEN_PRIVATES">PT#GLOCKED_FEATURE_ENABLED 0 PT#SPREAD_FEATURE_ENABLED 0 PT#BANDWIDTH_FREQ_UNIT MHz PT#CUR_DEDICATED_CLK c0 PT#INCLK0_FREQ_EDIT 50.000 PT#BANDWIDTH_PRESET Low PT#PLL_LVDS_PLL_CHECK 0 PT#BANDWIDTH_USE_PRESET 0 PT#AVALON_USE_SEPARATE_SYSCLK NO PT#OUTPUT_FREQ_UNIT4 MHz PT#OUTPUT_FREQ_UNIT3 MHz PT#PLL_ENHPLL_CHECK 0 PT#OUTPUT_FREQ_UNIT2 MHz PT#OUTPUT_FREQ_UNIT1 MHz PT#OUTPUT_FREQ_UNIT0 MHz PT#PHASE_RECONFIG_FEATURE_ENABLED 1 PT#CREATE_CLKBAD_CHECK 0 PT#CLKSWITCH_CHECK 0 PT#INCLK1_FREQ_EDIT 100.000 PT#NORMAL_MODE_RADIO 1 PT#SRC_SYNCH_COMP_RADIO 0 PT#PLL_ARESET_CHECK 0 PT#LONG_SCAN_RADIO 1 PT#SCAN_FEATURE_ENABLED 1 PT#USE_CLK4 1 PT#USE_CLK3 1 PT#USE_CLK2 1 PT#PHASE_RECONFIG_INPUTS_CHECK 0 PT#USE_CLK1 1 PT#USE_CLK0 1 PT#PRIMARY_CLK_COMBO inclk0 PT#BANDWIDTH 1.000 PT#GLOCKED_COUNTER_EDIT_CHANGED 1 PT#PLL_FASTPLL_CHECK 0 PT#SPREAD_FREQ_UNIT KHz PT#LVDS_PHASE_SHIFT_UNIT4 deg PT#LVDS_PHASE_SHIFT_UNIT3 deg PT#PLL_AUTOPLL_CHECK 1 PT#OUTPUT_FREQ_MODE4 1 PT#LVDS_PHASE_SHIFT_UNIT2 deg PT#OUTPUT_FREQ_MODE3 1 PT#LVDS_PHASE_SHIFT_UNIT1 deg PT#OUTPUT_FREQ_MODE2 1 PT#LVDS_PHASE_SHIFT_UNIT0 deg PT#OUTPUT_FREQ_MODE1 1 PT#SWITCHOVER_FEATURE_ENABLED 0 PT#MIG_DEVICE_SPEED_GRADE Any PT#OUTPUT_FREQ_MODE0 1 PT#BANDWIDTH_FEATURE_ENABLED 1 PT#INCLK0_FREQ_UNIT_COMBO MHz PT#ZERO_DELAY_RADIO 0 PT#OUTPUT_FREQ4 25.00000000 PT#OUTPUT_FREQ3 50.00000000 PT#OUTPUT_FREQ2 100.00000000 PT#OUTPUT_FREQ1 100.00000000 PT#OUTPUT_FREQ0 50.00000000 PT#SHORT_SCAN_RADIO 0 PT#LVDS_MODE_DATA_RATE_DIRTY 0 PT#CUR_FBIN_CLK e0 PT#PLL_ADVANCED_PARAM_CHECK 0 PT#CLKBAD_SWITCHOVER_CHECK 0 PT#PHASE_SHIFT_STEP_ENABLED_CHECK 0 PT#DEVICE_SPEED_GRADE Any PT#PLL_FBMIMIC_CHECK 0 PT#LVDS_MODE_DATA_RATE {Not Available} PT#PHASE_SHIFT4 0.00000000 PT#LOCKED_OUTPUT_CHECK 1 PT#SPREAD_PERCENT 0.500 PT#PHASE_SHIFT3 -90.00000000 PT#DIV_FACTOR4 1 PT#PHASE_SHIFT2 0.00000000 PT#DIV_FACTOR3 1 PT#DIV_FACTOR2 1 PT#PHASE_SHIFT1 0.00000000 PT#DIV_FACTOR1 1 PT#PHASE_SHIFT0 0.00000000 PT#DIV_FACTOR0 1 PT#CNX_NO_COMPENSATE_RADIO 0 PT#USE_CLKENA4 0 PT#USE_CLKENA3 0 PT#USE_CLKENA2 0 PT#USE_CLKENA1 0 PT#USE_CLKENA0 0 PT#CREATE_INCLK1_CHECK 0 PT#GLOCK_COUNTER_EDIT 1048575 PT#INCLK1_FREQ_UNIT_COMBO MHz PT#EFF_OUTPUT_FREQ_VALUE4 25.000000 PT#EFF_OUTPUT_FREQ_VALUE3 50.000000 PT#EFF_OUTPUT_FREQ_VALUE2 100.000000 PT#EFF_OUTPUT_FREQ_VALUE1 100.000000 PT#EFF_OUTPUT_FREQ_VALUE0 50.000000 PT#SPREAD_FREQ 50.000 PT#USE_MIL_SPEED_GRADE 0 PT#EXPLICIT_SWITCHOVER_COUNTER 0 PT#STICKY_CLK4 1 PT#STICKY_CLK3 1 PT#STICKY_CLK2 1 PT#STICKY_CLK1 1 PT#STICKY_CLK0 1 PT#MIRROR_CLK4 0 PT#MIRROR_CLK3 0 PT#EXT_FEEDBACK_RADIO 0 PT#MIRROR_CLK2 0 PT#MIRROR_CLK1 0 PT#MIRROR_CLK0 0 PT#SWITCHOVER_COUNT_EDIT 1 PT#SELF_RESET_LOCK_LOSS 0 PT#PLL_PFDENA_CHECK 0 PT#INT_FEEDBACK__MODE_RADIO 1 PT#INCLK1_FREQ_EDIT_CHANGED 1 PT#CLKLOSS_CHECK 0 PT#SYNTH_WRAPPER_GEN_POSTFIX 0 PT#PHASE_SHIFT_UNIT4 deg PT#PHASE_SHIFT_UNIT3 deg PT#PHASE_SHIFT_UNIT2 deg PT#PHASE_SHIFT_UNIT1 deg PT#PHASE_SHIFT_UNIT0 deg PT#BANDWIDTH_USE_AUTO 1 PT#HAS_MANUAL_SWITCHOVER 1 PT#MULT_FACTOR4 1 PT#MULT_FACTOR3 1 PT#MULT_FACTOR2 1 PT#MULT_FACTOR1 1 PT#MULT_FACTOR0 1 PT#SPREAD_USE 0 PT#GLOCKED_MODE_CHECK 0 PT#DUTY_CYCLE4 50.00000000 PT#DUTY_CYCLE3 50.00000000 PT#DUTY_CYCLE2 50.00000000 PT#SACN_INPUTS_CHECK 0 PT#DUTY_CYCLE1 50.00000000 PT#INTENDED_DEVICE_FAMILY {Cyclone IV E} PT#DUTY_CYCLE0 50.00000000 PT#PLL_TARGET_HARCOPY_CHECK 0 PT#INCLK1_FREQ_UNIT_CHANGED 1 PT#RECONFIG_FILE ALTPLL1278675736450526.mif PT#ACTIVECLK_CHECK 0</parameter>
   <parameter name="HIDDEN_USED_PORTS">UP#locked used UP#c4 used UP#c3 used UP#c2 used UP#c1 used UP#c0 used UP#inclk0 used</parameter>
   <parameter name="HIDDEN_IS_NUMERIC">IN#WIDTH_CLOCK 1 IN#CLK0_DUTY_CYCLE 1 IN#CLK2_DIVIDE_BY 1 IN#PLL_TARGET_HARCOPY_CHECK 1 IN#CLK3_DIVIDE_BY 1 IN#CLK4_MULTIPLY_BY 1 IN#CLK1_MULTIPLY_BY 1 IN#CLK3_DUTY_CYCLE 1 IN#CLK4_DIVIDE_BY 1 IN#SWITCHOVER_COUNT_EDIT 1 IN#INCLK0_INPUT_FREQUENCY 1 IN#PLL_LVDS_PLL_CHECK 1 IN#PLL_AUTOPLL_CHECK 1 IN#PLL_FASTPLL_CHECK 1 IN#CLK1_DUTY_CYCLE 1 IN#PLL_ENHPLL_CHECK 1 IN#CLK2_MULTIPLY_BY 1 IN#DIV_FACTOR4 1 IN#DIV_FACTOR3 1 IN#DIV_FACTOR2 1 IN#DIV_FACTOR1 1 IN#DIV_FACTOR0 1 IN#LVDS_MODE_DATA_RATE_DIRTY 1 IN#CLK4_DUTY_CYCLE 1 IN#CLK2_DUTY_CYCLE 1 IN#GLOCK_COUNTER_EDIT 1 IN#CLK0_DIVIDE_BY 1 IN#CLK3_MULTIPLY_BY 1 IN#MULT_FACTOR4 1 IN#MULT_FACTOR3 1 IN#MULT_FACTOR2 1 IN#MULT_FACTOR1 1 IN#MULT_FACTOR0 1 IN#CLK0_MULTIPLY_BY 1 IN#USE_MIL_SPEED_GRADE 1 IN#CLK1_DIVIDE_BY 1</parameter>
   <parameter name="HIDDEN_MF_PORTS">MF#clk 1 MF#locked 1 MF#inclk 1</parameter>
@@ -914,6 +879,43 @@
   <parameter name="HIDDEN_IS_FIRST_EDIT" value="0" />
   <parameter name="AUTO_INCLK_INTERFACE_CLOCK_RATE" value="50000000" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone IV E" />
+ </module>
+ <module kind="powerlink" version="2.0" enabled="1" name="powerlink_0">
+  <parameter name="expertMode" value="false" />
+  <parameter name="clkRateEth" value="100000000" />
+  <parameter name="clkRate50" value="50000000" />
+  <parameter name="clkRatePcp" value="100000000" />
+  <parameter name="configPowerlink">CN with Processor Interface</parameter>
+  <parameter name="configApInterface" value="Parallel" />
+  <parameter name="configApParallelInterface" value="16bit" />
+  <parameter name="configApParSigs" value="High Active" />
+  <parameter name="configApParOutSigs" value="High Active" />
+  <parameter name="configApEndian" value="Little" />
+  <parameter name="configApSpi_CPOL" value="0" />
+  <parameter name="configApSpi_CPHA" value="0" />
+  <parameter name="configApSpi_IRQ" value="High Active" />
+  <parameter name="rpdoNum" value="3" />
+  <parameter name="rpdo0size" value="100" />
+  <parameter name="tpdoNum" value="1" />
+  <parameter name="tpdo0size" value="100" />
+  <parameter name="genLedGadget" value="true" />
+  <parameter name="genEvent" value="true" />
+  <parameter name="asyncBuf1Size" value="50" />
+  <parameter name="asyncBuf2Size" value="50" />
+  <parameter name="phyIF" value="RMII" />
+  <parameter name="packetLoc">TX into DPRAM and RX over Avalon Master</parameter>
+  <parameter name="validSet" value="1" />
+  <parameter name="macTxBuf" value="1514" />
+  <parameter name="macRxBuf" value="16" />
+  <parameter name="hwSupportSyncIrq" value="false" />
+  <parameter name="mac2phys" value="true" />
+  <parameter name="macGen2ndSmi" value="true" />
+  <parameter name="macTxBurstSize" value="4" />
+  <parameter name="macRxBurstSize" value="4" />
+  <parameter name="enDmaObserver" value="false" />
+  <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
+  <parameter name="AUTO_CLKMASTER_CLOCK_RATE" value="100000000" />
+  <parameter name="AUTO_CLKPKT_CLOCK_RATE" value="100000000" />
  </module>
  <connection
    kind="avalon"
@@ -1009,36 +1011,6 @@
   <parameter name="baseAddress" value="0x2060" />
  </connection>
  <connection
-   kind="interrupt"
-   version="10.1"
-   start="pcp_cpu.d_irq"
-   end="powerlink_0.MACCMP_IRQ">
-  <parameter name="irqNumber" value="0" />
- </connection>
- <connection
-   kind="interrupt"
-   version="10.1"
-   start="pcp_cpu.d_irq"
-   end="powerlink_0.MAC_IRQ">
-  <parameter name="irqNumber" value="1" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="pcp_cpu.data_master"
-   end="powerlink_0.MAC_BUF">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x4000" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="pcp_cpu.data_master"
-   end="powerlink_0.PDI_PCP">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x8000" />
- </connection>
- <connection
    kind="avalon"
    version="10.1"
    start="pcp_cpu.data_master"
@@ -1053,22 +1025,6 @@
    end="remote_update_cycloneiii_0.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0800" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="clock_crossing_0.m1"
-   end="powerlink_0.MAC_REG">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0000" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="clock_crossing_0.m1"
-   end="powerlink_0.MAC_CMP">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2040" />
  </connection>
  <connection
    kind="avalon"
@@ -1093,22 +1049,6 @@
    end="benchmark_pio.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x2020" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="pcp_cpu.data_master"
-   end="powerlink_0.MAC_BUF">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x4000" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="powerlink_0.MAC_DMA"
-   end="tri_state_bridge_0.avalon_slave">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0000" />
  </connection>
  <connection
    kind="avalon"
@@ -1168,16 +1108,6 @@
    start="altpll_0.c4"
    end="remote_update_cycloneiii_0.global_signals_clock" />
  <connection kind="clock" version="10.1" start="altpll_0.c0" end="jtag_uart_0.clk" />
- <connection
-   kind="clock"
-   version="10.1"
-   start="altpll_0.c0"
-   end="powerlink_0.clk50meg" />
- <connection
-   kind="clock"
-   version="10.1"
-   start="altpll_0.c1"
-   end="powerlink_0.pcp_clk" />
  <connection kind="clock" version="10.1" start="altpll_0.c0" end="sysid.clk" />
  <connection
    kind="clock"
@@ -1190,7 +1120,7 @@
    start="clock_crossing_0.m1"
    end="altpll_0.pll_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x2050" />
+  <parameter name="baseAddress" value="0x2040" />
  </connection>
  <connection kind="clock" version="10.1" start="altpll_0.c1" end="sram_0.clock" />
  <connection
@@ -1201,11 +1131,85 @@
  <connection
    kind="clock"
    version="10.1"
+   start="altpll_0.c1"
+   end="tc_i_mem_pcp.clk2" />
+ <connection
+   kind="interrupt"
+   version="10.1"
+   start="pcp_cpu.d_irq"
+   end="powerlink_0.MACCMP_IRQ">
+  <parameter name="irqNumber" value="5" />
+ </connection>
+ <connection
+   kind="interrupt"
+   version="10.1"
+   start="pcp_cpu.d_irq"
+   end="powerlink_0.MAC_IRQ">
+  <parameter name="irqNumber" value="6" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="clock_crossing_0.m1"
+   end="powerlink_0.MAC_CMP">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x2050" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="clock_crossing_0.m1"
+   end="powerlink_0.MAC_REG">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="powerlink_0.MAC_DMA"
+   end="tri_state_bridge_0.avalon_slave">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="pcp_cpu.data_master"
+   end="powerlink_0.MAC_BUF">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x2000" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="pcp_cpu.data_master"
+   end="powerlink_0.PDI_PCP">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x8000" />
+ </connection>
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c0"
+   end="powerlink_0.clk50meg" />
+ <connection
+   kind="clock"
+   version="10.1"
    start="altpll_0.c2"
    end="powerlink_0.clkEth" />
  <connection
    kind="clock"
    version="10.1"
    start="altpll_0.c1"
-   end="tc_i_mem_pcp.clk2" />
+   end="powerlink_0.clkPkt" />
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c1"
+   end="powerlink_0.clkMaster" />
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c1"
+   end="powerlink_0.pcp_clk" />
 </system>
