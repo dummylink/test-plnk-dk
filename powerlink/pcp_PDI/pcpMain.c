@@ -386,6 +386,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_pszSwVersion = pInitParm_p->m_strSwVersion;
     EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
+    EplApiInitParam.m_pfnCbTpdoPreCopy = Gi_preparePdiPdoReadAccess;    // PDI buffer treatment
+    EplApiInitParam.m_pfnCbRpdoPostCopy = Gi_signalPdiPdoWriteAccess;   // PDI buffer treatment
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
     EplApiInitParam.m_pfnDefaultObdCallback = EplAppCbDefaultObdAccess; // called if objects do not exist in local OBD
     EplApiInitParam.m_pfnRebootCb = rebootCN;
