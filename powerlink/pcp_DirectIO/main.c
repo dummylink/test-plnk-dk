@@ -1528,8 +1528,8 @@ int openPowerlink(WORD wNodeId_p)
     EPL_MEMCPY(EplApiInitParam.m_abMacAddress, abMacAddr, sizeof(EplApiInitParam.m_abMacAddress));
     EplApiInitParam.m_uiNodeId = wNodeId_p;
     EplApiInitParam.m_dwIpAddress = ip;
-    EplApiInitParam.m_uiIsochrTxMaxPayload = 256;
-    EplApiInitParam.m_uiIsochrRxMaxPayload = 256;
+    EplApiInitParam.m_uiIsochrTxMaxPayload = CONFIG_ISOCHR_TX_MAX_PAYLOAD;
+    EplApiInitParam.m_uiIsochrRxMaxPayload = CONFIG_ISOCHR_RX_MAX_PAYLOAD;
     EplApiInitParam.m_dwPresMaxLatency = 2000;
     EplApiInitParam.m_dwAsndMaxLatency = 2000;
     EplApiInitParam.m_fAsyncOnly = FALSE;

@@ -271,8 +271,8 @@
 #define CONFIG_IDENT_DEVICE_NAME            "POWERLINK CN DEMO"
 
 // PDO size hardware restrictions
-#define CONFIG_ISOCHR_TX_MAX_PAYLOAD   36
-#define CONFIG_ISOCHR_RX_MAX_PAYLOAD   36
+#define CONFIG_ISOCHR_TX_MAX_PAYLOAD   50
+#define CONFIG_ISOCHR_RX_MAX_PAYLOAD   50
 
 #endif //_EPLCFG_H_
 

@@ -355,8 +355,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
                sizeof(EplApiInitParam.m_abMacAddress));
     EplApiInitParam.m_uiNodeId = pInitParm_p->m_bNodeId;
     EplApiInitParam.m_dwIpAddress = ip;
-    EplApiInitParam.m_uiIsochrTxMaxPayload = CONFIG_ISOCHR_TX_MAX_PAYLOAD; // TODO: use system.h define?
-    EplApiInitParam.m_uiIsochrRxMaxPayload = CONFIG_ISOCHR_RX_MAX_PAYLOAD; // TODO: use system.h define?
+    EplApiInitParam.m_uiIsochrTxMaxPayload = CONFIG_ISOCHR_TX_MAX_PAYLOAD;
+    EplApiInitParam.m_uiIsochrRxMaxPayload = CONFIG_ISOCHR_RX_MAX_PAYLOAD;
     EplApiInitParam.m_dwPresMaxLatency = 2000; // ns
     EplApiInitParam.m_dwAsndMaxLatency = 2000; // ns
     EplApiInitParam.m_fAsyncOnly = FALSE;
@@ -367,7 +367,7 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_uiMultiplCycleCnt = 0;
     EplApiInitParam.m_uiAsyncMtu = 300;
     EplApiInitParam.m_uiPrescaler = 2;
-    EplApiInitParam.m_dwLossOfFrameTolerance = 500000000;
+    EplApiInitParam.m_dwLossOfFrameTolerance = 5000000;
     EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
     EplApiInitParam.m_dwWaitSocPreq = 0;
     EplApiInitParam.m_dwDeviceType = pInitParm_p->m_dwDeviceType;
