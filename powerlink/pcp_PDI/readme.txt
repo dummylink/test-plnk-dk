@@ -32,7 +32,7 @@ through a SPI or parallel interface.
 
   * TERASIC DE2-115 (INK Board)
 
-- Altera Quartus II v10.1 SP1 or newer (Web Edition is also possible)
+- Altera Quartus II v10.1 SP1 (Web Edition is also possible)
 
 - Altera Nios II Embedded Design Suite v10.1 SP1 or newer
 
