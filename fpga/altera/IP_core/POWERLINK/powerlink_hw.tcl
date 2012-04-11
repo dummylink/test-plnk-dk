@@ -1144,6 +1144,13 @@ proc my_validation_callback {} {
 																	#SPI
 			set_module_assignment embeddedsw.CMacro.CONFIG			3
 		}
+
+		if { $asyncBuf2Size == 0 } {
+			set_module_assignment embeddedsw.CMacro.ASYNCBUFCOUNT	1
+		} else {
+			set_module_assignment embeddedsw.CMacro.ASYNCBUFCOUNT	2
+		}
+
 	} elseif {$configPowerlink == "openMAC only"} {
 																	#openMAC only
 		set_module_assignment embeddedsw.CMacro.CONFIG				5
