@@ -6,11 +6,8 @@
     #include "EplObdMacro.h"
 #undef EPL_OBD_DEFINE_MACRO
 
-#ifdef __NIOS2__
-#include "system.h"         // FPGA system definitions
-#elif defined(__MICROBLAZE__)
-#include "xparameters.h"    // FPGA system definitions
-#endif
+#include "systemComponents.h"
+
 
 EPL_OBD_BEGIN ()
 
@@ -18,34 +15,34 @@ EPL_OBD_BEGIN ()
 
         #include "Generic/objdict_1000-13ff.h"
 
-#if (POWERLINK_0_PDI_PCP_PDIRPDOS >= 1)
+#if (RPDO_CHANNELS_MAX >= 1)
         // Object 1400h: PDO_RxCommParam_00h_REC
         EPL_OBD_BEGIN_INDEX_RAM(0x1400, 0x03, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1400, 0x00, kEplObdTypUInt8, kEplObdAccConst, tEplObdUnsigned8, NumberOfEntries, 0x02)
             EPL_OBD_SUBINDEX_RAM_VAR_RG(0x1400, 0x01, kEplObdTypUInt8, kEplObdAccGRW, tEplObdUnsigned8, NodeID_U8, 0x00, 0, 254)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1400, 0x02, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, MappingVersion_U8, 0x00)
         EPL_OBD_END_INDEX(0x1400)
-#endif // (POWERLINK_0_PDI_PCP_PDIRPDOS >= 1)
+#endif // (RPDO_CHANNELS_MAX >= 1)
 
-#if (POWERLINK_0_PDI_PCP_PDIRPDOS >= 2)
+#if (RPDO_CHANNELS_MAX >= 2)
         // Object 1401h: PDO_RxCommParam_01h_REC
         EPL_OBD_BEGIN_INDEX_RAM(0x1401, 0x03, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1401, 0x00, kEplObdTypUInt8, kEplObdAccConst, tEplObdUnsigned8, NumberOfEntries, 0x02)
             EPL_OBD_SUBINDEX_RAM_VAR_RG(0x1401, 0x01, kEplObdTypUInt8, kEplObdAccGRW, tEplObdUnsigned8, NodeID_U8, 0x00, 0, 254)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1401, 0x02, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, MappingVersion_U8, 0x00)
         EPL_OBD_END_INDEX(0x1401)
-#endif // (POWERLINK_0_PDI_PCP_PDIRPDOS >= 2)
+#endif // (RPDO_CHANNELS_MAX >= 2)
 
-#if (POWERLINK_0_PDI_PCP_PDIRPDOS >= 3)
+#if (RPDO_CHANNELS_MAX >= 3)
         // Object 1402h: PDO_RxCommParam_02h_REC
         EPL_OBD_BEGIN_INDEX_RAM(0x1402, 0x03, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1402, 0x00, kEplObdTypUInt8, kEplObdAccConst, tEplObdUnsigned8, NumberOfEntries, 0x02)
             EPL_OBD_SUBINDEX_RAM_VAR_RG(0x1402, 0x01, kEplObdTypUInt8, kEplObdAccGRW, tEplObdUnsigned8, NodeID_U8, 0x00, 0, 254)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1402, 0x02, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, MappingVersion_U8, 0x00)
         EPL_OBD_END_INDEX(0x1402)
-#endif // (POWERLINK_0_PDI_PCP_PDIRPDOS >= 3)
+#endif // (RPDO_CHANNELS_MAX >= 3)
 
-#if (POWERLINK_0_PDI_PCP_PDIRPDOS >= 1)
+#if (RPDO_CHANNELS_MAX >= 1)
         // Object 1600h: PDO_RxMappParam_00h_AU64
         EPL_OBD_BEGIN_INDEX_RAM(0x1600, 0x1A, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1600, 0x00, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, NumberOfEntries, 0x00)
@@ -75,9 +72,9 @@ EPL_OBD_BEGIN ()
             EPL_OBD_SUBINDEX_RAM_VAR(0x1600, 0x18, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1600, 0x19, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
         EPL_OBD_END_INDEX(0x1600)
-#endif // (POWERLINK_0_PDI_PCP_PDIRPDOS >= 1)
+#endif // (RPDO_CHANNELS_MAX >= 1)
 
-#if (POWERLINK_0_PDI_PCP_PDIRPDOS >= 2)
+#if (RPDO_CHANNELS_MAX >= 2)
         // Object 1601h: PDO_RxMappParam_01h_AU64
         EPL_OBD_BEGIN_INDEX_RAM(0x1601, 0x1A, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1601, 0x00, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, NumberOfEntries, 0x00)
@@ -107,9 +104,9 @@ EPL_OBD_BEGIN ()
             EPL_OBD_SUBINDEX_RAM_VAR(0x1601, 0x18, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1601, 0x19, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
         EPL_OBD_END_INDEX(0x1601)
-#endif // (POWERLINK_0_PDI_PCP_PDIRPDOS >= 2)
+#endif // (RPDO_CHANNELS_MAX >= 2)
 
-#if (POWERLINK_0_PDI_PCP_PDIRPDOS >= 3)
+#if (RPDO_CHANNELS_MAX >= 3)
         // Object 1602h: PDO_RxMappParam_02h_AU64
         EPL_OBD_BEGIN_INDEX_RAM(0x1602, 0x1A, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1602, 0x00, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, NumberOfEntries, 0x00)
@@ -139,18 +136,18 @@ EPL_OBD_BEGIN ()
             EPL_OBD_SUBINDEX_RAM_VAR(0x1602, 0x18, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1602, 0x19, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
         EPL_OBD_END_INDEX(0x1602)
-#endif // (POWERLINK_0_PDI_PCP_PDIRPDOS >= 3)
+#endif // (RPDO_CHANNELS_MAX >= 3)
 
-#if (POWERLINK_0_PDI_PCP_PDITPDOS >= 1)
+#if (TPDO_CHANNELS_MAX >= 1)
         // Object 1800h: PDO_TxCommParam_00h_REC
         EPL_OBD_BEGIN_INDEX_RAM(0x1800, 0x03, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1800, 0x00, kEplObdTypUInt8, kEplObdAccConst, tEplObdUnsigned8, NumberOfEntries, 0x02)
             EPL_OBD_SUBINDEX_RAM_VAR_RG(0x1800, 0x01, kEplObdTypUInt8, kEplObdAccGRW, tEplObdUnsigned8, NodeID_U8, 0x00, 0, 254)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1800, 0x02, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, MappingVersion_U8, 0x00)
         EPL_OBD_END_INDEX(0x1800)
-#endif // (POWERLINK_0_PDI_PCP_PDITPDOS >= 1)
+#endif // (TPDO_CHANNELS_MAX >= 1)
 
-#if (POWERLINK_0_PDI_PCP_PDITPDOS >= 1)
+#if (TPDO_CHANNELS_MAX >= 1)
         // Object 1A00h: PDO_TxMappParam_00h_AU64
         EPL_OBD_BEGIN_INDEX_RAM(0x1A00, 0x1A, EplPdouCbObdAccess)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1A00, 0x00, kEplObdTypUInt8, kEplObdAccRW, tEplObdUnsigned8, NumberOfEntries, 0x0)
@@ -180,7 +177,7 @@ EPL_OBD_BEGIN ()
             EPL_OBD_SUBINDEX_RAM_VAR(0x1A00, 0x18, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
             EPL_OBD_SUBINDEX_RAM_VAR(0x1A00, 0x19, kEplObdTypUInt64, kEplObdAccRW, tEplObdUnsigned64, ObjectMapping, 0x00LL)
         EPL_OBD_END_INDEX(0x1A00)
-#endif // (POWERLINK_0_PDI_PCP_PDITPDOS >= 1)
+#endif // (TPDO_CHANNELS_MAX >= 1)
 
         #include "Generic/objdict_1b00-1fff.h"
 
