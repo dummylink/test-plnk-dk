@@ -20,6 +20,7 @@ The CN API is an API designed to interface an application processor (AP) to a PO
 \section targets Targets
 The CN API is prepared to be compiled for miscellaneous processor targets. The following targets are supported
 - nios2_newlib: Altera NIOS II processor using new newlib C library
+- microblaze_newlib: Xilinx Microblaze processor using mb-gcc with standard C library
 
 \section objdict AP object dictionary
 The AP has to create an object dictionary where all objects which are controlled by the AP are listed.

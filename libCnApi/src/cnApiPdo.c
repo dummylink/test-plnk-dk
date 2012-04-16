@@ -20,9 +20,7 @@
 #include "cnApiPdiSpi.h"
 #include "cnApiEvent.h"
 
-#ifdef AP_IS_BIG_ENDIAN
 #include "EplAmi.h"
-#endif
 
 #include <string.h>
 #include <unistd.h>
@@ -46,7 +44,16 @@ typedef struct sPdoCpyTbl {
    tPdoCopyTblEntry     aEntry_m[PDO_COPY_TBL_ELEMENTS];
 } tPdoCopyTbl;
 
-
+typedef enum eTypes {
+    kCnApiTypByte = 1,
+    kCnApiTypWord = 2,
+    kCnApiTypInt24 = 3,
+    kCnApiTypDword = 4,
+    kCnApiTypInt40 = 5,
+    kCnApiTypInt48 = 6,
+    kCnApiTypInt56 = 7,
+    kEplObdTypQWord = 8,
+} tTypes;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -54,19 +61,128 @@ tLinkPdosResp LinkPdosResp_g;           ///< Link Pdos Response message
 
 /******************************************************************************/
 /* global variables */
-static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
-static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
+static tTPdoBuffer aTPdosPdi_l[PCP_PDI_TPDO_CHANNELS];
+static tRPdoBuffer aRPdosPdi_l[PCP_PDI_RPDO_CHANNELS];
 
 static  WORD                wPdoMappingVersion_l = 0xfe; ///< LinkPdosReq command mapping version
 static  WORD                wCntMappedNotLinkedObj_l;    ///< counter of mapped but not linked objects
-static  tPdoCopyTbl         aTxPdoCopyTbl_l[TPDO_CHANNELS_MAX];
-static  tPdoCopyTbl         aRxPdoCopyTbl_l[RPDO_CHANNELS_MAX];
+static  tPdoCopyTbl         aTxPdoCopyTbl_l[PCP_PDI_TPDO_CHANNELS];
+static  tPdoCopyTbl         aRxPdoCopyTbl_l[PCP_PDI_RPDO_CHANNELS];
 
 /******************************************************************************/
 /* function declarations */
 
 /******************************************************************************/
 /* private functions */
+
+/**
+********************************************************************************
+\brief	CopyVarConvertEndian
+
+Copies a data from the source to the destination field and converts the endianess
+regarding the format of the input data
+
+\param  pDest_p          Destination field for the converted data
+\param  pSrc_p           Source field of the input data
+\param	wSize_p          Size of the field
+\param	fDoRcv_p         This flag signals if data is received or transmitted from the PDI
+*******************************************************************************/
+
+static inline void CopyVarConvertEndian(BYTE* pDest_p,
+                                        BYTE* pSrc_p,
+                                        WORD wSize_p,
+                                        BYTE fDoRcv_p)
+{
+
+    switch (wSize_p)
+    {
+        case kCnApiTypByte:
+        {
+#ifdef CN_API_USING_SPI
+            if(fDoRcv_p != FALSE)
+                CnApi_Spi_readByte((DWORD)pSrc_p,pDest_p);
+            else
+                CnApi_Spi_writeByte((DWORD)pDest_p,*(BYTE*)pSrc_p);
+#else
+            AmiSetByteToLe(pDest_p, *((BYTE*)pSrc_p));
+#endif
+            break;
+        }
+        case kCnApiTypWord:
+        {
+#ifdef CN_API_USING_SPI
+            if(fDoRcv_p != FALSE)
+                CnApi_Spi_readWord((DWORD)pSrc_p,(WORD *)pDest_p,CNAPI_BIG_ENDIAN);
+            else
+                CnApi_Spi_writeWord((DWORD)pDest_p,*((WORD *)pSrc_p),CNAPI_BIG_ENDIAN);
+#else
+            AmiSetWordToLe(pDest_p, *((WORD*)pSrc_p));
+#endif
+            break;
+        }
+#ifndef CN_API_USING_SPI
+        case kCnApiTypInt24:
+        {
+            AmiSetDword24ToLe(pDest_p, *((DWORD*)pSrc_p));
+            break;
+        }
+#endif
+        case kCnApiTypDword:
+        {
+#ifdef CN_API_USING_SPI
+            if(fDoRcv_p != FALSE)
+                CnApi_Spi_readDword((DWORD)pSrc_p,(DWORD *)pDest_p,CNAPI_BIG_ENDIAN);
+            else
+                CnApi_Spi_writeDword((DWORD)pDest_p,*((DWORD *)pSrc_p),CNAPI_BIG_ENDIAN);
+#else
+            AmiSetDwordToLe(pDest_p, *((DWORD*)pSrc_p));
+#endif
+            break;
+        }
+#ifndef CN_API_USING_SPI
+        case kCnApiTypInt40:
+        {
+            AmiSetQword40ToLe(pDest_p, *((DWORD*)pSrc_p));
+            break;
+        }
+        case kCnApiTypInt48:
+        {
+            AmiSetQword48ToLe(pDest_p, *((DWORD*)pSrc_p));
+            break;
+        }
+        case kCnApiTypInt56:
+        {
+            AmiSetQword56ToLe(pDest_p, *((DWORD*)pSrc_p));
+            break;
+        }
+#endif
+        case kEplObdTypQWord:
+        {
+#ifdef CN_API_USING_SPI
+            if(fDoRcv_p != FALSE)
+                CnApi_Spi_readQword((DWORD)pSrc_p,(QWORD *)pDest_p,CNAPI_BIG_ENDIAN);
+            else
+                CnApi_Spi_writeQword((DWORD)pDest_p,*pSrc_p,CNAPI_BIG_ENDIAN);
+#else
+            AmiSetQword64ToLe(pDest_p, *((QWORD*)pSrc_p));
+#endif
+            break;
+        }
+        default:
+        {
+#ifdef CN_API_USING_SPI
+            if(fDoRcv_p != FALSE)
+                CnApi_Spi_read((DWORD)pSrc_p,wSize_p,pDest_p);
+            else
+                CnApi_Spi_write((DWORD)pDest_p,wSize_p,pSrc_p);
+#else
+            //copy them without conversion
+            EPL_MEMCPY (pDest_p, pSrc_p, wSize_p);
+#endif
+            break;
+        }
+    }
+}
 
 /**
 ********************************************************************************
@@ -94,7 +210,7 @@ static BOOL CnApi_setupCopyTable (tPdoDescHeader        *pPdoDesc_p,
 	BYTE    *pbCpyTblEntries;
 	tPdoDir PdoDir;
 	WORD	wObjSize;
-	char	*pObjAdrs;
+	BYTE	*pObjAdrs;
 	BOOL fRet = TRUE;
 
 	PdoDir = (tPdoDir) bDirection_p;
@@ -200,49 +316,53 @@ int CnApi_initPdo(void)
     register WORD wCnt;
 
     /** group TPDO PDI channels address, size and acknowledge settings */
-#if (TPDO_CHANNELS_MAX >= 1)
-    aTPdosPdi_l[0].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxPdo0BufAoffs);
-    aTPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wTxPdo0BufSize;
+#if (PCP_PDI_TPDO_CHANNELS >= 1)
+    aTPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufAoffs)));
+    aTPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufSize));
     aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wTxPdo0Ack);
+
     #ifdef CN_API_USING_SPI
-    aTPdosPdi_l[0].dwSpiBufOffs_m = PCP_CTRLREG_TPDO0_OFST_OFFSET;
+    aTPdosPdi_l[0].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufAoffs));
     aTPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_TPDO_0_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* TPDO_CHANNELS_MAX >= 1 */
 
     /** group RPDO PDI channels address, size and acknowledge settings */
-#if (RPDO_CHANNELS_MAX >= 1)
-    aRPdosPdi_l[0].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo0BufAoffs);
-    aRPdosPdi_l[0].wSize_m = pCtrlReg_g->m_wRxPdo0BufSize;
+#if (PCP_PDI_RPDO_CHANNELS >= 1)
+    aRPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufAoffs)));
+    aRPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufSize));
     aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo0Ack);
+
     #ifdef CN_API_USING_SPI
-    aRPdosPdi_l[0].dwSpiBufOffs_m = PCP_CTRLREG_RPDO0_OFST_OFFSET;
+    aRPdosPdi_l[0].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufAoffs));
     aRPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_RPDO_0_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 1 */
 
-#if (RPDO_CHANNELS_MAX >= 2)
-    aRPdosPdi_l[1].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo1BufAoffs);
-    aRPdosPdi_l[1].wSize_m = pCtrlReg_g->m_wRxPdo1BufSize;
+#if (PCP_PDI_RPDO_CHANNELS >= 2)
+    aRPdosPdi_l[1].pAdrs_m = (BYTE*) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufAoffs)));
+    aRPdosPdi_l[1].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufSize));
     aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo1Ack);
+
     #ifdef CN_API_USING_SPI
-    aRPdosPdi_l[1].dwSpiBufOffs_m = PCP_CTRLREG_RPDO1_OFST_OFFSET;
+    aRPdosPdi_l[1].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufAoffs));
     aRPdosPdi_l[1].wSpiAckOffs_m = PCP_CTRLREG_RPDO_1_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 2 */
 
-#if (RPDO_CHANNELS_MAX >= 3)
-    aRPdosPdi_l[2].pAdrs_m = (BYTE*) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxPdo2BufAoffs);
-    aRPdosPdi_l[2].wSize_m = pCtrlReg_g->m_wRxPdo2BufSize;
+#if (PCP_PDI_RPDO_CHANNELS >= 3)
+    aRPdosPdi_l[2].pAdrs_m = (BYTE*) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufAoffs)));
+    aRPdosPdi_l[2].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufSize));
     aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo2Ack);
+
     #ifdef CN_API_USING_SPI
-    aRPdosPdi_l[2].dwSpiBufOffs_m = PCP_CTRLREG_RPDO2_OFST_OFFSET;
+    aRPdosPdi_l[2].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufAoffs));
     aRPdosPdi_l[2].wSpiAckOffs_m = PCP_CTRLREG_RPDO_2_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 3 */
 
 
-for (wCnt = 0; wCnt < TPDO_CHANNELS_MAX; ++wCnt)
+for (wCnt = 0; wCnt < PCP_PDI_TPDO_CHANNELS; ++wCnt)
 {
     if ((aTPdosPdi_l[wCnt].pAdrs_m == NULL) ||
         (aTPdosPdi_l[wCnt].wSize_m == 0)    ||
@@ -257,7 +377,7 @@ for (wCnt = 0; wCnt < TPDO_CHANNELS_MAX; ++wCnt)
                                             __func__, wCnt,(unsigned int)aTPdosPdi_l[wCnt].pAdrs_m, aTPdosPdi_l[wCnt].wSize_m);
     }
 }
-for (wCnt = 0; wCnt < RPDO_CHANNELS_MAX; ++wCnt)
+for (wCnt = 0; wCnt < PCP_PDI_RPDO_CHANNELS; ++wCnt)
 {
     if ((aRPdosPdi_l[wCnt].pAdrs_m == NULL) ||
         (aRPdosPdi_l[wCnt].wSize_m == 0)    ||
@@ -432,18 +552,17 @@ tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxM
     /* handle Tx Message */
     /* build up InitPcpReq */
     pLinkPdosResp->m_bDescrVers = LinkPdosResp_g.m_bDescrVers;
-    pLinkPdosResp->m_wStatus = LinkPdosResp_g.m_wStatus;
 
-#ifdef AP_IS_BIG_ENDIAN
-    pLinkPdosResp->m_wStatus = AmiGetWordToLe((BYTE*)&(pLinkPdosResp->m_wStatus));
-#endif
+
+    pLinkPdosResp->m_bStatus = LinkPdosResp_g.m_bStatus;
+
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = sizeof(tLinkPdosResp); // sent size
 
 exit:
     if (Ret == kPdiAsyncStatusSuccessful        &&
-        LinkPdosResp_g.m_wStatus == kCnApiStatusOk)
+        LinkPdosResp_g.m_bStatus == kCnApiStatusOk)
     { /* assign call back  - move to ReadyToOperate state */
         pMsgDescr_p->pfnTransferFinished_m = CnApi_pfnCbLinkPdosRespFinished;
     }
@@ -536,54 +655,40 @@ void CnApi_receivePdo(void)
     WORD                wEntryCnt;         ///< number of copy table entries
     register int        iCntin;            ///< inner loop counter
     register int        iCntout;           ///< outer loop counter
+    BYTE                *pPdoPdiData;      // pointer to Pdo buffer
+    BYTE                fDoRcv = TRUE;
 
 #ifdef CN_API_USING_SPI
-    DWORD               dwPdiBufOffs;
+    BYTE                bAckOffset;
+#endif
 
     /* copy all RPDOs from PDI buffer to local variable */
-    for (iCntout = 0; iCntout < RPDO_CHANNELS_MAX; ++iCntout)
+    for (iCntout = 0; iCntout < PCP_PDI_RPDO_CHANNELS; ++iCntout)
     {
-        pCopyTblEntry = &(aRxPdoCopyTbl_l[iCntout].aEntry_m[0]);
         wEntryCnt = aRxPdoCopyTbl_l[iCntout].bNumOfEntries_m;
-        dwPdiBufOffs = aRPdosPdi_l[iCntout].dwSpiBufOffs_m;
-
         if(wEntryCnt == 0) break; // no data to be copied
-        DEBUG_TRACE2(DEBUG_LVL_CNAPI_SPI,"Offs: 0x%04x RPDO: %d\n", dwPdiBufOffs, iCntout);
 
+        pCopyTblEntry = &(aRxPdoCopyTbl_l[iCntout].aEntry_m[0]);
+        pPdoPdiData = aRPdosPdi_l[iCntout].pAdrs_m;
+
+#ifdef CN_API_USING_SPI
         /* prepare PDO buffer for read access */
-        CnApi_ackPdoBuffer((BYTE*) &aRPdosPdi_l[iCntout].wSpiAckOffs_m);
+        bAckOffset = (BYTE) aRPdosPdi_l[iCntout].wSpiAckOffs_m;
+        CnApi_ackPdoBuffer((BYTE*) &bAckOffset);
+#else
+        /* prepare PDO buffer for read access */
+        CnApi_ackPdoBuffer(aRPdosPdi_l[iCntout].pAck_m);
+#endif
 
         for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
         {   /* get Pdo data from PDI */
-            CnApi_Spi_read(dwPdiBufOffs + pCopyTblEntry->wPdoOfst,
-                           pCopyTblEntry->size_m,
-                           (BYTE*) pCopyTblEntry->pAdrs_m);
+            CopyVarConvertEndian(pCopyTblEntry->pAdrs_m,
+                                 pPdoPdiData + pCopyTblEntry->wPdoOfst,
+                                 pCopyTblEntry->size_m,
+                                 fDoRcv);
             pCopyTblEntry++;
         }
     }
-#else
-    BYTE                *pPdoPdiData;      // pointer to Pdo buffer
-
-    /* copy all RPDOs from PDI buffer to local variable */
-    for (iCntout = 0; iCntout < RPDO_CHANNELS_MAX; ++iCntout)
-    {
-        pCopyTblEntry = &(aRxPdoCopyTbl_l[iCntout].aEntry_m[0]);
-        wEntryCnt = aRxPdoCopyTbl_l[iCntout].bNumOfEntries_m;
-        pPdoPdiData = aRPdosPdi_l[iCntout].pAdrs_m;
-
-        /* prepare PDO buffer for read access */
-        CnApi_ackPdoBuffer(aRPdosPdi_l[iCntout].pAck_m);
-
-        for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
-        {
-            memcpy (pCopyTblEntry->pAdrs_m,
-                    pPdoPdiData + pCopyTblEntry->wPdoOfst,
-                    pCopyTblEntry->size_m);
-            pCopyTblEntry++;
-        }
-    }
-#endif /* CN_API_USING_SPI */
-
 }
 
 /**
@@ -598,54 +703,40 @@ void CnApi_transmitPdo(void)
     WORD                wEntryCnt;         ///< number of copy table entries
     register int        iCntin;            ///< inner loop counter
     register int        iCntout;           ///< outer loop counter
+    BYTE                *pPdoPdiData;      ///< pointer to Pdo buffer
+    BYTE                fDoRcv = FALSE;
 
 #ifdef CN_API_USING_SPI
-    DWORD               dwPdiBufOffs;
+    BYTE                bAckOffset;
+#endif
+
 
     /* copy all TPdos from local variable to PDI buffer */
-    for (iCntout = 0; iCntout < TPDO_CHANNELS_MAX; ++iCntout)
+    for (iCntout = 0; iCntout < PCP_PDI_TPDO_CHANNELS; ++iCntout)
     {
-        pCopyTblEntry = &(aTxPdoCopyTbl_l[iCntout].aEntry_m[0]);
         wEntryCnt = aTxPdoCopyTbl_l[iCntout].bNumOfEntries_m;
-        dwPdiBufOffs = aTPdosPdi_l[iCntout].dwSpiBufOffs_m;
+        if(wEntryCnt == 0) continue; ///< no data to be copied
 
-        if(wEntryCnt == 0) break; ///< no data to be copied
-        DEBUG_TRACE2(DEBUG_LVL_CNAPI_SPI,"Offs: 0x%04x TPDO: %d\n", dwPdiBufOffs, iCntout);
-
-        for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
-        {   /* write Pdo data to PDI */
-            CnApi_Spi_write(dwPdiBufOffs + pCopyTblEntry->wPdoOfst,
-                            pCopyTblEntry->size_m,
-                            (BYTE*) pCopyTblEntry->pAdrs_m);
-            dwPdiBufOffs += pCopyTblEntry->size_m;
-            pCopyTblEntry++;
-        }
-
-        /* prepare PDO buffer for read access */
-        CnApi_ackPdoBuffer((BYTE*) &aTPdosPdi_l[iCntout].wSpiAckOffs_m);
-    }
-#else
-    BYTE                *pPdoPdiData;      ///< pointer to Pdo buffer
-
-    /* copy all TPdos from local variable to PDI buffer */
-    for (iCntout = 0; iCntout < TPDO_CHANNELS_MAX; ++iCntout)
-    {
         pCopyTblEntry = &(aTxPdoCopyTbl_l[iCntout].aEntry_m[0]);
-        wEntryCnt = aTxPdoCopyTbl_l[iCntout].bNumOfEntries_m;
         pPdoPdiData = aTPdosPdi_l[iCntout].pAdrs_m;
 
         for (iCntin = 0; iCntin < wEntryCnt; iCntin++)
-        {
-            memcpy (pPdoPdiData + pCopyTblEntry->wPdoOfst,
-                    pCopyTblEntry->pAdrs_m,
-                    pCopyTblEntry->size_m);
+        {   /* write Pdo data to PDI */
+            CopyVarConvertEndian(pPdoPdiData + pCopyTblEntry->wPdoOfst,
+                                 pCopyTblEntry->pAdrs_m,
+                                 pCopyTblEntry->size_m,
+                                 fDoRcv);
             pCopyTblEntry++;
         }
 
         /* prepare PDO buffer for next write access */
+#ifdef CN_API_USING_SPI
+        bAckOffset = (BYTE)aTPdosPdi_l[iCntout].wSpiAckOffs_m;
+        CnApi_ackPdoBuffer((BYTE*) &bAckOffset);
+#else
         CnApi_ackPdoBuffer(aTPdosPdi_l[iCntout].pAck_m);
+#endif
     }
-#endif /* CN_API_USING_SPI */
 }
 
 /**

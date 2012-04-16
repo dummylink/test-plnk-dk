@@ -22,9 +22,8 @@
 #include "cnApiEvent.h"
 #include "cnApiIntern.h"
 #include "cnApiPdiSpi.h"
-#ifdef AP_IS_BIG_ENDIAN
 #include "EplAmi.h"
-#endif
+
 
 /******************************************************************************/
 /* defines */
@@ -58,28 +57,26 @@ static void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg
 *******************************************************************************/
 void CnApi_enableAsyncEventIRQ(void)
 {
+    WORD wAsyncIrqControl;
+
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wAsyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wAsyncIrqControl = AmiGetWordFromLe((BYTE*)&pCtrlRegLE_g->m_wAsyncIrqControl);
-#endif
+    wAsyncIrqControl = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
 
-    pCtrlReg_g->m_wAsyncIrqControl |= (1 << ASYNC_IRQ_EN);
+    wAsyncIrqControl |= (1 << ASYNC_IRQ_EN);
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wAsyncIrqControl = AmiGetWordToLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
-#endif
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl, wAsyncIrqControl);
 
 #ifdef CN_API_USING_SPI
     /* update PCP register */
     CnApi_Spi_write(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wAsyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
 #endif /* CN_API_USING_SPI */
 }
 
@@ -89,28 +86,27 @@ void CnApi_enableAsyncEventIRQ(void)
 *******************************************************************************/
 void CnApi_disableAsyncEventIRQ(void)
 {
+    WORD wAsyncIrqControl;
+
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wAsyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wAsyncIrqControl = AmiGetWordFromLe((BYTE*)&pCtrlRegLE_g->m_wAsyncIrqControl);
-#endif
+    wAsyncIrqControl = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
 
-    pCtrlReg_g->m_wAsyncIrqControl &= ~(1 << ASYNC_IRQ_EN);
+    wAsyncIrqControl &= ~(1 << ASYNC_IRQ_EN);
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wAsyncIrqControl = AmiGetWordToLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
-#endif
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl, wAsyncIrqControl);
+
 
 #ifdef CN_API_USING_SPI
     /* update PCP register */
     CnApi_Spi_write(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wAsyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
 #endif /* CN_API_USING_SPI */
 }
 
@@ -123,17 +119,13 @@ void CnApi_disableAsyncEventIRQ(void)
 void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p)
 {
     /* reset asserted IR signal and acknowledge events */
-    pCtrlReg_g->m_wEventAck = *pAckBits_p;
-
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wEventAck = AmiGetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck);
-#endif
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, *pAckBits_p);
 
 #ifdef CN_API_USING_SPI
     /* update PCP register */
     CnApi_Spi_write(PCP_CTRLREG_EVENT_ACK_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wEventAck),
-                   (BYTE*) &pCtrlRegLE_g->m_wEventAck);
+                   sizeof(pCtrlReg_g->m_wEventAck),
+                   (BYTE*) &pCtrlReg_g->m_wEventAck);
 #endif /* CN_API_USING_SPI */
 }
 
@@ -149,15 +141,11 @@ void CnApi_pollAsyncEvent(void)
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wAsyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wAsyncIrqControl = AmiGetWordFromLe((BYTE*)&pCtrlRegLE_g->m_wAsyncIrqControl);
-#endif
-
-    wCtrlRegField = pCtrlReg_g->m_wAsyncIrqControl;
+    wCtrlRegField = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
 
     if (wCtrlRegField & (1 << ASYNC_IRQ_PEND))
     {
@@ -180,15 +168,11 @@ void CnApi_getAsyncIRQEvent(void)
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_EVENT_ACK_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wEventAck),
-                   (BYTE*) &pCtrlRegLE_g->m_wEventAck);
+                   sizeof(pCtrlReg_g->m_wEventAck),
+                   (BYTE*) &pCtrlReg_g->m_wEventAck);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wEventAck = AmiGetWordFromLe((BYTE*)&pCtrlRegLE_g->m_wEventAck);
-#endif
-
-    wCtrlRegField = pCtrlReg_g->m_wEventAck;
+    wCtrlRegField = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventAck);
 
 
     if (wCtrlRegField & (1 << EVT_PHY0_LINK))
@@ -221,20 +205,15 @@ void CnApi_getAsyncIRQEvent(void)
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_EVENT_TYPE_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wEventType),
-                   (BYTE*) &pCtrlRegLE_g->m_wEventType);
+                   sizeof(pCtrlReg_g->m_wEventType),
+                   (BYTE*) &pCtrlReg_g->m_wEventType);
     CnApi_Spi_read(PCP_CTRLREG_EVENT_ARG_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wEventArg),
-                   (BYTE*) &pCtrlRegLE_g->m_wEventArg);
+                   sizeof(pCtrlReg_g->m_wEventArg),
+                   (BYTE*) &pCtrlReg_g->m_wEventArg);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wEventType = AmiGetWordFromLe((BYTE*)&pCtrlRegLE_g->m_wEventType);
-    pCtrlReg_g->m_wEventArg = AmiGetWordFromLe((BYTE*)&pCtrlRegLE_g->m_wEventArg);
-#endif
-
-        Event.Typ_m = pCtrlReg_g->m_wEventType;
-        Event.Arg_m.wVal_m = pCtrlReg_g->m_wEventArg;
+        Event.Typ_m = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventType);
+        Event.Arg_m.wVal_m = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventArg);
 
         CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }

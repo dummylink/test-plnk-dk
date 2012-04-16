@@ -28,7 +28,8 @@
 #ifdef MAKE_BUILD_PCP
     #include "Epl.h"
 #endif
-    #include "EplFrame.h"
+
+#include "EplFrame.h"
 
 
 /******************************************************************************/
@@ -37,8 +38,6 @@
 
 #define MAX_PDI_ASYNC_TX_MESSAGES 10    ///< max: 0xFF
 #define MAX_PDI_ASYNC_RX_MESSAGES  9    ///< max: 0xFF
-
-#define PDI_ASYNC_CHANNELS_MAX  2 //TODO: get from system.h?
 
 #define INVALID_ELEMENT            0xFF ///< indicator for invalid array element
 
@@ -153,8 +152,9 @@ typedef struct sInitPcpReq {
  */
 typedef struct sInitPcpResp {
     BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-    WORD                    m_wStatus;
+    BYTE                    m_bPad1;
+    BYTE                    m_bStatus;
+    BYTE                    m_bPad2;
 } PACK_STRUCT tInitPcpResp;
 
 /**
@@ -170,10 +170,9 @@ typedef struct sLinkPdosReq {
  */
 typedef struct sLinkPdosResp {
     BYTE                    m_bDescrVers;
-    BYTE                    m_bPad;
-    WORD                    m_wStatus;
-//    WORD                    m_wErrIndex;
-//    BYTE                    m_bErrSubindex;
+    BYTE                    m_bPad1;
+    BYTE                    m_bStatus;
+    BYTE                    m_bPad2;
 } PACK_STRUCT tLinkPdosResp;
 
 /**
@@ -208,13 +207,13 @@ typedef struct sAsyncIntHeader {
  * \brief Structure definition for asynchronous transfer buffer header
  */
 typedef struct sAsyncMsgHeader {
-    BYTE                    m_bSync;
-    BYTE                    m_bChannel;
-    BYTE                    m_bMsgType;
-    BYTE                    m_bPad;
-    WORD                    m_wFrgmtLen;
-    WORD                    m_wReserved;
-    DWORD                   m_dwStreamLen;
+    volatile BYTE                    m_bSync;
+    volatile BYTE                    m_bChannel;
+    volatile BYTE                    m_bMsgType;
+    volatile BYTE                    m_bPad;
+    volatile WORD                    m_wFrgmtLen;
+    volatile WORD                    wReserved;
+    volatile DWORD                   m_dwStreamLen;
 } PACK_STRUCT tAsyncPdiBufCtrlHeader;
 
 typedef struct sAsyncMsg {

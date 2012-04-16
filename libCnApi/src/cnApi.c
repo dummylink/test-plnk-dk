@@ -21,14 +21,15 @@ processor (AP) to the POWERLINK communication processor (PCP).
 #include "cnApi.h"
 #include "cnApiIntern.h"
 #include "kernel/EplObdk.h"
-#include <unistd.h> // for usleep()
-#ifdef CN_API_USING_SPI
-    #include "cnApiPdiSpi.h"
+
+#ifdef __NIOS2__
+#include <unistd.h>    //for usleep()
+#elif defined(__MICROBLAZE__)
+#include "xilinx_usleep.h"
 #endif
 
-#ifdef AP_IS_BIG_ENDIAN
-   #include "EplAmi.h"
-#endif
+#include "EplAmi.h"
+
 
 /******************************************************************************/
 /* defines */
@@ -42,20 +43,16 @@ processor (AP) to the POWERLINK communication processor (PCP).
 /******************************************************************************/
 /* global variables */
 
-tPcpCtrlReg      * volatile pCtrlReg_g;            // pointer to PCP control registers, CPU Endian
-tPcpCtrlReg      * volatile pCtrlRegLE_g;          // pointer to PCP control registers, Little Endian
-tCnApiInitParm   * volatile pInitParm_g;           // pointer to POWERLINK init parameters, CPU Endian
-tCnApiInitParm   * volatile pInitParmLE_g;         // pointer to POWERLINK init parameters, Little Endian
+volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
 
-#ifdef AP_IS_BIG_ENDIAN
-tPcpCtrlReg          LclCtrlRegBE_g;  // local copy of PCP Control Register, Big Endian
-tCnApiInitParm       LclInitParmLE_g; // local copy of Init Parameters, Little Endian
-#endif // AP_IS_BIG_ENDIAN
-
-tpfnSyncIntCb       pfnSyncIntCb = NULL;    // function pointer to sync interrupt callback
 #ifdef CN_API_USING_SPI
 tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of the PCP Control Register
 #endif
+
+BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
+tCnApiInitParm *             pInitParm_g;           ///< pointer to POWERLINK init parameters
+
+
 /******************************************************************************/
 /* function declarations */
 
@@ -72,73 +69,52 @@ tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of 
 CnApi_init() is used to initialize the user API library. The function must be
 called by the application in order to use the API.
 
-\param      pDpram_p            pointer to the Dual Ported RAM (DPRAM) area
-\param      pInitParm_p         pointer to the CN API initialization structure
+\param      pDpram_p                   pointer to the Dual Ported RAM (DPRAM) area
+\param      pInitParm_p                pointer to the CN API initialization structure
+\param      SpiMasterTxH_p             SPI Master Tx Handler
+\param      SpiMasterRxH_p             SPI MASTER Rx Handler
+\param      pfnEnableGlobalIntH_p      pointer to callback for global interrupt enable
+\param      pfnDisableGlobalIntH_p     pointer to callback for global interrupt disable
 
 \retval     kCnApiStatusOk      if API was successfully initialized
 *******************************************************************************/
+#ifdef CN_API_USING_SPI
+tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p,
+        tSpiMasterTxHandler     SpiMasterTxH_p,
+        tSpiMasterRxHandler     SpiMasterRxH_p,
+        void *pfnEnableGlobalIntH_p,
+        void *pfnDisableGlobalIntH_p)
+#else
 tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
+#endif
 {
     tCnApiStatus FncRet = kCnApiStatusOk;
     tEplKernel EplRet = kEplSuccessful;
     BOOL fPcpPresent = FALSE;
     int     iStatus;
     int iCnt;
+#ifdef CN_API_USING_SPI
+    int iRet = OK;
+#endif //CN_API_USING_SPI
 
     TRACE("\n\nInitialize CN API functions...");
 
     /* initialize global pointers */
+    pInitParm_g = pInitParm_p;    ///< make pInitParm_p global
 
-    /* Control and Status Register is mirrored, Pointer shows CPU Endian Mirror */
+    /* Control and Status Register is little endian */
 #ifdef CN_API_USING_SPI
-   int iRet = OK;
-
-   /// if SPI is used, take local var instead of parameter
-   #ifdef AP_IS_LITTLE_ENDIAN
-      pCtrlReg_g = &PcpCntrlRegMirror;
-      pCtrlRegLE_g = pCtrlReg_g;
-   #else // AP_IS_BIG_ENDIAN
-      pCtrlReg_g = &LclCtrlRegBE_g;
-      pCtrlRegLE_g = &PcpCntrlRegMirror;
-   #endif // AP_IS_LITTLE_ENDIAN
-
-#else // CN_API_USING_SPI
-
-   ///< if no SPI is used, take parameter to dpram
-   #ifdef AP_IS_LITTLE_ENDIAN
-      pCtrlReg_g = (tPcpCtrlReg *)pDpram_p;
-      pCtrlRegLE_g = pCtrlReg_g;
-   #else // AP_IS_BIG_ENDIAN
-      pCtrlReg_g = &LclCtrlRegBE_g;
-      pCtrlRegLE_g = (tPcpCtrlReg *)pDpram_p;
-   #endif // AP_IS_LITTLE_ENDIAN
-
+    pCtrlReg_g = &PcpCntrlRegMirror;         ///< if SPI is used, take local var instead of parameter
+#else
+    pCtrlReg_g = (tPcpCtrlReg *)pDpram_p;    ///< if no SPI is used, take parameter to dpram
+    pDpramBase_g = pDpram_p;
 #endif // CN_API_USING_SPI
 
-#ifdef AP_IS_LITTLE_ENDIAN
-    pInitParm_g = pInitParm_p; ///< global init Param is "CPU" Endian, however
-    pInitParmLE_g = pInitParm_g;
-#else // AP_IS_BIG_ENDIAN
-    pInitParm_g = pInitParm_p; ///< global init Param is "CPU" Endian, however
-    pInitParmLE_g = &LclInitParmLE_g; ///< Little Endian Copy of Init Param
-    LclInitParmLE_g = *pInitParm_g; ///< copy all Init params (bytes..)
-    /// Convert the init params to little endian
-    pInitParmLE_g->m_wIsoRxMaxPayload = AmiGetWordToLe((BYTE*) &pInitParm_g->m_wIsoRxMaxPayload);
-    pInitParmLE_g->m_wIsoTxMaxPayload = AmiGetWordToLe((BYTE*) &pInitParm_g->m_wIsoTxMaxPayload);
-    pInitParmLE_g->m_dwAsendMaxLatency = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwAsendMaxLatency);
-    pInitParmLE_g->m_dwDeviceType = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwDeviceType);
-    pInitParmLE_g->m_dwDpramBase = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwDpramBase);
-    pInitParmLE_g->m_dwFeatureFlags = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwFeatureFlags);
-    pInitParmLE_g->m_dwPresMaxLatency = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwPresMaxLatency);
-    pInitParmLE_g->m_dwProductCode = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwProductCode);
-    pInitParmLE_g->m_dwRevision = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwRevision);
-    pInitParmLE_g->m_dwSerialNum = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwSerialNum);
-    pInitParmLE_g->m_dwVendorId = AmiGetDwordToLe((BYTE*) &pInitParm_g->m_dwVendorId);
-#endif // AP_IS_LITTLE_ENDIAN
 
 #ifdef CN_API_USING_SPI
     /* initialize user-callback functions for SPI */
-    iRet = CnApi_initSpiMaster(&CnApi_CbSpiMasterTx, &CnApi_CbSpiMasterRx);
+    iRet = CnApi_initSpiMaster(SpiMasterTxH_p, SpiMasterRxH_p,
+            pfnEnableGlobalIntH_p, pfnDisableGlobalIntH_p);
     if( iRet != OK )
     {
         FncRet = kCnApiStatusError;
@@ -154,15 +130,18 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
         if((CnApi_getPcpState() == kPcpStateBooted) &&
             CnApi_getPcpMagic() == PCP_MAGIC          )
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: PCP_BOOTED ..", pCtrlReg_g->m_dwMagic);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: PCP_BOOTED ..",
+                                                CnApi_getPcpMagic());
             fPcpPresent = TRUE;
             break;
         }
         else
         {
-            DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: %d ..", pCtrlReg_g->m_dwMagic, CnApi_getPcpState());
+            DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: %d ..",
+                                                CnApi_getPcpMagic(),
+                                                CnApi_getPcpState());
         }
-        CNAPI_USLEEP(1000000);
+        CNAPI_USLEEP(10000000);
     }
 
     if(!fPcpPresent)
@@ -174,19 +153,13 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
         FncRet = kCnApiStatusError;
         goto exit;
     }
-    else
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".OK!\n");
+
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".OK!\n");
 #ifdef CN_API_USING_SPI
-        /* update PCP control register */
-        CnApi_Spi_read(PCP_CTRLREG_START_ADR, PCP_CTRLREG_SPAN, (BYTE*) pCtrlRegLE_g);
+    /* update PCP control register */
+    CnApi_Spi_read(PCP_CTRLREG_START_ADR, PCP_CTRLREG_SPAN, (BYTE*) pCtrlReg_g);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-        CnApi_GetCntrlRegfromLe(pCtrlReg_g, pCtrlRegLE_g);
-#endif
-
-    }
 
     /* verify FPGA configuration ID */
     if (!CnApi_verifyFpgaConfigId())
@@ -267,27 +240,22 @@ of the synchronization will be calculated depending on the given parameters.
 void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved_p)
 {
     /* initialize interrupt cycle timing registers */
-    pCtrlReg_g->m_dwMinCycleTime = dwMinCycleTime_p;
-    pCtrlReg_g->m_dwMaxCycleTime = dwMaxCycleTime_p;
-    pCtrlReg_g->wCycleCalc_Reserved4 = bReserved_p;
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwMinCycleTime, dwMinCycleTime_p);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwMaxCycleTime, dwMaxCycleTime_p);
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->wCycleCalc_Reserved4, bReserved_p);
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_dwMinCycleTime = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->m_dwMinCycleTime));
-    pCtrlRegLE_g->m_dwMaxCycleTime = AmiGetDwordToLe((BYTE*)&(pCtrlReg_g->m_dwMaxCycleTime));
-    pCtrlRegLE_g->wCycleCalc_Reserved4 = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->wCycleCalc_Reserved4));
-#endif // AP_IS_BIG_ENDIAN
 
 #ifdef CN_API_USING_SPI
     /* update pcp registers */
     CnApi_Spi_write(PCP_CTRLREG_MINCYCT_OFFSET,
-                    sizeof(pCtrlRegLE_g->m_dwMinCycleTime),
-                    (BYTE*) &pCtrlRegLE_g->m_dwMinCycleTime);
+                    sizeof(pCtrlReg_g->m_dwMinCycleTime),
+                    (BYTE*) &pCtrlReg_g->m_dwMinCycleTime);
     CnApi_Spi_write(PCP_CTRLREG_MAXCYCT_OFFSET,
-                    sizeof(pCtrlRegLE_g->m_dwMaxCycleTime),
-                    (BYTE*) &pCtrlRegLE_g->m_dwMaxCycleTime);
-    CnApi_Spi_write(PCP_CTRLREG_MAXCYCNUM_OFFSET,
-                    sizeof(pCtrlRegLE_g->wCycleCalc_Reserved4),
-                    (BYTE*) &pCtrlRegLE_g->wCycleCalc_Reserved4);
+                    sizeof(pCtrlReg_g->m_dwMaxCycleTime),
+                    (BYTE*) &pCtrlReg_g->m_dwMaxCycleTime);
+    CnApi_Spi_write(PCP_CTRLREG_CYCCAL_RESERVED_OFFSET,
+                    sizeof(pCtrlReg_g->wCycleCalc_Reserved4),
+                    (BYTE*) &pCtrlReg_g->wCycleCalc_Reserved4);
 #endif
 }
 
@@ -299,29 +267,26 @@ CnApi_enableSyncInt() enables the synchronization interrupt at the PCP.
 *******************************************************************************/
 void CnApi_enableSyncInt(void)
 {
+    WORD wSyncIrqControl;
+
 #ifdef CN_API_USING_SPI
     /* update local register copy */
     CnApi_Spi_read(PCP_CTRLREG_SYNCIRQCTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wSyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wSyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wSyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wSyncIrqControl);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlRegLE_g->m_wSyncIrqControl));
-#endif // AP_IS_BIG_ENDIAN
+    wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
 
-    /* enable interrupt from PCP */
-    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_REQ);
+    wSyncIrqControl |= (1 << SYNC_IRQ_REQ);
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wSyncIrqControl = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
-#endif // AP_IS_BIG_ENDIAN
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, wSyncIrqControl);
 
 #ifdef CN_API_USING_SPI
     /* update PCP PDI register */
     CnApi_Spi_write(PCP_CTRLREG_SYNCIRQCTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wSyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wSyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wSyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wSyncIrqControl);
 #endif /* CN_API_USING_SPI */
 }
 
@@ -333,29 +298,27 @@ CnApi_disableSyncInt() disables the synchronization interrupt at the PCP.
 *******************************************************************************/
 void CnApi_disableSyncInt(void)
 {
+    WORD wSyncIrqControl;
+
 #ifdef CN_API_USING_SPI
     /* update local register copy */
     CnApi_Spi_read(PCP_CTRLREG_SYNCIRQCTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wSyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wSyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wSyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wSyncIrqControl);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlRegLE_g->m_wSyncIrqControl));
-#endif // AP_IS_BIG_ENDIAN
-
     /* disable interrupt from PCP */
-    pCtrlReg_g->m_wSyncIrqControl &= ~(1 << SYNC_IRQ_REQ);
+    wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wSyncIrqControl = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
-#endif // AP_IS_BIG_ENDIAN
+    wSyncIrqControl &= ~(1 << SYNC_IRQ_REQ);
+
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, wSyncIrqControl);
 
 #ifdef CN_API_USING_SPI
     /* update PCP PDI register */
     CnApi_Spi_write(PCP_CTRLREG_SYNCIRQCTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wSyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wSyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wSyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wSyncIrqControl);
 #endif /* CN_API_USING_SPI */
 }
 
@@ -365,29 +328,28 @@ void CnApi_disableSyncInt(void)
 *******************************************************************************/
 void CnApi_ackSyncIrq(void)
 {
+    WORD wSyncIrqControl;
+
 #ifdef CN_API_USING_SPI
     /* update local register copy */
     CnApi_Spi_read(PCP_CTRLREG_SYNCIRQCTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wSyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wSyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wSyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wSyncIrqControl);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlRegLE_g->m_wSyncIrqControl));
-#endif // AP_IS_BIG_ENDIAN
+
+    wSyncIrqControl = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
 
     /* acknowledge interrupt by writing to the SYNC_IRQ_CONTROL_REGISTER*/
-    pCtrlReg_g->m_wSyncIrqControl |= (1 << SYNC_IRQ_ACK);
+    wSyncIrqControl |= (1 << SYNC_IRQ_ACK);
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wSyncIrqControl = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->m_wSyncIrqControl));
-#endif // AP_IS_BIG_ENDIAN
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, wSyncIrqControl);
 
 #ifdef CN_API_USING_SPI
     /* update PCP PDI register */
     CnApi_Spi_write(PCP_CTRLREG_SYNCIRQCTRL_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wSyncIrqControl),
-                   (BYTE*) &pCtrlRegLE_g->m_wSyncIrqControl);
+                   sizeof(pCtrlReg_g->m_wSyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wSyncIrqControl);
 #endif /* CN_API_USING_SPI */
 }
 
@@ -403,15 +365,11 @@ DWORD CnApi_getSyncIntPeriod(void)
 {
 #ifdef CN_API_USING_SPI
     CnApi_Spi_read(PCP_CTRLREG_SYNCIR_CYCTIME_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_dwSyncIntCycTime),
-                   (BYTE*) &pCtrlRegLE_g->m_dwSyncIntCycTime);
+                   sizeof(pCtrlReg_g->m_dwSyncIntCycTime),
+                   (BYTE*) &pCtrlReg_g->m_dwSyncIntCycTime);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_dwSyncIntCycTime = AmiGetWordFromLe((BYTE*) &(pCtrlRegLE_g->m_dwSyncIntCycTime));
-#endif // AP_IS_BIG_ENDIAN
-
-    return pCtrlReg_g->m_dwSyncIntCycTime;
+    return AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwSyncIntCycTime));
 }
 
 /**
@@ -427,15 +385,11 @@ BYTE CnApi_getPcpState(void)
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_STATE_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wState),
-                   (BYTE*) &pCtrlRegLE_g->m_wState);
+                   sizeof(pCtrlReg_g->m_wState),
+                   (BYTE*) &pCtrlReg_g->m_wState);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wState = AmiGetWordFromLe((BYTE*) &(pCtrlRegLE_g->m_wState));
-#endif // AP_IS_BIG_ENDIAN
-
-    return pCtrlReg_g->m_wState;
+    return AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wState));
 }
 
 /**
@@ -450,15 +404,108 @@ DWORD CnApi_getPcpMagic(void)
 {
 #ifdef CN_API_USING_SPI
     CnApi_Spi_read(PCP_CTRLREG_MAGIC_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_dwMagic),
-                   (BYTE*) &pCtrlRegLE_g->m_dwMagic);
+                   sizeof(pCtrlReg_g->m_dwMagic),
+                   (BYTE*) &pCtrlReg_g->m_dwMagic);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_dwMagic = AmiGetDwordFromLe((BYTE*) &(pCtrlRegLE_g->m_dwMagic));
-#endif // AP_IS_BIG_ENDIAN
+    return AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwMagic));
+}
 
-    return pCtrlReg_g->m_dwMagic;
+/**
+********************************************************************************
+\brief  get RelativeTime low
+
+CnApi_getRelativeTimeLow() reads the RelativeTime low dword stored in the PCP DPRAM area.
+
+\retval pcpRelativeTimeLow        RelativeTime low of PCP
+*******************************************************************************/
+DWORD CnApi_getRelativeTimeLow(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_RELATIVE_TIME_LOW_OFFSET,
+                   sizeof(pCtrlReg_g->m_dwRelativeTimeLow),
+                   (BYTE*) &pCtrlReg_g->m_dwRelativeTimeLow);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwRelativeTimeLow));
+}
+
+/**
+********************************************************************************
+\brief  get RelativeTime high
+
+CnApi_getRelativeTimeHigh() reads the RelativeTime high dword stored in the PCP DPRAM area.
+
+\retval pcpRelativeTimeHigh        RelativeTime high of PCP
+*******************************************************************************/
+DWORD CnApi_getRelativeTimeHigh(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_RELATIVE_TIME_HIGH_OFFSET,
+                   sizeof(pCtrlReg_g->m_dwRelativeTimeHigh),
+                   (BYTE*) &pCtrlReg_g->m_dwRelativeTimeHigh);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwRelativeTimeHigh));
+}
+
+/**
+********************************************************************************
+\brief  get Nettime seconds
+
+CnApi_getNetTimeSeconds() reads the NetTime seconds stored in the PCP DPRAM area.
+The Nettime value is always from the last round!
+
+\retval pcpNetTimeSeconds        NetTime seconds of PCP
+*******************************************************************************/
+DWORD CnApi_getNetTimeSeconds(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_NETTIME_SEC_OFFSET,
+                   sizeof(pCtrlReg_g->m_dwNetTimeSec),
+                   (BYTE*) &pCtrlReg_g->m_dwNetTimeSec);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwNetTimeSec));
+}
+
+/**
+********************************************************************************
+\brief  get Nettime nano seconds
+
+CnApi_getNetTimeNanoSeconds() reads the NetTime nano seconds stored in the PCP DPRAM area.
+The Nettime value is always from the last round!
+
+\retval pcpNetTimeNanoSeconds        NetTime nano seconds of PCP
+*******************************************************************************/
+DWORD CnApi_getNetTimeNanoSeconds(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_NETTIME_NANOSEC_OFFSET,
+                   sizeof(pCtrlReg_g->m_dwNetTimeNanoSec),
+                   (BYTE*) &pCtrlReg_g->m_dwNetTimeNanoSec);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwNetTimeNanoSec));
+}
+
+/**
+********************************************************************************
+\brief  get time after sync
+
+CnApi_getTimeAfterSync() reads the Time After Sync stored in the PCP DPRAM area.
+
+\retval pcpTimeAfterSync        Time after sync of PCP
+*******************************************************************************/
+WORD CnApi_getTimeAfterSync(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_TIME_AFTER_SYNC_OFFSET,
+                   sizeof(pCtrlReg_g->m_wTimeAfterSync),
+                   (BYTE*) &pCtrlReg_g->m_wTimeAfterSync);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wTimeAfterSync));
 }
 
 /**
@@ -467,16 +514,12 @@ DWORD CnApi_getPcpMagic(void)
 *******************************************************************************/
 void CnApi_setApCommand(BYTE bCmd_p)
 {
-    pCtrlReg_g->m_wCommand = bCmd_p;
-
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlRegLE_g->m_wCommand = AmiGetWordToLe((BYTE*)&(pCtrlReg_g->m_wCommand));
-#endif // AP_IS_BIG_ENDIAN
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wCommand, bCmd_p);
 
 #ifdef CN_API_USING_SPI
     CnApi_Spi_write(PCP_CTRLREG_CMD_OFFSET,
-                    sizeof(pCtrlRegLE_g->m_wCommand),
-                    (BYTE*) &pCtrlRegLE_g->m_wCommand);    ///< update pcp register
+                    sizeof(pCtrlReg_g->m_wCommand),
+                    (BYTE*) &pCtrlReg_g->m_wCommand);    ///< update pcp register
 #endif /* CN_API_USING_SPI */
 }
 
@@ -490,18 +533,14 @@ BOOL CnApi_verifyPcpPdiRevision(void)
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_PDI_REV_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wPcpPdiRev),
-                   (BYTE*) &pCtrlRegLE_g->m_wPcpPdiRev);
+                   sizeof(pCtrlReg_g->m_wPcpPdiRev),
+                   (BYTE*) &pCtrlReg_g->m_wPcpPdiRev);
 #endif /* CN_API_USING_SPI */
-
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wPcpPdiRev = AmiGetWordFromLe((BYTE*) &(pCtrlRegLE_g->m_wPcpPdiRev));
-#endif // AP_IS_BIG_ENDIAN
 
     /* verify if this compilation of CnApi library matches
      * the current PCP PDI revision
      */
-    if (PCP_PDI_REVISION != pCtrlReg_g->m_wPcpPdiRev)
+    if (PCP_PDI_REVISION != AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wPcpPdiRev)))
     {
         return FALSE;
     }
@@ -522,16 +561,12 @@ BOOL CnApi_verifyFpgaConfigId(void)
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_FPGA_SYSID_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_dwFpgaSysId),
-                   (BYTE*) &pCtrlRegLE_g->m_dwFpgaSysId);
+                   sizeof(pCtrlReg_g->m_dwFpgaSysId),
+                   (BYTE*) &pCtrlReg_g->m_dwFpgaSysId);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_dwFpgaSysId = AmiGetDwordFromLe((BYTE*) &(pCtrlRegLE_g->m_dwFpgaSysId));
-#endif // AP_IS_BIG_ENDIAN
-
     /* verify if this compilation of CnApi library matches the current FPGA config */
-    if (PCP_FPGA_SYSID_ID != pCtrlReg_g->m_dwFpgaSysId)
+    if (PCP_FPGA_SYSID_ID != AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwFpgaSysId)))
     {
         return FALSE;
     }
@@ -557,70 +592,13 @@ WORD CnApi_getNodeId(void)
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
     CnApi_Spi_read(PCP_CTRLREG_NODE_ID_OFFSET,
-                   sizeof(pCtrlRegLE_g->m_wNodeId),
-                   (BYTE*) &pCtrlRegLE_g->m_wNodeId);
+                   sizeof(pCtrlReg_g->m_wNodeId),
+                   (BYTE*) &pCtrlReg_g->m_wNodeId);
 #endif /* CN_API_USING_SPI */
 
-#ifdef AP_IS_BIG_ENDIAN
-    pCtrlReg_g->m_wNodeId = AmiGetDwordFromLe((BYTE*) &(pCtrlRegLE_g->m_wNodeId));
-#endif // AP_IS_BIG_ENDIAN
 
-
-    return pCtrlReg_g->m_wNodeId;
+    return AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wNodeId));
 }
-
-#ifdef AP_IS_BIG_ENDIAN
-/**
- ********************************************************************************
- \brief copy control register values from little endian byte order to platform
-        byte order
- \param pDest_p     platform byte order destination address
- \param pSrcLE_p    little endian byte order source address
-
- *******************************************************************************/
-void CnApi_GetCntrlRegfromLe(tPcpCtrlReg * pDest_p, tPcpCtrlReg * pSrcLE_p)
-{
-        /* Read whole PCP Control Register to platform byte order */
-        pDest_p->m_dwMagic           = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwMagic);
-        pDest_p->m_wPcpPdiRev        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wPcpPdiRev);
-        pDest_p->m_dwFpgaSysId       = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwFpgaSysId);
-        pDest_p->m_wNodeId           = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wNodeId);
-        pDest_p->m_wCommand          = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wCommand);
-        pDest_p->m_wState            = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wState);
-        pDest_p->m_dwMaxCycleTime    = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwMaxCycleTime);
-        pDest_p->m_dwMinCycleTime    = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwMinCycleTime);
-        pDest_p->m_wCycleCorrect     = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wCycleCorrect);
-        pDest_p->wCycleCalc_Reserved4      = AmiGetWordFromLe((BYTE*)&pSrcLE_p->wCycleCalc_Reserved4);
-        pDest_p->m_dwSyncIntCycTime  = AmiGetDwordFromLe((BYTE*)&pSrcLE_p->m_dwSyncIntCycTime);
-        pDest_p->m_wEventType        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wEventType);
-        pDest_p->m_wEventArg         = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wEventArg);
-        pDest_p->m_wAsyncIrqControl  = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wAsyncIrqControl);
-        pDest_p->m_wEventAck         = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wEventAck);
-        pDest_p->m_wTxPdo0BufSize    = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wTxPdo0BufSize);
-        pDest_p->m_wTxPdo0BufAoffs   = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wTxPdo0BufAoffs);
-        pDest_p->m_wRxPdo0BufSize    = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo0BufSize);
-        pDest_p->m_wRxPdo0BufAoffs   = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo0BufAoffs);
-        pDest_p->m_wRxPdo1BufSize    = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo1BufSize);
-        pDest_p->m_wRxPdo1BufAoffs   = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo1BufAoffs);
-        pDest_p->m_wRxPdo2BufSize    = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo2BufSize);
-        pDest_p->m_wRxPdo2BufAoffs   = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo2BufAoffs);
-        pDest_p->m_wTxAsyncBuf0Size  = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wTxAsyncBuf0Size);
-        pDest_p->m_wTxAsyncBuf0Aoffs = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wTxAsyncBuf0Aoffs);
-        pDest_p->m_wRxAsyncBuf0Size  = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxAsyncBuf0Size);
-        pDest_p->m_wRxAsyncBuf0Aoffs = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxAsyncBuf0Aoffs);
-        pDest_p->m_wTxAsyncBuf1Size  = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wTxAsyncBuf1Size);
-        pDest_p->m_wTxAsyncBuf1Aoffs = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wTxAsyncBuf1Aoffs);
-        pDest_p->m_wRxAsyncBuf1Size  = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxAsyncBuf1Size);
-        pDest_p->m_wRxAsyncBuf1Aoffs = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxAsyncBuf1Aoffs);
-        pDest_p->m_wTxPdo0Ack        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wTxPdo0Ack);
-        pDest_p->m_wRxPdo0Ack        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo0Ack);
-        pDest_p->m_wRxPdo1Ack        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo1Ack);
-        pDest_p->m_wRxPdo2Ack        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wRxPdo2Ack);
-        pDest_p->m_wSyncIrqControl   = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wSyncIrqControl);
-        pDest_p->m_wLedControl       = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wLedControl);
-        pDest_p->m_wLedConfig        = AmiGetWordFromLe((BYTE*)&pSrcLE_p->m_wLedConfig);
-}
-#endif //AP_IS_BIG_ENDIAN
 
 /* END-OF-FILE */
 /******************************************************************************/

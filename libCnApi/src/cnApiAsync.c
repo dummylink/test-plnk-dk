@@ -22,12 +22,10 @@ This module contains functions for the asynchronous transfer in the CN API libra
 #include "stateMachine.h"
 #include "EplErrDef.h"
 #include "user/EplSdoComu.h"
+#include "EplAmi.h"
+
 #ifdef CN_API_USING_SPI
     #include "cnApiPdiSpi.h"
-#endif
-
-#ifdef AP_IS_BIG_ENDIAN
-   #include "EplAmi.h"
 #endif
 
 #include <string.h>
@@ -42,8 +40,8 @@ This module contains functions for the asynchronous transfer in the CN API libra
 
 /******************************************************************************/
 /* external variable declarations */
-tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
-tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
+tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[PCP_PDI_ASYNC_BUF_MAX];
+tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PCP_PDI_ASYNC_BUF_MAX];
 
 
 /******************************************************************************/
@@ -67,19 +65,6 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(
                        BYTE * pRxMsgBuffer_p,
                        BYTE * pTxMsgBuffer_p,
                        DWORD dwMaxTxBufSize_p);
-
-#ifdef AP_IS_BIG_ENDIAN
-static inline void ConvertInitPcpRespEndian(tInitPcpResp* pDest, tInitPcpResp* pSrc) {
-   pDest->m_bReqId = pSrc->m_bReqId;
-   pDest->m_wStatus = AmiGetWordToLe((BYTE*)&(pSrc->m_wStatus));
-}
-static inline void ConvertCreateObjLksRespEndian(tCreateObjLksResp* pDest, tCreateObjLksResp* pSrc) {
-   pDest->m_bErrSubindex = pSrc->m_bErrSubindex;
-   pDest->m_bReqId = pSrc->m_bReqId;
-   pDest->m_wErrIndex = AmiGetWordToLe((BYTE*)&(pSrc->m_wErrIndex));
-   pDest->m_wStatus = AmiGetWordToLe((BYTE*)&(pSrc->m_wStatus));
-}
-#endif //AP_IS_BIG_ENDIAN
 
 /******************************************************************************/
 /* functions */
@@ -126,8 +111,8 @@ int CnApiAsync_init(void)
     register WORD wCnt;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-    CNAPI_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
-    CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
+    CNAPI_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PCP_PDI_ASYNC_BUF_MAX );
+    CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PCP_PDI_ASYNC_BUF_MAX );
 
 #ifdef CN_API_USING_SPI
     aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = &LclCpyAsyncMsgHeader_l[0];
@@ -135,23 +120,23 @@ int CnApiAsync_init(void)
     aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = &LclCpyAsyncMsgHeader_l[2];
     aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = &LclCpyAsyncMsgHeader_l[3];
 
-    aPcpPdiAsyncTxMsgBuffer_g[0].wPdiOffset_m = PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET;
-    aPcpPdiAsyncRxMsgBuffer_g[0].wPdiOffset_m = PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET;
-    aPcpPdiAsyncTxMsgBuffer_g[1].wPdiOffset_m = PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET;
-    aPcpPdiAsyncRxMsgBuffer_g[1].wPdiOffset_m = PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET;
+    aPcpPdiAsyncTxMsgBuffer_g[0].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Aoffs));
+    aPcpPdiAsyncRxMsgBuffer_g[0].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs));
+    aPcpPdiAsyncTxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs));
+    aPcpPdiAsyncRxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs));
 #else
-    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBuf0Aoffs);
-    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf0Aoffs);
-    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wTxAsyncBuf1Aoffs);
-    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pInitParm_g->m_dwDpramBase + pCtrlReg_g->m_wRxAsyncBuf1Aoffs);
+    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs)));
 #endif /* CN_API_USING_SPI */
 
-    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf0Size - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wTxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = pCtrlReg_g->m_wRxAsyncBuf1Size - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
 
-    for (wCnt = 0; wCnt < PDI_ASYNC_CHANNELS_MAX; ++wCnt)
+    for (wCnt = 0; wCnt < PCP_PDI_ASYNC_BUF_MAX; ++wCnt)
     {
         if ((aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m == NULL)                                        ||
             (aPcpPdiAsyncTxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader) == 0)   ||
@@ -237,7 +222,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     TfrTyp = kPdiAsyncTrfTypeDirectAccess; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosResp, Dir, CnApi_doLinkPdosResp, pPdiBuf,
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosResp, Dir, CnApi_doLinkPdosResp, pPdiBuf,
                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
@@ -248,14 +233,14 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 //    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
                         kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     //TODO: This is blocking asynchronous traffic, because it waits for a response
     //      Issue: ReqId has to be saved somehow (= another handle history)
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
                         kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
@@ -270,22 +255,22 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     pPdiBuf = &aPcpPdiAsyncRxMsgBuffer_g[0];
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, CnApi_handleInitPcpResp, pPdiBuf,
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntInitPcpResp, Dir, CnApi_handleInitPcpResp, pPdiBuf,
                         kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
                         kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
                         kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosReq, Dir, CnApi_handleLinkPdosReq , pPdiBuf,
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosReq, Dir, CnApi_handleLinkPdosReq , pPdiBuf,
                         kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
@@ -350,16 +335,17 @@ tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsg
     /* handle Tx Message */
     /* build up InitPcpReq */
     memset (pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    memcpy (pInitPcpReq->m_abMac, pInitParmLE_g->m_abMac, sizeof(pInitParmLE_g->m_abMac));
-    pInitPcpReq->m_dwDeviceType = pInitParmLE_g->m_dwDeviceType;
-    pInitPcpReq->m_dwNodeId = pInitParmLE_g->m_bNodeId;
-    pInitPcpReq->m_dwRevision = pInitParmLE_g->m_dwRevision;
-    pInitPcpReq->m_dwSerialNum = pInitParmLE_g->m_dwSerialNum;
-    pInitPcpReq->m_dwVendorId = pInitParmLE_g->m_dwVendorId;
-    pInitPcpReq->m_dwProductCode = pInitParmLE_g->m_dwProductCode;
-    memcpy(pInitPcpReq->m_strDevName, pInitParmLE_g->m_strDevName, sizeof(pInitPcpReq->m_strDevName));
-    memcpy(pInitPcpReq->m_strHwVersion, pInitParmLE_g->m_strHwVersion, sizeof(pInitPcpReq->m_strHwVersion));
-    memcpy(pInitPcpReq->m_strSwVersion, pInitParmLE_g->m_strSwVersion, sizeof(pInitPcpReq->m_strSwVersion));
+    memcpy (pInitPcpReq->m_abMac, &pInitParm_g->m_abMac, sizeof(pInitParm_g->m_abMac));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitParm_g->m_dwDeviceType);
+
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitParm_g->m_bNodeId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitParm_g->m_dwRevision);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitParm_g->m_dwSerialNum);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitParm_g->m_dwVendorId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitParm_g->m_dwProductCode);
+    memcpy(pInitPcpReq->m_strDevName, &pInitParm_g->m_strDevName, sizeof(pInitParm_g->m_strDevName));
+    memcpy(pInitPcpReq->m_strHwVersion, &pInitParm_g->m_strHwVersion, sizeof(pInitParm_g->m_strHwVersion));
+    memcpy(pInitPcpReq->m_strSwVersion, &pInitParm_g->m_strSwVersion, sizeof(pInitParm_g->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 
@@ -476,10 +462,6 @@ tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     tInitPcpResp *     pInitPcpResp = NULL;       ///< pointer to response message (Rx)
     tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
 
-#ifdef AP_IS_BIG_ENDIAN
-    tInitPcpResp InitPcpRespBE; ///< copy of InitPcpResponse in big endian byte order
-#endif // AP_IS_BIG_ENDIAN
-
     DEBUG_FUNC;
 
     /* check message descriptor */
@@ -496,13 +478,8 @@ tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
         goto exit;
     }
 
-#ifdef AP_IS_LITTLE_ENDIAN
     /* assign buffer payload addresses */
     pInitPcpResp = (tInitPcpResp *) pRxMsgBuffer_p;    // Rx buffer
-#else // AP_IS_BIG_ENDIAN
-    pInitPcpResp = &InitPcpRespBE;
-    ConvertInitPcpRespEndian(pInitPcpResp, (tInitPcpResp *) pRxMsgBuffer_p);
-#endif // AP_IS_LITTLE_ENDIAN
 
     /* handle Rx Message */
     DEBUG_TRACE0(DEBUG_LVL_10, "InitPcpResponse received.\n");
@@ -513,8 +490,8 @@ tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
         goto exit;
     }
 
-    DEBUG_TRACE1(DEBUG_LVL_10, "initPcpResp: status = %d\n", pInitPcpResp->m_wStatus);
-    if (pInitPcpResp->m_wStatus == kCnApiStatusOk)
+    DEBUG_TRACE1(DEBUG_LVL_10, "initPcpResp: status = %d\n", pInitPcpResp->m_bStatus);
+    if (pInitPcpResp->m_bStatus == kCnApiStatusOk)
     {
         goto exit;
     }

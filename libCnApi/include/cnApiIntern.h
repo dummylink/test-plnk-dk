@@ -75,7 +75,7 @@ extern void CnApi_resetObjectSelector(void);
 extern void CnApi_resetLinkCounter(void);
 extern int CnApi_getNextObject(tCnApiObjId *pObjId);
 extern int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen, BYTE* p_data, BOOL sync);
-extern BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p);
+extern BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, BYTE **pAdrs_p);
 
 
 /* functions for PDO transfers */

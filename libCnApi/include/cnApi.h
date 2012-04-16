@@ -24,9 +24,11 @@ This header file contains definitions for the CN API.
 #   include "EplErrDef.h"
 #   include "EplObd.h"
 #endif
-#ifdef __NIOS2__
-#include "system.h"
-#endif // __NIOS2__
+
+#ifdef CN_API_USING_SPI
+#include "cnApiPdiSpi.h"
+#endif
+
 
 
 /******************************************************************************/
@@ -34,18 +36,19 @@ This header file contains definitions for the CN API.
 
 /* CN API definitions */
 
-/* from PCP system.h */
-#define TPDO_CHANNELS_MAX       POWERLINK_0_PDI_PCP_PDITPDOS ///< Max Number of TxPDO's of this CN
-#define RPDO_CHANNELS_MAX		POWERLINK_0_PDI_PCP_PDIRPDOS ///< Max Number of RxPDO's of this CN
-
-/* asynchronous communication AP <-> PCP */
-
 // object restrictions
 #define MAX_MAPPABLE_OBJECTS               250
 
-#ifndef POWERLINK_0_PDI_PCP_PDITPDOS
+#ifndef PCP_PDI_TPDO_CHANNELS
 #error "cnApiCfg.h has not been generated correctly!"
-#endif /* ndef POWERLINK_0_PDI_PCP_PDITPDOS */
+#endif /* PCP_PDI_TPDO_CHANNELS */
+
+/* Convert endian define to enable usage while runtime */
+#ifdef AP_IS_BIG_ENDIAN
+#define CNAPI_BIG_ENDIAN TRUE
+#else
+#define CNAPI_BIG_ENDIAN FALSE
+#endif
 
 #define	PCP_MAGIC					0x50435000		///< magic number identifies valid PCP memory
 #define SYNC_IRQ_ACK                0               ///< Sync IRQ Bit shift (for AP only)
@@ -82,21 +85,21 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET       offsetof(tPcpCtrlReg, m_wAsyncIrqControl)   //0x52
 #define PCP_CTRLREG_EVENT_ACK_OFFSET            offsetof(tPcpCtrlReg, m_wEventAck)          //0x54
 #define PCP_CTRLREG_TPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wTxPdo0BufSize)     //0x56
-#define PCP_CTRLREG_TPDO0_OFST_OFFSET           pCtrlReg_g->m_wTxPdo0BufAoffs               //0x58
+#define PCP_CTRLREG_TPDO0_OFST_OFFSET           offsetof(pCtrlReg_g->m_wTxPdo0BufAoffs)     //0x58
 #define PCP_CTRLREG_RPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo0BufSize)     //0x5A
-#define PCP_CTRLREG_RPDO0_OFST_OFFSET           pCtrlReg_g->m_wRxPdo0BufAoffs               //0x5C
+#define PCP_CTRLREG_RPDO0_OFST_OFFSET           offsetof(pCtrlReg_g->m_wRxPdo0BufAoffs)     //0x5C
 #define PCP_CTRLREG_RPDO1_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo1BufSize)     //0x5E
-#define PCP_CTRLREG_RPDO1_OFST_OFFSET           pCtrlReg_g->m_wRxPdo1BufAoffs               //0x60
+#define PCP_CTRLREG_RPDO1_OFST_OFFSET           offsetof(pCtrlReg_g->m_wRxPdo1BufAoffs)     //0x60
 #define PCP_CTRLREG_RPDO2_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo2BufSize)     //0x62
-#define PCP_CTRLREG_RPDO2_OFST_OFFSET           pCtrlReg_g->m_wRxPdo2BufAoffs               //0x64
+#define PCP_CTRLREG_RPDO2_OFST_OFFSET           offsetof(pCtrlReg_g->m_wRxPdo2BufAoffs)     //0x64
 #define PCP_CTRLREG_TX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf0Size)   //0x66
-#define PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET   pCtrlReg_g->m_wTxAsyncBuf0Aoffs             //0x68
+#define PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET   offsetof(pCtrlReg_g->m_wTxAsyncBuf0Aoffs)   //0x68
 #define PCP_CTRLREG_RX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf0Size)   //0x6A
-#define PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET   pCtrlReg_g->m_wRxAsyncBuf0Aoffs             //0x6C
+#define PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET   offsetof(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)   //0x6C
 #define PCP_CTRLREG_TX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf1Size)   //0x6E
-#define PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET   pCtrlReg_g->m_wTxAsyncBuf1Aoffs             //0x70
+#define PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET   offsetof(pCtrlReg_g->m_wTxAsyncBuf1Aoffs)   //0x70
 #define PCP_CTRLREG_RX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf1Size)   //0x72
-#define PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET   pCtrlReg_g->m_wRxAsyncBuf1Aoffs             //0x74
+#define PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET   offsetof(pCtrlReg_g->m_wRxAsyncBuf1Aoffs)   //0x74
 // reserved                                                                                 //0x76
 // reserved                                                                                 //0x78
 // reserved                                                                                 //0x7A
@@ -212,11 +215,11 @@ typedef enum ePcpPdiLedType {
 /* definitions for PDO transfer functions */
 
 typedef struct sObjTbl {
-	WORD			m_wIndex;
-	BYTE			m_bSubIndex;
+	WORD		m_wIndex;
+	BYTE		m_bSubIndex;
 	BYTE        m_bPad;
-	WORD			m_wSize;
-	char			*m_pData;
+	WORD		m_wSize;
+	BYTE		*m_pData;
 } tObjTbl;
 
 typedef enum ePdoDir {
@@ -245,7 +248,7 @@ typedef struct sPdoDesc {
 
 typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, WORD wDescrEntries_p); ///< type definition for PDO descriptor callback function
 typedef	void (*tpfnPdoCopyCb) (BYTE *pPdoData_p); 						///< type definition for PDO copy callback function
-typedef void (*tpfnSyncIntCb) (void);									///< type definition for Sync interrupt callback function
+
 typedef int (*tpfnSpiMasterTxCb) (unsigned char *pTxBuf_p, int iBytes_p);
 typedef int (*tpfnSpiMasterRxCb) (unsigned char *pTxBuf_p, int iBytes_p);
 
@@ -266,7 +269,6 @@ typedef struct sCnApiInitParm {
 	BYTE            m_strDevName[CN_API_INIT_PARAM_STRNG_SIZE];
 	BYTE            m_strHwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
 	BYTE            m_strSwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
-	DWORD			m_dwDpramBase;
 } tCnApiInitParm;
 
 /* definitions for AP state machine, transitions and states */
@@ -383,15 +385,22 @@ typedef struct sRPdoBuffer { ///< used to group buffer structure infos from cont
 
 /******************************************************************************/
 /* global variables */
-/* global variables */
-extern tPcpCtrlReg      * volatile pCtrlReg_g;            // pointer to PCP control registers, CPU Endian
-extern tPcpCtrlReg      * volatile pCtrlRegLE_g;          // pointer to PCP control registers, Little Endian
-extern tCnApiInitParm   * volatile pInitParm_g;           // pointer to POWERLINK init parameters, CPU Endian
-extern tCnApiInitParm   * volatile pInitParmLE_g;         // pointer to POWERLINK init parameters, Little Endian
+extern volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
+extern tCnApiInitParm *             pInitParm_g;           ///< pointer to POWERLINK init parameters
+extern BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
 
 /******************************************************************************/
 /* function declarations */
+#ifdef CN_API_USING_SPI
+extern tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p,
+        tSpiMasterTxHandler     SpiMasterTxH_p,
+        tSpiMasterRxHandler     SpiMasterRxH_p,
+        void                    *pfnEnableGlobalIntH_p,
+        void                    *pfnDisableGlobalIntH_p);
+#else
 extern tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p);
+#endif //CN_API_USING_SPI
+
 extern void CnApi_exit(void);
 extern void CnApi_activateApStateMachine(void);
 extern void CnApi_resetApStateMachine(void);
@@ -401,11 +410,17 @@ extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
 extern void CnApi_cleanupObjects(void);
 extern WORD CnApi_getNodeId(void);
-extern void CnApi_GetCntrlRegfromLe(tPcpCtrlReg * pDest_p, tPcpCtrlReg * pSrcLE_p);
 #ifndef MAKE_BUILD_PCP
 extern tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
 extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p);
 #endif
+
+/* time functions */
+extern DWORD CnApi_getRelativeTimeLow(void);
+extern DWORD CnApi_getRelativeTimeHigh(void);
+extern DWORD CnApi_getNetTimeSeconds(void);
+extern DWORD CnApi_getNetTimeNanoSeconds(void);
+extern WORD CnApi_getTimeAfterSync(void);
 
 /* functions for interrupt synchronization */
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved);
@@ -415,9 +430,5 @@ extern void CnApi_ackSyncIrq(void);
 extern void CnApi_transferPdo(void);
 extern void CnApi_AppCbSync(void);
 extern DWORD CnApi_getSyncIntPeriod(void);
-
-
-extern int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p); //SPI Master Tx Handler
-extern int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p); //SPI MASTER Rx Handler
 
 #endif /* CNAPI_H_ */

@@ -36,7 +36,6 @@ static tObjTbl		*pObjTbl_l;
 static DWORD		dwNumVarLinks_l; ///< Number local link assignments
 static DWORD		dwMaxLinkEntries_l;
 static DWORD		dwSelectObj_l;
-static tCnApiObjId  aObjLinkTbl_l[MAX_MAPPABLE_OBJECTS];
 
 /******************************************************************************/
 /* function declarations */
@@ -141,7 +140,7 @@ descriptor table. If the object entry is found, the data pointer and
 the respective size of the local object linking table will be returned.
 So only currently mapped objects at PCP side will be considered in the copy table!
 *******************************************************************************/
-BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, char **pAdrs_p)
+BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, BYTE **pAdrs_p)
 {
 	tObjTbl		*pTbl;
 	int			i;
