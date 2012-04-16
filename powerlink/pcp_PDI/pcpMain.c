@@ -62,6 +62,7 @@ tCnApiInitParm     initParm_g = {{0}};        ///< Powerlink initialization para
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 BOOL               fIsUserImage_g;            ///< if set user image is booted
 UINT32             uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
+BOOL               fOperational = FALSE;
 
 static BOOL     fShutdown_l = FALSE;          ///< Powerlink shutdown flag
 static tDefObdAccHdl aObdDefAccHdl_l[OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE]; ///< segmented object access management
@@ -529,6 +530,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
             if (pEventArg_p->m_NmtStateChange.m_NewNmtState != kEplNmtCsOperational)
             {
+                fOperational = FALSE;
                 Gi_disableSyncInt();
             }
 
@@ -544,6 +546,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 }
 
                 case kEplNmtCsPreOperational1:
+                {
+                    /* Reset RelativeTime state machine to init state */
+                    Gi_resetTimeValues();
+                }
                 case kEplNmtCsStopped:
                 {
                     setPowerlinkEvent(kPowerlinkEventEnterPreOp);
@@ -649,7 +655,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     break;
 
                 case kEplNmtCsOperational:
-
+                    fOperational = TRUE;
 
                     setPowerlinkEvent(kPowerlinkEventEnterOperational);
 
@@ -1072,6 +1078,7 @@ inputs and runs the control loop.
     /* check if interrupts are enabled */
     if ((wSyncIntCycle_g != 0))
     {
+        /* NMT_READY_TO_OPERATE is already processed */
         if ((iCycleCnt++ % wSyncIntCycle_g) == 0)
         {
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
@@ -1080,7 +1087,7 @@ inputs and runs the control loop.
                 if(SocTimeStamp_p.m_fSocRelTimeValid != FALSE)
                     Gi_setNetTime(SocTimeStamp_p.m_netTime.m_dwSec,SocTimeStamp_p.m_netTime.m_dwNanoSec);
 
-                EplRet = Gi_setRelativeTime(SocTimeStamp_p.m_qwRelTime,SocTimeStamp_p.m_fSocRelTimeValid);
+                EplRet = Gi_setRelativeTime(SocTimeStamp_p.m_qwRelTime,SocTimeStamp_p.m_fSocRelTimeValid, fOperational);
 
             #else
                 /* Sync interrupt is generated in SW */
@@ -1089,7 +1096,7 @@ inputs and runs the control loop.
 #else
             #if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
                 /* Sync interrupt is generated in HW */
-                EplRet = Gi_setRelativeTime(0,FALSE);
+                EplRet = Gi_setRelativeTime(0,FALSE, fOperational);
             #else
                 /* Sync interrupt is generated in SW */
                 Gi_generateSyncInt();
@@ -1128,7 +1135,7 @@ void storePcpState(BYTE bState_p)
 ********************************************************************************
 \brief    get the state of the PCP state machine
 *******************************************************************************/
-BYTE getPcpState(void)
+WORD getPcpState(void)
 {
     return pCtrlReg_g->m_wState;
 }

@@ -30,7 +30,6 @@ by the powerlink master
 /* typedefs */
 typedef enum ePcpRelativeTimeState
 {
-    kPcpRelativeTimeStateInit = 0x00,                       ///< init state
     kPcpRelativeTimeStateWaitFirstValidRelativeTime = 0x01, ///< no valid RelativeTime received yet
     kPcpRelativeTimeStateActiv = 0x02,                      ///< RelativeTime is running
     kPcpRelativeTimeStateInvalid = 0x03,                    ///< invalid state
@@ -42,7 +41,7 @@ typedef enum ePcpRelativeTimeState
 
 /******************************************************************************/
 /* global variables */
-tPcpRelativeTimeState PcpRelativeTimeState_l = kPcpRelativeTimeStateInit;   ///< state variable of the RelativeTime state machine
+tPcpRelativeTimeState PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;   ///< state variable of the RelativeTime state machine
 QWORD qwRelativeTime_g = 0;        ///< local relative time counter
 WORD wSyncIntCycle_g = 0;
 
@@ -69,14 +68,31 @@ void Gi_initSync(void)
 
 /**
 ********************************************************************************
+\brief    reset the relative time state machine to the init state
+*******************************************************************************/
+void Gi_resetTimeValues(void)
+{
+    PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;
+    qwRelativeTime_g = 0;
+
+    pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)0;
+    pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)0;
+
+    pCtrlReg_g->m_dwNetTimeSec = (DWORD)0;
+    pCtrlReg_g->m_dwNetTimeNanoSec = (DWORD)0;
+
+}
+
+/**
+********************************************************************************
 \brief    writes the current relativetime into the pdi
 *******************************************************************************/
-tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p )
+tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fCnIsOperational_p)
 {
     tEplKernel  EplRet = kEplSuccessful;
-    DWORD wCycleTime = pCtrlReg_g->m_dwSyncIntCycTime;
+    DWORD dwCycleTime = pCtrlReg_g->m_dwSyncIntCycTime;
 
-    if(wCycleTime == 0)
+    if(dwCycleTime == 0)
     {
         EplRet = kEplInvalidParam;
         goto Exit;
@@ -84,43 +100,33 @@ tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p )
 
     switch(PcpRelativeTimeState_l)
     {
-        case kPcpRelativeTimeStateInit:
-        {
-            if(fTimeValid_p == TRUE)
-            {
-                qwRelativeTime_g = qwRelativeTime_p;          ///< read the value once and activate relative time
-                PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
-            } else {
-                qwRelativeTime_g += wCycleTime;        ///< increment the relative time and enter the wait state
-                PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;
-            }
-           break;
-        }
         case kPcpRelativeTimeStateWaitFirstValidRelativeTime:
         {
-            if(fTimeValid_p == TRUE)
+            if(fCnIsOperational_p != FALSE)
             {
-                qwRelativeTime_g = qwRelativeTime_p;          ///< read the value once and activate relative time
-                PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
-            } else {
-
-                if(qwRelativeTime_g >= MAX_WAIT_TIME)
+                if(fTimeValid_p != FALSE)
                 {
-                    /* timeout happened! Init relative time and activate the counter without a remote value */
-                    qwRelativeTime_g = 0;
+                    qwRelativeTime_g = qwRelativeTime_p;          ///< read the value once and activate relative time
+                    qwRelativeTime_g += dwCycleTime;               ///< increment it once to be up to date
+                    pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)qwRelativeTime_g;
+                    pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)(qwRelativeTime_g>>32);
                     PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 } else {
-                    /* increment local relative time and wait for an arriving time val from the soc */
-                    qwRelativeTime_g += wCycleTime;
+                    /* CN is operational but RelativeTime is still not Valid! (We now start counting without an offset) */
+                    qwRelativeTime_g += dwCycleTime;
+                    pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)qwRelativeTime_g;
+                    pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)(qwRelativeTime_g>>32);
+                    PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 }
+            } else {
+                /* increment local RelativeTime and wait for an arriving time val from the soc */
+                qwRelativeTime_g += dwCycleTime;
             }
-
-
            break;
         }
         case kPcpRelativeTimeStateActiv:
         {
-            qwRelativeTime_g += wCycleTime;
+            qwRelativeTime_g += dwCycleTime;
             pCtrlReg_g->m_dwRelativeTimeLow = (DWORD)qwRelativeTime_g;
             pCtrlReg_g->m_dwRelativeTimeHigh = (DWORD)(qwRelativeTime_g>>32);
            break;

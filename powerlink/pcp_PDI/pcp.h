@@ -69,7 +69,7 @@ extern tApiPdiComCon ApiPdiComInstance_g;
 /* function declarations */
 extern BYTE getCommandFromAp(void);
 extern void storePcpState(BYTE bState_p);
-extern BYTE getPcpState(void);
+extern WORD getPcpState(void);
 extern int initPowerlink(tCnApiInitParm *pInitParm_p);
 extern int linkPowerlinkVars(void);
 extern int startPowerlink(void);

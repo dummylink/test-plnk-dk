@@ -29,7 +29,6 @@
 
 /******************************************************************************/
 /* defines */
-#define MAX_WAIT_TIME   2000000    ///< wait time (2s) until the relative time will be auto generated
 
 /******************************************************************************/
 /* typedefs */
@@ -43,8 +42,9 @@
 /******************************************************************************/
 /* function declarations */
 void Gi_initSync(void);
-tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p );
+tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fCnIsOperational_p);
 inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p);
+void Gi_resetTimeValues(void);
 
 
 void Gi_disableSyncInt(void);
