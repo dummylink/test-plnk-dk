@@ -1,0 +1,25 @@
+------------------------------------------------------------------------------
+POWERLINK CN Development Kit (CNDK)
+------------------------------------------------------------------------------
+(C) Bernecker + Rainer, B & R Strasse 1, 5142 Eggelsberg, Austria
+------------------------------------------------------------------------------
+
+Revision History (Xilinx)
+==============================================================================
+
+03.04.2012 V0.6.0   First release
+                [FEATURE] POWERLINK IP-Core xilinx version with plb bus
+                [FEATURE] POWERLINK IP-Core xilinx version with axi bus
+                [FEATURE] lx9 directIO plb example
+                [FEATURE] lx9 directIO axi example
+                [FEATURE] lx150t directIO plb example
+                [FEATURE] lx150t intplb example
+                [FEATURE] lx150t intaxi example
+                [FEATURE] lx150t intSPI plb example
+                [FEATURE] s6plkeb intplb example
+                [FEATURE] s6plkeb directIO plb example
+                [FEATURE] Generic changes for DirectIO and PDI on xilinx and altera
+                [FEATURE] Update of the pcp_DirectIO program for xilinx
+                [FEATURE] Update of the pcp_PDI program for xilinx
+                [FEATURE] Xilinx support in the libCnApi
+                [FEATURE] Update of the ap_PDI program for xilinx
