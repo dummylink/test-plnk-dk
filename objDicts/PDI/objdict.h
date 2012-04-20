@@ -6,8 +6,6 @@
     #include "EplObdMacro.h"
 #undef EPL_OBD_DEFINE_MACRO
 
-#include "systemComponents.h"
-
 
 EPL_OBD_BEGIN ()
 
