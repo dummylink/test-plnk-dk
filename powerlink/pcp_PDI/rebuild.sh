@@ -124,9 +124,6 @@ $cmd || {
     exit 1
 }
 
-# Generate cnApiLib.h in order to inform the LIB about the PCP HW
-./cfglib.sh
-
 echo "rebuild.sh: SW Rebuild finished."
 echo "rebuild.sh: Update FPGA config..."
 

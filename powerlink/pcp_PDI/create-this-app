@@ -239,6 +239,14 @@ $cmd || {
     exit 1
 }
 
+# Generate cnApiLib.h in order to inform the LIB about the PCP HW
+cmd="./cfglib.sh"
+echo "create-this-app: Running \"$cmd\""
+$cmd || {
+    echo "nios2-app-generate-makefile failed"
+    exit 1
+}
+
 cat >> Makefile <<'Heredoc'
 
 # Rules for EPCS flash programming commands (EPCS contains SOF and application)

@@ -19,10 +19,16 @@ then   # Exit if no such file.
   exit $E_NOSUCHFILE
 fi
 
+
+
+
 if [ ! -f "$OUT_FILE" ]
 then   # Exit if no such file.
   echo -e "$OUT_FILE not found.\n"
   exit $E_NOSUCHFILE
+else
+  rm $OUT_FILE
+  touch $OUT_FILE
 fi
 
 # Search pattern in system.h
