@@ -2,6 +2,10 @@
 
   (c) SYSTEC electronic GmbH, D-07973 Greiz, August-Bebel-Str. 29
       www.systec-electronic.com
+  (c) Bernecker + Rainer Industrie-Elektronik Ges.m.b.H.
+      A-5142 Eggelsberg, B&R Strasse 1
+      www.br-automation.com
+
 
   Project:      openPOWERLINK
 
@@ -49,23 +53,16 @@
            any other provision of this License.
 
   -------------------------------------------------------------------------
+                $RCSfile$
 
-                $RCSfile: TimerHighResk_OpenMac.c,v $
+                $Author$
 
-                $Author: Michael.Ulbricht $
+                $Revision$  $Date$
 
-                $Revision: 1.1 $  $Date: 2010/03/23 12:22:30 $
-
-                $State: Exp $
+                $State$
 
                 Build Environment:
-                    GNU
-
-  -------------------------------------------------------------------------
-
-  Revision History:
-
- 2011/06/15		zelenkaj	added CPU UTIL support
+                    GCC V3.4
 
 ****************************************************************************/
 
@@ -106,9 +103,11 @@
 
 #ifdef __POWERLINK
 #define HIGHRES_TIMER_IRQ           POWERLINK_0_MAC_CMP_IRQ
+#define HIGHRES_TIMER_IRQ_IC_ID     POWERLINK_0_MAC_CMP_IRQ_INTERRUPT_CONTROLLER_ID
 #define HIGHRES_TIMER_BASE          POWERLINK_0_MAC_CMP_BASE
 #elif defined(__OPENMAC)
 #define HIGHRES_TIMER_IRQ           OPENMAC_0_CMP_IRQ
+#define HIGHRES_TIMER_IRQ_IC_ID     OPENMAC_0_CMP_IRQ_INTERRUPT_CONTROLLER_ID
 #define HIGHRES_TIMER_BASE          OPENMAC_0_CMP_BASE
 #else
 #error "Configuration unknown!"
@@ -149,7 +148,11 @@ static inline void  EplTimerHighReskCompareInterruptEnable  (void);
 static inline DWORD EplTimerHighReskGetTimeValue            (void);
 static inline void  EplTimerHighReskSetCompareValue         (DWORD dwVal);
 
-static void EplTimerHighReskInterruptHandler (void* pArg_p, alt_u32 dwInt_p);
+static void EplTimerHighReskInterruptHandler (void* pArg_p
+#ifndef ALT_ENHANCED_INTERRUPT_API_PRESENT
+        , DWORD dwInt_p
+#endif
+        );
 
 
 //=========================================================================//
@@ -456,13 +459,17 @@ static inline DWORD EplTimerHighReskGetTimeValue (void)
     return IORD_32DIRECT( HIGHRES_TIMER_BASE, TIMERCMP_REG_OFF_TIME_VAL );
 }
 
-static void EplTimerHighReskInterruptHandler (void* pArg_p, alt_u32 dwInt_p)
+static void EplTimerHighReskInterruptHandler (void* pArg_p
+#ifndef ALT_ENHANCED_INTERRUPT_API_PRESENT
+        , DWORD dwInt_p
+#endif
+        )
 {
 
     BENCHMARK_MOD_24_SET(4);
 
 #ifdef CPU_UTIL
-	isrcall_cpuutil();
+    isrcall_cpuutil();
 #endif
 
     EplTimerHighReskSetCompareValue(0);
@@ -474,7 +481,7 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p, alt_u32 dwInt_p)
     }
 
     BENCHMARK_MOD_24_RESET(4);
-    
+
     return;
 
 }
