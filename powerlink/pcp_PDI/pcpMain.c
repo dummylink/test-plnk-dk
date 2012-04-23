@@ -476,7 +476,12 @@ void processPowerlink(void)
     {
         /* process Powerlink and it API */
         CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
-        EplApiProcess();
+
+        if (fPLisInitalized_g)
+        {
+            EplApiProcess();
+        }
+
         updateStateMachine();
         updateFirmwarePeriodic();               // periodically call firmware update state machine
 
