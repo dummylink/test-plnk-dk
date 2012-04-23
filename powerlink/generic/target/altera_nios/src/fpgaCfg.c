@@ -25,7 +25,11 @@
 #include "cnApiGlobal.h"
 #include "fwUpdate.h"
 #include "altera_avalon_pio_regs.h"
+#include "nios2.h"
 #include <string.h>                      //for memcpy()
+#include "system.h"
+#include <sys/alt_flash.h>
+#include <sys/alt_flash_dev.h>
 
 #ifdef SYSID_BASE
 #include "altera_avalon_sysid.h"
@@ -102,6 +106,19 @@ void FpgaCfg_reloadFromFlash(DWORD dwResetAdr_p)
     IOWR(REMOTE_UPDATE_CORE_BASE, 0x00 | 0x04, dwResetAdr_p >> 2);
     //trigger reconfiguration
     IOWR(REMOTE_UPDATE_CORE_BASE, 0x00 | 0x20, 1);
+}
+
+/********************************************************************************
+\brief resets the processor
+
+This function sets the status and interrupt enable register to zero. Then
+it resets the processor.
+*******************************************************************************/
+void FpgaCfg_resetProcessor(void)
+{
+    NIOS2_WRITE_STATUS(0);
+    NIOS2_WRITE_IENABLE(0);
+    ((void (*) (void)) NIOS2_RESET_ADDR) ();
 }
 
 /**

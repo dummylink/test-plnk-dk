@@ -24,9 +24,6 @@
 /* includes */
 
 #include "Debug.h"
-#include "system.h"
-#include <sys/alt_flash.h>
-#include <sys/alt_flash_dev.h>
 
 /******************************************************************************/
 /* defines */
@@ -55,6 +52,7 @@ typedef enum eFpgaCfgRetVal {
 extern void FpgaCfg_reloadFromFlash(DWORD dwResetAdr_p);
 extern void FpgaCfg_resetWatchdogTimer(void);
 extern tFpgaCfgRetVal FpgaCfg_handleReconfig(void);
+extern void FpgaCfg_resetProcessor(void);
 
 /*******************************************************************************
 *

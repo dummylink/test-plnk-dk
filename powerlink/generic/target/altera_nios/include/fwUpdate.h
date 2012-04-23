@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
-#ifndef FWUPDATE_H
+#ifndef FWUPDATE_H_
 #define FWUPDATE_H_
 
 /******************************************************************************/
