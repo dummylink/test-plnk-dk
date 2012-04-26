@@ -37,7 +37,7 @@
 /******************************************************************************/
 /* global variables */
 
-static char aStrNmtState_l[9][17] = {"INVALID         ",
+static char aStrNmtState_l[10][17] = {"INVALID         ",
                                      "OFF             ",
                                      "INITIALISATION  ",
                                      "NOT ACTIVE      ",
@@ -45,7 +45,8 @@ static char aStrNmtState_l[9][17] = {"INVALID         ",
                                      "PRE_OP1         ",
                                      "PRE_OP2         ",
                                      "READY_TO_OP     ",
-                                     "OPERATIONAL     "};
+                                     "OPERATIONAL     ",
+                                     "STOPPED         " };
 
 /******************************************************************************/
 /* function declarations */
@@ -119,7 +120,7 @@ void SysComp_LcdPrintState(tEplNmtState NmtState_p)
         case kEplNmtGsResetConfiguration: LCD_Show_Text(aStrNmtState_l[2]); break;
         case kEplNmtCsNotActive         : LCD_Show_Text(aStrNmtState_l[3]); break;
         case kEplNmtCsPreOperational1   : LCD_Show_Text(aStrNmtState_l[5]); break;
-        case kEplNmtCsStopped           : LCD_Show_Text(aStrNmtState_l[0]); break;
+        case kEplNmtCsStopped           : LCD_Show_Text(aStrNmtState_l[9]); break;
         case kEplNmtCsPreOperational2   : LCD_Show_Text(aStrNmtState_l[6]); break;
         case kEplNmtCsReadyToOperate    : LCD_Show_Text(aStrNmtState_l[7]); break;
         case kEplNmtCsOperational       : LCD_Show_Text(aStrNmtState_l[8]); break;
