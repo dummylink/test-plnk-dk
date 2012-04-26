@@ -14,7 +14,7 @@ include makefile.settings
 POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
 APP_DIR=${CNDK_DIR}/powerlink/pcp_DirectIO
 OBJDICT_DIR=${CNDK_DIR}/objDicts/Direct_IO
-EDRV_DIR=${POWERLINK_DIR}/Edrv
+EDRV_DIR=${CNDK_DIR}/powerlink/generic/POWERLINK_IP_Edrv
 CNDK_TARGET_DIR=${CNDK_DIR}/powerlink/generic/target/xilinx_microblaze
 CN_API_DIR=${CNDK_DIR}/libCnApi
 
@@ -140,7 +140,7 @@ builddir:
 	$(shell mkdir $(OBJDIR))
 
 # extra rule for usleep to set opt level to zero
-xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
+$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 	@echo Building file: $<
 	@echo Invoking: MicroBlaze gcc compiler
 	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
