@@ -55,7 +55,7 @@ a dual ported RAM (DPRAM) area.
 
 #define DEMO_VENDOR_ID      0x00000000
 #define DEMO_PRODUCT_CODE   0
-#define DEMO_REVISION       0x00010007
+#define DEMO_REVISION       0x00010020
 #define DEMO_SERIAL_NUMBER  0x00000000
 #define DEMO_DEVICE_NAME "POWERLINK CN DEMO"
 #define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
@@ -74,7 +74,7 @@ static WORD     nodeId;                                         ///< The node ID
 static BYTE     abMacAddr_l[] = { MAC_ADDR };                   ///< The MAC address to be used
 static BYTE   strDevName[] = DEMO_DEVICE_NAME;
 static BYTE   strHwVersion[] = "1.00";
-static BYTE   strSwVersion[] = "EPL V2 V1.7 r2";
+static BYTE   strSwVersion[] = "EPL V2 V1.8.1 CNDK";
 
 static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values of the digital input pins of the board will be stored here
 static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here

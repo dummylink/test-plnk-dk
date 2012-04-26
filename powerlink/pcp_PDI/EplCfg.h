@@ -269,7 +269,7 @@
 // =========================================================================
 // identification parameters
 #define CONFIG_IDENT_PRODUCT_CODE           0
-#define CONFIG_IDENT_REVISION               0x10007
+#define CONFIG_IDENT_REVISION               0x10020
 #define CONFIG_IDENT_VENDOR_ID              0
 #define CONFIG_IDENT_SERIAL_NUMBER          0
 #define CONFIG_IDENT_DEVICE_NAME            "POWERLINK CN DEMO"
