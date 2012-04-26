@@ -17,10 +17,6 @@ CNDK_DIR=../../..
 BUS_INTERFACE=axi
 
 ##################################
-# Processor name: [pcp, ap]
-PROCESSOR_NAME=ap
-
-##################################
 # Include SPI driver: [yes, no]
 INCLUDE_SPI_DRV=yes
 
