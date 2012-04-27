@@ -19,16 +19,11 @@ then   # Exit if no such file.
   exit $E_NOSUCHFILE
 fi
 
-
-
-
-if [ ! -f "$OUT_FILE" ]
+# delete old output-file, if present
+if [ -f "$OUT_FILE" ]
 then   # Exit if no such file.
-  echo -e "$OUT_FILE not found.\n"
-  exit $E_NOSUCHFILE
-else
   rm $OUT_FILE
-  touch $OUT_FILE
+  echo -e "Deleted old $OUT_FILE.\n"
 fi
 
 # Search pattern in system.h
@@ -144,6 +139,13 @@ echo "
 #endif /* _CNAPICFG_H_ */
 
 /* END-OF-FILE */" >> $OUT_FILE
+
+# verify output-file generation
+if [ ! -f "$OUT_FILE" ]
+then   # Exit if no such file.
+  echo -e "$OUT_FILE not found.\n"
+  exit $E_NOSUCHFILE
+fi
 
 echo -e "Generating cnApiCfg.h done!\n"
 
