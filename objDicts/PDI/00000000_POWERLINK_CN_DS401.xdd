@@ -1259,7 +1259,7 @@
       <NetworkManagement>
         <GeneralFeatures
           DLLFeatureMN="false"
-          NMTBootTimeNotActive="3000000"
+          NMTBootTimeNotActive="7000000"
           NMTCycleTimeMin="400"
           NMTCycleTimeMax="4294967295"
           NMTErrorEntries="2"
