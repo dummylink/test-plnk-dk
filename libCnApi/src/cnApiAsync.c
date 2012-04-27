@@ -343,9 +343,9 @@ tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsg
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitParm_g->m_dwSerialNum);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitParm_g->m_dwVendorId);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitParm_g->m_dwProductCode);
-    memcpy(pInitPcpReq->m_strDevName, &pInitParm_g->m_strDevName, sizeof(pInitParm_g->m_strDevName));
-    memcpy(pInitPcpReq->m_strHwVersion, &pInitParm_g->m_strHwVersion, sizeof(pInitParm_g->m_strHwVersion));
-    memcpy(pInitPcpReq->m_strSwVersion, &pInitParm_g->m_strSwVersion, sizeof(pInitParm_g->m_strSwVersion));
+    memcpy(pInitPcpReq->m_strDevName, &pInitParm_g->m_strDevName, sizeof(pInitPcpReq->m_strDevName));
+    memcpy(pInitPcpReq->m_strHwVersion, &pInitParm_g->m_strHwVersion, sizeof(pInitPcpReq->m_strHwVersion));
+    memcpy(pInitPcpReq->m_strSwVersion, &pInitParm_g->m_strSwVersion, sizeof(pInitPcpReq->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 
