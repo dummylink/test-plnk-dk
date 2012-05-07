@@ -60,6 +60,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+
 use ieee.std_logic_unsigned.all;
 use ieee.math_real.log2;
 use ieee.math_real.ceil;
@@ -70,6 +71,14 @@ use proc_common_v3_00_a.ipif_pkg.all;
 
 library plbv46_slave_single_v1_01_a;
 use plbv46_slave_single_v1_01_a.plbv46_slave_single;
+
+-- standard libraries declarations
+library UNISIM;
+use UNISIM.vcomponents.all;
+-- pragma synthesis_off
+library IEEE;
+use IEEE.vital_timing.all;
+-- pragma synthesis_on
 
 -- other libraries declarations
 library PLBV46_MASTER_BURST_V1_01_A;
@@ -120,6 +129,8 @@ entity plb_powerlink is
        C_PIO_VAL_LENGTH : integer := 50;
        -- debug
        C_OBSERVER_ENABLE : boolean := false;
+       -- clock stabiliser
+       C_INSTANCE_ODDR2 : boolean := false;
        -- PDI AP PLB Slave
        C_PDI_AP_BASEADDR : std_logic_vector := X"00000000";
        C_PDI_AP_HIGHADDR : std_logic_vector := X"000FFFFF";
@@ -1044,6 +1055,7 @@ constant C_M_FIFO_SIZE_TX : integer := C_MAC_DMA_FIFO_SIZE_TX/4; --in dwords
 
 
 ----     Constants     -----
+constant VCC_CONSTANT   : std_logic := '1';
 constant GND_CONSTANT   : std_logic := '0';
 
 ---- Signal declarations used on the diagram ----
@@ -1120,6 +1132,8 @@ signal m_read : std_logic;
 signal m_readdatavalid : std_logic;
 signal m_waitrequest : std_logic;
 signal m_write : std_logic;
+signal NET118078 : std_ulogic;
+signal NET118214 : std_ulogic;
 signal pcp_chipselect : std_logic;
 signal pcp_read : std_logic;
 signal pcp_waitrequest : std_logic;
@@ -1147,6 +1161,7 @@ signal tcp_irq_s : std_logic;
 signal tcp_read : std_logic;
 signal tcp_waitrequest : std_logic;
 signal tcp_write : std_logic;
+signal VCC : std_logic;
 signal ap_address : std_logic_vector (12 downto 0);
 signal ap_byteenable : std_logic_vector (3 downto 0);
 signal ap_readdata : std_logic_vector (31 downto 0);
@@ -1661,17 +1676,14 @@ THE_POWERLINK_IP_CORE : powerlink
        tcp_writedata => tcp_writedata
   );
 
-phy0_clk <= clk50;
-
 rst <= Bus2MAC_REG_Reset or Bus2MAC_CMP_Reset or MAC_DMA_RST or Bus2MAC_PKT_Reset;
 
 Bus2MAC_REG_RNW_n <= not(Bus2MAC_REG_RNW);
 
-phy1_clk <= clk50;
-
 
 ---- Power , ground assignment ----
 
+VCC <= VCC_CONSTANT;
 GND <= GND_CONSTANT;
 MAC_REG2Bus_Error <= GND;
 
@@ -1760,6 +1772,44 @@ begin
          PLB_MWrErr => MAC_DMA_MWrErr
     );
 end generate genMacDmaPlbBurst;
+
+oddr2_0 : if not C_INSTANCE_ODDR2 generate
+begin
+  phy0_clk <= clk50;
+  
+  phy1_clk <= clk50;
+end generate oddr2_0;
+
+oddr2_1 : if C_INSTANCE_ODDR2 generate
+begin
+  U4 : ODDR2
+    port map(
+         C0 => clk50,
+         C1 => NET118078,
+         CE => VCC,
+         D0 => VCC,
+         D1 => GND,
+         Q => phy0_clk,
+         R => GND,
+         S => GND
+    );
+  
+  NET118078 <= not(clk50);
+  
+  U6 : ODDR2
+    port map(
+         C0 => clk50,
+         C1 => NET118214,
+         CE => VCC,
+         D0 => VCC,
+         D1 => GND,
+         Q => phy1_clk,
+         R => GND,
+         S => GND
+    );
+  
+  NET118214 <= not(clk50);
+end generate oddr2_1;
 
 genThePlbMaster : if C_DMA_EN = TRUE generate
 begin
