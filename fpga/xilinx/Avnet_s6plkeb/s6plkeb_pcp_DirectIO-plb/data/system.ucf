@@ -170,17 +170,36 @@ Net plb_powerlink_0_phy1_TxDat_pin<0> LOC = B8 | IOSTANDARD = LVCMOS33 | TNM = P
 Net plb_powerlink_0_phy1_TxDat_pin<1> LOC = A8 | IOSTANDARD = LVCMOS33 | TNM = PHY_TX;
 Net plb_powerlink_0_phy1_TxEn_pin LOC = A7 | IOSTANDARD = LVCMOS33 | TNM = PHY_TX;
 
-######################
-# PHYx timing        #
-######################
-# PHY clocks are exported via FPGA outputs
-PIN "clock_generator_0/clock_generator_0/PLL0_CLKOUT1_BUFG_INST.O" CLOCK_DEDICATED_ROUTE = FALSE;
+################################################################################
+# TIMING CONSTRAINTS
+## Clock groups
+### PLB and MAC clock
+NET "clk_100_0000MHzPLL0" TNM = "FAST_CLK_GRP";
+NET "clk_50_0000MHzPLL0" TNM = "SLOW_CLK_GRP";
 
-#DP83630
-#Tin_before = T - tcomax = 20 ns - 14 ns = 6 ns
-#Tin_before_valid = Tin_before + tcomin = 6 ns + 2 ns = 8 ns
-#TIMEGRP PHY_RX OFFSET = IN 6 ns VALID 8 ns BEFORE "plb_powerlink_0_phy0_clk_pin" RISING;
+#### ICAP clock
+NET "clk_4_0000MHz" TNM = "ICAP_CLK_GRP";
 
-TIMESPEC TS_100_to_50_tig = FROM "clock_generator_0_clock_generator_0_SIG_PLL0_CLKOUT0" TO "clock_generator_0_clock_generator_0_SIG_PLL0_CLKOUT1" TIG;
-TIMESPEC TS_50_to_100_tig = FROM "clock_generator_0_clock_generator_0_SIG_PLL0_CLKOUT1" TO "clock_generator_0_clock_generator_0_SIG_PLL0_CLKOUT0" TIG;
+### cut path
+#### FAST <--> ICAP
+TIMESPEC TS_FAST_ICAP_TIG = FROM "FAST_CLK_GRP" TO "ICAP_CLK_GRP" TIG;
+TIMESPEC TS_ICAP_FAST_TIG = FROM "ICAP_CLK_GRP" TO "FAST_CLK_GRP" TIG;
+
+### FAST <--> SLOW
+TIMESPEC TS_FAST_SLOW_TIG = FROM "FAST_CLK_GRP" TO "SLOW_CLK_GRP" TIG;
+TIMESPEC TS_SLOW_FAST_TIG = FROM "SLOW_CLK_GRP" TO "FAST_CLK_GRP" TIG;
+
+## I/O
+### PHY0
+#### T = 20 ns , tco = 2..14 ns => valid window of 8 ns before/after edge
+#TIMEGRP PHY0_IN OFFSET = IN 14 ns VALID 8 ns BEFORE "clk_50_0000MHzPLL0" TIMEGRP MAC_CLK_GRP; 
+#### T = 20 ns , tsu = 4 ns , th = 2 => T-tsu ns after edge
+#TIMEGRP PHY0_OUT OFFSET = OUT 16 ns AFTER "clk_50_0000MHzPLL0" TIMEGRP MAC_CLK_GRP;
+
+### PHY1
+#### T = 20 ns , tco = 2..14 ns => valid window of 8 ns before/after edge
+#TIMEGRP PHY1_IN OFFSET = IN 14 ns VALID 8 ns BEFORE "clk_50_0000MHzPLL0" TIMEGRP MAC_CLK_GRP;
+#### T = 20 ns , tsu = 4 ns , th = 2 => T-tsu ns after edge
+#TIMEGRP PHY1_OUT OFFSET = OUT 16 ns AFTER "clk_50_0000MHzPLL0" TIMEGRP MAC_CLK_GRP;
+################################################################################
 

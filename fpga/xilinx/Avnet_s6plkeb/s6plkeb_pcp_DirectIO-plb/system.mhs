@@ -29,22 +29,18 @@
  PORT plb_powerlink_0_phy_SMIDat_pin = plb_powerlink_0_phy_SMIDat, DIR = IO
  PORT plb_powerlink_0_phy_SMIClk_pin = plb_powerlink_0_phy_SMIClk, DIR = O
  PORT plb_powerlink_0_phy_Rst_n_pin = plb_powerlink_0_phy_Rst_n, DIR = O
- PORT plb_powerlink_0_phy0_link_pin = plb_powerlink_0_phy0_link, DIR = I
  PORT plb_powerlink_0_phy0_RxDat_pin = plb_powerlink_0_phy0_RxDat, DIR = I, VEC = [1:0]
  PORT plb_powerlink_0_phy0_RxDv_pin = plb_powerlink_0_phy0_RxDv, DIR = I
- PORT plb_powerlink_0_phy0_RxErr_pin = plb_powerlink_0_phy0_RxErr, DIR = I
  PORT plb_powerlink_0_phy0_TxDat_pin = plb_powerlink_0_phy0_TxDat, DIR = O, VEC = [1:0]
  PORT plb_powerlink_0_phy0_TxEn_pin = plb_powerlink_0_phy0_TxEn, DIR = O
- PORT plb_powerlink_0_phy1_link_pin = plb_powerlink_0_phy1_link, DIR = I
  PORT plb_powerlink_0_phy1_RxDat_pin = plb_powerlink_0_phy1_RxDat, DIR = I, VEC = [1:0]
  PORT plb_powerlink_0_phy1_RxDv_pin = plb_powerlink_0_phy1_RxDv, DIR = I
- PORT plb_powerlink_0_phy1_RxErr_pin = plb_powerlink_0_phy1_RxErr, DIR = I
  PORT plb_powerlink_0_phy1_TxDat_pin = plb_powerlink_0_phy1_TxDat, DIR = O, VEC = [1:0]
  PORT plb_powerlink_0_phy1_TxEn_pin = plb_powerlink_0_phy1_TxEn, DIR = O
  PORT plb_powerlink_0_led_error_pin = plb_powerlink_0_led_error, DIR = O
  PORT plb_powerlink_0_led_status_pin = plb_powerlink_0_led_status, DIR = O
- PORT plb_powerlink_0_phy0_clk_pin = clk_50_0000MHzPLL0, DIR = O, SIGIS = CLK, CLK_FREQ = 50000000
- PORT plb_powerlink_0_phy1_clk_pin = clk_50_0000MHzPLL0, DIR = O, SIGIS = CLK, CLK_FREQ = 50000000
+ PORT plb_powerlink_0_phy1_clk_pin = plb_powerlink_0_phy1_clk, DIR = O, SIGIS = CLK
+ PORT plb_powerlink_0_phy0_clk_pin = plb_powerlink_0_phy0_clk, DIR = O, SIGIS = CLK
  PORT POWERLINK_NODE_ID_GPIO_IO_I_pin = POWERLINK_NODE_ID_GPIO_IO_I, DIR = I, VEC = [0:7]
  PORT DIP_SWITCH_GPIO_IO_I_pin = dip_switch_gpi, DIR = I, VEC = [3:0]
  PORT PUSH_BUTTON_GPIO_IO_I_pin = push_button_gpi, DIR = I, VEC = [3:0]
@@ -212,6 +208,7 @@ BEGIN plb_powerlink
  PARAMETER C_MAC_REG_HIGHADDR = 0xcb00ffff
  PARAMETER C_SMP_PCP_BASEADDR = 0xcb040000
  PARAMETER C_SMP_PCP_HIGHADDR = 0xcb04ffff
+ PARAMETER C_INSTANCE_ODDR2 = true
  BUS_INTERFACE MAC_REG = pcp_plb
  BUS_INTERFACE MAC_PKT = pcp_plb
  BUS_INTERFACE SMP_PCP = pcp_plb
@@ -237,6 +234,8 @@ BEGIN plb_powerlink
  PORT pio_portinlatch = 0b1110
  PORT pio_pconfig = 0b1110
  PORT pio_portio = plb_powerlink_0_pio_portio
+ PORT phy1_clk = plb_powerlink_0_phy1_clk
+ PORT phy0_clk = plb_powerlink_0_phy0_clk
 END
 
 BEGIN xps_gpio
