@@ -366,8 +366,8 @@ BEGIN axi_s6_ddrx
  BUS_INTERFACE S0_AXI = axi4_0
  PORT zio = zio
  PORT rzq = rzq
- PORT s0_axi_aclk = clk_50_0000MHzPLL1
- PORT ui_clk = clk_50_0000MHzPLL1
+ PORT s0_axi_aclk = clk_100_0000MHzPLL1
+ PORT ui_clk = clk_100_0000MHzPLL1
  PORT mcbx_dram_we_n = mcbx_dram_we_n
  PORT mcbx_dram_udqs_n = mcbx_dram_udqs_n
  PORT mcbx_dram_udqs = mcbx_dram_udqs
@@ -500,7 +500,7 @@ BEGIN axi_powerlink
  PARAMETER C_S_AXI_PDI_AP_HIGHADDR = 0x7f80ffff
  PARAMETER C_S_AXI_PDI_PCP_BASEADDR = 0x7ea00000
  PARAMETER C_S_AXI_PDI_PCP_HIGHADDR = 0x7ea0ffff
- PARAMETER C_INSTANCE_ODDR2 = false 
+ PARAMETER C_INSTANCE_ODDR2 = false
  BUS_INTERFACE S_AXI_MAC_REG = axi4lite_0
  BUS_INTERFACE S_AXI_MAC_PKT = axi4lite_0
  BUS_INTERFACE S_AXI_PDI_AP = axi4lite_1
