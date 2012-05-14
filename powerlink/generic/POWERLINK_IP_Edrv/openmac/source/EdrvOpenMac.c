@@ -651,9 +651,9 @@ tEplKernel EdrvShutdown(void)
 #if EDRV_DMA_OBSERVER != 0
     if( EdrvInstance_l.m_fDmaError == TRUE )
     {
-        //if you see this the openMAC DMA is connected to slow memory!
+        //if you see this openMAC DMA is connected to slow memory!
         // -> use embedded memory or 10 nsec SRAM!!!
-        printf("OPENMAC DMA TRANSFER ERROR\n");
+        PRINTF0("OPENMAC DMA TRANSFER ERROR\n");
     }
 #endif
 #endif
@@ -861,15 +861,6 @@ tEplKernel EdrvUpdateTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 
-//#if EDRV_DMA_OBSERVER != 0
-//    if( EdrvInstance_l.m_fDmaError == TRUE )
-//    {
-//        //provoke error to kill the node
-//        Ret = kEplEdrvInvalidParam;
-//        goto Exit;
-//    }
-//#endif
-
     if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
     {
         Ret = kEplEdrvInvalidParam;
@@ -923,15 +914,6 @@ tEplKernel EdrvSendTxMsg              (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
-
-//#if EDRV_DMA_OBSERVER != 0
-//    if( EdrvInstance_l.m_fDmaError == TRUE )
-//    {
-//        //provoke error to kill the node
-//        Ret = kEplEdrvNoFreeBufEntry;
-//        goto Exit;
-//    }
-//#endif
 
 #ifndef EDRV_TIME_TRIG_TX
     if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
@@ -1334,11 +1316,13 @@ static void EdrvIrqHandler (void* pArg_p
 #endif
 
 #if EDRV_DMA_OBSERVER != 0
+    WORD uwObserverVal = EDRV_RD16(EDRV_DOB_BASE, 0);
     //read DMA observer feature
-    if( EDRV_RD16(EDRV_DOB_BASE, 0) != 0 )
+    if( uwObserverVal != 0 )
     {
         EdrvInstance_l.m_fDmaError = TRUE;
         BENCHMARK_MOD_01_TOGGLE(7);
+        PRINTF1("DMA observer recognized overflow! (%X)\n", uwObserverVal);
 
         omethStop(pArg_p); //since openMAC was naughty, stop it!
     }
