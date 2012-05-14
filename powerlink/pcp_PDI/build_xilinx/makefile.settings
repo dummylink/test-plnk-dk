@@ -12,7 +12,7 @@
 CNDK_DIR=../../..
 
 #Path to the directory of the board support package and the hw platform
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-pcp
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-pcp-plb
 BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intaxi-pcp-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_spi-pcp-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-pcp-plb

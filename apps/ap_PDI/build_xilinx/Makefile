@@ -102,7 +102,7 @@ builddir:
 	$(shell mkdir $(OBJDIR))
 
 # extra rule for usleep to set opt level to zero
-xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
+$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 	@echo Building file: $<
 	@echo Invoking: MicroBlaze gcc compiler
 	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
