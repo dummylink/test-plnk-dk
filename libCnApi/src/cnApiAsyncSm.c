@@ -1705,11 +1705,14 @@ exit:
  ********************************************************************************
  \brief triggers the sending of an asynchronous message through the PDI
  \param MsgType_p       type of message
- \param pUserHandle_p   optional general purpose user handle
- \param pfnCbOrigMsg_p  call back function which will be invoked if transfer
+ \param pUserHandle_p   [IN] optional general purpose user handle
+                        0: no assignment
+ \param pfnCbOrigMsg_p  [IN] call back function which will be invoked if transfer
                         of Tx message has finished
- \param pfnCbRespMsg_p  call back function which will be invoked if transfer
+                        0: no assignment
+ \param pfnCbRespMsg_p  [IN] call back function which will be invoked if transfer
                         of Rx response message (if assigned) has finished
+                        0: no assignment
 
  \retval    kPdiAsyncStatusSuccessful       if message sending has been triggered
  \retval    kPdiAsyncStatusNoResource       if message does not exist or no memory available
@@ -1762,18 +1765,13 @@ tPdiAsyncStatus CnApiAsync_postMsg(
     }
 
     /* assign user handle */
-    if (pUserHandle_p != NULL)
-    { // Note: if needed, handle also has to be forwarded to response message by the user
-        pMsgDescr->pUserHdl_m = pUserHandle_p;
-    }
+    // Note: if needed, handle also has to be forwarded to response message by the user
+    pMsgDescr->pUserHdl_m = pUserHandle_p;
 
     /* assign "transfer-finished" call back functions */
-    if (pfnCbOrigMsg_p != NULL)
-    {
-        pMsgDescr->pfnTransferFinished_m = pfnCbOrigMsg_p;
-    }
-    if (pfnCbRespMsg_p != NULL &&
-        pMsgDescr->pRespMsgDescr_m != NULL)
+    pMsgDescr->pfnTransferFinished_m = pfnCbOrigMsg_p;
+
+    if (pMsgDescr->pRespMsgDescr_m != NULL)
     {
             pMsgDescr->pRespMsgDescr_m->pfnTransferFinished_m = pfnCbRespMsg_p;
     }
