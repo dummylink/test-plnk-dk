@@ -44,6 +44,7 @@
 #-- 2012-02-01    V0.06    mairt    openmac only mode RX buffer number is now a user entry
 #-- 2012-02-07    V0.07    mairt    reduced timesync module to just one parameter
 #-- 2012-02-17    V0.08    mairt    added cnApiCfg.h generation
+#-- 2012-05-15    V0.09    mairt    added virtual ethernet interface
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
@@ -64,6 +65,7 @@ proc generate {drv_handle} {
     set dma_observer [xget_param_value $periph "C_OBSERVER_ENABLE"]
     set gen_timesync [xget_param_value $periph "C_PDI_GEN_TIME_SYNC"]
     set async_buf_1_size [xget_param_value $periph "C_PDI_ASYNC_BUF_1"]
+    set virth_eth_enable [xget_param_value $periph "C_VETH_ENABLE"]
 
     # calc new phy count value
     if { $second_phy } {
@@ -95,15 +97,22 @@ proc generate {drv_handle} {
         set async_buf_count "PCP_PDI_ASYNC_BUF_MAX 2"
     }
 
+    #virtual ethernet parameters
+    if { $virth_eth_enable } {
+        set C_VETH_ENABLE { C_VETH_ENABLE 1}
+    } else {
+        set C_VETH_ENABLE {C_VETH_ENABLE 0}
+    }
+
     if { $ip_core_mode == 0} {
         # Direct IO
         puts "POWERLINK IP-Core in Direct IO mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         }
     } elseif { $ip_core_mode == 1} {
         # PDI with pap
@@ -114,19 +123,19 @@ proc generate {drv_handle} {
         
         #create cnApiCfg header file
         if { $pap_width == 8 } {
-            create_cnapi_header $drv_handle "CN_API_USING_8BIT" $big_endian $async_buf_count
+            create_cnapi_header $drv_handle "CN_API_USING_8BIT" $big_endian $async_buf_count $virth_eth_enable
         } elseif { $pap_width == 16 } {
-            create_cnapi_header $drv_handle "CN_API_USING_16BIT" $big_endian $async_buf_count
+            create_cnapi_header $drv_handle "CN_API_USING_16BIT" $big_endian $async_buf_count $virth_eth_enable
         } else {
             error "Wrong PAP width selected. Just 8 and 16 bit is possible!" "" "mdd_error"
         }
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         }
     } elseif { $ip_core_mode == 3} {
         # PDI with spi
@@ -135,14 +144,14 @@ proc generate {drv_handle} {
         set big_endian [xget_param_value $periph "C_SPI_BIG_END"]
         
         #create cnApiCfg header file
-        create_cnapi_header $drv_handle "CN_API_USING_SPI" $big_endian $async_buf_count
+        create_cnapi_header $drv_handle "CN_API_USING_SPI" $big_endian $async_buf_count $virth_eth_enable
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         }
     } elseif { $ip_core_mode == 4} {
         # PDI with axi interface
@@ -151,24 +160,24 @@ proc generate {drv_handle} {
         set big_endian false
 
         #create cnApiCfg header file
-        create_cnapi_header $drv_handle "CN_API_INT_AXI" $big_endian $async_buf_count
+        create_cnapi_header $drv_handle "CN_API_INT_AXI" $big_endian $async_buf_count $virth_eth_enable
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         }
     } elseif { $ip_core_mode == 5} {
         # PDI with pap
         puts "POWERLINK IP-Core in openMAC only mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV" $C_VETH_ENABLE "C_VETH_RX_PENDING"
         }
     } else {
          error "Invalid Powerlink IP-Core mode $ip_core_mode!" "" "mdd_error"
@@ -180,7 +189,7 @@ proc generate {drv_handle} {
 ###################################################
 ## internal procedures
 ###################################################
-proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count } { 
+proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count virth_eth_enable} { 
     set periph [xget_periphs $drv_handle]
     
     if { $big_endian } {
@@ -209,8 +218,14 @@ proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count } 
     }
     
     set used_bus "AP_USES_AXI_BUS"
+    
+    if { $virth_eth_enable } {
+        set virth_drv_en "VETH_DRV_ENABLE 1"
+    } else {
+        set virth_drv_en "VETH_DRV_ENABLE 0"
+    }
 
-    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $endianes $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count
+    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $endianes $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count $virth_drv_en
 }
 
 proc my_xdefine_include_file {drv_handle file_name drv_string non_driver args} {
@@ -302,6 +317,10 @@ proc my_xdefine_include_file {drv_handle file_name drv_string non_driver args} {
 
 # calc RX buffer size
 proc calc_rx_buffer_size { param_handle } {
+    set mhsinst              [xget_hw_parent_handle $param_handle]
+    set virt_eth_en          [xget_hw_parameter_value $mhsinst "C_VETH_ENABLE"]
+    set virt_eth_rx_pending  [xget_hw_parameter_value $mhsinst "C_VETH_RX_PENDING"]
+
      set macPktLength    4
     # rx buffer header (header + packet length)
     set macRxHd         [expr 26 + $macPktLength]
@@ -315,6 +334,11 @@ proc calc_rx_buffer_size { param_handle } {
     set crc                4
 
     set macRxBuffers [ calc_mac_rx_buffers $param_handle ]
+
+    #VirtualEthernet needs an additional RX buffer
+    if {$virt_eth_en && [ update_rx_packet_location $param_handle ] } {
+        incr macRxBuffers $virt_eth_rx_pending;
+    }
 
     #calculate rx buffer size out of packets per cycle
     set rxBufSize [expr $ethHd + $mtu + $crc + $macRxHd]
@@ -817,9 +841,7 @@ proc calc_tpdo_buffer_size { param_handle} {
 
 # calc the number of mac rx buffers for the driver
 proc calc_mac_rx_buffers { param_handle } {
-       set rpdo_count [ calc_rpdo_count $param_handle ]
-
-    set mhsinst      [xget_hw_parent_handle $param_handle]
+    set rpdo_count [ calc_rpdo_count $param_handle ]
 
     if { $rpdo_count == 1 } {
         set macRxBuffers 4
