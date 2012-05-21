@@ -423,6 +423,12 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                         break;
                     }
 
+                    case kPcpGenEventNmtEnableReadyToOperate:
+                    {
+                        // Info: Nmt command from MN
+                        break;
+                    }
+
                     case kPcpGenEventUserTimer:
                     {
                         //TODO: This is only a test! -> delete
@@ -559,15 +565,16 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Mapping or linking failed!\n");
 
                             /* set status */
-                            LinkPdosResp_g.m_bStatus = kCnApiStatusObjectLinkFailed;
+                            LinkPdosResp_g.m_dwErrCode = EPL_SDOAC_GENERAL_ERROR;
                         }
                         else // successful
                         { /* set status */
-                            LinkPdosResp_g.m_bStatus = kCnApiStatusOk;
+                            LinkPdosResp_g.m_dwErrCode = 0; // 0: OK
                         }
 
-                        /* prepare LinkPdosResp message descriptor count (return value of LinkPdosReq message) */
-                        LinkPdosResp_g.m_bDescrVers = pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bDescrVers;
+                        /* return LinkPdosReq fields in LinkPdosResp message */
+                        LinkPdosResp_g.m_bMsgId = pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bMsgId;
+                        LinkPdosResp_g.m_bOrigin = pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bOrigin;
 
                         /* send LinkPdosResp message to PCP */
                         CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosResp, 0,0,0);

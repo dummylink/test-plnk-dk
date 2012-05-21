@@ -47,7 +47,6 @@
 /* global variables */
 tObjTbl     *pPcpLinkedObjs_g = NULL;  ///< table of linked objects at pcp side according to AP message
 DWORD       dwApObjLinkEntries_g = 0;  ///< number of linked objects at pcp side
-DWORD       dwSumMappingSize_g = 0;    ///< counter of overall mapped bytes
 
 /* local variables */
 static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
@@ -256,6 +255,31 @@ void Gi_signalPdiPdoWriteAccess(BYTE bRpdoNum)
 
 /**
 ********************************************************************************
+\brief  get count of PDI mapped bytes
+\return Ret  tPdiAsyncStatus value
+
+This function counts the sum of all currently to PDI mapped bytes.
+*******************************************************************************/
+static WORD Gi_getPdiMappedBytesSum(void)
+{
+BYTE wLpCnt;
+WORD wSumMapBytes = 0;
+
+    for (wLpCnt = 0; wLpCnt < TPDO_CHANNELS_MAX; wLpCnt++)
+    {
+        wSumMapBytes += aTPdosPdi_l[wLpCnt].wMappedBytes_m;
+    }
+
+    for (wLpCnt = 0; wLpCnt < RPDO_CHANNELS_MAX; wLpCnt++)
+    {
+        wSumMapBytes += aRPdosPdi_l[wLpCnt].wMappedBytes_m;
+    }
+
+    return wSumMapBytes;
+}
+
+/**
+********************************************************************************
 \brief	setup PDO descriptor
 
 Gi_setupPdoDesc() reads the object mapping from the object dictionary and stores
@@ -267,14 +291,19 @@ LinkPdoReq meassage. Therefore the parameter pCurrentDescrOffset_p is used.
 Additionally a copy table will be created for every PDO. This table is used
 by the PCP for copying all objects contained in the mapping.
 
-\param	bDirection_p		       direction of PDO transfer to setup the descriptor
+\param  LinkPdosReqComCon_p        connection handle of mapping object access
+\param  bDirection_p               Direction of PDO transfer to setup the descriptor
+                                   of all PDOs of this direction. If "kCnApiDirNone",
+                                   PDO direction will be derived from mapping parameter index
+                                   (member of LinkPdosReqComCon_p).
 \param  pCurrentDescrOffset_p      pointer to the current LinkPdoReq payload offset
 \param  pLinkPdoReq_p              pointer to the LinkPdoReq message
 \param  wMaxStoreSpace             maximum LinkPdoReq payload offset this function can attach
 
 \return TRUE if successful or FALSE if an error occured.
 *******************************************************************************/
-BOOL Gi_setupPdoDesc(BYTE bDirection_p,
+BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
+                     BYTE bDirection_p,
                      WORD *pCurrentDescrOffset_p,
                      tLinkPdosReq *pLinkPdoReq_p,
                      WORD wMaxStoreSpace)
@@ -284,7 +313,7 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 	unsigned int        uiMappParamIndex;
 	unsigned int		uiPdoChannelCount = 0;
 
-	unsigned int		uiIndex;
+	unsigned int		uiIndexAdd;
 	WORD		        wPdoDescSize;
 	unsigned int		uiMapIndex;
 	unsigned int		uiMapSubIndex;
@@ -292,8 +321,11 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
     unsigned int        uiMapSize;
 	unsigned int		uiMapObj;
 	unsigned int		uiCommObj;
-	unsigned int		uiMaxPdoChannels;
+	BYTE                bMaxPdoChannels;
+	BYTE                bPdiPdoBufNr;
+	BYTE                bMappingVersion;
 	unsigned int        uiOffsetCnt = 0;
+	WORD                wPdiMapSizeSumTmp = 0;
     WORD                wLinkPdoMsgPaylForecast = 0; ///< message payload size before actual write
 
 	/* linking function temporary variables */
@@ -310,57 +342,90 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 	tPdoDescEntry	    *pPdoDescEntry;             ///< ptr to descriptor payload = object entries
 	tPdoDescHeader		*pPdoDescHeader = NULL;     ///< ptr to descriptor header
 	tPdoDir              PdoDir;
-	BYTE                 bApiBufferNum = 0;
 	BOOL fRet = TRUE;                               ///< return
 
-	/* initialize variables according to PDO direction */
-	if (bDirection_p == kCnApiDirReceive)
+    /* initialize variables according to PDO direction */
+    if (bDirection_p == kCnApiDirNone)
+    {
+        /* derive direction from pLinkPdosReqComCon_p */
+
+        if (pLinkPdosReqComCon_p == NULL)
+        {
+            fRet = FALSE;
+            goto exit;
+        }
+
+        PdoDir = pLinkPdosReqComCon_p->m_bPdoDir ;
+        pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdoReq_p + sizeof(tLinkPdosReq) + *pCurrentDescrOffset_p);       // ptr to first descriptor sink address
+        uiMapObj = pLinkPdosReqComCon_p->m_wMapIndex ;
+        // convert mapping index to related communication index
+        uiCommObj = ~EPL_PDOU_OBD_IDX_MAPP_PARAM & pLinkPdosReqComCon_p->m_wMapIndex;
+        if (PdoDir == TPdo)
+        {
+            bMaxPdoChannels = TPDO_CHANNELS_MAX;
+        }
+        else
+        {
+            bMaxPdoChannels = RPDO_CHANNELS_MAX;
+        }
+    }
+	else if (bDirection_p == kCnApiDirReceive)
 	{
 	    PdoDir = RPdo;
 		pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdoReq_p + sizeof(tLinkPdosReq) + *pCurrentDescrOffset_p);       // ptr to first descriptor sink address
-		uiCommObj = EPL_PDOU_OBD_IDX_RX_COMM_PARAM;       // 1400 start (node ID object info)
-		uiMapObj = EPL_PDOU_OBD_IDX_RX_MAPP_PARAM;        // 1600 start (object + size + offset info)
-		uiMaxPdoChannels = RPDO_CHANNELS_MAX;             // Max RPDOs
+		uiCommObj = EPL_PDOU_OBD_IDX_RX_COMM_PARAM;       // 0x1400 start (node ID object info)
+		uiMapObj = EPL_PDOU_OBD_IDX_RX_MAPP_PARAM;        // 0x1600 start (object + size + offset info)
+		bMaxPdoChannels = RPDO_CHANNELS_MAX;
 	}
-	else if(bDirection_p == kCnApiDirTransmit)
+	else if (bDirection_p == kCnApiDirTransmit)
 	{
 	    PdoDir = TPdo;
 	    pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdoReq_p + sizeof(tLinkPdosReq) + *pCurrentDescrOffset_p);       // ptr to first descriptor sink address
-		uiCommObj = EPL_PDOU_OBD_IDX_TX_COMM_PARAM;
-		uiMapObj = EPL_PDOU_OBD_IDX_TX_MAPP_PARAM;
-		uiMaxPdoChannels = TPDO_CHANNELS_MAX;
+		uiCommObj = EPL_PDOU_OBD_IDX_TX_COMM_PARAM;       // 0x1800 start (node ID object info)
+		uiMapObj = EPL_PDOU_OBD_IDX_TX_MAPP_PARAM;        // 0x1A00 start (object + size + offset info)
+		bMaxPdoChannels = TPDO_CHANNELS_MAX;
 	}
 	else
-	{
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Direction not specified!\n");
+    {   // invalid parameter
         fRet = FALSE;
         goto exit;
     }
 
-	/* count PDO channels according to assigned NodeIDs */
-	for (uiCommParamIndex = uiCommObj; uiCommParamIndex < uiCommObj + uiMaxPdoChannels; uiCommParamIndex++)
-	{
-		ObdSize = sizeof (bNodeId);
-		// read node ID from OD
-		Ret = EplObduReadEntry(uiCommParamIndex, 0x01, &bNodeId, &ObdSize); ///< read 14XX or 18XX
-		if ((Ret == kEplObdIndexNotExist)
-			|| (Ret == kEplObdSubindexNotExist)
-			|| (Ret == kEplObdIllegalPart))
-		{   // PDO Number does not exist
-			break; //stop counting at first missing communication parameter index
-		}
-		else if (Ret != kEplSuccessful)
-		{   // other fatal error occured
-            fRet = FALSE;
-	        goto exit;
-		}
-		uiPdoChannelCount++;  ///< increment PDO counter for every assigned Node ID
-	}
+    if (bDirection_p != kCnApiDirNone)
+    {   // setup all channels of the specified direction
 
-	/* setup descriptors and copy tables of all existing PDO channels for the specified direction */
-	for (uiIndex = 0; uiIndex < uiPdoChannelCount; uiIndex++)
+        /* count PDO channels according to assigned NodeIDs */
+        for (uiCommParamIndex = uiCommObj; uiCommParamIndex < uiCommObj + bMaxPdoChannels; uiCommParamIndex++)
+        {
+            ObdSize = sizeof (bNodeId);
+            // read node ID from OD
+            Ret = EplObduReadEntry(uiCommParamIndex, 0x01, &bNodeId, &ObdSize); // read 14XX or 18XX
+            if ((Ret == kEplObdIndexNotExist)
+                || (Ret == kEplObdSubindexNotExist)
+                || (Ret == kEplObdIllegalPart))
+            {   // PDO Number does not exist
+                break; //stop counting at first missing communication parameter index
+            }
+            else if (Ret != kEplSuccessful)
+            {   // other fatal error occured
+                fRet = FALSE;
+                goto exit;
+            }
+            uiPdoChannelCount++;  ///< increment PDO counter for every assigned Node ID
+        }
+    }
+    else
+    {   // setup only one channel
+        uiPdoChannelCount = 1;
+    }
+
+	/* setup descriptors and copy tables of all counted PDO channels for the specified direction */
+	for (uiIndexAdd = 0; uiIndexAdd < uiPdoChannelCount; uiIndexAdd++)
 	{
-		uiMappParamIndex = uiMapObj + uiIndex;
+		uiMappParamIndex = uiMapObj + uiIndexAdd;
+        // convert mapping index to related communication index
+        uiCommParamIndex = ~EPL_PDOU_OBD_IDX_MAPP_PARAM & uiMappParamIndex;
+        bPdiPdoBufNr = uiMappParamIndex & EPL_PDOU_PDO_ID_MASK;
 
         // verify if next descriptor fits in remaining message buffer space
         wLinkPdoMsgPaylForecast = (*pCurrentDescrOffset_p + sizeof(tPdoDescHeader));
@@ -372,31 +437,70 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
             goto exit;
         }
 
+        // read PDO mapping version
+        ObdSize = sizeof (bMappingVersion);
+        Ret = EplObdReadEntry(uiCommParamIndex, 0x02, &bMappingVersion, &ObdSize);
+        if (Ret != kEplSuccessful)
+        {   // other fatal error occured
+            goto exit;
+        }
+
         /* prepare PDO descriptor for this PDO channel */
 		pPdoDescHeader->m_bPdoDir = (BYTE) PdoDir;
-		pPdoDescHeader->m_bBufferNum = bApiBufferNum;
+		pPdoDescHeader->m_bBufferNum = bPdiPdoBufNr;
+        pPdoDescHeader->m_bMapVersion = bMappingVersion;
+        if (pPdoDescHeader->m_bBufferNum > bMaxPdoChannels)
+        {   // PDI PDO buffer count exceeded
+            fRet = FALSE;
+            goto exit;
+        }
+
         pPdoDescEntry =  (tPdoDescEntry*) ((BYTE*) pPdoDescHeader + sizeof(tPdoDescHeader)); ///< ptr to first entry
         wPdoDescSize = 0;
         bAddedDecrEntries = 0;
 
-		/* read number of mapped objects of 18XX or 1AXX */
-        ObdSize = sizeof (bObdSubIdxCount);
-		Ret = EplObduReadEntry(uiMappParamIndex, 0x00, &bObdSubIdxCount, &ObdSize);
-		if (Ret != kEplSuccessful)
-		{
-		    DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "OBD could not be read!\n");
-            fRet = FALSE;
-			goto exit;
-		}
+        /* get number of mapped objects of 16XX or 1AXX */
+        if (bDirection_p == kCnApiDirNone)
+        {   // this function is called within an OBD access -> derive from pLinkPdosReqComCon_p
+            bObdSubIdxCount = pLinkPdosReqComCon_p->m_bMapObjCnt;
+        }
+        else
+        {   // this function is called when mapping configuration is already done
+            ObdSize = sizeof (bObdSubIdxCount);
+            Ret = EplObdReadEntry(uiMappParamIndex, 0x00, &bObdSubIdxCount, &ObdSize);
+            if (Ret != kEplSuccessful)
+            {
+                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "OBD could not be read!\n");
+                 fRet = FALSE;
+                goto exit;
+            }
+        }
 
-        uiOffsetCnt = 0;    //reset PDO offset counter for each PDO
+        uiOffsetCnt = 0;    // reset PDO offset counter for each PDO
+
+        // reset mapping sum counter of this PDI PDO buffer
+        if (PdoDir == TPdo)
+        {
+            aTPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m = 0;
+        }
+        else if (PdoDir == RPdo)
+        {
+            aRPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m = 0;
+        }
+        else
+        { // should not occur -> error
+            fRet = FALSE;
+            goto exit;
+        }
+
+        // get all currently PDI mapped bytes
+        wPdiMapSizeSumTmp = Gi_getPdiMappedBytesSum();
 
 		/* setup descriptor and copy table of this PDO channel
 		 * according to mapping object pattern (of each subindex)
 		 */
 		for (bMappSubindex = 1; bMappSubindex <= bObdSubIdxCount; bMappSubindex++)
 		{
-
 		    /* check object mapping by reading the sub-indices */
 			ObdSize = sizeof (qwObjectMapping); 		// QWORD
 			Ret = EplObduReadEntry(uiMappParamIndex, bMappSubindex, &qwObjectMapping, &ObdSize);
@@ -420,14 +524,14 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 	        }
 			else
 			{
-			    /* TODO:  check if object is mappable */
+			    // get mapped object size
+			    ObdSize = EplObdGetDataSize(uiMapIndex, uiMapSubIndex);
 
                 //DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO,"MapSize: %d MapOffset: %d\n", uiMapSize, uiMapOffset);
-			    if (EplObdGetDataSize(uiMapIndex, uiMapSubIndex) == 0      ||
-			        EplObdGetDataSize(uiMapIndex, uiMapSubIndex) != uiMapSize) //TODO: not efficient
+			    if (ObdSize == 0         ||
+			        ObdSize != uiMapSize   )
 			    {
                     DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Invalid object size. Skipped!\n");
-                    //TODO: Forward Error To AP.
                 }
                 else
                 {
@@ -437,14 +541,15 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 
                     if (PdoDir == TPdo)
                     { // link directly to TPDO buffer
-                        // INFO: the buffer number uiIndex is derived from the channel index (16XX)
-                        pData = aTPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
+                        // INFO: the buffer number bPdiPdoBufNr is derived from the channel index (1AXX)
+                        pData = aTPdosPdi_l[bPdiPdoBufNr].pAdrs_m + uiOffsetCnt;
 
-                        SizeAlignPdiOffset(&pData,iSize,&uiOffsetCnt);
+                        SizeAlignPdiOffset(&pData, iSize, &uiOffsetCnt);
 
-                        /* verify if this PDO fits into the buffer */
-                        if ((uiOffsetCnt + uiMapSize) > aTPdosPdi_l[uiIndex].wSize_m       ||
-                            (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
+                        /* verify if this PDO fits into the buffer and max mappable bytes are not exceeded */
+                        if (((uiOffsetCnt + uiMapSize) > aTPdosPdi_l[bPdiPdoBufNr].wSize_m)             ||
+                            ((wPdiMapSizeSumTmp + aTPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
+                             > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            )  )
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
                             fRet = FALSE;
@@ -463,17 +568,21 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                             fRet = FALSE;
                             goto exit;
                         }
+
+                        // update mapping size counter of this PDI PDO buffer
+                        aTPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m += uiMapSize; // count mapped bytes
                     }
                     else if (PdoDir == RPdo)
                     { // link directly to RPDO buffer
-                        // INFO: the buffer number uiIndex is derived from the channel index (1AXX)
-                        pData = aRPdosPdi_l[uiIndex].pAdrs_m + uiOffsetCnt;
+                        // INFO: the buffer number bPdiPdoBufNr is derived from the channel index (16XX)
+                        pData = aRPdosPdi_l[bPdiPdoBufNr].pAdrs_m + uiOffsetCnt;
 
-                        SizeAlignPdiOffset(&pData,iSize,&uiOffsetCnt);
+                        SizeAlignPdiOffset(&pData, iSize, &uiOffsetCnt);
 
-                        /* verify if this PDO fits into the buffer */
-                        if ((uiOffsetCnt + uiMapSize) > aRPdosPdi_l[uiIndex].wSize_m       ||
-                            (dwSumMappingSize_g + uiMapSize) > PCP_PDO_MAPPING_SIZE_SUM_MAX)
+                        /* verify if this PDO fits into the buffer and max mappable bytes are not exceeded */
+                        if (((uiOffsetCnt + uiMapSize) > aRPdosPdi_l[bPdiPdoBufNr].wSize_m)             ||
+                            ((wPdiMapSizeSumTmp + aRPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
+                             > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            )  )
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
                             fRet = FALSE;
@@ -492,6 +601,9 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
                             fRet = FALSE;
                             goto exit;
                         }
+
+                        // update mapping size counter of this PDI PDO buffer
+                        aRPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m += uiMapSize; // count mapped bytes
                     }
                     else
                     { // should not occur -> error
@@ -524,33 +636,30 @@ BOOL Gi_setupPdoDesc(BYTE bDirection_p,
 			                pData);
 	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: 0x%04x\n", uiOffsetCnt); //TODO: comment this line and add \n to last printf
 
-			        pPdoDescEntry++;                 ///< prepare for next PDO descriptor entry
-			        bAddedDecrEntries++;             ///< count added entries
-			        dwSumMappingSize_g += uiMapSize; ///< count bytes of mapped size
-			        uiOffsetCnt += uiMapSize; ///< TODO: delete this variable (and line) for real PDO frame
+			        pPdoDescEntry++;                 // prepare for next PDO descriptor entry
+			        bAddedDecrEntries++;             // count added entries
+			        uiOffsetCnt += uiMapSize; // TODO: delete this variable (and line) for real PDO frame
 			    }
 			}
-
 		}
 
-		AmiSetWordToLe((BYTE*)&pPdoDescHeader->m_wEntryCnt, bAddedDecrEntries);       ///< number of entries of this PDO descriptor
-		pLinkPdoReq_p->m_bDescrCnt++;                         ///< update descriptor counter of LinkPdoReq message
+		pPdoDescHeader->m_bEntryCnt = bAddedDecrEntries;      // number of entries of this PDO descriptor
+		pLinkPdoReq_p->m_bDescrCnt++;                         // update descriptor counter of LinkPdoReq message
 
-        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "Setup PDO Descriptor %d done. DIR:%d BufferNum:%d numObjs:%d\n"
-                ,pLinkPdoReq_p->m_bDescrCnt, bDirection_p, pPdoDescHeader->m_bBufferNum, bAddedDecrEntries);
+        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "Setup PDO Descriptor %d finished: DIR:%d BufferNum:%d numObjs:%d "
+                ,pLinkPdoReq_p->m_bDescrCnt, PdoDir, pPdoDescHeader->m_bBufferNum, bAddedDecrEntries);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "MapVers:%d\n", pPdoDescHeader->m_bMapVersion);
 
 		/* prepare for next PDO */
 		wPdoDescSize = sizeof(tPdoDescHeader) + (bAddedDecrEntries * sizeof(tPdoDescEntry));
-		pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) (pPdoDescHeader) + wPdoDescSize); ///< increment PDO descriptor count of Link PDO Request
+		pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) (pPdoDescHeader) + wPdoDescSize); // increment PDO descriptor count of Link PDO Request
 		*pCurrentDescrOffset_p += wPdoDescSize;
-		bApiBufferNum++;   ///< increment DPRAM PDO buffer number of this direction
 	}
 
 exit:
     if (fRet != TRUE)
     {
-        AmiSetWordToLe((BYTE*)&pPdoDescHeader->m_wEntryCnt, 0);
-
+        pPdoDescHeader->m_bEntryCnt = 0;
     }
 
     return fRet;

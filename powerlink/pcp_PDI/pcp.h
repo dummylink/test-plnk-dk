@@ -48,7 +48,6 @@ extern WORD            wSyncIntCycle_g;           ///< IR synchronization factor
 
 extern tObjTbl     *pPcpLinkedObjs_g;     ///< table of linked objects at pcp side according to AP message
 extern DWORD       dwApObjLinkEntries_g;  ///< number of linked objects at pcp side
-extern DWORD       dwSumMappingSize_g;    ///< counter of overall mapped bytes
 
 // Api PDI communication instance
 extern tApiPdiComCon ApiPdiComInstance_g;
@@ -73,10 +72,11 @@ extern int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
 extern BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p);
 extern void Gi_preparePdiPdoReadAccess(BYTE bTpdoNum);
 extern void Gi_signalPdiPdoWriteAccess(BYTE bRpdoNum);
-extern BOOL Gi_setupPdoDesc(BYTE bDirection_p,
-                            WORD *pCurrentDescrOffset_p,
-                            tLinkPdosReq *pLinkPdoReq_p,
-                            WORD wMaxStoreSpace);
+extern BOOL Gi_setupPdoDesc(tLinkPdosReqComCon *  pLinkPdosReqComCon_p,
+                                        BYTE bDirection_p,
+                                        WORD *pCurrentDescrOffset_p,
+                                        tLinkPdosReq *  pLinkPdoReq_p,
+                                        WORD wMaxStoreSpace);
 
 extern void Gi_enableSyncInt(WORD wSyncIntCycle_p);
 
@@ -89,6 +89,7 @@ extern tPdiAsyncStatus CnApiAsync_checkApLinkingStatus(void);
 extern tEplKernel EplAppDefObdAccFinished(tEplObdParam ** pObdParam_p);
 extern void EplAppDefObdAccCleanupHistory(void);
 extern void EplAppDefObdAccCleanupAllPending(void);
+extern tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
 
 #endif /* GENERICIF_H_ */
 

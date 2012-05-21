@@ -228,9 +228,10 @@ typedef enum ePdoDir {
 } tPdoDir;
 
 typedef struct sPdoDescHeader {
-	WORD	   m_wEntryCnt;
+    BYTE       m_bEntryCnt;
 	BYTE       m_bPdoDir;
 	BYTE       m_bBufferNum;
+	BYTE       m_bMapVersion;      ///< MappingVersion_U8 of PDO channel
 } PACK_STRUCT tPdoDescHeader;
 
 typedef struct sPdoDesc {
@@ -238,15 +239,18 @@ typedef struct sPdoDesc {
 	BYTE	m_bPdoSubIndex;
 	BYTE    m_bPad;
 	WORD    m_wOffset;
-	WORD    m_wSize;      // TODO: NumObjChain not used; Doku change!
+	WORD    m_wSize;
 } PACK_STRUCT tPdoDescEntry;
 
 #define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
 #define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
 #define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
 #define EPL_PDOU_OBD_IDX_TX_MAPP_PARAM  0x1A00
+#define EPL_PDOU_OBD_IDX_MAPP_PARAM     0x0200
+#define EPL_PDOU_OBD_IDX_MASK           0xFF00
+#define EPL_PDOU_PDO_ID_MASK            0x00FF
 
-typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, WORD wDescrEntries_p); ///< type definition for PDO descriptor callback function
+typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, BYTE bDescrEntries_p); ///< type definition for PDO descriptor callback function
 typedef	void (*tpfnPdoCopyCb) (BYTE *pPdoData_p); 						///< type definition for PDO copy callback function
 
 typedef int (*tpfnSpiMasterTxCb) (unsigned char *pTxBuf_p, int iBytes_p);
@@ -369,6 +373,7 @@ typedef struct sTPdoBuffer { ///< used to group buffer structure infos from cont
     BYTE    *pAdrs_m;
     WORD    wSize_m;
     BYTE    *pAck_m;
+    WORD    wMappedBytes_m;  ///< only used at PCP
 #ifdef CN_API_USING_SPI
     DWORD   dwSpiBufOffs_m;
     WORD    wSpiAckOffs_m;
@@ -379,8 +384,11 @@ typedef struct sRPdoBuffer { ///< used to group buffer structure infos from cont
     BYTE    *pAdrs_m;
     WORD    wSize_m;
     BYTE    *pAck_m;
+    WORD    wMappedBytes_m;  ///< only used at PCP
+#ifdef CN_API_USING_SPI
     DWORD   dwSpiBufOffs_m;
     WORD    wSpiAckOffs_m;
+#endif /* CN_API_USING_SPI */
 } tRPdoBuffer;
 
 /******************************************************************************/

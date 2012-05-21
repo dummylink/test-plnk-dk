@@ -103,7 +103,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                              tEplApiEventArg* pEventArg_p,
                              void GENERIC*pUserArg_p);
 static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p);
-static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p);
+static tEplKernel  EplAppCbDefaultObdAccess(tEplObdCbParam MEM* pObdParam_p);
 static tEplKernel EplAppDefObdAccSaveHdl(tEplObdParam *  pObdParam_p,
                     tDefObdAccHdl **ppDefHdl_p);
 static tEplKernel EplAppDefObdAccGetStatusObdHdl(WORD wIndex_p, WORD wSubIndex_p,
@@ -114,7 +114,7 @@ static tEplKernel EplAppDefObdAccGetObdHdl(tEplObdParam * pObdAccParam_p,
 static tEplKernel EplAppDefObdAccWriteObdSegmented(tDefObdAccHdl *pDefObdAccHdl_p,
                     void * pfnSegmentFinishedCb_p, void * pfnSegmentAbortCb_p);
 static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p);
-static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
+
 #ifdef CONFIG_IIB_IS_PRESENT
 static tFwRet getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
                                   UINT32 *pUiApplicationSwTime_p);
@@ -763,9 +763,13 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     /* setup the synchronization interrupt time period */
                     Gi_calcSyncIntPeriod();   // calculate multiple of cycles
 
+                    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNmtEnableReadyToOperate);
+
                     /* prepare PDO mapping */
 
                     /* setup PDO <-> DPRAM copy table */
+                    // this is needed for static mapping, single PDO descriptors
+                    // are already sent if mapping objects are accessed dynamically
                     PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
                     if (PdiRet != kPdiAsyncStatusSuccessful)
                     {
@@ -780,6 +784,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     {
                         goto Exit;
                     }
+
                     break;
                 }
 
@@ -1039,7 +1044,7 @@ tEplObdParam * pObdParam = NULL;
     // call callback function which was assigned by caller
     EplRet = pObdParam->m_pfnAccessFinished(pObdParam);
 
-    if ((pObdParam->m_uiIndex < 0x2000)               &&
+    if ((pObdParam->m_uiIndex < 0x2000)               && //TODO: handle all segemented write transfers
         (pObdParam->m_Type == kEplObdTypDomain)         &&
         (pObdParam->m_ObdEvent == kEplObdEvInitWriteLe)   )
     {   // free allocated memory for segmented write transfer history
@@ -1055,9 +1060,7 @@ tEplObdParam * pObdParam = NULL;
         }
     }
 
-    // free handle storage
-    EPL_FREE(pObdParam);
-    *pObdParam_p = NULL;
+    EplRet = EplObduDelete0bdAccHdl(pObdParam_p);
 
 Exit:
     if (EplRet != kEplSuccessful)
@@ -1487,6 +1490,7 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
         //    break;
 
         default:
+        {
             if(pObdParam_p->m_uiIndex >= 0x2000)
             { // forward object access request to AP
 
@@ -1566,6 +1570,7 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
                 }
             }
             break;
+        }
     } /* switch (pObdParam_p->m_uiIndex) */
 
     // test output //TODO: delete
@@ -1750,7 +1755,7 @@ kEplObdAccessAdopted has to be returned.
 
 \return    tEplKernel value
 *******************************************************************************/
-static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
+static tEplKernel  EplAppCbDefaultObdAccess(tEplObdCbParam MEM* pObdParam_p)
 {
     tEplKernel       Ret = kEplSuccessful;
 
@@ -2281,12 +2286,12 @@ Exit:
  \param  pMsgDescr_p         pointer to asynchronous message descriptor
  \return Ret                 tPdiAsyncStatus value
 
- This function will be called if and OBD access forwarded to PDI finished.
- It only calls signals that the transfer finished to the originator in case of an
- error. This is the only functionality, the real OBD access finished wil be triggerd
- by a return message from PDI (sent by AP).
+ This function will be called if an OBD access forwarded to PDI has finished.
+ It signals that the transfer finished to the originator in case of an
+ error. This is the only functionality, the real OBD access finished function
+ will be triggered by a return message from PDI (sent by AP).
  *******************************************************************************/
-static tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p)
+tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p)
 {
 tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 tEplKernel          EplRet;

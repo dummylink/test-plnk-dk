@@ -44,7 +44,7 @@ tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PDI_ASYNC_CHANNELS_MAX];
 /* global variables */
 
 /* local variables */
-static  BYTE    bDescrVers_l = 0;     ///< descriptor version of LinkPdosReq
+static  BYTE    bLinkPdosReqMsgCnt_l = 0;     ///< descriptor version of LinkPdosReq
 static  BYTE    bReqId_l = 0;         ///< asynchronous msg counter
 /* variable indicates if AP objects have been linked successfully,
  * an error happened or no linking happened yet
@@ -278,7 +278,7 @@ tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     TfrTyp = kPdiAsyncTrfTypeLclBuffering;
     CnApiAsync_initMsg(kPdiAsyncMsgIntLinkPdosReq, Dir, cnApiAsync_doLinkPdosReq, pPdiBuf,
-                        kPdiAsyncMsgInvalid, TfrTyp, ChanType_p, pNmtList, wTout);
+                       kPdiAsyncMsgIntLinkPdosResp, TfrTyp, ChanType_p, pNmtList, 0);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -457,7 +457,9 @@ tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, B
                                              BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
     tLinkPdosResp *    pLinkPdosResp = NULL;       ///< pointer to response message (Tx)
+    DWORD              dwAbortCode = 0;
     tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
+    tEplKernel EplRet;
 
     DEBUG_FUNC;
 
@@ -479,24 +481,57 @@ tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, B
     pLinkPdosResp = (tLinkPdosResp *)pRxMsgBuffer_p;       // Rx buffer
 
     /* handle Rx Message */
+
+    // get originator handle
+    pLinkPdosResp->m_wCommHdl = AmiGetWordFromLe(&pLinkPdosResp->m_wCommHdl);
+
     /* store data from pLinkPdosResp */
-    if (pLinkPdosResp->m_bDescrVers != bDescrVers_l)
+    if (pLinkPdosResp->m_bMsgId != bLinkPdosReqMsgCnt_l)
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Wrong descriptor version returned: %d\n", pLinkPdosResp->m_bDescrVers);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Wrong descriptor version returned: %d\n", pLinkPdosResp->m_bMsgId);
         Ret = kPdiAsyncStatusReqIdError;
         goto exit;
     }
 
-    if (pLinkPdosResp->m_bStatus != kCnApiStatusOk)
-    { /* mapping is invalid or linking at AP failed */
-        // do not proceed to ReadyToOperate state (per default)!
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: AP object linking failed! Bootup will not proceed!\n");
-        //TODO: forward error e.g. return an SDO abort after mapping object has been written
-        ApLinkingStatus_l = kPdiAsyncStatusRespError;
+    // get (SDO) error code
+    dwAbortCode = AmiGetDwordFromLe(&pLinkPdosResp->m_dwErrCode);
+
+    if (dwAbortCode != 0)
+    {   // mapping is invalid or linking at AP failed
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: AP object linking failed!\n");
+
+        if(pLinkPdosResp->m_bOrigin == kAsyncLnkPdoMsgOrigNmtCmd)
+        {
+            // do not proceed to ReadyToOperate state
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Bootup will not proceed!\n");
+            ApLinkingStatus_l = kPdiAsyncStatusRespError;
+        }
+    }
+    else
+    {
+        if(pLinkPdosResp->m_bOrigin == kAsyncLnkPdoMsgOrigNmtCmd)
+        {
+            // proceed to ReadyToOperate state
+            ApLinkingStatus_l = kPdiAsyncStatusSuccessful;
+        }
     }
 
-    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "OK!\n");
-    ApLinkingStatus_l = kPdiAsyncStatusSuccessful;
+    if(pLinkPdosResp->m_bOrigin == kAsyncLnkPdoMsgOrigObdAccess)
+    {   // forward SDO abort code to originator
+
+        // TODO: search handle index  ApiPdiComInstance_g.apObdParam_m[index] with pLinkPdosResp->m_wCommHdl
+        if(ApiPdiComInstance_g.apObdParam_m[0]->m_dwAbortCode != 0)
+        {   // Only overwrite abort code if it wasn't assigned ealier by another module.
+            ApiPdiComInstance_g.apObdParam_m[0]->m_dwAbortCode = dwAbortCode;
+        }
+
+        EplRet = EplAppDefObdAccFinished(&ApiPdiComInstance_g.apObdParam_m[0]);
+        if (EplRet != kEplSuccessful)
+        {
+            Ret = kPdiAsyncStatusInvalidOperation;
+            goto exit;
+        }
+    }
 
 exit:
     return Ret;
@@ -519,6 +554,7 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
     BOOL fRet = TRUE;                                       ///< temporary return value
     WORD wCurDescrPayloadOffset = 0;
+    tLinkPdosReqComCon *  pLinkPdosReqComCon;
 
     DEBUG_FUNC;
 
@@ -552,42 +588,68 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     /* Prepare PDO descriptor message for AP */
 
     pLinkPdosReq->m_bDescrCnt = 0; ///< reset descriptor counter
-    dwSumMappingSize_g = 0;        ///< reset overall sum of mapping size
 
-    fRet = Gi_setupPdoDesc(kCnApiDirReceive,
-                           &wCurDescrPayloadOffset,
-                           pLinkPdosReq,
-                           dwMaxTxBufSize_p - sizeof(tLinkPdosReq));
-    if (fRet != TRUE)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
-        Ret = kPdiAsyncStatusInvalidOperation;
-        goto exit;
+    if (pMsgDescr_p->pUserHdl_m != NULL)
+    {   // object access was the origin
+
+        /* assign user handle */
+        pLinkPdosReqComCon = (tLinkPdosReqComCon *) pMsgDescr_p->pUserHdl_m;
+
+        fRet = Gi_setupPdoDesc(pLinkPdosReqComCon,
+                               kCnApiDirNone,
+                               &wCurDescrPayloadOffset,
+                               pLinkPdosReq,
+                               dwMaxTxBufSize_p - sizeof(tLinkPdosReq));
+        if (fRet != TRUE)
+        {
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
+            Ret = kPdiAsyncStatusInvalidOperation;
+            goto exit;
+        }
+
+        pLinkPdosReq->m_bOrigin = kAsyncLnkPdoMsgOrigObdAccess;
+        // TODO: Assign pLinkPdosReq->m_wCommHdl;
+    }
+    else
+    {   // NmtEnableReadyToOperate command was the origin
+
+        fRet = Gi_setupPdoDesc(NULL,
+                               kCnApiDirReceive,
+                               &wCurDescrPayloadOffset,
+                               pLinkPdosReq,
+                               dwMaxTxBufSize_p - sizeof(tLinkPdosReq));
+        if (fRet != TRUE)
+        {
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
+            Ret = kPdiAsyncStatusInvalidOperation;
+            goto exit;
+        }
+
+        fRet = Gi_setupPdoDesc(NULL,
+                               kCnApiDirTransmit,
+                               &wCurDescrPayloadOffset,
+                               pLinkPdosReq,
+                               dwMaxTxBufSize_p - sizeof(tLinkPdosReq));
+        if (fRet != TRUE)
+        {
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
+            Ret = kPdiAsyncStatusInvalidOperation;
+            goto exit;
+        }
+
+        pLinkPdosReq->m_bOrigin = kAsyncLnkPdoMsgOrigNmtCmd;
+
+        // reset AP status linking status, because we want the AP to do a new linking now
+        ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
     }
 
-    fRet = Gi_setupPdoDesc(kCnApiDirTransmit,
-                           &wCurDescrPayloadOffset,
-                           pLinkPdosReq,
-                           dwMaxTxBufSize_p - sizeof(tLinkPdosReq));
-    if (fRet != TRUE)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR!\n");
-        Ret = kPdiAsyncStatusInvalidOperation;
-        goto exit;
-    }
-
-    bDescrVers_l++;                     ///< increase descriptor version number
-    pLinkPdosReq->m_bDescrVers = bDescrVers_l;
-    /*----------------------------------------------------------------------------*/
+    bLinkPdosReqMsgCnt_l++;                     ///< increase message ID
+    pLinkPdosReq->m_bMsgId = bLinkPdosReqMsgCnt_l;
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset + sizeof(tLinkPdosReq);     // sent size
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "Descriptor Version: %d, MsgSize: %ld.\n", pLinkPdosReq->m_bDescrVers, pMsgDescr_p->dwMsgSize_m);
-
-    // reset AP status linking status, because we want the AP to do a new linking now
-    ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
-
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "MsgId: %d, MsgSize: %ld.\n", pLinkPdosReq->m_bMsgId, pMsgDescr_p->dwMsgSize_m);
 exit:
     return Ret;
 }

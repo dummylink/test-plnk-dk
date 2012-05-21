@@ -129,6 +129,14 @@ typedef enum ePdiAsyncMsgType {
 } tPdiAsyncMsgType;
 
 /**
+ * \brief constants for LinkPdosReq message originator
+ */
+typedef enum eLnkPdoMsgOrig {
+    kAsyncLnkPdoMsgOrigObdAccess = 0x01,
+    kAsyncLnkPdoMsgOrigNmtCmd    = 0x08
+} tLnkPdoMsgOrig;
+
+/**
  * \brief structure for InitPcpReq command
  */
 typedef struct sInitPcpReq {
@@ -161,18 +169,34 @@ typedef struct sInitPcpResp {
  * \brief structure for LinkPdosReq command
  */
 typedef struct sLinkPdosReq {
+    BYTE                    m_bMsgId;
+    BYTE                    m_bOrigin;      ///< message originator, type: tLnkPdoMsgOrig
+    WORD                    m_wCommHdl;     ///< connection handle of originator module
     BYTE                    m_bDescrCnt;
-    BYTE                    m_bDescrVers;
-} PACK_STRUCT tLinkPdosReq; //TODO: use async buffers!
+    BYTE                    m_Pad1;
+//  WORD                    m_Pad2;
+} PACK_STRUCT tLinkPdosReq;
+
+/**
+ * \brief structure connects LinkPdosReq message and OBD mapping handle
+ */
+typedef struct sLinkPdosReqComCon {
+    WORD       m_wMapIndex;
+    tEplAsySdoCom * m_pSdoCmdFrame;         ///< pointer to SDO command frame
+    BYTE       m_bPdoDir;                   ///< value type: tPdoDir
+    BYTE       m_bMapObjCnt;
+    BYTE       m_bBufferNum;
+    BYTE       m_bMapVersion;
+} tLinkPdosReqComCon;
 
 /**
  * \brief structure for CreateObjResp command
  */
 typedef struct sLinkPdosResp {
-    BYTE                    m_bDescrVers;
-    BYTE                    m_bPad1;
-    BYTE                    m_bStatus;
-    BYTE                    m_bPad2;
+    BYTE                    m_bMsgId;
+    BYTE                    m_bOrigin;      ///< message originator, type: tLnkPdoMsgOrig
+    WORD                    m_wCommHdl;     ///< connection handle of originator module
+    DWORD                   m_dwErrCode;    ///< 0 = OK, else SDO abort code
 } PACK_STRUCT tLinkPdosResp;
 
 /**
@@ -235,7 +259,8 @@ typedef struct sPcpPdiAsyncBufDescr {
  */
 typedef enum ePcpPdiAsyncDir {
     kCnApiDirReceive,
-    kCnApiDirTransmit
+    kCnApiDirTransmit,
+    kCnApiDirNone,
 } tPcpPdiAsyncDir;
 
 /**

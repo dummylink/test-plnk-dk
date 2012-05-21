@@ -50,6 +50,7 @@ typedef enum ePcpPdiEventGeneric {
     kPcpGenEventResetNodeRequest,                ///< PCP requests AP to do a complete node reboot (e.g. after finished firmware transfer)
     kPcpGenEventResetCommunication,              ///< PCP requests AP to reset its asynchronous communication
     kPcpGenEventResetCommunicationDone,          ///< asynchronous communication reset has finished at PCP side
+    kPcpGenEventNmtEnableReadyToOperate,         ///< PCP received NMT_ReadyToOperate command
     kPcpGenEventUserTimer,                       ///< timer event triggered by PCP
 } tPcpPdiEventGeneric;
 
