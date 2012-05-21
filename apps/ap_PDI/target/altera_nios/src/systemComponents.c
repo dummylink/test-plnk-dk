@@ -210,9 +210,6 @@ int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
     }
 #endif
 
-    /* now enable the async interrupt in the pdi */
-    CnApi_enableAsyncEventIRQ();
-
     /* enable interrupt from PCP to AP */
 #ifdef CN_API_USING_SPI
     alt_ic_irq_enable(0, ASYNC_IRQ_NUM);      // enable specific IRQ Number
