@@ -52,9 +52,17 @@ Revision History
                     [FIX] Dual nios design can use either PDI synchronization IR or asynchronous event IR                    
                     [TASK] Deleted no longer supported Quartus example designs
                     
+26.04.2012 V0.5.0   [TASK] OBD complies to CiA DS_401
+                    [TASK] IP-core dependant PDO payload limits
+                    [TASK] generic callback function for PDO copy pre- and postprocessing
+                    [FIX] CNDK examples pass openConformace Test V0.4.0 Alpha
+                    [FIX] Add RelativeTime reset on preop1
+                    [TASK] Adapt openPOWERLINK V1.8.1
+                    [FIX] A: ink_ap_pcp_intavalon does support either asynchronous event or synchronous cylic IR signal
+                    
+22.05.2012 V0.5.1   [FIX] Incorrect initialization values transmitted to PCP
+                    [FIX] CnApi_postMsg parameter assignment
+                    [FIX] Remapping in OPERATIONAL for PDI
+                    [TASK] A: Update IP-Core to version 0.2.3
 
-
-
-
-                           
-                           
+                    

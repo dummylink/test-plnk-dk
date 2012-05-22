@@ -7,24 +7,34 @@ POWERLINK CN Development Kit (CNDK)
 Revision History (Xilinx)
 ==============================================================================
 
-03.04.2012 V0.5.0_RC   First release candidate
-                        [FEATURE] POWERLINK IP-Core xilinx version with plb bus
-                        [FEATURE] POWERLINK IP-Core xilinx version with axi bus
-                        [FEATURE] lx9 directIO plb example
-                        [FEATURE] lx9 directIO axi example
-                        [FEATURE] lx150t directIO plb example
-                        [FEATURE] lx150t intplb example
-                        [FEATURE] lx150t intaxi example
-                        [FEATURE] lx150t intSPI plb example
-                        [FEATURE] s6plkeb intplb example
-                        [FEATURE] s6plkeb directIO plb example
-                        [FEATURE] Generic changes for DirectIO and PDI on xilinx and altera
-                        [FEATURE] Update of the pcp_DirectIO program for xilinx
-                        [FEATURE] Update of the pcp_PDI program for xilinx
-                        [FEATURE] Xilinx support in the libCnApi
-                        [FEATURE] Update of the ap_PDI program for xilinx
+03.04.2012 V0.5.0   First release candidate
+                    [FEATURE] POWERLINK IP-Core xilinx version with plb bus
+                    [FEATURE] POWERLINK IP-Core xilinx version with axi bus
+                    [FEATURE] lx9 directIO plb example
+                    [FEATURE] lx9 directIO axi example
+                    [FEATURE] lx150t directIO plb example
+                    [FEATURE] lx150t intplb example
+                    [FEATURE] lx150t intaxi example
+                    [FEATURE] lx150t intSPI plb example
+                    [FEATURE] s6plkeb intplb example
+                    [FEATURE] s6plkeb directIO plb example
+                    [FEATURE] Generic changes for DirectIO and PDI on xilinx and altera
+                    [FEATURE] Update of the pcp_DirectIO program for xilinx
+                    [FEATURE] Update of the pcp_PDI program for xilinx
+                    [FEATURE] Xilinx support in the libCnApi
+                    [FEATURE] Update of the ap_PDI program for xilinx
+                    [TASK] OBD complies to CiA DS_401
+                    [TASK] IP-core dependant PDO payload limits
+                    [TASK] generic callback function for PDO copy pre- and postprocessing
+                    [FIX] CNDK examples pass openConformace Test V0.4.0 Alpha
+                    [FIX] Add RelativeTime reset on preop1
+                    [TASK] Adapt openPOWERLINK V1.8.1                        
 
-15.05.2012 V0.5.1_RC    [FIX] Bug when placing packets in external RAM when using AXI IP-Core
-                        [FEATURE] X: s6plkeb directIO axi example
-                        [FEATURE] X: s6plkeb intaxi example
-                        [FEATURE] X: Add lx150t directIO axi design
+22.05.2012 V0.5.1   [FIX] Bug when placing packets in external RAM when using AXI IP-Core
+                    [FEATURE] X: s6plkeb directIO axi example
+                    [FEATURE] X: s6plkeb intaxi example
+                    [FEATURE] X: Add lx150t directIO axi design
+                    [FIX] Incorrect initialization values transmitted to PCP
+                    [FIX] CnApi_postMsg parameter assignment
+                    [FIX] Remapping in OPERATIONAL for PDI
+                       

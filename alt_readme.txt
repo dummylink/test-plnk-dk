@@ -43,7 +43,7 @@ Reference Boards
           * AP software:    apps/ap_PDI
           * PCP software:   powerlink/pcp_PDI
           
-          Same design as obove, but uses and external SPI interface for DPRAM access. The AP has an SPI master,
+          Same design as above, but uses and external SPI interface for DPRAM access. The AP has an SPI master,
           the PCP is a SPI slave. The connection between them takes place at the INK evaluation board with jumpers
           by connecting some JP 5 pins like shown in "User_Guide_Altera".
           0-1, 2-3, 4-5, 6-7, 8-9.

@@ -69,4 +69,18 @@ III. CnApi SW Library
         - Events forwarded to the user in CnApi_AppCbEvent() can be handled optionally.
     
 
-    
+How to update from V0.4.6 to 0.5.1
+----------------------------------------------
+
+I.   CnApi SW Library
+        - You might implement your own "systemComponents.c" module. All target specific functions
+          were moved to this file. In the example file "apps/ap_PDI/main.c" you can see the calls
+          to the functions you might need to implement.
+        - CnApi_disableSyncInt() has to be called outside of SysComp_initSyncInterrupt() - former initSyncInterrupt()
+        - CnApi_enableAsyncEventIRQ() has to be called outside of SysComp_initAsyncInterrupt() - former initAsyncInterrupt()
+        - In CnApi_AppCbEvent() in the case "kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq" the variable "LinkPdosResp_g"
+          needs adaption due to its variable change.
+          You can replace the whole "kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq" case with the new one, if you didn't modify
+          it in the old version. Otherwise do a comparision, use the new struct members of "LinkPdosResp_g" and assign
+          appropriate values like shown in the example code "apps/ap_PDI/main.c".
+  
