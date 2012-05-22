@@ -37,6 +37,10 @@
 #include "Cmp_Lcd.h"
 #endif
 
+#ifdef VETH_DRV_EN
+#include "VirtualEthernetApi.h"
+#endif
+
 
 /******************************************************************************/
 /* defines */
@@ -1469,6 +1473,11 @@ int openPowerlink(BYTE bNodeId_p)
     UINT32                      uiApplicationSwTime = 0;
     tFwRet                      FwRetVal;
 
+#ifdef VETH_DRV_EN
+    BYTE *                      pbRxBuffer = NULL;
+    WORD                        bRxBufferSize = 0;
+#endif
+
     fShutdown_l = FALSE;
 
     /* initialize port configuration */
@@ -1589,6 +1598,20 @@ int openPowerlink(BYTE bNodeId_p)
     {
         EplApiProcess();
         updateFirmwarePeriodic();               // periodically call firmware update state machine
+#ifdef VETH_DRV_EN
+        EplRet = VEthCheckAndForwardRxFrame(&pbRxBuffer, &bRxBufferSize);
+        if(EplRet == kEplSuccessful)
+        {
+            EplRet = VEthReleaseRxFrame();
+            if(EplRet != kEplSuccessful)
+            {
+                PRINTF("Error while freeing the Veth Rx buffer\n");
+                goto ExitShutdown;
+            }
+        } else {
+            // no frame available (kEplReject)
+        }
+#endif
         if (fShutdown_l == TRUE)
             break;
     }
@@ -1847,6 +1870,27 @@ tEplKernel PUBLIC AppCbSync(void)
             digitalIn[iCnt] = (ports >> (iCnt * 8)) & 0xff;
         }
     }
+
+#if defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
+    EplRet = VEthSendTest();    ///< send test ARP frame to the network
+    switch(EplRet)
+    {
+        case kEplInvalidParam:
+            PRINTF1("%s(Err/Warn): Virtual Ethernet maximum MTU size exceeded! Frame discarded!\n",
+                    __func__);
+            break;
+        case kEplDllAsyncTxBufferFull:
+            // discard frame (set stats)
+            EplRet = kEplSuccessful;
+            break;
+        case kEplSuccessful:
+            // send successful (set stats)
+            break;
+        default:
+            PRINTF1("%s(Err/Warn): Virtual Ethernet unknown error/warning!\n",
+                                __func__);
+    }
+#endif
 
     /* write digital output ports */
     AmiSetDwordToLe((BYTE*)ulDigOutputs, ports);

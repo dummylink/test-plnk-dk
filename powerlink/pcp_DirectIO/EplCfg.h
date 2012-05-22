@@ -74,6 +74,7 @@
 #include "EplInc.h"
 #include "fwSettings.h"
 
+#include "systemComponents.h"
 
 // =========================================================================
 // generic defines which for whole EPL Stack
@@ -118,23 +119,38 @@
 // EPL_MODULE_INTEGRATION defines all modules which are included in
 // EPL application. Please add or delete modules for your application.
 
-#define EPL_MODULE_INTEGRATION 	(0 \
-								| EPL_MODULE_OBDK \
+#ifdef VETH_DRV_EN  //TODO
+#define EPL_MODULE_INTEGRATION  (0 \
+                                | EPL_MODULE_OBDK \
                                 | EPL_MODULE_PDOU \
-								| EPL_MODULE_PDOK \
-								| EPL_MODULE_SDOS \
-								| EPL_MODULE_SDOC \
-								| EPL_MODULE_SDO_ASND \
-								| EPL_MODULE_DLLK \
-								| EPL_MODULE_DLLU \
-								| EPL_MODULE_NMT_CN \
-								| EPL_MODULE_NMTK \
-								| EPL_MODULE_NMTU \
+                                | EPL_MODULE_PDOK \
+                                | EPL_MODULE_SDOS \
+                                | EPL_MODULE_SDOC \
+                                | EPL_MODULE_SDO_ASND \
+                                | EPL_MODULE_DLLK \
+                                | EPL_MODULE_DLLU \
+                                | EPL_MODULE_NMT_CN \
+                                | EPL_MODULE_NMTK \
+                                | EPL_MODULE_NMTU \
                                 | EPL_MODULE_LEDU \
-								)
-
-/*								| EPL_MODULE_PDOU \ */
-
+                                | EPL_MODULE_VETH \
+                                )
+#else
+#define EPL_MODULE_INTEGRATION  (0 \
+                                | EPL_MODULE_OBDK \
+                                | EPL_MODULE_PDOU \
+                                | EPL_MODULE_PDOK \
+                                | EPL_MODULE_SDOS \
+                                | EPL_MODULE_SDOC \
+                                | EPL_MODULE_SDO_ASND \
+                                | EPL_MODULE_DLLK \
+                                | EPL_MODULE_DLLU \
+                                | EPL_MODULE_NMT_CN \
+                                | EPL_MODULE_NMTK \
+                                | EPL_MODULE_NMTU \
+                                | EPL_MODULE_LEDU \
+                                )
+#endif //VETH_DRV_EN
 
 
 
@@ -174,6 +190,13 @@
 // openMAC supports auto-response delay
 #define EDRV_AUTO_RESPONSE_DELAY        TRUE
 
+// enable virtual ethernet driver with openmac
+#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
+  #define EDRV_VETH_OPENMAC             TRUE
+#else
+  #define EDRV_VETH_OPENMAC             FALSE
+#endif
+
 // =========================================================================
 // Data Link Layer (DLL) specific defines
 // =========================================================================
@@ -204,11 +227,17 @@
 #define EPL_DLL_DISABLE_DEFERRED_RXFRAME_RELEASE    TRUE
 
 // Async buffer for NMT commands TX in bytes(IdentResponse, StatusResponse)
-#define EPL_DLLCAL_BUFFER_SIZE_TX_NMT   4096
+#define EPL_DLLCAL_TX_BUFFER_SIZE_NMT        4096
 // Async buffer for Asnd messages TX in bytes
-#define EPL_DLLCAL_BUFFER_SIZE_TX_GEN   8192
+#define EPL_DLLCAL_BUFFER_SIZE_TX_GEN_ASND   8192
+
+#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
+  // Async buffer for Virtual Ethernet messages TX in bytes
+  #define EPL_DLLCAL_BUFFER_SIZE_TX_GEN_VETH   8192
+#endif
+
 // Async buffer for Sync Response TX in bytes
-#define EPL_DLLCAL_BUFFER_SIZE_TX_SYNC  4096
+#define EPL_DLLCAL_TX_BUFFER_SIZE_SYNC       4096
 
 // =========================================================================
 // Event kernel/user module defines
@@ -259,6 +288,13 @@
 //#define EPL_API_PROCESS_IMAGE_SIZE_IN 0 //disable
 //#define EPL_API_PROCESS_IMAGE_SIZE_OUT 0 //disable
 
+// =========================================================================
+// Virtual Ethernet module specific defines
+// =========================================================================
+#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
+  #define EPL_VETH_NUM_RX_BUFFERS    VETH_NUM_RX_BUFFERS
+  #define EPL_VETH_SEND_TEST      ///< enable send routine for test frames
+#endif
 // PDO size hardware restrictions
 #define CONFIG_ISOCHR_TX_MAX_PAYLOAD   36
 #define CONFIG_ISOCHR_RX_MAX_PAYLOAD   1490
