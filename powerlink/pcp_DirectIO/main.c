@@ -89,7 +89,7 @@ tApiPdiComCon ApiPdiComInstance_g;
 
 /******************************************************************************/
 /* forward declarations */
-int openPowerlink(WORD wNodeId_p);
+int openPowerlink(BYTE bNodeId_p);
 void InitPortConfiguration (BYTE *p_portIsOutput);
 WORD GetNodeId (void);
 
@@ -1317,7 +1317,7 @@ tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersio
 *******************************************************************************/
 int main (void)
 {
-    WORD    wNodeId;
+    BYTE    bNodeId;
 
     tFwRet FwRetVal;
 
@@ -1430,17 +1430,17 @@ int main (void)
     PRINTF("\n\nDigital I/O interface is running...\n");
     PRINTF("starting openPowerlink...\n\n");
 
-    if((wNodeId = SysComp_getNodeId()) == 0)
+    if((bNodeId = SysComp_getNodeId()) == 0)
     {
-        wNodeId = NODEID;
+        bNodeId = NODEID;
     }
 
 #ifdef LCD_BASE
-    SysComp_LcdPrintNodeInfo(fIsUserImage_g, wNodeId);
+    SysComp_LcdPrintNodeInfo(fIsUserImage_g, bNodeId);
 #endif
 
     while (1) {
-        if (openPowerlink(wNodeId) != 0) {
+        if (openPowerlink(bNodeId) != 0) {
             PRINTF("openPowerlink was shut down because of an error\n");
             break;
         } else {
@@ -1463,7 +1463,7 @@ exit:
 \brief    main function of digital I/O interface
 
 *******************************************************************************/
-int openPowerlink(WORD wNodeId_p)
+int openPowerlink(BYTE bNodeId_p)
 {
     DWORD                       ip = IP_ADDR; // ip address
 
@@ -1503,12 +1503,12 @@ int openPowerlink(WORD wNodeId_p)
 
     // calc the IP address with the nodeid
     ip &= 0xFFFFFF00; //dump the last byte
-    ip |= wNodeId_p; // and mask it with the node id
+    ip |= bNodeId_p; // and mask it with the node id
 
     // set EPL init parameters
     EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
     EPL_MEMCPY(EplApiInitParam.m_abMacAddress, abMacAddr, sizeof(EplApiInitParam.m_abMacAddress));
-    EplApiInitParam.m_uiNodeId = wNodeId_p;
+    EplApiInitParam.m_uiNodeId = bNodeId_p;
     EplApiInitParam.m_dwIpAddress = ip;
     EplApiInitParam.m_uiIsochrTxMaxPayload = CONFIG_ISOCHR_TX_MAX_PAYLOAD;
     EplApiInitParam.m_uiIsochrRxMaxPayload = CONFIG_ISOCHR_RX_MAX_PAYLOAD;
