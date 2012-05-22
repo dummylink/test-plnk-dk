@@ -113,6 +113,7 @@
 #-- 2012-03-07  V1.34   zelenkaj    Fix top HDL file path
 #-- 2012-03-13  V1.35   zelenkaj    Forward R/TPDO + async buffer size to system.h
 #-- 2012-04-02  V1.36   zelenkaj    vhdl file names case sensitive
+#-- 2012-05-22  V1.37   zelenkaj    Fix DPRAM size allocation
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -319,15 +320,15 @@ set_parameter_property validAssertDuration DISPLAY_UNITS "ns"
 set_parameter_property validAssertDuration ENABLED false
 set_parameter_property validAssertDuration DERIVED TRUE
 
-add_parameter macTxBuf INTEGER 1514
+add_parameter macTxBuf INTEGER 7000
 set_parameter_property macTxBuf UNITS bytes
 set_parameter_property macTxBuf DISPLAY_NAME "openMAC TX Buffer Size"
-set_parameter_property macTxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC buffer size has to be set manually."
+set_parameter_property macTxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC TX buffer size has to be set manually. E.g. POWERLINK CN requires approx. 7000 bytes."
 
-add_parameter macRxBuf INTEGER 16
-set_parameter_property macRxBuf ALLOWED_RANGES 1:16
+add_parameter macRxBuf INTEGER 4
+set_parameter_property macRxBuf ALLOWED_RANGES 4:16
 set_parameter_property macRxBuf DISPLAY_NAME "openMAC Number RX Buffers (MTU = 1500 byte)"
-set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC buffers has to be set manually (MTU = 1500 byte)."
+set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC RX buffers has to be set manually (MTU = 1500 byte). E.g. POWERLINK CN requires 4 RX buffers (SoC, PReq, SoA and Asnd)."
 
 add_parameter hwSupportSyncIrq BOOLEAN FALSE
 set_parameter_property hwSupportSyncIrq VISIBLE true
@@ -732,14 +733,14 @@ proc my_validation_callback {} {
 	if {$asyncBuf1Size == 0} {
 		set_parameter_value genABuf1_g false
 	} else {
-		set asyncBuf1Size			[expr $asyncBuf1Size + 4]
+		set asyncBuf1Size			[expr $asyncBuf1Size + 12]
 		set_parameter_value genABuf1_g true
 	}
 	
 	if {$asyncBuf2Size == 0} {
 		set_parameter_value genABuf2_g false
 	} else {
-		set asyncBuf2Size			[expr $asyncBuf2Size + 4]
+		set asyncBuf2Size			[expr $asyncBuf2Size + 12]
 		set_parameter_value genABuf2_g true
 	}
 	
@@ -972,6 +973,10 @@ proc my_validation_callback {} {
 		set asyncBuf1Size 0
 		set asyncBuf2Size 0
 	}
+    
+    # align TX and RX buffer size to 32 bit
+    set txBufSize   [expr ($txBufSize + 3) & ~3]
+    set rxBufSize   [expr ($rxBufSize + 3) & ~3]
 	
 	if {$ploc == "TX and RX into DPRAM"} {
 		set macBufSize [expr $txBufSize + $rxBufSize]
@@ -1194,21 +1199,14 @@ proc my_validation_callback {} {
     
     set_module_assignment embeddedsw.CMacro.PDITPDOBUFSIZE0         $tpdo0size
     
-    # RPDO buffer size includes +16!!!
-    # ... set zero if disabled
-    if {$rpdos >= 1} {
-        set rpdo0size   [expr $rpdo0size - 16]
-    } else {
+    # set RPDO buffer size to zero if disabled
+    if {$rpdos < 1} {
         set rpdo0size   0
     }
-    if {$rpdos >= 2} {
-        set rpdo1size   [expr $rpdo1size - 16]
-    } else {
+    if {$rpdos < 2} {
         set rpdo1size   0
     }
-    if {$rpdos >= 3} {
-        set rpdo2size   [expr $rpdo2size - 16]
-    } else {
+    if {$rpdos < 3} {
         set rpdo2size   0
     }
     
