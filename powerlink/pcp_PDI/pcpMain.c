@@ -609,7 +609,12 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     int iRet;
                     BYTE    bNodeId = 0xF0;
                     DWORD   dwNodeAssignment = EPL_NODEASSIGN_NODE_EXISTS;
-                    WORD    wPresPayloadLimit = 256;
+
+                    EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
+                    if (EplRet != kEplSuccessful)
+                    {
+                        goto Exit;
+                    }
 
                     // reset flow control manipulation
                     EplSdoAsySeqAppFlowControl(FALSE, FALSE);
@@ -633,36 +638,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         setPowerlinkEvent(kPowerlinkEventEnterPreOp);
                     }
 
-                    EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
-
-                    bNodeId = 0x06; //CN 6 is present in network
-                    EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
-
-                    EplRet = EplApiWriteLocalObject(0x1F8D, bNodeId, &wPresPayloadLimit, sizeof (wPresPayloadLimit));
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
-                    bNodeId = 0x7; //CN 7 is present in network
-                    EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
-
-                    EplRet = EplApiWriteLocalObject(0x1F8D, bNodeId, &wPresPayloadLimit, sizeof (wPresPayloadLimit));
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
                     break;
                 }
 

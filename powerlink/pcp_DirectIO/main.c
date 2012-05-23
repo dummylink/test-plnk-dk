@@ -1687,7 +1687,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {
                 BYTE    bNodeId = 0xF0;
                 DWORD   dwNodeAssignment = EPL_NODEASSIGN_NODE_EXISTS;
-                WORD    wPresPayloadLimit = 256;
 
                     PRINTF3("%s(0x%X) originating event = 0x%X\n",
                             __func__,
@@ -1706,18 +1705,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                         goto Exit;
                     }
 
-                    bNodeId = 0x04;
-                    EplRet = EplApiWriteLocalObject(0x1F81, bNodeId, &dwNodeAssignment, sizeof (dwNodeAssignment));
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
-
-                    EplRet = EplApiWriteLocalObject(0x1F8D, bNodeId, &wPresPayloadLimit, sizeof (wPresPayloadLimit));
-                    if (EplRet != kEplSuccessful)
-                    {
-                        goto Exit;
-                    }
                     break;
                 }
 
