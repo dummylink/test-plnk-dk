@@ -653,6 +653,7 @@ entity ap_cpu_data_master_arbitrator is
               -- inputs:
                  signal ap_cpu_data_master_address : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
                  signal ap_cpu_data_master_granted_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                 signal ap_cpu_data_master_granted_async_irq_from_pcp_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_benchmark_ap_pio_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_inport_ap_s1 : IN STD_LOGIC;
@@ -667,6 +668,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_granted_sysid_control_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_granted_system_timer_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                 signal ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                  signal ap_cpu_data_master_qualified_request_inport_ap_s1 : IN STD_LOGIC;
@@ -682,6 +684,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_qualified_request_system_timer_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_read : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                 signal ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_benchmark_ap_pio_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_inport_ap_s1 : IN STD_LOGIC;
@@ -697,6 +700,7 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_read_data_valid_sysid_control_slave : IN STD_LOGIC;
                  signal ap_cpu_data_master_read_data_valid_system_timer_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                 signal ap_cpu_data_master_requests_async_irq_from_pcp_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_benchmark_ap_pio_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                  signal ap_cpu_data_master_requests_inport_ap_s1 : IN STD_LOGIC;
@@ -712,9 +716,12 @@ entity ap_cpu_data_master_arbitrator is
                  signal ap_cpu_data_master_requests_system_timer_ap_s1 : IN STD_LOGIC;
                  signal ap_cpu_data_master_write : IN STD_LOGIC;
                  signal ap_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal async_irq_from_pcp_s1_irq_from_sa : IN STD_LOGIC;
+                 signal async_irq_from_pcp_s1_readdata_from_sa : IN STD_LOGIC;
                  signal benchmark_ap_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                  signal clk : IN STD_LOGIC;
                  signal d1_ap_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
+                 signal d1_async_irq_from_pcp_s1_end_xfer : IN STD_LOGIC;
                  signal d1_benchmark_ap_pio_s1_end_xfer : IN STD_LOGIC;
                  signal d1_epcs_flash_controller_0_epcs_control_port_end_xfer : IN STD_LOGIC;
                  signal d1_inport_ap_s1_end_xfer : IN STD_LOGIC;
@@ -773,17 +780,17 @@ architecture europa of ap_cpu_data_master_arbitrator is
 begin
 
   --r_0 master_run cascaded wait assignment, which is an e_assign
-  r_0 <= Vector_To_Std_Logic((((((((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 OR NOT ap_cpu_data_master_requests_benchmark_ap_pio_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_epcs_flash_controller_0_epcs_control_port OR NOT ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))));
+  r_0 <= Vector_To_Std_Logic((((((((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 OR NOT ap_cpu_data_master_requests_async_irq_from_pcp_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 OR NOT ap_cpu_data_master_requests_benchmark_ap_pio_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_epcs_flash_controller_0_epcs_control_port OR NOT ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))));
   --cascaded wait assignment, which is an e_assign
   ap_cpu_data_master_run <= (r_0 AND r_1) AND r_2;
   --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic(((((((((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_niosII_openMac_clock_0_in OR NOT ap_cpu_data_master_requests_niosII_openMac_clock_0_in)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_0_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_0_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_0_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_0_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_niosII_openMac_clock_1_in OR NOT ap_cpu_data_master_requests_niosII_openMac_clock_1_in)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_1_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_1_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_1_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_1_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ap_cpu_data_master_requests_niosII_openMac_clock_2_in)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_requests_outport_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_data_master_qualified_request_sdram_0_s1 OR ap_cpu_data_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_data_master_requests_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_sdram_0_s1 OR NOT ap_cpu_data_master_qualified_request_sdram_0_s1)))))));
+  r_1 <= Vector_To_Std_Logic(((((((((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_inport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT jtag_uart_1_avalon_jtag_slave_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_niosII_openMac_clock_0_in OR NOT ap_cpu_data_master_requests_niosII_openMac_clock_0_in)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_0_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_0_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_0_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_0_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_niosII_openMac_clock_1_in OR NOT ap_cpu_data_master_requests_niosII_openMac_clock_1_in)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_1_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_1_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_1_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_1_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ap_cpu_data_master_requests_niosII_openMac_clock_2_in)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_niosII_openMac_clock_2_in OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT niosII_openMac_clock_2_in_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_requests_outport_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))));
   --r_2 master_run cascaded wait assignment, which is an e_assign
-  r_2 <= Vector_To_Std_Logic(((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_data_master_read) OR ((ap_cpu_data_master_read_data_valid_sdram_0_s1 AND ap_cpu_data_master_read))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT sdram_0_s1_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_spi_master_spi_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_spi_master_spi_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_requests_sync_irq_from_pcp_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_requests_system_timer_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
+  r_2 <= Vector_To_Std_Logic(((((((((((((((((((((((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_outport_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_data_master_qualified_request_sdram_0_s1 OR ap_cpu_data_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_data_master_requests_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_sdram_0_s1 OR NOT ap_cpu_data_master_qualified_request_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_data_master_read) OR ((ap_cpu_data_master_read_data_valid_sdram_0_s1 AND ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT sdram_0_s1_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_spi_master_spi_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_spi_master_spi_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_requests_sync_irq_from_pcp_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sysid_control_slave OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_requests_system_timer_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_ap_cpu_data_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(ap_cpu_data_master_address(28)) & A_ToStdLogicVector(std_logic'('0')) & ap_cpu_data_master_address(26 DOWNTO 0));
   --ap_cpu/data_master readdata mux, which is an e_mux
-  ap_cpu_data_master_readdata <= ((((((((((((((A_REP(NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_benchmark_ap_pio_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (benchmark_ap_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port, 32) OR epcs_flash_controller_0_epcs_control_port_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_inport_ap_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (inport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_0_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_1_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_2_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_outport_ap_s1, 32) OR (std_logic_vector'("00000000") & (outport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_spi_master_spi_control_port, 32) OR (std_logic_vector'("0000000000000000") & (spi_master_spi_control_port_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sync_irq_from_pcp_s1, 32) OR (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(sync_irq_from_pcp_s1_readdata_from_sa)))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sysid_control_slave, 32) OR sysid_control_slave_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_system_timer_ap_s1, 32) OR (std_logic_vector'("0000000000000000") & (system_timer_ap_s1_readdata_from_sa))));
+  ap_cpu_data_master_readdata <= (((((((((((((((A_REP(NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_async_irq_from_pcp_s1, 32) OR (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(async_irq_from_pcp_s1_readdata_from_sa)))))) AND ((A_REP(NOT ap_cpu_data_master_requests_benchmark_ap_pio_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (benchmark_ap_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port, 32) OR epcs_flash_controller_0_epcs_control_port_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_inport_ap_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (inport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_0_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_1_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_2_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_outport_ap_s1, 32) OR (std_logic_vector'("00000000") & (outport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_spi_master_spi_control_port, 32) OR (std_logic_vector'("0000000000000000") & (spi_master_spi_control_port_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sync_irq_from_pcp_s1, 32) OR (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(sync_irq_from_pcp_s1_readdata_from_sa)))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sysid_control_slave, 32) OR sysid_control_slave_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_system_timer_ap_s1, 32) OR (std_logic_vector'("0000000000000000") & (system_timer_ap_s1_readdata_from_sa))));
   --actual waitrequest port, which is an e_register
   process (clk, reset_n)
   begin
@@ -795,6 +802,8 @@ begin
 
   end process;
 
+  --irq assign, which is an e_assign
+  ap_cpu_data_master_irq <= Std_Logic_Vector'(A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(jtag_uart_1_avalon_jtag_slave_irq_from_sa) & A_ToStdLogicVector(system_timer_ap_s1_irq_from_sa) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(async_irq_from_pcp_s1_irq_from_sa) & A_ToStdLogicVector(sync_irq_from_pcp_s1_irq_from_sa) & A_ToStdLogicVector(spi_master_spi_control_port_irq_from_sa));
   --unpredictable registered wait state incoming data, which is an e_register
   process (clk, reset_n)
   begin
@@ -808,8 +817,6 @@ begin
 
   --registered readdata mux, which is an e_mux
   p1_registered_ap_cpu_data_master_readdata <= (((((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR jtag_uart_1_avalon_jtag_slave_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_0_in, 32) OR niosII_openMac_clock_0_in_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_1_in, 32) OR (std_logic_vector'("000000000000000000000000") & (niosII_openMac_clock_1_in_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_2_in, 32) OR niosII_openMac_clock_2_in_readdata_from_sa))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR sdram_0_s1_readdata_from_sa));
-  --irq assign, which is an e_assign
-  ap_cpu_data_master_irq <= Std_Logic_Vector'(A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(jtag_uart_1_avalon_jtag_slave_irq_from_sa) & A_ToStdLogicVector(system_timer_ap_s1_irq_from_sa) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(std_logic'('0')) & A_ToStdLogicVector(sync_irq_from_pcp_s1_irq_from_sa) & A_ToStdLogicVector(spi_master_spi_control_port_irq_from_sa));
   --vhdl renameroo for output signals
   ap_cpu_data_master_address_to_slave <= internal_ap_cpu_data_master_address_to_slave;
   --vhdl renameroo for output signals
@@ -878,7 +885,6 @@ architecture europa of ap_cpu_instruction_master_arbitrator is
                 signal internal_ap_cpu_instruction_master_address_to_slave :  STD_LOGIC_VECTOR (28 DOWNTO 0);
                 signal internal_ap_cpu_instruction_master_waitrequest :  STD_LOGIC;
                 signal r_0 :  STD_LOGIC;
-                signal r_1 :  STD_LOGIC;
                 signal r_2 :  STD_LOGIC;
 
 begin
@@ -886,11 +892,9 @@ begin
   --r_0 master_run cascaded wait assignment, which is an e_assign
   r_0 <= Vector_To_Std_Logic((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_instruction_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_instruction_master_requests_ap_cpu_jtag_debug_module)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_instruction_master_granted_ap_cpu_jtag_debug_module OR NOT ap_cpu_instruction_master_qualified_request_ap_cpu_jtag_debug_module)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_instruction_master_qualified_request_ap_cpu_jtag_debug_module OR NOT ap_cpu_instruction_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_ap_cpu_jtag_debug_module_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_instruction_master_read)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT ap_cpu_instruction_master_requests_epcs_flash_controller_0_epcs_control_port)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_instruction_master_granted_epcs_flash_controller_0_epcs_control_port OR NOT ap_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_instruction_master_qualified_request_epcs_flash_controller_0_epcs_control_port OR NOT (ap_cpu_instruction_master_read))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT d1_epcs_flash_controller_0_epcs_control_port_end_xfer)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((ap_cpu_instruction_master_read))))))))));
   --cascaded wait assignment, which is an e_assign
-  ap_cpu_instruction_master_run <= (r_0 AND r_1) AND r_2;
-  --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_instruction_master_qualified_request_sdram_0_s1 OR ap_cpu_instruction_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_instruction_master_requests_sdram_0_s1)))))));
+  ap_cpu_instruction_master_run <= r_0 AND r_2;
   --r_2 master_run cascaded wait assignment, which is an e_assign
-  r_2 <= ((ap_cpu_instruction_master_granted_sdram_0_s1 OR NOT ap_cpu_instruction_master_qualified_request_sdram_0_s1)) AND (((NOT ap_cpu_instruction_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_instruction_master_read) OR ((ap_cpu_instruction_master_read_data_valid_sdram_0_s1 AND ap_cpu_instruction_master_read))));
+  r_2 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_instruction_master_qualified_request_sdram_0_s1 OR ap_cpu_instruction_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_instruction_master_requests_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_instruction_master_granted_sdram_0_s1 OR NOT ap_cpu_instruction_master_qualified_request_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT ap_cpu_instruction_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_instruction_master_read) OR ((ap_cpu_instruction_master_read_data_valid_sdram_0_s1 AND ap_cpu_instruction_master_read)))))))));
   --optimize select-logic by passing only those address bits which matter.
   internal_ap_cpu_instruction_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(ap_cpu_instruction_master_address(28)) & A_ToStdLogicVector(std_logic'('0')) & ap_cpu_instruction_master_address(26 DOWNTO 0));
   --ap_cpu/instruction_master readdata mux, which is an e_mux
@@ -965,6 +969,245 @@ begin
           deallocate (write_line3);
           assert false report "VHDL STOP" severity failure;
         end if;
+      end if;
+
+    end process;
+
+--synthesis translate_on
+
+end europa;
+
+
+
+-- turn off superfluous VHDL processor warnings 
+-- altera message_level Level1 
+-- altera message_off 10034 10035 10036 10037 10230 10240 10030 
+
+library altera;
+use altera.altera_europa_support_lib.all;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity async_irq_from_pcp_s1_arbitrator is 
+        port (
+              -- inputs:
+                 signal ap_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
+                 signal ap_cpu_data_master_read : IN STD_LOGIC;
+                 signal ap_cpu_data_master_waitrequest : IN STD_LOGIC;
+                 signal ap_cpu_data_master_write : IN STD_LOGIC;
+                 signal ap_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                 signal async_irq_from_pcp_s1_irq : IN STD_LOGIC;
+                 signal async_irq_from_pcp_s1_readdata : IN STD_LOGIC;
+                 signal clk : IN STD_LOGIC;
+                 signal reset_n : IN STD_LOGIC;
+
+              -- outputs:
+                 signal ap_cpu_data_master_granted_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                 signal ap_cpu_data_master_requests_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                 signal async_irq_from_pcp_s1_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                 signal async_irq_from_pcp_s1_chipselect : OUT STD_LOGIC;
+                 signal async_irq_from_pcp_s1_irq_from_sa : OUT STD_LOGIC;
+                 signal async_irq_from_pcp_s1_readdata_from_sa : OUT STD_LOGIC;
+                 signal async_irq_from_pcp_s1_reset_n : OUT STD_LOGIC;
+                 signal async_irq_from_pcp_s1_write_n : OUT STD_LOGIC;
+                 signal async_irq_from_pcp_s1_writedata : OUT STD_LOGIC;
+                 signal d1_async_irq_from_pcp_s1_end_xfer : OUT STD_LOGIC
+              );
+end entity async_irq_from_pcp_s1_arbitrator;
+
+
+architecture europa of async_irq_from_pcp_s1_arbitrator is
+                signal ap_cpu_data_master_arbiterlock :  STD_LOGIC;
+                signal ap_cpu_data_master_arbiterlock2 :  STD_LOGIC;
+                signal ap_cpu_data_master_continuerequest :  STD_LOGIC;
+                signal ap_cpu_data_master_saved_grant_async_irq_from_pcp_s1 :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_allgrants :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_allow_new_arb_cycle :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_any_bursting_master_saved_grant :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_any_continuerequest :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_arb_counter_enable :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_arb_share_counter :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_arb_share_counter_next_value :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_arb_share_set_values :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_beginbursttransfer_internal :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_begins_xfer :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_end_xfer :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_firsttransfer :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_grant_vector :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_in_a_read_cycle :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_in_a_write_cycle :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_master_qreq_vector :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_non_bursting_master_requests :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_reg_firsttransfer :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_slavearbiterlockenable :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_slavearbiterlockenable2 :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_unreg_firsttransfer :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_waits_for_read :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_waits_for_write :  STD_LOGIC;
+                signal d1_reasons_to_wait :  STD_LOGIC;
+                signal enable_nonzero_assertions :  STD_LOGIC;
+                signal end_xfer_arb_share_counter_term_async_irq_from_pcp_s1 :  STD_LOGIC;
+                signal in_a_read_cycle :  STD_LOGIC;
+                signal in_a_write_cycle :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_granted_async_irq_from_pcp_s1 :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 :  STD_LOGIC;
+                signal internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1 :  STD_LOGIC;
+                signal shifted_address_to_async_irq_from_pcp_s1_from_ap_cpu_data_master :  STD_LOGIC_VECTOR (28 DOWNTO 0);
+                signal wait_for_async_irq_from_pcp_s1_counter :  STD_LOGIC;
+
+begin
+
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_reasons_to_wait <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      d1_reasons_to_wait <= NOT async_irq_from_pcp_s1_end_xfer;
+    end if;
+
+  end process;
+
+  async_irq_from_pcp_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1);
+  --assign async_irq_from_pcp_s1_readdata_from_sa = async_irq_from_pcp_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
+  async_irq_from_pcp_s1_readdata_from_sa <= async_irq_from_pcp_s1_readdata;
+  internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100110110000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  --async_irq_from_pcp_s1_arb_share_counter set values, which is an e_mux
+  async_irq_from_pcp_s1_arb_share_set_values <= std_logic'('1');
+  --async_irq_from_pcp_s1_non_bursting_master_requests mux, which is an e_mux
+  async_irq_from_pcp_s1_non_bursting_master_requests <= internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1;
+  --async_irq_from_pcp_s1_any_bursting_master_saved_grant mux, which is an e_mux
+  async_irq_from_pcp_s1_any_bursting_master_saved_grant <= std_logic'('0');
+  --async_irq_from_pcp_s1_arb_share_counter_next_value assignment, which is an e_assign
+  async_irq_from_pcp_s1_arb_share_counter_next_value <= Vector_To_Std_Logic(A_WE_StdLogicVector((std_logic'(async_irq_from_pcp_s1_firsttransfer) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(async_irq_from_pcp_s1_arb_share_set_values))) - std_logic_vector'("000000000000000000000000000000001"))), A_WE_StdLogicVector((std_logic'(async_irq_from_pcp_s1_arb_share_counter) = '1'), (((std_logic_vector'("00000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(async_irq_from_pcp_s1_arb_share_counter))) - std_logic_vector'("000000000000000000000000000000001"))), std_logic_vector'("000000000000000000000000000000000"))));
+  --async_irq_from_pcp_s1_allgrants all slave grants, which is an e_mux
+  async_irq_from_pcp_s1_allgrants <= async_irq_from_pcp_s1_grant_vector;
+  --async_irq_from_pcp_s1_end_xfer assignment, which is an e_assign
+  async_irq_from_pcp_s1_end_xfer <= NOT ((async_irq_from_pcp_s1_waits_for_read OR async_irq_from_pcp_s1_waits_for_write));
+  --end_xfer_arb_share_counter_term_async_irq_from_pcp_s1 arb share counter enable term, which is an e_assign
+  end_xfer_arb_share_counter_term_async_irq_from_pcp_s1 <= async_irq_from_pcp_s1_end_xfer AND (((NOT async_irq_from_pcp_s1_any_bursting_master_saved_grant OR in_a_read_cycle) OR in_a_write_cycle));
+  --async_irq_from_pcp_s1_arb_share_counter arbitration counter enable, which is an e_assign
+  async_irq_from_pcp_s1_arb_counter_enable <= ((end_xfer_arb_share_counter_term_async_irq_from_pcp_s1 AND async_irq_from_pcp_s1_allgrants)) OR ((end_xfer_arb_share_counter_term_async_irq_from_pcp_s1 AND NOT async_irq_from_pcp_s1_non_bursting_master_requests));
+  --async_irq_from_pcp_s1_arb_share_counter counter, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      async_irq_from_pcp_s1_arb_share_counter <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      if std_logic'(async_irq_from_pcp_s1_arb_counter_enable) = '1' then 
+        async_irq_from_pcp_s1_arb_share_counter <= async_irq_from_pcp_s1_arb_share_counter_next_value;
+      end if;
+    end if;
+
+  end process;
+
+  --async_irq_from_pcp_s1_slavearbiterlockenable slave enables arbiterlock, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      async_irq_from_pcp_s1_slavearbiterlockenable <= std_logic'('0');
+    elsif clk'event and clk = '1' then
+      if std_logic'((((async_irq_from_pcp_s1_master_qreq_vector AND end_xfer_arb_share_counter_term_async_irq_from_pcp_s1)) OR ((end_xfer_arb_share_counter_term_async_irq_from_pcp_s1 AND NOT async_irq_from_pcp_s1_non_bursting_master_requests)))) = '1' then 
+        async_irq_from_pcp_s1_slavearbiterlockenable <= async_irq_from_pcp_s1_arb_share_counter_next_value;
+      end if;
+    end if;
+
+  end process;
+
+  --ap_cpu/data_master async_irq_from_pcp/s1 arbiterlock, which is an e_assign
+  ap_cpu_data_master_arbiterlock <= async_irq_from_pcp_s1_slavearbiterlockenable AND ap_cpu_data_master_continuerequest;
+  --async_irq_from_pcp_s1_slavearbiterlockenable2 slave enables arbiterlock2, which is an e_assign
+  async_irq_from_pcp_s1_slavearbiterlockenable2 <= async_irq_from_pcp_s1_arb_share_counter_next_value;
+  --ap_cpu/data_master async_irq_from_pcp/s1 arbiterlock2, which is an e_assign
+  ap_cpu_data_master_arbiterlock2 <= async_irq_from_pcp_s1_slavearbiterlockenable2 AND ap_cpu_data_master_continuerequest;
+  --async_irq_from_pcp_s1_any_continuerequest at least one master continues requesting, which is an e_assign
+  async_irq_from_pcp_s1_any_continuerequest <= std_logic'('1');
+  --ap_cpu_data_master_continuerequest continued request, which is an e_assign
+  ap_cpu_data_master_continuerequest <= std_logic'('1');
+  internal_ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 <= internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1 AND NOT (((NOT ap_cpu_data_master_waitrequest) AND ap_cpu_data_master_write));
+  --async_irq_from_pcp_s1_writedata mux, which is an e_mux
+  async_irq_from_pcp_s1_writedata <= ap_cpu_data_master_writedata(0);
+  --master is always granted when requested
+  internal_ap_cpu_data_master_granted_async_irq_from_pcp_s1 <= internal_ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1;
+  --ap_cpu/data_master saved-grant async_irq_from_pcp/s1, which is an e_assign
+  ap_cpu_data_master_saved_grant_async_irq_from_pcp_s1 <= internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1;
+  --allow new arb cycle for async_irq_from_pcp/s1, which is an e_assign
+  async_irq_from_pcp_s1_allow_new_arb_cycle <= std_logic'('1');
+  --placeholder chosen master
+  async_irq_from_pcp_s1_grant_vector <= std_logic'('1');
+  --placeholder vector of master qualified-requests
+  async_irq_from_pcp_s1_master_qreq_vector <= std_logic'('1');
+  --async_irq_from_pcp_s1_reset_n assignment, which is an e_assign
+  async_irq_from_pcp_s1_reset_n <= reset_n;
+  async_irq_from_pcp_s1_chipselect <= internal_ap_cpu_data_master_granted_async_irq_from_pcp_s1;
+  --async_irq_from_pcp_s1_firsttransfer first transaction, which is an e_assign
+  async_irq_from_pcp_s1_firsttransfer <= A_WE_StdLogic((std_logic'(async_irq_from_pcp_s1_begins_xfer) = '1'), async_irq_from_pcp_s1_unreg_firsttransfer, async_irq_from_pcp_s1_reg_firsttransfer);
+  --async_irq_from_pcp_s1_unreg_firsttransfer first transaction, which is an e_assign
+  async_irq_from_pcp_s1_unreg_firsttransfer <= NOT ((async_irq_from_pcp_s1_slavearbiterlockenable AND async_irq_from_pcp_s1_any_continuerequest));
+  --async_irq_from_pcp_s1_reg_firsttransfer first transaction, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      async_irq_from_pcp_s1_reg_firsttransfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      if std_logic'(async_irq_from_pcp_s1_begins_xfer) = '1' then 
+        async_irq_from_pcp_s1_reg_firsttransfer <= async_irq_from_pcp_s1_unreg_firsttransfer;
+      end if;
+    end if;
+
+  end process;
+
+  --async_irq_from_pcp_s1_beginbursttransfer_internal begin burst transfer, which is an e_assign
+  async_irq_from_pcp_s1_beginbursttransfer_internal <= async_irq_from_pcp_s1_begins_xfer;
+  --~async_irq_from_pcp_s1_write_n assignment, which is an e_mux
+  async_irq_from_pcp_s1_write_n <= NOT ((internal_ap_cpu_data_master_granted_async_irq_from_pcp_s1 AND ap_cpu_data_master_write));
+  shifted_address_to_async_irq_from_pcp_s1_from_ap_cpu_data_master <= ap_cpu_data_master_address_to_slave;
+  --async_irq_from_pcp_s1_address mux, which is an e_mux
+  async_irq_from_pcp_s1_address <= A_EXT (A_SRL(shifted_address_to_async_irq_from_pcp_s1_from_ap_cpu_data_master,std_logic_vector'("00000000000000000000000000000010")), 2);
+  --d1_async_irq_from_pcp_s1_end_xfer register, which is an e_register
+  process (clk, reset_n)
+  begin
+    if reset_n = '0' then
+      d1_async_irq_from_pcp_s1_end_xfer <= std_logic'('1');
+    elsif clk'event and clk = '1' then
+      d1_async_irq_from_pcp_s1_end_xfer <= async_irq_from_pcp_s1_end_xfer;
+    end if;
+
+  end process;
+
+  --async_irq_from_pcp_s1_waits_for_read in a cycle, which is an e_mux
+  async_irq_from_pcp_s1_waits_for_read <= async_irq_from_pcp_s1_in_a_read_cycle AND async_irq_from_pcp_s1_begins_xfer;
+  --async_irq_from_pcp_s1_in_a_read_cycle assignment, which is an e_assign
+  async_irq_from_pcp_s1_in_a_read_cycle <= internal_ap_cpu_data_master_granted_async_irq_from_pcp_s1 AND ap_cpu_data_master_read;
+  --in_a_read_cycle assignment, which is an e_mux
+  in_a_read_cycle <= async_irq_from_pcp_s1_in_a_read_cycle;
+  --async_irq_from_pcp_s1_waits_for_write in a cycle, which is an e_mux
+  async_irq_from_pcp_s1_waits_for_write <= Vector_To_Std_Logic(((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(async_irq_from_pcp_s1_in_a_write_cycle))) AND std_logic_vector'("00000000000000000000000000000000")));
+  --async_irq_from_pcp_s1_in_a_write_cycle assignment, which is an e_assign
+  async_irq_from_pcp_s1_in_a_write_cycle <= internal_ap_cpu_data_master_granted_async_irq_from_pcp_s1 AND ap_cpu_data_master_write;
+  --in_a_write_cycle assignment, which is an e_mux
+  in_a_write_cycle <= async_irq_from_pcp_s1_in_a_write_cycle;
+  wait_for_async_irq_from_pcp_s1_counter <= std_logic'('0');
+  --assign async_irq_from_pcp_s1_irq_from_sa = async_irq_from_pcp_s1_irq so that symbol knows where to group signals which may go to master only, which is an e_assign
+  async_irq_from_pcp_s1_irq_from_sa <= async_irq_from_pcp_s1_irq;
+  --vhdl renameroo for output signals
+  ap_cpu_data_master_granted_async_irq_from_pcp_s1 <= internal_ap_cpu_data_master_granted_async_irq_from_pcp_s1;
+  --vhdl renameroo for output signals
+  ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 <= internal_ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1;
+  --vhdl renameroo for output signals
+  ap_cpu_data_master_requests_async_irq_from_pcp_s1 <= internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1;
+--synthesis translate_off
+    --async_irq_from_pcp/s1 enable non-zero assertions, which is an e_register
+    process (clk, reset_n)
+    begin
+      if reset_n = '0' then
+        enable_nonzero_assertions <= std_logic'('0');
+      elsif clk'event and clk = '1' then
+        enable_nonzero_assertions <= std_logic'('1');
       end if;
 
     end process;
@@ -1928,7 +2171,7 @@ begin
   jtag_uart_1_avalon_jtag_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave);
   --assign jtag_uart_1_avalon_jtag_slave_readdata_from_sa = jtag_uart_1_avalon_jtag_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_1_avalon_jtag_slave_readdata_from_sa <= jtag_uart_1_avalon_jtag_slave_readdata;
-  internal_ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("00000000000000000100110110000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("00000000000000000100111000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --assign jtag_uart_1_avalon_jtag_slave_dataavailable_from_sa = jtag_uart_1_avalon_jtag_slave_dataavailable so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_1_avalon_jtag_slave_dataavailable_from_sa <= jtag_uart_1_avalon_jtag_slave_dataavailable;
   --assign jtag_uart_1_avalon_jtag_slave_readyfordata_from_sa = jtag_uart_1_avalon_jtag_slave_readyfordata so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -2641,14 +2884,14 @@ architecture europa of niosII_openMac_clock_0_out_arbitrator is
                 signal niosII_openMac_clock_0_out_run :  STD_LOGIC;
                 signal niosII_openMac_clock_0_out_write_last_time :  STD_LOGIC;
                 signal niosII_openMac_clock_0_out_writedata_last_time :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal r_1 :  STD_LOGIC;
+                signal r_2 :  STD_LOGIC;
 
 begin
 
-  --r_1 master_run cascaded wait assignment, which is an e_assign
-  r_1 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((niosII_openMac_clock_0_out_qualified_request_remote_update_cycloneiii_0_s1 OR niosII_openMac_clock_0_out_read_data_valid_remote_update_cycloneiii_0_s1) OR NOT niosII_openMac_clock_0_out_requests_remote_update_cycloneiii_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT niosII_openMac_clock_0_out_qualified_request_remote_update_cycloneiii_0_s1 OR NOT niosII_openMac_clock_0_out_read) OR ((niosII_openMac_clock_0_out_read_data_valid_remote_update_cycloneiii_0_s1 AND niosII_openMac_clock_0_out_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_0_out_qualified_request_remote_update_cycloneiii_0_s1 OR NOT ((niosII_openMac_clock_0_out_read OR niosII_openMac_clock_0_out_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT remote_update_cycloneiii_0_s1_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_0_out_read OR niosII_openMac_clock_0_out_write)))))))))));
+  --r_2 master_run cascaded wait assignment, which is an e_assign
+  r_2 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((niosII_openMac_clock_0_out_qualified_request_remote_update_cycloneiii_0_s1 OR niosII_openMac_clock_0_out_read_data_valid_remote_update_cycloneiii_0_s1) OR NOT niosII_openMac_clock_0_out_requests_remote_update_cycloneiii_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT niosII_openMac_clock_0_out_qualified_request_remote_update_cycloneiii_0_s1 OR NOT niosII_openMac_clock_0_out_read) OR ((niosII_openMac_clock_0_out_read_data_valid_remote_update_cycloneiii_0_s1 AND niosII_openMac_clock_0_out_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT niosII_openMac_clock_0_out_qualified_request_remote_update_cycloneiii_0_s1 OR NOT ((niosII_openMac_clock_0_out_read OR niosII_openMac_clock_0_out_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT remote_update_cycloneiii_0_s1_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((niosII_openMac_clock_0_out_read OR niosII_openMac_clock_0_out_write)))))))))));
   --cascaded wait assignment, which is an e_assign
-  niosII_openMac_clock_0_out_run <= r_1;
+  niosII_openMac_clock_0_out_run <= r_2;
   --optimize select-logic by passing only those address bits which matter.
   internal_niosII_openMac_clock_0_out_address_to_slave <= niosII_openMac_clock_0_out_address;
   --niosII_openMac_clock_0/out readdata mux, which is an e_mux
@@ -5991,7 +6234,7 @@ begin
   sysid_control_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_sysid_control_slave);
   --assign sysid_control_slave_readdata_from_sa = sysid_control_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   sysid_control_slave_readdata_from_sa <= sysid_control_slave_readdata;
-  internal_ap_cpu_data_master_requests_sysid_control_slave <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("00000000000000000100110111000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))) AND ap_cpu_data_master_read;
+  internal_ap_cpu_data_master_requests_sysid_control_slave <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("00000000000000000100111001000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))) AND ap_cpu_data_master_read;
   --sysid_control_slave_arb_share_counter set values, which is an e_mux
   sysid_control_slave_arb_share_set_values <= std_logic'('1');
   --sysid_control_slave_non_bursting_master_requests mux, which is an e_mux
@@ -6567,6 +6810,9 @@ entity niosII_openMac is
                  signal locked_from_the_altpll_0 : OUT STD_LOGIC;
                  signal phasedone_from_the_altpll_0 : OUT STD_LOGIC;
 
+              -- the_async_irq_from_pcp
+                 signal in_port_to_the_async_irq_from_pcp : IN STD_LOGIC;
+
               -- the_benchmark_ap_pio
                  signal out_port_from_the_benchmark_ap_pio : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
 
@@ -6705,6 +6951,7 @@ component ap_cpu_data_master_arbitrator is
                  -- inputs:
                     signal ap_cpu_data_master_address : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
                     signal ap_cpu_data_master_granted_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                    signal ap_cpu_data_master_granted_async_irq_from_pcp_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_benchmark_ap_pio_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_inport_ap_s1 : IN STD_LOGIC;
@@ -6719,6 +6966,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_granted_sysid_control_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_granted_system_timer_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                    signal ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                     signal ap_cpu_data_master_qualified_request_inport_ap_s1 : IN STD_LOGIC;
@@ -6734,6 +6982,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_qualified_request_system_timer_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_read : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                    signal ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_benchmark_ap_pio_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_inport_ap_s1 : IN STD_LOGIC;
@@ -6749,6 +6998,7 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_read_data_valid_sysid_control_slave : IN STD_LOGIC;
                     signal ap_cpu_data_master_read_data_valid_system_timer_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_ap_cpu_jtag_debug_module : IN STD_LOGIC;
+                    signal ap_cpu_data_master_requests_async_irq_from_pcp_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_benchmark_ap_pio_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port : IN STD_LOGIC;
                     signal ap_cpu_data_master_requests_inport_ap_s1 : IN STD_LOGIC;
@@ -6764,9 +7014,12 @@ component ap_cpu_data_master_arbitrator is
                     signal ap_cpu_data_master_requests_system_timer_ap_s1 : IN STD_LOGIC;
                     signal ap_cpu_data_master_write : IN STD_LOGIC;
                     signal ap_cpu_jtag_debug_module_readdata_from_sa : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal async_irq_from_pcp_s1_irq_from_sa : IN STD_LOGIC;
+                    signal async_irq_from_pcp_s1_readdata_from_sa : IN STD_LOGIC;
                     signal benchmark_ap_pio_s1_readdata_from_sa : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
                     signal clk : IN STD_LOGIC;
                     signal d1_ap_cpu_jtag_debug_module_end_xfer : IN STD_LOGIC;
+                    signal d1_async_irq_from_pcp_s1_end_xfer : IN STD_LOGIC;
                     signal d1_benchmark_ap_pio_s1_end_xfer : IN STD_LOGIC;
                     signal d1_epcs_flash_controller_0_epcs_control_port_end_xfer : IN STD_LOGIC;
                     signal d1_inport_ap_s1_end_xfer : IN STD_LOGIC;
@@ -6877,6 +7130,52 @@ component ap_cpu is
                     signal jtag_debug_module_resetrequest : OUT STD_LOGIC
                  );
 end component ap_cpu;
+
+component async_irq_from_pcp_s1_arbitrator is 
+           port (
+                 -- inputs:
+                    signal ap_cpu_data_master_address_to_slave : IN STD_LOGIC_VECTOR (28 DOWNTO 0);
+                    signal ap_cpu_data_master_read : IN STD_LOGIC;
+                    signal ap_cpu_data_master_waitrequest : IN STD_LOGIC;
+                    signal ap_cpu_data_master_write : IN STD_LOGIC;
+                    signal ap_cpu_data_master_writedata : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+                    signal async_irq_from_pcp_s1_irq : IN STD_LOGIC;
+                    signal async_irq_from_pcp_s1_readdata : IN STD_LOGIC;
+                    signal clk : IN STD_LOGIC;
+                    signal reset_n : IN STD_LOGIC;
+
+                 -- outputs:
+                    signal ap_cpu_data_master_granted_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                    signal ap_cpu_data_master_requests_async_irq_from_pcp_s1 : OUT STD_LOGIC;
+                    signal async_irq_from_pcp_s1_address : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal async_irq_from_pcp_s1_chipselect : OUT STD_LOGIC;
+                    signal async_irq_from_pcp_s1_irq_from_sa : OUT STD_LOGIC;
+                    signal async_irq_from_pcp_s1_readdata_from_sa : OUT STD_LOGIC;
+                    signal async_irq_from_pcp_s1_reset_n : OUT STD_LOGIC;
+                    signal async_irq_from_pcp_s1_write_n : OUT STD_LOGIC;
+                    signal async_irq_from_pcp_s1_writedata : OUT STD_LOGIC;
+                    signal d1_async_irq_from_pcp_s1_end_xfer : OUT STD_LOGIC
+                 );
+end component async_irq_from_pcp_s1_arbitrator;
+
+component async_irq_from_pcp is 
+           port (
+                 -- inputs:
+                    signal address : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+                    signal chipselect : IN STD_LOGIC;
+                    signal clk : IN STD_LOGIC;
+                    signal in_port : IN STD_LOGIC;
+                    signal reset_n : IN STD_LOGIC;
+                    signal write_n : IN STD_LOGIC;
+                    signal writedata : IN STD_LOGIC;
+
+                 -- outputs:
+                    signal irq : OUT STD_LOGIC;
+                    signal readdata : OUT STD_LOGIC
+                 );
+end component async_irq_from_pcp;
 
 component benchmark_ap_pio_s1_arbitrator is 
            port (
@@ -7778,6 +8077,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
                 signal ap_cpu_data_master_debugaccess :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_ap_cpu_jtag_debug_module :  STD_LOGIC;
+                signal ap_cpu_data_master_granted_async_irq_from_pcp_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_benchmark_ap_pio_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal ap_cpu_data_master_granted_inport_ap_s1 :  STD_LOGIC;
@@ -7793,6 +8093,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_granted_system_timer_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_irq :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module :  STD_LOGIC;
+                signal ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal ap_cpu_data_master_qualified_request_inport_ap_s1 :  STD_LOGIC;
@@ -7808,6 +8109,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_qualified_request_system_timer_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_read :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module :  STD_LOGIC;
+                signal ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_benchmark_ap_pio_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal ap_cpu_data_master_read_data_valid_inport_ap_s1 :  STD_LOGIC;
@@ -7824,6 +8126,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_data_master_read_data_valid_system_timer_ap_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_readdata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal ap_cpu_data_master_requests_ap_cpu_jtag_debug_module :  STD_LOGIC;
+                signal ap_cpu_data_master_requests_async_irq_from_pcp_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_benchmark_ap_pio_s1 :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port :  STD_LOGIC;
                 signal ap_cpu_data_master_requests_inport_ap_s1 :  STD_LOGIC;
@@ -7870,6 +8173,15 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal ap_cpu_jtag_debug_module_resetrequest_from_sa :  STD_LOGIC;
                 signal ap_cpu_jtag_debug_module_write :  STD_LOGIC;
                 signal ap_cpu_jtag_debug_module_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal async_irq_from_pcp_s1_address :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal async_irq_from_pcp_s1_chipselect :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_irq :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_irq_from_sa :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_readdata :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_readdata_from_sa :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_reset_n :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_write_n :  STD_LOGIC;
+                signal async_irq_from_pcp_s1_writedata :  STD_LOGIC;
                 signal benchmark_ap_pio_s1_address :  STD_LOGIC_VECTOR (2 DOWNTO 0);
                 signal benchmark_ap_pio_s1_chipselect :  STD_LOGIC;
                 signal benchmark_ap_pio_s1_readdata :  STD_LOGIC_VECTOR (7 DOWNTO 0);
@@ -7882,6 +8194,7 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal clk_0_reset_n :  STD_LOGIC;
                 signal d1_altpll_0_pll_slave_end_xfer :  STD_LOGIC;
                 signal d1_ap_cpu_jtag_debug_module_end_xfer :  STD_LOGIC;
+                signal d1_async_irq_from_pcp_s1_end_xfer :  STD_LOGIC;
                 signal d1_benchmark_ap_pio_s1_end_xfer :  STD_LOGIC;
                 signal d1_epcs_flash_controller_0_epcs_control_port_end_xfer :  STD_LOGIC;
                 signal d1_inport_ap_s1_end_xfer :  STD_LOGIC;
@@ -8226,6 +8539,7 @@ begin
       ap_cpu_data_master_waitrequest => ap_cpu_data_master_waitrequest,
       ap_cpu_data_master_address => ap_cpu_data_master_address,
       ap_cpu_data_master_granted_ap_cpu_jtag_debug_module => ap_cpu_data_master_granted_ap_cpu_jtag_debug_module,
+      ap_cpu_data_master_granted_async_irq_from_pcp_s1 => ap_cpu_data_master_granted_async_irq_from_pcp_s1,
       ap_cpu_data_master_granted_benchmark_ap_pio_s1 => ap_cpu_data_master_granted_benchmark_ap_pio_s1,
       ap_cpu_data_master_granted_epcs_flash_controller_0_epcs_control_port => ap_cpu_data_master_granted_epcs_flash_controller_0_epcs_control_port,
       ap_cpu_data_master_granted_inport_ap_s1 => ap_cpu_data_master_granted_inport_ap_s1,
@@ -8240,6 +8554,7 @@ begin
       ap_cpu_data_master_granted_sysid_control_slave => ap_cpu_data_master_granted_sysid_control_slave,
       ap_cpu_data_master_granted_system_timer_ap_s1 => ap_cpu_data_master_granted_system_timer_ap_s1,
       ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module => ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module,
+      ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 => ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1,
       ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1 => ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1,
       ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port => ap_cpu_data_master_qualified_request_epcs_flash_controller_0_epcs_control_port,
       ap_cpu_data_master_qualified_request_inport_ap_s1 => ap_cpu_data_master_qualified_request_inport_ap_s1,
@@ -8255,6 +8570,7 @@ begin
       ap_cpu_data_master_qualified_request_system_timer_ap_s1 => ap_cpu_data_master_qualified_request_system_timer_ap_s1,
       ap_cpu_data_master_read => ap_cpu_data_master_read,
       ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module => ap_cpu_data_master_read_data_valid_ap_cpu_jtag_debug_module,
+      ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1 => ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1,
       ap_cpu_data_master_read_data_valid_benchmark_ap_pio_s1 => ap_cpu_data_master_read_data_valid_benchmark_ap_pio_s1,
       ap_cpu_data_master_read_data_valid_epcs_flash_controller_0_epcs_control_port => ap_cpu_data_master_read_data_valid_epcs_flash_controller_0_epcs_control_port,
       ap_cpu_data_master_read_data_valid_inport_ap_s1 => ap_cpu_data_master_read_data_valid_inport_ap_s1,
@@ -8270,6 +8586,7 @@ begin
       ap_cpu_data_master_read_data_valid_sysid_control_slave => ap_cpu_data_master_read_data_valid_sysid_control_slave,
       ap_cpu_data_master_read_data_valid_system_timer_ap_s1 => ap_cpu_data_master_read_data_valid_system_timer_ap_s1,
       ap_cpu_data_master_requests_ap_cpu_jtag_debug_module => ap_cpu_data_master_requests_ap_cpu_jtag_debug_module,
+      ap_cpu_data_master_requests_async_irq_from_pcp_s1 => ap_cpu_data_master_requests_async_irq_from_pcp_s1,
       ap_cpu_data_master_requests_benchmark_ap_pio_s1 => ap_cpu_data_master_requests_benchmark_ap_pio_s1,
       ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port => ap_cpu_data_master_requests_epcs_flash_controller_0_epcs_control_port,
       ap_cpu_data_master_requests_inport_ap_s1 => ap_cpu_data_master_requests_inport_ap_s1,
@@ -8285,9 +8602,12 @@ begin
       ap_cpu_data_master_requests_system_timer_ap_s1 => ap_cpu_data_master_requests_system_timer_ap_s1,
       ap_cpu_data_master_write => ap_cpu_data_master_write,
       ap_cpu_jtag_debug_module_readdata_from_sa => ap_cpu_jtag_debug_module_readdata_from_sa,
+      async_irq_from_pcp_s1_irq_from_sa => async_irq_from_pcp_s1_irq_from_sa,
+      async_irq_from_pcp_s1_readdata_from_sa => async_irq_from_pcp_s1_readdata_from_sa,
       benchmark_ap_pio_s1_readdata_from_sa => benchmark_ap_pio_s1_readdata_from_sa,
       clk => internal_clk50,
       d1_ap_cpu_jtag_debug_module_end_xfer => d1_ap_cpu_jtag_debug_module_end_xfer,
+      d1_async_irq_from_pcp_s1_end_xfer => d1_async_irq_from_pcp_s1_end_xfer,
       d1_benchmark_ap_pio_s1_end_xfer => d1_benchmark_ap_pio_s1_end_xfer,
       d1_epcs_flash_controller_0_epcs_control_port_end_xfer => d1_epcs_flash_controller_0_epcs_control_port_end_xfer,
       d1_inport_ap_s1_end_xfer => d1_inport_ap_s1_end_xfer,
@@ -8386,6 +8706,48 @@ begin
       jtag_debug_module_write => ap_cpu_jtag_debug_module_write,
       jtag_debug_module_writedata => ap_cpu_jtag_debug_module_writedata,
       reset_n => ap_cpu_jtag_debug_module_reset_n
+    );
+
+
+  --the_async_irq_from_pcp_s1, which is an e_instance
+  the_async_irq_from_pcp_s1 : async_irq_from_pcp_s1_arbitrator
+    port map(
+      ap_cpu_data_master_granted_async_irq_from_pcp_s1 => ap_cpu_data_master_granted_async_irq_from_pcp_s1,
+      ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1 => ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1,
+      ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1 => ap_cpu_data_master_read_data_valid_async_irq_from_pcp_s1,
+      ap_cpu_data_master_requests_async_irq_from_pcp_s1 => ap_cpu_data_master_requests_async_irq_from_pcp_s1,
+      async_irq_from_pcp_s1_address => async_irq_from_pcp_s1_address,
+      async_irq_from_pcp_s1_chipselect => async_irq_from_pcp_s1_chipselect,
+      async_irq_from_pcp_s1_irq_from_sa => async_irq_from_pcp_s1_irq_from_sa,
+      async_irq_from_pcp_s1_readdata_from_sa => async_irq_from_pcp_s1_readdata_from_sa,
+      async_irq_from_pcp_s1_reset_n => async_irq_from_pcp_s1_reset_n,
+      async_irq_from_pcp_s1_write_n => async_irq_from_pcp_s1_write_n,
+      async_irq_from_pcp_s1_writedata => async_irq_from_pcp_s1_writedata,
+      d1_async_irq_from_pcp_s1_end_xfer => d1_async_irq_from_pcp_s1_end_xfer,
+      ap_cpu_data_master_address_to_slave => ap_cpu_data_master_address_to_slave,
+      ap_cpu_data_master_read => ap_cpu_data_master_read,
+      ap_cpu_data_master_waitrequest => ap_cpu_data_master_waitrequest,
+      ap_cpu_data_master_write => ap_cpu_data_master_write,
+      ap_cpu_data_master_writedata => ap_cpu_data_master_writedata,
+      async_irq_from_pcp_s1_irq => async_irq_from_pcp_s1_irq,
+      async_irq_from_pcp_s1_readdata => async_irq_from_pcp_s1_readdata,
+      clk => internal_clk50,
+      reset_n => clk50_reset_n
+    );
+
+
+  --the_async_irq_from_pcp, which is an e_ptf_instance
+  the_async_irq_from_pcp : async_irq_from_pcp
+    port map(
+      irq => async_irq_from_pcp_s1_irq,
+      readdata => async_irq_from_pcp_s1_readdata,
+      address => async_irq_from_pcp_s1_address,
+      chipselect => async_irq_from_pcp_s1_chipselect,
+      clk => internal_clk50,
+      in_port => in_port_to_the_async_irq_from_pcp,
+      reset_n => async_irq_from_pcp_s1_reset_n,
+      write_n => async_irq_from_pcp_s1_write_n,
+      writedata => async_irq_from_pcp_s1_writedata
     );
 
 
@@ -9304,6 +9666,9 @@ component niosII_openMac is
                     signal locked_from_the_altpll_0 : OUT STD_LOGIC;
                     signal phasedone_from_the_altpll_0 : OUT STD_LOGIC;
 
+                 -- the_async_irq_from_pcp
+                    signal in_port_to_the_async_irq_from_pcp : IN STD_LOGIC;
+
                  -- the_benchmark_ap_pio
                     signal out_port_from_the_benchmark_ap_pio : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
 
@@ -9386,6 +9751,7 @@ end component sdram_0_test_component;
                 signal epcs_flash_controller_0_epcs_control_port_endofpacket_from_sa :  STD_LOGIC;
                 signal epcs_flash_controller_0_epcs_control_port_irq :  STD_LOGIC;
                 signal epcs_flash_controller_0_epcs_control_port_readyfordata_from_sa :  STD_LOGIC;
+                signal in_port_to_the_async_irq_from_pcp :  STD_LOGIC;
                 signal in_port_to_the_inport_ap :  STD_LOGIC_VECTOR (7 DOWNTO 0);
                 signal in_port_to_the_sync_irq_from_pcp :  STD_LOGIC;
                 signal jtag_uart_1_avalon_jtag_slave_dataavailable_from_sa :  STD_LOGIC;
@@ -9460,6 +9826,7 @@ begin
       MISO_to_the_spi_master => MISO_to_the_spi_master,
       clk_0 => clk_0,
       data0_to_the_epcs_flash_controller_0 => data0_to_the_epcs_flash_controller_0,
+      in_port_to_the_async_irq_from_pcp => in_port_to_the_async_irq_from_pcp,
       in_port_to_the_inport_ap => in_port_to_the_inport_ap,
       in_port_to_the_sync_irq_from_pcp => in_port_to_the_sync_irq_from_pcp,
       reset_n => reset_n
