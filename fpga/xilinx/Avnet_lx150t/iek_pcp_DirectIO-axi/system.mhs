@@ -401,7 +401,6 @@ BEGIN axi_powerlink
 # portio direction configuration: (high=input, low=output)
  PORT pio_pconfig = 0b0100
  PORT S_AXI_SMP_PCP_ACLK = clk_100_0000MHzPLL1
- PORT test_port = axi_powerlink_0_test_port_to_chipscope_ila_0
 END
 
 BEGIN axi_hwicap
@@ -435,23 +434,5 @@ BEGIN axi_gpio
  BUS_INTERFACE S_AXI = axi4lite_0
  PORT S_AXI_ACLK = clk_50_0000MHzPLL1
  PORT GPIO_IO_O = POWERLINK_LED_GPIO_IO_O
-END
-
-BEGIN chipscope_ila
- PARAMETER INSTANCE = chipscope_ila_0
- PARAMETER HW_VER = 1.04.a
- PARAMETER C_TRIG0_UNITS = 1
- PARAMETER C_TRIG0_TRIGGER_IN_WIDTH = 256
- PARAMETER C_NUM_DATA_SAMPLES = 4096
- PORT chipscope_ila_control = chipscope_ila_0_icon_control
- PORT TRIG0 = axi_powerlink_0_test_port_to_chipscope_ila_0
- PORT CLK = clk_50_0000MHzPLL1
-END
-
-BEGIN chipscope_icon
- PARAMETER INSTANCE = chipscope_icon_0
- PARAMETER HW_VER = 1.05.a
- PARAMETER C_NUM_CONTROL_PORTS = 1
- PORT control0 = chipscope_ila_0_icon_control
 END
 
