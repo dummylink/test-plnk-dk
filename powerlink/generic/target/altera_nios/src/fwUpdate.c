@@ -291,7 +291,7 @@ programmed.
 static void updateIib(UINT32 uiImageAdrs_p)
 {
     tIib                iib;
-    UINT32              uiMagic = IIB_MAGIC_V2;
+    UINT32              uiMagic = IIB_MAGIC | CONFIG_USER_IIB_VERSION;
     UINT32              uiCrc;
     UINT32              uiAdrs;
 
