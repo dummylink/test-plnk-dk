@@ -252,23 +252,32 @@
 // =========================================================================
 // defines for flash update function
 // =========================================================================
-//#define CONFIG_IIB_IS_PRESENT                                  ///< IIB is stored in flash
-#define CONFIG_FACTORY_IIB_FLASH_ADRS          0x00400000      ///< flash address of factory IIB
-#define CONFIG_USER_IIB_FLASH_ADRS             0x00410000      ///< flash address of user IIB
-#define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000      ///< flash address of user image
-#define CONFIG_USER_IIB_VERSION                2               ///< used IIB version
+// all defines of this block need to be activated for firmware-update
+// IIB is stored in flash
+//#define CONFIG_IIB_IS_PRESENT                               // mandatory for FW-update
+// flash address of factory IIB
+#define CONFIG_FACTORY_IIB_FLASH_ADRS          0x00400000   // mandatory for FW-update
+// flash address of user IIB
+#define CONFIG_USER_IIB_FLASH_ADRS             0x00410000   // mandatory for FW-update
+// flash address of user image
+#define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000   // mandatory for FW-update
+// used IIB version
+#define CONFIG_USER_IIB_VERSION                2            // mandatory for FW-update
 
 // =========================================================================
 // defines for FPGA reconfiguration
 // =========================================================================
-#define CONFIG_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
-//#define CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
+// if defined, watchdog timer will be disabled (default)
+#define CONFIG_DISABLE_WATCHDOG
+// enable user image reconfiguration
+//#define CONFIG_USER_IMAGE_IN_FLASH                          // mandatory for FW-update
 
 // =========================================================================
 // defines for POWERLINK device identification and configuration
 // =========================================================================
-// identification parameters
+// identification parameters, only relevant if PDI is not present
 #define CONFIG_IDENT_PRODUCT_CODE           0
+// B & R firmware file generation tool supports only 0..999 dec.
 #define CONFIG_IDENT_REVISION               0x10020
 #define CONFIG_IDENT_VENDOR_ID              0
 #define CONFIG_IDENT_SERIAL_NUMBER          0

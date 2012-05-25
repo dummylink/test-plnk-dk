@@ -55,7 +55,7 @@ a dual ported RAM (DPRAM) area.
 
 #define DEMO_VENDOR_ID      0x00000000
 #define DEMO_PRODUCT_CODE   0
-#define DEMO_REVISION       0x00010020
+#define DEMO_REVISION       0x00010020                          ///< B & R firmware file generation tool supports only 0..999 dec.
 #define DEMO_SERIAL_NUMBER  0x00000000
 #define DEMO_DEVICE_NAME "POWERLINK CN DEMO"
 #define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
