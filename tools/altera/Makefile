@@ -38,7 +38,7 @@
 
 CC=gcc
 
-INCLUDES=-I ../../powerlink/include -I ../../libCnApi/include
+INCLUDES=-I ../../powerlink/generic/target/altera_nios/include -I ../../libCnApi/include
 
 #CFLAGS=-O0 -g -Wall $(INCLUDES)
 CFLAGS=-O2 -Wall $(INCLUDES)
