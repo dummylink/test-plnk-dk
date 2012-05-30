@@ -1,0 +1,554 @@
+/*
+ * system.h - SOPC Builder system and BSP software package information
+ *
+ * Machine generated for CPU 'pcp_cpu' in SOPC Builder design 'niosII_openMac'
+ * SOPC Builder design path: ../../../fpga/altera/BeMicro/ink_pcp_DirectIO_10_2/niosII_openMac.sopcinfo
+ *
+ * Generated: Wed Apr 18 08:30:12 CEST 2012
+ */
+
+/*
+ * DO NOT MODIFY THIS FILE
+ *
+ * Changing this file will have subtle consequences
+ * which will almost certainly lead to a nonfunctioning
+ * system. If you do modify this file, be aware that your
+ * changes will be overwritten and lost when this file
+ * is generated again.
+ *
+ * DO NOT MODIFY THIS FILE
+ */
+
+/*
+ * License Agreement
+ *
+ * Copyright (c) 2008
+ * Altera Corporation, San Jose, California, USA.
+ * All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * This agreement shall be governed in all respects by the laws of the State
+ * of California and by the laws of the United States of America.
+ */
+
+#ifndef __SYSTEM_H_
+#define __SYSTEM_H_
+
+/* Include definitions from linker script generator */
+#include "linker.h"
+
+
+/*
+ * CPU configuration
+ *
+ */
+
+#define ALT_CPU_ARCHITECTURE "altera_nios2"
+#define ALT_CPU_BIG_ENDIAN 0
+#define ALT_CPU_BREAK_ADDR 0x1104820
+#define ALT_CPU_CPU_FREQ 100000000u
+#define ALT_CPU_CPU_ID_SIZE 1
+#define ALT_CPU_CPU_ID_VALUE 0x0
+#define ALT_CPU_CPU_IMPLEMENTATION "small"
+#define ALT_CPU_DATA_ADDR_WIDTH 0x1a
+#define ALT_CPU_DCACHE_LINE_SIZE 0
+#define ALT_CPU_DCACHE_LINE_SIZE_LOG2 0
+#define ALT_CPU_DCACHE_SIZE 0
+#define ALT_CPU_EXCEPTION_ADDR 0x2000000
+#define ALT_CPU_FLUSHDA_SUPPORTED
+#define ALT_CPU_FREQ 100000000
+#define ALT_CPU_HARDWARE_DIVIDE_PRESENT 0
+#define ALT_CPU_HARDWARE_MULTIPLY_PRESENT 0
+#define ALT_CPU_HARDWARE_MULX_PRESENT 0
+#define ALT_CPU_HAS_DEBUG_CORE 1
+#define ALT_CPU_HAS_DEBUG_STUB
+#define ALT_CPU_HAS_JMPI_INSTRUCTION
+#define ALT_CPU_ICACHE_LINE_SIZE 32
+#define ALT_CPU_ICACHE_LINE_SIZE_LOG2 5
+#define ALT_CPU_ICACHE_SIZE 2048
+#define ALT_CPU_INST_ADDR_WIDTH 0x1a
+#define ALT_CPU_NAME "pcp_cpu"
+#define ALT_CPU_RESET_ADDR 0x1080000
+
+
+/*
+ * CPU configuration (with legacy prefix - don't use these anymore)
+ *
+ */
+
+#define NIOS2_BIG_ENDIAN 0
+#define NIOS2_BREAK_ADDR 0x1104820
+#define NIOS2_CPU_FREQ 100000000u
+#define NIOS2_CPU_ID_SIZE 1
+#define NIOS2_CPU_ID_VALUE 0x0
+#define NIOS2_CPU_IMPLEMENTATION "small"
+#define NIOS2_DATA_ADDR_WIDTH 0x1a
+#define NIOS2_DCACHE_LINE_SIZE 0
+#define NIOS2_DCACHE_LINE_SIZE_LOG2 0
+#define NIOS2_DCACHE_SIZE 0
+#define NIOS2_EXCEPTION_ADDR 0x2000000
+#define NIOS2_FLUSHDA_SUPPORTED
+#define NIOS2_HARDWARE_DIVIDE_PRESENT 0
+#define NIOS2_HARDWARE_MULTIPLY_PRESENT 0
+#define NIOS2_HARDWARE_MULX_PRESENT 0
+#define NIOS2_HAS_DEBUG_CORE 1
+#define NIOS2_HAS_DEBUG_STUB
+#define NIOS2_HAS_JMPI_INSTRUCTION
+#define NIOS2_ICACHE_LINE_SIZE 32
+#define NIOS2_ICACHE_LINE_SIZE_LOG2 5
+#define NIOS2_ICACHE_SIZE 2048
+#define NIOS2_INST_ADDR_WIDTH 0x1a
+#define NIOS2_RESET_ADDR 0x1080000
+
+
+/*
+ * Define for each module class mastered by the CPU
+ *
+ */
+
+#define __ALTERA_AVALON_EPCS_FLASH_CONTROLLER
+#define __ALTERA_AVALON_JTAG_UART
+#define __ALTERA_AVALON_ONCHIP_MEMORY2
+#define __ALTERA_AVALON_PIO
+#define __ALTERA_AVALON_REMOTE_UPDATE_CYCLONEIII
+#define __ALTERA_AVALON_SYSID
+#define __ALTERA_AVALON_TIMER
+#define __ALTERA_NIOS2
+#define __ALTPLL
+#define __POWERLINK
+#define __SRAM
+
+
+/*
+ * System configuration
+ *
+ */
+
+#define ALT_DEVICE_FAMILY "CYCLONEIVE"
+#define ALT_ENHANCED_INTERRUPT_API_PRESENT
+#define ALT_IRQ_BASE NULL
+#define ALT_LOG_PORT "/dev/null"
+#define ALT_LOG_PORT_BASE 0x0
+#define ALT_LOG_PORT_DEV null
+#define ALT_LOG_PORT_TYPE ""
+#define ALT_NUM_EXTERNAL_INTERRUPT_CONTROLLERS 0
+#define ALT_NUM_INTERNAL_INTERRUPT_CONTROLLERS 1
+#define ALT_NUM_INTERRUPT_CONTROLLERS 1
+#define ALT_STDERR "/dev/jtag_uart_0"
+#define ALT_STDERR_BASE 0x990
+#define ALT_STDERR_DEV jtag_uart_0
+#define ALT_STDERR_IS_JTAG_UART
+#define ALT_STDERR_PRESENT
+#define ALT_STDERR_TYPE "altera_avalon_jtag_uart"
+#define ALT_STDIN "/dev/jtag_uart_0"
+#define ALT_STDIN_BASE 0x990
+#define ALT_STDIN_DEV jtag_uart_0
+#define ALT_STDIN_IS_JTAG_UART
+#define ALT_STDIN_PRESENT
+#define ALT_STDIN_TYPE "altera_avalon_jtag_uart"
+#define ALT_STDOUT "/dev/jtag_uart_0"
+#define ALT_STDOUT_BASE 0x990
+#define ALT_STDOUT_DEV jtag_uart_0
+#define ALT_STDOUT_IS_JTAG_UART
+#define ALT_STDOUT_PRESENT
+#define ALT_STDOUT_TYPE "altera_avalon_jtag_uart"
+#define ALT_SYSTEM_NAME "niosII_openMac"
+
+
+/*
+ * altpll_0 configuration
+ *
+ */
+
+#define ALTPLL_0_BASE 0x980
+#define ALTPLL_0_IRQ -1
+#define ALTPLL_0_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define ALTPLL_0_NAME "/dev/altpll_0"
+#define ALTPLL_0_SPAN 16
+#define ALTPLL_0_TYPE "altpll"
+#define ALT_MODULE_CLASS_altpll_0 altpll
+
+
+/*
+ * benchmark_pio configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_benchmark_pio altera_avalon_pio
+#define BENCHMARK_PIO_BASE 0x940
+#define BENCHMARK_PIO_BIT_CLEARING_EDGE_REGISTER 0
+#define BENCHMARK_PIO_BIT_MODIFYING_OUTPUT_REGISTER 1
+#define BENCHMARK_PIO_CAPTURE 0
+#define BENCHMARK_PIO_DATA_WIDTH 8
+#define BENCHMARK_PIO_DO_TEST_BENCH_WIRING 0
+#define BENCHMARK_PIO_DRIVEN_SIM_VALUE 0x0
+#define BENCHMARK_PIO_EDGE_TYPE "NONE"
+#define BENCHMARK_PIO_FREQ 50000000u
+#define BENCHMARK_PIO_HAS_IN 0
+#define BENCHMARK_PIO_HAS_OUT 1
+#define BENCHMARK_PIO_HAS_TRI 0
+#define BENCHMARK_PIO_IRQ -1
+#define BENCHMARK_PIO_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define BENCHMARK_PIO_IRQ_TYPE "NONE"
+#define BENCHMARK_PIO_NAME "/dev/benchmark_pio"
+#define BENCHMARK_PIO_RESET_VALUE 0x0
+#define BENCHMARK_PIO_SPAN 32
+#define BENCHMARK_PIO_TYPE "altera_avalon_pio"
+
+
+/*
+ * epcs_flash_controller_0 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_epcs_flash_controller_0 altera_avalon_epcs_flash_controller
+#define EPCS_FLASH_CONTROLLER_0_BASE 0x0
+#define EPCS_FLASH_CONTROLLER_0_IRQ 6
+#define EPCS_FLASH_CONTROLLER_0_IRQ_INTERRUPT_CONTROLLER_ID 0
+#define EPCS_FLASH_CONTROLLER_0_NAME "/dev/epcs_flash_controller_0"
+#define EPCS_FLASH_CONTROLLER_0_REGISTER_OFFSET 1024
+#define EPCS_FLASH_CONTROLLER_0_SPAN 2048
+#define EPCS_FLASH_CONTROLLER_0_TYPE "altera_avalon_epcs_flash_controller"
+
+
+/*
+ * hal configuration
+ *
+ */
+
+#define ALT_MAX_FD 32
+#define ALT_SYS_CLK SYSTEM_TIMER
+#define ALT_TIMESTAMP_CLK none
+
+
+/*
+ * jtag_uart_0 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_jtag_uart_0 altera_avalon_jtag_uart
+#define JTAG_UART_0_BASE 0x990
+#define JTAG_UART_0_IRQ 5
+#define JTAG_UART_0_IRQ_INTERRUPT_CONTROLLER_ID 0
+#define JTAG_UART_0_NAME "/dev/jtag_uart_0"
+#define JTAG_UART_0_READ_DEPTH 64
+#define JTAG_UART_0_READ_THRESHOLD 8
+#define JTAG_UART_0_SPAN 8
+#define JTAG_UART_0_TYPE "altera_avalon_jtag_uart"
+#define JTAG_UART_0_WRITE_DEPTH 64
+#define JTAG_UART_0_WRITE_THRESHOLD 8
+
+
+/*
+ * node_switch_pio configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_node_switch_pio altera_avalon_pio
+#define NODE_SWITCH_PIO_BASE 0x960
+#define NODE_SWITCH_PIO_BIT_CLEARING_EDGE_REGISTER 0
+#define NODE_SWITCH_PIO_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define NODE_SWITCH_PIO_CAPTURE 0
+#define NODE_SWITCH_PIO_DATA_WIDTH 8
+#define NODE_SWITCH_PIO_DO_TEST_BENCH_WIRING 0
+#define NODE_SWITCH_PIO_DRIVEN_SIM_VALUE 0x0
+#define NODE_SWITCH_PIO_EDGE_TYPE "NONE"
+#define NODE_SWITCH_PIO_FREQ 50000000u
+#define NODE_SWITCH_PIO_HAS_IN 1
+#define NODE_SWITCH_PIO_HAS_OUT 0
+#define NODE_SWITCH_PIO_HAS_TRI 0
+#define NODE_SWITCH_PIO_IRQ -1
+#define NODE_SWITCH_PIO_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define NODE_SWITCH_PIO_IRQ_TYPE "NONE"
+#define NODE_SWITCH_PIO_NAME "/dev/node_switch_pio"
+#define NODE_SWITCH_PIO_RESET_VALUE 0x0
+#define NODE_SWITCH_PIO_SPAN 16
+#define NODE_SWITCH_PIO_TYPE "altera_avalon_pio"
+
+
+/*
+ * powerlink_0_MAC_BUF configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_powerlink_0_MAC_BUF powerlink
+#define POWERLINK_0_MAC_BUF_BASE 0x1100000
+#define POWERLINK_0_MAC_BUF_CONFIG 0
+#define POWERLINK_0_MAC_BUF_CONFIGAPENDIAN 0
+#define POWERLINK_0_MAC_BUF_DMAOBSERV 0
+#define POWERLINK_0_MAC_BUF_EVENT 1
+#define POWERLINK_0_MAC_BUF_FPGAREV 2
+#define POWERLINK_0_MAC_BUF_IRQ -1
+#define POWERLINK_0_MAC_BUF_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define POWERLINK_0_MAC_BUF_LEDGADGET 1
+#define POWERLINK_0_MAC_BUF_MACBUFSIZE 13088
+#define POWERLINK_0_MAC_BUF_MACRXBUFFERS 4
+#define POWERLINK_0_MAC_BUF_MACRXBUFSIZE 6192
+#define POWERLINK_0_MAC_BUF_MACTXBUFFERS 12
+#define POWERLINK_0_MAC_BUF_MACTXBUFSIZE 6896
+#define POWERLINK_0_MAC_BUF_NAME "/dev/powerlink_0_MAC_BUF"
+#define POWERLINK_0_MAC_BUF_PDIASYNCBUFSIZE1 1514
+#define POWERLINK_0_MAC_BUF_PDIASYNCBUFSIZE2 1514
+#define POWERLINK_0_MAC_BUF_PDIRPDOBUFSIZE0 4
+#define POWERLINK_0_MAC_BUF_PDIRPDOBUFSIZE1 0
+#define POWERLINK_0_MAC_BUF_PDIRPDOBUFSIZE2 0
+#define POWERLINK_0_MAC_BUF_PDIRPDOS 1
+#define POWERLINK_0_MAC_BUF_PDITPDOBUFSIZE0 4
+#define POWERLINK_0_MAC_BUF_PDITPDOS 1
+#define POWERLINK_0_MAC_BUF_PHYCNT 2
+#define POWERLINK_0_MAC_BUF_PKTLOC 0
+#define POWERLINK_0_MAC_BUF_SPAN 16384
+#define POWERLINK_0_MAC_BUF_TIMESYNCHW 0
+#define POWERLINK_0_MAC_BUF_TYPE "powerlink"
+
+
+/*
+ * powerlink_0_MAC_CMP configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_powerlink_0_MAC_CMP powerlink
+#define POWERLINK_0_MAC_CMP_BASE 0x970
+#define POWERLINK_0_MAC_CMP_CONFIG 0
+#define POWERLINK_0_MAC_CMP_CONFIGAPENDIAN 0
+#define POWERLINK_0_MAC_CMP_DMAOBSERV 0
+#define POWERLINK_0_MAC_CMP_EVENT 1
+#define POWERLINK_0_MAC_CMP_FPGAREV 2
+#define POWERLINK_0_MAC_CMP_IRQ 0
+#define POWERLINK_0_MAC_CMP_IRQ_INTERRUPT_CONTROLLER_ID 0
+#define POWERLINK_0_MAC_CMP_LEDGADGET 1
+#define POWERLINK_0_MAC_CMP_MACBUFSIZE 13088
+#define POWERLINK_0_MAC_CMP_MACRXBUFFERS 4
+#define POWERLINK_0_MAC_CMP_MACRXBUFSIZE 6192
+#define POWERLINK_0_MAC_CMP_MACTXBUFFERS 12
+#define POWERLINK_0_MAC_CMP_MACTXBUFSIZE 6896
+#define POWERLINK_0_MAC_CMP_NAME "/dev/powerlink_0_MAC_CMP"
+#define POWERLINK_0_MAC_CMP_PDIASYNCBUFSIZE1 1514
+#define POWERLINK_0_MAC_CMP_PDIASYNCBUFSIZE2 1514
+#define POWERLINK_0_MAC_CMP_PDIRPDOBUFSIZE0 4
+#define POWERLINK_0_MAC_CMP_PDIRPDOBUFSIZE1 0
+#define POWERLINK_0_MAC_CMP_PDIRPDOBUFSIZE2 0
+#define POWERLINK_0_MAC_CMP_PDIRPDOS 1
+#define POWERLINK_0_MAC_CMP_PDITPDOBUFSIZE0 4
+#define POWERLINK_0_MAC_CMP_PDITPDOS 1
+#define POWERLINK_0_MAC_CMP_PHYCNT 2
+#define POWERLINK_0_MAC_CMP_PKTLOC 0
+#define POWERLINK_0_MAC_CMP_SPAN 16
+#define POWERLINK_0_MAC_CMP_TIMESYNCHW 0
+#define POWERLINK_0_MAC_CMP_TYPE "powerlink"
+
+
+/*
+ * powerlink_0_MAC_REG configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_powerlink_0_MAC_REG powerlink
+#define POWERLINK_0_MAC_REG_BASE 0x2000
+#define POWERLINK_0_MAC_REG_CONFIG 0
+#define POWERLINK_0_MAC_REG_CONFIGAPENDIAN 0
+#define POWERLINK_0_MAC_REG_DMAOBSERV 0
+#define POWERLINK_0_MAC_REG_EVENT 1
+#define POWERLINK_0_MAC_REG_FPGAREV 2
+#define POWERLINK_0_MAC_REG_IRQ 1
+#define POWERLINK_0_MAC_REG_IRQ_INTERRUPT_CONTROLLER_ID 0
+#define POWERLINK_0_MAC_REG_LEDGADGET 1
+#define POWERLINK_0_MAC_REG_MACBUFSIZE 13088
+#define POWERLINK_0_MAC_REG_MACRXBUFFERS 4
+#define POWERLINK_0_MAC_REG_MACRXBUFSIZE 6192
+#define POWERLINK_0_MAC_REG_MACTXBUFFERS 12
+#define POWERLINK_0_MAC_REG_MACTXBUFSIZE 6896
+#define POWERLINK_0_MAC_REG_NAME "/dev/powerlink_0_MAC_REG"
+#define POWERLINK_0_MAC_REG_PDIASYNCBUFSIZE1 1514
+#define POWERLINK_0_MAC_REG_PDIASYNCBUFSIZE2 1514
+#define POWERLINK_0_MAC_REG_PDIRPDOBUFSIZE0 4
+#define POWERLINK_0_MAC_REG_PDIRPDOBUFSIZE1 0
+#define POWERLINK_0_MAC_REG_PDIRPDOBUFSIZE2 0
+#define POWERLINK_0_MAC_REG_PDIRPDOS 1
+#define POWERLINK_0_MAC_REG_PDITPDOBUFSIZE0 4
+#define POWERLINK_0_MAC_REG_PDITPDOS 1
+#define POWERLINK_0_MAC_REG_PHYCNT 2
+#define POWERLINK_0_MAC_REG_PKTLOC 0
+#define POWERLINK_0_MAC_REG_SPAN 8192
+#define POWERLINK_0_MAC_REG_TIMESYNCHW 0
+#define POWERLINK_0_MAC_REG_TYPE "powerlink"
+
+
+/*
+ * powerlink_0_SMP configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_powerlink_0_SMP powerlink
+#define POWERLINK_0_SMP_BASE 0x1105008
+#define POWERLINK_0_SMP_CONFIG 0
+#define POWERLINK_0_SMP_CONFIGAPENDIAN 0
+#define POWERLINK_0_SMP_DMAOBSERV 0
+#define POWERLINK_0_SMP_EVENT 1
+#define POWERLINK_0_SMP_FPGAREV 2
+#define POWERLINK_0_SMP_IRQ -1
+#define POWERLINK_0_SMP_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define POWERLINK_0_SMP_LEDGADGET 1
+#define POWERLINK_0_SMP_MACBUFSIZE 13088
+#define POWERLINK_0_SMP_MACRXBUFFERS 4
+#define POWERLINK_0_SMP_MACRXBUFSIZE 6192
+#define POWERLINK_0_SMP_MACTXBUFFERS 12
+#define POWERLINK_0_SMP_MACTXBUFSIZE 6896
+#define POWERLINK_0_SMP_NAME "/dev/powerlink_0_SMP"
+#define POWERLINK_0_SMP_PDIASYNCBUFSIZE1 1514
+#define POWERLINK_0_SMP_PDIASYNCBUFSIZE2 1514
+#define POWERLINK_0_SMP_PDIRPDOBUFSIZE0 4
+#define POWERLINK_0_SMP_PDIRPDOBUFSIZE1 0
+#define POWERLINK_0_SMP_PDIRPDOBUFSIZE2 0
+#define POWERLINK_0_SMP_PDIRPDOS 1
+#define POWERLINK_0_SMP_PDITPDOBUFSIZE0 4
+#define POWERLINK_0_SMP_PDITPDOS 1
+#define POWERLINK_0_SMP_PHYCNT 2
+#define POWERLINK_0_SMP_PKTLOC 0
+#define POWERLINK_0_SMP_SPAN 8
+#define POWERLINK_0_SMP_TIMESYNCHW 0
+#define POWERLINK_0_SMP_TYPE "powerlink"
+
+
+/*
+ * remote_update_cycloneiii_0 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_remote_update_cycloneiii_0 altera_avalon_remote_update_cycloneiii
+#define REMOTE_UPDATE_CYCLONEIII_0_BASE 0x800
+#define REMOTE_UPDATE_CYCLONEIII_0_IRQ -1
+#define REMOTE_UPDATE_CYCLONEIII_0_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define REMOTE_UPDATE_CYCLONEIII_0_NAME "/dev/remote_update_cycloneiii_0"
+#define REMOTE_UPDATE_CYCLONEIII_0_SPAN 256
+#define REMOTE_UPDATE_CYCLONEIII_0_TYPE "altera_avalon_remote_update_cycloneiii"
+
+
+/*
+ * sram_0 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_sram_0 sram
+#define SRAM_0_BASE 0x1080000
+#define SRAM_0_IRQ -1
+#define SRAM_0_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define SRAM_0_NAME "/dev/sram_0"
+#define SRAM_0_SPAN 524288
+#define SRAM_0_TYPE "sram"
+
+
+/*
+ * status_led_pio configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_status_led_pio altera_avalon_pio
+#define STATUS_LED_PIO_BASE 0x920
+#define STATUS_LED_PIO_BIT_CLEARING_EDGE_REGISTER 0
+#define STATUS_LED_PIO_BIT_MODIFYING_OUTPUT_REGISTER 1
+#define STATUS_LED_PIO_CAPTURE 0
+#define STATUS_LED_PIO_DATA_WIDTH 2
+#define STATUS_LED_PIO_DO_TEST_BENCH_WIRING 0
+#define STATUS_LED_PIO_DRIVEN_SIM_VALUE 0x0
+#define STATUS_LED_PIO_EDGE_TYPE "NONE"
+#define STATUS_LED_PIO_FREQ 50000000u
+#define STATUS_LED_PIO_HAS_IN 0
+#define STATUS_LED_PIO_HAS_OUT 1
+#define STATUS_LED_PIO_HAS_TRI 0
+#define STATUS_LED_PIO_IRQ -1
+#define STATUS_LED_PIO_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define STATUS_LED_PIO_IRQ_TYPE "NONE"
+#define STATUS_LED_PIO_NAME "/dev/status_led_pio"
+#define STATUS_LED_PIO_RESET_VALUE 0x0
+#define STATUS_LED_PIO_SPAN 32
+#define STATUS_LED_PIO_TYPE "altera_avalon_pio"
+
+
+/*
+ * sysid configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_sysid altera_avalon_sysid
+#define SYSID_BASE 0x998
+#define SYSID_ID 1u
+#define SYSID_IRQ -1
+#define SYSID_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define SYSID_NAME "/dev/sysid"
+#define SYSID_SPAN 8
+#define SYSID_TIMESTAMP 1334729853u
+#define SYSID_TYPE "altera_avalon_sysid"
+
+
+/*
+ * system_timer configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_system_timer altera_avalon_timer
+#define SYSTEM_TIMER_ALWAYS_RUN 1
+#define SYSTEM_TIMER_BASE 0x900
+#define SYSTEM_TIMER_COUNTER_SIZE 32
+#define SYSTEM_TIMER_FIXED_PERIOD 1
+#define SYSTEM_TIMER_FREQ 50000000u
+#define SYSTEM_TIMER_IRQ 3
+#define SYSTEM_TIMER_IRQ_INTERRUPT_CONTROLLER_ID 0
+#define SYSTEM_TIMER_LOAD_VALUE 49999ull
+#define SYSTEM_TIMER_MULT 0.0010
+#define SYSTEM_TIMER_NAME "/dev/system_timer"
+#define SYSTEM_TIMER_PERIOD 1
+#define SYSTEM_TIMER_PERIOD_UNITS "ms"
+#define SYSTEM_TIMER_RESET_OUTPUT 0
+#define SYSTEM_TIMER_SNAPSHOT 0
+#define SYSTEM_TIMER_SPAN 32
+#define SYSTEM_TIMER_TICKS_PER_SEC 1000u
+#define SYSTEM_TIMER_TIMEOUT_PULSE_OUTPUT 0
+#define SYSTEM_TIMER_TYPE "altera_avalon_timer"
+
+
+/*
+ * tc_i_mem_pcp configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_tc_i_mem_pcp altera_avalon_onchip_memory2
+#define TC_I_MEM_PCP_ALLOW_IN_SYSTEM_MEMORY_CONTENT_EDITOR 0
+#define TC_I_MEM_PCP_ALLOW_MRAM_SIM_CONTENTS_ONLY_FILE 0
+#define TC_I_MEM_PCP_BASE 0x2000000
+#define TC_I_MEM_PCP_CONTENTS_INFO ""
+#define TC_I_MEM_PCP_DUAL_PORT 1
+#define TC_I_MEM_PCP_GUI_RAM_BLOCK_TYPE "Automatic"
+#define TC_I_MEM_PCP_INIT_CONTENTS_FILE "tc_i_mem_pcp"
+#define TC_I_MEM_PCP_INIT_MEM_CONTENT 1
+#define TC_I_MEM_PCP_INSTANCE_ID "NONE"
+#define TC_I_MEM_PCP_IRQ -1
+#define TC_I_MEM_PCP_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define TC_I_MEM_PCP_NAME "/dev/tc_i_mem_pcp"
+#define TC_I_MEM_PCP_NON_DEFAULT_INIT_FILE_ENABLED 0
+#define TC_I_MEM_PCP_RAM_BLOCK_TYPE "Auto"
+#define TC_I_MEM_PCP_READ_DURING_WRITE_MODE "DONT_CARE"
+#define TC_I_MEM_PCP_SIZE_MULTIPLE 1
+#define TC_I_MEM_PCP_SIZE_VALUE 2048u
+#define TC_I_MEM_PCP_SPAN 2048
+#define TC_I_MEM_PCP_TYPE "altera_avalon_onchip_memory2"
+#define TC_I_MEM_PCP_WRITABLE 1
+
+#endif /* __SYSTEM_H_ */
