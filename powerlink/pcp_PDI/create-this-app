@@ -21,6 +21,7 @@ PWD=`pwd`
 . ../../project.config  						#POWERLINK stack path
 EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path
 GENERIC_DIR=../generic
+CNDK_TARGET_DIR=../target
 PCP_DIR=$PWD/..                                 # use absolute path to be able to include
                                                 # from different source directories
 BSP_DIR=./bsp
@@ -83,7 +84,7 @@ done
 INCLUDES="\
 . \
 ${EDRV_DIR}/openmac/include \
-${GENERIC_DIR}/target/altera_nios/include \
+${CNDK_TARGET_DIR}/altera_nios/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
@@ -141,10 +142,10 @@ pcpAsyncSm.c \
 pcpStateMachine.c \
 pcpEvent.c \
 pcpSync.c \
-${GENERIC_DIR}/target/altera_nios/src/fpgaCfg.c \
-${GENERIC_DIR}/target/altera_nios/src/fwUpdate.c \
-${GENERIC_DIR}/target/altera_nios/src/boot.c \
-${GENERIC_DIR}/target/altera_nios/src/systemComponents.c \
+${CNDK_TARGET_DIR}/altera_nios/src/fpgaCfg.c \
+${CNDK_TARGET_DIR}/altera_nios/src/fwUpdate.c \
+${CNDK_TARGET_DIR}/altera_nios/src/boot.c \
+${CNDK_TARGET_DIR}/altera_nios/src/systemComponents.c \
 ${GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \

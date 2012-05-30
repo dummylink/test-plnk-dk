@@ -15,7 +15,7 @@ POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
 APP_DIR=${CNDK_DIR}/powerlink/pcp_PDI
 OBJDICT_DIR=${CNDK_DIR}/objDicts/PDI
 EDRV_DIR=${CNDK_DIR}/powerlink/generic/POWERLINK_IP_Edrv
-CNDK_TARGET_DIR=${CNDK_DIR}/powerlink/generic/target/xilinx_microblaze
+CNDK_TARGET_DIR=${CNDK_DIR}/powerlink/target/xilinx_microblaze
 CN_API_DIR=${CNDK_DIR}/libCnApi
 TOOLS_PATH=${CNDK_DIR}/tools/xilinx
 
