@@ -55,6 +55,25 @@ for AP and PCP. AP forcing overwrites any other LED signal value settings. */
 /* typedefs */
 
 /**
+ * CN API LED module
+ *
+ * tCnApiLedType contains the states of the LED module
+ */
+typedef enum
+{
+    kCnApiLedTypeStatus      = 0x00,
+    kCnApiLedTypeError       = 0x01,
+    kCnApiLedTypePhy0Link    = 0x02,
+    kCnApiLedTypePhy0Active  = 0x03,
+    kCnApiLedTypePhy1Link    = 0x04,
+    kCnApiLedTypePhy1Active  = 0x05,
+    kCnApiLedTypeOpt0        = 0x06,
+    kCnApiLedTypeOpt1        = 0x07,
+    kCnApiLedInit         = 0x08,
+
+} tCnApiLedType;
+
+/**
  * CN API status codes
  *
  * tCnApiStatus contains the status codes that could be returned by the API

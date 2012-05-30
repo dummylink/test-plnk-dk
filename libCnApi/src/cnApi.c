@@ -602,6 +602,95 @@ WORD CnApi_getNodeId(void)
     return AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wNodeId));
 }
 
+/**
+********************************************************************************
+\brief  set POWERLINK LEDs
+
+Sets the LED according to bLed_p to the value bOn_p
+
+\retval bLed_p        Type of Led to set
+\retval bOn_p         (TRUE = On, FALSE = Off)
+*******************************************************************************/
+tCnApiStatus CnApi_setLed(tCnApiLedType bLed_p, BOOL bOn_p)
+{
+    tCnApiStatus FncRet = kCnApiStatusOk;
+    WORD wLedCnf, wLedCntrl, wRegisterBitNum = 0;
+
+    switch(bLed_p)
+    {
+        case kCnApiLedTypeStatus:
+            wRegisterBitNum = kCnApiLedTypeStatus;
+            break;
+        case kCnApiLedTypeError:
+            wRegisterBitNum = kCnApiLedTypeError;
+            break;
+        case kCnApiLedTypePhy0Link:
+            wRegisterBitNum = kCnApiLedTypePhy0Link;
+            break;
+        case kCnApiLedTypePhy0Active:
+            wRegisterBitNum = kCnApiLedTypePhy0Active;
+            break;
+        case kCnApiLedTypePhy1Link:
+            wRegisterBitNum = kCnApiLedTypePhy1Link;
+            break;
+        case kCnApiLedTypePhy1Active:
+            wRegisterBitNum = kCnApiLedTypePhy1Active;
+            break;
+        case kCnApiLedTypeOpt0:
+            wRegisterBitNum = kCnApiLedTypeOpt0;
+            break;
+        case kCnApiLedTypeOpt1:
+            wRegisterBitNum = kCnApiLedTypeOpt1;
+            break;
+        case kCnApiLedInit:
+            FncRet = kCnApiStatusError;
+            goto Exit;
+        break;
+    }
+
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_LED_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wLedControl),
+                   (BYTE*) &pCtrlReg_g->m_wLedControl);
+
+    CnApi_Spi_read(PCP_CTRLREG_LED_CNFG_OFFSET,
+                   sizeof(pCtrlReg_g->m_wLedConfig),
+                   (BYTE*) &pCtrlReg_g->m_wLedConfig);
+#endif /* CN_API_USING_SPI */
+
+    wLedCnf = AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wLedConfig));
+    wLedCntrl = AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wLedControl));
+
+    if (bOn_p)  //activate LED output
+    {
+        wLedCntrl |= (1 << wRegisterBitNum);
+        wLedCnf |= (1 << wRegisterBitNum);
+    }
+    else        // deactive LED output
+    {
+        wLedCntrl &= ~(1 << wRegisterBitNum);
+        wLedCnf &= ~(1 << wRegisterBitNum);
+    }
+
+
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedControl, wLedCntrl);
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedConfig, wLedCnf);
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_write(PCP_CTRLREG_LED_CTRL_OFFSET,
+                    sizeof(pCtrlReg_g->m_wLedControl),
+                    (BYTE*) &pCtrlReg_g->m_wLedControl);
+
+    CnApi_Spi_write(PCP_CTRLREG_LED_CNFG_OFFSET,
+                    sizeof(pCtrlReg_g->m_wLedConfig),
+                    (BYTE*) &pCtrlReg_g->m_wLedConfig);
+#endif /* CN_API_USING_SPI */
+
+Exit:
+    return FncRet;
+}
+
 /* END-OF-FILE */
 /******************************************************************************/
 

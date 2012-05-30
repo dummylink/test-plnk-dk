@@ -129,8 +129,8 @@ FUNC_ENTRYACT(kPcpStateBooted)
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wCommand, kApCmdNone);     // reset AP command
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_dwSyncIntCycTime, 0x00);
 
-    Gi_controlLED(kEplLedTypeTestAll, TRUE); // set "bootup indicator LEDs"
-    Gi_controlLED(kEplLedTypeTestAll, FALSE); // reset "bootup LED" //TODO: status/error LED does not work without this test
+    Gi_controlLED(kCnApiLedInit, TRUE);    ///< set all LEDs at bootup
+    Gi_controlLED(kCnApiLedInit, FALSE);    ///< reset all LEDs at bootup
 
 	///< if this is not the first boot: shutdown POWERLINK first
 	if(fPLisInitalized_g == TRUE)

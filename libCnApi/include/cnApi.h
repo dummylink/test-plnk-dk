@@ -220,5 +220,8 @@ extern void CnApi_enableAsyncEventIRQ(void);
 extern void CnApi_disableAsyncEventIRQ(void);
 extern void CnApi_pollAsyncEvent(void);
 
+/* functions for the LED module */
+extern tCnApiStatus CnApi_setLed(tCnApiLedType bLed_p, BOOL bOn_p);
+
 
 #endif /* CNAPI_H_ */

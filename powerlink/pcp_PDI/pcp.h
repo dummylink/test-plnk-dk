@@ -69,7 +69,7 @@ extern BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p);
 
 extern void Gi_enableSyncInt(WORD wSyncIntCycle_p);
 
-extern void Gi_controlLED(BYTE bType_p, BOOL bOn_p);
+extern void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p);
 
 extern tEplKernel EplAppDefObdAccFinished(tEplObdParam ** pObdParam_p);
 extern void EplAppDefObdAccCleanupHistory(void);

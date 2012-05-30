@@ -1249,21 +1249,21 @@ static void Gi_shutdown(void)
 ********************************************************************************
 \brief    control LED outputs of POWERLINK IP core
 *******************************************************************************/
-void Gi_controlLED(BYTE bType_p, BOOL bOn_p)
+void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p)
 {
     WORD        wRegisterBitNum;
     WORD        wLedControl;
 
     switch (bType_p)
         {
-        case kEplLedTypeStatus:
+        case kCnApiLedTypeStatus:
             wRegisterBitNum = LED_STATUS;
             break;
-        case kEplLedTypeError:
+        case kCnApiLedTypeError:
             wRegisterBitNum = LED_ERROR;
             break;
-        case kEplLedTypeTestAll:
-            /* This case if for testing the LEDs */
+        case kCnApiLedInit:
+            /* This case if for initing the LEDs */
             /* enable forcing for all LEDs */
             AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedConfig, 0xffff);
             if (bOn_p)  //activate LED output
