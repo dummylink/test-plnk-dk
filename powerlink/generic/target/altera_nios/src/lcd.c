@@ -6,6 +6,7 @@
 #include "system.h"
 #include "lcd.h"
 
+#ifdef LCD_BASE  // LCD module present
 //-------------------------------------------------------------------------
 void LCD_Init()
 {
@@ -43,3 +44,4 @@ void LCD_Line2()
   usleep(2000);
 }
 //-------------------------------------------------------------------------
+#endif // LCD_BASE

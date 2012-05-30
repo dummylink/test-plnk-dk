@@ -57,7 +57,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #ifdef POWERLINK_0_PDI_PCP_BASE
-#define PDI_DPRAM_BASE_PCP    POWERLINK_0_PDI_PCP_BASE
+    #define PDI_DPRAM_BASE_PCP    POWERLINK_0_PDI_PCP_BASE
+    #ifdef STATUS_LED_PIO_BASE
+      #warning Deprecated! Deactivate STATUS_LED_PIO_BASE in SOPC-Builder!
+    #endif // STATUS_LED_PIO_BASE
 #endif //POWERLINK_0_PDI_PCP_BASE
 
 #if defined(POWERLINK_0_PDI_PCP_PDITPDOBUFSIZE0) &&  defined(POWERLINK_0_PDI_PCP_PDIRPDOBUFSIZE0)
@@ -98,10 +101,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef SYSID_ID
 #define FPGA_SYSTEM_ID        SYSID_ID
 #endif //SYSID_ID
-
-#ifdef STATUS_LED_PIO_BASE
-#warning Deprecated! Deactivate STATUS_LED_PIO_BASE in SOPC-Builder!
-#endif
 
 /******************************************************************************/
 /* typedefs */

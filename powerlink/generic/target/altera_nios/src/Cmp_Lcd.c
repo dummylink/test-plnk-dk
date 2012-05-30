@@ -24,7 +24,7 @@
 #include "lcd.h"
 
 
-
+#ifdef LCD_BASE // LCD module present
 /******************************************************************************/
 /* defines */
 
@@ -159,3 +159,4 @@ void SysComp_LcdPrintNodeInfo (BOOL fIsUser_p, WORD wNodeId_p)
     LCD_Show_Text(TextNodeID);
 
 }
+#endif // LCD_BASE
