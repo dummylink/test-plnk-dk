@@ -10,24 +10,25 @@ echo  Run POWERLINK Communication Processor Direct IO Menu
 echo ======================================================
 echo .
 echo  1: INK Board     (TERASIC DE2-115)
+echo  2: BeMicro Stick (ARROW BeMicro RTE)
 echo .
 echo ======================================================
 
 :user_entry
 set /p choice= Enter design number:
 if /I "%choice%" == "1" ( goto INK_directIO )
-if /I "%choice%" == "2" ( goto DEFAULT ) else (
+if /I "%choice%" == "2" ( goto BE_MICRO ) else (
 set choice=
 echo Invalid input!
 goto user_entry )
 
 REM ######################################
 REM # SET PARAMETERS
-:EBV_directIO
-set SOPC_DIR=..\..\fpga\altera\EBV_DBC3C40\ebv_pcp_DirectIO
-goto start
 :INK_directIO
 set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_pcp_DirectIO
+goto start
+:BE_MICRO
+set SOPC_DIR=..\..\fpga\altera\BeMicro\bm_pcp_DirectIO
 goto start
 
 :DEFAULT

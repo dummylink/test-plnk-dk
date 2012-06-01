@@ -60,21 +60,32 @@ else
 SOF_DIR="$PCP_SOPC_PATH"
 echo "SOPC path  (of bsp makefile): "$SOF_DIR""
 fi
+
+# select USB connector
+QUARTUS_PRJ_FOLDER_NAME=$(grep "${PATTERN[0]} " ${READ_FILE} | cut -d ' ' -f 3 | cut -d '/' -f 7- | sed 's/\/niosII_openMac.sopcinfo//')
+if [ "$QUARTUS_PRJ_FOLDER_NAME" == "bm_pcp_DirectIO" ]
+    then   # Arrow USB-Blaster
+    CONNECTOR="Arrow-USB-Blaster[USB0]"
+    else   # Default USB-Blaster
+    CONNECTOR="USB-Blaster[USB-0]"
+fi
 ############################
 
 #######################################
 ### Program the FPGA and run the SW ###
-nios2-configure-sof -C $SOF_DIR
-nios2-download -C ${PCP_ELF_DIR} --device=1 --instance=0 --cpu_name=pcp_cpu epl.elf --go
+nios2-configure-sof -C $SOF_DIR --cable "$CONNECTOR"
+nios2-download -C ${PCP_ELF_DIR} --device=1 --cpu_name=pcp_cpu epl.elf --go --cable "$CONNECTOR"
 
 
 # Open Terminal
 if [ -z "$TERMINAL" ]
-	then
-		echo	
-	else
-	nios2-terminal -c USB-Blaster[USB-0]
+then
+    echo	
+else
+    nios2-terminal --cable "$CONNECTOR"    
 fi
+
+
 #######################################
 
 exit 0
