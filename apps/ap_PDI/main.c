@@ -195,7 +195,7 @@ int main (void)
     /* initialize PCP interrupt handler*/
     if(SysComp_initSyncInterrupt(syncIntHandler) != OK)    ///< local AP IRQ is enabled here
     {
-        TRACE("ERROR: Unable to init the synchronous interrupt!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to init the synchronous interrupt!\n");
         return ERROR;
     }
 
@@ -207,7 +207,7 @@ int main (void)
     /* initialize Async interrupt handler */
     if(SysComp_initAsyncInterrupt(asyncIntHandler) != OK)
     {
-        TRACE("ERROR: Unable to init the asynchronous interrupt!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to init the asynchronous interrupt!\n");
         return ERROR;
     }
 
@@ -216,7 +216,7 @@ int main (void)
 #endif /* USE_POLLING_MODE_ASYNC */
 
     /* Start periodic main loop */
-    TRACE("API example is running...\n");
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"API example is running...\n");
 
 	/* main program loop */
     while (1)
@@ -244,7 +244,7 @@ int main (void)
 #endif /* USE_POLLING_MODE_ASYNC */
     }
 
-    TRACE("shut down application...\n");
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"shut down application...\n");
     CnApi_disableSyncInt();
     CnApi_disableAsyncEventIRQ();
     CnApi_cleanupObjects();
@@ -755,12 +755,15 @@ tEplKernel       Ret = kEplSuccessful;
         Ret = kEplInvalidParam;
     }
 
-    printf("CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u"
-           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
+    DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,"CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p ",
         pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
         pObdParam_p->m_ObdEvent,
-        pObdParam_p->m_pData, pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
-        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize, pObdParam_p->m_Access, pObdParam_p->m_Type);
+        pObdParam_p->m_pData);
+    DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,"Off=%u Size=%u ObjSize=%u TransSize=%u ",
+        pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
+        pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,"Acc=%X Typ=%X)\n",
+        pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     // return error for all non existing objects
     // if not known yet, this can also be done by settig m_dwAbortCode appropriately
@@ -860,7 +863,7 @@ tEplKernel       Ret = kEplSuccessful;
             // after appropriate values have been assigned to pAllocObdParam_l.
             // Please scroll up to "case kPcpGenEventUserTimer" in AppCbEvent()for an example
             Ret = kEplObdAccessAdopted;
-            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO," Adopted\n");
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO," Adopted\n");
             goto Exit;
 
         }   // end case kEplObdEvInitWriteLe
@@ -889,7 +892,7 @@ tEplObdParam * pObdParam = NULL;
 
     pObdParam = *pObdParam_p;
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "INFO: %s(%p) called\n", __func__, pObdParam);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "INFO: %s(%p) called\n", __func__, pObdParam);
 
     if (pObdParam_p == NULL                   ||
         pObdParam == NULL                     ||

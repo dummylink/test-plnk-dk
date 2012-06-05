@@ -809,7 +809,7 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
     // assign user argument
     pObdParam = (tEplObdParam *) pEventArg_p->m_pUserArg;
 
-    DEBUG_TRACE1(DEBUG_LVL_14,
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,
                  "AppCbEvent(kEplApiEventUserDef): (EventArg %p)\n", pObdParam);
 
     // get segmented OBD access handle
@@ -825,7 +825,7 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
         return kEplSuccessful;
     }
 
-    DEBUG_TRACE4(DEBUG_LVL_14, "(0x%04X/%u Ev=%X Size=%u\n",
+    DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "(0x%04X/%u Ev=%X Size=%u\n",
          pObdParam->m_uiIndex, pObdParam->m_uiSubIndex,
          pObdParam->m_ObdEvent,
          pObdParam->m_SegmentSize);
@@ -854,7 +854,7 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
                                             &pTempHdl);
     if (EplRet == kEplSuccessful)
     {   // write operation for this object is already processing
-        DEBUG_TRACE3(DEBUG_LVL_14,
+        DEBUG_TRACE3(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,
                      "%s() Write for object %d(%d) already in progress -> exit\n",
                      __func__, pObdParam->m_uiIndex, pObdParam->m_uiSubIndex);
         // change handle status
@@ -881,7 +881,7 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
                         TRUE,           // find oldest
                         &pTempHdl);
 
-                DEBUG_TRACE4(DEBUG_LVL_14, "%s() Check for oldest handle. EventHdl:%p Oldest:%p (Seq:%d)\n",
+                DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() Check for oldest handle. EventHdl:%p Oldest:%p (Seq:%d)\n",
                              __func__, pObdParam, pSegmentHdl->m_pObdParam,
                              pSegmentHdl->m_wSeqCnt);
 
@@ -900,7 +900,7 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
 
             case kEplObdDefAccHdlProcessingFinished:
                 // go on with acknowledging finished segments
-                DEBUG_TRACE2(DEBUG_LVL_14,
+                DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,
                         "%s() Handle Processing finished 0x%p\n", __func__,
                         pSegmentHdl->m_pObdParam);
                 EplRet = kEplSuccessful;
@@ -968,7 +968,7 @@ void EplAppDefObdAccCleanupHistory(void)
             continue;
         }
 
-        DEBUG_TRACE2(DEBUG_LVL_14, "%s() Cleanup handle %p\n", __func__, pObdDefAccHdl->m_pObdParam);
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() Cleanup handle %p\n", __func__, pObdDefAccHdl->m_pObdParam);
         pObdDefAccHdl->m_pObdParam->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
 
         // Ignore return value
@@ -998,7 +998,7 @@ tEplObdParam * pObdParam = NULL;
 
     pObdParam = *pObdParam_p;
 
-    DEBUG_TRACE2(DEBUG_LVL_14, "INFO: %s(%p) called\n", __func__, pObdParam);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "INFO: %s(%p) called\n", __func__, pObdParam);
 
     if (pObdParam_p == NULL                   ||
         pObdParam == NULL                     ||
@@ -1474,7 +1474,7 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
                 // save handle for callback function
                 ApiPdiComInstance_g.apObdParam_m[0] = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-                DEBUG_TRACE1(DEBUG_LVL_14, "pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
+                DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
 
                 // forward SDO transfers of application specific objects to AP
                 if (pObdParam_p->m_pRemoteAddress != NULL)
@@ -1528,7 +1528,7 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
 
                     // save OBD access handle for Domain objects (segmented access)
                     Ret = EplAppDefObdAccSaveHdl(pAllocObdParam, &pDefObdHdl);
-                    DEBUG_TRACE1(DEBUG_LVL_14, "New SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
+                    DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "New SDO History Empty Cnt: %d\n", bObdSegWriteAccHistoryEmptyCnt_g);
                     if (Ret != kEplSuccessful)
                     {
                         EPL_FREE(pAllocObdParam);
@@ -1555,7 +1555,7 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam *pObdParam_p)
 
     // adopt write access
     Ret = kEplObdAccessAdopted;
-    DEBUG_TRACE0(DEBUG_LVL_14, " Adopted\n");
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, " Adopted\n");
 
 Exit:
     return Ret;
@@ -1663,7 +1663,7 @@ static tEplKernel EplAppCbDefaultObdPreRead(tEplObdParam *pObdParam_p)
                 // save handle for callback function
                 ApiPdiComInstance_g.apObdParam_m[0] = pAllocObdParam; //TODO: handle index, not a single pointer variable
 
-                DEBUG_TRACE1(DEBUG_LVL_14, "pApiPdiComInstance_g: %p\n",
+                DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "pApiPdiComInstance_g: %p\n",
                              ApiPdiComInstance_g.apObdParam_m[0]);
 
                 // forward SDO transfers of application specific objects to AP
@@ -1713,7 +1713,7 @@ static tEplKernel EplAppCbDefaultObdPreRead(tEplObdParam *pObdParam_p)
 
     // adopt read access
     Ret = kEplObdAccessAdopted;
-    DEBUG_TRACE0(DEBUG_LVL_14, "  Adopted\n");
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "  Adopted\n");
 
 Exit:
     return Ret;
@@ -1743,7 +1743,7 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdCbParam MEM* pObdParam_p)
 
     if (pObdParam_p->m_pRemoteAddress != NULL)
     {   // remote access via SDO
-        // DEBUG_TRACE1(DEBUG_LVL_14, "Remote OBD access from %d\n", pObdParam_p->m_pRemoteAddress->m_uiNodeId);
+        // DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "Remote OBD access from %d\n", pObdParam_p->m_pRemoteAddress->m_uiNodeId);
     }
 
     // return error for all non existing objects
@@ -1819,7 +1819,7 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdCbParam MEM* pObdParam_p)
             break;
     } /* switch (pObdParam_p->m_uiIndex) */
 
-    DEBUG_TRACE4(DEBUG_LVL_14, "EplAppCbDefaultObdAccess(0x%04X/%u Ev=%X Size=%u\n",
+    DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "EplAppCbDefaultObdAccess(0x%04X/%u Ev=%X Size=%u\n",
             pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
             pObdParam_p->m_ObdEvent,
             pObdParam_p->m_SegmentSize);
@@ -2078,7 +2078,7 @@ int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle)
     WORD                wIndex;
     WORD                wSubIndex;
 
-    DEBUG_TRACE3 (DEBUG_LVL_14, "%s() OBD ACC Hdl:%p cnt processed: %d\n", __func__,
+    DEBUG_TRACE3 (DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() OBD ACC Hdl:%p cnt processed: %d\n", __func__,
                  pDefObdHdl->m_pObdParam, pDefObdHdl->m_wSeqCnt);
 
     pDefObdHdl->m_Status = kEplObdDefAccHdlProcessingFinished;
@@ -2095,7 +2095,7 @@ int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle)
     pDefObdHdl->m_Status = kEplObdDefAccHdlEmpty;
     pDefObdHdl->m_wSeqCnt = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
     bObdSegWriteAccHistoryEmptyCnt_g++;
-    DEBUG_TRACE1(DEBUG_LVL_14, "New SDO History Empty Cnt: %d\n",
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "New SDO History Empty Cnt: %d\n",
                  bObdSegWriteAccHistoryEmptyCnt_g);
 
     if (EplRet != kEplSuccessful)
@@ -2118,7 +2118,7 @@ int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle)
     if (EplRet == kEplSuccessful)
     {
         // handle found
-        DEBUG_TRACE3 (DEBUG_LVL_14, "%s() RePost Event: Hdl:%p SeqNr: %d\n",
+        DEBUG_TRACE3 (DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() RePost Event: Hdl:%p SeqNr: %d\n",
                 __func__,
                 pFoundHdl->m_pObdParam,
                 pFoundHdl->m_wSeqCnt);
@@ -2132,7 +2132,7 @@ int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle)
     }
     else
     {
-        DEBUG_TRACE1(DEBUG_LVL_14, "%s() Nothing to post!\n", __func__);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() Nothing to post!\n", __func__);
         EplRet = kEplSuccessful; // nothing to post, thats fine
     }
 
