@@ -80,7 +80,7 @@ static BOOL checkApCommand(BYTE cmd_p)
         if (cmd_p == kApCmdReset) // reset AP command will take place in state 'kPcpStateBooted'
         {
             fEvent = FALSE;
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get kApCmdReset\n", __func__);
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: get kApCmdReset\n");
         }
 
         AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wCommand, kApCmdNone);    ///< reset AP command
@@ -145,7 +145,7 @@ FUNC_DOACT(kPcpStateBooted)
     if (checkApCommand(kApCmdInit))
     {
         // kApCmdInit will be received as soon as AP got the InitPcpResponse message
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdInit\n", __func__);
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: get ApCmdInit\n");
         fEvent = TRUE;
     }
 }
@@ -196,7 +196,7 @@ FUNC_DOACT(kPcpStateInit)
 
     if (checkApCommand(kApCmdPreop))
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdPreop\n", __func__);
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: get ApCmdPreop\n");
         iStatus = startPowerlink();
         if (iStatus == kEplSuccessful)
         {
@@ -247,7 +247,7 @@ FUNC_EVT(kPcpStatePreOp,kPcpStateReadyToOperate,1)
 
     if(checkApCommand(kApCmdReadyToOperate))
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "%s: get ApCmdReadyToOperate\n", __func__);
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: get ApCmdReadyToOperate\n");
         if (CnApiAsync_checkApLinkingStatus() == kPdiAsyncStatusSuccessful)
         { // state change allowed
 

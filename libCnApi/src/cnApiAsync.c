@@ -143,15 +143,15 @@ int CnApiAsync_init(void)
             (aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m == NULL)                                        ||
             (aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader)== 0)      )
         {
-            DEBUG_TRACE2(DEBUG_LVL_09, "\nError in %s: initializing Async PDI Buffer %d failed!\n", __func__, wCnt);
+            DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\nError in %s: initializing Async PDI Buffer %d failed!\n", __func__, wCnt);
             goto exit;
         }
         else
         {
-            DEBUG_TRACE4(DEBUG_LVL_11, "%s: TX Async Buffer %d: adrs. %08x (max payload %d)\n",
+            DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%s: TX Async Buffer %d: adrs. %08x (max payload %d)\n",
                          __func__, wCnt,(unsigned int)aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m,
                          aPcpPdiAsyncTxMsgBuffer_g[wCnt].wMaxPayload_m);
-            DEBUG_TRACE4(DEBUG_LVL_11, "%s: RX Async Buffer %d: adrs. %08x (max payload %d)\n",
+            DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "%s: RX Async Buffer %d: adrs. %08x (max payload %d)\n",
                          __func__, wCnt,(unsigned int)aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m,
                          aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m);
 
@@ -482,7 +482,7 @@ tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     pInitPcpResp = (tInitPcpResp *) pRxMsgBuffer_p;    // Rx buffer
 
     /* handle Rx Message */
-    DEBUG_TRACE0(DEBUG_LVL_10, "InitPcpResponse received.\n");
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: InitPcpResponse received.\n");
     if (pInitPcpResp->m_bReqId != bReqId_l)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Unexpected Request ID!\n");
@@ -490,7 +490,7 @@ tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
         goto exit;
     }
 
-    DEBUG_TRACE1(DEBUG_LVL_10, "initPcpResp: status = %d\n", pInitPcpResp->m_bStatus);
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "INFO: initPcpResp: status = %d\n", pInitPcpResp->m_bStatus);
     if (pInitPcpResp->m_bStatus == kCnApiStatusOk)
     {
         goto exit;

@@ -649,7 +649,7 @@ tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = wCurDescrPayloadOffset + sizeof(tLinkPdosReq);     // sent size
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "MsgId: %d, MsgSize: %ld.\n", pLinkPdosReq->m_bMsgId, pMsgDescr_p->dwMsgSize_m);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ASYNC_INFO, "MsgId: %d, MsgSize: %ld.\n", pLinkPdosReq->m_bMsgId, pMsgDescr_p->dwMsgSize_m);
 exit:
     return Ret;
 }

@@ -14,7 +14,7 @@ CNDK_DIR=../../..
 ##################################
 # Bus interface: [plb, axi]
 # Note: This sets correct endian and linker script
-BUS_INTERFACE=axi
+BUS_INTERFACE=plb
 
 ##################################
 # Include SPI driver: [yes, no]
@@ -41,10 +41,12 @@ DBG_MODE=_DEBUG
 # 0x00001000L DEBUG_LVL_13 (= DEBUG_LVL_CNAPI_ASYNC_INFO)
 # 0x00002000L DEBUG_LVL_14 (= DEBUG_LVL_DEFAULT_OBD_ACC)
 # 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
+# 0x00008000L DEBUG_LVL_16 (= DEBUG_LVL_CNAPI_PDO)
+# 0x00010000L DEBUG_LVL_17 (= DEBUG_LVL_CNAPI_EVENT)
 # 0x20000000L DEBUG_LVL_ASSERT
 # 0x40000000L DEBUG_LVL_ERROR
 # 0x80000000L DEBUG_LVL_ALWAYS ]
-DEF_DEBUG_LVL=0xEC002700L
+DEF_DEBUG_LVL=0xEC000600L
 
 ##################################
 #Compile options

@@ -264,7 +264,8 @@ static void stateChange(BYTE current, BYTE target)
 	currentIdx = current + 2;
 	targetIdx = target + 2;
 
-	TRACE2("CNAPI STATE: %s->%s\n", strCnApiStateNames_l[currentIdx], strCnApiStateNames_l[targetIdx]);
+	DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO,"CNAPI STATE: %s->%s\n", strCnApiStateNames_l[currentIdx],
+	        strCnApiStateNames_l[targetIdx]);
 
 	/* inform application */
 	CnApiEventArg.NewApState_m = (tApStates) target;
@@ -280,8 +281,6 @@ static void stateChange(BYTE current, BYTE target)
 *******************************************************************************/
 void CnApi_initApStateMachine(void)
 {
-	DEBUG_TRACE1(DEBUG_LVL_09, "%s:\n", __func__);
-
 	/* initialize state machine */
 	sm_init(&apStateMachine, apStates, kNumApState, apTransitions,
 			0, kApStateBooted, stateChange);

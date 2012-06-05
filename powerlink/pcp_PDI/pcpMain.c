@@ -266,14 +266,14 @@ int main (void)
         }
     }
 
-    DEBUG_TRACE0(DEBUG_LVL_09, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
 
     /***** initializations *****/
-    DEBUG_TRACE0(DEBUG_LVL_09, "Initializing...\n");
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Initializing...\n");
 
     Gi_init();
 
-    DEBUG_TRACE0(DEBUG_LVL_09, "OK\n");
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "OK\n");
 
 #ifdef STATUS_LEDS_BASE
     SysComp_setPowerlinkStatus(0xff);
@@ -489,7 +489,7 @@ void processPowerlink(void)
         /* If not, try to post it */
         if(Gi_pcpEventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted event from fifo into PDI!\n", __func__);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_EVENT_INFO,"%s: Posted event from fifo into PDI!\n", __func__);
         }
 
         if (fShutdown_l == TRUE)

@@ -97,7 +97,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     int iRet = OK;
 #endif //CN_API_USING_SPI
 
-    TRACE("\n\nInitialize CN API functions...");
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\n\nInitialize CN API functions...");
 
     /* initialize global pointers */
     pInitParm_g = pInitParm_p;    ///< make pInitParm_p global
@@ -137,7 +137,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
         }
         else
         {
-            DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: %d ..",
+            DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\nPCP Magic value: %#08lx, state: %d ..",
                                                 CnApi_getPcpMagic(),
                                                 CnApi_getPcpState());
         }
@@ -146,7 +146,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
 
     if(!fPcpPresent)
     {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".ERROR!\n\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, ".ERROR!\n\n");
 
         /* PCP_PRESENCE_TIMEOUT exceeded */
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Reading PDI failed!\n");
@@ -194,7 +194,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     iStatus = CnApiAsync_create();
     if (iStatus != OK)
     {
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApiAsync_create() failed!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_create() failed!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }
@@ -203,7 +203,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     iStatus = CnApi_initPdo();
     if (iStatus != OK)
     {
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "CnApi_initPdo() failed!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApi_initPdo() failed!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }

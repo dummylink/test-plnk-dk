@@ -13,26 +13,26 @@ CNDK_DIR=../../..
 
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx9_directIO-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx9_directIO-axi
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-plb
+BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_directIO-plb
-BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_directIO-axi
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_directIO-axi
 
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx9_directIO-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx9_directIO-axi
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-plb
+HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_directIO-plb
-HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_directIO-axi
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_directIO-axi
 
 ##################################
 # Board name: [lx150t, lx9, s6plkeb]
-BOARD_NAME=s6plkeb
+BOARD_NAME=lx150t
 
 ##################################
 # Bus interface: [plb, axi]
 # Note: This sets correct endian and linker script
-BUS_INTERFACE=axi
+BUS_INTERFACE=plb
 
 ##################################
 # Processor name: [pcp, ap]
@@ -56,13 +56,16 @@ DBG_MODE=_DEBUG
 # 0x00000100L DEBUG_LVL_09 (= DEBUG_LVL_CNAPI_FUNC)
 # 0x00000200L DEBUG_LVL_10 (= DEBUG_LVL_CNAPI_ERR)
 # 0x00000400L DEBUG_LVL_11 (= DEBUG_LVL_CNAPI_INFO)
+# 0x00000800L DEBUG_LVL_12 (= DEBUG_LVL_CNAPI_SPI)
 # 0x00001000L DEBUG_LVL_13 (= DEBUG_LVL_CNAPI_ASYNC_INFO)
 # 0x00002000L DEBUG_LVL_14 (= DEBUG_LVL_DEFAULT_OBD_ACC)
 # 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
+# 0x00008000L DEBUG_LVL_16 (= DEBUG_LVL_CNAPI_PDO)
+# 0x00010000L DEBUG_LVL_17 (= DEBUG_LVL_CNAPI_EVENT)
 # 0x20000000L DEBUG_LVL_ASSERT
 # 0x40000000L DEBUG_LVL_ERROR
 # 0x80000000L DEBUG_LVL_ALWAYS ]
-DEF_DEBUG_LVL=0xEC002F00L
+DEF_DEBUG_LVL=0xEC000600L
 
 ##################################
 #Compile options

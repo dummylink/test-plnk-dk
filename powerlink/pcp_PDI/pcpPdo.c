@@ -629,12 +629,12 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                     AmiSetWordToLe((BYTE*)&pPdoDescEntry->m_wOffset, uiOffsetCnt); //TODO: delete this line for real PDO frame
                     AmiSetWordToLe((BYTE*)&pPdoDescEntry->m_wSize, uiMapSize);
 
-			        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "0x%04x/0x%02x size: %d linkadr: %p",
+			        DEBUG_TRACE4(DEBUG_LVL_CNAPI_PDO_INFO, "0x%04x/0x%02x size: %d linkadr: %p",
 			                uiMapIndex,
 			                (BYTE)uiMapSubIndex,
 			                uiMapSize,
 			                pData);
-	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, " offset: 0x%04x\n", uiOffsetCnt); //TODO: comment this line and add \n to last printf
+	                DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, " offset: 0x%04x\n", uiOffsetCnt); //TODO: comment this line and add \n to last printf
 
 			        pPdoDescEntry++;                 // prepare for next PDO descriptor entry
 			        bAddedDecrEntries++;             // count added entries
@@ -646,9 +646,9 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
 		pPdoDescHeader->m_bEntryCnt = bAddedDecrEntries;      // number of entries of this PDO descriptor
 		pLinkPdoReq_p->m_bDescrCnt++;                         // update descriptor counter of LinkPdoReq message
 
-        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO, "Setup PDO Descriptor %d finished: DIR:%d BufferNum:%d numObjs:%d "
+        DEBUG_TRACE4(DEBUG_LVL_CNAPI_PDO_INFO, "Setup PDO Descriptor %d finished: DIR:%d BufferNum:%d numObjs:%d "
                 ,pLinkPdoReq_p->m_bDescrCnt, PdoDir, pPdoDescHeader->m_bBufferNum, bAddedDecrEntries);
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "MapVers:%d\n", pPdoDescHeader->m_bMapVersion);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "MapVers:%d\n", pPdoDescHeader->m_bMapVersion);
 
 		/* prepare for next PDO */
 		wPdoDescSize = sizeof(tPdoDescHeader) + (bAddedDecrEntries * sizeof(tPdoDescEntry));

@@ -224,7 +224,7 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
 
     if(bDescrEntries_p > PDO_COPY_TBL_ELEMENTS)
     {
-        DEBUG_TRACE3(DEBUG_LVL_ERROR, "Error in %s:"
+        DEBUG_TRACE3(DEBUG_LVL_CNAPI_ERR, "Error in %s:"
                      "\nCopy table size of PDO Buffer %d too small"
                      " for count of descriptor elements (%d)!\n"
                      "Skipping copy table setup!\n", __func__, bPdoBufNum_p, bDescrEntries_p);
@@ -238,17 +238,17 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
 	{
 		pCopyTbl = &aTxPdoCopyTbl_l[bPdoBufNum_p];
 		pbCpyTblEntries = &aTxPdoCopyTbl_l[bPdoBufNum_p].bNumOfEntries_m;
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for TPDO %d :\n", bPdoBufNum_p);
+		DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "Setup copy table for TPDO %d :\n", bPdoBufNum_p);
 	}
 	else if(PdoDir == RPdo)
 	{
 		pCopyTbl = &aRxPdoCopyTbl_l[bPdoBufNum_p];
 		pbCpyTblEntries = &aRxPdoCopyTbl_l[bPdoBufNum_p].bNumOfEntries_m;
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Setup copy table for RPDO %d :\n", bPdoBufNum_p);
+		DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "Setup copy table for RPDO %d :\n", bPdoBufNum_p);
 	}
 	else
 	{
-	    DEBUG_TRACE1(DEBUG_LVL_ERROR, "\nError in %s:"
+	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "\nError in %s:"
                      "\nDescriptor has no valid direction! Skipping copy table for this PDO.\n", __func__);
         fRet = FALSE;
 	    goto exit;
@@ -257,7 +257,7 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
     if (0 == bDescrEntries_p)
     {   //deactivate PDO channel
         pCopyTbl->fActivated_m = FALSE;
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "MapVers:%d , PDO deactivated.\n", pCopyTbl->bMapVersion_m);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "MapVers:%d , PDO deactivated.\n", pCopyTbl->bMapVersion_m);
         goto exit;
     }
 
@@ -280,7 +280,7 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
 		    wObjSize != pDescEntry->m_wSize)
 		{
 		    /* skip this copy table element */
-		    DEBUG_TRACE2(DEBUG_LVL_ERROR,"Couldn't find descriptor object 0x%04x/0x%02x"
+		    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR,"Couldn't find descriptor object 0x%04x/0x%02x"
 		            " in local object table!\n", pDescEntry->m_wPdoIndex,
                                                  pDescEntry->m_bPdoSubIndex);
 			pCopyTbl->aEntry_m[wTblNum].pAdrs_m = 0;
@@ -295,7 +295,7 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
 		    wTblNum++;
 		    (*pbCpyTblEntries)++;
 
-	        DEBUG_TRACE3(DEBUG_LVL_CNAPI_INFO,"0x%04x/0x%02x"
+	        DEBUG_TRACE3(DEBUG_LVL_CNAPI_PDO_INFO,"0x%04x/0x%02x"
 	                    " size %d \n", pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, wObjSize);
 		}
 
@@ -310,7 +310,7 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
     // update mapping version
     pCopyTbl->bMapVersion_m = bMapVers_p;
 
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "MapVers:%d , PDO activated.\n", pCopyTbl->bMapVersion_m);
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "MapVers:%d , PDO activated.\n", pCopyTbl->bMapVersion_m);
 
     fRet = TRUE;
 exit:
@@ -383,12 +383,12 @@ for (wCnt = 0; wCnt < PCP_PDI_TPDO_CHANNELS; ++wCnt)
         (aTPdosPdi_l[wCnt].wSize_m == 0)    ||
         (aTPdosPdi_l[wCnt].pAck_m ==  NULL)   )
     {
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "\nError in %s: initializing TPDO %d failed!\n\n", __func__, wCnt);
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\nError in %s: initializing TPDO %d failed!\n\n", __func__, wCnt);
         goto exit;
     }
     else
     {
-        DEBUG_LVL_CNAPI_INFO_TRACE4("%s: TXPDO %d: adrs. %08x (size %d)\n",
+        DEBUG_TRACE4(DEBUG_LVL_CNAPI_INFO,"%s: TXPDO %d: adrs. %08x (size %d)\n",
                                             __func__, wCnt,(unsigned int)aTPdosPdi_l[wCnt].pAdrs_m, aTPdosPdi_l[wCnt].wSize_m);
     }
 }
@@ -398,7 +398,7 @@ for (wCnt = 0; wCnt < PCP_PDI_RPDO_CHANNELS; ++wCnt)
         (aRPdosPdi_l[wCnt].wSize_m == 0)    ||
         (aRPdosPdi_l[wCnt].pAck_m ==  NULL)   )
     {
-        DEBUG_TRACE2(DEBUG_LVL_ERROR, "\n\nError in %s: initializing RPDO %d failed!\n\n", __func__, wCnt);
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\n\nError in %s: initializing RPDO %d failed!\n\n", __func__, wCnt);
         goto exit;
     }
     else
@@ -454,6 +454,8 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
 
     /* assign buffer payload addresses */
     pLinkPdosReq = (tLinkPdosReq *) pRxMsgBuffer_p;    // Rx buffer
+
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: LinkPdosReq received.\n");
 
     /* handle Rx Message */
     /* get numbers of descriptors in this message */
@@ -548,6 +550,8 @@ tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxM
 
     /* assign buffer payload addresses */
     pLinkPdosResp = (tLinkPdosResp *) pTxMsgBuffer_p;    // Tx buffer
+
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: LinkPdosResp done.\n");
 
     /* handle Tx Message */
     /* build up InitPcpReq */

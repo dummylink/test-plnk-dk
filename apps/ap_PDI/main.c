@@ -153,12 +153,12 @@ int main (void)
 #endif
     if (status > 0)
     {
-        TRACE1("\nERROR: CN API library could not be initialized (%d)\n", status);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"\nERROR: CN API library could not be initialized (%d)\n", status);
         return ERROR;
     }
     else
     {
-        TRACE("\nInitialize CN API functions...successful!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\nInitialize CN API functions...successful!\n");
     }
 
     /* initialize and link objects to object dictionary */
@@ -166,7 +166,7 @@ int main (void)
     /* initialize CN API object module */
     if (CnApi_initObjects(NUM_OBJECTS) < 0)
     {
-        TRACE("ERROR: CN API library initObjects failed\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: CN API library initObjects failed\n");
         return ERROR;
     }
 
@@ -347,7 +347,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
             case kCnApiEventUserDef:
             case kCnApiEventApStateChange:
             {
-                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", pEventArg_p->NewApState_m);
+                //DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", pEventArg_p->NewApState_m);
 
                 fOperational_l = FALSE;
 
@@ -401,13 +401,15 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                 {
                     case kPcpGenEventSyncCycleCalcSuccessful:
                     {
-                        TRACE1("\nINFO: Synchronization IR Period is %lu us.\n", CnApi_getSyncIntPeriod());
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"INFO: Synchronization IR Period is %lu us.\n",
+                                CnApi_getSyncIntPeriod());
                         break;
                     }
 
                     case kPcpGenEventNodeIdConfigured:
                     {
-                        TRACE1("INFO: NODE ID is set to 0x%02x\n", CnApi_getNodeId());
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"INFO: NODE ID is set to 0x%02x\n",
+                                CnApi_getNodeId());
                         break;
                     }
 
@@ -487,7 +489,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                                     case kPcpGenErrAsyncComTimeout:
                                     case kPcpGenErrAsyncIntChanComError:
                                     {
-                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Asynchronous communication error at PCP!");
+                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"Asynchronous communication error at PCP!");
                                         break;
                                     }
                                     case kPcpGenErrPhy0LinkLoss:
@@ -524,7 +526,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             case kPcpPdiEventHistoryEntry:
                             {
                                 // PCP will change state, stop processing or restart
-                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"Error history entry code: %#04lx\n",
+                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"Error history entry code: %#04lx\n",
                                 pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.wErrorHistoryCode_m);
                                 break;
                             }
@@ -556,8 +558,11 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                          * (refer to default example below).
                          */
 
-                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Warning: %d objects are mapped but not linked!\n",
-                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m);
+                        if(pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m != 0)
+                        {
+                            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Warning: %d objects are mapped but not linked!\n",
+                                    pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m);
+                        }
 
                         /* prepare LinkPdosResp message status*/
                         if (pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m == FALSE)

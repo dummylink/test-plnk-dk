@@ -187,11 +187,11 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
 
             pcp_EventFifoFlush();
 
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: AP too slow (FIFO overflow)!\n", __func__);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_EVENT_INFO,"%s: AP too slow (FIFO overflow)!\n", __func__);
         }
         else if (ucRet == kPcpEventFifoInserted)
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"%s: Posted element into fifo!\n", __func__);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_EVENT_INFO,"%s: Posted element into fifo!\n", __func__);
         }
     }
 }
