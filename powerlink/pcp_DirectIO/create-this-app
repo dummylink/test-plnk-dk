@@ -126,7 +126,11 @@ else
     esac
 fi
 
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP"
+# size of tightly coupled instruction memory (in Byte)
+# where time critical functions will be stored
+ALT_TCIMEM_SIZE="2048"
+
+CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP -DALT_TCIMEM_SIZE=${ALT_TCIMEM_SIZE}"
 
 ###############################################################################
 # source files
