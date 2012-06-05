@@ -1072,8 +1072,9 @@ inputs and runs the control loop.
     if ((wSyncIntCycle_g != 0))
     {
         /* NMT_READY_TO_OPERATE is already processed */
-        if ((iCycleCnt++ % wSyncIntCycle_g) == 0)
+        if (++iCycleCnt == wSyncIntCycle_g)
         {
+            iCycleCnt = 0;  ///< reset cycle counter
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
             #ifdef TIMESYNC_HW
                 /* Sync interrupt is generated in HW */
