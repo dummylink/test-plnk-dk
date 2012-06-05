@@ -50,4 +50,4 @@ DEF_DEBUG_LVL=0xEC000600L
 
 ##################################
 #Compile options
-OPT_LEVEL=-O0
+OPT_LEVEL=-O3
