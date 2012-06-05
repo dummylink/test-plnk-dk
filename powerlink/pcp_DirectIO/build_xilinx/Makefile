@@ -91,6 +91,24 @@ ${CNDK_TARGET_DIR}/src/systemComponents.c
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
 
 ###################################
+# set Optimization level makro
+ifeq ($(OPT_LEVEL),-O0)
+	MACROS+= -DXIL_NO_OPT_LEVEL
+endif
+ifeq ($(OPT_LEVEL),-O1)
+	MACROS+= -DXIL_OPT_LEVEL_1
+endif
+ifeq ($(OPT_LEVEL),-O2)
+	MACROS+= -DXIL_OPT_LEVEL_2
+endif
+ifeq ($(OPT_LEVEL),-O3)
+	MACROS+= -DXIL_OPT_LEVEL_3
+endif
+ifeq ($(OPT_LEVEL),-Os)
+	MACROS+= -DXIL_OPT_LEVEL_SIZE
+endif
+
+###################################
 # set endian according to bus interface
 ifeq ($(BUS_INTERFACE),axi)
 	PROC_FEATURES+= -mlittle-endian

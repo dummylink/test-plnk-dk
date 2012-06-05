@@ -20,6 +20,7 @@
 #include "EplSdoComu.h"
 #include "user/EplSdoAsySequ.h"
 #include "kernel/EplTimerSynck.h"
+#include "global.h"
 
 #ifdef __NIOS2__
 #include <unistd.h>
@@ -94,7 +95,7 @@ extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 /******************************************************************************/
 /* forward declarations */
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
-    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p);
+    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p) INTERNAL_RAM_SIZE_MEDIUM;
 #else
     tEplKernel PUBLIC AppCbSync(void);
 #endif
