@@ -116,11 +116,11 @@ else
     case "$DEBUG_LVL_IN" in
       1)
           DBG_MODE=_DEBUG	# compile printfs()
-          DEF_DEBUG_LVL="0xEC002F00L" # only ASSERT, ERROR and ALWAYS messages + Powerlink stack debugs
+          DEF_DEBUG_LVL="0xEC002F00L" # only ASSERT, ERROR and ALWAYS messages + Powerlink stack debugs + CN API messages
           ;;
       2)
           DBG_MODE=_DEBUG	# compile printfs()      
-          DEF_DEBUG_LVL="0xEC000200L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs + CN API messages
+          DEF_DEBUG_LVL="0xEC000600L" # only ASSERT, ERROR and ALWAYS + Powerlink stack debugs 
           ;;
       *)
           echo ERROR: Wrong parameter DEBUG_LVL_IN: \"$DEBUG_LVL_IN\"
@@ -202,7 +202,7 @@ fi
 
 if [ -z "$NO_OPT" ]; then
     echo $NIOS2_APP_GEN_ARGS
-    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O2"
+    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O3"
 else
 # in case of --debug option ("-g" means to insert debug information)
     NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O1 --set APP_CFLAGS_DEBUG_LEVEL -g"

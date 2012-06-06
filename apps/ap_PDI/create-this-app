@@ -5,13 +5,6 @@
 ###############################################################################
 
 ###############################################################################
-# USER SETTINGS: Select here the debug level and general CN API settings  	  #
-
-DBG_MODE=_DEBUG	# compile printfs()
-# DBG_MODE=NDEBUG # This define overwrites all others printf-debug defines
-				# -> no printfs() will be compiled!
-
-				
 CN_API_FLAGS= 	# empty							
                                                                               #
 ###############################################################################
@@ -60,6 +53,11 @@ do
       --debug)
           NO_OPT=1
           ;;
+      --debug_lvl)
+         shift
+         DEBUG_LVL_IN="$1"
+         echo INFO: DEBUG_LVL_IN set to \"$DEBUG_LVL_IN\"          
+         ;;          
 	  --sopcdir)
 		 shift
 		 #relative path!
@@ -99,9 +97,31 @@ LIBTARGETFOLDER=$LIBAPIDIR/target/nios2_newlib
 # 0x40000000L DEBUG_LVL_ALWAYS
 
 if [ -z "$NO_OPT" ]; then
-	DEF_DEBUG_LVL="0xE0000000L" # only ASSERT, ERROR and ALWAYS messages
+    DBG_MODE=NDEBUG	# Do not compile printf macros. This define overwrites all others printf-debug defines
+	DEF_DEBUG_LVL="0x00000000L" # only ASSERT, ERROR and ALWAYS messages
 else
-	DEF_DEBUG_LVL="0xEC000F00L" # only ASSERT, ERROR and ALWAYS + CN API messages
+    DBG_MODE=_DEBUG	# compile printfs()
+	DEF_DEBUG_LVL="0xEC000600L" # only ASSERT, ERROR and ALWAYS + CN API messages
+fi
+
+if [ -z "$NO_OPT" ]; then
+    DBG_MODE=NDEBUG	# Do not compile printf macros. This define overwrites all others printf-debug defines
+    DEF_DEBUG_LVL="0x00000000L" # additionally disables all print macros
+else
+    case "$DEBUG_LVL_IN" in
+      1)
+          DBG_MODE=_DEBUG	# compile printfs()
+          DEF_DEBUG_LVL="0xEC002F00L" 
+          ;;
+      2)
+          DBG_MODE=_DEBUG	# compile printfs()      
+          DEF_DEBUG_LVL="0xEC000600L" 
+          ;;
+      *)
+          echo ERROR: Wrong parameter DEBUG_LVL_IN: \"$DEBUG_LVL_IN\"
+          exit 1
+          ;;
+    esac
 fi
 
 CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}" # only PCP API debug
@@ -135,10 +155,16 @@ exit 1
 fi
 
 if [ -z "$NO_OPT" ]; then
-    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O2"
+    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O3"
+
+    # pass on optimization flag
+    APP_CFLAGS_OPTIMIZATION="-O3"
 else
 # in case of --debug option ("-g" means to insert debug information)
-    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O1 --set APP_CFLAGS_DEBUG_LEVEL -g" 	
+    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O0 --set APP_CFLAGS_DEBUG_LEVEL -g" 
+
+    # pass on optimization flag
+    APP_CFLAGS_OPTIMIZATION="-O0"	
 fi
 
 # Also make sure that the APP has not been created already.  Check for
@@ -178,8 +204,8 @@ $cmd || {
 echo
 echo "Rebuild target library before using it..."
 echo 
-make -C $LIBTARGETFOLDER clean
-make -C $LIBTARGETFOLDER
+make -C $LIBTARGETFOLDER clean 
+make -C $LIBTARGETFOLDER LIB_CFLAGS_USER_FLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}" LIB_CFLAGS_OPTIMIZATION="${APP_CFLAGS_OPTIMIZATION}"
 
 if [ -f $LIBTARGETFOLDER/libCnApi.a ]
 then

@@ -36,6 +36,10 @@ do
       --debug)
           NO_OPT=1
           ;;
+      --debug_lvl)
+         shift
+         # argument currently not used
+         ;;           
 	  --sopcdir)
 		 shift
 		 SOPC_DIR=../$1
@@ -56,9 +60,9 @@ exit 1
 fi
 
 if [ -z "$NO_OPT" ]; then
-    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2"
+    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O3"
 else
-    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O2" # for deuggig also at O2 for now.	
+    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O0" # for debugging
 fi
 
 # Run nios2-bsp utility to create a hal BSP in this directory

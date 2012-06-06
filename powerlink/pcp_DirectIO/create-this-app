@@ -117,7 +117,7 @@ else
           ;;
       2)
           DBG_MODE=_DEBUG	# compile printfs()      
-          DEF_DEBUG_LVL="0xE0000000L" # only ASSERT, ERROR and ALWAYS
+          DEF_DEBUG_LVL="0xEC000600L" # only ASSERT, ERROR and ALWAYS
           ;;
       *)
           echo ERROR: Wrong parameter DEBUG_LVL_IN: \"$DEBUG_LVL_IN\"
@@ -128,7 +128,7 @@ fi
 
 # size of tightly coupled instruction memory (in Byte)
 # where time critical functions will be stored
-ALT_TCIMEM_SIZE="2048"
+ALT_TCIMEM_SIZE="4096"
 
 CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP -DALT_TCIMEM_SIZE=${ALT_TCIMEM_SIZE}"
 
@@ -194,7 +194,7 @@ exit 1
 fi
 
 if [ -z "$NO_OPT" ]; then
-    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O2"
+    NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O3"
 else
 # in case of --debug option ("-g" means to insert debug information)
     NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_OPTIMIZATION -O1 --set APP_CFLAGS_DEBUG_LEVEL -g"
