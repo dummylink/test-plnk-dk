@@ -30,11 +30,17 @@ Revision History (Xilinx)
                     [FIX] Add RelativeTime reset on preop1
                     [TASK] Adapt openPOWERLINK V1.8.1                        
 
-22.05.2012 V0.5.1   [FIX] Bug when placing packets in external RAM when using AXI IP-Core
-                    [FEATURE] X: s6plkeb directIO axi example
-                    [FEATURE] X: s6plkeb intaxi example
-                    [FEATURE] X: Add lx150t directIO axi design
-                    [FIX] Incorrect initialization values transmitted to PCP
+06.06.2012 V0.5.1   [FIX] Incorrect initialization values transmitted to PCP
                     [FIX] CnApi_postMsg parameter assignment
                     [FIX] Remapping in OPERATIONAL for PDI
+                    [FIX] PCP writes wrong IIB version
+                    [FIX] openMAC driver: PhyId endianness
+                    [FIX] DirectIO: correct boot time in XDD
+                    [FIX] Rework debug messages
+                    [FIX] Benchmark IO pins are set wrong at EdrvOpenMac IrqHandler
+                    [FEATURE] Move functions of interrupt context to internal memory  
+                    [FIX] Bug when placing packets in external RAM when using AXI IP-Core
+                    [FEATURE] X: s6plkeb directIO axi example
+                    [FEATURE] X: s6plkeb intaxi example
+                    [FEATURE] X: Add lx150t directIO axi design                    
                        
