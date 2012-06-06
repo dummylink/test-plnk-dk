@@ -1577,10 +1577,8 @@ int openPowerlink(BYTE bNodeId_p)
     PRINTF("linking process vars... ok\n\n");
 
     // start the POWERLINK stack
-    PRINTF("start EPL Stack...\n");
     EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
     if (EplRet != kEplSuccessful) {
-        PRINTF("start EPL Stack... error\n\n");
         goto ExitShutdown;
     }
 
