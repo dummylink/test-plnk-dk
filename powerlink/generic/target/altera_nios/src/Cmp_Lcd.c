@@ -20,8 +20,8 @@
 *******************************************************************************/
 /* includes */
 #include "Cmp_Lcd.h"
-
 #include "lcd.h"
+#include "system.h"
 
 
 #ifdef LCD_BASE // LCD module present
