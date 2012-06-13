@@ -21,7 +21,7 @@ BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-ap-plb
 HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intplb-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intaxi-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_spi-plb
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb-intplb-plb
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intplb-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intaxi-axi
 
 ##################################
