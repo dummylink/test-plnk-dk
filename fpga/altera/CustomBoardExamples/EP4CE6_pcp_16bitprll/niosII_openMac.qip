@@ -32,19 +32,19 @@ set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/pdi_event.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/pdi_led.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/pdi_simpleReg.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenFILTER.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenHUB.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openFILTER.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openHUB.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_Ethernet.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_cmp.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_phyAct.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC_DPR_Altera.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC_DMAFifo_Altera.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC_DMAmaster.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC_DMAmaster/dma_handler.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC_DMAmaster/master_handler.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC_PHYMI.vhd
-set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/OpenMAC_rmii2mii.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_DPR_Altera.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_DMAFifo_Altera.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_DMAmaster.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_DMAmaster/dma_handler.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_DMAmaster/master_handler.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_PHYMI.vhd
+set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/openMAC_rmii2mii.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/portio.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/portio_cnt.vhd
 set_global_assignment -name VHDL_FILE C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/IP_core/POWERLINK/src/spi.vhd
@@ -62,5 +62,5 @@ set_global_assignment -name SOURCE_FILE C:/Work/RepositoryWORK/openPOWERLINK_CND
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) powerlink_0.vhd]
 # null
 set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 002314DCCB6C000001363FE1AF50 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 002314DCCB6C00000137DF9849A0 
  

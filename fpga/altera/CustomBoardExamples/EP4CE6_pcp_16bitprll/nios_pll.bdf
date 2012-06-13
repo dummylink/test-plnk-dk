@@ -844,8 +844,8 @@ applicable agreement for further details.
 	(port
 		(pt 480 80)
 		(output)
-		(text "clkPcp " (rect 0 0 40 14)(font "Arial" (font_size 8)))
-		(text "clkPcp " (rect 420 73 460 87)(font "Arial" (font_size 8)))
+		(text "clkpcp " (rect 0 0 40 14)(font "Arial" (font_size 8)))
+		(text "clkpcp " (rect 422 73 462 87)(font "Arial" (font_size 8)))
 		(line (pt 464 80)(pt 480 80))
 	)
 	(port

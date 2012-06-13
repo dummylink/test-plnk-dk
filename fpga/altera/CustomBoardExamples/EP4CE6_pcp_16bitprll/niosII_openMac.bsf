@@ -146,8 +146,8 @@
 (port
 (pt 480 80)
 (output)
-(text "clkPcp " (rect 0 0 32 16)(font "Arial" (font_size 8)))
-(text "clkPcp " (rect 420 73 453 89)(font "Arial" (font_size 8)))
+(text "clkpcp " (rect 0 0 31 16)(font "Arial" (font_size 8)))
+(text "clkpcp " (rect 422 73 453 89)(font "Arial" (font_size 8)))
 (line (pt 464 80)(pt 480 80)(line_width 1))
 )
 (port

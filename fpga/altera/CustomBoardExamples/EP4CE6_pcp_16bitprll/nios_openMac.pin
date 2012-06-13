@@ -209,7 +209,7 @@ GND                          : J10       : gnd    :                   :         
 RESERVED_INPUT_WITH_WEAK_PULLUP : J11       :        :                   :         : 5         :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : J12       :        :                   :         : 5         :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : J13       :        :                   :         : 5         :                
-RESERVED_INPUT_WITH_WEAK_PULLUP : J14       :        :                   :         : 5         :                
+SRAM_ADDR[0]                 : J14       : output : 3.3-V LVTTL       :         : 5         : N              
 PHY0_TXD[0]                  : J15       : output : 3.3-V LVTTL       :         : 5         : Y              
 PHY0_RXD[0]                  : J16       : input  : 3.3-V LVTTL       :         : 5         : Y              
 PDI_ADDR[4]                  : K1        : input  : 3.3-V LVTTL       :         : 2         : Y              
@@ -317,7 +317,7 @@ RESERVED_INPUT_WITH_WEAK_PULLUP : T6        :        :                   :      
 RESERVED_INPUT_WITH_WEAK_PULLUP : T7        :        :                   :         : 3         :                
 SRAM_DQ[6]                   : T8        : bidir  : 3.3-V LVTTL       :         : 3         : Y              
 SRAM_DQ[4]                   : T9        : bidir  : 3.3-V LVTTL       :         : 4         : Y              
-SRAM_ADDR[0]                 : T10       : output : 3.3-V LVTTL       :         : 4         : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : T10       :        :                   :         : 4         :                
 SRAM_DQ[1]                   : T11       : bidir  : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : T12       :        :                   :         : 4         :                
 SRAM_DQ[0]                   : T13       : bidir  : 3.3-V LVTTL       :         : 4         : Y              
