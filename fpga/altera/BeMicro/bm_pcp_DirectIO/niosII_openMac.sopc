@@ -257,7 +257,7 @@
       }
       datum megawizard_uipreferences
       {
-         value = "{output_language=VHDL, output_directory=C:\\Git_proj\\openPOWERLINK_CNDK_muelhausens\\fpga\\altera\\BeMicro\\ink_pcp_DirectIO_10_2}";
+         value = "{output_language=VHDL, output_directory=C:\\Work\\RepositoryWORK\\openPOWERLINK_CNDK\\fpga\\altera\\BeMicro\\bm_pcp_DirectIO}";
          type = "String";
       }
    }
@@ -303,16 +303,24 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
+   element system_timer.s1
    {
       datum _lockedAddress
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "0";
+         value = "2304";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2400";
          type = "long";
       }
    }
@@ -324,37 +332,11 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
-         type = "long";
-      }
-   }
    element benchmark_pio.s1
    {
       datum baseAddress
       {
          value = "2368";
-         type = "long";
-      }
-   }
-   element system_timer.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2304";
          type = "long";
       }
    }
@@ -371,11 +353,29 @@
          type = "long";
       }
    }
-   element node_switch_pio.s1
+   element remote_update_cycloneiii_0.s1
    {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
       datum baseAddress
       {
-         value = "2400";
+         value = "2048";
+         type = "long";
+      }
+   }
+   element clock_crossing_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "0";
          type = "long";
       }
    }
@@ -497,8 +497,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMAC.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="5682014380" />
- <parameter name="timeStamp" value="1338987675307" />
+ <parameter name="systemHash" value="7949802364" />
+ <parameter name="timeStamp" value="1339499022710" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -553,7 +553,7 @@
   <parameter name="setting_activateModelChecker" value="false" />
   <parameter name="setting_HDLSimCachesCleared" value="true" />
   <parameter name="setting_HBreakTest" value="false" />
-  <parameter name="resetSlave" value="sram_0.s0" />
+  <parameter name="resetSlave">epcs_flash_controller_0.epcs_control_port</parameter>
   <parameter name="resetOffset" value="0" />
   <parameter name="muldiv_multiplierType" value="NoneSmall" />
   <parameter name="muldiv_divider" value="false" />
