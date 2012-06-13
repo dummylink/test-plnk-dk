@@ -65,14 +65,26 @@ echo -e "\nReading addresses offsets for bootloader..."
 PATTERN[0]="EPCS_FLASH_CONTROLLER_0_BASE"
 PATTERN[1]="REMOTE_UPDATE_CYCLONEIII_0_BASE"
 PATTERN[2]="CONFIG_USER_IMAGE_FLASH_ADRS"
-PATTERN[3]="SRAM_0_BASE" 
-PATTERN[4]="SRAM_0_SPAN"
-PATTERN[5]="EMPTY" 
+
+# Memory (defined in system.h) which should be flushed by bootloader.
+# With uncommenting the next 2 lines this feature will activated.
+#PATTERN[3]="SRAM_0_BASE" 
+#PATTERN[4]="SRAM_0_SPAN"
 
 ###################################################################
 
+# set number of counted pattern elements
 cnt=0
-while [ $cnt -lt 5 ] ; do
+if [ "${PATTERN[3]}" ] && [ "${PATTERN[4]}" ]; then
+    # variables initialized
+    LOOP_MAX_CNT=5
+    echo "Activate EPCS-bootloader flushing of memory range."    
+else
+    # dont search for pattern 3 and 4
+    LOOP_MAX_CNT=3
+fi
+
+while [ $cnt -lt $LOOP_MAX_CNT ] ; do
 
 # set pattern
 pattern=${PATTERN[$cnt]}
