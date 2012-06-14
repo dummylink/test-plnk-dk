@@ -66,11 +66,10 @@ a dual ported RAM (DPRAM) area.
 
 /******************************************************************************/
 /* global variables */
-static WORD     nodeId;                                         ///< The node ID, which can overwrite the node switches if != 0x00
 static BYTE     abMacAddr_l[] = { MAC_ADDR };                   ///< The MAC address to be used
-static BYTE   strDevName[] = DEMO_DEVICE_NAME;
-static BYTE   strHwVersion[] = "1.00";
-static BYTE   strSwVersion[] = "EPL V2 V1.8.1 CNDK";
+static BYTE     strDevName[] = DEMO_DEVICE_NAME;
+static BYTE     strHwVersion[] = "1.00";
+static BYTE     strSwVersion[] = "EPL V2 V1.8.1 CNDK";
 
 static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values of the digital input pins of the board will be stored here
 static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here
@@ -82,12 +81,6 @@ static tEplObdParam *   pAllocObdParam_l = NULL; ///< pointer to allocated memor
 
 /******************************************************************************/
 /* forward declarations */
-void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
-                            BYTE bNodeId_p,
-                            BYTE * pMac_p,
-                            BYTE * pstrDevName_p,
-                            BYTE * pstrHwVersion_p,
-                            BYTE * pstrSwVersion_p);
 void workInputOutput(void);
 void CnApi_processObjectAccess(tEplObdParam ** pObdParam_p);
 
@@ -127,7 +120,8 @@ int main (void)
 {
     tCnApiStatus        status;
 
-    tCnApiInitParm      initParm = {{0}};
+    tCnApiInitParm      InitCnApiParm = {0};
+    tPcpInitParm        InitPcpParam = {{0}};
 
     SysComp_initPeripheral();
 
@@ -135,19 +129,29 @@ int main (void)
 
     CNAPI_USLEEP(1000000);                                // wait 1 s, so you can see the LEDs
 
-    nodeId = DEFAULT_NODEID;    // in case you dont want to use Node Id switches, use a different value then 0x00
-    setPowerlinkInitValues(&initParm,
-                           nodeId,
-                           (BYTE *)abMacAddr_l,
-                           strDevName,
-                           strHwVersion,
-                           strSwVersion);             // initialize POWERLINK parameters
+    /* Set initial POWERLINK parameters for the PCP */
+    InitPcpParam.m_bNodeId = DEFAULT_NODEID;       // in case you dont want to use Node Id switches, use a different value then 0x00
+    memcpy(InitPcpParam.m_abMac, abMacAddr_l, sizeof(InitPcpParam.m_abMac));
+    InitPcpParam.m_dwDeviceType = -1;
+    InitPcpParam.m_dwVendorId = DEMO_VENDOR_ID;
+    InitPcpParam.m_dwProductCode = DEMO_PRODUCT_CODE;
+    InitPcpParam.m_dwRevision = DEMO_REVISION;
+    InitPcpParam.m_dwSerialNum = DEMO_SERIAL_NUMBER;
+    memcpy(InitPcpParam.m_strDevName, strDevName, sizeof(InitPcpParam.m_strDevName));
+    memcpy(InitPcpParam.m_strHwVersion, strHwVersion, sizeof(InitPcpParam.m_strHwVersion));
+    memcpy(InitPcpParam.m_strSwVersion, strSwVersion, sizeof(InitPcpParam.m_strSwVersion));
+
+
+    /* Set initial libCnApi parameters */
+    InitCnApiParm.m_pDpram_p = (BYTE *)PDI_DPRAM_BASE_AP;
 #ifdef CN_API_USING_SPI
-    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm, &CnApi_CbSpiMasterTx, &CnApi_CbSpiMasterRx,    // initialize and start the CN API with SPI
-            enableGlobalInterrupts, disableGlobalInterrupts);
-#else
-    status = CnApi_init((BYTE *)PDI_DPRAM_BASE_AP, &initParm);   // initialize and start the CN API
+    InitCnApiParm.m_SpiMasterTxH_p = CnApi_CbSpiMasterTx;
+    InitCnApiParm.m_SpiMasterRxH_p = CnApi_CbSpiMasterRx;
+    InitCnApiParm.m_pfnEnableGlobalIntH_p = enableGlobalInterrupts;
+    InitCnApiParm.m_pfnDisableGlobalIntH_p = disableGlobalInterrupts;
 #endif
+
+    status = CnApi_init(&InitCnApiParm, &InitPcpParam);   // initialize and start the CN API
     if (status > 0)
     {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"\nERROR: CN API library could not be initialized (%d)\n", status);
@@ -250,39 +254,6 @@ int main (void)
     CnApi_exit();
 
     return 0;
-}
-
-/**
-********************************************************************************
-\brief	initialize POWERLINK parameters
-
-setPowerlinkInitValues() sets up the initialization values for the
-openPOWERLINK stack.
-
-\param  pInitParm_p         pointer to initialization parameter structure
-\param  bNodeId_p           node ID to use for CN
-\param  pMac_p              pointer to MAC address
-\param  pstrDevName_p       pointer to string of device name (object 0x1008/0 Pcp OD)
-\param  pstrHwVersion_p     pointer to string of HW version  (object 0x1009/0 Pcp OD)
-\param  pstrSwVersion_p     pointer to string of SW version  (object 0x100A/0 Pcp OD)
-*******************************************************************************/
-void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
-                            BYTE bNodeId_p,
-                            BYTE * pMac_p,
-                            BYTE * pstrDevName_p,
-                            BYTE * pstrHwVersion_p,
-                            BYTE * pstrSwVersion_p)
-{
-    pInitParm_p->m_bNodeId = bNodeId_p;
-    memcpy(pInitParm_p->m_abMac, pMac_p, sizeof(pInitParm_p->m_abMac));
-    pInitParm_p->m_dwDeviceType = -1;
-    pInitParm_p->m_dwVendorId = DEMO_VENDOR_ID;
-    pInitParm_p->m_dwProductCode = DEMO_PRODUCT_CODE;
-    pInitParm_p->m_dwRevision = DEMO_REVISION;
-    pInitParm_p->m_dwSerialNum = DEMO_SERIAL_NUMBER;
-    memcpy(pInitParm_p->m_strDevName, pstrDevName_p, sizeof(pInitParm_p->m_strDevName));
-    memcpy(pInitParm_p->m_strHwVersion, pstrHwVersion_p, sizeof(pInitParm_p->m_strHwVersion));
-    memcpy(pInitParm_p->m_strSwVersion, pstrSwVersion_p, sizeof(pInitParm_p->m_strSwVersion));
 }
 
 /**
