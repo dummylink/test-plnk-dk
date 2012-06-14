@@ -19,7 +19,6 @@
 #include "pcpEvent.h"
 #include "pcpSync.h"
 #include "pcpPdo.h"
-#include "pcpAsync.h"
 #include "pcpAsyncSm.h"
 #include "global.h"
 
@@ -56,7 +55,7 @@
 // module global vars
 //---------------------------------------------------------------------------
 volatile tPcpCtrlReg *         pCtrlReg_g;     ///< ptr. to PCP control register
-tCnApiInitParm     initParm_g = {{0}};        ///< Powerlink initialization parameter
+tPcpInitParm       initParm_g = {{0}};        ///< Powerlink initialization parameter
 BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 BOOL               fIsUserImage_g;            ///< if set user image is booted
 UINT32             uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
@@ -318,7 +317,7 @@ void rebootCN(void)
 ********************************************************************************
 \brief    initialize openPOWERLINK stack
 *******************************************************************************/
-int initPowerlink(tCnApiInitParm *pInitParm_p)
+int initPowerlink(tPcpInitParm *pInitParm_p)
 {
     DWORD                       ip = IP_ADDR;      ///< ip address
     static tEplApiInitParam     EplApiInitParam;   ///< epl init parameter
@@ -1176,6 +1175,7 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 static int Gi_init(void)
 {
     int         iRet= OK;
+    tPdiAsyncStatus aRet = kPdiAsyncStatusSuccessful;
     UINT32      uiApplicationSwDate = 0;
     UINT32      uiApplicationSwTime = 0;
 
@@ -1219,6 +1219,14 @@ static int Gi_init(void)
         DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_create() FAILED!\n");
         goto exit;
     }
+
+    // finish the async message init
+    aRet = CnApiAsync_finishMsgInit();
+    if (aRet != kPdiAsyncStatusSuccessful)
+    {
+        goto exit;
+    }
+
 
     // init cyclic object processing
     iRet = Gi_initPdo();

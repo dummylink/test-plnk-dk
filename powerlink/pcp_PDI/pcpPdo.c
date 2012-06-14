@@ -35,8 +35,6 @@
 
 /******************************************************************************/
 /* defines */
-/* equals number of mapped objects, if memory-chaining is not applied */
-#define	PDO_COPY_TBL_ELEMENTS	MAX_MAPPABLE_OBJECTS   ///< max copy table elements per PDO
 //TODO: this is a restriction to be indicated in xdd! (max nr. of mappable objects)
 #define PCP_PDO_MAPPING_SIZE_SUM_MAX    100     ///< max sum of mappable bytes (for 400µs cycle time)
 

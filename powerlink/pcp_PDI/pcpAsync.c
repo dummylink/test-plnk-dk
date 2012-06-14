@@ -156,12 +156,6 @@ int CnApiAsync_init(void)
         goto exit;
     }
 
-    Ret = CnApiAsync_finishMsgInit();
-    if (Ret != kPdiAsyncStatusSuccessful)
-    {
-        goto exit;
-    }
-
     return OK;
 exit:
     return ERROR;
@@ -354,10 +348,10 @@ exit:
 static tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                              BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
-	tCnApiInitParm *	pInitParm = &initParm_g;
+    tPcpInitParm *      pInitParm = &initParm_g;
 	tInitPcpReq *       pInitPcpReq = NULL;        ///< pointer to request message (Rx)
 	tInitPcpResp *      pInitPcpResp = NULL;       ///< pointer to response message (Tx)
-	tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
+	tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
 	DEBUG_FUNC;
 

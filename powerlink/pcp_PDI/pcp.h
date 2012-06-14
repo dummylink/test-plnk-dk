@@ -46,7 +46,7 @@ typedef struct sApiPdiComCon {
 /******************************************************************************/
 /* global variables */
 extern volatile tPcpCtrlReg *     pCtrlReg_g;       ///< ptr. to PCP control register
-extern tCnApiInitParm  initParm_g;        ///< Powerlink initialization parameter
+extern tPcpInitParm  initParm_g;        ///< Powerlink initialization parameter
 
 
 extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after boot-up flag
@@ -60,7 +60,7 @@ extern tApiPdiComCon ApiPdiComInstance_g;
 extern BYTE getCommandFromAp(void);
 extern void storePcpState(BYTE bState_p);
 
-extern int initPowerlink(tCnApiInitParm *pInitParm_p);
+extern int initPowerlink(tPcpInitParm *pInitParm_p);
 extern int startPowerlink(void);
 
 
