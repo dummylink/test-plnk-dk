@@ -125,7 +125,7 @@ typedef struct sObjTbl {
 /**
  * \brief structure for POWERLINK initialization parameters
  */
-typedef struct sCnApiInitParm {
+typedef struct sPcpInitParm {
     BYTE            m_abMac[6];
     BYTE            m_bPad;
     BYTE            m_bNodeId;
@@ -137,7 +137,7 @@ typedef struct sCnApiInitParm {
     BYTE            m_strDevName[CN_API_INIT_PARAM_STRNG_SIZE];
     BYTE            m_strHwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
     BYTE            m_strSwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
-} tCnApiInitParm;
+} tPcpInitParm;
 
 /**
 * \brief PCP control registers

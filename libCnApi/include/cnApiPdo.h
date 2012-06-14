@@ -25,6 +25,8 @@ This header file contains definitions for the CN API PDO module.
 /******************************************************************************/
 /* defines */
 
+#define MAX_MAPPABLE_OBJECTS               250       ///< object restrictions
+
 /******************************************************************************/
 /* typedefs */
 

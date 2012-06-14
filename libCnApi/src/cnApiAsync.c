@@ -176,12 +176,6 @@ int CnApiAsync_init(void)
         goto exit;
     }
 
-    Ret = CnApiAsync_finishMsgInit();
-    if (Ret != kPdiAsyncStatusSuccessful)
-    {
-        goto exit;
-    }
-
     return OK;
 exit:
     return ERROR;
@@ -359,17 +353,17 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     /* handle Tx Message */
     /* build up InitPcpReq */
     memset (pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    memcpy (pInitPcpReq->m_abMac, &pInitParm_g->m_abMac, sizeof(pInitParm_g->m_abMac));
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitParm_g->m_dwDeviceType);
+    memcpy (pInitPcpReq->m_abMac, &pInitPcpParm_g->m_abMac, sizeof(pInitPcpParm_g->m_abMac));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParm_g->m_dwDeviceType);
 
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitParm_g->m_bNodeId);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitParm_g->m_dwRevision);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitParm_g->m_dwSerialNum);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitParm_g->m_dwVendorId);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitParm_g->m_dwProductCode);
-    memcpy(pInitPcpReq->m_strDevName, &pInitParm_g->m_strDevName, sizeof(pInitPcpReq->m_strDevName));
-    memcpy(pInitPcpReq->m_strHwVersion, &pInitParm_g->m_strHwVersion, sizeof(pInitPcpReq->m_strHwVersion));
-    memcpy(pInitPcpReq->m_strSwVersion, &pInitParm_g->m_strSwVersion, sizeof(pInitPcpReq->m_strSwVersion));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParm_g->m_bNodeId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitPcpParm_g->m_dwRevision);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParm_g->m_dwSerialNum);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParm_g->m_dwVendorId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitPcpParm_g->m_dwProductCode);
+    memcpy(pInitPcpReq->m_strDevName, &pInitPcpParm_g->m_strDevName, sizeof(pInitPcpParm_g->m_strDevName));
+    memcpy(pInitPcpReq->m_strHwVersion, &pInitPcpParm_g->m_strHwVersion, sizeof(pInitPcpParm_g->m_strHwVersion));
+    memcpy(pInitPcpReq->m_strSwVersion, &pInitPcpParm_g->m_strSwVersion, sizeof(pInitPcpParm_g->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 

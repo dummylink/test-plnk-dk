@@ -30,6 +30,7 @@ the Tx and Rx direction towards and from the AP is handled.
 
 #include "cnApiAsyncSm.h"    ///< external function declarations
 #include "cnApiAsync.h"      ///< state machine constants
+#include "cnApiIntern.h"
 
 #ifdef CN_API_USING_SPI
 #include "cnApiPdiSpi.h"     ///< serial interface

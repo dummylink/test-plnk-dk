@@ -27,7 +27,6 @@ using the Process Data Interface (PDI) as buffer.
 /******************************************************************************/
 /* includes */
 #include "stateMachine.h"
-#include "cnApiIntern.h"
 
 #include "cnApiAsync.h"
 

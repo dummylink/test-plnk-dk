@@ -35,6 +35,11 @@ processor (AP) to the POWERLINK communication processor (PCP).
 
 /******************************************************************************/
 /* defines */
+/* wait for PCP definitions */
+#define PCP_PRESENCE_RETRY_COUNT         5          ///< number of retries until abort
+#define PCP_PRESENCE_RETRY_TIMEOUT_US    10000000   ///< wait time in us until retry
+
+#define SYNC_IRQ_ACK                0               ///< Sync IRQ Bit shift (for AP only)
 
 /******************************************************************************/
 /* typedefs */
@@ -52,7 +57,7 @@ tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of 
 #endif
 
 BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
-tCnApiInitParm *             pInitParm_g;           ///< pointer to POWERLINK init parameters
+tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK init parameters
 
 
 /******************************************************************************/
@@ -71,30 +76,19 @@ tCnApiInitParm *             pInitParm_g;           ///< pointer to POWERLINK in
 CnApi_init() is used to initialize the user API library. The function must be
 called by the application in order to use the API.
 
-\param      pDpram_p                   pointer to the Dual Ported RAM (DPRAM) area
-\param      pInitParm_p                pointer to the CN API initialization structure
-\param      SpiMasterTxH_p             SPI Master Tx Handler
-\param      SpiMasterRxH_p             SPI MASTER Rx Handler
-\param      pfnEnableGlobalIntH_p      pointer to callback for global interrupt enable
-\param      pfnDisableGlobalIntH_p     pointer to callback for global interrupt disable
+\param      tCnApiInitParm             pointer to the libCnApi initialization structure
+\param      pInitParm_p                pointer to the POWERLINK initialization structure
 
 \retval     kCnApiStatusOk      if API was successfully initialized
 *******************************************************************************/
-#ifdef CN_API_USING_SPI
-tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p,
-        tSpiMasterTxHandler     SpiMasterTxH_p,
-        tSpiMasterRxHandler     SpiMasterRxH_p,
-        void *pfnEnableGlobalIntH_p,
-        void *pfnDisableGlobalIntH_p)
-#else
-tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
-#endif
+tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcpParm_p)
 {
-    tCnApiStatus FncRet = kCnApiStatusOk;
-    tEplKernel EplRet = kEplSuccessful;
-    BOOL fPcpPresent = FALSE;
-    int     iStatus;
-    int iCnt;
+    tCnApiStatus    FncRet = kCnApiStatusOk;
+    tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
+    tEplKernel      EplRet = kEplSuccessful;
+    BOOL            fPcpPresent = FALSE;
+    int             iStatus;
+    int             iCnt;
 #ifdef CN_API_USING_SPI
     int iRet = OK;
 #endif //CN_API_USING_SPI
@@ -102,21 +96,21 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\n\nInitialize CN API functions...");
 
     /* initialize global pointers */
-    pInitParm_g = pInitParm_p;    ///< make pInitParm_p global
+    pInitPcpParm_g = pInitPcpParm_p;    ///< make pInitParm_p global
 
     /* Control and Status Register is little endian */
 #ifdef CN_API_USING_SPI
     pCtrlReg_g = &PcpCntrlRegMirror;         ///< if SPI is used, take local var instead of parameter
 #else
-    pCtrlReg_g = (tPcpCtrlReg *)pDpram_p;    ///< if no SPI is used, take parameter to dpram
-    pDpramBase_g = pDpram_p;
+    pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParm_p->m_pDpram_p;    ///< if no SPI is used, take parameter to dpram
+    pDpramBase_g = pInitCnApiParm_p->m_pDpram_p;
 #endif // CN_API_USING_SPI
 
 
 #ifdef CN_API_USING_SPI
     /* initialize user-callback functions for SPI */
-    iRet = CnApi_initSpiMaster(SpiMasterTxH_p, SpiMasterRxH_p,
-            pfnEnableGlobalIntH_p, pfnDisableGlobalIntH_p);
+    iRet = CnApi_initSpiMaster(pInitCnApiParm_p->m_SpiMasterTxH_p, pInitCnApiParm_p->m_SpiMasterRxH_p,
+            pInitCnApiParm_p->m_pfnEnableGlobalIntH_p, pInitCnApiParm_p->m_pfnDisableGlobalIntH_p);
     if( iRet != OK )
     {
         FncRet = kCnApiStatusError;
@@ -127,7 +121,7 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     CnApi_setApCommand(kApCmdReset);
 
     /* check if PCP interface is present */
-    for(iCnt = 0; iCnt < PCP_PRESENCE_TIMEOUT; iCnt++)
+    for(iCnt = 0; iCnt < PCP_PRESENCE_RETRY_COUNT; iCnt++)
     {
         if((CnApi_getPcpState() == kPcpStateBooted) &&
             CnApi_getPcpMagic() == PCP_MAGIC          )
@@ -143,14 +137,14 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
                                                 CnApi_getPcpMagic(),
                                                 CnApi_getPcpState());
         }
-        CNAPI_USLEEP(10000000);
+        CNAPI_USLEEP(PCP_PRESENCE_RETRY_TIMEOUT_US);
     }
 
     if(!fPcpPresent)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, ".ERROR!\n\n");
 
-        /* PCP_PRESENCE_TIMEOUT exceeded */
+        /* PCP_PRESENCE_RETRY_COUNT exceeded */
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Reading PDI failed!\n");
         FncRet = kCnApiStatusError;
         goto exit;
@@ -197,6 +191,14 @@ tCnApiStatus CnApi_init(BYTE *pDpram_p, tCnApiInitParm *pInitParm_p)
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_create() failed!\n");
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
+
+    AsyncRet = CnApiAsync_finishMsgInit();
+    if (AsyncRet != kPdiAsyncStatusSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_finishMsgInit() failed!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }

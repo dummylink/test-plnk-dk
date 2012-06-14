@@ -15,6 +15,7 @@
 /******************************************************************************/
 /* includes */
 #include "cnApi.h"
+#include "cnApiIntern.h"
 #include "cnApiPdo.h"
 #include "cnApiAsync.h"
 #include "cnApiObject.h"
