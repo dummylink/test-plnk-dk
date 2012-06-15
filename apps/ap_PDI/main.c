@@ -198,9 +198,6 @@ int main (void)
     CnApi_initSyncInt(0, 0, 0); ///< tell PCP that we want polling mode
     CnApi_disableSyncInt();
 #else
-    CnApi_initSyncInt(3000, 100000, 0);
-    CnApi_disableSyncInt();    ///< interrupt will be enabled when CN is operational
-
     /* initialize PCP interrupt handler*/
     if(SysComp_initSyncInterrupt(syncIntHandler) != OK)    ///< local AP IRQ is enabled here
     {
@@ -208,6 +205,8 @@ int main (void)
         return ERROR;
     }
 
+    CnApi_initSyncInt(3000, 100000, 0);
+    CnApi_disableSyncInt();    ///< interrupt will be enabled when CN is operational
 #endif /* USE_POLLING_MODE_SYNC */
 
 #ifdef USE_POLLING_MODE_ASYNC
@@ -244,14 +243,13 @@ int main (void)
         /*--- TASK 2: START ---*/
         if (fOperational_l == TRUE)
         {
-            CnApi_transferPdo();           // update linked variables
-            CnApi_AppCbSync();             // call application specific synchronization function
+            CnApi_checkPdo();
         }
         /*--- TASK 2: END   ---*/
 #endif /* USE_POLLING_MODE_SYNC */
 
 #ifdef USE_POLLING_MODE_ASYNC
-        CnApi_pollAsyncEvent();            // check if PCP event occurred
+        CnApi_checkAsyncEvent();            // check if PCP event occurred
 #endif /* USE_POLLING_MODE_ASYNC */
     }
 
@@ -586,12 +584,10 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 static void syncIntHandler(void* pArg_p)
 #endif
 {
-    CnApi_transferPdo();               // Call CN API PDO transfer function
-
-    CnApi_AppCbSync();                 // call application specific synchronization function
+    /* Call CN API check PDO function! (transfer PDO's and call sync callback) */
+    CnApi_checkPdo();
 
     CnApi_ackSyncIrq();                // acknowledge IR from PCP
-
 }
 #endif /* USE_POLLING_MODE_SYNC */
 
@@ -613,7 +609,7 @@ static void asyncIntHandler(void* pArg_p, void* dwInt_p)
 static void asyncIntHandler(void* pArg_p)
 #endif
 {
-    CnApi_pollAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
+    CnApi_checkAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
 
 }
 #endif /* USE_POLLING_MODE_ASYNC */
