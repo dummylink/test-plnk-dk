@@ -21,8 +21,8 @@ This header file contains definitions for the CN API.
 #include "cnApiCfg.h"
 #include "cnApiTyp.h"
 
-#include "cnApiEvent.h"
 #include "cnApiAsyncSm.h"
+#include "cnApiEvent.h"
 
 #include "EplErrDef.h"
 #include "EplObd.h"
@@ -49,6 +49,8 @@ This header file contains definitions for the CN API.
 
 /******************************************************************************/
 /* type definitions */
+typedef void (* tCnApiAppCbSync) ( void );
+typedef tEplKernel (* tCnApiObdDefAcc) (tEplObdParam * pObdParam_p);
 
 typedef struct sCnApiObjId {
 	WORD		m_wIndex;
@@ -68,6 +70,9 @@ typedef struct sCnApiObjCreateObjLinksHdl {
  */
 typedef struct sCnApiInitParm {
     BYTE *                  m_pDpram_p;
+    tCnApiAppCbSync         m_pfnAppCbSync;
+    tCnApiAppCbEvent        m_pfnAppCbEvent;
+    tCnApiObdDefAcc         m_pfnDefaultObdAccess_p;
 #ifdef CN_API_USING_SPI
     tSpiMasterTxHandler     m_SpiMasterTxH_p;
     tSpiMasterRxHandler     m_SpiMasterRxH_p;
@@ -100,8 +105,6 @@ extern void CnApi_enterApStateReadyToOperate();
 extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
 extern void CnApi_cleanupObjects(void);
-extern tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
-extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p);
 
 /* time functions */
 extern DWORD CnApi_getRelativeTimeLow(void);
@@ -119,7 +122,6 @@ extern DWORD CnApi_getSyncIntPeriod(void);
 
 /* functions for PDO transfer */
 extern void CnApi_transferPdo(void);
-extern void CnApi_AppCbSync(void);
 
 
 /* functions for async state machine */

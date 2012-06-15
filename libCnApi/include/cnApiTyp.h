@@ -82,6 +82,7 @@ typedef enum
 typedef enum eCnApiStatus{
     kCnApiStatusOk = 0,                 ///< Ok, no error!
     kCnApiStatusError,                  ///< error
+    kCnApiStatusInvalidParameter,       ///< invalid or missing parameter
     kCnApiStatusMsgBufFull,             ///< message buffer is full
     kCnApiStatusMsgBufEmpty,            ///< message buffer is empty
     kCnApiStatusDataTooLong,            ///< data too long for message buffer

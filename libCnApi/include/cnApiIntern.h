@@ -20,6 +20,8 @@ This header file contains definitions for the CN API.
 /* includes */
 #include "cnApiTyp.h"
 
+#include "cnApiCfg.h"
+
 /******************************************************************************/
 /* defines */
 #define PCP_MAGIC                   0x50435000      ///< magic number identifies valid PCP memory
@@ -122,8 +124,6 @@ void CnApi_setApCommand(BYTE bCmd_p);
 
 /******************************************************************************/
 /* functions */
-
-
 
 
 #endif /* CNAPIINTERN_H_ */

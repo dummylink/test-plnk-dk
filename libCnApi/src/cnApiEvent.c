@@ -18,9 +18,8 @@
 \since      29.04.2011
 *******************************************************************************/
 /* includes */
-#include "cnApi.h"
-#include "cnApiIntern.h"
 #include "cnApiEvent.h"
+#include "cnApiIntern.h"
 
 #include "cnApiAsyncSm.h"
 
@@ -42,12 +41,15 @@
 
 /******************************************************************************/
 /* global variables */
+void (*pfnAppCbEvent_g)(tCnApiEventType EventType_p,
+        tCnApiEventArg * pEventArg_p, void * pUserArg_p) = NULL;
 
 /******************************************************************************/
 /* function declarations */
 static void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p);
-static void CnApi_getAsyncIRQEvent(void);
-static void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p);
+static tCnApiStatus CnApi_getAsyncIRQEvent(void);
+static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p,
+        tPcpPdiEventArg wEventArg_p);
 
 
 /******************************************************************************/
@@ -56,6 +58,25 @@ static void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg
 
 /******************************************************************************/
 /* functions */
+
+/**
+********************************************************************************
+ \brief init the async event module
+*******************************************************************************/
+tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p)
+{
+    tCnApiStatus Ret = kCnApiStatusOk;
+
+    /* set application event callback */
+    if (pfnAppCbEvent_p != NULL)
+    {
+        pfnAppCbEvent_g = pfnAppCbEvent_p;  ///< make callback global
+    } else {
+        Ret = kCnApiStatusInvalidParameter;
+    }
+
+    return Ret;
+}
 
 /**
 ********************************************************************************
@@ -141,6 +162,7 @@ void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p)
 *******************************************************************************/
 void CnApi_pollAsyncEvent(void)
 {
+    tCnApiStatus Ret = kCnApiStatusOk;
     /* check if IRQ-bit is set */
     WORD wCtrlRegField;
 
@@ -156,7 +178,11 @@ void CnApi_pollAsyncEvent(void)
     if (wCtrlRegField & (1 << ASYNC_IRQ_PEND))
     {
         /* event is pending -> check it */
-        CnApi_getAsyncIRQEvent();
+        Ret = CnApi_getAsyncIRQEvent();
+        if(Ret != kCnApiStatusOk)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "%s: Error while processing an async event!\n", __func__);
+        }
     }
 }
 
@@ -165,8 +191,9 @@ void CnApi_pollAsyncEvent(void)
  \brief checks which event has been signaled by AP,
         then forwards and acknowledges it
 *******************************************************************************/
-void CnApi_getAsyncIRQEvent(void)
+static tCnApiStatus CnApi_getAsyncIRQEvent(void)
 {
+    tCnApiStatus Ret = kCnApiStatusOk;
     /* check if IRQ-bit is set */
     WORD wCtrlRegField;
     tPcpPdiEvent Event;
@@ -189,7 +216,7 @@ void CnApi_getAsyncIRQEvent(void)
         Event.Typ_m = kPcpPdiEventGenericError;
         Event.Arg_m.GenErr_m = kPcpGenErrPhy0LinkLoss;
 
-        CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
+        Ret = CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }
 
     if (wCtrlRegField & (1 << EVT_PHY1_LINK))
@@ -200,7 +227,7 @@ void CnApi_getAsyncIRQEvent(void)
         Event.Typ_m = kPcpPdiEventGenericError;
         Event.Arg_m.GenErr_m = kPcpGenErrPhy1LinkLoss;
 
-        CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
+        Ret = CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }
 
     if (wCtrlRegField & (1 << EVT_GENERIC))
@@ -221,13 +248,15 @@ void CnApi_getAsyncIRQEvent(void)
         Event.Typ_m = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventType);
         Event.Arg_m.wVal_m = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventArg);
 
-        CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
+        Ret = CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }
 
     /* if no event -> don't care and exit */
 
     /* acknowledge all signaled events */
     CnApi_ackAsyncIRQEvent(&wCtrlRegField);
+
+    return Ret;
 }
 
 /**
@@ -239,8 +268,9 @@ void CnApi_getAsyncIRQEvent(void)
  This function processes PCP events. If an event is also intended also for the
  application, it will be forwarded.
  *******************************************************************************/
-void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p)
+static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEventArg_p)
 {
+    tCnApiStatus Ret = kCnApiStatusOk;
     tPcpPdiEvent Event;
     tCnApiEvent  CnApiEvent;            ///< forwarded to application
     BOOL fInformApplication = FALSE;
@@ -340,10 +370,19 @@ void CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdiEventArg wEvent
         break;
     }
 
-    if (fInformApplication == TRUE)
+    if (fInformApplication == TRUE )
     {    /* inform application */
-        CnApi_AppCbEvent(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
+        if(pfnAppCbEvent_g != NULL)
+        {
+            pfnAppCbEvent_g(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
+        } else {
+            Ret = kCnApiStatusInvalidParameter;
+            goto Exit;
+        }
     }
+
+Exit:
+    return Ret;
 
 }
 

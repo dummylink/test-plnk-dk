@@ -273,7 +273,14 @@ static void stateChange(BYTE current, BYTE target)
 
 	/* inform application */
 	CnApiEventArg.NewApState_m = (tApStates) target;
-    CnApi_AppCbEvent(kCnApiEventApStateChange, &CnApiEventArg, NULL);
+
+    if(pfnAppCbEvent_g != NULL)
+    {
+        pfnAppCbEvent_g(kCnApiEventApStateChange, &CnApiEventArg, NULL);
+    } else {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "%s: Error while posting a state change!\n", __func__);
+    }
+
 }
 
 /******************************************************************************/

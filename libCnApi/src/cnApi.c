@@ -176,7 +176,15 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     }
 
     /* assign callback for all objects which don't exist in local OBD */
-    EplRet = EplObdSetDefaultObdCallback(CnApi_CbDefaultObdAccess);
+    EplRet = EplObdSetDefaultObdCallback(pInitCnApiParm_p->m_pfnDefaultObdAccess_p);
+    if (EplRet != kEplSuccessful)
+    {
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
+
+    /* init cnApi async event module */
+    EplRet = CnApi_initAsyncEvent(pInitCnApiParm_p->m_pfnAppCbEvent);
     if (EplRet != kEplSuccessful)
     {
         FncRet = kCnApiStatusError;

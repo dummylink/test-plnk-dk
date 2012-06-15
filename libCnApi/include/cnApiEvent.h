@@ -120,24 +120,27 @@ typedef struct {
     tCnApiEventArg  Arg_m;
 } tCnApiEvent;
 
+/* event callback type */
+typedef void (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
+        tCnApiEventArg * pEventArg_p, void * pUserArg_p);
+
 /******************************************************************************/
 /* external variable declarations */
 
 /******************************************************************************/
 /* global variables */
+extern void (*pfnAppCbEvent_g)(tCnApiEventType EventType_p,
+        tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 
 /******************************************************************************/
 /* function declarations */
-
-// IN from main.c
-extern void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 
 /******************************************************************************/
 /* private functions */
 
 /******************************************************************************/
 /* functions */
-
+tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p);
 
 
 #endif /* CNAPIEVENT_H_ */
