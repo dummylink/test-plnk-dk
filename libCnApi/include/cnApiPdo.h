@@ -46,7 +46,7 @@ This header file contains definitions for the CN API PDO module.
 /******************************************************************************/
 /* functions */
 
-int CnApi_initPdo(void);
+int CnApi_initPdo(tCnApiAppCbSync pfnAppCbSync_p);
 BOOL CnApi_readPdoDesc(tPdoDescHeader *pPdoDescHeader_p);
 
 tPdiAsyncStatus CnApi_doLinkPdosResp(

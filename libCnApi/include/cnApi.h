@@ -120,9 +120,8 @@ extern void CnApi_disableSyncInt(void);
 extern void CnApi_ackSyncIrq(void);
 extern DWORD CnApi_getSyncIntPeriod(void);
 
-/* functions for PDO transfer */
-extern void CnApi_transferPdo(void);
-
+/* functions for PDO transfer and sync callback*/
+extern void CnApi_checkPdo(void);
 
 /* functions for async state machine */
 extern BOOL CnApi_processAsyncStateMachine(void);
@@ -130,7 +129,7 @@ extern BOOL CnApi_processAsyncStateMachine(void);
 /* functions for async event handling */
 extern void CnApi_enableAsyncEventIRQ(void);
 extern void CnApi_disableAsyncEventIRQ(void);
-extern void CnApi_pollAsyncEvent(void);
+extern void CnApi_checkAsyncEvent(void);
 
 /* functions for the LED module */
 extern tCnApiStatus CnApi_setLed(tCnApiLedType bLed_p, BOOL bOn_p);

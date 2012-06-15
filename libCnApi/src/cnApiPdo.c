@@ -74,6 +74,9 @@ static  WORD                wCntMappedNotLinkedObj_l;    ///< counter of mapped 
 static  tPdoCopyTbl         aTxPdoCopyTbl_l[PCP_PDI_TPDO_CHANNELS];
 static  tPdoCopyTbl         aRxPdoCopyTbl_l[PCP_PDI_RPDO_CHANNELS];
 
+// global pointer to the sync callback
+static tCnApiAppCbSync      pfnAppCbSync_g = NULL;
+
 /******************************************************************************/
 /* function declarations */
 
@@ -340,11 +343,21 @@ exit:
 ********************************************************************************
 \brief	initialize pdo module
 
+\param
+
 CnApi_initPdo() is used to initialize the PDO module.
 *******************************************************************************/
-int CnApi_initPdo(void)
+int CnApi_initPdo(tCnApiAppCbSync pfnAppCbSync_p)
 {
     register WORD wCnt;
+
+    if(pfnAppCbSync_p != NULL)
+    {
+        pfnAppCbSync_g = pfnAppCbSync_p;
+    } else {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "Error in %s: AppCbSync callback is not initialised\n", __func__);
+        goto exit;
+    }
 
     /** group TPDO PDI channels address, size and acknowledge settings */
 #if (PCP_PDI_TPDO_CHANNELS >= 1)
@@ -642,17 +655,24 @@ BOOL CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p)
     return fRet;
 }
 
+
+
 /**
 ********************************************************************************
-\brief  transfer PDO data
+\brief  check for new PDO data and receive transmit them
 
-CnApi_transferPdo() transfers PDO data. It receives RX data from the PCP and
-sends TX data to the PCP.
+CnApi_checkPdo() transfers PDO data. It receives RX data from the PCP and
+sends TX data to the PCP. After the RX transfer is finished the sync callback is
+executed.
 *******************************************************************************/
-void CnApi_transferPdo(void)
+void CnApi_checkPdo(void)
 {
-    CnApi_transmitPdo();
     CnApi_receivePdo();
+
+    /* call AppCbSync callback function */
+    pfnAppCbSync_g();
+
+    CnApi_transmitPdo();
 }
 
 

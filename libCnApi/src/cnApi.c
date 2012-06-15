@@ -212,7 +212,7 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     }
 
     /* initialize PDO transfer functions */
-    iStatus = CnApi_initPdo();
+    iStatus = CnApi_initPdo(pInitCnApiParm_p->m_pfnAppCbSync);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApi_initPdo() failed!\n");

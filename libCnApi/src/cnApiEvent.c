@@ -160,7 +160,7 @@ void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p)
 ********************************************************************************
  \brief checks if asynchronous event occurred and simulates IRQ
 *******************************************************************************/
-void CnApi_pollAsyncEvent(void)
+void CnApi_checkAsyncEvent(void)
 {
     tCnApiStatus Ret = kCnApiStatusOk;
     /* check if IRQ-bit is set */
