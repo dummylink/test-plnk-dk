@@ -102,7 +102,6 @@ static inline BOOL checkMsgPresence(tAsyncMsg * pPdiBuffer_p);
 static tPdiAsyncStatus getArrayNumOfMsgDescr(tPdiAsyncMsgType MsgType_p,
                                              tPdiAsyncMsgDescr * paMsgDescr_p,
                                              BYTE * pbArgElement_p            );
-static char * getStrgCurError (tPdiAsyncStatus status);
 static BOOL CnApiAsync_saveMsgContext(void);
 static BOOL CnApiAsync_restoreMsgContext(void);
 
@@ -240,40 +239,6 @@ static tPdiAsyncStatus getArrayNumOfMsgDescr(tPdiAsyncMsgType MsgType_p,
 
 exit:
     return Ret;
-}
-
-/**
-********************************************************************************
-\brief  get string of current PDI asynchronous module status
-*******************************************************************************/
-static char * getStrgCurError (tPdiAsyncStatus status)
-{
-    switch (status)
-    {
-        case kPdiAsyncStatusSuccessful           : return "PdiAsyncStatusSuccessful";
-        case kPdiAsyncStatusSendError            : return "PdiAsyncStatusSendError";
-        case kPdiAsyncStatusRespError            : return "PdiAsyncStatusRespError";
-        case kPdiAsyncStatusChannelError         : return "PdiAsyncStatusChannelError";
-        case kPdiAsyncStatusReqIdError           : return "PdiAsyncStatusReqIdError";
-        case kPdiAsyncStatusTimeout              : return "PdiAsyncStatusTimeout";
-        case kPdiAsyncStatusBufFull              : return "PdiAsyncStatusBufFull";
-        case kPdiAsyncStatusBufEmpty             : return "PdiAsyncStatusBufEmpty";
-        case kPdiAsyncStatusDataTooLong          : return "PdiAsyncStatusDataTooLong";
-        case kPdiAsyncStatusIllegalInstance      : return "PdiAsyncStatusIllegalInstance";
-        case kPdiAsyncStatusInvalidInstanceParam : return "PdiAsyncStatusInvalidInstanceParam ";
-        case kPdiAsyncStatusNoFreeInstance       : return "PdiAsyncStatusNoFreeInstance";
-        case kPdiAsyncStatusInvalidOperation     : return "PdiAsyncStatusInvalidOperation";
-        case kPdiAsyncStatusNoResource           : return "PdiAsyncStatusNoResource";
-        case kPdiAsyncStatusShutdown             : return "PdiAsyncStatusShutdown";
-        case kPdiAsyncStatusReject               : return "PdiAsyncStatusReject";
-        case kPdiAsyncStatusRetry                : return "PdiAsyncStatusRetry";
-        case kPdiAsyncStatusInvalidEvent         : return "PdiAsyncStatusInvalidEvent";
-        case kPdiAsyncStatusInvalidState         : return "PdiAsyncStatusInvalidState";
-        case kPdiAsyncStatusInvalidMessage       : return "PdiAsyncStatusInvalidMessage";
-        case kPdiAsyncStatusFreeInstance         : return "PdiAsyncStatusFreeInstance";
-        case kPdiAsyncStatusUnhandledTransfer    : return "PdiAsyncStatusUnhandledTransfer";
-        default:                                  return "--";
-    }
 }
 
 /*******************************************************************************
@@ -1364,8 +1329,8 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     /* timeout handling */
     dwTimeoutWait_l = 0;  // reset timeout counter
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s status: %s\n",
-                                __func__, getStrgCurError(ErrorHistory_l));
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s errorcode: 0x%04x\n",
+                                __func__, ErrorHistory_l);
 
     /* deactivate active messages */
     if (bActivTxMsg_l != INVALID_ELEMENT)
