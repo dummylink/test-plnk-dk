@@ -272,7 +272,10 @@ int main (void)
     /***** initializations *****/
     DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Initializing...\n");
 
-    Gi_init();
+    if (Gi_init() != OK)
+    {
+        goto exit;
+    }
 
     DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "OK\n");
 
@@ -1164,7 +1167,7 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 ********************************************************************************
 \brief    basic initializations
 *******************************************************************************/
-void Gi_init(void)
+int Gi_init(void)
 {
     int         iRet= OK;
     UINT32      uiApplicationSwDate = 0;
@@ -1188,6 +1191,15 @@ void Gi_init(void)
     // Other FPGA memory initialization values right after FPGA configuration:
     // pCtrlReg_g->m_wState: 0x00EE
     // pCtrlReg_g->m_wCommand: 0xFFFF
+
+    if ((AmiGetWordFromLe((BYTE*) &pCtrlReg_g->m_wState) != 0x00EE)  ||
+        (AmiGetWordFromLe((BYTE*) &pCtrlReg_g->m_wCommand) != 0xFFFF)  )
+    {
+        // PDI memory was not initialized correctly by HW
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Bad PDI memory init!\n");
+        iRet = ERROR;
+        goto exit;
+    }
 
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
@@ -1225,7 +1237,7 @@ void Gi_init(void)
     Gi_pcpEventFifoInit();
 
 exit:
-    return;
+    return iRet;
 }
 
 /**

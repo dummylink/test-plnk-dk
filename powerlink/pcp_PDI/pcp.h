@@ -61,7 +61,7 @@ extern int initPowerlink(tCnApiInitParm *pInitParm_p);
 extern int linkPowerlinkVars(void);
 extern int startPowerlink(void);
 
-extern void Gi_init(void);
+extern int Gi_init(void);
 void Gi_shutdown(void);
 
 extern int Gi_initAsync(void);
