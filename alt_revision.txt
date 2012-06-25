@@ -60,7 +60,7 @@ Revision History
                     [TASK] Adapt openPOWERLINK V1.8.1
                     [FIX] A: ink_ap_pcp_intavalon does support either asynchronous event or synchronous cylic IR signal
                     
-06.06.2012 V0.5.1   [FIX] Incorrect initialization values transmitted to PCP
+26.06.2012 V0.5.1   [FIX] Incorrect initialization values transmitted to PCP
                     [FIX] CnApi_postMsg parameter assignment
                     [FIX] Remapping in OPERATIONAL for PDI
                     [FIX] PCP writes wrong IIB version
@@ -69,7 +69,12 @@ Revision History
                     [FIX] Rework debug messages
                     [FIX] Benchmark IO pins are set wrong at EdrvOpenMac IrqHandler
                     [FEATURE] Move functions of interrupt context to internal memory
+                    [FEATURE] BeMicro RTE DirectIO example design
                     [TASK] A: Update IP-Core to version 0.2.3                    
                     [FIX] A: FW-tools: firmware.h not found
+                    [FIX] CNDK examples pass openConformace Test V0.6.0 Beta
+                    [FIX] start value of phy address strapping
+                    [FIX] PRes reception error (EPL_DLL_ERR_INVALID_FORMAT)
+                    [TASK] A: set Macros for filling the TC-I-MEM for performance optimization
 
                     

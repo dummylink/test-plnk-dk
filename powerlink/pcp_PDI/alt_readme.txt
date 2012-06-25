@@ -19,14 +19,32 @@ through a SPI or parallel interface.
 
 
 2. Performance
--------------------
+---------------
 - Minimum cycle length: optimization dependent
 - PReq-PRes Latency: 1 µs
 - Process data: 4 bytes input and 4 bytes output
 - There are 3 RPDOs and 1 TPDO available.
 
 
-3. Requirements
+3. SW Build Proporties
+-------------------
+3.1 Build Options
+    - [1] debug: Has the most debug information. Additional printouts can be
+                 enabled by modifying "DEF_DEBUG_LVL" in "create-this-app".
+    - [2] debug with reduced printouts: Has only basic debug information.
+    - [3] release: Compiles with best optimization concerning processing time
+                   and disables all printf-outputs. Use this option for the
+                   final product.
+                 
+3.2 FPGA Onchip Memory Requirements
+    - The build options [1] and [2] do not require special FPGA memory
+      for the program code.
+    - The build option "[3] release" requires at least 1556 Byte
+      tightly-coupled-instruction memory, because certain functions are put
+      into this memory.   
+      
+
+4. Requirements
 ---------------
 - Development Boards
 
@@ -43,13 +61,13 @@ through a SPI or parallel interface.
   ObjDicts\PDI.
 
 
-4.Configuration
+5.Configuration
 ----------------
 Miscellaneous parameters of the openPOWERLINK stack and the PCP application
 can be configured through defines in EplCfg.h. The following section contains
 a description of those parameters.
 
-4.1 Firmware Update and Remote configuration
+5.1 Firmware Update and Remote configuration
   The PCP contains support for a safe firmware update feature through POWERLINK.
   The following options could be configured
 
@@ -75,7 +93,7 @@ a description of those parameters.
     image is loaded through JTAG interface for development.
 
 
-5. How to run the demo
+6. How to run the demo
 ----------------------
 
 For Windows:

@@ -36,9 +36,26 @@ designed to be connected to devices through digital I/Os.
   6200/02: digital output (LEDs) -> meant for RPDO
   6200/03: not in use
   6200/04: digital output (Hex Digits) -> meant for RPDO
+  
+4. SW Build Proporties
+-------------------
+4.1 Build Options
+    - [1] debug: Has the most debug information. Additional printouts can be
+                 enabled by modifying "DEF_DEBUG_LVL" in "create-this-app".
+    - [2] debug with reduced printouts: Has only basic debug information.
+    - [3] release: Compiles with best optimization concerning processing time
+                   and disables all printf-outputs. Use this option for the
+                   final product.
+                 
+4.2 FPGA Onchip Memory Requirements
+    - The build options [1] and [2] do not require special FPGA memory
+      for the program code.
+    - The build option "[3] release" requires at least 3460 Byte
+      tightly-coupled-instruction memory, because certain functions are put
+      into this memory.  
 
 
-4. Requirements
+5. Requirements
 ---------------
 - Development Boards
 
@@ -55,13 +72,13 @@ designed to be connected to devices through digital I/Os.
   ObjDicts\Direct_IO.
 
  
-5.Configuration
+6.Configuration
 ----------------
 Miscellaneous parameters of the openPOWERLINK stack and the PCP application
 can be configured through defines in EplCfg.h. The following section contains
 a description of those parameters.
 
-5.1 Firmware Update and Remote configuration
+6.1 Firmware Update and Remote configuration
   The PCP contains support for a safe firmware update feature through POWERLINK.
   The following options could be configured
 
@@ -87,7 +104,7 @@ a description of those parameters.
     image is loaded through JTAG interface for development.
 
 
-6. How to run the demo
+7. How to run the demo
 ----------------------
 
 For Windows:
