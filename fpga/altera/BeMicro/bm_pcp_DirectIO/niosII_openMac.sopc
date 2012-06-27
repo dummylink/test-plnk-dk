@@ -303,53 +303,11 @@
          type = "long";
       }
    }
-   element system_timer.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
    element node_switch_pio.s1
    {
       datum baseAddress
       {
          value = "2400";
-         type = "long";
-      }
-   }
-   element status_led_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2336";
-         type = "long";
-      }
-   }
-   element benchmark_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2368";
-         type = "long";
-      }
-   }
-   element tc_i_mem_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "33554432";
          type = "long";
       }
    }
@@ -376,6 +334,48 @@
       datum baseAddress
       {
          value = "0";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "33554432";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2368";
+         type = "long";
+      }
+   }
+   element status_led_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2336";
+         type = "long";
+      }
+   }
+   element system_timer.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2304";
          type = "long";
       }
    }
@@ -497,8 +497,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMAC.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="7949802364" />
- <parameter name="timeStamp" value="1339499022710" />
+ <parameter name="systemHash" value="7949802365" />
+ <parameter name="timeStamp" value="1340784917639" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1256,11 +1256,6 @@
    start="altpll_0.c3"
    end="remote_update_cycloneiii_0.global_signals_clock" />
  <connection
-   kind="clock"
-   version="10.1"
-   start="altpll_0.c1"
-   end="powerlink_0.clkEth" />
- <connection
    kind="avalon_tristate"
    version="10.1"
    start="tri_state_bridge_0.tristate_master"
@@ -1282,4 +1277,9 @@
    version="10.1"
    start="altpll_0.c1"
    end="powerlink_0.clkMaster" />
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c2"
+   end="powerlink_0.clkEth" />
 </system>
