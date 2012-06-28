@@ -11,6 +11,10 @@
 ######## Input Parameters ############
 #
 INPUT_VARS=$@
+
+## Change this in case of a dual processor design and two fpga's
+USB_CABLE=USB-Blaster[USB-0]
+PROC_INSTANCE=0
 #
 
 ######## Fixed Parameters ############
@@ -91,20 +95,20 @@ if [ "$AP_SOPC_PATH" == "$PCP_SOPC_PATH" ]
 then
 	echo -e "\nINFO: FPGA HW should already be present (programmed with PCP 'run.bat').\nINFO: Only SW will be downloaded.\n"
 else #program FPGA HW
-	nios2-configure-sof -C $SOF_DIR
+	nios2-configure-sof -C $SOF_DIR --cable ${USB_CABLE}
 fi	
 ##################################
 
 #######################################
 ### Program the FPGA and run the SW ###
-nios2-download -C ${AP_ELF_DIR} --device=1 --instance=0 --cpu_name=ap_cpu epl.elf --go
+nios2-download -C ${AP_ELF_DIR} --device=1 --instance=${PROC_INSTANCE} --cpu_name=ap_cpu epl.elf --go --cable ${USB_CABLE}
 
 # Open Terminal
 if [ -z "$TERMINAL" ]
 	then
 		echo	
 	else
-	nios2-terminal -c USB-Blaster[USB-0] --instance 0
+	nios2-terminal -c ${USB_CABLE} --instance ${PROC_INSTANCE}
 fi
 #######################################
 

@@ -11,6 +11,10 @@
 ######## Input Parameters ############
 #
 INPUT_VARS=$@
+
+## Change this in case of a dual processor design and two fpga's
+USB_CABLE=USB-Blaster[USB-0]
+PROC_INSTANCE=1
 #
 
 ######## Fixed Parameters ############
@@ -67,8 +71,8 @@ fi
 
 #######################################
 ### Program the FPGA and run the SW ###
-nios2-configure-sof -C ${SOF_DIR} --cable USB-Blaster[USB-0]
-nios2-download -C ${PCP_ELF_DIR} --cpu_name=pcp_cpu --instance 1 epl.elf --go --cable USB-Blaster[USB-0]
+nios2-configure-sof -C ${SOF_DIR} --cable ${USB_CABLE}
+nios2-download -C ${PCP_ELF_DIR} --cpu_name=pcp_cpu --instance ${PROC_INSTANCE} epl.elf --go --cable ${USB_CABLE}
 
 
 # Open Terminal
@@ -76,7 +80,7 @@ if [ -z "$TERMINAL" ]
 	then
 		echo " "	
 	else
-	nios2-terminal --instance 1 --cable USB-Blaster[USB-0]
+	nios2-terminal --instance ${PROC_INSTANCE} --cable ${USB_CABLE}
 fi	
 #######################################
 

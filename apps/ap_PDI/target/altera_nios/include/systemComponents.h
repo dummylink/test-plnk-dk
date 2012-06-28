@@ -58,10 +58,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /* defines */
 
-#ifndef CN_API_USING_SPI
-    #define PDI_DPRAM_BASE_AP    POWERLINK_0_BASE           ///< from system.h
-#else
+#ifdef CN_API_USING_SPI
     #define PDI_DPRAM_BASE_AP    0x00                       ///< no base address necessary
+#elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
+    #define PDI_DPRAM_BASE_AP    PAR_PDI_MASTER_0_BASE      ///< base of pap master
+#else
+    #define PDI_DPRAM_BASE_AP    POWERLINK_0_BASE
 #endif /* CN_API_USING_SPI */
 
 #ifdef OUTPORT_AP_BASE
@@ -75,6 +77,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef CN_API_USING_SPI
 #define SYNC_IRQ_NUM SYNC_IRQ_FROM_PCP_IRQ
 #define SYNC_IRQ_BASE SYNC_IRQ_FROM_PCP_BASE
+#elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
+#define SYNC_IRQ_NUM	0x00	/* TODO: no pins available on the INK */
+#define SYNC_IRQ_BASE	0x00
 #else
 #define SYNC_IRQ_NUM POWERLINK_0_IRQ
 #endif
@@ -82,6 +87,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef CN_API_USING_SPI
 #define ASYNC_IRQ_NUM ASYNC_IRQ_FROM_PCP_IRQ
 #define ASYNC_IRQ_BASE ASYNC_IRQ_FROM_PCP_BASE
+#elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
+#define ASYNC_IRQ_NUM	0x00   /* TODO: no pins available on the INK */
+#define ASYNC_IRQ_BASE	0x00
 #else
 #define ASYNC_IRQ_NUM POWERLINK_0_IRQ
 #endif

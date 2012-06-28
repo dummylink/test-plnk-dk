@@ -20,6 +20,7 @@ echo  AP is NIOS II - standalone
 echo  -----------------------------------------------
 echo    INK Board (TERASIC DE2-115)
 echo      3: SPI
+echo      4: 16bitprll
 echo .
 echo ==================================================
 
@@ -28,7 +29,7 @@ set /p choice= Enter design number:
 if /I "%choice%" == "1" ( goto INK_PCP_AP_avalon )
 if /I "%choice%" == "2" ( goto INK_PCP_AP_SPI )
 if /I "%choice%" == "3" ( goto INK_AP_SPI )
-if /I "%choice%" == "4" ( goto DEFAULT )
+if /I "%choice%" == "4" ( goto INK_AP_16bitprll )
 if /I "%choice%" == "5" ( goto DEFAULT )
 if /I "%choice%" == "6" ( goto DEFAULT )
 if /I "%choice%" == "7" ( goto DEFAULT )
@@ -67,8 +68,8 @@ goto start
 :INK_AP_SPI
 set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_ap_SPImaster
 goto start
-:INK_AP_16bitparallel
-set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\...
+:INK_AP_16bitprll
+set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_ap_16bitprll
 goto start
 :STC_AP_SPI
 set SOPC_DIR=..\..\fpga\altera\SYSTEC_ECUcore-EP3C\systec_ap_SPImaster

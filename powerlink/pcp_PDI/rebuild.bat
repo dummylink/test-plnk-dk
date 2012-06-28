@@ -20,8 +20,9 @@ echo  Stand alone PCP with FPGA external MCU interface
 echo  -----------------------------------------------
 echo    INK Board (TERASIC DE2-115)
 echo      3: SPI
-echo    Example Board
 echo      4: 16 Bit parallel
+echo    Example Board
+echo      5: 16 Bit parallel
 echo .
 echo ==================================================
 
@@ -30,8 +31,8 @@ set /p choice= Enter design number:
 if /I "%choice%" == "1" ( goto INK_PCP_AP_avalon )
 if /I "%choice%" == "2" ( goto INK_PCP_AP_SPI )
 if /I "%choice%" == "3" ( goto INK_PCP_SPI )
-if /I "%choice%" == "4" ( goto EXMPL_PCP_16bitparallel )
-if /I "%choice%" == "5" ( goto DEFAULT )
+if /I "%choice%" == "4" ( goto INK_PCP_16bitparallel )
+if /I "%choice%" == "5" ( goto EXMPL_PCP_16bitparallel )
 if /I "%choice%" == "6" ( goto DEFAULT )
 if /I "%choice%" == "7" ( goto DEFAULT )
 if /I "%choice%" == "8" ( goto DEFAULT )
@@ -68,6 +69,9 @@ set DUAL_NIOS = "1"
 goto start
 :INK_PCP_SPI
 set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_pcp_SPI
+goto start
+:INK_PCP_16bitparallel
+set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_pcp_16bitprll
 goto start
 :EXMPL_PCP_16bitparallel
 set SOPC_DIR=..\..\fpga\altera\CustomBoardExamples\EP4CE6_pcp_16bitprll
