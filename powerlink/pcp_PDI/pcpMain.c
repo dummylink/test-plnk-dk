@@ -1191,7 +1191,7 @@ int Gi_init(void)
     // Other FPGA memory initialization values right after FPGA configuration:
     // pCtrlReg_g->m_wState: 0x00EE
     // pCtrlReg_g->m_wCommand: 0xFFFF
-
+#ifndef __MICROBLAZE__
     if ((AmiGetWordFromLe((BYTE*) &pCtrlReg_g->m_wState) != 0x00EE)  ||
         (AmiGetWordFromLe((BYTE*) &pCtrlReg_g->m_wCommand) != 0xFFFF)  )
     {
@@ -1200,6 +1200,7 @@ int Gi_init(void)
         iRet = ERROR;
         goto exit;
     }
+#endif //__MICROBLAZE__
 
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
