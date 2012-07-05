@@ -68,17 +68,18 @@ ENTITY edgeDet IS
 END ENTITY edgeDet;
 
 ARCHITECTURE rtl OF edgeDet IS
-	signal RegDin : std_logic;
+	signal RegDin, RegDinL : std_logic;
 BEGIN
 	
-	any <= RegDin xor din;
-	falling <= RegDin and not din;
-	rising <= not RegDin and din;
+	any <= RegDinL xor RegDin;
+	falling <= RegDinL and not RegDin;
+	rising <= not RegDinL and RegDin;
 	
 	process(clk)
 	begin
 		if rising_edge(clk) then
-			RegDin <= din after 10 ns;
+			RegDin <= din;
+            RegDinL <= RegDin;
 		end if;
 	end process;
 	
