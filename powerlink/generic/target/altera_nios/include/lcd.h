@@ -10,6 +10,7 @@
 void  LCD_Init();
 void  LCD_Clear();
 void  LCD_Show_Text(char* Text);
+void  LCD_Line1();
 void  LCD_Line2();
 //-------------------------------------------------------------------------
 

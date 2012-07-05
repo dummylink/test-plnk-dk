@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /* includes */
 #include "EplNmt.h"
+#include "EplErrDef.h"
 
 /******************************************************************************/
 /* defines */
@@ -64,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* function declarations */
 void SysComp_LcdInit(void);
 void SysComp_LcdSetText(char* Text);
+tEplKernel SysComp_LcdSetLine(int LineNum_p);
 void SysComp_LcdClear(void);
 void SysComp_LcdTest(void);
 

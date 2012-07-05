@@ -87,6 +87,32 @@ void SysComp_LcdSetText(char* Text)
 
 /**
 ********************************************************************************
+\brief  Changes the line to write to
+\param  Line number (1 = line one, 2 = line two)
+
+\return wrong line number
+*******************************************************************************/
+tEplKernel SysComp_LcdSetLine(int LineNum_p)
+{
+	tEplKernel retval = kEplSuccessful;
+
+    switch(LineNum_p)
+	{
+		case 1:
+			LCD_Line1();
+		break;
+		case 2:
+			LCD_Line2();
+		break;
+		default:
+			retval = kEplInvalidParam;
+	}
+
+    return retval;
+}
+
+/**
+********************************************************************************
 \brief  Test the LCD display
 *******************************************************************************/
 void SysComp_LcdTest(void)
