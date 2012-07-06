@@ -1,0 +1,64 @@
+<session jtag_chain="USB-Blaster [USB-0]" jtag_device="" sof_file="C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/ink_ap_pcp_intavalon/nios_openMac.sof">
+  <display_attributes active_instance="0" active_tab="2"/>
+  <instance compilation_mode="normal" entity_name="sld_multitap" is_auto_node="true" name="auto_lai_0" type="generic">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="7" version="0"/>
+    <core_parameters bank_count="3" capture_mode="timing" crc_value="9B1F" enable_auto_setup="false" enable_plug_run="false" max_freq="100" pin_count="8" power_up_state="tristate" tdm_rate="1"/>
+    <pins>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_0"/>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_1"/>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_2"/>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_3"/>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_4"/>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_5"/>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_6"/>
+      <pin io_standard="2.5 V" location="" name="altera_reserved_lai_0_7"/>
+    </pins>
+    <banks>
+      <bank name="Bank 0">
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|\b_Full_Tx:Tx_En" type="reg"/>
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|nTx_Int" type="comb"/>
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|nRx_Int" type="comb"/>
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|\the_cmpUnit:Mac_Cmp_Irq" type="reg"/>
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|pdi:\genPdi:theAvalonPdi|ap_irq" type="comb"/>
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|Dma_Req" type="comb"/>
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|pdi:\genPdi:theAvalonPdi|ap_irq" type="comb"/>
+        <signal name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|pdi:\genPdi:theAvalonPdi|ap_asyncIrq" type="comb"/>
+      </bank>
+      <bank name="Bank 1">
+        <signal name="SW_BENCHMARK_AP_OUT[0]" type="unused"/>
+        <signal name="SW_BENCHMARK_AP_OUT[1]" type="unused"/>
+        <signal name="SW_BENCHMARK_AP_OUT[2]" type="unused"/>
+        <signal name="SW_BENCHMARK_AP_OUT[3]" type="unused"/>
+        <signal name="SW_BENCHMARK_AP_OUT[4]" type="unused"/>
+        <signal name="SW_BENCHMARK_AP_OUT[5]" type="unused"/>
+        <signal name="SW_BENCHMARK_AP_OUT[6]" type="unused"/>
+        <signal name="SW_BENCHMARK_AP_OUT[7]" type="unused"/>
+      </bank>
+      <bank name="Bank 2">
+        <signal name="SW_BENCHMARK_PCP_OUT[0]" type="unused"/>
+        <signal name="SW_BENCHMARK_PCP_OUT[1]" type="unused"/>
+        <signal name="SW_BENCHMARK_PCP_OUT[2]" type="unused"/>
+        <signal name="SW_BENCHMARK_PCP_OUT[3]" type="unused"/>
+        <signal name="SW_BENCHMARK_PCP_OUT[4]" type="unused"/>
+        <signal name="SW_BENCHMARK_PCP_OUT[5]" type="unused"/>
+        <signal name="SW_BENCHMARK_PCP_OUT[6]" type="unused"/>
+        <signal name="SW_BENCHMARK_PCP_OUT[7]" type="unused"/>
+      </bank>
+    </banks>
+    <display_attributes connected_bank="-4"/>
+    <alias_list>
+      <alias alias="Tx_EN" name="phy"/>
+      <alias alias="TxEn_Phy0" name="phy0_tx_en"/>
+      <alias alias="CmpIR" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|\the_cmpUnit:Mac_Cmp_Irq"/>
+      <alias alias="DmaTxRx" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|Dma_Req"/>
+      <alias alias="nTxIR" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|nTx_Int"/>
+      <alias alias="nRxIR" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|nRx_Int"/>
+      <alias alias="Tx_En_Phy0" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|phyMii0_TxEn"/>
+      <alias alias="PDI IR" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|portio:\genSimpleIO:thePortIO|x_portOutValid[1]"/>
+      <alias alias="PdiIR_1" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|pdi:\genPdiSpi:thePdi|ap_irq"/>
+      <alias alias="Mac_Tx_en" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|AlteraOpenMACIF:theOpenMAC|OpenMAC:the_Mac|\b_Full_Tx:Tx_En"/>
+      <alias alias="PdiSyncIR" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|pdi:\genPdi:theAvalonPdi|ap_irq"/>
+      <alias alias="PdiAsyncIR" name="niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|pdi:\genPdi:theAvalonPdi|ap_asyncIrq"/>
+    </alias_list>
+  </instance>
+</session>
