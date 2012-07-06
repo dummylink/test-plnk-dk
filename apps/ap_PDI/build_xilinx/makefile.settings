@@ -30,12 +30,12 @@ HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-ap-axi
 
 ##################################
 # Board name: [lx150t, lx9, s6plkeb]
-BOARD_NAME=lx150t
+BOARD_NAME=s6plkeb
 
 ##################################
 # Bus interface: [plb, axi]
 # Note: This sets correct endian and linker script
-BUS_INTERFACE=plb
+BUS_INTERFACE=axi
 
 ##################################
 # Processor name: [pcp, ap]

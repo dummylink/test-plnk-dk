@@ -14,7 +14,7 @@ CNDK_DIR=../../..
 ##################################
 # Bus interface: [plb, axi]
 # Note: This sets correct endian and linker script
-BUS_INTERFACE=plb
+BUS_INTERFACE=axi
 
 ##################################
 # Include SPI driver: [yes, no]
