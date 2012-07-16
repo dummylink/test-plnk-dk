@@ -17,6 +17,10 @@ OBJDICT_DIR=${CNDK_DIR}/objDicts/Direct_IO
 EDRV_DIR=${CNDK_DIR}/powerlink/generic/POWERLINK_IP_Edrv
 CNDK_TARGET_DIR=${CNDK_DIR}/powerlink/generic/target/xilinx_microblaze
 CN_API_DIR=${CNDK_DIR}/libCnApi
+TOOLS_PATH=${CNDK_DIR}/tools/xilinx
+
+BOOTLOADER_PATH=$(TOOLS_PATH)/mem_bootloader
+PROM_SCRIPT_DIR=$(TOOLS_PATH)/scripts
 
 OBJDIR=obj
 
@@ -26,12 +30,20 @@ CC=mb-gcc
 AR=mb-ar
 CP=cp
 RM=rm -rf
-EXECUTABLE=directIO.elf
+EXECUTABLE=directIO
+
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE).ld
 MACROS=-DMAKE_BUILD_PCP -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES)  ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
+
+# Flash defines
+FLASH_IMAGE_NAME= flash_image
+BOOTLOADER_NAME= mem_bootloader
+BOOT_BUILD_DIR= build
+OBJCPYFLAGS=-O srec
+BITSTREAM= download
 
 
 ##################################
@@ -91,6 +103,37 @@ ${CNDK_TARGET_DIR}/src/systemComponents.c
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
 
 ###################################
+# set flash image parameters
+ifeq ($(BOARD_NAME),s6plkeb)
+	FLASH_IMAGE_NAME_DUAL= flash_image
+	PROM_SCRIPT= program_prom_s6plkeb.cmd
+	PROMGEN_FLAGS= -w -p mcs -c FF
+	PROMGEN_TYPE= -s 8192 -u 0000
+	PROMGEN_PREFIX= -spi
+	PCUBLAZE_PARAMS= --format mcs --swap off
+	PCUBLAZE_FILES= --promfile ${FLASH_IMAGE_NAME_DUAL}.mcs --outfile ${FLASH_IMAGE_NAME_DUAL}.mcs
+endif
+ifeq ($(BOARD_NAME),lx150t)
+	FLASH_IMAGE_NAME_DUAL= flash_image_1
+	PROM_SCRIPT= program_prom_lx150t.cmd
+	PROMGEN_FLAGS= -w -p mcs -c FF
+	PROMGEN_TYPE= -x xcf08p xcf32p -u 00000000
+	PROMGEN_PREFIX=
+	PCUBLAZE_PARAMS= --format bin
+	PCUBLAZE_FILES= --outfile ${FLASH_IMAGE_NAME}_sw.bin
+endif
+ifeq ($(BOARD_NAME),lx9)
+	FLASH_IMAGE_NAME_DUAL= flash_image
+	PROM_SCRIPT= program_prom_lx9.cmd
+	PROMGEN_FLAGS= -w -p mcs -c FF
+	PROMGEN_TYPE= -s 16384 -u 0000
+	PROMGEN_PREFIX= -spi
+	PCUBLAZE_PARAMS= --format mcs --swap off
+	PCUBLAZE_FILES= --promfile ${FLASH_IMAGE_NAME_DUAL}.mcs --outfile ${FLASH_IMAGE_NAME_DUAL}.mcs	
+endif
+
+
+###################################
 # set Optimization level makro
 ifeq ($(OPT_LEVEL),-O0)
 	MACROS+= -DXIL_NO_OPT_LEVEL
@@ -131,7 +174,7 @@ OUTPUT_OPTION = -o $@
 
 CFLAGS += ${INCLUDES}
 
-.PHONY:	header clean
+.PHONY:	header clean gen_flash prog_flash
 
 header:
 	@echo
@@ -143,9 +186,13 @@ header:
 	@echo " Version $(VERSION)"
 	@echo "================================================================================"
 	@echo
-	@echo "Write 'make all' to build the Direct I/O example"
+	@echo "Write 'make all' to build the Direct I/O software example"
+	@echo "Write 'make gen_flash' to generate the .mcs flash image"
+	@echo "Write 'make prog_flash' to program the .mcs flash image to flash"
+	@echo ""
+	@echo "Change 'makefile.setting' to configure the build system"
 
-all: builddir ${EXECUTABLE} ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck
+all: builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
 
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<
@@ -165,26 +212,77 @@ $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 	@echo Finished building: $<
 	@echo ' '
 
-${EXECUTABLE}: ${OBJ} ${LSSCRIPT}
+${EXECUTABLE}.elf: ${OBJ} ${LSSCRIPT}
 	@echo Building target: $@
 	@echo Invoking: MicroBlaze gcc linker
-	$(CC) $(LDFLAGS) ${LIBSPATH} ${OBJ} -o ${EXECUTABLE}
+	$(CC) $(LDFLAGS) ${LIBSPATH} ${OBJ} -o ${EXECUTABLE}.elf
 	@echo Finished building target: $@
 	@echo ' '
-	
-${EXECUTABLE}.size: ${EXECUTABLE}
+
+${EXECUTABLE}.size: ${EXECUTABLE}.elf
 	@echo Invoking: MicroBlaze Print Size
-	mb-size ${EXECUTABLE}  |tee "${EXECUTABLE}.size"
+	mb-size ${EXECUTABLE}.elf  |tee "${EXECUTABLE}.size"
 	@echo Finished building: $@
 	@echo ' '
 
-${EXECUTABLE}.elfcheck: ${EXECUTABLE}
+${EXECUTABLE}.elfcheck: ${EXECUTABLE}.elf
 	@echo Invoking: Xilinx ELF Check
-	elfcheck ${EXECUTABLE} -hw ${HW_PLATFORM_PATH}/system.xml -pe ${PROCESSOR_NAME}  |tee "${EXECUTABLE}.elfcheck"
+	elfcheck ${EXECUTABLE}.elf -hw ${HW_PLATFORM_PATH}/system.xml -pe ${PROCESSOR_NAME}  |tee "${EXECUTABLE}.elfcheck"
 	@echo Finished building: $@
+	@echo ' '
+
+${EXECUTABLE}.srec: ${EXECUTABLE}.elf
+	@echo Invoking: mb-objcopy
+	mb-objcopy $(OBJCPYFLAGS) ${EXECUTABLE}.elf ${EXECUTABLE}.srec
+	@echo Finished building: $@
+	@echo ' '
+
+${EXECUTABLE}.mem: ${EXECUTABLE}.elf
+	@echo Invoking: Data2MEM
+	Data2MEM -bd ${EXECUTABLE}.elf -d -o m ${EXECUTABLE}.mem
+	@echo Finished building: $@
+	@echo ' '
+
+###################################
+# flash rules
+
+gen_flash : ${FLASH_IMAGE_NAME_DUAL}.mcs
+
+$(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf : $(BOOTLOADER_PATH)/Makefile
+	@echo Invoking: bootloader build system
+	$(MAKE) -C $(BOOTLOADER_PATH) all APP_DIR=$(subst \,/,$(PWD)) APP_MODE=directIO PROCESSOR=pcp
+	@echo Finished generating: $@
+	@echo ' '
+
+$(BITSTREAM).bit : ${HW_PLATFORM_PATH}/system.bit $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
+	@echo Invoking: elfcheck
+	elfcheck -hw ${HW_PLATFORM_PATH}/system.xml -mode bootload -mem BRAM -pe \
+	$(PROCESSOR_NAME) $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
+	@echo Invoking: data2mem
+	data2mem -bm ${HW_PLATFORM_PATH}/system_bd.bmm -bt ${HW_PLATFORM_PATH}/system.bit \
+	-bd $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf tag $(PROCESSOR_NAME) -o b $(BITSTREAM).bit
+	@echo Finished generating: $@
+	@echo ' '
+
+${FLASH_IMAGE_NAME_DUAL}.mcs : ${EXECUTABLE}.mem $(BITSTREAM).bit
+	@echo Invoking: promgen
+	promgen $(PROMGEN_FLAGS) -o ${FLASH_IMAGE_NAME}.mcs $(PROMGEN_TYPE) download.bit $(PROMGEN_PREFIX)
+	@echo Invoking: pcublaze.pl
+	xilperl $(BOOTLOADER_PATH)/src/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
+	@echo Finished generating: $@
+	@echo ' '
+
+prog_flash : ${FLASH_IMAGE_NAME_DUAL}.mcs
+	@echo Invoking: Xilinx iMPACT
+	impact -batch $(PROM_SCRIPT_DIR)/$(PROM_SCRIPT)
+	@echo Finished programming: ${FLASH_IMAGE_NAME_DUAL}.mcs
 	@echo ' '
 
 clean:
-	-${RM} $(EXECUTABLE) ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.map $(OBJ) $(OBJD)
+	touch $(FLASH_IMAGE_NAME)
+	touch $(EXECUTABLE)
+	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
+	-$(MAKE) -C $(BOOTLOADER_PATH) clean APP_DIR=$(subst \,/,$(PWD))
+	-@echo ' '
 
 -include $(OBJD)

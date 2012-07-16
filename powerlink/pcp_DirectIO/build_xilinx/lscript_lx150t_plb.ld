@@ -11,14 +11,16 @@
 /*******************************************************************/
 
 _STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0xC350;
-_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x27100;
+_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x2BF20;
 
 /* Define Memories in the system */
 
 MEMORY
 {
-   ilmb_cntlr_dlmb_cntlr : ORIGIN = 0x00000050, LENGTH = 0x00001FB0
-   MCB3_LPDDR_MPMC_BASEADDR : ORIGIN = 0x10000000, LENGTH = 0x04000000
+   pcp_ilmb_cntlr_pcp_dlmb_cntlr : ORIGIN = 0x00002000, LENGTH = 0x00002000
+   boot_ilmb_cntlr_boot_dlmb_cntlr : ORIGIN = 0x00000050, LENGTH = 0x00000FB0
+   MCB_DDR3_MPMC_BASEADDR : ORIGIN = 0x10000000, LENGTH = 0x08000000
+   Linear_Flash_MEM0_BASEADDR : ORIGIN = 0x82000000, LENGTH = 0x02000000
 }
 
 /* Specify the default entry point to the program */
@@ -45,19 +47,29 @@ SECTIONS
    *(.vectors.hw_exception)
 } 
 
+.local_memory : {
+
+   __local_memory_start = .;
+
+   *(.local_memory)
+
+   __local_memory_end = .;
+
+} > pcp_ilmb_cntlr_pcp_dlmb_cntlr
+
 .text : {
    *(.text)
    *(.text.*)
    *(.gnu.linkonce.t.*)
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .init : {
    KEEP (*(.init))
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .fini : {
    KEEP (*(.fini))
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .ctors : {
    __CTOR_LIST__ = .;
@@ -68,7 +80,7 @@ SECTIONS
    KEEP (*(.ctors))
    __CTOR_END__ = .;
    ___CTORS_END___ = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .dtors : {
    __DTOR_LIST__ = .;
@@ -79,7 +91,7 @@ SECTIONS
    KEEP (*(.dtors))
    __DTOR_END__ = .;
    ___DTORS_END___ = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .rodata : {
    __rodata_start = .;
@@ -87,7 +99,7 @@ SECTIONS
    *(.rodata.*)
    *(.gnu.linkonce.r.*)
    __rodata_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .sdata2 : {
    . = ALIGN(8);
@@ -97,7 +109,7 @@ SECTIONS
    *(.gnu.linkonce.s2.*)
    . = ALIGN(8);
    __sdata2_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .sbss2 : {
    __sbss2_start = .;
@@ -105,7 +117,7 @@ SECTIONS
    *(.sbss2.*)
    *(.gnu.linkonce.sb2.*)
    __sbss2_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .data : {
    . = ALIGN(4);
@@ -114,31 +126,31 @@ SECTIONS
    *(.data.*)
    *(.gnu.linkonce.d.*)
    __data_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .got : {
    *(.got)
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .got1 : {
    *(.got1)
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .got2 : {
    *(.got2)
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .eh_frame : {
    *(.eh_frame)
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .jcr : {
    *(.jcr)
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .gcc_except_table : {
    *(.gcc_except_table)
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .sdata : {
    . = ALIGN(8);
@@ -147,7 +159,7 @@ SECTIONS
    *(.sdata.*)
    *(.gnu.linkonce.s.*)
    __sdata_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .sbss : {
    . = ALIGN(4);
@@ -157,7 +169,7 @@ SECTIONS
    *(.gnu.linkonce.sb.*)
    . = ALIGN(8);
    __sbss_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .tdata : {
    __tdata_start = .;
@@ -165,7 +177,7 @@ SECTIONS
    *(.tdata.*)
    *(.gnu.linkonce.td.*)
    __tdata_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .tbss : {
    __tbss_start = .;
@@ -173,7 +185,7 @@ SECTIONS
    *(.tbss.*)
    *(.gnu.linkonce.tb.*)
    __tbss_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .bss : {
    . = ALIGN(4);
@@ -184,17 +196,7 @@ SECTIONS
    *(COMMON)
    . = ALIGN(4);
    __bss_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
-
-.local_memory : {
-
-   __local_memory_start = .;
-
-   *(.local_memory)
-
-   __local_memory_end = .;
-
-} > ilmb_cntlr_dlmb_cntlr
+} > MCB_DDR3_MPMC_BASEADDR
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );
 
@@ -208,7 +210,7 @@ _SDA2_BASE_ = __sdata2_start + ((__sbss2_end - __sdata2_start) / 2 );
    _heap_start = .;
    . += _HEAP_SIZE;
    _heap_end = .;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 .stack : {
    _stack_end = .;
@@ -216,7 +218,7 @@ _SDA2_BASE_ = __sdata2_start + ((__sbss2_end - __sdata2_start) / 2 );
    . = ALIGN(8);
    _stack = .;
    __stack = _stack;
-} > MCB3_LPDDR_MPMC_BASEADDR
+} > MCB_DDR3_MPMC_BASEADDR
 
 _end = .;
 }
