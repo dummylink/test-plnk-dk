@@ -83,6 +83,17 @@ BEGIN proc_sys_reset
  PORT BUS_STRUCT_RESET = proc_sys_reset_0_BUS_STRUCT_RESET
 END
 
+BEGIN axi_intc
+ PARAMETER INSTANCE = pcp_intc
+ PARAMETER HW_VER = 1.01.a
+ PARAMETER C_BASEADDR = 0x41200000
+ PARAMETER C_HIGHADDR = 0x4120ffff
+ BUS_INTERFACE S_AXI = axi4lite_0
+ PORT S_AXI_ACLK = clk_100_0000MHzPLL1
+ PORT Irq = pcp_INTERRUPT
+ PORT Intr = fit_timer_0_Interrupt & axi_powerlink_0_mac_irq & axi_powerlink_0_tcp_irq
+END
+
 BEGIN lmb_v10
  PARAMETER INSTANCE = pcp_ilmb
  PARAMETER HW_VER = 2.00.b
@@ -93,10 +104,10 @@ END
 BEGIN lmb_bram_if_cntlr
  PARAMETER INSTANCE = pcp_i_bram_ctrl
  PARAMETER HW_VER = 3.00.b
- PARAMETER C_BASEADDR = 0x00000000
- PARAMETER C_HIGHADDR = 0x00001fff
+ PARAMETER C_BASEADDR = 0x00002000
+ PARAMETER C_HIGHADDR = 0x00003FFF
  BUS_INTERFACE SLMB = pcp_ilmb
- BUS_INTERFACE BRAM_PORT = microblaze_0_i_bram_ctrl_2_microblaze_0_bram_block
+ BUS_INTERFACE BRAM_PORT = pcp_i_bram_ctrl_BRAM_PORT
 END
 
 BEGIN lmb_v10
@@ -109,17 +120,17 @@ END
 BEGIN lmb_bram_if_cntlr
  PARAMETER INSTANCE = pcp_d_bram_ctrl
  PARAMETER HW_VER = 3.00.b
- PARAMETER C_BASEADDR = 0x00000000
- PARAMETER C_HIGHADDR = 0x00001fff
+ PARAMETER C_BASEADDR = 0x00002000
+ PARAMETER C_HIGHADDR = 0x00003FFF
  BUS_INTERFACE SLMB = pcp_dlmb
- BUS_INTERFACE BRAM_PORT = microblaze_0_d_bram_ctrl_2_microblaze_0_bram_block
+ BUS_INTERFACE BRAM_PORT = pcp_d_bram_ctrl_BRAM_PORT
 END
 
 BEGIN bram_block
  PARAMETER INSTANCE = pcp_bram_block
  PARAMETER HW_VER = 1.00.a
- BUS_INTERFACE PORTA = microblaze_0_i_bram_ctrl_2_microblaze_0_bram_block
- BUS_INTERFACE PORTB = microblaze_0_d_bram_ctrl_2_microblaze_0_bram_block
+ BUS_INTERFACE PORTA = pcp_d_bram_ctrl_BRAM_PORT
+ BUS_INTERFACE PORTB = pcp_i_bram_ctrl_BRAM_PORT
 END
 
 BEGIN microblaze
@@ -153,6 +164,14 @@ BEGIN microblaze
  PORT MB_RESET = proc_sys_reset_0_MB_Reset
  PORT CLK = clk_100_0000MHzPLL1
  PORT INTERRUPT = pcp_INTERRUPT
+END
+
+BEGIN fit_timer
+ PARAMETER INSTANCE = fit_timer_0
+ PARAMETER HW_VER = 1.01.b
+ PARAMETER C_NO_CLOCKS = 50000
+ PORT Clk = clk_50_0000MHzPLL1
+ PORT Interrupt = fit_timer_0_Interrupt
 END
 
 BEGIN mdm
@@ -202,6 +221,104 @@ BEGIN clock_generator
  PORT CLKOUT4 = clk_100_0000MHzPLL1
 END
 
+BEGIN lmb_bram_if_cntlr
+ PARAMETER INSTANCE = boot_i_bram_ctrl
+ PARAMETER HW_VER = 3.00.b
+ PARAMETER C_BASEADDR = 0x00000000
+ PARAMETER C_HIGHADDR = 0x00000FFF
+ BUS_INTERFACE SLMB = pcp_ilmb
+ BUS_INTERFACE BRAM_PORT = boot_i_bram_ctrl_BRAM_PORT
+END
+
+BEGIN lmb_bram_if_cntlr
+ PARAMETER INSTANCE = boot_d_bram_ctrl
+ PARAMETER HW_VER = 3.00.b
+ PARAMETER C_BASEADDR = 0x00000000
+ PARAMETER C_HIGHADDR = 0x00000FFF
+ BUS_INTERFACE SLMB = pcp_dlmb
+ BUS_INTERFACE BRAM_PORT = boot_d_bram_ctrl_BRAM_PORT
+END
+
+BEGIN bram_block
+ PARAMETER INSTANCE = boot_bram_block
+ PARAMETER HW_VER = 1.00.a
+ BUS_INTERFACE PORTA = boot_d_bram_ctrl_BRAM_PORT
+ BUS_INTERFACE PORTB = boot_i_bram_ctrl_BRAM_PORT
+END
+
+BEGIN axi_powerlink
+ PARAMETER INSTANCE = axi_powerlink_0
+ PARAMETER HW_VER = 1.00.a
+ PARAMETER C_IP_CORE_MODE = 0
+ PARAMETER C_GEN_PDI = true
+ PARAMETER C_NUM_SMI = 2
+ PARAMETER C_GEN_AXI_BUS_IF = true
+ PARAMETER C_TX_INT_PKT = TRUE
+ PARAMETER C_RX_INT_PKT = TRUE
+ PARAMETER C_PACKET_LOCATION = 2
+ PARAMETER C_INSTANCE_ODDR2 = false
+ PARAMETER C_S_AXI_MAC_REG_RNG0_BASEADDR = 0x7aa00000
+ PARAMETER C_S_AXI_MAC_REG_RNG0_HIGHADDR = 0x7aa0ffff
+ PARAMETER C_S_AXI_MAC_REG_RNG1_BASEADDR = 0x7aa20000
+ PARAMETER C_S_AXI_MAC_REG_RNG1_HIGHADDR = 0x7aa2ffff
+ PARAMETER C_S_AXI_SMP_PCP_BASEADDR = 0x7ea00000
+ PARAMETER C_S_AXI_SMP_PCP_HIGHADDR = 0x7ea0ffff
+ PARAMETER C_OBSERVER_ENABLE_USER = true
+ PARAMETER C_MAC_DMA_FIFO_SIZE_RX = 128
+ PARAMETER C_INTERCONNECT_M_AXI_MAC_DMA_ARB_PRIORITY = 15
+ PARAMETER C_MAC_DMA_FIFO_SIZE_TX = 128
+ BUS_INTERFACE S_AXI_MAC_REG = axi4lite_0
+ BUS_INTERFACE S_AXI_SMP_PCP = axi4lite_0
+ BUS_INTERFACE M_AXI_MAC_DMA = axi4_0
+ PORT mac_irq = axi_powerlink_0_mac_irq
+ PORT tcp_irq = axi_powerlink_0_tcp_irq
+ PORT phy0_link = axi_powerlink_0_phy0_link
+ PORT phyMii0_RxClk = axi_powerlink_0_phyMii0_RxClk
+ PORT phyMii0_RxDat = axi_powerlink_0_phyMii0_RxDat
+ PORT phyMii0_RxDv = axi_powerlink_0_phyMii0_RxDv
+ PORT phyMii0_RxEr = axi_powerlink_0_phyMii0_RxEr
+ PORT phyMii0_TxClk = axi_powerlink_0_phyMii0_TxClk
+ PORT phyMii0_TxDat = axi_powerlink_0_phyMii0_TxDat
+ PORT phyMii0_TxEn = axi_powerlink_0_phyMii0_TxEn
+ PORT phyMii0_TxEr = axi_powerlink_0_phyMii0_TxEr
+ PORT phy1_link = axi_powerlink_0_phy1_link
+ PORT phyMii1_RxClk = axi_powerlink_0_phyMii1_RxClk
+ PORT phyMii1_RxDat = axi_powerlink_0_phyMii1_RxDat
+ PORT phyMii1_RxDv = axi_powerlink_0_phyMii1_RxDv
+ PORT phyMii1_RxEr = axi_powerlink_0_phyMii1_RxEr
+ PORT phyMii1_TxClk = axi_powerlink_0_phyMii1_TxClk
+ PORT phyMii1_TxDat = axi_powerlink_0_phyMii1_TxDat
+ PORT phyMii1_TxEn = axi_powerlink_0_phyMii1_TxEn
+ PORT phyMii1_TxEr = axi_powerlink_0_phyMii1_TxEr
+ PORT S_AXI_MAC_REG_ACLK = clk_50_0000MHzPLL1
+ PORT S_AXI_MAC_PKT_ACLK = clk_100_0000MHzPLL1
+ PORT S_AXI_PDI_PCP_ACLK = clk_100_0000MHzPLL1
+ PORT S_AXI_PDI_AP_ACLK = clk_50_0000MHzPLL1
+ PORT phy0_SMIDat = axi_powerlink_0_phy0_SMIDat
+ PORT phy0_SMIClk = axi_powerlink_0_phy0_SMIClk
+ PORT phy0_Rst_n = axi_powerlink_0_phy0_Rst_n
+ PORT phy1_SMIDat = axi_powerlink_0_phy1_SMIDat
+ PORT phy1_SMIClk = axi_powerlink_0_phy1_SMIClk
+ PORT phy1_Rst_n = axi_powerlink_0_phy1_Rst_n
+ PORT M_AXI_MAC_DMA_aclk = clk_100_0000MHzPLL1
+ PORT pio_portio = plb_powerlink_0_pio_portio
+# portio latch is set to high =>> input is latched immediately
+ PORT pio_portinlatch = 0b1111
+# portio direction configuration: (high=input, low=output)
+ PORT pio_pconfig = 0b0100
+ PORT S_AXI_SMP_PCP_ACLK = clk_100_0000MHzPLL1
+END
+
+BEGIN axi_hwicap
+ PARAMETER INSTANCE = axi_hwicap_0
+ PARAMETER HW_VER = 2.00.a
+ PARAMETER C_BASEADDR = 0x40200000
+ PARAMETER C_HIGHADDR = 0x4020ffff
+ BUS_INTERFACE S_AXI = axi4lite_0
+ PORT S_AXI_ACLK = clk_50_0000MHzPLL1
+ PORT ICAP_Clk = clk_4_0000MHz
+END
+
 BEGIN axi_interconnect
  PARAMETER INSTANCE = axi4lite_0
  PARAMETER HW_VER = 1.03.a
@@ -230,6 +347,31 @@ BEGIN axi_uartlite
  PORT S_AXI_ACLK = clk_50_0000MHzPLL1
  PORT TX = RS232_USB_sout
  PORT RX = RS232_USB_sin
+END
+
+BEGIN axi_gpio
+ PARAMETER INSTANCE = POWERLINK_LED
+ PARAMETER HW_VER = 1.01.a
+ PARAMETER C_GPIO_WIDTH = 2
+ PARAMETER C_BASEADDR = 0x40000000
+ PARAMETER C_HIGHADDR = 0x4000ffff
+ BUS_INTERFACE S_AXI = axi4lite_0
+ PORT S_AXI_ACLK = clk_50_0000MHzPLL1
+ PORT GPIO_IO_O = POWERLINK_LED_GPIO_IO_O
+END
+
+BEGIN axi_gpio
+ PARAMETER INSTANCE = Node_Switches
+ PARAMETER HW_VER = 1.01.a
+ PARAMETER C_GPIO_WIDTH = 8
+ PARAMETER C_ALL_INPUTS = 1
+ PARAMETER C_INTERRUPT_PRESENT = 0
+ PARAMETER C_IS_DUAL = 0
+ PARAMETER C_BASEADDR = 0x40020000
+ PARAMETER C_HIGHADDR = 0x4002ffff
+ BUS_INTERFACE S_AXI = axi4lite_0
+ PORT S_AXI_ACLK = clk_50_0000MHzPLL1
+ PORT GPIO_IO_I = DIP_Switches_8Bits_TRI_I
 END
 
 BEGIN axi_s6_ddrx
@@ -297,118 +439,13 @@ BEGIN axi_emc
  PARAMETER C_S_AXI_MEM0_HIGHADDR = 0x43ffffff
  BUS_INTERFACE S_AXI_MEM = axi4lite_0
  PORT S_AXI_ACLK = clk_50_0000MHzPLL1
- PORT RdClk = clk_50_0000MHzPLL1
+ PORT RdClk = clk_100_0000MHzPLL1
  PORT Mem_WEN = Linear_Flash_we_n
  PORT Mem_RPN = Linear_Flash_reset
  PORT Mem_OEN = Linear_Flash_oe_n
  PORT Mem_DQ = Linear_Flash_data
  PORT Mem_CEN = Linear_Flash_ce_n
  PORT Mem_A = 0b0000000 & Linear_Flash_address & 0b0
-END
-
-BEGIN axi_gpio
- PARAMETER INSTANCE = Node_Switches
- PARAMETER HW_VER = 1.01.a
- PARAMETER C_GPIO_WIDTH = 8
- PARAMETER C_ALL_INPUTS = 1
- PARAMETER C_INTERRUPT_PRESENT = 0
- PARAMETER C_IS_DUAL = 0
- PARAMETER C_BASEADDR = 0x40020000
- PARAMETER C_HIGHADDR = 0x4002ffff
- BUS_INTERFACE S_AXI = axi4lite_0
- PORT S_AXI_ACLK = clk_50_0000MHzPLL1
- PORT GPIO_IO_I = DIP_Switches_8Bits_TRI_I
-END
-
-BEGIN axi_intc
- PARAMETER INSTANCE = pcp_intc
- PARAMETER HW_VER = 1.01.a
- PARAMETER C_BASEADDR = 0x41200000
- PARAMETER C_HIGHADDR = 0x4120ffff
- BUS_INTERFACE S_AXI = axi4lite_0
- PORT S_AXI_ACLK = clk_100_0000MHzPLL1
- PORT Irq = pcp_INTERRUPT
- PORT Intr = fit_timer_0_Interrupt & axi_powerlink_0_mac_irq & axi_powerlink_0_tcp_irq
-END
-
-BEGIN fit_timer
- PARAMETER INSTANCE = fit_timer_0
- PARAMETER HW_VER = 1.01.b
- PARAMETER C_NO_CLOCKS = 50000
- PORT Clk = clk_50_0000MHzPLL1
- PORT Interrupt = fit_timer_0_Interrupt
-END
-
-BEGIN axi_powerlink
- PARAMETER INSTANCE = axi_powerlink_0
- PARAMETER HW_VER = 1.00.a
- PARAMETER C_IP_CORE_MODE = 0
- PARAMETER C_GEN_PDI = true
- PARAMETER C_NUM_SMI = 2
- PARAMETER C_GEN_AXI_BUS_IF = true
- PARAMETER C_TX_INT_PKT = TRUE
- PARAMETER C_RX_INT_PKT = TRUE
- PARAMETER C_PACKET_LOCATION = 2
- PARAMETER C_INSTANCE_ODDR2 = false
- PARAMETER C_S_AXI_MAC_REG_RNG0_BASEADDR = 0x7aa00000
- PARAMETER C_S_AXI_MAC_REG_RNG0_HIGHADDR = 0x7aa0ffff
- PARAMETER C_S_AXI_MAC_REG_RNG1_BASEADDR = 0x7aa20000
- PARAMETER C_S_AXI_MAC_REG_RNG1_HIGHADDR = 0x7aa2ffff
- PARAMETER C_S_AXI_SMP_PCP_BASEADDR = 0x7ea00000
- PARAMETER C_S_AXI_SMP_PCP_HIGHADDR = 0x7ea0ffff
- PARAMETER C_OBSERVER_ENABLE_USER = true
- PARAMETER C_MAC_DMA_FIFO_SIZE_RX = 128
- PARAMETER C_INTERCONNECT_M_AXI_MAC_DMA_ARB_PRIORITY = 15
- BUS_INTERFACE S_AXI_MAC_REG = axi4lite_0
- BUS_INTERFACE S_AXI_SMP_PCP = axi4lite_0
- BUS_INTERFACE M_AXI_MAC_DMA = axi4_0
- PORT mac_irq = axi_powerlink_0_mac_irq
- PORT tcp_irq = axi_powerlink_0_tcp_irq
- PORT phy0_link = axi_powerlink_0_phy0_link
- PORT phyMii0_RxClk = axi_powerlink_0_phyMii0_RxClk
- PORT phyMii0_RxDat = axi_powerlink_0_phyMii0_RxDat
- PORT phyMii0_RxDv = axi_powerlink_0_phyMii0_RxDv
- PORT phyMii0_RxEr = axi_powerlink_0_phyMii0_RxEr
- PORT phyMii0_TxClk = axi_powerlink_0_phyMii0_TxClk
- PORT phyMii0_TxDat = axi_powerlink_0_phyMii0_TxDat
- PORT phyMii0_TxEn = axi_powerlink_0_phyMii0_TxEn
- PORT phyMii0_TxEr = axi_powerlink_0_phyMii0_TxEr
- PORT phy1_link = axi_powerlink_0_phy1_link
- PORT phyMii1_RxClk = axi_powerlink_0_phyMii1_RxClk
- PORT phyMii1_RxDat = axi_powerlink_0_phyMii1_RxDat
- PORT phyMii1_RxDv = axi_powerlink_0_phyMii1_RxDv
- PORT phyMii1_RxEr = axi_powerlink_0_phyMii1_RxEr
- PORT phyMii1_TxClk = axi_powerlink_0_phyMii1_TxClk
- PORT phyMii1_TxDat = axi_powerlink_0_phyMii1_TxDat
- PORT phyMii1_TxEn = axi_powerlink_0_phyMii1_TxEn
- PORT phyMii1_TxEr = axi_powerlink_0_phyMii1_TxEr
- PORT S_AXI_MAC_REG_ACLK = clk_50_0000MHzPLL1
- PORT S_AXI_MAC_PKT_ACLK = clk_100_0000MHzPLL1
- PORT S_AXI_PDI_PCP_ACLK = clk_100_0000MHzPLL1
- PORT S_AXI_PDI_AP_ACLK = clk_50_0000MHzPLL1
- PORT phy0_SMIDat = axi_powerlink_0_phy0_SMIDat
- PORT phy0_SMIClk = axi_powerlink_0_phy0_SMIClk
- PORT phy0_Rst_n = axi_powerlink_0_phy0_Rst_n
- PORT phy1_SMIDat = axi_powerlink_0_phy1_SMIDat
- PORT phy1_SMIClk = axi_powerlink_0_phy1_SMIClk
- PORT phy1_Rst_n = axi_powerlink_0_phy1_Rst_n
- PORT M_AXI_MAC_DMA_aclk = clk_100_0000MHzPLL1
- PORT pio_portio = plb_powerlink_0_pio_portio
-# portio latch is set to high =>> input is latched immediately
- PORT pio_portinlatch = 0b1111
-# portio direction configuration: (high=input, low=output)
- PORT pio_pconfig = 0b0100
- PORT S_AXI_SMP_PCP_ACLK = clk_100_0000MHzPLL1
-END
-
-BEGIN axi_hwicap
- PARAMETER INSTANCE = axi_hwicap_0
- PARAMETER HW_VER = 2.00.a
- PARAMETER C_BASEADDR = 0x40200000
- PARAMETER C_HIGHADDR = 0x4020ffff
- BUS_INTERFACE S_AXI = axi4lite_0
- PORT S_AXI_ACLK = clk_50_0000MHzPLL1
- PORT ICAP_Clk = clk_4_0000MHz
 END
 
 BEGIN axi_gpio
@@ -421,16 +458,5 @@ BEGIN axi_gpio
  PORT S_AXI_ACLK = clk_50_0000MHzPLL1
  PORT GPIO_IO_O = BENCHMARK_PIO_GPIO_IO_O
  PORT GPIO_IO_I = BENCHMARK_PIO_GPIO_IO_O
-END
-
-BEGIN axi_gpio
- PARAMETER INSTANCE = POWERLINK_LED
- PARAMETER HW_VER = 1.01.a
- PARAMETER C_GPIO_WIDTH = 2
- PARAMETER C_BASEADDR = 0x40000000
- PARAMETER C_HIGHADDR = 0x4000ffff
- BUS_INTERFACE S_AXI = axi4lite_0
- PORT S_AXI_ACLK = clk_50_0000MHzPLL1
- PORT GPIO_IO_O = POWERLINK_LED_GPIO_IO_O
 END
 

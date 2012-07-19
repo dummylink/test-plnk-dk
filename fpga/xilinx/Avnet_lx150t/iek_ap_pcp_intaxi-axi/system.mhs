@@ -168,10 +168,10 @@ END
 BEGIN lmb_bram_if_cntlr
  PARAMETER INSTANCE = pcp_i_bram_ctrl
  PARAMETER HW_VER = 3.00.b
- PARAMETER C_BASEADDR = 0x00000000
- PARAMETER C_HIGHADDR = 0x00001fff
+ PARAMETER C_BASEADDR = 0x00002000
+ PARAMETER C_HIGHADDR = 0x00003FFF
  BUS_INTERFACE SLMB = pcp_ilmb
- BUS_INTERFACE BRAM_PORT = microblaze_0_i_bram_ctrl_2_microblaze_0_bram_block
+ BUS_INTERFACE BRAM_PORT = pcp_i_bram_ctrl_BRAM_PORT
 END
 
 BEGIN lmb_v10
@@ -184,17 +184,42 @@ END
 BEGIN lmb_bram_if_cntlr
  PARAMETER INSTANCE = pcp_d_bram_ctrl
  PARAMETER HW_VER = 3.00.b
- PARAMETER C_BASEADDR = 0x00000000
- PARAMETER C_HIGHADDR = 0x00001fff
+ PARAMETER C_BASEADDR = 0x00002000
+ PARAMETER C_HIGHADDR = 0x00003FFF
  BUS_INTERFACE SLMB = pcp_dlmb
- BUS_INTERFACE BRAM_PORT = microblaze_0_d_bram_ctrl_2_microblaze_0_bram_block
+ BUS_INTERFACE BRAM_PORT = pcp_d_bram_ctrl_BRAM_PORT
 END
 
 BEGIN bram_block
  PARAMETER INSTANCE = pcp_bram_block
  PARAMETER HW_VER = 1.00.a
- BUS_INTERFACE PORTA = microblaze_0_i_bram_ctrl_2_microblaze_0_bram_block
- BUS_INTERFACE PORTB = microblaze_0_d_bram_ctrl_2_microblaze_0_bram_block
+ BUS_INTERFACE PORTA = pcp_d_bram_ctrl_BRAM_PORT
+ BUS_INTERFACE PORTB = pcp_i_bram_ctrl_BRAM_PORT
+END
+
+BEGIN lmb_bram_if_cntlr
+ PARAMETER INSTANCE = boot_i_bram_ctrl
+ PARAMETER HW_VER = 3.00.b
+ PARAMETER C_BASEADDR = 0x00000000
+ PARAMETER C_HIGHADDR = 0x00000FFF
+ BUS_INTERFACE SLMB = pcp_ilmb
+ BUS_INTERFACE BRAM_PORT = boot_i_bram_ctrl_BRAM_PORT
+END
+
+BEGIN lmb_bram_if_cntlr
+ PARAMETER INSTANCE = boot_d_bram_ctrl
+ PARAMETER HW_VER = 3.00.b
+ PARAMETER C_BASEADDR = 0x00000000
+ PARAMETER C_HIGHADDR = 0x00000FFF
+ BUS_INTERFACE SLMB = pcp_dlmb
+ BUS_INTERFACE BRAM_PORT = boot_d_bram_ctrl_BRAM_PORT
+END
+
+BEGIN bram_block
+ PARAMETER INSTANCE = boot_bram_block
+ PARAMETER HW_VER = 1.00.a
+ BUS_INTERFACE PORTA = boot_d_bram_ctrl_BRAM_PORT
+ BUS_INTERFACE PORTB = boot_i_bram_ctrl_BRAM_PORT
 END
 
 BEGIN microblaze
