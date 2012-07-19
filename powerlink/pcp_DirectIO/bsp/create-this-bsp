@@ -74,6 +74,26 @@ $cmd || {
     echo "$cmd failed"
     exit 1
 }
+
+# --- Workaround to copy modified src files manually           ---
+# --- in case they are not recognized by the tcl file adaption ---
+CURPATH=$PWD
+MOD_DRIVER_PATH=${CURPATH}/../../../fpga/altera/driver
+
+if [ ! -d ${MOD_DRIVER_PATH} ]; then
+  echo "Error: ${MOD_DRIVER_PATH} not present!"
+  exit 1
+fi
+
+echo ""
+echo "INFO: Replacing modified altera drivers for BSP manually (Workaround)"
+
+cp -p -f -v $MOD_DRIVER_PATH/altera_avalon_epcs_flash_controller/HAL/inc/*.h \
+            $CURPATH/drivers/inc 
+cp -p -f -v $MOD_DRIVER_PATH/altera_avalon_epcs_flash_controller/HAL/src/*.c \
+            $CURPATH/drivers/src 
+# --- End of workaround ---
+
 if [ -z "$SKIP_MAKE" ]; then
 	echo "create-this-bsp: Running make"
 	make
