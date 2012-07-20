@@ -82,6 +82,36 @@ esac
 
 echo "rebuild.sh: Started"
 
+# verify FPGA memory initialization file presence - therefore check compilation report
+# Search pattern in nios_openMac.fit.rpt
+IN_FILE="$SOPC_DIR/nios_openMac.fit.rpt"
+if [ ! -f $SOPC_DIR/nios_openMac.fit.rpt ]; then
+    echo "ERROR: ${SOPC_DIR}/nios_openMac.fit.rpt does not exist!"
+    exit 1
+fi
+
+PATTERN[0]="dpr_16_16.mif"
+PATTERN[1]="dpr_16_32.mif"
+PATTERN[2]="pdi_dpr.mif"
+
+# pattern search - loop
+cnt=0
+while [ $cnt -lt 3 ] ; do
+
+pattern=${PATTERN[$cnt]}
+
+#check if pattern can be found in the file
+match_count=$(grep -w -c "$pattern" ${IN_FILE})
+
+if [ $match_count -lt 1 ]; then
+    echo "match_count = ${match_count}"
+	echo "File ${IN_FILE} does not contain pattern ${PATTERN[$cnt]}"
+    echo "ERROR: Bad FPGA memory initialization. Check path settings to MIF files."
+    exit 1
+fi
+	cnt=$((cnt + 1))
+done
+
 #######################################
 ###        Rebuild the SW           ###
 

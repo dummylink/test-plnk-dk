@@ -1188,20 +1188,9 @@ int Gi_init(void)
 
     // Note:
     // pCtrlReg_g->m_dwMagic and pCtrlReg_g->m_wPcpPdiRev are set by the Powerlink IP-core.
-    // Other FPGA memory initialization values right after FPGA configuration:
+    // The FPGA internal memory initialization sets the following values:
     // pCtrlReg_g->m_wState: 0x00EE
     // pCtrlReg_g->m_wCommand: 0xFFFF
-#ifndef __MICROBLAZE__
-    if ((AmiGetWordFromLe((BYTE*) &pCtrlReg_g->m_wState) != 0x00EE)  ||
-        (AmiGetWordFromLe((BYTE*) &pCtrlReg_g->m_wCommand) != 0xFFFF)  )
-    {
-        // PDI memory was not initialized correctly by HW
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Bad PDI memory init!\n");
-        iRet = ERROR;
-        goto exit;
-    }
-#endif //__MICROBLAZE__
-
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwFpgaSysId, FPGA_SYSTEM_ID);    // FPGA system ID from system.h
