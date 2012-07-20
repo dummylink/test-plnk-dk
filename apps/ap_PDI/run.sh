@@ -1,6 +1,6 @@
 #!/bin/bash
 ###############################################################################
-# This script makes and runs the digital I/O application of this directory.
+# This script programs the ELF file of this directory and starts the terminal
 ###############################################################################
 
 ###############################################################################
@@ -12,10 +12,9 @@
 #
 INPUT_VARS=$@
 
-## Change this in case of a dual processor design and two fpga's
-USB_CABLE=USB-Blaster[USB-0]
-PROC_INSTANCE=0
+######## User settings
 #
+USB_CABLE=USB-Blaster[USB-0]
 
 ######## Fixed Parameters ############
 #
@@ -35,12 +34,6 @@ TERMINAL=
 while [ $# -gt 0 ]
 do
   case "$1" in
-	  --sopcdir)
-		 shift
-		 #relative path!
-		 SOF_DIR=$1
-		 echo SOF_DIR set to \"$SOF_DIR\"
-		 echo -------------------------------;;
       --terminal)
 		 TERMINAL=1;; 
   esac
@@ -89,6 +82,38 @@ PCP_SOPC_PATH=$(grep "${PATTERN[0]} " ${READ_FILE_PCP} | cut -d ' ' -f 3 | cut -
 fi
 ##################################
 
+# get CPU instance number
+UART_INSTANCE_ID=
+#######################################
+# read UART_INSTANCE_ID of CPU_NAME
+# from JDI file
+#######################################
+CPU_NAME="ap_cpu"
+JDI_FILE=$SOF_DIR/nios_openMac.jdi
+IN_FILE=$JDI_FILE
+
+if [ ! -f "$IN_FILE" ]
+then   # Exit if no such file.
+  echo "File $IN_FILE not found."
+  exit $E_NOSUCHFILE
+fi
+
+#check first if cpu name is present in file
+pattern=$CPU_NAME 
+
+match_count=$(grep -w -c "$pattern" ${IN_FILE})
+if [ $match_count -eq 0 ]; then
+    echo "match_count = ${match_count}"
+	echo "ERROR: File ${IN_FILE} does not contain pattern '${pattern}'"
+    exit 1
+fi
+
+# derive instance_id which corrensponds with CPU_NAME
+UART_INSTANCE_ID=$(grep -w "hpath" ${IN_FILE} | grep ${CPU_NAME} | awk '{split($0,a,"instance_id="); print a[2]}' | awk '{split($0,a,""); print a[2]}')
+echo "$CPU_NAME has INSTANCE: $UART_INSTANCE_ID"
+echo
+#######################################
+
 ###### CHECK if AP HW needs to be programmed ######
 # check if PCP SOPC directory = AP SOPC directory => AP and PCP are in the same FPGA
 if [ "$AP_SOPC_PATH" == "$PCP_SOPC_PATH" ]
@@ -101,14 +126,14 @@ fi
 
 #######################################
 ### Program the FPGA and run the SW ###
-nios2-download -C ${AP_ELF_DIR} --device=1 --instance=${PROC_INSTANCE} --cpu_name=ap_cpu epl.elf --go --cable ${USB_CABLE}
+nios2-download -C ${AP_ELF_DIR} --cpu_name=${CPU_NAME} --instance ${UART_INSTANCE_ID} epl.elf --go --cable ${USB_CABLE}
 
 # Open Terminal
 if [ -z "$TERMINAL" ]
 	then
 		echo	
 	else
-	nios2-terminal -c ${USB_CABLE} --instance ${PROC_INSTANCE}
+    nios2-terminal --instance ${UART_INSTANCE_ID} --cable ${USB_CABLE}	
 fi
 #######################################
 

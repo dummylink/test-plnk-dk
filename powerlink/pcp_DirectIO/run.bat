@@ -48,7 +48,7 @@ goto run_bash
 
 :run_bash
 REM execute "$QUARTUS_ROOTDIR/sopc_builder/bin/nios_bash" in every bash.exe call !
-"%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\run.sh" --terminal --instance
+"%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\run.sh" --terminal
 
 pause
 exit
