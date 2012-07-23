@@ -237,13 +237,13 @@ SYSTEM niosII_openMac
             }
             Entry system_timer/s1
             {
-               address = "0x00000100";
+               address = "0x00000900";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry jtag_uart_0/avalon_jtag_slave
             {
-               address = "0x00000170";
+               address = "0x00000970";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -255,43 +255,43 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_CMP
             {
-               address = "0x00000140";
+               address = "0x00000940";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry node_switch_pio/s1
             {
-               address = "0x00000150";
+               address = "0x00000950";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry benchmark_pio/s1
             {
-               address = "0x00000120";
+               address = "0x00000920";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry sysid/control_slave
             {
-               address = "0x00000178";
+               address = "0x00000978";
                span = "0x00000008";
                is_bridge = "0";
             }
             Entry altpll_0/pll_slave
             {
-               address = "0x00000160";
+               address = "0x00000960";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry remote_update_cycloneiii_0/s1
             {
-               address = "0x00000000";
+               address = "0x00000800";
                span = "0x00000100";
                is_bridge = "0";
             }
             Entry epcs_flash_controller_0/epcs_control_port
             {
-               address = "0x00000800";
+               address = "0x00000000";
                span = "0x00000800";
                is_bridge = "0";
             }
@@ -661,13 +661,13 @@ SYSTEM niosII_openMac
             }
             Entry system_timer/s1
             {
-               address = "0x00000100";
+               address = "0x00000900";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry jtag_uart_0/avalon_jtag_slave
             {
-               address = "0x00000170";
+               address = "0x00000970";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -679,43 +679,43 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_CMP
             {
-               address = "0x00000140";
+               address = "0x00000940";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry node_switch_pio/s1
             {
-               address = "0x00000150";
+               address = "0x00000950";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry benchmark_pio/s1
             {
-               address = "0x00000120";
+               address = "0x00000920";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry sysid/control_slave
             {
-               address = "0x00000178";
+               address = "0x00000978";
                span = "0x00000008";
                is_bridge = "0";
             }
             Entry altpll_0/pll_slave
             {
-               address = "0x00000160";
+               address = "0x00000960";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry remote_update_cycloneiii_0/s1
             {
-               address = "0x00000000";
+               address = "0x00000800";
                span = "0x00000100";
                is_bridge = "0";
             }
             Entry epcs_flash_controller_0/epcs_control_port
             {
-               address = "0x00000800";
+               address = "0x00000000";
                span = "0x00000800";
                is_bridge = "0";
             }
@@ -921,7 +921,7 @@ SYSTEM niosII_openMac
          address_stall_present = "1";
          dsp_block_supports_shift = "0";
          mrams_present = "0";
-         cpuid_value = "1";
+         cpuid_value = "0";
          dont_overwrite_cpuid = "1";
          allow_legacy_sdk = "1";
          legacy_sdk_support = "1";
@@ -2060,7 +2060,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/tc_i_mem_pcp.hex 1339651118 ";
+         contents_info = "";
       }
       SIMULATION 
       {
@@ -2291,9 +2291,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000170";
+               Offset_Address = "0x00000970";
             }
-            Base_Address = "0x00000170";
+            Base_Address = "0x00000970";
             Address_Group = "0";
          }
       }
@@ -2509,9 +2509,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000100";
+               Offset_Address = "0x00000900";
             }
-            Base_Address = "0x00000100";
+            Base_Address = "0x00000900";
             Address_Group = "0";
          }
       }
@@ -2818,13 +2818,13 @@ SYSTEM niosII_openMac
          {
             Entry system_timer/s1
             {
-               address = "0x00000100";
+               address = "0x00000900";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry jtag_uart_0/avalon_jtag_slave
             {
-               address = "0x00000170";
+               address = "0x00000970";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -2836,43 +2836,43 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_CMP
             {
-               address = "0x00000140";
+               address = "0x00000940";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry node_switch_pio/s1
             {
-               address = "0x00000150";
+               address = "0x00000950";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry benchmark_pio/s1
             {
-               address = "0x00000120";
+               address = "0x00000920";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry sysid/control_slave
             {
-               address = "0x00000178";
+               address = "0x00000978";
                span = "0x00000008";
                is_bridge = "0";
             }
             Entry altpll_0/pll_slave
             {
-               address = "0x00000160";
+               address = "0x00000960";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry remote_update_cycloneiii_0/s1
             {
-               address = "0x00000000";
+               address = "0x00000800";
                span = "0x00000100";
                is_bridge = "0";
             }
             Entry epcs_flash_controller_0/epcs_control_port
             {
-               address = "0x00000800";
+               address = "0x00000000";
                span = "0x00000800";
                is_bridge = "0";
             }
@@ -2988,9 +2988,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000150";
+               Offset_Address = "0x00000950";
             }
-            Base_Address = "0x00000150";
+            Base_Address = "0x00000950";
             Has_IRQ = "0";
             Address_Group = "0";
             Is_Readable = "1";
@@ -3529,37 +3529,37 @@ SYSTEM niosII_openMac
             }
             Entry jtag_uart_1/avalon_jtag_slave
             {
-               address = "0x00000050";
+               address = "0x00000850";
                span = "0x00000008";
                is_bridge = "0";
             }
             Entry system_timer_ap/s1
             {
-               address = "0x00000000";
+               address = "0x00000800";
                span = "0x00000020";
                is_bridge = "0";
             }
             Entry outport_ap/s1
             {
-               address = "0x00000020";
+               address = "0x00000820";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry inport_ap/s1
             {
-               address = "0x00000030";
+               address = "0x00000830";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry lcd/control_slave
             {
-               address = "0x00000040";
+               address = "0x00000840";
                span = "0x00000010";
                is_bridge = "0";
             }
             Entry sysid/control_slave
             {
-               address = "0x00000178";
+               address = "0x00000978";
                span = "0x00000008";
                is_bridge = "0";
             }
@@ -3671,7 +3671,7 @@ SYSTEM niosII_openMac
          address_stall_present = "1";
          dsp_block_supports_shift = "0";
          mrams_present = "0";
-         cpuid_value = "0";
+         cpuid_value = "1";
          dont_overwrite_cpuid = "1";
          allow_legacy_sdk = "1";
          legacy_sdk_support = "1";
@@ -4985,9 +4985,9 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000050";
+               Offset_Address = "0x00000850";
             }
-            Base_Address = "0x00000050";
+            Base_Address = "0x00000850";
             Address_Group = "0";
          }
       }
@@ -5203,9 +5203,9 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000000";
+               Offset_Address = "0x00000800";
             }
-            Base_Address = "0x00000000";
+            Base_Address = "0x00000800";
             Address_Group = "0";
          }
       }
@@ -5320,14 +5320,14 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000178";
+               Offset_Address = "0x00000978";
             }
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000178";
+               Offset_Address = "0x00000978";
             }
-            Base_Address = "0x00000178";
+            Base_Address = "0x00000978";
             Has_IRQ = "0";
             Address_Group = "0";
             IRQ_MASTER ap_cpu/data_master
@@ -5349,7 +5349,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>4FD973AA</b> (timestamp: Thu Jun 14, 2012 @7:16 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000001</b>    (unique ID tag) <br> <b>50082949</b> (timestamp: Thu Jul 19, 2012 @5:35 PM)";
             MESSAGES 
             {
             }
@@ -5358,7 +5358,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "1u";
-         timestamp = "1339650986u";
+         timestamp = "1342712137u";
          regenerate_values = "0";
          MAKE 
          {
@@ -5367,7 +5367,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000178 --id=1 --timestamp=1339650986";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=1 --timestamp=1342712137";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -5476,9 +5476,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000160";
+               Offset_Address = "0x00000960";
             }
-            Base_Address = "0x00000160";
+            Base_Address = "0x00000960";
             Address_Group = "0";
          }
       }
@@ -5717,9 +5717,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000800";
+               Offset_Address = "0x00000000";
             }
-            Base_Address = "0x00000800";
+            Base_Address = "0x00000000";
             Address_Group = "0";
          }
          WIZARD_SCRIPT_ARGUMENTS 
@@ -5792,7 +5792,7 @@ SYSTEM niosII_openMac
                   BOOTS_FROM_EPCS = "1";
                   BOOT_COPIER_EPCS = "boot_loader_epcs.srec";
                   CPU_CLASS = "altera_nios2";
-                  CPU_RESET_ADDRESS = "0x800";
+                  CPU_RESET_ADDRESS = "0x0";
                }
             }
             TARGET delete_placeholder_warning
@@ -5959,9 +5959,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000000";
+               Offset_Address = "0x00000800";
             }
-            Base_Address = "0x00000000";
+            Base_Address = "0x00000800";
             Address_Group = "0";
          }
       }
@@ -6362,11 +6362,11 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000140";
+               Offset_Address = "0x00000940";
             }
             Clock_Source = "clk50";
             Has_Clock = "1";
-            Base_Address = "0x00000140";
+            Base_Address = "0x00000940";
             Address_Group = "2";
          }
       }
@@ -7035,9 +7035,9 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000020";
+               Offset_Address = "0x00000820";
             }
-            Base_Address = "0x00000020";
+            Base_Address = "0x00000820";
             Has_IRQ = "0";
             Address_Group = "0";
             IRQ_MASTER ap_cpu/data_master
@@ -7182,9 +7182,9 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000030";
+               Offset_Address = "0x00000830";
             }
-            Base_Address = "0x00000030";
+            Base_Address = "0x00000830";
             Has_IRQ = "0";
             Address_Group = "0";
             IRQ_MASTER ap_cpu/data_master
@@ -7472,9 +7472,9 @@ SYSTEM niosII_openMac
             MASTERED_BY ap_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x00000040";
+               Offset_Address = "0x00000840";
             }
-            Base_Address = "0x00000040";
+            Base_Address = "0x00000840";
             Has_IRQ = "0";
             Address_Group = "0";
             IRQ_MASTER ap_cpu/data_master
@@ -7630,9 +7630,9 @@ SYSTEM niosII_openMac
             MASTERED_BY clock_crossing_0/m1
             {
                priority = "1";
-               Offset_Address = "0x00000120";
+               Offset_Address = "0x00000920";
             }
-            Base_Address = "0x00000120";
+            Base_Address = "0x00000920";
             Has_IRQ = "0";
             Address_Group = "0";
             Is_Readable = "0";

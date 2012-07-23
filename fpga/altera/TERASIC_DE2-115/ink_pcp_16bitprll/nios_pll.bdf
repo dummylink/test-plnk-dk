@@ -35,7 +35,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -80 88 0 104))
 )
 (pin
 	(input)
@@ -52,7 +51,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -80 264 0 280))
 )
 (pin
 	(input)
@@ -264,7 +262,7 @@ applicable agreement for further details.
 )
 (pin
 	(input)
-	(rect -64 344 104 360)
+	(rect -56 344 112 360)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
 	(text "PDI_ADDR[15..1]" (rect 9 0 97 12)(font "Arial" ))
 	(pt 168 8)
@@ -277,13 +275,12 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -144 360 -64 376))
 )
 (pin
 	(input)
 	(rect -56 376 112 392)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
-	(text "PDI_CS_n" (rect 5 0 56 12)(font "Arial" ))
+	(text "PDI_CS_n" (rect 9 0 60 12)(font "Arial" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 92 12)(pt 117 12))
@@ -294,13 +291,12 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -136 392 -56 408))
 )
 (pin
 	(input)
 	(rect -56 392 112 408)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
-	(text "PDI_RD_n" (rect 5 0 59 12)(font "Arial" ))
+	(text "PDI_RD_n" (rect 9 0 62 12)(font "Arial" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 92 12)(pt 117 12))
@@ -311,13 +307,12 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -136 408 -56 424))
 )
 (pin
 	(input)
 	(rect -56 408 112 424)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
-	(text "PDI_WR_n" (rect 5 0 61 12)(font "Arial" ))
+	(text "PDI_WR_n" (rect 9 0 64 12)(font "Arial" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 92 12)(pt 117 12))
@@ -328,13 +323,12 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -136 424 -56 440))
 )
 (pin
 	(input)
 	(rect -56 360 112 376)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
-	(text "PDI_BE_n[1..0]" (rect 5 0 82 12)(font "Arial" ))
+	(text "PDI_BE_n[1..0]" (rect 9 0 85 12)(font "Arial" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 92 12)(pt 117 12))
@@ -345,7 +339,6 @@ applicable agreement for further details.
 		(line (pt 117 12)(pt 121 8))
 	)
 	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect -136 376 -56 392))
 )
 (pin
 	(output)
@@ -362,7 +355,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 264 1192 280))
 )
 (pin
 	(output)
@@ -379,7 +371,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 280 1192 296))
 )
 (pin
 	(output)
@@ -396,7 +387,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 296 1192 312))
 )
 (pin
 	(output)
@@ -621,7 +611,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 760 1192 776))
 )
 (pin
 	(output)
@@ -638,7 +627,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 792 1192 808))
 )
 (pin
 	(output)
@@ -655,7 +643,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 824 1192 840))
 )
 (pin
 	(output)
@@ -672,7 +659,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 744 1192 760))
 )
 (pin
 	(output)
@@ -689,7 +675,6 @@ applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 1112 776 1192 792))
 )
 (pin
 	(output)
@@ -835,7 +820,6 @@ applicable agreement for further details.
 		(line (pt 52 8)(pt 56 12))
 	)
 	(text "VCC" (rect 4 7 24 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 1112 808 1192 824))
 )
 (pin
 	(bidir)
@@ -887,7 +871,6 @@ applicable agreement for further details.
 		(line (pt 52 8)(pt 56 12))
 	)
 	(text "VCC" (rect 4 7 24 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 1112 504 1192 520))
 )
 (pin
 	(bidir)
@@ -905,7 +888,6 @@ applicable agreement for further details.
 		(line (pt 52 8)(pt 56 12))
 	)
 	(text "VCC" (rect 4 7 24 17)(font "Arial" (font_size 6)))
-	(annotation_block (location)(rect 1112 520 1192 536))
 )
 (symbol
 	(rect 968 168 1000 200)
@@ -1433,59 +1415,6 @@ applicable agreement for further details.
 	)
 )
 (connector
-	(pt 752 272)
-	(pt 936 272)
-)
-(connector
-	(text "pll_locked" (rect 842 168 890 180)(font "Arial" ))
-	(pt 752 176)
-	(pt 832 176)
-)
-(connector
-	(pt 752 256)
-	(pt 936 256)
-)
-(connector
-	(pt 752 288)
-	(pt 936 288)
-)
-(connector
-	(pt 752 224)
-	(pt 936 224)
-	(bus)
-)
-(connector
-	(pt 752 464)
-	(pt 936 464)
-)
-(connector
-	(pt 752 448)
-	(pt 936 448)
-	(bus)
-)
-(connector
-	(pt 752 416)
-	(pt 936 416)
-	(bus)
-)
-(connector
-	(pt 752 432)
-	(pt 936 432)
-	(bus)
-)
-(connector
-	(pt 752 384)
-	(pt 936 384)
-)
-(connector
-	(pt 936 368)
-	(pt 752 368)
-)
-(connector
-	(pt 936 352)
-	(pt 752 352)
-)
-(connector
 	(pt 1000 144)
 	(pt 984 144)
 )
@@ -1500,6 +1429,118 @@ applicable agreement for further details.
 (connector
 	(pt 984 160)
 	(pt 984 168)
+)
+(connector
+	(text "pll_locked" (rect 144 88 192 100)(font "Arial" ))
+	(pt 200 96)
+	(pt 256 96)
+)
+(connector
+	(pt 176 432)
+	(pt 256 432)
+)
+(connector
+	(pt 232 448)
+	(pt 256 448)
+)
+(connector
+	(text "pll_locked" (rect 842 168 890 180)(font "Arial" ))
+	(pt 752 176)
+	(pt 832 176)
+)
+(connector
+	(pt 752 224)
+	(pt 936 224)
+	(bus)
+)
+(connector
+	(pt 752 256)
+	(pt 936 256)
+)
+(connector
+	(pt 752 272)
+	(pt 936 272)
+)
+(connector
+	(pt 752 288)
+	(pt 936 288)
+)
+(connector
+	(pt 752 352)
+	(pt 936 352)
+)
+(connector
+	(pt 752 368)
+	(pt 936 368)
+)
+(connector
+	(pt 752 384)
+	(pt 936 384)
+)
+(connector
+	(pt 752 416)
+	(pt 936 416)
+	(bus)
+)
+(connector
+	(pt 752 432)
+	(pt 936 432)
+	(bus)
+)
+(connector
+	(pt 752 448)
+	(pt 936 448)
+	(bus)
+)
+(connector
+	(pt 752 464)
+	(pt 936 464)
+)
+(connector
+	(pt 752 480)
+	(pt 936 480)
+)
+(connector
+	(pt 752 528)
+	(pt 936 528)
+)
+(connector
+	(pt 752 544)
+	(pt 936 544)
+)
+(connector
+	(pt 752 576)
+	(pt 936 576)
+)
+(connector
+	(pt 752 592)
+	(pt 936 592)
+)
+(connector
+	(pt 752 624)
+	(pt 936 624)
+	(bus)
+)
+(connector
+	(pt 752 640)
+	(pt 936 640)
+)
+(connector
+	(pt 752 656)
+	(pt 936 656)
+)
+(connector
+	(pt 752 672)
+	(pt 936 672)
+	(bus)
+)
+(connector
+	(pt 752 688)
+	(pt 936 688)
+)
+(connector
+	(pt 752 704)
+	(pt 936 704)
 )
 (connector
 	(text "SRAM_ADDR[20..0]" (rect 754 720 854 732)(font "Arial" ))
@@ -1522,68 +1563,36 @@ applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 936 816)
 	(pt 752 816)
+	(pt 936 816)
 )
 (connector
-	(pt 936 800)
-	(pt 752 800)
+	(pt 752 496)
+	(pt 936 496)
 	(bus)
 )
 (connector
-	(pt 752 656)
-	(pt 936 656)
-)
-(connector
-	(pt 752 672)
-	(pt 936 672)
+	(pt 752 512)
+	(pt 936 512)
 	(bus)
-)
-(connector
-	(pt 752 688)
-	(pt 936 688)
-)
-(connector
-	(pt 752 704)
-	(pt 936 704)
-)
-(connector
-	(pt 752 624)
-	(pt 936 624)
-	(bus)
-)
-(connector
-	(pt 936 640)
-	(pt 752 640)
-)
-(connector
-	(pt 752 544)
-	(pt 936 544)
 )
 (connector
 	(pt 752 560)
 	(pt 936 560)
 )
 (connector
-	(pt 752 528)
-	(pt 936 528)
-)
-(connector
-	(pt 936 576)
-	(pt 752 576)
-)
-(connector
-	(pt 752 592)
-	(pt 936 592)
-)
-(connector
 	(pt 752 608)
 	(pt 936 608)
 )
 (connector
-	(text "pll_locked" (rect 144 88 192 100)(font "Arial" ))
-	(pt 200 96)
-	(pt 256 96)
+	(pt 752 800)
+	(pt 936 800)
+	(bus)
+)
+(connector
+	(text "PDI_ADDR[0]" (rect 26 656 95 668)(font "Arial" ))
+	(pt 16 672)
+	(pt 152 672)
 )
 (connector
 	(pt 168 80)
@@ -1597,14 +1606,6 @@ applicable agreement for further details.
 	(pt 176 320)
 	(pt 256 320)
 	(bus)
-)
-(connector
-	(pt 176 432)
-	(pt 256 432)
-)
-(connector
-	(pt 232 448)
-	(pt 256 448)
 )
 (connector
 	(pt 112 464)
@@ -1641,14 +1642,6 @@ applicable agreement for further details.
 	(pt 256 608)
 )
 (connector
-	(pt 112 512)
-	(pt 256 512)
-)
-(connector
-	(pt 112 592)
-	(pt 256 592)
-)
-(connector
 	(pt 112 432)
 	(pt 128 432)
 )
@@ -1657,9 +1650,12 @@ applicable agreement for further details.
 	(pt 184 448)
 )
 (connector
-	(pt 112 368)
-	(pt 256 368)
-	(bus)
+	(pt 112 512)
+	(pt 256 512)
+)
+(connector
+	(pt 112 592)
+	(pt 256 592)
 )
 (connector
 	(pt 112 384)
@@ -1674,29 +1670,15 @@ applicable agreement for further details.
 	(pt 256 416)
 )
 (connector
-	(pt 752 480)
-	(pt 936 480)
-)
-(connector
-	(pt 752 496)
-	(pt 936 496)
-	(bus)
-)
-(connector
-	(pt 752 512)
-	(pt 936 512)
+	(pt 112 368)
+	(pt 256 368)
 	(bus)
 )
 (connector
 	(text "PDI_ADDR[15..0]" (rect 146 336 234 348)(font "Arial" ))
-	(pt 256 352)
 	(pt 136 352)
+	(pt 256 352)
 	(bus)
-)
-(connector
-	(text "PDI_ADDR[0]" (rect 26 656 95 668)(font "Arial" ))
-	(pt 16 672)
-	(pt 152 672)
 )
 (junction (pt 984 160))
 (text "tie gigabit clk to zero - no gigabit support!" (rect 920 40 1151 54)(font "Arial" (font_size 8)))
