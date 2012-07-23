@@ -45,6 +45,16 @@ SECTIONS
    *(.vectors.hw_exception)
 } 
 
+.local_memory : {
+
+   __local_memory_start = .;
+
+   *(.local_memory)
+
+   __local_memory_end = .;
+
+} > ap_ilmb_cntlr_ap_dlmb_cntlr
+
 .text : {
    *(.text)
    *(.text.*)
@@ -185,16 +195,6 @@ SECTIONS
    . = ALIGN(4);
    __bss_end = .;
 } > DDRII32Mx16_MPMC_BASEADDR
-
-.local_memory : {
-
-   __local_memory_start = .;
-
-   *(.local_memory)
-
-   __local_memory_end = .;
-
-} > ap_ilmb_cntlr_ap_dlmb_cntlr
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );
 

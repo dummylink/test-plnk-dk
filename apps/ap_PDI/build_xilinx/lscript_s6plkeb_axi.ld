@@ -17,7 +17,9 @@ _HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x493E0;
 
 MEMORY
 {
-   ap_i_bram_ctrl_ap_d_bram_ctrl : ORIGIN = 0x00000050, LENGTH = 0x00001FB0
+   ap_i_bram_ctrl_ap_d_bram_ctrl : ORIGIN = 0x00002000, LENGTH = 0x00002000
+   boot_i_bram_ctrl_boot_d_bram_ctrl : ORIGIN = 0x00000050, LENGTH = 0x00000FB0
+   axi_emc_0_S_AXI_MEM0_BASEADDR : ORIGIN = 0x76000000, LENGTH = 0x00010000
    MCB_DDR2_S0_AXI_BASEADDR : ORIGIN = 0x20000000, LENGTH = 0x08000000
 }
 
@@ -44,6 +46,16 @@ SECTIONS
 .vectors.hw_exception 0x00000020 : {
    *(.vectors.hw_exception)
 } 
+
+.local_memory : {
+
+   __local_memory_start = .;
+
+   *(.local_memory)
+
+   __local_memory_end = .;
+
+} > ap_i_bram_ctrl_ap_d_bram_ctrl
 
 .text : {
    *(.text)
@@ -185,16 +197,6 @@ SECTIONS
    . = ALIGN(4);
    __bss_end = .;
 } > MCB_DDR2_S0_AXI_BASEADDR
-
-.local_memory : {
-
-   __local_memory_start = .;
-
-   *(.local_memory)
-
-   __local_memory_end = .;
-
-} > ap_i_bram_ctrl_ap_d_bram_ctrl
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );
 
