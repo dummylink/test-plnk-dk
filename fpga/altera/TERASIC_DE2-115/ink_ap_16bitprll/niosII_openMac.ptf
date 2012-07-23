@@ -772,7 +772,7 @@ SYSTEM niosII_openMac
          hardware_multiply_impl = "no_mul";
          shift_rot_impl = "small_le_shift";
          gui_hardware_multiply_setting = "no_mul_small_le_shift";
-         reset_slave = "onchip_memory2_0/s1";
+         reset_slave = "epcs_flash_controller_0/epcs_control_port";
          break_slave = "ap_cpu/jtag_debug_module";
          exc_slave = "onchip_memory2_0/s1";
          reset_offset = "0x00000000";
@@ -785,7 +785,7 @@ SYSTEM niosII_openMac
          address_stall_present = "1";
          dsp_block_supports_shift = "0";
          mrams_present = "0";
-         cpuid_value = "0";
+         cpuid_value = "1";
          dont_overwrite_cpuid = "1";
          allow_legacy_sdk = "1";
          legacy_sdk_support = "1";
@@ -2458,7 +2458,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>4FEAB354</b> (timestamp: Wed Jun 27, 2012 @9:16 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>500D2CAD</b> (timestamp: Mon Jul 23, 2012 @12:51 AM)";
             MESSAGES 
             {
             }
@@ -2467,7 +2467,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1340781396u";
+         timestamp = "1343040685u";
          regenerate_values = "0";
          MAKE 
          {
@@ -2476,7 +2476,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x000009a8 --id=0 --timestamp=1340781396";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x000009a8 --id=0 --timestamp=1343040685";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -2728,10 +2728,10 @@ SYSTEM niosII_openMac
             {
                MACRO 
                {
-                  BOOTS_FROM_EPCS = "0";
+                  BOOTS_FROM_EPCS = "1";
                   BOOT_COPIER_EPCS = "boot_loader_epcs.srec";
                   CPU_CLASS = "altera_nios2";
-                  CPU_RESET_ADDRESS = "0x2000";
+                  CPU_RESET_ADDRESS = "0x0";
                }
             }
             TARGET delete_placeholder_warning

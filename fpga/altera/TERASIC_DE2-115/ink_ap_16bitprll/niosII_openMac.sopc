@@ -123,19 +123,19 @@
          type = "boolean";
       }
    }
-   element lcd.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2416";
-         type = "long";
-      }
-   }
    element sysid.control_slave
    {
       datum baseAddress
       {
          value = "2472";
+         type = "long";
+      }
+   }
+   element lcd.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2416";
          type = "long";
       }
    }
@@ -300,22 +300,6 @@
          type = "boolean";
       }
    }
-   element onchip_memory2_0.s1
-   {
-      datum baseAddress
-      {
-         value = "8192";
-         type = "long";
-      }
-   }
-   element system_timer_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2304";
-         type = "long";
-      }
-   }
    element sdram_0.s1
    {
       datum _lockedAddress
@@ -345,16 +329,11 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
+   element system_timer_ap.s1
    {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
       datum baseAddress
       {
-         value = "2048";
+         value = "2304";
          type = "long";
       }
    }
@@ -368,6 +347,27 @@
       datum baseAddress
       {
          value = "2400";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
+         type = "long";
+      }
+   }
+   element onchip_memory2_0.s1
+   {
+      datum baseAddress
+      {
+         value = "8192";
          type = "long";
       }
    }
@@ -489,8 +489,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="13141065249" />
- <parameter name="timeStamp" value="1340781396203" />
+ <parameter name="systemHash" value="12856784167" />
+ <parameter name="timeStamp" value="1343040684737" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -545,7 +545,7 @@
   <parameter name="setting_activateModelChecker" value="false" />
   <parameter name="setting_HDLSimCachesCleared" value="true" />
   <parameter name="setting_HBreakTest" value="false" />
-  <parameter name="resetSlave" value="onchip_memory2_0.s1" />
+  <parameter name="resetSlave">epcs_flash_controller_0.epcs_control_port</parameter>
   <parameter name="resetOffset" value="0" />
   <parameter name="muldiv_multiplierType" value="EmbeddedMulFast" />
   <parameter name="muldiv_divider" value="false" />
@@ -564,7 +564,7 @@
   <parameter name="mmu_autoAssignTlbPtrSz" value="true" />
   <parameter name="mmu_TLBMissExcSlave" value="" />
   <parameter name="mmu_TLBMissExcOffset" value="0" />
-  <parameter name="manuallyAssignCpuID" value="false" />
+  <parameter name="manuallyAssignCpuID" value="true" />
   <parameter name="internalIrqMaskSystemInfo" value="393222" />
   <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='ap_cpu.jtag_debug_module' start='0x1800' end='0x2000' /><slave name='onchip_memory2_0.s1' start='0x2000' end='0x2400' /><slave name='sdram_0.s1' start='0x8000000' end='0x10000000' /></address-map>]]></parameter>
   <parameter name="instAddrWidth" value="28" />
@@ -594,7 +594,7 @@
   <parameter name="dataAddrWidth" value="28" />
   <parameter name="customInstSlavesSystemInfo" value="&lt;info/&gt;" />
   <parameter name="cpuReset" value="false" />
-  <parameter name="cpuID" value="0" />
+  <parameter name="cpuID" value="1" />
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="breakSlave">ap_cpu.jtag_debug_module</parameter>
   <parameter name="breakOffset" value="32" />
