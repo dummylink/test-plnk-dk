@@ -38,6 +38,11 @@ BOARD_NAME=s6plkeb
 BUS_INTERFACE=axi
 
 ##################################
+# Two processors in bitstream: [yes, no]
+# Note: Change this if there is a second processor (AP) in the bitstream
+DUAL_PROCESSOR=no
+
+##################################
 # Processor name: [pcp, ap]
 PROCESSOR_NAME=pcp
 

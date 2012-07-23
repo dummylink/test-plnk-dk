@@ -10,15 +10,16 @@
 /*                                                                 */
 /*******************************************************************/
 
-_STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0xC350;
-_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x27100;
+_STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0xEA60;
+_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x30D40;
 
 /* Define Memories in the system */
 
 MEMORY
 {
-   ilmb_cntlr_dlmb_cntlr : ORIGIN = 0x00000050, LENGTH = 0x00001FB0
-   FLASH_16Mx16_MEM0_BASEADDR : ORIGIN = 0x8E000000, LENGTH = 0x02000000
+   pcp_ilmb_cntlr_pcp_dlmb_cntlr : ORIGIN = 0x00002000, LENGTH = 0x00002000
+   boot_ilmb_cntlr_boot_dlmb_cntlr : ORIGIN = 0x00000050, LENGTH = 0x00000FB0
+   Linear_Flash_MEM0_BASEADDR : ORIGIN = 0x8E000000, LENGTH = 0x02000000
    MCB_DDR3_PIM1_BASEADDR_MCB_DDR3_PIM0_BASEADDR_MCB_DDR3_PIM1_BASEADDR_MCB_DDR3_PIM0_BASEADDR : ORIGIN = 0x08000000, LENGTH = 0x08000000
 }
 
@@ -45,6 +46,16 @@ SECTIONS
 .vectors.hw_exception 0x00000020 : {
    *(.vectors.hw_exception)
 } 
+
+.local_memory : {
+
+   __local_memory_start = .;
+
+   *(.local_memory)
+
+   __local_memory_end = .;
+
+} > pcp_ilmb_cntlr_pcp_dlmb_cntlr
 
 .text : {
    *(.text)
@@ -186,16 +197,6 @@ SECTIONS
    . = ALIGN(4);
    __bss_end = .;
 } > MCB_DDR3_PIM1_BASEADDR_MCB_DDR3_PIM0_BASEADDR_MCB_DDR3_PIM1_BASEADDR_MCB_DDR3_PIM0_BASEADDR
-
-.local_memory : {
-
-   __local_memory_start = .;
-
-   *(.local_memory)
-
-   __local_memory_end = .;
-
-} > ilmb_cntlr_dlmb_cntlr
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );
 

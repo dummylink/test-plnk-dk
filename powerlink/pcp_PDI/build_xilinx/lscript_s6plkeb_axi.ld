@@ -10,14 +10,15 @@
 /*                                                                 */
 /*******************************************************************/
 
-_STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0xC350;
-_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x27100;
+_STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0xEA60;
+_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x30D40;
 
 /* Define Memories in the system */
 
 MEMORY
 {
-   pcp_i_bram_ctrl_pcp_d_bram_ctrl : ORIGIN = 0x00000050, LENGTH = 0x00001FB0
+   pcp_i_bram_ctrl_pcp_d_bram_ctrl : ORIGIN = 0x00002000, LENGTH = 0x00002000
+   boot_i_bram_ctrl_boot_d_bram_ctrl : ORIGIN = 0x00000050, LENGTH = 0x00000FB0
    SRAM256Kx32_S_AXI_MEM0_BASEADDR : ORIGIN = 0x30000000, LENGTH = 0x00100000
 }
 
@@ -44,6 +45,16 @@ SECTIONS
 .vectors.hw_exception 0x00000020 : {
    *(.vectors.hw_exception)
 } 
+
+.local_memory : {
+
+   __local_memory_start = .;
+
+   *(.local_memory)
+
+   __local_memory_end = .;
+
+} > pcp_i_bram_ctrl_pcp_d_bram_ctrl
 
 .text : {
    *(.text)
@@ -185,16 +196,6 @@ SECTIONS
    . = ALIGN(4);
    __bss_end = .;
 } > SRAM256Kx32_S_AXI_MEM0_BASEADDR
-
-.local_memory : {
-
-   __local_memory_start = .;
-
-   *(.local_memory)
-
-   __local_memory_end = .;
-
-} > pcp_i_bram_ctrl_pcp_d_bram_ctrl
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );
 

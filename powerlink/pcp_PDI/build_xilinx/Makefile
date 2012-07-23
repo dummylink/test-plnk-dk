@@ -17,6 +17,10 @@ OBJDICT_DIR=${CNDK_DIR}/objDicts/PDI
 EDRV_DIR=${CNDK_DIR}/powerlink/generic/POWERLINK_IP_Edrv
 CNDK_TARGET_DIR=${CNDK_DIR}/powerlink/generic/target/xilinx_microblaze
 CN_API_DIR=${CNDK_DIR}/libCnApi
+TOOLS_PATH=${CNDK_DIR}/tools/xilinx
+
+BOOTLOADER_PATH=$(TOOLS_PATH)/mem_bootloader
+PROM_SCRIPT_DIR=$(TOOLS_PATH)/scripts
 
 OBJDIR=obj
 
@@ -24,14 +28,22 @@ OBJDIR=obj
 #general compile defines
 CC=mb-gcc
 AR=mb-ar
+AS=mb-as
 CP=cp
 RM=rm -rf
-EXECUTABLE=pcp_pdi.elf
+EXECUTABLE=pcp_pdi
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE).ld
 MACROS=-DMAKE_BUILD_PCP -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
+
+# Flash defines
+FLASH_IMAGE_NAME= flash_image
+BOOTLOADER_NAME= mem_bootloader
+BOOT_BUILD_DIR= build
+OBJCPYFLAGS=-O srec
+BITSTREAM= download
 
 
 ##################################
@@ -100,6 +112,36 @@ ${CNDK_TARGET_DIR}/src/systemComponents.c
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
 
 ###################################
+# set flash image parameters
+ifeq ($(BOARD_NAME),s6plkeb)
+	FLASH_IMAGE_NAME_DUAL= flash_image
+	PROM_SCRIPT= program_prom_s6plkeb.cmd
+	PROMGEN_FLAGS= -w -p mcs -c FF
+	PROMGEN_TYPE= -s 8192 -u 0000
+	PROMGEN_PREFIX= -spi
+	PCUBLAZE_PARAMS= --format mcs --swap off
+	PCUBLAZE_FILES= --promfile ${FLASH_IMAGE_NAME_DUAL}.mcs --outfile ${FLASH_IMAGE_NAME_DUAL}.mcs
+endif
+ifeq ($(BOARD_NAME),lx150t)
+	FLASH_IMAGE_NAME_DUAL= flash_image_1
+	PROM_SCRIPT= program_prom_lx150t.cmd
+	PROMGEN_FLAGS= -w -p mcs -c FF
+	PROMGEN_TYPE= -x xcf08p xcf32p -u 00000000
+	PROMGEN_PREFIX=
+	PCUBLAZE_PARAMS= --format bin
+	PCUBLAZE_FILES= --outfile ${FLASH_IMAGE_NAME}_sw.bin
+endif
+ifeq ($(BOARD_NAME),lx9)
+	FLASH_IMAGE_NAME_DUAL= flash_image
+	PROM_SCRIPT= program_prom_lx9.cmd
+	PROMGEN_FLAGS= -w -p mcs -c FF
+	PROMGEN_TYPE= -s 16384 -u 0000
+	PROMGEN_PREFIX= -spi
+	PCUBLAZE_PARAMS= --format mcs --swap off
+	PCUBLAZE_FILES= --promfile ${FLASH_IMAGE_NAME_DUAL}.mcs --outfile ${FLASH_IMAGE_NAME_DUAL}.mcs	
+endif
+
+###################################
 # set Optimization level makro
 ifeq ($(OPT_LEVEL),-O0)
 	MACROS+= -DXIL_NO_OPT_LEVEL
@@ -122,9 +164,11 @@ endif
 ifeq ($(BUS_INTERFACE),axi)
 	PROC_FEATURES+= -mlittle-endian
 	SRCFILES+= ${POWERLINK_DIR}/EplStack/amiarm.c
+	BOOTLOOP_PATH= $(subst \,/,$(XILINX_EDK)/sw/lib/microblaze/mb_bootloop_le.elf)
 else
 	PROC_FEATURES+= -mbig-endian
 	SRCFILES+= ${POWERLINK_DIR}/EplStack/amibe.c
+	BOOTLOOP_PATH= $(subst \,/,$(XILINX_EDK)/sw/lib/microblaze/mb_bootloop.elf)
 endif
 
 ###################################
@@ -153,10 +197,13 @@ header:
 	@echo "================================================================================"
 	@echo
 	@echo "Write 'make all' to build the PCP PDI example"
-	@echo "Change 'makefile.setting' to configure build system"	
+	@echo "Write 'make gen_flash' to generate the .mcs flash image"
+	@echo "Write 'make prog_flash' to program the .mcs flash image to flash"
+	@echo ""
+	@echo "Change 'makefile.setting' to configure the build system"
 
 
-all: builddir ${CN_API_DIR}/include/cnApiCfg.h ${EXECUTABLE} ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck
+all: builddir ${CN_API_DIR}/include/cnApiCfg.h ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck  ${EXECUTABLE}.mem
 
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<
@@ -176,22 +223,22 @@ $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 	@echo Finished building: $<
 	@echo ' '
 
-${EXECUTABLE}: ${OBJ} ${LSSCRIPT}
+${EXECUTABLE}.elf: ${OBJ} ${LSSCRIPT}
 	@echo Building target: $@
 	@echo Invoking: MicroBlaze gcc linker
-	$(CC) $(LDFLAGS) ${LIBSPATH} ${OBJ} -o ${EXECUTABLE}
+	$(CC) $(LDFLAGS) ${LIBSPATH} ${OBJ} -o ${EXECUTABLE}.elf
 	@echo Finished building target: $@
 	@echo ' '
 	
-${EXECUTABLE}.size: ${EXECUTABLE}
+${EXECUTABLE}.size: ${EXECUTABLE}.elf
 	@echo Invoking: MicroBlaze Print Size
-	mb-size ${EXECUTABLE}  |tee "${EXECUTABLE}.size"
+	mb-size ${EXECUTABLE}.elf  |tee "${EXECUTABLE}.size"
 	@echo Finished building: $@
 	@echo ' '
 
-${EXECUTABLE}.elfcheck: ${EXECUTABLE}
+${EXECUTABLE}.elfcheck: ${EXECUTABLE}.elf
 	@echo Invoking: Xilinx ELF Check
-	elfcheck ${EXECUTABLE} -hw ${HW_PLATFORM_PATH}/system.xml -pe ${PROCESSOR_NAME}  |tee "${EXECUTABLE}.elfcheck"
+	elfcheck ${EXECUTABLE}.elf -hw ${HW_PLATFORM_PATH}/system.xml -pe ${PROCESSOR_NAME}  |tee "${EXECUTABLE}.elfcheck"
 	@echo Finished building: $@
 	@echo ' '
 
@@ -202,7 +249,73 @@ ${CN_API_DIR}/include/cnApiCfg.h: ${BSP_PATH}/${PROCESSOR_NAME}/include/cnApiCfg
 	@echo Finished copying
 	@echo ' '
 
+${EXECUTABLE}.srec: ${EXECUTABLE}.elf
+	@echo Invoking: mb-objcopy
+	mb-objcopy $(OBJCPYFLAGS) ${EXECUTABLE}.elf ${EXECUTABLE}.srec
+	@echo Finished building: $@
+	@echo ' '
+
+${EXECUTABLE}.mem: ${EXECUTABLE}.elf
+	@echo Invoking: Data2MEM
+	Data2MEM -bd ${EXECUTABLE}.elf -d -o m ${EXECUTABLE}.mem
+	@echo Finished building: $@
+	@echo ' '
+
+###################################
+# flash rules
+
+gen_flash : builddir ${FLASH_IMAGE_NAME_DUAL}.mcs
+
+$(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf : $(BOOTLOADER_PATH)/Makefile
+	@echo Invoking: bootloader build system
+	$(MAKE) -C $(BOOTLOADER_PATH) all APP_DIR=$(subst \,/,$(PWD)) APP_MODE=pdi PROCESSOR=pcp
+	@echo Finished generating: $@
+	@echo ' '
+
+ifeq ($(DUAL_PROCESSOR),yes)
+$(BITSTREAM).bit : ${HW_PLATFORM_PATH}/system.bit $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
+	@echo Invoking: elfcheck pcp
+	elfcheck -hw ${HW_PLATFORM_PATH}/system.xml -mode bootload -mem BRAM -pe $(PROCESSOR_NAME) \
+	$(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
+	@echo Invoking: elfcheck ap
+	elfcheck -hw ${HW_PLATFORM_PATH}/system.xml -mode bootload -mem BRAM -pe ap $(BOOTLOOP_PATH)
+	@echo Invoking: data2mem
+	data2mem -bm ${HW_PLATFORM_PATH}/system_bd.bmm -bt ${HW_PLATFORM_PATH}/system.bit \
+	-bd $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf tag $(PROCESSOR_NAME) \
+	-bd $(BOOTLOOP_PATH) tag ap -o b $(BITSTREAM).bit
+	@echo Finished generating: $@
+	@echo ' '
+else
+$(BITSTREAM).bit : ${HW_PLATFORM_PATH}/system.bit $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
+	@echo Invoking: elfcheck pcp
+	elfcheck -hw ${HW_PLATFORM_PATH}/system.xml -mode bootload -mem BRAM -pe $(PROCESSOR_NAME) \
+	$(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
+	@echo Invoking: data2mem
+	data2mem -bm ${HW_PLATFORM_PATH}/system_bd.bmm -bt ${HW_PLATFORM_PATH}/system.bit \
+	-bd $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf tag $(PROCESSOR_NAME) -o b $(BITSTREAM).bit
+	@echo Finished generating: $@
+	@echo ' '
+endif
+
+${FLASH_IMAGE_NAME_DUAL}.mcs : ${CN_API_DIR}/include/cnApiCfg.h ${EXECUTABLE}.mem $(BITSTREAM).bit
+	@echo Invoking: promgen
+	promgen $(PROMGEN_FLAGS) -o ${FLASH_IMAGE_NAME}.mcs $(PROMGEN_TYPE) $(BITSTREAM).bit $(PROMGEN_PREFIX)
+	@echo Invoking: pcublaze.pl
+	xilperl $(BOOTLOADER_PATH)/src/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
+	@echo Finished generating: $@
+	@echo ' '
+
+prog_flash : ${FLASH_IMAGE_NAME_DUAL}.mcs
+	@echo Invoking: Xilinx iMPACT
+	impact -batch $(PROM_SCRIPT_DIR)/$(PROM_SCRIPT)
+	@echo Finished programming: ${FLASH_IMAGE_NAME_DUAL}.mcs
+	@echo ' '
+
 clean:
-	-$(RM) $(EXECUTABLE) ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.map $(OBJ) $(OBJD) ${CN_API_DIR}/include/cnApiCfg.h
+	-touch $(FLASH_IMAGE_NAME)
+	-touch $(EXECUTABLE)
+	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${CN_API_DIR}/include/cnApiCfg.h ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
+	-$(MAKE) -C $(BOOTLOADER_PATH) clean APP_DIR=$(PWD)
+	-@echo ' '
 
 -include $(OBJD)
