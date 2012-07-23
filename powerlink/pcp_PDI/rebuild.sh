@@ -150,7 +150,7 @@ fi
 cmd="./create-this-app --sopcdir $SOPC_DIR --rebuild ${DEBUG_FLAG}"
 echo "rebuild.sh: Running \"$cmd\""
 $cmd || {
-    echo -e "create-this-app failed!\nVerify openPOWERLINK stack path setting in 'project.config'!"
+    echo -e "create-this-app failed!\n"
     exit 1
 }
 
