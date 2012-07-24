@@ -1,0 +1,56 @@
+################################################################################
+# Project       : CNDK bootloader (Xilinx)
+# Module        : build system settings file
+# Autor         : mairt
+# Date          : 24.07.2012
+# File          : Makefile
+# contents      : Settings file for the bootloader build system (PCP)
+# info          : THIS FILE IS OVERRIDDEN WHEN USING WITH AN APPLICATION!
+################################################################################
+
+##################################
+#Path to the CNDK root directory
+CNDK_DIR=../../..
+
+#Path to the directory of the board support package and the hw platform
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-pcp-plb
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intaxi-pcp-axi
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_spi-pcp-plb
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-pcp-plb
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intplb-pcp-plb
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intaxi-pcp-axi
+BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-pcp-axi
+
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intplb-plb
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intaxi-axi
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_spi-plb
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-plb
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intplb-plb
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intaxi-axi
+HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-pcp-axi
+
+##################################
+# Board name: [lx150t, lx9, s6plkeb]
+BOARD_NAME=s6plkeb
+
+##################################
+# Bus interface: [plb, axi]
+# Note: This sets correct endian and linker script
+BUS_INTERFACE=axi
+
+##################################
+# Two processors in bitstream: [yes, no]
+# Note: Change this if there is a second processor (AP) in the bitstream
+DUAL_PROCESSOR=no
+
+##################################
+# Processor name: [pcp, ap]
+PROCESSOR_NAME=pcp
+
+##################################
+# Processor features: (more information in the "Embedded Systems Tools Reference Manual")
+# Hardware multiplier: [ -mno-xl-soft-mul = available, -mxl-soft-mul = not available ]
+# Hardware divider: [ -mno-xl-soft-div = available, -mxl-soft-div = not available ]
+# Barel shifter: [ -mno-xl-barrel-shift = available, -mxl-barrel-shift = not available ]
+# Use pattern compare instructions: [ -mno-xl-pattern-compare = don't use them, -mxl-pattern-compare = use them ]
+PROC_FEATURES=-mcpu=v8.20.a -mno-xl-pattern-compare -mno-xl-barrel-shift -mxl-soft-mul -mxl-soft-div
