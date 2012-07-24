@@ -47,7 +47,7 @@ change_platform_files()
     then
         #cleanup for xilinx
         echo "Cleanup '.' directory..."
-        rm -rf $1/tools $1/release.sh
+        rm -rf $1/tools/altera $1/release.sh
         rm -rf $1/powerlink/generic/nios2-flash-override.txt
         rm -rf $1/project.config
 
