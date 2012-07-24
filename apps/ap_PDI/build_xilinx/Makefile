@@ -23,13 +23,21 @@ PROM_SCRIPT_DIR=$(TOOLS_PATH)/scripts
 OBJDIR=obj
 
 ##################################
+#translate dual_processor variable
+ifeq ($(DUAL_PROCESSOR),yes)
+DESIGN=dual
+else
+DESIGN=single
+endif
+
+##################################
 #general compile defines
 CC=mb-gcc
 AR=mb-ar
 CP=cp
 RM=rm -rf
 EXECUTABLE=ap_pdi
-LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE).ld
+LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
