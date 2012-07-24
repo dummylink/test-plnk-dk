@@ -508,7 +508,9 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                                     {
                                         // AP is too slow (or PCP event buffer is too small)!
                                         // -> AP will lose latest events from PCP
+                                        break;
                                     }
+
                                     default:
                                     break;
                                 }
@@ -520,6 +522,8 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             case kPcpPdiEventStackWarning:
                             {
                                 // PCP will stop processing or restart
+                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"PCP software error: %#04lx\n",
+                                pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.PcpStackError_m);
                                 break;
                             }
 

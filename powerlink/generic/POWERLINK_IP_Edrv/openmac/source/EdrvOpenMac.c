@@ -68,6 +68,7 @@
 
 #include "global.h"
 #include "EplInc.h"
+#include "kernel/EplEventk.h"
 #include "edrv.h"
 #include "Benchmark.h"
 
@@ -1316,6 +1317,8 @@ static void EdrvIrqHandler (void* pArg_p
 #endif
 
 #if EDRV_DMA_OBSERVER != 0
+tEplEventSource EventSource;
+
     WORD uwObserverVal = EDRV_RD16(EDRV_DOB_BASE, 0);
     //read DMA observer feature
     if( uwObserverVal != 0 )
@@ -1323,6 +1326,14 @@ static void EdrvIrqHandler (void* pArg_p
         EdrvInstance_l.m_fDmaError = TRUE;
         BENCHMARK_MOD_01_TOGGLE(7);
         PRINTF1("DMA observer recognized overflow! (%X)\n", uwObserverVal);
+
+        EventSource = kEplEventSourceEdrv;
+
+        // Error event for API layer
+        EplEventkPostError(kEplEventSourceEventk,
+                        kEplEdrvPktDmaError,
+                        sizeof(EventSource),
+                        &EventSource);
 
         omethStop(pArg_p); //since openMAC was naughty, stop it!
     }
