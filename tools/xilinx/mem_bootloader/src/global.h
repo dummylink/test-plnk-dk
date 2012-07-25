@@ -21,7 +21,7 @@
 #include "xparameters.h"
 
 /* debug settings */
-#define DEBUG                            1      // 1 - general debug message
+#define DEBUG                            0      // 1 - general debug message
 #define DEBUG_SPI                        0      // 1 - debug spi driver
 #define DEBUG_PRINT_FLASH_DATA           0      // 1 - debug readback spi flash data
 

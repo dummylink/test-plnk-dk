@@ -31,6 +31,9 @@ OBJDIR= build
 
 include $(APP_DIR)/makefile.settings
 
+# TODO change this overwriting!
+CNDK_DIR=../../..
+
 ##################################
 #general compile defines
 CC=mb-gcc
