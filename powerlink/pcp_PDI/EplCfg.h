@@ -246,7 +246,6 @@
 // =========================================================================
 // API with PDI specific defines
 // =========================================================================
-#define TEST_OBD_ADOPTABLE_FINISHED_TIMERU // only used for dual-processor testing
 #define EPL_MODULE_API_PDI
 
 // =========================================================================

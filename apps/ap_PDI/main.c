@@ -81,7 +81,7 @@ static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values 
 static BOOL     fOperational_l = FALSE;                         ///< indicates AP Operation state
 
 // Object access
-static DWORD dwExampleData = 0xABCD0001;             ///< this is only an example object data
+static DWORD dwExampleData_l = 0xABCD0001;             ///< this is only an example object data
 static tEplObdParam *   pAllocObdParam_l = NULL; ///< pointer to allocated memory of OBD access handle
 
 /******************************************************************************/
@@ -93,6 +93,7 @@ void setPowerlinkInitValues(tCnApiInitParm *pInitParm_p,
                             BYTE * pstrHwVersion_p,
                             BYTE * pstrSwVersion_p);
 void workInputOutput(void);
+void CnApi_processObjectAccess(tEplObdParam ** pObdParam_p);
 
 #ifndef USE_POLLING_MODE_SYNC
     #if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
@@ -225,9 +226,11 @@ int main (void)
 
         /*--- TASK 1: START ---*/
         CnApi_processApStateMachine();     // The AP state machine must be periodically updated
-        /*--- TASK 1: END   ---*/
 
         CnApi_processAsyncStateMachine();
+
+        CnApi_processObjectAccess(&pAllocObdParam_l);
+        /*--- TASK 1: END   ---*/
 
 #ifdef USE_POLLING_MODE_SYNC
         /*--- TASK 2: START ---*/
@@ -433,32 +436,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
 
                     case kPcpGenEventUserTimer:
                     {
-                        //TODO: This is only a test! -> delete
-                        if (pAllocObdParam_l->m_ObdEvent == kEplObdEvPreRead)
-                        {   // return data of read access
-
-                            // Example how to finish a ReadByIndex access:
-                            dwExampleData++;
-                            pAllocObdParam_l->m_pData = &dwExampleData;
-                            pAllocObdParam_l->m_ObjSize = sizeof(dwExampleData);
-                            pAllocObdParam_l->m_SegmentSize = sizeof(dwExampleData);
-
-                            // if an error occured (e.g. object does not exist):
-                            //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-
-                        }
-                        else
-                        { // write access
-
-                            // write to some variable
-
-                            // nothing else to do except optional error handling
-                            //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-                        }
-
-                        CnApi_DefObdAccFinished(&pAllocObdParam_l);
-                        // end of test
-
+                        // only for testing purposes
                         break;
                     }
 
@@ -522,7 +500,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             case kPcpPdiEventStackWarning:
                             {
                                 // PCP will stop processing or restart
-                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"PCP software error: %#04lx\n",
+                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"PCP software error: %#04x\n",
                                 pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.PcpStackError_m);
                                 break;
                             }
@@ -865,7 +843,7 @@ tEplKernel       Ret = kEplSuccessful;
             // If the transfer has finished, invoke callback function with pointer to saved handle
             // e.g.: CnApi_DefObdAccFinished(pAllocObdParam_l);
             // after appropriate values have been assigned to pAllocObdParam_l.
-            // Please scroll up to "case kPcpGenEventUserTimer" in AppCbEvent()for an example
+            // Refer to CnApi_processObjectAccess() for an example function
             Ret = kEplObdAccessAdopted;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO," Adopted\n");
             goto Exit;
@@ -879,6 +857,60 @@ tEplKernel       Ret = kEplSuccessful;
 Exit:
     return Ret;
 }
+
+
+/**
+ ********************************************************************************
+ \brief handle an asynchronous object access
+ \param pObdParam_p
+
+ This function needs to be called periodically. The implementation is an example
+ how to process and asynchronous object access e.g. from an SDO transfer. It needs
+ to be adapted by the user.
+ *******************************************************************************/
+void CnApi_processObjectAccess(tEplObdParam ** pObdParam_p)
+{
+tEplObdParam * pObdParam = NULL;
+
+    if (pObdParam_p == NULL)
+    { // error, not a valid pointer
+        goto Exit;
+    }
+    if (*pObdParam_p == NULL)
+    { // nothing to do
+        goto Exit;
+    }
+
+    pObdParam = *pObdParam_p;
+
+    if (pObdParam->m_ObdEvent == kEplObdEvPreRead)
+    {   // return data of read access
+
+        // Example how to finish a ReadByIndex access:
+        dwExampleData_l++;
+        pObdParam->m_pData = &dwExampleData_l;
+        pObdParam->m_ObjSize = sizeof(dwExampleData_l);
+        pObdParam->m_SegmentSize = sizeof(dwExampleData_l);
+
+        // if an error occured (e.g. object does not exist):
+        //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+
+    }
+    else
+    { // write access
+
+        // write to some variable
+
+        // nothing else to do except optional error handling
+        //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+    }
+
+    CnApi_DefObdAccFinished(pObdParam_p);
+
+Exit:
+    return;
+}
+
 
 /**
  ********************************************************************************
