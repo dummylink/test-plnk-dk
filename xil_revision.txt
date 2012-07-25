@@ -43,4 +43,5 @@ Revision History (Xilinx)
                     [FEATURE] X: s6plkeb directIO axi example
                     [FEATURE] X: s6plkeb intaxi example
                     [FEATURE] X: Add lx150t directIO axi design                    
-                       
+                    [FEATURE] X: Add s6plkeb pap designs
+                    [FEATURE] X: Add mem_bootloader and build system for burning to flash
