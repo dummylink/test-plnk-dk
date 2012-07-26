@@ -128,8 +128,14 @@ echo . verifying path...OK
 REM Now replace \ with / because we pass to bash...
 set SOPC_DIR=%SOPC_DIR:\=/%
 echo .
+
 REM execute "$QUARTUS_ROOTDIR/sopc_builder/bin/nios_bash" in every bash.exe call !
-"%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\rebuild.sh" --sopcdir %SOPC_DIR%
+"%QUARTUS_ROOTDIR%\bin\cygwin\bin\bash.exe" ".\rebuild.sh" --sopcdir %SOPC_DIR% 2> stderr.txt
+
+echo INFO: Errors and warnings were redirected to "stderr.txt":
+echo.
+REM if exist stderr.txt copy stderr.txt CON
+REM echo.
 
 pause
 exit
