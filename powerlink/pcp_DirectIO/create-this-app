@@ -126,11 +126,8 @@ else
     esac
 fi
 
-# size of tightly coupled instruction memory (in Byte)
-# where time critical functions will be stored
-ALT_TCIMEM_SIZE="4096"
 
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP -DALT_TCIMEM_SIZE=${ALT_TCIMEM_SIZE}"
+CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP"
 
 ###############################################################################
 # source files
@@ -225,6 +222,63 @@ if [ -n "$REBUILD" -o ! -f $BSP_DIR/public.mk ]; then
     }
     popd >> /dev/null
 fi
+
+
+###############################################################################
+# get size of tightly coupled instruction memory (in Byte)
+# where time critical functions will be stored
+ALT_TCIMEM_SIZE="0"
+
+IN_FILE=./bsp/system.h
+if [ ! -f "$IN_FILE" ]
+then   # Exit if no such file.
+  echo -e "$IN_FILE not found.\n"
+  exit 1
+fi
+
+PATTERN[0]="TC_I_MEM_PCP_SPAN"
+
+# pattern search - loop
+cnt=0
+while [ $cnt -lt 1 ] ; do
+
+pattern=${PATTERN[$cnt]}
+
+#check if pattern can be found in the file
+match_count=$(grep -w -c "$pattern" ${IN_FILE})
+
+if [ $match_count -lt 1 ]; then
+    echo "match_count = ${match_count}"
+	echo "File ${IN_FILE} does not contain pattern ${PATTERN[$cnt]}"
+    exit 1
+fi
+
+# get define value
+PCPDefineValue=$(grep -w "$pattern" ${IN_FILE} | grep \#define | grep -v //\# | awk '{split($0,a," "); print a[3]}')
+echo "Pattern taken from ${IN_FILE}: $pattern= $PCPDefineValue"
+
+# pattern treatment
+case  $cnt  in
+    0)
+	if [ $PCPDefineValue -ge 2048 ]; then
+        ALT_TCIMEM_SIZE=$PCPDefineValue
+		echo -e "TC-Memory-Size: $ALT_TCIMEM_SIZE \n"
+	else
+        echo -e "ERROR: TC-Memory-Size to low!\n"
+        exit 1
+	fi
+	;;
+    *)echo Not a valid loop count!
+	;;
+esac
+
+	cnt=$((cnt + 1))
+done
+
+
+# append result to comiler flags
+NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} -DALT_TCIMEM_SIZE=${ALT_TCIMEM_SIZE}"
+###############################################################################
 
 
 cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --set QUARTUS_PROJECT_DIR=$SOPC_DIR $NIOS2_APP_GEN_ARGS"
