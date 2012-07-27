@@ -1088,7 +1088,8 @@ inputs and runs the control loop.
                 if(SocTimeStamp_p.m_fSocRelTimeValid != FALSE)
                     Gi_setNetTime(SocTimeStamp_p.m_netTime.m_dwSec,SocTimeStamp_p.m_netTime.m_dwNanoSec);
 
-                EplRet = Gi_setRelativeTime(SocTimeStamp_p.m_qwRelTime,SocTimeStamp_p.m_fSocRelTimeValid, fOperational);
+                EplRet = Gi_setRelativeTime((DWORD)SocTimeStamp_p.m_qwRelTime, (DWORD)(SocTimeStamp_p.m_qwRelTime>>32),
+                        SocTimeStamp_p.m_fSocRelTimeValid, fOperational);
 
             #else
                 /* Sync interrupt is generated in SW */
@@ -1097,7 +1098,7 @@ inputs and runs the control loop.
 #else
             #ifdef TIMESYNC_HW
                 /* Sync interrupt is generated in HW */
-                EplRet = Gi_setRelativeTime(0,FALSE, fOperational);
+                EplRet = Gi_setRelativeTime(0, 0, FALSE, fOperational);
             #else
                 /* Sync interrupt is generated in SW */
                 Gi_generateSyncInt();

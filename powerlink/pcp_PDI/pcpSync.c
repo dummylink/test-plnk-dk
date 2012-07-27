@@ -43,12 +43,14 @@ typedef enum ePcpRelativeTimeState
 
 /******************************************************************************/
 /* external variable declarations */
+WORD wSyncIntCycle_g = 0;
 
 /******************************************************************************/
 /* global variables */
-tPcpRelativeTimeState PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;   ///< state variable of the RelativeTime state machine
-QWORD qwRelativeTime_g = 0;        ///< local relative time counter
-WORD wSyncIntCycle_g = 0;
+static tPcpRelativeTimeState PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;   ///< state variable of the RelativeTime state machine
+static DWORD dwRelativeTimeLow_g = 0;        ///< local relative time counter low dword
+static DWORD dwRelativeTimeHigh_g = 0;       ///< local relative time counter high dword
+static DWORD dwCycleTime_g = 0;              ///< local copy of the AP cycle time
 
 
 /******************************************************************************/
@@ -78,7 +80,8 @@ void Gi_initSync(void)
 void Gi_resetTimeValues(void)
 {
     PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;
-    qwRelativeTime_g = 0;
+    dwRelativeTimeLow_g = 0;
+    dwRelativeTimeHigh_g = 0;
 
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, 0x00);
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, 0x00);
@@ -91,17 +94,10 @@ void Gi_resetTimeValues(void)
 ********************************************************************************
 \brief    writes the current relativetime into the pdi
 *******************************************************************************/
-tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fCnIsOperational_p)
+tEplKernel Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHigh_p,
+        BOOL fTimeValid_p, BOOL fCnIsOperational_p)
 {
     tEplKernel  EplRet = kEplSuccessful;
-
-    DWORD dwCycleTime = AmiGetDwordFromLe((BYTE*)&(pCtrlReg_g->m_dwSyncIntCycTime));
-
-    if(dwCycleTime == 0)
-    {
-        EplRet = kEplInvalidParam;
-        goto Exit;
-    }
 
     switch(PcpRelativeTimeState_l)
     {
@@ -111,29 +107,49 @@ tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fC
             {
                 if(fTimeValid_p != FALSE)
                 {
-                    qwRelativeTime_g = qwRelativeTime_p;          ///< read the value once and activate relative time
-                    qwRelativeTime_g += dwCycleTime;               ///< increment it once to be up to date
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, (DWORD)qwRelativeTime_g);
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, (DWORD)(qwRelativeTime_g>>32));
+                    dwRelativeTimeLow_g = dwRelativeTimeLow_p;          ///< read the value once and activate relative time
+                    dwRelativeTimeHigh_g = dwRelativeTimeHigh_p;          ///< read the value once and activate relative time
+
+                    dwRelativeTimeLow_g += dwCycleTime_g;               ///< increment it once to be up to date
+                    if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+                    {
+                        dwRelativeTimeHigh_g++;
+                    }
+
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_g);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_g);
                     PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 } else {
                     /* CN is operational but RelativeTime is still not Valid! (We now start counting without an offset) */
-                    qwRelativeTime_g += dwCycleTime;
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, (DWORD)qwRelativeTime_g);
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, (DWORD)(qwRelativeTime_g>>32));
+                    dwRelativeTimeLow_g += dwCycleTime_g;
+                    if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+                    {
+                        dwRelativeTimeHigh_g++;
+                    }
+
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_g);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_g);
                     PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 }
             } else {
                 /* increment local RelativeTime and wait for an arriving time val from the soc */
-                qwRelativeTime_g += dwCycleTime;
+                dwRelativeTimeLow_g += dwCycleTime_g;
+                if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+                {
+                    dwRelativeTimeHigh_g++;
+                }
             }
            break;
         }
         case kPcpRelativeTimeStateActiv:
         {
-            qwRelativeTime_g += dwCycleTime;
-            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, (DWORD)qwRelativeTime_g);
-            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, (DWORD)(qwRelativeTime_g>>32));
+            dwRelativeTimeLow_g += dwCycleTime_g;               ///< increment it once to be up to date
+            if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+            {
+                dwRelativeTimeHigh_g++;
+            }
+            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_g);
+            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_g);
            break;
         }
         case kPcpRelativeTimeStateInvalid:
@@ -290,6 +306,7 @@ void Gi_calcSyncIntPeriod(void)
 
     wSyncIntCycle_g = iNumCycles;
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwSyncIntCycTime, iSyncPeriod);   ///< inform AP: write result in control register
+    dwCycleTime_g = iSyncPeriod;    ///< remember the time localy to speed up further calculation
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
     return;

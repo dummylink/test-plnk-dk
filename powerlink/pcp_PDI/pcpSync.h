@@ -45,7 +45,8 @@
 /******************************************************************************/
 /* function declarations */
 void Gi_initSync(void);
-tEplKernel Gi_setRelativeTime(QWORD qwRelativeTime_p, BOOL fTimeValid_p, BOOL fCnIsOperational_p);
+tEplKernel Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHigh_p,
+        BOOL fTimeValid_p, BOOL fCnIsOperational_p);
 inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p);
 void Gi_resetTimeValues(void);
 
