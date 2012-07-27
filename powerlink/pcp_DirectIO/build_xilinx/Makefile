@@ -250,7 +250,9 @@ gen_flash : ${FLASH_IMAGE_NAME_DUAL}.mcs
 
 $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf : $(BOOTLOADER_PATH)/Makefile
 	@echo Invoking: bootloader build system
-	$(MAKE) -C $(BOOTLOADER_PATH) all APP_DIR=$(subst \,/,$(PWD)) APP_MODE=directIO PROCESSOR=pcp
+	$(MAKE) -C $(BOOTLOADER_PATH) all BSP_PATH="$(BSP_PATH)" HW_PLATFORM_PATH="$(HW_PLATFORM_PATH)" \
+	BOARD_NAME="$(BOARD_NAME)" BUS_INTERFACE="$(BUS_INTERFACE)" PROC_FEATURES="$(PROC_FEATURES)" \
+	PROCESSOR_NAME="$(PROCESSOR_NAME)" APP_MODE=directIO
 	@echo Finished generating: $@
 	@echo ' '
 
@@ -282,7 +284,7 @@ clean:
 	touch $(FLASH_IMAGE_NAME)
 	touch $(EXECUTABLE)
 	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
-	-$(MAKE) -C $(BOOTLOADER_PATH) clean APP_DIR=$(subst \,/,$(PWD))
+	-$(MAKE) -C $(BOOTLOADER_PATH) clean
 	-@echo ' '
 
 -include $(OBJD)

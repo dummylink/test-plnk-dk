@@ -10,8 +10,8 @@
 VERSION = 0.1
 
 ##################################
-# override variable for different path to app
-APP_DIR=$(PWD)
+# variables inside makefiles.settings get overriden
+include makefile.settings
 
 ##################################
 # override variable for different app
@@ -19,20 +19,10 @@ APP_DIR=$(PWD)
 APP_MODE= pdi
 
 ##################################
-# override variable for different processor
-# [pcp = powerlink processor, ap = application processor]
-PROCESSOR= pcp
-
-##################################
 # directories
 BUILD_DIR= build
 SRC_DIR= src
 OBJDIR= build
-
-include $(APP_DIR)/makefile.settings
-
-# TODO change this overwriting!
-CNDK_DIR=../../..
 
 ##################################
 #general compile defines
@@ -42,7 +32,7 @@ AS=mb-as
 CP=cp
 RM=rm -rf
 EXECUTABLE=mem_bootloader
-LSSCRIPT=$(SRC_DIR)/lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(APP_MODE)_$(PROCESSOR).ld
+LSSCRIPT=$(SRC_DIR)/lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(APP_MODE)_$(PROCESSOR_NAME).ld
 MACROS=
 OPT_LEVEL=-Os
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
