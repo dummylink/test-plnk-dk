@@ -30,8 +30,6 @@
 #include "xspi.h"
 #endif // CN_API_USING_SPI
 
-//#include "cnApiEvent.h"
-
 /******************************************************************************/
 /* defines */
 

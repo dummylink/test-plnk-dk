@@ -80,8 +80,10 @@ static DWORD dwExampleData_l = 0xABCD0001;             ///< this is only an exam
 static tEplObdParam *   pAllocObdParam_l = NULL; ///< pointer to allocated memory of OBD access handle
 
 /******************************************************************************/
-/* forward declarations */
-void workInputOutput(void);
+/* private functions */
+static void workInputOutput(void);
+static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p);
+static void CnApi_AppCbSync(void);
 void CnApi_processObjectAccess(tEplObdParam ** pObdParam_p);
 
 #ifndef USE_POLLING_MODE_SYNC
@@ -101,12 +103,15 @@ void CnApi_processObjectAccess(tEplObdParam ** pObdParam_p);
 #endif //USE_POLLING_MODE_ASYNC
 
 #ifdef CN_API_USING_SPI
-int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p);
-int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p);
+static int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p);
+static int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p);
 
-void enableGlobalInterrupts(void);
-void disableGlobalInterrupts(void);
+static void enableGlobalInterrupts(void);
+static void disableGlobalInterrupts(void);
 #endif
+
+static tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
+static tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p);
 
 /**
 ********************************************************************************
@@ -144,6 +149,9 @@ int main (void)
 
     /* Set initial libCnApi parameters */
     InitCnApiParm.m_pDpram_p = (BYTE *)PDI_DPRAM_BASE_AP;
+    InitCnApiParm.m_pfnAppCbSync = CnApi_AppCbSync;
+    InitCnApiParm.m_pfnAppCbEvent = CnApi_AppCbEvent;
+    InitCnApiParm.m_pfnDefaultObdAccess_p = CnApi_CbDefaultObdAccess;
 #ifdef CN_API_USING_SPI
     InitCnApiParm.m_SpiMasterTxH_p = CnApi_CbSpiMasterTx;
     InitCnApiParm.m_SpiMasterRxH_p = CnApi_CbSpiMasterRx;
