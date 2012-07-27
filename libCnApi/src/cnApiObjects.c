@@ -15,6 +15,8 @@ This module implements the object access functions of the CN API library.
 
 /******************************************************************************/
 /* includes */
+#include "cnApiObject.h"
+
 #include "cnApi.h"
 #include "cnApiIntern.h"
 
@@ -42,6 +44,7 @@ static DWORD		dwSelectObj_l;
 
 /******************************************************************************/
 /* private functions */
+static void CnApi_resetLinkCounter(void);
 
 /******************************************************************************/
 /* functions */
@@ -78,7 +81,7 @@ void CnApi_cleanupObjects(void)
 ********************************************************************************
 \brief  reset the counter of CnApi_linkObject() commands
 *******************************************************************************/
-void CnApi_resetLinkCounter(void)
+static void CnApi_resetLinkCounter(void)
 {
     dwNumVarLinks_l = 0;
 }

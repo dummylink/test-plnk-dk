@@ -23,9 +23,9 @@
 #define PCPEVENT_H_
 
 /* includes */
-#include "cnApiGlobal.h"
-#include "cnApi.h"
-#include "cnApiIntern.h"
+#include "cnApiTyp.h"
+
+#include "cnApiTypEvent.h"
 
 /******************************************************************************/
 /* defines */

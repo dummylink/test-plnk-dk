@@ -22,18 +22,14 @@
 #define CNAPIEVENT_H_
 /******************************************************************************/
 /* includes */
-
-/* lends from openPOWERLINK stack */
-#include "cnApi.h"
-#include "cnApiAsync.h"
-#include "EplNmt.h"         // for tEplNmtState
-#include "EplErrDef.h"      // for tEplKernel
-#include "Epl.h"            // for tEplApiEventLed
-//#include "EplObd.h"         // for tEplObdCbParam
-#include "EplDef.h"         // Powerlink error codes
+#include "cnApiTypAsync.h"
+#include "cnApiTypEvent.h"
 
 /******************************************************************************/
 /* defines */
+
+#define ASYNC_IRQ_PEND  0
+#define ASYNC_IRQ_EN   15
 
 // 0x9xxx PCP errors
 #define PCP_IF_COMMUNICATION_ERROR      0x9100
@@ -42,59 +38,6 @@
 
 /******************************************************************************/
 /* typedefs */
-
-/* PCP forwarded events */
-typedef enum ePcpPdiEventGeneric {
-    kPcpGenEventSyncCycleCalcSuccessful,         ///< synchronization interrupt cycle time calculation was successful
-    kPcpGenEventNodeIdConfigured,                ///< Powerlink Node Id has been configured
-    kPcpGenEventResetNodeRequest,                ///< PCP requests AP to do a complete node reboot (e.g. after finished firmware transfer)
-    kPcpGenEventResetCommunication,              ///< PCP requests AP to reset its asynchronous communication
-    kPcpGenEventResetCommunicationDone,          ///< asynchronous communication reset has finished at PCP side
-    kPcpGenEventNmtEnableReadyToOperate,         ///< PCP received NMT_ReadyToOperate command
-    kPcpGenEventUserTimer,                       ///< timer event triggered by PCP
-} tPcpPdiEventGeneric;
-
-/**
- * \brief enumeration with valid PcpPdi events
- */
-typedef enum ePcpPdiEventGenericError {
-    kPcpGenErrInitFailed,                 ///< initialization error of PCP
-    kPcpGenErrSyncCycleCalcError,         ///< synchronization interrupt cycle time calculation error
-    kPcpGenErrAsyncComTimeout,      ///< asynchronous communication timed out
-    kPcpGenErrAsyncIntChanComError, ///< asynchronous communication failed
-    kPcpGenErrPhy0LinkLoss,         ///< PHY 0 lost its link
-    kPcpGenErrPhy1LinkLoss,         ///< PHY 0 lost its link
-    kPcpGenErrEventBuffOverflow,    ///< PCP event buffer overflow -> AP handles events to slow!
-} tPcpPdiEventGenericError;
-
-typedef enum ePcpPdiEventType {
-    kPcpPdiEventGeneric,            ///< general PCP event
-    kPcpPdiEventGenericError,       ///< general PCP error
-    kPcpPdiEventPcpStateChange,     ///< PCP state machine change
-//    kPcpPdiEventNmtStateChange,   ///< PCP forwarded openPowerlink NMT state changes
-    kPcpPdiEventCriticalStackError, ///< PCP forwarded openPowerlink Stack Error
-    kPcpPdiEventStackWarning,       ///< PCP forwarded openPowerlink Stack Warning
-    kPcpPdiEventHistoryEntry,       ///< PCP forwarded Powerlink error history entry
-} tPcpPdiEventType;
-
-/**
- * \brief union of valid PcpPdi event arguments
- */
-typedef union {
-    DWORD                    wVal_m;                ///< general value with max size of this union
-    tPcpPdiEventGeneric      Gen_m;                 ///< argument of kPcpPdiEventGeneric
-    tPcpPdiEventGenericError GenErr_m;              ///< argument of kPcpPdiEventGenericError
-    tPcpStates               NewPcpState_m;         ///< argument of kPcpPdiEventPcpStateChange
-//    tEplNmtState             NewNmtState_m;         ///< argument of kPcpPdiEventNmtStateChange
-    tEplKernel               PcpStackError_m;       ///< argument of kPcpPdiEventCriticalStackError
-    DWORD                    wErrorHistoryCode_m;   ///< argument of kPcpPdiEventHistoryEntry
-} tPcpPdiEventArg;
-
-typedef struct {
-    tPcpPdiEventType Typ_m;
-    tPcpPdiEventArg  Arg_m;
-} tPcpPdiEvent;
-
 
 /* CN API events */
 typedef enum eCnApiEventErrorType{
@@ -147,6 +90,18 @@ typedef enum eCnApiEventType {
     kCnApiEventAsyncComm,         ///< asynchronous communication AP <-> PCP event
 } tCnApiEventType;
 
+/* definitions for AP state machine, transitions and states */
+typedef enum eApStates{
+    kApStateBooted = 0,
+    kApStateReadyToInit,
+    kApStateInit,
+    kApStatePreOp,
+    kApStateReadyToOperate,
+    kApStateOperational,
+    kApStateError,
+    kNumApState
+} tApStates;
+
 /**
  * \brief union of valid CnApi event arguments
  */
@@ -173,10 +128,6 @@ typedef struct {
 
 /******************************************************************************/
 /* function declarations */
-// OUT
-extern void CnApi_enableAsyncEventIRQ(void);
-extern void CnApi_disableAsyncEventIRQ(void);
-extern void CnApi_pollAsyncEvent(void);
 
 // IN from main.c
 extern void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p);

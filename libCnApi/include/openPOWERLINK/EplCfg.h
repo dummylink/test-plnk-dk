@@ -118,22 +118,10 @@
 // EPL_MODULE_INTEGRATION defines all modules which are included in
 // EPL application. Please add or delete modules for your application.
 
-#define EPL_MODULE_INTEGRATION 	(0 \
-								| EPL_MODULE_OBDK \
-                                | EPL_MODULE_PDOU \
-								| EPL_MODULE_PDOK \
-								| EPL_MODULE_SDOS \
-								| EPL_MODULE_SDOC \
-								| EPL_MODULE_SDO_ASND \
-								| EPL_MODULE_DLLK \
-								| EPL_MODULE_DLLU \
-								| EPL_MODULE_NMT_CN \
-								| EPL_MODULE_NMTK \
-								| EPL_MODULE_NMTU \
-                                | EPL_MODULE_LEDU \
-								)
-
-/*								| EPL_MODULE_PDOU \ */
+#define EPL_MODULE_INTEGRATION  (0 \
+                                | EPL_MODULE_OBDK \
+                                | EPL_MODULE_SDOS \
+                                )
 
 
 

@@ -14,13 +14,17 @@
 
 /******************************************************************************/
 /* includes */
-#include "Epl.h"
-#include "Debug.h"
-#include "EplPdou.h"
-#include "EplSdoComu.h"
-#include "user/EplSdoAsySequ.h"
-#include "kernel/EplTimerSynck.h"
+#include "pcp.h"
+#include "pcpStateMachine.h"
+#include "pcpEvent.h"
+#include "pcpSync.h"
+#include "pcpPdo.h"
+#include "pcpAsync.h"
+#include "pcpAsyncSm.h"
 #include "global.h"
+
+#include "fpgaCfg.h"
+#include "fwUpdate.h"
 
 #ifdef __NIOS2__
 #include <unistd.h>
@@ -30,24 +34,15 @@
 
 #include "systemComponents.h"
 
-#include "pcp.h"
-#include "pcpStateMachine.h"
-#include "pcpEvent.h"
-#include "pcpSync.h"
-
-#include "fpgaCfg.h"
-#include "fwUpdate.h"
-
-#include "cnApiIntern.h"
-#include "cnApiEvent.h"
-
 /******************************************************************************/
+
+#include "Epl.h"
+#include "EplPdou.h"
+#include "EplSdoComu.h"
 
 #include "EplSdo.h"
 #include "EplAmi.h"
 #include "EplObd.h"
-#include "EplNmtCnu.h"
-#include "EplSdoComu.h"
 #include "EplTimeru.h"
 
 //---------------------------------------------------------------------------
@@ -76,6 +71,10 @@ BYTE bObdSegWriteAccHistoryEmptyCnt_g = OBD_DEFAULT_SEG_WRITE_HISTORY_SIZE;
 WORD wObdSegWriteAccHistorySeqCnt_g = OBD_DEFAULT_SEG_WRITE_ACC_CNT_INVALID;
 
 tApiPdiComCon ApiPdiComInstance_g;
+
+tObjTbl     *pPcpLinkedObjs_g = NULL;  ///< table of linked objects at pcp side according to AP message
+DWORD       dwApObjLinkEntries_g = 0;  ///< number of linked objects at pcp side
+
 /******************************************************************************/
 // TEST SDO TRANSFER TO AP
 
@@ -127,8 +126,12 @@ static void rebootCN(void);
 int EplAppDefObdAccWriteSegmentedFinishCb(void * pHandle);
 int EplAppDefObdAccWriteSegmentedAbortCb(void * pHandle);
 
-int openPowerlink(void);
-void processPowerlink(void);
+static WORD getPcpState(void);
+
+static void processPowerlink(void);
+
+static int Gi_init(void);
+static void Gi_shutdown(void);
 
 /**
 ********************************************************************************
@@ -472,7 +475,7 @@ int startPowerlink(void)
 ********************************************************************************
 \brief    process POWERLINK
 *******************************************************************************/
-void processPowerlink(void)
+static void processPowerlink(void)
 {
 	SysComp_enableInterrupts();
 
@@ -1133,7 +1136,7 @@ void storePcpState(BYTE bState_p)
 ********************************************************************************
 \brief    get the state of the PCP state machine
 *******************************************************************************/
-WORD getPcpState(void)
+static WORD getPcpState(void)
 {
     return AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wState));
 }
@@ -1167,7 +1170,7 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 ********************************************************************************
 \brief    basic initializations
 *******************************************************************************/
-int Gi_init(void)
+static int Gi_init(void)
 {
     int         iRet= OK;
     UINT32      uiApplicationSwDate = 0;
@@ -1234,7 +1237,7 @@ exit:
 ********************************************************************************
 \brief  cleanup and exit generic interface
 *******************************************************************************/
-void Gi_shutdown(void)
+static void Gi_shutdown(void)
 {
     /* free object link table */
     EPL_FREE(pPcpLinkedObjs_g);

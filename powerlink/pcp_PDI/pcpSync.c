@@ -23,7 +23,10 @@ by the powerlink master
 *******************************************************************************/
 
 #include "pcpSync.h"
+#include "pcpEvent.h"
+
 #include "kernel/EplTimerSynck.h"
+#include "Epl.h"
 
 #include "systemComponents.h"
 

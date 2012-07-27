@@ -19,10 +19,13 @@ application processor (AP).
 /* includes */
 #include "cnApi.h"
 #include "cnApiIntern.h"
-#include "cnApiAsync.h"
+#include "cnApiAsyncSm.h"
+
 #include "stateMachine.h"
+
+#ifdef CN_API_USING_SPI
 #include "cnApiPdiSpi.h"
-#include "cnApiEvent.h"
+#endif
 
 #include <string.h>
 
@@ -54,6 +57,7 @@ char	*strCnApiStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INI
 
 /******************************************************************************/
 /* private functions */
+static void CnApi_initApStateMachine(void);
 
 /*============================================================================*/
 /* State: BOOTED */

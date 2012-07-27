@@ -14,13 +14,17 @@ POWERLINK CN generic interface.
 
 /******************************************************************************/
 /* includes */
-#include "Epl.h"
+#include "pcpEvent.h"
+#include "pcpAsync.h"
+#include "pcp.h"
 
 #include "pcpStateMachine.h"
 #include "stateMachine.h"
-#include "cnApi.h"
-#include "cnApiEvent.h"
-#include "pcp.h"
+
+#include "Epl.h"
+#include "EplNmt.h"
+#include "user/EplNmtu.h"
+
 
 /******************************************************************************/
 /* defines */

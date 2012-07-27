@@ -1,8 +1,8 @@
 /**
 ********************************************************************************
-\file       cnApiIntern.h
+\file       cnApiObject.h
 
-\brief      internal header file of cnApi module
+\brief      header file of cnApi object module
 
 \author     Josef Baumgartner
 
@@ -13,12 +13,14 @@
 This header file contains definitions for the CN API.
 *******************************************************************************/
 
-#ifndef CNAPIINTERN_H_
-#define CNAPIINTERN_H_
+#ifndef CNAPIOBJECT_H_
+#define CNAPIOBJECT_H_
 
 /******************************************************************************/
 /* includes */
 #include "cnApiTyp.h"
+
+#include "cnApi.h"
 
 /******************************************************************************/
 /* defines */
@@ -35,22 +37,20 @@ This header file contains definitions for the CN API.
 /******************************************************************************/
 /* function declarations */
 
-BYTE CnApi_getPcpState(void);
-DWORD CnApi_getPcpMagic(void);
-BOOL CnApi_verifyFpgaConfigId(void);
-BOOL CnApi_verifyPcpPdiRevision(void);
-void CnApi_setApCommand(BYTE bCmd_p);
-
 /******************************************************************************/
 /* private functions */
 
 /******************************************************************************/
 /* functions */
+void CnApi_resetObjectSelector(void);
+int CnApi_getNextObject(tCnApiObjId *pObjId);
+int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen,
+        BYTE* p_data, BOOL sync);
+BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p,
+        WORD *wSize_p, BYTE **pAdrs_p);
 
 
-
-
-#endif /* CNAPIINTERN_H_ */
+#endif /* CNAPIOBJECT_H_ */
 
 /*******************************************************************************
 *

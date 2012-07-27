@@ -24,10 +24,6 @@ a dual ported RAM (DPRAM) area.
 /******************************************************************************/
 /* includes */
 #include "cnApi.h"
-#include "cnApiAsync.h"
-#include "cnApiEvent.h"
-#include "EplSdoAc.h"
-#include "EplObd.h"
 
 #ifdef __NIOS2__
 #include <unistd.h>

@@ -1,24 +1,26 @@
 /**
 ********************************************************************************
-\file       cnApiIntern.h
+\file		cnApiPdo.h
 
-\brief      internal header file of cnApi module
+\brief		header file with definitions for CN API PDO module
 
-\author     Josef Baumgartner
+\author		Josef Baumgartner
 
-\date       22.03.2010
+\date		22.03.2010
 
 (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 
-This header file contains definitions for the CN API.
+This header file contains definitions for the CN API PDO module.
 *******************************************************************************/
 
-#ifndef CNAPIINTERN_H_
-#define CNAPIINTERN_H_
+#ifndef CNAPIPDO_H_
+#define CNAPIPDO_H_
 
 /******************************************************************************/
 /* includes */
 #include "cnApiTyp.h"
+
+#include "cnApiTypPdo.h"
 
 /******************************************************************************/
 /* defines */
@@ -35,11 +37,6 @@ This header file contains definitions for the CN API.
 /******************************************************************************/
 /* function declarations */
 
-BYTE CnApi_getPcpState(void);
-DWORD CnApi_getPcpMagic(void);
-BOOL CnApi_verifyFpgaConfigId(void);
-BOOL CnApi_verifyPcpPdiRevision(void);
-void CnApi_setApCommand(BYTE bCmd_p);
 
 /******************************************************************************/
 /* private functions */
@@ -47,22 +44,35 @@ void CnApi_setApCommand(BYTE bCmd_p);
 /******************************************************************************/
 /* functions */
 
+int CnApi_initPdo(void);
+BOOL CnApi_readPdoDesc(tPdoDescHeader *pPdoDescHeader_p);
 
+tPdiAsyncStatus CnApi_doLinkPdosResp(
+                       tPdiAsyncMsgDescr * pMsgDescr_p,
+                       BYTE* pTxMsgBuffer_p,
+                       BYTE* pRxMsgBuffer_p,
+                       DWORD dwMaxTxBufSize_p);
+tPdiAsyncStatus CnApi_handleLinkPdosReq(
+                       tPdiAsyncMsgDescr * pMsgDescr_p,
+                       BYTE * pRxMsgBuffer_p,
+                       BYTE * pTxMsgBuffer_p,
+                       DWORD dwMaxTxBufSize_p);
 
+tPdiAsyncStatus CnApi_pfnCbLinkPdosRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p);
 
-#endif /* CNAPIINTERN_H_ */
+#endif /* CNAPIPDO_H_ */
 
 /*******************************************************************************
 *
 * License Agreement
 *
-* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1  
+* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 * All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms,
 * with or without modification,
 * are permitted provided that the following conditions are met:
-* 
+*
 *   * Redistributions of source code must retain the above copyright notice,
 *     this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above copyright notice,
@@ -72,7 +82,7 @@ void CnApi_setApCommand(BYTE bCmd_p);
 *   * Neither the name of the B&R nor the names of its contributors
 *     may be used to endorse or promote products derived from this software
 *     without specific prior written permission.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -87,4 +97,3 @@ void CnApi_setApCommand(BYTE bCmd_p);
 *
 *******************************************************************************/
 /* END-OF-FILE */
-

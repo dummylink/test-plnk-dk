@@ -69,7 +69,7 @@
 ****************************************************************************/
 
 #include "user/EplSdoAsySequ.h"
-#include "cnApiAsync.h"
+#include "cnApiAsyncSm.h"
 
 
 #if ((((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDO_UDP)) == 0) &&\

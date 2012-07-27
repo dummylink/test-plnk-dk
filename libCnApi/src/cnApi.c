@@ -20,7 +20,9 @@ processor (AP) to the POWERLINK communication processor (PCP).
 /* includes */
 #include "cnApi.h"
 #include "cnApiIntern.h"
-#include "kernel/EplObdk.h"
+
+#include "cnApiAsync.h"
+#include "cnApiPdo.h"
 
 #ifdef __NIOS2__
 #include <unistd.h>    //for usleep()
@@ -29,7 +31,7 @@ processor (AP) to the POWERLINK communication processor (PCP).
 #endif
 
 #include "EplAmi.h"
-
+#include "kernel/EplObdk.h"
 
 /******************************************************************************/
 /* defines */

@@ -1,30 +1,91 @@
+/******************************************************************************
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
+*/
+
 /**
 ********************************************************************************
-\file       cnApiIntern.h
 
-\brief      internal header file of cnApi module
+\file       cnApiTypPdo.h
 
-\author     Josef Baumgartner
+\brief      global header file for PCP PDI (CN) and libCnApi (PDO module)
 
-\date       22.03.2010
+\author     hoggerm
 
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
+\date       29.04.2011
 
-This header file contains definitions for the CN API.
+\since      29.04.2011
+
 *******************************************************************************/
 
-#ifndef CNAPIINTERN_H_
-#define CNAPIINTERN_H_
+#ifndef CNAPITYPPDO_H_
+#define CNAPITYPPDO_H_
 
 /******************************************************************************/
 /* includes */
+#include "cnApiCfg.h"
 #include "cnApiTyp.h"
 
 /******************************************************************************/
 /* defines */
 
+#define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
+#define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
+#define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
+#define EPL_PDOU_OBD_IDX_TX_MAPP_PARAM  0x1A00
+#define EPL_PDOU_OBD_IDX_MAPP_PARAM     0x0200
+#define EPL_PDOU_OBD_IDX_MASK           0xFF00
+#define EPL_PDOU_PDO_ID_MASK            0x00FF
+
 /******************************************************************************/
 /* typedefs */
+
+typedef struct sTPdoBuffer { ///< used to group buffer structure infos from control register
+    BYTE    *pAdrs_m;
+    WORD    wSize_m;
+    BYTE    *pAck_m;
+    WORD    wMappedBytes_m;  ///< only used at PCP
+#ifdef CN_API_USING_SPI
+    DWORD   dwSpiBufOffs_m;
+    WORD    wSpiAckOffs_m;
+#endif /* CN_API_USING_SPI */
+} tTPdoBuffer;
+
+typedef struct sRPdoBuffer { ///< used to group buffer structure infos from control register
+    BYTE    *pAdrs_m;
+    WORD    wSize_m;
+    BYTE    *pAck_m;
+    WORD    wMappedBytes_m;  ///< only used at PCP
+#ifdef CN_API_USING_SPI
+    DWORD   dwSpiBufOffs_m;
+    WORD    wSpiAckOffs_m;
+#endif /* CN_API_USING_SPI */
+} tRPdoBuffer;
+
+
+/******************************************************************************/
+/* definitions for PDO transfer functions */
+
+typedef enum ePdoDir {
+   TPdo = 0x01, ///< Transmit PDO
+   RPdo = 0x80  ///< Receive PDO
+} tPdoDir;
+
+typedef struct sPdoDescHeader {
+    BYTE       m_bEntryCnt;
+    BYTE       m_bPdoDir;
+    BYTE       m_bBufferNum;
+    BYTE       m_bMapVersion;      ///< MappingVersion_U8 of PDO channel
+} PACK_STRUCT tPdoDescHeader;
+
+typedef struct sPdoDesc {
+    WORD    m_wPdoIndex;
+    BYTE    m_bPdoSubIndex;
+    BYTE    m_bPad;
+    WORD    m_wOffset;
+    WORD    m_wSize;
+} PACK_STRUCT tPdoDescEntry;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -35,12 +96,6 @@ This header file contains definitions for the CN API.
 /******************************************************************************/
 /* function declarations */
 
-BYTE CnApi_getPcpState(void);
-DWORD CnApi_getPcpMagic(void);
-BOOL CnApi_verifyFpgaConfigId(void);
-BOOL CnApi_verifyPcpPdiRevision(void);
-void CnApi_setApCommand(BYTE bCmd_p);
-
 /******************************************************************************/
 /* private functions */
 
@@ -50,7 +105,7 @@ void CnApi_setApCommand(BYTE bCmd_p);
 
 
 
-#endif /* CNAPIINTERN_H_ */
+#endif /* CNAPITYPPDO_H_ */
 
 /*******************************************************************************
 *

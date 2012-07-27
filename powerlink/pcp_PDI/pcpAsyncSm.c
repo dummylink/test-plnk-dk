@@ -25,9 +25,10 @@ the Tx and Rx direction towards and from the AP is handled.
 
 *******************************************************************************/
 /* includes */
-#include "cnApiAsyncSm.h"    ///< external function declarations
-#include "cnApiEvent.h"
-#include "pcp.h"             ///< pcp PDI
+#include "pcpAsyncSm.h"    ///< external function declarations
+#include "stateMachine.h"
+#include "pcpEvent.h"
+#include "pcpAsync.h"    ///< for aPcpPdiAsyncTxMsgBuffer_g, aPcpPdiAsyncRxMsgBuffer_g
 
 #include <malloc.h>
 #include <string.h>
@@ -50,6 +51,7 @@ char * strAsyncStateNames_l[] = { "INITIAL", "FINAL", "ASYNC_WAIT",   \
                                    "ASYNC_TX_BUSY", "ASYNC_TX_PENDING", \
                                    "ASYNC_RX_BUSY", "ASYNC_RX_PENDING", \
                                    "ASYNC_STOPPED"};
+
 /* state machine */
 static tStateMachine        PdiAsyncStateMachine_l;
 static tState               aPdiAsyncStates_l[kPdiNumAsyncStates];
@@ -1752,7 +1754,7 @@ exit:
  restored again with CnApiAsync_restoreMsgContext(). In addition, all global
  variables are restored to their default values.
  *******************************************************************************/
-BOOL CnApiAsync_saveMsgContext(void)
+static BOOL CnApiAsync_saveMsgContext(void)
 {
     if (PdiAsyncPendTrfContext_l.fMsgPending_m == FALSE)
     {
@@ -1814,7 +1816,7 @@ BOOL CnApiAsync_saveMsgContext(void)
  CnApiAsync_saveMsgContext() was executed, so a pending message transfer is
  able to continue after interruption.
  *******************************************************************************/
-BOOL CnApiAsync_restoreMsgContext(void)
+static BOOL CnApiAsync_restoreMsgContext(void)
 {
     if (PdiAsyncStateMachine_l.m_fResetInProgress == TRUE)
     {

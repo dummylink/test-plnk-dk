@@ -33,7 +33,7 @@ CP=cp
 RM=rm -rf
 EXECUTABLE=pcp_pdi
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE).ld
-MACROS=-DMAKE_BUILD_PCP -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
+MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
@@ -69,9 +69,9 @@ SRCFILES=${APP_DIR}/pcpMain.c \
 ${APP_DIR}/pcpEvent.c \
 ${APP_DIR}/pcpStateMachine.c \
 ${APP_DIR}/pcpPdo.c \
-${APP_DIR}/pcpAsync.c \
 ${APP_DIR}/pcpAsyncSm.c \
 ${APP_DIR}/pcpSync.c \
+${APP_DIR}/pcpAsync.c \
 ${OBJDICT_DIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \

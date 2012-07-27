@@ -12,18 +12,21 @@
 
 This header file contains definitions for the CN API.
 *******************************************************************************/
+
 #ifndef CNAPI_H_
 #define CNAPI_H_
 
 /******************************************************************************/
 /* includes */
-#include "cnApiDebug.h"
 #include "cnApiCfg.h"
-#ifndef MAKE_BUILD_PCP
-#   include "cnApiGlobal.h"     // global definitions
-#   include "EplErrDef.h"
-#   include "EplObd.h"
-#endif
+#include "cnApiTyp.h"
+
+#include "cnApiEvent.h"
+#include "cnApiAsyncSm.h"
+
+#include "EplErrDef.h"
+#include "EplObd.h"
+#include "EplSdoAc.h"
 
 #ifdef CN_API_USING_SPI
 #include "cnApiPdiSpi.h"
@@ -131,51 +134,8 @@ This header file contains definitions for the CN API.
 /* Timer definitions */
 #define PCP_PRESENCE_TIMEOUT 5
 
-/* CN Api initialization */
-#define CN_API_INIT_PARAM_STRNG_SIZE 33
 /******************************************************************************/
 /* type definitions */
-
-/**
- * CN API status codes
- *
- * tCnApiStatus contains the status codes that could be returned by the API
- * functions.
- */
-typedef enum eCnApiStatus{
-	kCnApiStatusOk = 0,					///< Ok, no error!
-	kCnApiStatusError,					///< error
-	kCnApiStatusMsgBufFull,				///< message buffer is full
-	kCnApiStatusMsgBufEmpty,			///< message buffer is empty
-	kCnApiStatusDataTooLong,			///< data too long for message buffer
-	kCnApiStatusObjectNotExist,			///< object does not exist
-	kCnApiStatusAllocationFailed,		///< memory allocation failed
-	kCnApiStatusObjectLinkFailed,		///< linking object to memory failed
-	kCnApiStatusCommandNotAccepted 		///< command isn't accepted
-} tCnApiStatus;
-
-//TODO: delete next struct and do error handling in a different way
-/**
- * Valid status values of the PCP error register
- *
- * tCnApiCycleStatus contains the valid status codes of the PCP error register
- */
-typedef enum {
-	kCnApiSyncCycleOk = 0,				///< sync interrupt cycle ok
-	kCnApiSyncCycleError				///< sync interrupt cycle error
-} tCnApiCycleStatus;
-
-/**
- * \brief enumeration with valid AP commands
- */
-typedef enum eApCmd{
-	kApCmdNone = -1,
-	kApCmdInit = 0,
-	kApCmdPreop = 1,
-	kApCmdReadyToOperate = 2,
-	kApCmdReset = 3
-} tApCmd;
-
 
 typedef struct sCnApiObjId {
 	WORD		m_wIndex;
@@ -197,59 +157,6 @@ typedef struct sCnApiReadQueue{
 	tCnApiObjId 		*pObjectId;
 } tCnApiReadQueue;
 
-//TODO: needed?
-typedef enum eProcType {
-	kProcTypeAp,
-	kProcTypePcp
-} tProcType;
-
-
-/******************************************************************************/
-typedef enum ePcpPdiLedType {
-//    kEplLedTypeStatus   = 0x00, //already defined in openPOWERLINK stack
-//    kEplLedTypeError    = 0x01, //already defined in openPOWERLINK stack
-    kEplLedTypeTestAll  = 0x02,
-} tPcpPdiLedType;
-
-/******************************************************************************/
-/* definitions for PDO transfer functions */
-
-typedef struct sObjTbl {
-	WORD		m_wIndex;
-	BYTE		m_bSubIndex;
-	BYTE        m_bPad;
-	WORD		m_wSize;
-	BYTE		*m_pData;
-} tObjTbl;
-
-typedef enum ePdoDir {
-   TPdo = 0x01, ///< Transmit PDO
-   RPdo = 0x80  ///< Receive PDO
-} tPdoDir;
-
-typedef struct sPdoDescHeader {
-    BYTE       m_bEntryCnt;
-	BYTE       m_bPdoDir;
-	BYTE       m_bBufferNum;
-	BYTE       m_bMapVersion;      ///< MappingVersion_U8 of PDO channel
-} PACK_STRUCT tPdoDescHeader;
-
-typedef struct sPdoDesc {
-	WORD	m_wPdoIndex;
-	BYTE	m_bPdoSubIndex;
-	BYTE    m_bPad;
-	WORD    m_wOffset;
-	WORD    m_wSize;
-} PACK_STRUCT tPdoDescEntry;
-
-#define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
-#define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
-#define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
-#define EPL_PDOU_OBD_IDX_TX_MAPP_PARAM  0x1A00
-#define EPL_PDOU_OBD_IDX_MAPP_PARAM     0x0200
-#define EPL_PDOU_OBD_IDX_MASK           0xFF00
-#define EPL_PDOU_PDO_ID_MASK            0x00FF
-
 typedef	void (*tpfnPdoDescCb) (BYTE *pPdoDesc_p, BYTE bDescrEntries_p); ///< type definition for PDO descriptor callback function
 typedef	void (*tpfnPdoCopyCb) (BYTE *pPdoData_p); 						///< type definition for PDO copy callback function
 
@@ -257,139 +164,6 @@ typedef int (*tpfnSpiMasterTxCb) (unsigned char *pTxBuf_p, int iBytes_p);
 typedef int (*tpfnSpiMasterRxCb) (unsigned char *pTxBuf_p, int iBytes_p);
 
 /******************************************************************************/
-
-/**
- * \brief structure for POWERLINK initialization parameters
- */
-typedef struct sCnApiInitParm {
-	BYTE			m_abMac[6];
-    BYTE            m_bPad;
-	BYTE			m_bNodeId;
-	DWORD			m_dwRevision;
-	DWORD			m_dwSerialNum;
-	DWORD			m_dwVendorId;
-	DWORD			m_dwProductCode;
-	DWORD			m_dwDeviceType;
-	BYTE            m_strDevName[CN_API_INIT_PARAM_STRNG_SIZE];
-	BYTE            m_strHwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
-	BYTE            m_strSwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
-} tCnApiInitParm;
-
-/* definitions for AP state machine, transitions and states */
-typedef enum eApStates{
-	kApStateBooted = 0,
-	kApStateReadyToInit,
-	kApStateInit,
-	kApStatePreOp,
-	kApStateReadyToOperate,
-	kApStateOperational,
-	kApStateError,
-	kNumApState
-} tApStates;
-
-/* definitions for PCP state machine, transitions and states */
-typedef enum ePcpStates { //TODO: define state "none?" - adapt docu for correct values!
-	kPcpStateBooted = 0x00,
-	kPcpStateInit = 0x01,
-	kPcpStatePreOp = 0x02,
-	kPcpStateReadyToOperate = 0x03,
-	kPcpStateOperational = 0x04,
-	kNumPcpStates = 0x05,
-	kPcpStateInvalid = 0xEE,
-} tPcpStates;
-
-/******************************************************************************/
-
-/**
-* \brief PCP control registers
-*
-* tPcpCtrlReg defines the PCP control registers.
-*/
-struct sPcpControlReg {
-    volatile DWORD      m_dwMagic;             ///< magic number indicating correct PCP PDI memory start address
-    volatile WORD       m_wPcpPdiRev;          ///< revision of PCP PDI (control and status register)
-    volatile WORD       wReserved1;            ///< not available (fixed)
-    volatile DWORD      m_dwFpgaSysId;         ///< system ID of FPGA (SOPC)design, value is user defined
-    volatile DWORD      m_dwAppDate;           ///< (Powerlink application date
-    volatile DWORD      m_dwAppTime;           ///< Powerlink application time
-    volatile WORD       m_wNodeId;             ///< Powerlink node ID; can by read by AP at related event
-    volatile WORD       wReserved2;
-    volatile WORD       m_wCommand;            ///< AP issues commands to this register
-    volatile WORD       m_wState;              ///< state of the PCP
-    volatile DWORD      m_dwMaxCycleTime;      ///< upper limit of synchronous-IR cycle time the AP wants to process
-    volatile DWORD      m_dwMinCycleTime;      ///< lower limit of synchronous-IR cycle time the AP can process
-    volatile WORD       wReserved3;            ///< correction factor(-- currently not used --)
-    volatile WORD       wCycleCalc_Reserved4;  ///< multiple of Powerlink cyle time for synchronous-IR
-    volatile DWORD      m_dwSyncIntCycTime;    ///< cycle time of synchronous-IR issued to the AP for PDO processing
-    volatile DWORD      dwReserved5;
-    volatile WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)
-    volatile WORD       m_wEventArg;           ///< event argument, if applicable (e.g. error code, state, ...)
-    volatile DWORD      dwReserved6;
-    volatile DWORD      dwReserved7;
-    volatile DWORD      dwReserved8;
-    volatile DWORD      m_dwRelativeTimeLow;   ///< low dword of SoC relative time
-    volatile DWORD      m_dwRelativeTimeHigh;  ///< high dword of SoC relative time
-    volatile DWORD      m_dwNetTimeNanoSec;    ///< low dword of SoC nettime
-    volatile DWORD      m_dwNetTimeSec;        ///< high dword of SoC nettime
-    volatile WORD       m_wTimeAfterSync;      ///< time elapsed after the last synchronisation interrupt
-    volatile WORD       wReserved9;
-    volatile WORD       m_wAsyncIrqControl;    ///< asynchronous IRQ control register, contains IR acknowledge (at AP side)
-    volatile WORD       m_wEventAck;           ///< acknowledge for events and asynchronous IR signal
-    volatile WORD       m_wTxPdo0BufSize;      ///< buffer size for TPDO communication AP -> PCP
-    volatile WORD       m_wTxPdo0BufAoffs;     ///< buffer address for TPDO communication AP -> PCP
-    volatile WORD       m_wRxPdo0BufSize;      ///< buffer size for RPDO communication PCP -> AP
-    volatile WORD       m_wRxPdo0BufAoffs;     ///< buffer address for RPDO communication PCP -> AP
-    volatile WORD       m_wRxPdo1BufSize;      ///< buffer size for RPDO communication PCP -> AP
-    volatile WORD       m_wRxPdo1BufAoffs;     ///< buffer address for RPDO communication PCP -> AP
-    volatile WORD       m_wRxPdo2BufSize;      ///< buffer size for RPDO communication PCP -> AP
-    volatile WORD       m_wRxPdo2BufAoffs;     ///< buffer address for RPDO communication PCP -> AP
-    volatile WORD       m_wTxAsyncBuf0Size;    ///< buffer size for asynchronous communication AP -> PCP
-    volatile WORD       m_wTxAsyncBuf0Aoffs;   ///< buffer address for asynchronous communication AP -> PCP
-    volatile WORD       m_wRxAsyncBuf0Size;    ///< buffer size for asynchronous communication PCP -> AP
-    volatile WORD       m_wRxAsyncBuf0Aoffs;   ///< buffer address for asynchronous communication PCP -> AP
-    volatile WORD       m_wTxAsyncBuf1Size;    ///< buffer size for asynchronous communication AP -> PCP
-    volatile WORD       m_wTxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication AP -> PCP
-    volatile WORD       m_wRxAsyncBuf1Size;    ///< buffer size for asynchronous communication PCP -> AP
-    volatile WORD       m_wRxAsyncBuf1Aoffs;   ///< buffer address for asynchronous communication PCP -> AP
-    volatile WORD       wReserved10;
-    volatile WORD       wReserved11;
-    volatile WORD       wReserved12;
-    volatile WORD       wReserved13;
-    volatile WORD       m_wTxPdo0Ack;          ///< address acknowledge register of TPDO buffer nr. 0
-    volatile WORD       m_wRxPdo0Ack;          ///< address acknowledge register of RPDO buffer nr. 0
-    volatile WORD       m_wRxPdo1Ack;          ///< address acknowledge register of RPDO buffer nr. 1
-    volatile WORD       m_wRxPdo2Ack;          ///< address acknowledge register of RPDO buffer nr. 2
-    volatile WORD       m_wSyncIrqControl;     ///< PDO synchronization IRQ control register, contains snyc. IR acknowledge (at AP side)
-    volatile WORD       wReserved14;
-    volatile DWORD      dwReserved15;
-    volatile DWORD      dwReserved16;
-    volatile WORD       m_wLedControl;         ///< Powerlink IP-core Led output control register
-    volatile WORD       m_wLedConfig;          ///< Powerlink IP-core Led output configuration register
-} PACK_STRUCT;
-
-typedef struct sPcpControlReg tPcpCtrlReg;
-
-typedef struct sTPdoBuffer { ///< used to group buffer structure infos from control register
-    BYTE    *pAdrs_m;
-    WORD    wSize_m;
-    BYTE    *pAck_m;
-    WORD    wMappedBytes_m;  ///< only used at PCP
-#ifdef CN_API_USING_SPI
-    DWORD   dwSpiBufOffs_m;
-    WORD    wSpiAckOffs_m;
-#endif /* CN_API_USING_SPI */
-} tTPdoBuffer;
-
-typedef struct sRPdoBuffer { ///< used to group buffer structure infos from control register
-    BYTE    *pAdrs_m;
-    WORD    wSize_m;
-    BYTE    *pAck_m;
-    WORD    wMappedBytes_m;  ///< only used at PCP
-#ifdef CN_API_USING_SPI
-    DWORD   dwSpiBufOffs_m;
-    WORD    wSpiAckOffs_m;
-#endif /* CN_API_USING_SPI */
-} tRPdoBuffer;
 
 /******************************************************************************/
 /* global variables */
@@ -418,10 +192,9 @@ extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
 extern void CnApi_cleanupObjects(void);
 extern WORD CnApi_getNodeId(void);
-#ifndef MAKE_BUILD_PCP
+
 extern tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
 extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p);
-#endif
 
 /* time functions */
 extern DWORD CnApi_getRelativeTimeLow(void);
@@ -438,5 +211,14 @@ extern void CnApi_ackSyncIrq(void);
 extern void CnApi_transferPdo(void);
 extern void CnApi_AppCbSync(void);
 extern DWORD CnApi_getSyncIntPeriod(void);
+
+/* functions for async state machine */
+extern BOOL CnApi_processAsyncStateMachine(void);
+
+/* functions for async event handling */
+extern void CnApi_enableAsyncEventIRQ(void);
+extern void CnApi_disableAsyncEventIRQ(void);
+extern void CnApi_pollAsyncEvent(void);
+
 
 #endif /* CNAPI_H_ */

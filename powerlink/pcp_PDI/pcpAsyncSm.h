@@ -1,24 +1,32 @@
+/******************************************************************************
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
+*/
+
 /**
 ********************************************************************************
-\file       cnApiIntern.h
 
-\brief      internal header file of cnApi module
+\file       pcpAsyncSm.h
 
-\author     Josef Baumgartner
+\brief      header file for pcpAsyncSm (state machine) module
 
-\date       22.03.2010
+\author     hoggerm
 
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
+\date       26.08.2011
 
-This header file contains definitions for the CN API.
+\since      26.08.2011
+
 *******************************************************************************/
 
-#ifndef CNAPIINTERN_H_
-#define CNAPIINTERN_H_
+#ifndef PCPASYNCSM_H_
+#define PCPASYNCSM_H_
 
 /******************************************************************************/
 /* includes */
 #include "cnApiTyp.h"
+#include "pcpAsync.h"
+#include "cnApiTypAsyncSm.h"
 
 /******************************************************************************/
 /* defines */
@@ -34,12 +42,24 @@ This header file contains definitions for the CN API.
 
 /******************************************************************************/
 /* function declarations */
+tPdiAsyncStatus CnApiAsync_postMsg(
+                tPdiAsyncMsgType MsgType_p,
+                BYTE * pUserHandle_p,
+                tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
+                tPdiAsyncCbTransferFinished pfnCbRespMsg_p);
 
-BYTE CnApi_getPcpState(void);
-DWORD CnApi_getPcpMagic(void);
-BOOL CnApi_verifyFpgaConfigId(void);
-BOOL CnApi_verifyPcpPdiRevision(void);
-void CnApi_setApCommand(BYTE bCmd_p);
+tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
+                                const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p, tPdiAsyncMsgType RespMsgType_p,
+                                tPdiAsyncTransferType TransferType_p, tAsyncChannel ChanType_p,
+                                const tPcpStates * paValidNmtList_p, WORD wTimeout_p);
+
+void CnApi_resetAsyncStateMachine(void);
+tPdiAsyncStatus CnApiAsync_finishMsgInit(void);
+void CnApi_activateAsyncStateMachine(void);
+void CnApiAsync_resetMsgLogCounter(void);
+void CnApi_enableAsyncSmProcessing(void);
+void CnApi_disableAsyncSmProcessing(void);
+BOOL CnApi_processAsyncStateMachine(void);
 
 /******************************************************************************/
 /* private functions */
@@ -50,7 +70,7 @@ void CnApi_setApCommand(BYTE bCmd_p);
 
 
 
-#endif /* CNAPIINTERN_H_ */
+#endif /* PCPASYNCSM_H_ */
 
 /*******************************************************************************
 *

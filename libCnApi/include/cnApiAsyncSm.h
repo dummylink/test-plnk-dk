@@ -29,9 +29,10 @@ using the Process Data Interface (PDI) as buffer.
 #include "stateMachine.h"
 #include "cnApiIntern.h"
 
+#include "cnApiAsync.h"
+
 /******************************************************************************/
 /* defines */
-#define PCP_ASYNCSM_TIMEOUT_FACTOR 1000
 
 /******************************************************************************/
 /* typedefs */
@@ -44,6 +45,26 @@ using the Process Data Interface (PDI) as buffer.
 
 /******************************************************************************/
 /* global functions */
+tPdiAsyncStatus CnApiAsync_finishMsgInit(void);
+tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
+                                           const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p, tPdiAsyncMsgType RespMsgType_p,
+                                           tPdiAsyncTransferType TransferType_p, tAsyncChannel ChanType_p,
+                                           const tPcpStates * paValidNmtList_p, WORD wTimeout_p);
+
+void CnApiAsync_resetMsgLogCounter(void);
+
+tPdiAsyncStatus CnApiAsync_postMsg(
+                       tPdiAsyncMsgType MsgType_p,
+                       BYTE * pUserHandle_p,
+                       tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
+                       tPdiAsyncCbTransferFinished pfnCbRespMsg_p);
+
+void CnApi_activateAsyncStateMachine(void);
+void CnApi_resetAsyncStateMachine(void);
+BOOL CnApi_processAsyncStateMachine(void);
+BOOL CnApi_checkAsyncStateMachineRunning(void);
+void CnApi_enableAsyncSmProcessing(void);
+void CnApi_disableAsyncSmProcessing(void);
 
 /******************************************************************************/
 /* private functions */

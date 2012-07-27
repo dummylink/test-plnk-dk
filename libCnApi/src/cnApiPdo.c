@@ -15,10 +15,13 @@
 /******************************************************************************/
 /* includes */
 #include "cnApi.h"
-#include "cnApiIntern.h"
-#include "cnApiDebug.h"
+#include "cnApiPdo.h"
+#include "cnApiAsync.h"
+#include "cnApiObject.h"
+
+#ifdef CN_API_USING_SPI
 #include "cnApiPdiSpi.h"
-#include "cnApiEvent.h"
+#endif
 
 #include "EplAmi.h"
 
@@ -75,6 +78,18 @@ static  tPdoCopyTbl         aRxPdoCopyTbl_l[PCP_PDI_RPDO_CHANNELS];
 
 /******************************************************************************/
 /* private functions */
+static inline void CopyVarConvertEndian(BYTE* pDest_p,
+                                        BYTE* pSrc_p,
+                                        WORD wSize_p,
+                                        BYTE fDoRcv_p);
+static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
+                                  BYTE              bDescrEntries_p,
+                                  BYTE              bDirection_p,
+                                  BYTE                 bPdoBufNum_p,
+                                  BYTE                    bMapVers_p);
+static void CnApi_transmitPdo(void);
+static void CnApi_receivePdo(void);
+static inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p);
 
 /**
 ********************************************************************************
@@ -621,25 +636,17 @@ BOOL CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p)
 
 /**
 ********************************************************************************
-\brief	write to DPRAM Buffer acknowledge register
+\brief  transfer PDO data
 
-CnApi_ackPdoBuffer() writes a random 32bit value
-to a defined buffer control register.
+CnApi_transferPdo() transfers PDO data. It receives RX data from the PCP and
+sends TX data to the PCP.
 *******************************************************************************/
-inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
+void CnApi_transferPdo(void)
 {
-    const BYTE bAckValue = 0xff;
-
-#ifdef CN_API_USING_SPI
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI,"Ack Offs: %d\n", (WORD) *pAckReg_p);
-    /* update PCP register */
-    CnApi_Spi_write(*pAckReg_p, // this is an offset in case of serial interface
-                    sizeof(bAckValue),
-                    (BYTE*) &bAckValue);
-#else
-    *pAckReg_p = bAckValue; ///> write random byte value
-#endif /* CN_API_USING_SPI */
+    CnApi_transmitPdo();
+    CnApi_receivePdo();
 }
+
 
 /**
 ********************************************************************************
@@ -647,7 +654,7 @@ inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 
 CnApi_receivePdo() receives PDO data from the PCP.
 *******************************************************************************/
-void CnApi_receivePdo(void)
+static void CnApi_receivePdo(void)
 {
     tPdoCopyTblEntry    *pCopyTblEntry;    ///< pointer to table entry
     WORD                wEntryCnt;         ///< number of copy table entries
@@ -700,7 +707,7 @@ void CnApi_receivePdo(void)
 
 CnApi_transmitPdo() transmits PDO data to the PCP.
 *******************************************************************************/
-void CnApi_transmitPdo(void)
+static void CnApi_transmitPdo(void)
 {
     tPdoCopyTblEntry    *pCopyTblEntry;    ///< pointer to table entry
     WORD                wEntryCnt;         ///< number of copy table entries
@@ -749,15 +756,24 @@ void CnApi_transmitPdo(void)
 
 /**
 ********************************************************************************
-\brief	transfer PDO data
+\brief  write to DPRAM Buffer acknowledge register
 
-CnApi_transferPdo() transfers PDO data. It receives RX data from the PCP and
-sends TX data to the PCP.
+CnApi_ackPdoBuffer() writes a random 32bit value
+to a defined buffer control register.
 *******************************************************************************/
-void CnApi_transferPdo(void)
+static inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
 {
-	CnApi_transmitPdo();
-	CnApi_receivePdo();
+    const BYTE bAckValue = 0xff;
+
+#ifdef CN_API_USING_SPI
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI,"Ack Offs: %d\n", (WORD) *pAckReg_p);
+    /* update PCP register */
+    CnApi_Spi_write(*pAckReg_p, // this is an offset in case of serial interface
+                    sizeof(bAckValue),
+                    (BYTE*) &bAckValue);
+#else
+    *pAckReg_p = bAckValue; ///> write random byte value
+#endif /* CN_API_USING_SPI */
 }
 
 /* END-OF-FILE */

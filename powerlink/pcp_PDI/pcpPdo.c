@@ -12,9 +12,11 @@
 
 /******************************************************************************/
 /* includes */
-#include "cnApi.h"
-#include "cnApiIntern.h"
+#include "cnApiTypPdo.h"
+#include "cnApiTypAsync.h"
+
 #include "pcp.h"
+#include "pcpPdo.h"
 
 #ifdef __NIOS2__
 #include <string.h>
@@ -28,6 +30,7 @@
 #include "EplObd.h"
 #include "user/EplObdu.h"
 #include "Epl.h"
+#include "EplPdou.h"
 
 /******************************************************************************/
 /* defines */
@@ -45,9 +48,9 @@
 
 /******************************************************************************/
 /* global variables */
-tObjTbl     *pPcpLinkedObjs_g = NULL;  ///< table of linked objects at pcp side according to AP message
-DWORD       dwApObjLinkEntries_g = 0;  ///< number of linked objects at pcp side
 
+
+/******************************************************************************/
 /* local variables */
 static tTPdoBuffer aTPdosPdi_l[TPDO_CHANNELS_MAX];
 static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
@@ -57,71 +60,18 @@ static tRPdoBuffer aRPdosPdi_l[RPDO_CHANNELS_MAX];
 
 /******************************************************************************/
 /* private functions */
-
-/******************************************************************************/
-/* functions */
-
-
-/**
-********************************************************************************
-\brief  decode object mapping
-\param qwObjectMapping_p    mapping pattern
-\param puiIndex_p           OUT: index of mapped object
-\param puiSubIndex_p        OUT: subindex of mapped object
-\param puiOffset_p          OUT: data offset in frame
-\param puiSize_p            OUT: data size in frame
-*******************************************************************************/
+static void SizeAlignPdiOffset(BYTE **ppbAddress_p,int iSize_p, unsigned int* puiOffset_p);
 static void DecodeObjectMapping(
         QWORD qwObjectMapping_p,
         unsigned int* puiIndex_p,
         unsigned int* puiSubIndex_p,
         unsigned int* puiOffset_p,
-        unsigned int* puiSize_p)
-{
-    *puiIndex_p = (unsigned int)
-                    (qwObjectMapping_p & 0x000000000000FFFFLL);
-    *puiSubIndex_p = (unsigned int)
-                    ((qwObjectMapping_p & 0x0000000000FF0000LL) >> 16);
+        unsigned int* puiSize_p);
+static inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p);
+static WORD Gi_getPdiMappedBytesSum(void);
 
-    /* get bit values -> convert to byte values */
-    *puiOffset_p = (unsigned int)
-                    ((qwObjectMapping_p & 0x0000FFFF00000000LL) >> (32 + BYTE_SIZE_SHIFT));
-    *puiSize_p = (unsigned int)
-                    ((qwObjectMapping_p & 0xFFFF000000000000LL) >> (48 + BYTE_SIZE_SHIFT));
-}
-
-/********************************************************************************
-\brief generates a padding when data is not word/dword aligned
-\param bAddress_p       IN: desired object address
-                        OUT: corrected object address
-\param iSize_p          IN: size of the object
-\param puiOffset_p      IN: desired object offset
-                        OUT: corrected object offset
-*******************************************************************************/
-static void SizeAlignPdiOffset(BYTE **ppbAddress_p,int iSize_p, unsigned int* puiOffset_p)
-{
-    DWORD dwPadding, dwOfstCorrection;
-
-    if(iSize_p == 3)
-    {
-        iSize_p = 4;    //when variable is three bytes long reserve a whole word
-    }
-
-    if((iSize_p > 4) && (iSize_p <8))
-    {
-        iSize_p = 8;    //when variable is longer than a word reserve a whole dword
-    }
-
-    //correct PDI address
-    dwPadding = (DWORD)*ppbAddress_p;
-    dwPadding += (iSize_p - 1);
-    dwPadding &=  ~(iSize_p -1);
-    dwOfstCorrection = dwPadding - (DWORD)*ppbAddress_p;
-    *ppbAddress_p = (BYTE *)dwPadding;
-
-    //correct PDI offset
-    *puiOffset_p += dwOfstCorrection;
-}
+/******************************************************************************/
+/* functions */
 
 /**
 ********************************************************************************
@@ -207,18 +157,6 @@ exit:
 
 /**
 ********************************************************************************
-\brief	write to DPRAM Buffer acknowledge register
-
-CnApi_ackPdoBuffer() writes a random 32bit value
-to a defined buffer control register.
-*******************************************************************************/
-inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
-{
-    *pAckReg_p = 0xab; ///> write random byte value
-}
-
-/**
-********************************************************************************
 \brief  update PDI TPDO triple buffers
 \param bTpdoNum  RPDO PDI buffer number
 
@@ -251,31 +189,6 @@ void Gi_signalPdiPdoWriteAccess(BYTE bRpdoNum)
     {
         CnApi_ackPdoBuffer(aRPdosPdi_l[bRpdoNum].pAck_m);
     }
-}
-
-/**
-********************************************************************************
-\brief  get count of PDI mapped bytes
-\return Ret  tPdiAsyncStatus value
-
-This function counts the sum of all currently to PDI mapped bytes.
-*******************************************************************************/
-static WORD Gi_getPdiMappedBytesSum(void)
-{
-BYTE wLpCnt;
-WORD wSumMapBytes = 0;
-
-    for (wLpCnt = 0; wLpCnt < TPDO_CHANNELS_MAX; wLpCnt++)
-    {
-        wSumMapBytes += aTPdosPdi_l[wLpCnt].wMappedBytes_m;
-    }
-
-    for (wLpCnt = 0; wLpCnt < RPDO_CHANNELS_MAX; wLpCnt++)
-    {
-        wSumMapBytes += aRPdosPdi_l[wLpCnt].wMappedBytes_m;
-    }
-
-    return wSumMapBytes;
 }
 
 /**
@@ -663,6 +576,108 @@ exit:
     }
 
     return fRet;
+}
+
+/******************************************************************************/
+/* private functions */
+
+
+/**
+********************************************************************************
+\brief  write to DPRAM Buffer acknowledge register
+
+CnApi_ackPdoBuffer() writes a random 32bit value
+to a defined buffer control register.
+*******************************************************************************/
+static inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p)
+{
+    *pAckReg_p = 0xab; ///> write random byte value
+}
+
+/**
+********************************************************************************
+\brief  decode object mapping
+\param qwObjectMapping_p    mapping pattern
+\param puiIndex_p           OUT: index of mapped object
+\param puiSubIndex_p        OUT: subindex of mapped object
+\param puiOffset_p          OUT: data offset in frame
+\param puiSize_p            OUT: data size in frame
+*******************************************************************************/
+static void DecodeObjectMapping(
+        QWORD qwObjectMapping_p,
+        unsigned int* puiIndex_p,
+        unsigned int* puiSubIndex_p,
+        unsigned int* puiOffset_p,
+        unsigned int* puiSize_p)
+{
+    *puiIndex_p = (unsigned int)
+                    (qwObjectMapping_p & 0x000000000000FFFFLL);
+    *puiSubIndex_p = (unsigned int)
+                    ((qwObjectMapping_p & 0x0000000000FF0000LL) >> 16);
+
+    /* get bit values -> convert to byte values */
+    *puiOffset_p = (unsigned int)
+                    ((qwObjectMapping_p & 0x0000FFFF00000000LL) >> (32 + BYTE_SIZE_SHIFT));
+    *puiSize_p = (unsigned int)
+                    ((qwObjectMapping_p & 0xFFFF000000000000LL) >> (48 + BYTE_SIZE_SHIFT));
+}
+
+/********************************************************************************
+\brief generates a padding when data is not word/dword aligned
+\param bAddress_p       IN: desired object address
+                        OUT: corrected object address
+\param iSize_p          IN: size of the object
+\param puiOffset_p      IN: desired object offset
+                        OUT: corrected object offset
+*******************************************************************************/
+static void SizeAlignPdiOffset(BYTE **ppbAddress_p,int iSize_p, unsigned int* puiOffset_p)
+{
+    DWORD dwPadding, dwOfstCorrection;
+
+    if(iSize_p == 3)
+    {
+        iSize_p = 4;    //when variable is three bytes long reserve a whole word
+    }
+
+    if((iSize_p > 4) && (iSize_p <8))
+    {
+        iSize_p = 8;    //when variable is longer than a word reserve a whole dword
+    }
+
+    //correct PDI address
+    dwPadding = (DWORD)*ppbAddress_p;
+    dwPadding += (iSize_p - 1);
+    dwPadding &=  ~(iSize_p -1);
+    dwOfstCorrection = dwPadding - (DWORD)*ppbAddress_p;
+    *ppbAddress_p = (BYTE *)dwPadding;
+
+    //correct PDI offset
+    *puiOffset_p += dwOfstCorrection;
+}
+
+/**
+********************************************************************************
+\brief  get count of PDI mapped bytes
+\return Ret  tPdiAsyncStatus value
+
+This function counts the sum of all currently to PDI mapped bytes.
+*******************************************************************************/
+static WORD Gi_getPdiMappedBytesSum(void)
+{
+BYTE wLpCnt;
+WORD wSumMapBytes = 0;
+
+    for (wLpCnt = 0; wLpCnt < TPDO_CHANNELS_MAX; wLpCnt++)
+    {
+        wSumMapBytes += aTPdosPdi_l[wLpCnt].wMappedBytes_m;
+    }
+
+    for (wLpCnt = 0; wLpCnt < RPDO_CHANNELS_MAX; wLpCnt++)
+    {
+        wSumMapBytes += aRPdosPdi_l[wLpCnt].wMappedBytes_m;
+    }
+
+    return wSumMapBytes;
 }
 
 /* END-OF-FILE */

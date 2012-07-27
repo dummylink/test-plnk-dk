@@ -19,9 +19,15 @@
 *******************************************************************************/
 /* includes */
 #include "cnApi.h"
-#include "cnApiEvent.h"
 #include "cnApiIntern.h"
+#include "cnApiEvent.h"
+
+#include "cnApiAsyncSm.h"
+
+#ifdef CN_API_USING_SPI
 #include "cnApiPdiSpi.h"
+#endif //CN_API_USING_SPI
+
 #include "EplAmi.h"
 
 

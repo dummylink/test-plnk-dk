@@ -28,7 +28,10 @@ Gi_pcpEventFifoProcess().
 *******************************************************************************/
 /* includes */
 #include "pcpEvent.h"
-#include "cnApiEvent.h"
+
+#include "pcp.h"
+
+#include "EplInc.h"    ///< for ami functions
 
 /******************************************************************************/
 /* defines */

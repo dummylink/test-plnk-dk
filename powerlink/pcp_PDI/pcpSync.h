@@ -9,7 +9,7 @@
 
 \file       pcpSync.h
 
-\brief      header file for pcpSync module
+\brief      header file for the pcpSync module
 
 \author     mairt
 
@@ -23,12 +23,15 @@
 #define PCPSYNC_H_
 
 #include "pcp.h"
-#include "pcpEvent.h"
-#include "cnApiEvent.h"
 
 
 /******************************************************************************/
 /* defines */
+
+/* defines for SYNC_IRQ_CTRL for PCP only */
+#define SYNC_IRQ_SET    0       ///< assert IR signal
+#define SYNC_IRQ_MODE   6       ///< mode: SW set (0) or HW triggered (1)
+#define SYNC_IRQ_ENABLE 7       ///< IR signal enable
 
 /******************************************************************************/
 /* typedefs */

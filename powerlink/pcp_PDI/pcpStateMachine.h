@@ -1,14 +1,22 @@
+/******************************************************************************
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
+*/
+
 /**
 ********************************************************************************
-\file		PcpStateMachine.h
 
-\brief		BRIEF_DESCRIPTION_OF_FILE
+\file       pcpStateMachine.h
 
-\author		baumgartnerj
+\brief      header file for the pcpStateMachine module (POWERLINK state machine)
 
-\date		12.04.2010
+\author     baumgartnerj
 
-DETAILED_DESCRIPTION_OF_FILE
+\date       29.04.2011
+
+\since      29.04.2011
+
 *******************************************************************************/
 
 #ifndef PCPSTATEMACHINE_H_
@@ -16,10 +24,7 @@ DETAILED_DESCRIPTION_OF_FILE
 
 /******************************************************************************/
 /* includes */
-#include "stateMachine.h"
-
-#include "EplNmt.h"
-#include "user/EplNmtu.h"
+#include "cnApiTyp.h"
 
 /******************************************************************************/
 /* defines */
@@ -50,12 +55,12 @@ typedef enum ePowerlinkEvent {
 
 /******************************************************************************/
 /* functions */
-extern void initStateMachine(void);
-extern void activateStateMachine(void);
-extern void resetStateMachine(void);
-extern BOOL updateStateMachine(void);
-extern BOOL stateMachineIsRunning(void);
-extern void	setPowerlinkEvent(tPowerlinkEvent event_p);
+void initStateMachine(void);
+void activateStateMachine(void);
+void resetStateMachine(void);
+BOOL updateStateMachine(void);
+BOOL stateMachineIsRunning(void);
+void setPowerlinkEvent(tPowerlinkEvent event_p);
 
 #endif /* PCPSTATEMACHINE_H_ */
 /* END-OF-FILE */

@@ -15,9 +15,10 @@
 #include "global.h"
 #include "Debug.h"
 
-#include "cnApi.h"
-#include "cnApiAsync.h"
-#include "cnApiEvent.h"
+#include "pcpAsync.h"
+#include "pcpAsyncSm.h"
+#include "pcpEvent.h"
+#include "pcpPdo.h"
 #include "pcp.h"
 
 #include "Epl.h"
@@ -52,7 +53,7 @@ static  BYTE    bReqId_l = 0;         ///< asynchronous msg counter
 static tPdiAsyncStatus ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
 
 /******************************************************************************/
-/* function declarations */
+/* private functions */
 
 static tPdiAsyncStatus cnApiAsync_handleInitPcpReq(struct sPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                     BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p);
@@ -65,9 +66,6 @@ static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
 static tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                                  BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p          );
 
-
-/******************************************************************************/
-/* private functions */
 static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void);
 
 /******************************************************************************/
@@ -204,10 +202,68 @@ exit:
 
 /**
 ********************************************************************************
+\brief  create an object access response message
+\param  pMsgDescr_p         pointer to asynchronous message descriptor
+\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
+\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
+\param  dwMaxTxBufSize_p    maximum Tx message storage space
+\return Ret                 tPdiAsyncStatus value
+*******************************************************************************/
+//static tPdiAsyncStatus cnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+//                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
+//{
+//    //TODO: exact same functionality like cnApiAsync_doObjAccReq (only different naming)!
+//}
+
+
+/**
+ ********************************************************************************
+ \brief returns status of AP linking procedure
+ \return    tPdiAsyncStatus value
+ \retval    kPdiAsyncStatusInvalidState AP has not yet processed the linking request
+ \retval    kPdiAsyncStatusSuccessful   AP linking was successful
+ \retval    kPdiAsyncStatusRespError    AP linking failed
+ \retval    kPdiAsyncStatusInvalidState ApLinkingStatus_l has and invalid value
+
+ This function returns the value of ApLinkingStatus_l. Every time it is executed,
+ ApLinkingStatus_l will be reset to "kPdiAsyncStatusInvalidState".
+ The changing of ApLinkingStatus_l will be done upon reception of
+ LinkPdoResp message.
+ *******************************************************************************/
+tPdiAsyncStatus CnApiAsync_checkApLinkingStatus(void)
+{
+    tPdiAsyncStatus Ret;
+
+    switch (ApLinkingStatus_l)
+    {
+        case kPdiAsyncStatusSuccessful:
+        case kPdiAsyncStatusRespError:
+        case kPdiAsyncStatusInvalidState:
+        {
+            Ret = ApLinkingStatus_l;
+            // reset status
+            ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
+            break;
+        }
+
+        default:
+        {
+            // invalid value is assigned
+            Ret = kPdiAsyncStatusInvalidInstanceParam;
+        break;
+        }
+
+    }
+
+    return Ret;
+}
+
+/**
+********************************************************************************
 \brief  initialize asynchronous messages using the internal channel
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
+static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 {
     tPcpPdiAsyncDir Dir;
     tPcpPdiAsyncMsgBufDescr * pPdiBuf = NULL;
@@ -295,7 +351,7 @@ exit:
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+static tPdiAsyncStatus cnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                              BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
 	tCnApiInitParm *	pInitParm = &initParm_g;
@@ -376,7 +432,7 @@ exit:
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-tPdiAsyncStatus cnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
+static tPdiAsyncStatus cnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                   BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p        )
 {
     tObjAccMsg *    pObjAccReq = NULL;
@@ -453,7 +509,7 @@ exit:
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+static tPdiAsyncStatus cnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                              BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
     tLinkPdosResp *    pLinkPdosResp = NULL;       ///< pointer to response message (Tx)
@@ -546,7 +602,7 @@ exit:
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
+static tPdiAsyncStatus cnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
                                        BYTE* pRxMsgBuffer_p, DWORD dwMaxTxBufSize_p        )
 {
 
@@ -708,64 +764,6 @@ static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     /*----------------------------------------------------------------------------*/
 
 exit:
-    return Ret;
-}
-
-/**
-********************************************************************************
-\brief  create an object access response message
-\param  pMsgDescr_p         pointer to asynchronous message descriptor
-\param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
-\param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
-\param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
-*******************************************************************************/
-//static tPdiAsyncStatus cnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-//                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-//{
-//    //TODO: exact same functionality like cnApiAsync_doObjAccReq (only different naming)!
-//}
-
-
-/**
- ********************************************************************************
- \brief returns status of AP linking procedure
- \return    tPdiAsyncStatus value
- \retval    kPdiAsyncStatusInvalidState AP has not yet processed the linking request
- \retval    kPdiAsyncStatusSuccessful   AP linking was successful
- \retval    kPdiAsyncStatusRespError    AP linking failed
- \retval    kPdiAsyncStatusInvalidState ApLinkingStatus_l has and invalid value
-
- This function returns the value of ApLinkingStatus_l. Every time it is executed,
- ApLinkingStatus_l will be reset to "kPdiAsyncStatusInvalidState".
- The changing of ApLinkingStatus_l will be done upon reception of
- LinkPdoResp message.
- *******************************************************************************/
-tPdiAsyncStatus CnApiAsync_checkApLinkingStatus(void)
-{
-    tPdiAsyncStatus Ret;
-
-    switch (ApLinkingStatus_l)
-    {
-        case kPdiAsyncStatusSuccessful:
-        case kPdiAsyncStatusRespError:
-        case kPdiAsyncStatusInvalidState:
-        {
-            Ret = ApLinkingStatus_l;
-            // reset status
-            ApLinkingStatus_l = kPdiAsyncStatusInvalidState;
-            break;
-        }
-
-        default:
-        {
-            // invalid value is assigned
-            Ret = kPdiAsyncStatusInvalidInstanceParam;
-        break;
-        }
-
-    }
-
     return Ret;
 }
 

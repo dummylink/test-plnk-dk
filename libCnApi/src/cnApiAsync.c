@@ -19,18 +19,16 @@ This module contains functions for the asynchronous transfer in the CN API libra
 #include "cnApi.h"
 #include "cnApiIntern.h"
 #include "cnApiAsync.h"
+#include "cnApiAsyncSm.h"
+#include "cnApiPdo.h"
 #include "stateMachine.h"
-#include "EplErrDef.h"
+
 #include "user/EplSdoComu.h"
 #include "EplAmi.h"
 
 #ifdef CN_API_USING_SPI
     #include "cnApiPdiSpi.h"
 #endif
-
-#include <string.h>
-#include <unistd.h>
-#include <stddef.h>
 
 /******************************************************************************/
 /* defines */
@@ -61,6 +59,17 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void);
 static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pMsgBuffer_p,
                                                      BYTE * pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p);
 static tPdiAsyncStatus CnApiAsync_handleObjAccReq(
+                       tPdiAsyncMsgDescr * pMsgDescr_p,
+                       BYTE * pRxMsgBuffer_p,
+                       BYTE * pTxMsgBuffer_p,
+                       DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApi_doInitPcpReq(
+                       tPdiAsyncMsgDescr * pMsgDescr_p,
+                       BYTE * pTxMsgBuffer_p,
+                       BYTE * pRxMsgBuffer_p,
+                       DWORD dwMaxTxBufSize_p);
+
+static tPdiAsyncStatus CnApi_handleInitPcpResp(
                        tPdiAsyncMsgDescr * pMsgDescr_p,
                        BYTE * pRxMsgBuffer_p,
                        BYTE * pTxMsgBuffer_p,
@@ -178,6 +187,21 @@ exit:
     return ERROR;
 }
 
+/**
+ ********************************************************************************
+ \brief call back function, invoked if InitPcpResp has finished
+ \param  pMsgDescr_p         pointer to asynchronous message descriptor
+ \return Ret                 tPdiAsyncStatus value
+
+ This function triggers an CMD_INIT which will be sent to the PCP
+
+ *******************************************************************************/
+tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
+{
+        CnApi_setApCommand(kApCmdInit);
+
+        return kPdiAsyncStatusSuccessful;
+}
 
 /**
 ********************************************************************************
@@ -293,7 +317,7 @@ stored in pInitParm_g will be copied to the initPcpReq message and transfered
 to the PCP. Afterwards the function polls for a valid initPcpResp message from
 the PCP.
 *******************************************************************************/
-tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
+static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
                                    BYTE* pRxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
     tInitPcpReq *      pInitPcpReq = NULL;        ///< pointer to message (Tx)
@@ -456,7 +480,7 @@ exit:
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
+static tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                         BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
     tInitPcpResp *     pInitPcpResp = NULL;       ///< pointer to response message (Rx)
@@ -507,21 +531,7 @@ exit:
     return Ret;
 }
 
-/**
- ********************************************************************************
- \brief call back function, invoked if InitPcpResp has finished
- \param  pMsgDescr_p         pointer to asynchronous message descriptor
- \return Ret                 tPdiAsyncStatus value
 
- This function triggers an CMD_INIT which will be sent to the PCP
-
- *******************************************************************************/
-tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
-{
-        CnApi_setApCommand(kApCmdInit);
-
-        return kPdiAsyncStatusSuccessful;
-}
 
 
 /**

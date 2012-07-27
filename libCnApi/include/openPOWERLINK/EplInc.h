@@ -126,7 +126,7 @@
 #define EPL_MODULE_LEDU        0x00020000L // LED user part module
 #define EPL_MODULE_GW309ASCII  0x00040000L // ASCII Gateway according to CiA309 part 3
 
-#include "cnApiGlobal.h"     // EPL configuration file (configuration from application)
+#include "EplCfg.h"     // EPL configuration file (configuration from application)
 
 #include "global.h"     // global definitions
 

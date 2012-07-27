@@ -1,24 +1,29 @@
+/******************************************************************************
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
+*/
+
 /**
 ********************************************************************************
-\file       cnApiIntern.h
 
-\brief      internal header file of cnApi module
+\file       pcpPdo.h
 
-\author     Josef Baumgartner
+\brief      header file for pcpPdo module
 
-\date       22.03.2010
+\author     hoggerm
 
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
+\date       29.04.2011
 
-This header file contains definitions for the CN API.
+\since      29.04.2011
+
 *******************************************************************************/
 
-#ifndef CNAPIINTERN_H_
-#define CNAPIINTERN_H_
+#ifndef PCPPDO_H_
+#define PCPPDO_H_
 
 /******************************************************************************/
 /* includes */
-#include "cnApiTyp.h"
 
 /******************************************************************************/
 /* defines */
@@ -34,12 +39,15 @@ This header file contains definitions for the CN API.
 
 /******************************************************************************/
 /* function declarations */
+int Gi_initPdo(void);
+void Gi_preparePdiPdoReadAccess(BYTE bTpdoNum);
+void Gi_signalPdiPdoWriteAccess(BYTE bRpdoNum);
 
-BYTE CnApi_getPcpState(void);
-DWORD CnApi_getPcpMagic(void);
-BOOL CnApi_verifyFpgaConfigId(void);
-BOOL CnApi_verifyPcpPdiRevision(void);
-void CnApi_setApCommand(BYTE bCmd_p);
+BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
+                     BYTE bDirection_p,
+                     WORD *pCurrentDescrOffset_p,
+                     tLinkPdosReq *pLinkPdoReq_p,
+                     WORD wMaxStoreSpace);
 
 /******************************************************************************/
 /* private functions */
@@ -48,9 +56,7 @@ void CnApi_setApCommand(BYTE bCmd_p);
 /* functions */
 
 
-
-
-#endif /* CNAPIINTERN_H_ */
+#endif /* PCPPDO_H_ */
 
 /*******************************************************************************
 *
