@@ -407,6 +407,8 @@ int initPowerlink(tCnApiInitParm *pInitParm_p)
     EplApiInitParam.m_pfnObdInitRam = EplObdInitRam;
     EplApiInitParam.m_pfnDefaultObdCallback = EplAppCbDefaultObdAccess; // called if objects do not exist in local OBD
     EplApiInitParam.m_pfnRebootCb = rebootCN;
+    EplApiInitParam.m_pfnPdouCbConfigPdi = Gi_checkandConfigurePdoPdi;
+    EplApiInitParam.m_pObdParamConHdlPdi = ApiPdiComInstance_g.apObdParam_m[0];
 
     EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 

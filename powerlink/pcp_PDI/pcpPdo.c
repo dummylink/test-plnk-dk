@@ -17,6 +17,7 @@
 
 #include "pcp.h"
 #include "pcpPdo.h"
+#include "pcpAsyncSm.h"
 
 #ifdef __NIOS2__
 #include <string.h>
@@ -578,6 +579,76 @@ exit:
     return fRet;
 }
 
+/**
+********************************************************************************
+\brief  configure the Process Data Interface (PDI) PDO channels
+\param uiMappParamIndex_p   PDO channel mapping index
+\param bMappObjectCount_p   number of objects
+                            0: deactivate channel
+                            > 0: activate channel
+\param AccessType_p         access type to mapped object:
+                            write = RPDO and read = TPDO
+\param pParam_p             OBD parameter
+\return                     tEplKernel value (error code)
+
+This function configures the Process Data Interface (PDI)
+of the specified PDO channel.
+A subfunction links mapped PDO data to the PDI.
+*******************************************************************************/
+tEplKernel Gi_checkandConfigurePdoPdi(unsigned int uiMappParamIndex_p,
+                                                 BYTE bMappObjectCount_p,
+                                                 tEplObdAccess AccessType_p,
+                                                 tEplObdCbParam* pParam_p)
+{
+unsigned int    uiCommParamIndex;
+tLinkPdosReqComCon  LinkPdosReqComCon;
+tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
+tEplKernel      Ret = kEplSuccessful;
+
+    // --- configure this channel ---
+
+    // convert mapping index to related communication index
+    uiCommParamIndex = ~EPL_PDOU_OBD_IDX_MAPP_PARAM & uiMappParamIndex_p;
+
+    LinkPdosReqComCon.m_wMapIndex = uiMappParamIndex_p;
+    LinkPdosReqComCon.m_bMapObjCnt = bMappObjectCount_p;
+    if (AccessType_p == kEplObdAccWrite)
+    {
+        LinkPdosReqComCon.m_bPdoDir = RPdo;
+    }
+    else
+    {
+        LinkPdosReqComCon.m_bPdoDir = TPdo;
+    }
+
+    // save OBD access handle for AP response callback function
+    Ret = EplObduSave0bdAccHdl(&ApiPdiComInstance_g.apObdParam_m[0], pParam_p);
+    if (Ret != kEplSuccessful)
+    {
+        goto Exit;
+    }
+
+    DEBUG_TRACE1(DEBUG_LVL_14, "pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
+
+    /* prepare PDO mapping */
+    /* setup PDO <-> DPRAM copy table */
+    // Gi_ObdAccessSrcPdiFinished callback is assigned for transfer error case
+    PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq,
+                                (BYTE *) &LinkPdosReqComCon,
+                                Gi_ObdAccessSrcPdiFinished,
+                                0);
+    if (PdiRet != kPdiAsyncStatusSuccessful)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Posting kPdiAsyncMsgIntLinkPdosReq failed with: %d\n", PdiRet);
+        pParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
+        Ret = kEplReject;
+        goto Exit;
+    }
+
+Exit:
+    return Ret;
+}
+
 /******************************************************************************/
 /* private functions */
 
@@ -658,7 +729,8 @@ static void SizeAlignPdiOffset(BYTE **ppbAddress_p,int iSize_p, unsigned int* pu
 /**
 ********************************************************************************
 \brief  get count of PDI mapped bytes
-\return Ret  tPdiAsyncStatus value
+
+\return count of mapped bytes in total
 
 This function counts the sum of all currently to PDI mapped bytes.
 *******************************************************************************/
@@ -679,6 +751,7 @@ WORD wSumMapBytes = 0;
 
     return wSumMapBytes;
 }
+
 
 /* END-OF-FILE */
 /******************************************************************************/

@@ -77,6 +77,11 @@ extern void EplAppDefObdAccCleanupAllPending(void);
 
 extern tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
 
+extern tEplKernel Gi_checkandConfigurePdoPdi(unsigned int uiMappParamIndex_p,
+                                                 BYTE bMappObjectCount_p,
+                                                 tEplObdAccess AccessType_p,
+                                                 tEplObdCbParam* pParam_p);
+
 #endif /* GENERICIF_H_ */
 
 /* END-OF-FILE */
