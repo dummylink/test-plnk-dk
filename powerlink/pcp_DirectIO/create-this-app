@@ -128,7 +128,7 @@ else
 fi
 
 
-CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DMAKE_BUILD_PCP"
+CFLAGS="-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
 
 ###############################################################################
 # source files

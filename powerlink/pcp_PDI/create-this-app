@@ -131,7 +131,7 @@ else
 fi
 
 
-CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -DALT_TCIMEM_SIZE=${ALT_TCIMEM_SIZE}"
+CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}"
 
 ###############################################################################
 # source files
