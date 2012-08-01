@@ -57,11 +57,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* defines */
-#if defined(AP_USES_PLB_BUS)
+#if XPAR_MICROBLAZE_ENDIANNESS == 0           /* MICROBLAZE is big endian (PLB bus) */
 #ifdef CN_API_USING_SPI
     #define PDI_DPRAM_BASE_AP    0x00                       ///< no base address necessary
 #elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
-    #define PDI_DPRAM_BASE_AP    XPAR_XPS_MCH_EMC_0_MEM0_BASEADDR
+    #ifdef XPAR_XPS_MCH_EMC_0_MEM0_BASEADDR
+      #define PDI_DPRAM_BASE_AP    XPAR_XPS_MCH_EMC_0_MEM0_BASEADDR
+    #elif defined(XPAR_XPS_EPC_0_PRH0_BASEADDR)
+      #define PDI_DPRAM_BASE_AP    XPAR_XPS_EPC_0_PRH0_BASEADDR
+    #endif
 #else
     #define PDI_DPRAM_BASE_AP    XPAR_PLB_POWERLINK_0_PDI_AP_BASEADDR           ///< from xparameters.h
 #endif
@@ -90,7 +94,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #endif //XPAR_AP_INTC_PLB_POWERLINK_0_AP_ASYNCIRQ_INTR
 #endif
 
-#elif defined(AP_USES_AXI_BUS)
+#elif XPAR_MICROBLAZE_ENDIANNESS == 1           /* MICROBLAZE is little endian (AXI bus) */
 #ifdef CN_API_USING_SPI
     #define PDI_DPRAM_BASE_AP    0x00                       ///< no base address necessary
 #elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
@@ -128,14 +132,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(CN_API_USING_SPI) && !defined(XPAR_SPI_MASTER_DEVICE_ID)
     #error "The cnApiCfg.h configuration header uses SPI but there is no SPI IP-Core included in the system! (Please check makefile.settings)"
-#endif
-
-#if defined(AP_USES_PLB_BUS) && (XPAR_MICROBLAZE_ENDIANNESS == 1)
-    #error "The cnApiCfg.h configuration header uses PLB bus but the processor is little endian! (Please check makefile.settings)"
-#endif
-
-#if defined(AP_USES_AXI_BUS) && (XPAR_MICROBLAZE_ENDIANNESS == 0)
-    #error "The cnApiCfg.h configuration header uses AXI bus but the processor is big endian! (Please check makefile.settings)"
 #endif
 
 #ifdef XPAR_AP_OUTPUT_BASEADDR
