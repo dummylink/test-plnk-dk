@@ -201,6 +201,9 @@
 // Enable forwarding of SoC timestamps
 #define EPL_DLL_SOCTIME_FORWARD         TRUE
 
+// Enable PDO data endian conversion
+#define EPL_PDOK_ENDIAN_CONVERSION      FALSE
+
 // =========================================================================
 // OBD specific defines
 // =========================================================================
