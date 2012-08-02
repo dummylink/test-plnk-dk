@@ -286,7 +286,7 @@ done
 
 
 # append result to comiler flags
-NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} -DALT_TCIMEM_SIZE=${ALT_TCIMEM_SIZE}"
+NIOS2_APP_GEN_ARGS="${NIOS2_APP_GEN_ARGS} --set APP_CFLAGS_DEFINED_SYMBOLS -DALT_TCIMEM_SIZE=${ALT_TCIMEM_SIZE}"
 ###############################################################################
 
 
