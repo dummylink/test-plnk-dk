@@ -36,8 +36,8 @@ processor (AP) to the POWERLINK communication processor (PCP).
 /******************************************************************************/
 /* defines */
 /* wait for PCP definitions */
-#define PCP_PRESENCE_RETRY_COUNT         5          ///< number of retries until abort
-#define PCP_PRESENCE_RETRY_TIMEOUT_US    10000000   ///< wait time in us until retry
+#define PCP_PRESENCE_RETRY_COUNT         500        ///< number of retries until abort
+#define PCP_PRESENCE_RETRY_TIMEOUT_US    100000     ///< wait time in us until retry
 
 #define SYNC_IRQ_ACK                0               ///< Sync IRQ Bit shift (for AP only)
 
