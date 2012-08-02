@@ -176,6 +176,14 @@ int CnApiAsync_init(void)
         goto exit;
     }
 
+    Ret = CnApiAsync_finishMsgInit();
+    if (Ret != kPdiAsyncStatusSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_finishMsgInit() failed!\n");
+        Ret = kCnApiStatusError;
+        goto exit;
+    }
+
     return OK;
 exit:
     return ERROR;

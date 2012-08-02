@@ -156,6 +156,12 @@ int CnApiAsync_init(void)
         goto exit;
     }
 
+    Ret = CnApiAsync_finishMsgInit();
+    if (Ret != kPdiAsyncStatusSuccessful)
+    {
+        goto exit;
+    }
+
     return OK;
 exit:
     return ERROR;

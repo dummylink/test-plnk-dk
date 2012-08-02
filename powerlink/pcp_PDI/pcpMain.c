@@ -1175,7 +1175,6 @@ int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 static int Gi_init(void)
 {
     int         iRet= OK;
-    tPdiAsyncStatus aRet = kPdiAsyncStatusSuccessful;
     UINT32      uiApplicationSwDate = 0;
     UINT32      uiApplicationSwTime = 0;
 
@@ -1219,14 +1218,6 @@ static int Gi_init(void)
         DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_create() FAILED!\n");
         goto exit;
     }
-
-    // finish the async message init
-    aRet = CnApiAsync_finishMsgInit();
-    if (aRet != kPdiAsyncStatusSuccessful)
-    {
-        goto exit;
-    }
-
 
     // init cyclic object processing
     iRet = Gi_initPdo();

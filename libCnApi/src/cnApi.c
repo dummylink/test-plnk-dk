@@ -84,7 +84,6 @@ called by the application in order to use the API.
 tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcpParm_p)
 {
     tCnApiStatus    FncRet = kCnApiStatusOk;
-    tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
     tEplKernel      EplRet = kEplSuccessful;
     BOOL            fPcpPresent = FALSE;
     int             iStatus;
@@ -199,14 +198,6 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_create() failed!\n");
-        FncRet = kCnApiStatusError;
-        goto exit;
-    }
-
-    AsyncRet = CnApiAsync_finishMsgInit();
-    if (AsyncRet != kPdiAsyncStatusSuccessful)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_finishMsgInit() failed!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }
