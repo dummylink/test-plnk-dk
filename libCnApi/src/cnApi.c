@@ -117,24 +117,29 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     }
 #endif /* CN_API_USING_SPI */
 
-    CnApi_setApCommand(kApCmdReset);
-
     /* check if PCP interface is present */
     for(iCnt = 0; iCnt < PCP_PRESENCE_RETRY_COUNT; iCnt++)
     {
-        if((CnApi_getPcpState() == kPcpStateBooted) &&
-            CnApi_getPcpMagic() == PCP_MAGIC          )
+        if(CnApi_getPcpMagic() == PCP_MAGIC)
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx, state: PCP_BOOTED ..",
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..",
                                                 CnApi_getPcpMagic());
-            fPcpPresent = TRUE;
             break;
         }
-        else
+        CNAPI_USLEEP(PCP_PRESENCE_RETRY_TIMEOUT_US);
+    }
+
+    CnApi_setApCommand(kApCmdReset);
+
+    /* check if PCP is activated */
+    for(iCnt = 0; iCnt < PCP_PRESENCE_RETRY_COUNT; iCnt++)
+    {
+        if(CnApi_getPcpState() == kPcpStateBooted)
         {
-            DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\nPCP Magic value: %#08lx, state: %d ..",
-                                                CnApi_getPcpMagic(),
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP state: %d ..",
                                                 CnApi_getPcpState());
+            fPcpPresent = TRUE;
+            break;
         }
         CNAPI_USLEEP(PCP_PRESENCE_RETRY_TIMEOUT_US);
     }
@@ -144,7 +149,7 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, ".ERROR!\n\n");
 
         /* PCP_PRESENCE_RETRY_COUNT exceeded */
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Reading PDI failed!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: PCP not responding!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }
