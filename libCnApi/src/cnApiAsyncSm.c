@@ -766,6 +766,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                         {
                             CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
                             pLclAsyncRxMsgBuffer_l = NULL;
+                            aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                         }
                         break;
                     }
@@ -1131,6 +1132,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                     {
                         CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
                         pLclAsyncRxMsgBuffer_l = NULL;
+                        pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     }
                     break;
                 }
@@ -1408,6 +1410,19 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         /* reset message status */
         aPdiAsyncRxMsgs[bActivRxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive;
         aPdiAsyncRxMsgs[bActivRxMsg_l].Error_m = kPdiAsyncStatusSuccessful;
+
+        if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m == pLclAsyncRxMsgBuffer_l)
+        {   // prevent free operation from executing a second time with pLclAsyncRxMsgBuffer_l
+            pLclAsyncRxMsgBuffer_l = NULL;
+        }
+
+        if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
+        {
+            CNAPI_FREE(aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m);
+            aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
+        }
+
         bActivRxMsg_l = INVALID_ELEMENT;
     }
 
