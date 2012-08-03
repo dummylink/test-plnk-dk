@@ -72,7 +72,7 @@
 #define _EPLCFG_H_
 
 #include "EplInc.h"
-
+#include "fwSettings.h"
 
 
 // =========================================================================
@@ -251,31 +251,6 @@
 
 //#define EPL_API_PROCESS_IMAGE_SIZE_IN 0 //disable
 //#define EPL_API_PROCESS_IMAGE_SIZE_OUT 0 //disable
-
-// =========================================================================
-// defines for flash update function
-// =========================================================================
-//#define CONFIG_IIB_IS_PRESENT                                  ///< IIB is stored in flash
-#define CONFIG_FACTORY_IIB_FLASH_ADRS          0x00400000      ///< flash address of factory IIB
-#define CONFIG_USER_IIB_FLASH_ADRS             0x00410000      ///< flash address of user IIB
-#define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000      ///< flash address of user image
-#define CONFIG_USER_IIB_VERSION                1               ///< used IIB version
-
-// =========================================================================
-// defines for FPGA reconfiguration
-// =========================================================================
-#define CONFIG_DISABLE_WATCHDOG            ///< if defined, watchdog timer will be disabled
-//#define CONFIG_USER_IMAGE_IN_FLASH         ///< this define enables user image reconfiguration
-
-// =========================================================================
-// defines for POWERLINK device identification and configuration
-// =========================================================================
-// identification parameters
-#define CONFIG_IDENT_PRODUCT_CODE           0
-#define CONFIG_IDENT_REVISION               0x10020
-#define CONFIG_IDENT_VENDOR_ID              0
-#define CONFIG_IDENT_SERIAL_NUMBER          0
-#define CONFIG_IDENT_DEVICE_NAME            "POWERLINK CN DEMO"
 
 // PDO size hardware restrictions
 #define CONFIG_ISOCHR_TX_MAX_PAYLOAD   36

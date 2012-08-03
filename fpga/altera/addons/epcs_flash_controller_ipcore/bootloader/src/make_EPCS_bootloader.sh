@@ -41,7 +41,7 @@ fi
 
 # User definitions
 IN_FILE_SYSTEM_H=${BSP_DIR}/system.h
-IN_FILE_EPLCFG_H=${BSP_DIR}/../EplCfg.h
+IN_FILE_FIRMWARE_H=${BSP_DIR}/../../target/altera_nios/include/fwSettings.h
 
 #Error definitions
 E_NOSUCHFILE=85
@@ -53,9 +53,9 @@ then   # Exit if no such file.
   exit $E_NOSUCHFILE
 fi
 
-if [ ! -f "$IN_FILE_EPLCFG_H" ]
+if [ ! -f "$IN_FILE_FIRMWARE_H" ]
 then   # Exit if no such file.
-  echo -e "$IN_FILE_EPLCFG_H not found.\n"
+  echo -e "$IN_FILE_FIRMWARE_H not found.\n"
   exit $E_NOSUCHFILE
 fi
 
@@ -91,7 +91,7 @@ pattern=${PATTERN[$cnt]}
 
 # set input file
 if [ "$pattern" == "CONFIG_USER_IMAGE_FLASH_ADRS" ]; then
-    IN_FILE=$IN_FILE_EPLCFG_H
+    IN_FILE=$IN_FILE_FIRMWARE_H
 else
     IN_FILE=$IN_FILE_SYSTEM_H
 fi
