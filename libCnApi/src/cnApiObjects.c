@@ -262,7 +262,49 @@ void CnApi_readObjects(WORD index, BYTE subIndex, int CN_readObjectCb)
 
 }
 
+/**
+ ********************************************************************************
+ \brief signals an OBD default access as finished
+ \param pObdParam_p
+ \return tEplKernel value
 
+ This function has to be called after an OBD access has been finished to
+ inform the caller about this event.
+ *******************************************************************************/
+tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p)
+{
+tEplKernel EplRet = kEplSuccessful;
+
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "INFO: %s(%p) called\n", __func__, pObdParam_p);
+
+    if (pObdParam_p->m_uiIndex == 0                      ||
+        pObdParam_p->m_pfnAccessFinished == NULL  )
+    {
+        EplRet = kEplInvalidParam;
+        goto Exit;
+    }
+
+    if ((pObdParam_p->m_ObdEvent == kEplObdEvPreRead)            &&
+        ((pObdParam_p->m_SegmentSize != pObdParam_p->m_ObjSize) ||
+         (pObdParam_p->m_SegmentOffset != 0)                    )  )
+    {
+        //segmented read access not allowed!
+        pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
+    }
+
+    // call callback function which was assigned by caller
+    EplRet = pObdParam_p->m_pfnAccessFinished(pObdParam_p);
+
+    CNAPI_MEMSET(pObdParam_p, 0 , sizeof(tEplObdParam));
+
+Exit:
+    if (EplRet != kEplSuccessful)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: %s failed!\n", __func__);
+    }
+    return EplRet;
+
+}
 
 /* END-OF-FILE */
 /******************************************************************************/

@@ -76,15 +76,15 @@ static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values 
 static BOOL     fOperational_l = FALSE;                         ///< indicates AP Operation state
 
 // Object access
-static DWORD dwExampleData_l = 0xABCD0001;             ///< this is only an example object data
-static tEplObdParam *   pAllocObdParam_l = NULL; ///< pointer to allocated memory of OBD access handle
+static DWORD dwExampleData_l = 0xABCD0001;              ///< this is only an example object data
+static tEplObdParam   ObdParam_l = {0};           ///< OBD access handle
 
 /******************************************************************************/
 /* private functions */
 static void workInputOutput(void);
 static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 static void CnApi_AppCbSync(void);
-void CnApi_processObjectAccess(tEplObdParam ** pObdParam_p);
+static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p);
 
 #ifndef USE_POLLING_MODE_SYNC
     #if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
@@ -111,7 +111,6 @@ static void disableGlobalInterrupts(void);
 #endif
 
 static tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
-static tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p);
 
 /**
 ********************************************************************************
@@ -236,7 +235,7 @@ int main (void)
 
         CnApi_processAsyncStateMachine();
 
-        CnApi_processObjectAccess(&pAllocObdParam_l);
+        CnApi_processObjectAccess(&ObdParam_l);
         /*--- TASK 1: END   ---*/
 
 #ifdef USE_POLLING_MODE_SYNC
@@ -792,17 +791,8 @@ tEplKernel       Ret = kEplSuccessful;
                 goto Exit;
             }
 
-            // allocate memory for handle
-            pAllocObdParam_l = CNAPI_MALLOC(sizeof (*pAllocObdParam_l));
-            if (pAllocObdParam_l == NULL)
-            {
-                Ret = kEplObdOutOfMemory;
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
-                goto Exit;
-            }
-
             // save handle
-            EPL_MEMCPY(pAllocObdParam_l, pObdParam_p, sizeof (*pAllocObdParam_l));
+            EPL_MEMCPY(&ObdParam_l, pObdParam_p, sizeof (tEplObdParam));
 
             // TODO: before exiting this function, initiate custom object transfer HERE
             // - if if fails, return kEplInvalidOperation
@@ -812,8 +802,8 @@ tEplKernel       Ret = kEplSuccessful;
 
             // adopt OBD access
             // If the transfer has finished, invoke callback function with pointer to saved handle
-            // e.g.: CnApi_DefObdAccFinished(pAllocObdParam_l);
-            // after appropriate values have been assigned to pAllocObdParam_l.
+            // e.g.: CnApi_DefObdAccFinished(ObdParam_l);
+            // after appropriate values have been assigned to ObdParam_l.
             // Refer to CnApi_processObjectAccess() for an example function
             Ret = kEplObdAccessAdopted;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO," Adopted\n");
@@ -839,29 +829,23 @@ Exit:
  how to process and asynchronous object access e.g. from an SDO transfer. It needs
  to be adapted by the user.
  *******************************************************************************/
-void CnApi_processObjectAccess(tEplObdParam ** pObdParam_p)
+static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
 {
-tEplObdParam * pObdParam = NULL;
 
-    if (pObdParam_p == NULL)
-    { // error, not a valid pointer
-        goto Exit;
-    }
-    if (*pObdParam_p == NULL)
-    { // nothing to do
+    if (pObdParam_p->m_uiIndex == 0 )
+    { // nothing to do, return
         goto Exit;
     }
 
-    pObdParam = *pObdParam_p;
 
-    if (pObdParam->m_ObdEvent == kEplObdEvPreRead)
+    if (pObdParam_p->m_ObdEvent == kEplObdEvPreRead)
     {   // return data of read access
 
         // Example how to finish a ReadByIndex access:
         dwExampleData_l++;
-        pObdParam->m_pData = &dwExampleData_l;
-        pObdParam->m_ObjSize = sizeof(dwExampleData_l);
-        pObdParam->m_SegmentSize = sizeof(dwExampleData_l);
+        pObdParam_p->m_pData = &dwExampleData_l;
+        pObdParam_p->m_ObjSize = sizeof(dwExampleData_l);
+        pObdParam_p->m_SegmentSize = sizeof(dwExampleData_l);
 
         // if an error occured (e.g. object does not exist):
         //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
@@ -882,54 +866,5 @@ Exit:
     return;
 }
 
-
-/**
- ********************************************************************************
- \brief signals an OBD default access as finished
- \param pObdParam_p
- \return tEplKernel value
-
- This function has to be called after an OBD access has been finished to
- inform the caller about this event.
- *******************************************************************************/
-tEplKernel CnApi_DefObdAccFinished(tEplObdParam ** pObdParam_p)
-{
-tEplKernel EplRet = kEplSuccessful;
-tEplObdParam * pObdParam = NULL;
-
-    pObdParam = *pObdParam_p;
-
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "INFO: %s(%p) called\n", __func__, pObdParam);
-
-    if (pObdParam_p == NULL                   ||
-        pObdParam == NULL                     ||
-        pObdParam->m_pfnAccessFinished == NULL  )
-    {
-        EplRet = kEplInvalidParam;
-        goto Exit;
-    }
-
-    if ((pObdParam->m_ObdEvent == kEplObdEvPreRead)            &&
-        ((pObdParam->m_SegmentSize != pObdParam->m_ObjSize) ||
-         (pObdParam->m_SegmentOffset != 0)                    )  )
-    {
-        //segmented read access not allowed!
-        pObdParam->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
-    }
-
-    // call callback function which was assigned by caller
-    EplRet = pObdParam->m_pfnAccessFinished(pObdParam);
-
-    CNAPI_FREE(pObdParam);
-    *pObdParam_p = NULL;
-
-Exit:
-    if (EplRet != kEplSuccessful)
-    {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: %s failed!\n", __func__);
-    }
-    return EplRet;
-
-}
 /* END-OF-FILE */
 /******************************************************************************/

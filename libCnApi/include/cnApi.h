@@ -105,6 +105,7 @@ extern void CnApi_enterApStateReadyToOperate();
 extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
 extern void CnApi_cleanupObjects(void);
+extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p);
 
 /* time functions */
 extern DWORD CnApi_getRelativeTimeLow(void);
