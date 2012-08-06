@@ -119,6 +119,20 @@
                       Therefore a minimum size of: (1500 + 1500 + 64 + 180 + 76 + 64) * 2 ~= 7000 bytes is needed!]]></tip>
     </widget>
     '>
+    <!ENTITY C_VETH_ENABLE '
+    <widget id="C_VETH_ENABLE">
+        <key>C_VETH_ENABLE</key>
+        <label>Enable VirtualEthernet driver</label>
+        <tip><![CDATA[This option enables the Virtual Ethernet driver. Please set the number of RX buffers according to your needs!]]></tip>
+    </widget>
+    '>
+    <!ENTITY C_VETH_RX_PENDING '
+    <widget id="C_VETH_RX_PENDING">
+        <key>C_VETH_RX_PENDING</key>
+        <label>Virtual Ethernet driver: Number of pending RX packets</label>
+        <tip><![CDATA[This option enables additional RX buffers which results in an increase of 1500 bytes memory per buffer.]]></tip>
+    </widget>
+    '>
     <!ENTITY C_INSTANCE_ODDR2 '
     <widget id="C_INSTANCE_ODDR2">
         <key>C_INSTANCE_ODDR2</key>
@@ -636,6 +650,8 @@
             <item>&C_NUM_SMI;</item>
             <item>&C_MAC_NUM_RX_BUFFER_USER;</item>
             <item>&C_MAC_PKT_SIZE_TX_USER;</item>
+            <item>&C_VETH_ENABLE;</item>
+            <item>&C_VETH_RX_PENDING;</item>
             <item>&C_INSTANCE_ODDR2;</item>
         </group>
         <group id="PDI">
