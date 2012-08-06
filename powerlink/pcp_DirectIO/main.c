@@ -818,17 +818,9 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdParam MEM* pObdParam_p)
             break;
 
         default:
-            // Tell calling function that all objects
-            // >= 0x2000 exist per default.
-            // The actual verification will take place
-            // with the write or read access.
-
-            if(pObdParam_p->m_uiIndex < 0x2000)
-            {   // remaining PCP objects do not exist
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-                Ret = kEplObdIndexNotExist;
-                goto Exit;
-            }
+            pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+            Ret = kEplObdIndexNotExist;
+            goto Exit;
             break;
     } /* switch (pObdParam_p->m_uiIndex) */
 
