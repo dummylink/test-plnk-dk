@@ -97,11 +97,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PDI_ASYNC_CHANNELS_MAX POWERLINK_0_PDI_PCP_ASYNCBUFCOUNT
 #endif //POWERLINK_0_PDI_PCP_ASYNCBUFCOUNT
 
-
-#ifdef SYSID_ID
-#define FPGA_SYSTEM_ID        SYSID_ID
-#endif //SYSID_ID
-
 /******************************************************************************/
 /* typedefs */
 

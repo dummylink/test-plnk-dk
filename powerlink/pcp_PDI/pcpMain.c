@@ -1193,13 +1193,12 @@ static int Gi_init(void)
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;     // set address of control register - equals DPRAM base address
 
     // Note:
-    // pCtrlReg_g->m_dwMagic and pCtrlReg_g->m_wPcpPdiRev are set by the Powerlink IP-core.
+    // pCtrlReg_g members m_dwMagic, m_wPcpPdiRev and m_wPcpSysId are set by the Powerlink IP-core.
     // The FPGA internal memory initialization sets the following values:
     // pCtrlReg_g->m_wState: 0x00EE
     // pCtrlReg_g->m_wCommand: 0xFFFF
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
-    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwFpgaSysId, FPGA_SYSTEM_ID);    // FPGA system ID from system.h
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, 0x00);                // invalid event TODO: structure
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, 0x00);                 // invalid event argument TODO: structure
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, kPcpStateInvalid);        // set invalid PCP state

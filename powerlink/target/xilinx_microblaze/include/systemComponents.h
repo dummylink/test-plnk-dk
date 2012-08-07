@@ -133,9 +133,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MAX_NUM_LINKED_OBJ_PCP  500
 
-#define FPGA_SYSTEM_ID        0 ///< No system id module available in xilinx (id set to zero)
-
-
 /******************************************************************************/
 /* typedefs */
 

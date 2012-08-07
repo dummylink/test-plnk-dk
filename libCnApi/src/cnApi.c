@@ -162,7 +162,7 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
 
 
     /* verify FPGA configuration ID */
-    if (!CnApi_verifyFpgaConfigId())
+    if (!CnApi_verifyPcpSystemId())
     {
         /* this compilation does not match the accessed PCP FPGA configuration */
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: FPGA Configuration ID doesn't match!\n");
@@ -564,17 +564,17 @@ BOOL CnApi_verifyPcpPdiRevision(void)
 \retval FALSE if SYSTEM ID of this library build is not based on the current
         FPGA build SYSTEM ID , TRUE if it matches
 *******************************************************************************/
-BOOL CnApi_verifyFpgaConfigId(void)
+BOOL CnApi_verifyPcpSystemId(void)
 {
 #ifdef CN_API_USING_SPI
     /* update local PDI register copy */
-    CnApi_Spi_read(PCP_CTRLREG_FPGA_SYSID_OFFSET,
-                   sizeof(pCtrlReg_g->m_dwFpgaSysId),
-                   (BYTE*) &pCtrlReg_g->m_dwFpgaSysId);
+    CnApi_Spi_read(PCP_CTRLREG_PCP_SYSID_OFFSET,
+                   sizeof(pCtrlReg_g->m_wPcpSysId),
+                   (BYTE*) &pCtrlReg_g->m_wPcpSysId);
 #endif /* CN_API_USING_SPI */
 
     /* verify if this compilation of CnApi library matches the current FPGA config */
-    if (PCP_FPGA_SYSID_ID != AmiGetDwordFromLe((BYTE*) &(pCtrlReg_g->m_dwFpgaSysId)))
+    if (PCP_SYSTEM_ID != AmiGetWordFromLe((BYTE*) &(pCtrlReg_g->m_wPcpSysId)))
     {
         return FALSE;
     }

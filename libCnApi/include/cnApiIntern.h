@@ -35,7 +35,7 @@ This header file contains definitions for the CN API.
 #define PCP_CTRLREG_MAGIC_OFFSET                offsetof(tPcpCtrlReg, m_dwMagic)            //0x00
 #define PCP_CTRLREG_PDI_REV_OFFSET              offsetof(tPcpCtrlReg, m_wPcpPdiRev)         //0x04
 // reserved                                                                                 //0x06
-#define PCP_CTRLREG_FPGA_SYSID_OFFSET           offsetof(tPcpCtrlReg, m_dwFpgaSysId)        //0x08
+#define PCP_CTRLREG_PCP_SYSID_OFFSET           offsetof(tPcpCtrlReg, m_wPcpSysId)           //0x08
 #define PCP_CTRLREG_APP_DATE_OFFSET             offsetof(tPcpCtrlReg, m_dwAppDate)          //0x0C
 #define PCP_CTRLREG_APP_TIME_OFFSET             offsetof(tPcpCtrlReg, m_dwAppTime)          //0x10
 #define PCP_CTRLREG_NODE_ID_OFFSET              offsetof(tPcpCtrlReg, m_wNodeId)            //0x14
@@ -115,7 +115,7 @@ This header file contains definitions for the CN API.
 
 BYTE CnApi_getPcpState(void);
 DWORD CnApi_getPcpMagic(void);
-BOOL CnApi_verifyFpgaConfigId(void);
+BOOL CnApi_verifyPcpSystemId(void);
 BOOL CnApi_verifyPcpPdiRevision(void);
 void CnApi_setApCommand(BYTE bCmd_p);
 
