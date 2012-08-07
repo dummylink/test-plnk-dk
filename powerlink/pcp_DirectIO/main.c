@@ -64,7 +64,7 @@ typedef struct sApiPdiComCon {
 // instances then the function name of each object dictionary has to differ.
 
 tEplKernel PUBLIC  EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
-tEplKernel PUBLIC AppCbSync(void) INTERNAL_RAM_SIZE_MEDIUM;
+tEplKernel PUBLIC AppCbSync(void) INT_RAM_MAIN_01_APP_CB_SYNC;
 tEplKernel PUBLIC AppCbEvent(
     tEplApiEventType        EventType_p,   // IN: event type (enum)
     tEplApiEventArg*        pEventArg_p,   // IN: event argument (union)

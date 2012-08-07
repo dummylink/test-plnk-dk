@@ -93,7 +93,7 @@ extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 /******************************************************************************/
 /* forward declarations */
 #if EPL_DLL_SOCTIME_FORWARD == TRUE
-    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p) INTERNAL_RAM_SIZE_MEDIUM;
+    tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p) INT_RAM_MAIN_01_APP_CB_SYNC;
 #else
     tEplKernel PUBLIC AppCbSync(void);
 #endif
