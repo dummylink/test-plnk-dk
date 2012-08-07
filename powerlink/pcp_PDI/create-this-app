@@ -235,8 +235,10 @@ fi
 
 ###############################################################################
 # get size of tightly coupled instruction memory (in Byte)
-# where time critical functions will be stored
+# where time critical functions will be stored and
+# verify POWERLINK IP-core version
 ALT_TCIMEM_SIZE="0"
+EXPECTED_POWERLINK_IP_REV=\"0.2.6\"
 
 IN_FILE=./bsp/system.h
 if [ ! -f "$IN_FILE" ]
@@ -246,10 +248,11 @@ then   # Exit if no such file.
 fi
 
 PATTERN[0]="TC_I_MEM_PCP_SPAN"
+PATTERN[1]="POWERLINK_0_MAC_REG_PLKCOREREV"
 
 # pattern search - loop
 cnt=0
-while [ $cnt -lt 1 ] ; do
+while [ $cnt -lt 2 ] ; do
 
 pattern=${PATTERN[$cnt]}
 
@@ -277,6 +280,19 @@ case  $cnt  in
         exit 1
 	fi
 	;;
+    1)
+    PCPDefineValue=$(echo ${PCPDefineValue})
+    if [ $PCPDefineValue == $EXPECTED_POWERLINK_IP_REV ]; then
+		echo -e "POWERLINK IP-core Version: $PCPDefineValue\n"
+	else
+        echo "ERROR: POWERLINK IP-core version not compliant to PCP software!"
+        echo "       Expected: $EXPECTED_POWERLINK_IP_REV"
+        echo "       Current:  $PCPDefineValue"
+        echo "       Update your POWERLINK IP-core search path in SOPC-Builder or"
+        echo -e "       the POWERLINK IP-core source files!\n"
+        exit 1
+	fi
+    ;;
     *)echo Not a valid loop count!
 	;;
 esac
