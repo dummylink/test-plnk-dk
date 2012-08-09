@@ -7,10 +7,12 @@
 # contents		: Controls the build of the CNDK software (libCnApi part)
 ################################################################################
 
-VERSION = 0.1
+VERSION = 0.2
 
 include makefile.settings
 
+##################################
+# Directory structure
 OBJDICT_DIR=${CNDK_DIR}/objDicts/PDI
 CN_API_DIR=${CNDK_DIR}/libCnApi
 POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
@@ -23,7 +25,9 @@ CC=mb-gcc
 AR=mb-ar
 CP=cp
 RM=rm -rf
+PERL=xilperl
 LIBRARY=libCnApi.a
+
 ARFLAGS=-src
 MACROS=-D__MICROBLAZE__ -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
@@ -85,8 +89,7 @@ OUTPUT_OPTION = -o $@
 
 CFLAGS += ${INCLUDES}
 
-.PHONY:	header clean
-
+.PHONY:	header
 header:
 	@echo
 	@echo "================================================================================"
@@ -109,6 +112,7 @@ $(OBJDIR)/%.o: %.c
 	@echo Finished building: $<
 	@echo ' '
 
+.PHONY:	builddir
 builddir:
 	$(shell mkdir $(OBJDIR))
 
@@ -128,7 +132,9 @@ ${LIBRARY}: ${OBJ}
 	@echo Finished building library: $@
 	@echo ' '
 
+.PHONY:	clean
 clean:
 	-$(RM) $(LIBRARY) $(OBJ) $(OBJD)
+	-@echo ' '
 	
 -include $(OBJD)

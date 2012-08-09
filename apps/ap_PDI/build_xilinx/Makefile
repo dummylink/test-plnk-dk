@@ -7,10 +7,12 @@
 # contents		: Controls the build of the CNDK software (AP Processor)
 ################################################################################
 
-VERSION = 0.1
+VERSION = 0.2
 
 include makefile.settings
 
+##################################
+# Directory structure
 POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
 APP_DIR=${CNDK_DIR}/apps/ap_PDI
 OBJDICT_DIR=${CNDK_DIR}/objDicts/PDI
@@ -18,7 +20,7 @@ CN_API_DIR=${CNDK_DIR}/libCnApi
 TOOLS_PATH=${CNDK_DIR}/tools/xilinx
 
 BOOTLOADER_PATH=$(TOOLS_PATH)/mem_bootloader
-PROM_SCRIPT_DIR=$(TOOLS_PATH)/scripts
+SCRIPT_DIR=$(TOOLS_PATH)/scripts
 
 OBJDIR=obj
 
@@ -36,7 +38,9 @@ CC=mb-gcc
 AR=mb-ar
 CP=cp
 RM=rm -rf
+PERL=xilperl
 EXECUTABLE=ap_pdi
+
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
@@ -105,8 +109,7 @@ OUTPUT_OPTION = -o $@
 
 CFLAGS += ${INCLUDES}
 
-.PHONY:	header clean gen_flash prog_flash
-
+.PHONY:	header
 header:
 	@echo
 	@echo "================================================================================"
@@ -123,8 +126,12 @@ header:
 	@echo ""
 	@echo "Change 'makefile.setting' to configure build system"		
 
-all: builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
+all: buildapp
 
+.PHONY: buildapp
+buildapp: builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
+
+.PHONY:	builddir
 builddir:
 	$(shell mkdir $(OBJDIR))
 
@@ -171,7 +178,8 @@ ${EXECUTABLE}.mem: ${EXECUTABLE}.elf
 ###################################
 # flash rules
 ifeq ($(DUAL_PROCESSOR), no)
-gen_flash : builddir ${FLASH_IMAGE_NAME_DUAL}.mcs
+.PHONY: gen_flash
+gen_flash : buildapp ${FLASH_IMAGE_NAME_DUAL}.mcs
 
 $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf : $(BOOTLOADER_PATH)/Makefile
 	@echo Invoking: bootloader build system
@@ -199,12 +207,14 @@ ${FLASH_IMAGE_NAME_DUAL}.mcs : ${EXECUTABLE}.mem $(BITSTREAM).bit
 	@echo Finished generating: $@
 	@echo ' '
 
-prog_flash : ${FLASH_IMAGE_NAME_DUAL}.mcs
+.PHONY: prog_flash
+prog_flash : gen_flash
 	@echo Invoking: Xilinx iMPACT
-	impact -batch $(PROM_SCRIPT_DIR)/$(PROM_SCRIPT)
+	impact -batch $(SCRIPT_DIR)/$(PROM_SCRIPT)
 	@echo Finished programming: ${FLASH_IMAGE_NAME_DUAL}.mcs
 	@echo ' '
 
+.PHONY: clean
 clean:
 	-touch $(FLASH_IMAGE_NAME)
 	-touch $(EXECUTABLE)
@@ -214,6 +224,7 @@ clean:
 else
 #######################################
 # two processors are in one bitstream! (Disable burning to flash!)
+.PHONY: clean
 clean:
 	-touch $(FLASH_IMAGE_NAME)
 	-touch $(EXECUTABLE)

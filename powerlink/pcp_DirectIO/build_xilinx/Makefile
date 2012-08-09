@@ -7,10 +7,16 @@
 # contents		: Controls the build of the CNDK software
 ################################################################################
 
-VERSION = 0.1
+VERSION = 0.2
 
 include makefile.settings
 
+##################################
+# IP-Core version
+EXPECTED_POWERLINK_IP_REV= 0.2.5
+
+##################################
+# Directory structure
 POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
 APP_DIR=${CNDK_DIR}/powerlink/pcp_DirectIO
 OBJDICT_DIR=${CNDK_DIR}/objDicts/Direct_IO
@@ -20,7 +26,7 @@ CN_API_DIR=${CNDK_DIR}/libCnApi
 TOOLS_PATH=${CNDK_DIR}/tools/xilinx
 
 BOOTLOADER_PATH=$(TOOLS_PATH)/mem_bootloader
-PROM_SCRIPT_DIR=$(TOOLS_PATH)/scripts
+SCRIPT_DIR=$(TOOLS_PATH)/scripts
 
 OBJDIR=obj
 
@@ -30,6 +36,7 @@ CC=mb-gcc
 AR=mb-ar
 CP=cp
 RM=rm -rf
+PERL=xilperl
 EXECUTABLE=directIO
 
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE).ld
@@ -174,8 +181,7 @@ OUTPUT_OPTION = -o $@
 
 CFLAGS += ${INCLUDES}
 
-.PHONY:	header clean gen_flash prog_flash
-
+.PHONY:	header
 header:
 	@echo
 	@echo "================================================================================"
@@ -192,7 +198,19 @@ header:
 	@echo ""
 	@echo "Change 'makefile.setting' to configure the build system"
 
-all: builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
+all: buildapp
+
+.PHONY: buildapp
+buildapp: checkiprev builddir ${CN_API_DIR}/include/cnApiCfg.h ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck  ${EXECUTABLE}.mem
+
+.PHONY: checkiprev
+checkiprev:
+	@$(PERL) $(SCRIPT_DIR)/check_ip_rev.pl --xparameters $(BSP_PATH)/$(PROCESSOR_NAME)/include/xparameters.h \
+	--iprev $(EXPECTED_POWERLINK_IP_REV)
+
+.PHONY: builddir
+builddir:
+	$(shell mkdir $(OBJDIR))
 
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<
@@ -200,9 +218,6 @@ $(OBJDIR)/%.o: %.c
 	$(CC) -c ${OPT_LEVEL} $(CFLAGS) $(CPPFLAGS) $< $(OUTPUT_OPTION)
 	@echo Finished building: $<
 	@echo ' '
-
-builddir:
-	$(shell mkdir $(OBJDIR))
 
 # extra rule for usleep to set opt level to zero
 $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
@@ -246,7 +261,8 @@ ${EXECUTABLE}.mem: ${EXECUTABLE}.elf
 ###################################
 # flash rules
 
-gen_flash : ${FLASH_IMAGE_NAME_DUAL}.mcs
+.PHONY: gen_flash
+gen_flash : buildapp ${FLASH_IMAGE_NAME_DUAL}.mcs
 
 $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf : $(BOOTLOADER_PATH)/Makefile
 	@echo Invoking: bootloader build system
@@ -270,16 +286,18 @@ ${FLASH_IMAGE_NAME_DUAL}.mcs : ${EXECUTABLE}.mem $(BITSTREAM).bit
 	@echo Invoking: promgen
 	promgen $(PROMGEN_FLAGS) -o ${FLASH_IMAGE_NAME}.mcs $(PROMGEN_TYPE) download.bit $(PROMGEN_PREFIX)
 	@echo Invoking: pcublaze.pl
-	xilperl $(BOOTLOADER_PATH)/src/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
+	$(PERL) $(BOOTLOADER_PATH)/src/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
 	@echo Finished generating: $@
 	@echo ' '
 
-prog_flash : ${FLASH_IMAGE_NAME_DUAL}.mcs
+.PHONY: prog_flash
+prog_flash : gen_flash
 	@echo Invoking: Xilinx iMPACT
-	impact -batch $(PROM_SCRIPT_DIR)/$(PROM_SCRIPT)
+	impact -batch $(SCRIPT_DIR)/$(PROM_SCRIPT)
 	@echo Finished programming: ${FLASH_IMAGE_NAME_DUAL}.mcs
 	@echo ' '
 
+.PHONY: clean
 clean:
 	touch $(FLASH_IMAGE_NAME)
 	touch $(EXECUTABLE)
