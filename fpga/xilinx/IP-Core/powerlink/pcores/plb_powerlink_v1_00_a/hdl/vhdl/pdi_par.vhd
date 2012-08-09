@@ -138,7 +138,7 @@ begin
 	pap_data_T <= not pap_doe_s; --'1' = In, '0' = Out
 	
 	-- write data register
-	-- latches data at falling edge of pap_wr if pap_cs is set
+	-- latches data at falling edge of pap_wr
 	theWrDataReg : process(pap_wr, ap_reset)
 	begin
 		if ap_reset = '1' then
@@ -345,7 +345,6 @@ begin
 				clk => ap_clk,
 				rst => ap_reset
 			);
-		--pap_wr_s <= pap_wr_tmp and pap_cs_tmp;
         pap_wr_s <= pap_wr_tmp;
 		
 	end block;
