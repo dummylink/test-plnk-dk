@@ -89,10 +89,15 @@ void SysComp_initPeripheral(void)
 
 #endif
 
+    //disable all interrupts
+    SysComp_disableSyncInterrupt();
+    SysComp_disableAsyncInterrupt();
+
+    //disable interrupt master
+    XIntc_MasterDisable(XPAR_AP_INTC_BASEADDR);
+
     //enable interrupts on microblaze
     microblaze_enable_interrupts();
-    //enable interrupt master
-    XIntc_MasterEnable(XPAR_AP_INTC_BASEADDR);
 }
 
 /**
@@ -143,6 +148,8 @@ int SysComp_initSyncInterrupt(void (*callbackFunc)(void*))
 
     //enable the sync interrupt
     XIntc_EnableIntr(XPAR_AP_INTC_BASEADDR, SYNC_IRQ_NUM_MASK | curIntEn);
+
+    SysComp_enableInterrupts();
 
     return OK;
 }
@@ -198,6 +205,8 @@ int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
 
     //enable the async interrupt
     XIntc_EnableIntr(XPAR_AP_INTC_BASEADDR, ASYNC_IRQ_NUM_MASK | curIntEn);
+
+    SysComp_enableInterrupts();
 
     return OK;
 }
