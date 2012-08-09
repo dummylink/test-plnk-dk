@@ -1177,7 +1177,6 @@ static int Gi_init(void)
     int         iRet= OK;
     UINT32      uiApplicationSwDate = 0;
     UINT32      uiApplicationSwTime = 0;
-    volatile    int iCnt = 0;
 
 #ifdef CONFIG_IIB_IS_PRESENT
     tFwRet      FwRetVal = kFwRetSuccessful;
@@ -1203,17 +1202,11 @@ static int Gi_init(void)
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, 0x00);                 // invalid event argument TODO: structure
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, kPcpStateInvalid);        // set invalid PCP state
 
-    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Wait for AP reset cmd..");
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Wait for AP reset cmd..\n");
 
     /* wait for reset command from AP */
     while (getCommandFromAp() != kApCmdReset)
-    {
-        if (++iCnt == 1000000)
-        {
-            iCnt = 0;
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, ".");
-        }
-    }
+        ;
 
     // init time sync module
     Gi_initSync();
