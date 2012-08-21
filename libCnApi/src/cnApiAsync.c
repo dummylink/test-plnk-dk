@@ -568,7 +568,6 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
     /*----------------------------------------------------------------------------*/
     // forward to SDO command layer
     pObjAccReq->m_wHdlCom = AmiGetWordFromLe(&pObjAccReq->m_wHdlCom);
-    pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize = AmiGetWordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize);
 
 //    printf("(ReqId: %d Hdl:%d SdoCmdSegSize: %d)\n",
 //            pObjAccReq->m_bReqId, pObjAccReq->m_wHdlCom,

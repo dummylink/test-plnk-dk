@@ -2242,7 +2242,8 @@ static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p)
 
     PdiObjAccCon.m_wSdoSeqConHdl = 0xFF;///< SDO command layer connection handle number //TODO: implement handle index
     PdiObjAccCon.m_pSdoCmdFrame = pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame; ///< assign to SDO command frame
-    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoCom , m_le_abCommandData) + pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize;  ///< size of SDO command frame
+    PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoCom , m_le_abCommandData) +
+            AmiGetWordFromLe(&pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize);  ///< size of SDO command frame
 
     PdiRet = CnApiAsync_postMsg(
                     kPdiAsyncMsgIntObjAccReq,
