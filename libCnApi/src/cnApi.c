@@ -122,7 +122,7 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     {
         if(CnApi_getPcpMagic() == PCP_MAGIC)
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..",
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..\n",
                                                 CnApi_getPcpMagic());
             break;
         }
