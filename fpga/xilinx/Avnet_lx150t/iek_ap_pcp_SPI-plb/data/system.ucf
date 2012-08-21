@@ -136,8 +136,8 @@ Net fpga_0_rst_1_sys_rst_pin LOC=M19 | IOSTANDARD = LVCMOS33;
 ## FMC (1)
 
 #### LEDs
-NET plb_powerlink_0_led_status_pin LOC = "H9" | IOSTANDARD = LVCMOS25;
-NET plb_powerlink_0_led_error_pin LOC = "E12" | IOSTANDARD = LVCMOS25;
+NET plb_powerlink_0_led_status_pin LOC = "E12" | IOSTANDARD = LVCMOS25;
+NET plb_powerlink_0_led_error_pin LOC = "H9" | IOSTANDARD = LVCMOS25;
 
 #### PHY 1 (FMC-ISMNET J2)
 NET plb_powerlink_0_phyMii0_TxClk_pin LOC = "E13";

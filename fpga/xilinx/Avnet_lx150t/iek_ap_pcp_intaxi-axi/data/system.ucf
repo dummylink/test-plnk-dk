@@ -75,8 +75,8 @@ NET RS232_sout LOC = "AC1"  |  IOSTANDARD = "LVCMOS33";
 ######################################
 ## FMC (1)
 #### LEDs
-NET axi_powerlink_0_led_status_pin LOC = "H9" | IOSTANDARD = LVCMOS25;
-NET axi_powerlink_0_led_error_pin LOC = "E12" | IOSTANDARD = LVCMOS25;
+NET axi_powerlink_0_led_status_pin LOC = "E12" | IOSTANDARD = LVCMOS25;
+NET axi_powerlink_0_led_error_pin LOC = "H9" | IOSTANDARD = LVCMOS25;
 
 #### PHY 1 (FMC-ISMNET J2)
 NET axi_powerlink_0_phyMii0_TxClk_pin LOC = "E13";
