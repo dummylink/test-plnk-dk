@@ -1,7 +1,8 @@
-#
-# pin constraints
-#
+#  Spartan-6 LX150T Development Board
 NET CLK LOC = "U23"  |  IOSTANDARD = "LVCMOS25";
+NET RESET LOC = "M19"  |  IOSTANDARD = "LVCMOS33"  |  TIG;
+
+# Node Switches
 NET DIP_Switches_8Bits_TRI_I[0] LOC = "K21"  |  IOSTANDARD = "LVCMOS33";
 NET DIP_Switches_8Bits_TRI_I[1] LOC = "G23"  |  IOSTANDARD = "LVCMOS33";
 NET DIP_Switches_8Bits_TRI_I[2] LOC = "G24"  |  IOSTANDARD = "LVCMOS33";
@@ -10,6 +11,8 @@ NET DIP_Switches_8Bits_TRI_I[4] LOC = "J22"  |  IOSTANDARD = "LVCMOS33";
 NET DIP_Switches_8Bits_TRI_I[5] LOC = "E24"  |  IOSTANDARD = "LVCMOS33";
 NET DIP_Switches_8Bits_TRI_I[6] LOC = "E23"  |  IOSTANDARD = "LVCMOS33";
 NET DIP_Switches_8Bits_TRI_I[7] LOC = "K22"  |  IOSTANDARD = "LVCMOS33";
+
+# Flash memory controller
 NET Linear_Flash_address[0] LOC = "L24"  |  IOSTANDARD = "LVCMOS25";
 NET Linear_Flash_address[10] LOC = "R19"  |  IOSTANDARD = "LVCMOS25";
 NET Linear_Flash_address[11] LOC = "P21"  |  IOSTANDARD = "LVCMOS25";
@@ -54,52 +57,53 @@ NET Linear_Flash_data[9] LOC = "W7"  |  IOSTANDARD = "LVCMOS25";
 NET Linear_Flash_oe_n LOC = "W26"  |  IOSTANDARD = "LVCMOS25";
 NET Linear_Flash_reset LOC = "AA9"  |  IOSTANDARD = "LVCMOS25";
 NET Linear_Flash_we_n LOC = "AA25"  |  IOSTANDARD = "LVCMOS25";
-NET RESET LOC = "M19"  |  IOSTANDARD = "LVCMOS33"  |  TIG;
+
+# UART
 NET RS232_USB_sin LOC = "AE2"  |  IOSTANDARD = "LVCMOS33";
 NET RS232_USB_sout LOC = "AE1"  |  IOSTANDARD = "LVCMOS33";
 
 ######################################
 ## PORT IO
 # Output LEDs (connected to the 8 LEDs on the lx150t)
-Net plb_powerlink_0_pio_portio_pin<0> LOC = M18 | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<1> LOC = L19 | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<2> LOC = M21 | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<3> LOC = F22 | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<4> LOC = H22 | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<5> LOC = C25 | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<6> LOC = C26 | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<7> LOC = F23 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<0> LOC = M18 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<1> LOC = L19 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<2> LOC = M21 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<3> LOC = F22 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<4> LOC = H22 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<5> LOC = C25 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<6> LOC = C26 | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<7> LOC = F23 | IOSTANDARD = LVCMOS33 | TIG;
 
 # Output PINs (connected to: FMC J2 with FMC XM105 Debug Card (Connector J1))
-Net plb_powerlink_0_pio_portio_pin<8> LOC = AE13 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin1
-Net plb_powerlink_0_pio_portio_pin<9> LOC = W16 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<10> LOC = AF13 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<11> LOC = Y16 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<12> LOC = V11 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<13> LOC = U13 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<14> LOC = V10 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<15> LOC = V13 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin8
+Net axi_powerlink_0_pio_portio_pin<8> LOC = AE13 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin1
+Net axi_powerlink_0_pio_portio_pin<9> LOC = W16 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<10> LOC = AF13 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<11> LOC = Y16 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<12> LOC = V11 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<13> LOC = U13 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<14> LOC = V10 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<15> LOC = V13 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin8
 
 # Input PINs (connected to the 3 Push Buttons on the lx150t)
-Net plb_powerlink_0_pio_portio_pin<16> LOC = L20 | PULLUP | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<17> LOC = L21 | PULLUP | IOSTANDARD = LVCMOS33 | TIG;
-Net plb_powerlink_0_pio_portio_pin<18> LOC = H20 | PULLUP | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<16> LOC = L20 | PULLUP | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<17> LOC = L21 | PULLUP | IOSTANDARD = LVCMOS33 | TIG;
+Net axi_powerlink_0_pio_portio_pin<18> LOC = H20 | PULLUP | IOSTANDARD = LVCMOS33 | TIG;
 # Input PINs (connected to: FMC J2 with FMC XM105 Debug Card (Connector J1))
-Net plb_powerlink_0_pio_portio_pin<19> LOC = AB13 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin9
-Net plb_powerlink_0_pio_portio_pin<20> LOC = W17 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<21> LOC = AA13 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<22> LOC = W18 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<23> LOC = Y21 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin13
+Net axi_powerlink_0_pio_portio_pin<19> LOC = AB13 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin9
+Net axi_powerlink_0_pio_portio_pin<20> LOC = W17 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<21> LOC = AA13 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<22> LOC = W18 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<23> LOC = Y21 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin13
 
 # Output PINs (connected to: FMC J2 with FMC XM105 Debug Card (Connector J1))
-Net plb_powerlink_0_pio_portio_pin<24> LOC = AA18 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin17
-Net plb_powerlink_0_pio_portio_pin<25> LOC = Y15 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<26> LOC = AB17 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<27> LOC = AA16 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<28> LOC = Y12 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<29> LOC = U15 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<30> LOC = AA12 | IOSTANDARD = LVCMOS25 | TIG;
-Net plb_powerlink_0_pio_portio_pin<31> LOC = V16 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin24
+Net axi_powerlink_0_pio_portio_pin<24> LOC = AA18 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin17
+Net axi_powerlink_0_pio_portio_pin<25> LOC = Y15 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<26> LOC = AB17 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<27> LOC = AA16 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<28> LOC = Y12 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<29> LOC = U15 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<30> LOC = AA12 | IOSTANDARD = LVCMOS25 | TIG;
+Net axi_powerlink_0_pio_portio_pin<31> LOC = V16 | IOSTANDARD = LVCMOS25 | TIG; #Connector J1: Pin24
 
 ## PORT IO
 ######################################
@@ -176,15 +180,6 @@ NET BENCHMARK_PIO_GPIO_IO_O_pin<13> LOC = "Y24" | TIG;
 NET BENCHMARK_PIO_GPIO_IO_O_pin<14> LOC = "Y11" | TIG;
 NET BENCHMARK_PIO_GPIO_IO_O_pin<15> LOC = "Y26" | TIG;
 
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<0> LOC = "AE13" | TIG;
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<1> LOC = "W16" | TIG;
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<2> LOC = "AF13" | TIG;
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<3> LOC = "Y16" | TIG;
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<4> LOC = "V11" | TIG;
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<5> LOC = "U13" | TIG;
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<6> LOC = "V10" | TIG;
-#NET BENCHMARK_PIO_AP_GPIO_IO_O_pin<7> LOC = "V13" | TIG;
-
 ## FMC (2)
 ######################################
 
@@ -235,29 +230,6 @@ NET "mcbx_dram_dqs_n"                                 IN_TERM = NONE;
 NET "mcbx_dram_udqs"                                  IN_TERM = NONE;
 NET "mcbx_dram_udqs_n"                                IN_TERM = NONE;
 
-############################################################################
-# I/O STANDARDS 
-############################################################################
-
-NET  "mcbx_dram_dq[*]"                               IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_addr[*]"                             IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_ba[*]"                               IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_dqs"                                 IOSTANDARD = DIFF_SSTL15_II;
-NET  "mcbx_dram_udqs"                                IOSTANDARD = DIFF_SSTL15_II;
-NET  "mcbx_dram_dqs_n"                               IOSTANDARD = DIFF_SSTL15_II;
-NET  "mcbx_dram_udqs_n"                              IOSTANDARD = DIFF_SSTL15_II;
-NET  "mcbx_dram_clk"                                 IOSTANDARD = DIFF_SSTL15_II;
-NET  "mcbx_dram_clk_n"                               IOSTANDARD = DIFF_SSTL15_II;
-NET  "mcbx_dram_cke"                                 IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_ras_n"                               IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_cas_n"                               IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_we_n"                                IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_odt"                                 IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_ddr3_rst"                            IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_ldm"                                 IOSTANDARD = SSTL15_II;
-NET  "mcbx_dram_udm"                                 IOSTANDARD = SSTL15_II;
-NET  "rzq"                                           IOSTANDARD = SSTL15_II;
-NET  "zio"                                           IOSTANDARD = SSTL15_II;
 ############################################################################
 # MCB 3
 # Pin Location Constraints for Clock, Masks, Address, and Controls
@@ -350,15 +322,15 @@ NET "clk_100_0000MHzPLL1" TNM = "FAST_CLK_GRP";
 NET "clk_50_0000MHzPLL1" TNM = "SLOW_CLK_GRP";
 
 ### PHY0 clock
-NET "axi_powerlink_0_phyMii0_RxClk_pin" TNM_NET = "PHY0_RXCLK_GRP";
+#NET "axi_powerlink_0_phyMii0_RxClk_pin" TNM_NET = "PHY0_RXCLK_GRP";
 TIMESPEC "TS_RXCLK0" = PERIOD "PHY0_RXCLK_GRP" 40 ns HIGH 20 ns;
-NET "axi_powerlink_0_phyMii0_TxClk_pin" TNM_NET = "PHY0_TXCLK_GRP";
+#NET "axi_powerlink_0_phyMii0_TxClk_pin" TNM_NET = "PHY0_TXCLK_GRP";
 TIMESPEC "TS_TXCLK0" = PERIOD "PHY0_TXCLK_GRP" 40 ns HIGH 20 ns;
 
 ### PHY1 clock
-NET "axi_powerlink_0_phyMii1_RxClk_pin" TNM_NET = "PHY1_RXCLK_GRP";
+#NET "axi_powerlink_0_phyMii1_RxClk_pin" TNM_NET = "PHY1_RXCLK_GRP";
 TIMESPEC "TS_RXCLK1" = PERIOD "PHY1_RXCLK_GRP" 40 ns HIGH 20 ns;
-NET "axi_powerlink_0_phyMii1_TxClk_pin" TNM_NET = "PHY1_TXCLK_GRP";
+#NET "axi_powerlink_0_phyMii1_TxClk_pin" TNM_NET = "PHY1_TXCLK_GRP";
 TIMESPEC "TS_TXCLK1" = PERIOD "PHY1_TXCLK_GRP" 40 ns HIGH 20 ns;
 
 #### ICAP clock

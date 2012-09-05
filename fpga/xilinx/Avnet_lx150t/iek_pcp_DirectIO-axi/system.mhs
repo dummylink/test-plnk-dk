@@ -66,7 +66,7 @@
  PORT axi_powerlink_0_phy1_SMIClk_pin = axi_powerlink_0_phy1_SMIClk, DIR = O
  PORT axi_powerlink_0_phy1_Rst_n_pin = axi_powerlink_0_phy1_Rst_n, DIR = O
  PORT BENCHMARK_PIO_GPIO_IO_O_pin = BENCHMARK_PIO_GPIO_IO_O, DIR = O, VEC = [15:0]
- PORT plb_powerlink_0_pio_portio_pin = plb_powerlink_0_pio_portio, DIR = IO, VEC = [31:0]
+ PORT axi_powerlink_0_pio_portio_pin = axi_powerlink_0_pio_portio, DIR = IO, VEC = [31:0]
  PORT POWERLINK_LED_GPIO_IO_O_pin = POWERLINK_LED_GPIO_IO_O, DIR = O, VEC = [1:0]
 
 
@@ -255,7 +255,7 @@ BEGIN axi_powerlink
  PARAMETER C_GEN_AXI_BUS_IF = true
  PARAMETER C_TX_INT_PKT = TRUE
  PARAMETER C_RX_INT_PKT = TRUE
- PARAMETER C_PACKET_LOCATION = 2
+ PARAMETER C_PACKET_LOCATION = 1
  PARAMETER C_INSTANCE_ODDR2 = false
  PARAMETER C_S_AXI_MAC_REG_RNG0_BASEADDR = 0x7aa00000
  PARAMETER C_S_AXI_MAC_REG_RNG0_HIGHADDR = 0x7aa0ffff
@@ -263,13 +263,16 @@ BEGIN axi_powerlink
  PARAMETER C_S_AXI_MAC_REG_RNG1_HIGHADDR = 0x7aa2ffff
  PARAMETER C_S_AXI_SMP_PCP_BASEADDR = 0x7ea00000
  PARAMETER C_S_AXI_SMP_PCP_HIGHADDR = 0x7ea0ffff
- PARAMETER C_OBSERVER_ENABLE_USER = true
- PARAMETER C_MAC_DMA_FIFO_SIZE_RX = 128
  PARAMETER C_INTERCONNECT_M_AXI_MAC_DMA_ARB_PRIORITY = 15
- PARAMETER C_MAC_DMA_FIFO_SIZE_TX = 128
+ PARAMETER C_OBSERVER_ENABLE_USER = true
+ PARAMETER C_MAC_DMA_BURST_SIZE_RX = 64
+ PARAMETER C_MAC_DMA_FIFO_SIZE_RX = 128
+ PARAMETER C_S_AXI_MAC_PKT_BASEADDR = 0x10000000
+ PARAMETER C_S_AXI_MAC_PKT_HIGHADDR = 0x1000FFFF
  BUS_INTERFACE S_AXI_MAC_REG = axi4lite_0
  BUS_INTERFACE S_AXI_SMP_PCP = axi4lite_0
  BUS_INTERFACE M_AXI_MAC_DMA = axi4_0
+ BUS_INTERFACE S_AXI_MAC_PKT = axi4lite_0
  PORT mac_irq = axi_powerlink_0_mac_irq
  PORT tcp_irq = axi_powerlink_0_tcp_irq
  PORT phy0_link = axi_powerlink_0_phy0_link
@@ -301,7 +304,7 @@ BEGIN axi_powerlink
  PORT phy1_SMIClk = axi_powerlink_0_phy1_SMIClk
  PORT phy1_Rst_n = axi_powerlink_0_phy1_Rst_n
  PORT M_AXI_MAC_DMA_aclk = clk_100_0000MHzPLL1
- PORT pio_portio = plb_powerlink_0_pio_portio
+ PORT pio_portio = axi_powerlink_0_pio_portio
 # portio latch is set to high =>> input is latched immediately
  PORT pio_portinlatch = 0b1111
 # portio direction configuration: (high=input, low=output)
