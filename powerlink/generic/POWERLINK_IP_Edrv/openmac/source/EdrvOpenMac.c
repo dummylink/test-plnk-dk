@@ -68,9 +68,9 @@
 
 #include "global.h"
 #include "EplInc.h"
-#include "kernel/EplEventk.h"
 #include "edrv.h"
 #include "Benchmark.h"
+#include "Debug.h"
 
 #ifdef __NIOS2__
 #include "system.h"     // FPGA system definitions
@@ -89,10 +89,6 @@
 
 #include "EplTgtTimeStamp_openMac.h"
 
-#ifdef CPU_UTIL
-#include "cpuUtil.h"
-#endif
-
 //comment the following lines to disable feature
 //#define EDRV_DEBUG        //debugging information forwarded to stdout
 //#define EDRV_2NDTXQUEUE    //use additional TX queue for MN
@@ -107,110 +103,37 @@
 #define EDRV_PHY_RST_PULSE_US        10000 //length of reset pulse (rst_n = 0)
 #define EDRV_PHY_RST_READY_US         5000 //time after phy is ready to operate
 
-//--- packet location definitions ---
-#define EDRV_PKT_LOC_TX_RX_INT                0
-#define EDRV_PKT_LOC_TX_INT_RX_EXT            1
-#define EDRV_PKT_LOC_TX_RX_EXT                2
-
 //--- set the system's base addresses ---
-#ifdef __NIOS2__
-#ifdef __POWERLINK //POWERLINK IP-core used
-    #define EDRV_MAC_BASE           (void *)POWERLINK_0_MAC_REG_BASE
-    #define EDRV_MAC_SPAN                   POWERLINK_0_MAC_REG_SPAN
-    #define EDRV_MAC_IRQ                    POWERLINK_0_MAC_REG_IRQ
-    #define EDRV_MAC_IRQ_IC_ID              POWERLINK_0_MAC_REG_IRQ_INTERRUPT_CONTROLLER_ID
-    #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
-    #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
-    #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-    #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
-    #define EDRV_CMP_BASE           (void *)POWERLINK_0_MAC_CMP_BASE
-    #define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
-    #define EDRV_PKT_LOC                    POWERLINK_0_MAC_REG_PKTLOC
-    #define EDRV_PHY_NUM                    POWERLINK_0_MAC_REG_PHYCNT
-    #define EDRV_DMA_OBSERVER                POWERLINK_0_MAC_REG_DMAOBSERV
-#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT                        //TX+RX in M9K
-    #define EDRV_MAX_RX_BUFFERS             POWERLINK_0_MAC_REG_MACRXBUFFERS
-    #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
-    #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
-#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT                        //TX in M9K and RX in external memory
-    #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-    #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
-    #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
-#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT                        //TX+RX in external memory
-    #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-    #define EDRV_PKT_BASE           (void *)0 //not used
-    #define EDRV_PKT_SPAN                   0 //not used
-#endif
-#elif defined(__OPENMAC) //OPENMAC IP-core used
-    #error "Not supported! Please change to POWERLINK IP-core!"
+#if defined(__NIOS2__)
+
+//POWERLINK IP-Core in "pcp_0" subsystem
+#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_qsys.h"
+
+//POWERLINK IP-Core in SOPC
+#elif defined(POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_sopc.h"
+
 #else
-    #error "Configuration is unknown!"
-#endif
-#elif defined(__MICROBLAZE__)
-    #ifdef POWERLINK_USES_PLB_BUS
-        #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
-        #define EDRV_MAC_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR
-        #define EDRV_MAC_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_REG_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR+1)
-        #define EDRV_MAC_IRQ                    XPAR_PCP_INTC_PLB_POWERLINK_0_MAC_IRQ_INTR
-        #define EDRV_MAC_IRQ_MASK               XPAR_PLB_POWERLINK_0_MAC_IRQ_MASK
-        #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
-        #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
-        #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-        #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
-        #define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
-        #define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
-        #define EDRV_PKT_LOC                    XPAR_PLB_POWERLINK_0_PACKET_LOCATION
-        #define EDRV_PHY_NUM                    XPAR_PLB_POWERLINK_0_PHY_COUNT
-        #define EDRV_DMA_OBSERVER               XPAR_PLB_POWERLINK_0_OBSERVER_ENABLE
-        #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-            #define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
-            #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-            #define EDRV_PKT_BASE           (void *)0 //not used
-            #define EDRV_PKT_SPAN                   0 //not used
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-            #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
-        #endif
-    #elif defined(POWERLINK_USES_AXI_BUS)
-        #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
-        #define EDRV_MAC_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR
-        #define EDRV_MAC_SPAN                   (XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_HIGHADDR-XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR+1)
-        #define EDRV_MAC_IRQ                    XPAR_PCP_INTC_AXI_POWERLINK_0_MAC_IRQ_INTR
-        #define EDRV_MAC_IRQ_MASK               XPAR_AXI_POWERLINK_0_MAC_IRQ_MASK
-        #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
-        #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
-        #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-        #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
-        #define EDRV_CMP_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_BASEADDR
-        #define EDRV_CMP_SPAN                   (XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_HIGHADDR-XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_BASEADDR+1)
-        #define EDRV_PKT_LOC                    XPAR_AXI_POWERLINK_0_PACKET_LOCATION
-        #define EDRV_PHY_NUM                    XPAR_AXI_POWERLINK_0_PHY_COUNT
-        #define EDRV_DMA_OBSERVER               XPAR_AXI_POWERLINK_0_OBSERVER_ENABLE
-        #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-            #define EDRV_MAX_RX_BUFFERS             XPAR_AXI_POWERLINK_0_MAC_RX_BUFFERS
-            #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-            #define EDRV_PKT_BASE           (void *)0 //not used
-            #define EDRV_PKT_SPAN                   0 //not used
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-            #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
-        #endif
-    #else
-        #error "The used bus system is unknown! (Should be PLB or AXI)"
-    #endif
-#else
-    #error "Configuration is unknown!"
+#error "POWERLINK IP-Core is not found in Nios II (sub-)system!"
 #endif
 
-#define EDRV_GET_MAC_TIME()            IORD_32DIRECT(EDRV_CMP_BASE, 0)
+#elif defined(__MICROBLAZE__)
+
+//POWERLINK IP-Core with PLB
+#if defined(POWERLINK_USES_PLB_BUS)
+#include "EdrvOpenMac_plb.h"
+
+#elif defined(POWERLINK_USES_AXI_BUS)
+#include "EdrvOpenMac_axi.h"
+
+#else
+#error "POWERLINK IP-Core is not found in Microblaze system!"
+#endif
+
+#else
+#error "Configuration unknown!"
+#endif
 
 //--- set driver's MTU ---
 #define EDRV_MAX_BUFFER_SIZE        1518
@@ -233,14 +156,23 @@
 #define EDRV_MAX_RX_BUFFERS 6
 #endif
 
-#if (EDRV_AUTO_RESPONSE == FALSE && !defined(EDRV_TIME_TRIG_TX))
+#if (EDRV_AUTO_RESPONSE == FALSE)
+    #undef EDRV_MAX_AUTO_RESPONSES
+    #define EDRV_MAX_AUTO_RESPONSES 0 //no auto-response used
+#endif
+
+#ifndef EDRV_TIME_TRIG_TX
+#define EDRV_TIME_TRIG_TX FALSE
+#endif
+
+#if (EDRV_AUTO_RESPONSE == FALSE && EDRV_TIME_TRIG_TX == FALSE)
     #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for CN!"
 #endif
-#if (EDRV_AUTO_RESPONSE != FALSE && defined(EDRV_TIME_TRIG_TX))
+#if (EDRV_AUTO_RESPONSE != FALSE && EDRV_TIME_TRIG_TX != FALSE)
 #error "Please disable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for MN!"
 #endif
 
-#if (defined(EDRV_2NDTXQUEUE) && !defined(EDRV_TIME_TRIG_TX))
+#if (defined(EDRV_2NDTXQUEUE) && EDRV_TIME_TRIG_TX == FALSE)
     #undef EDRV_2NDTXQUEUE //2nd TX queue makes no sense here..
     #undef EDRV_MAX_TX_BUF2
 #endif
@@ -284,9 +216,10 @@ typedef struct _tEdrvInstance
 
     phy_reg_typ*             m_pPhy[EDRV_PHY_NUM];
     BYTE                     m_ubPhyCnt;
-
+#if EDRV_MAX_AUTO_RESPONSES != 0
     // auto-response Tx buffers
-    tEdrvTxBuffer*           m_apTxBuffer[EDRV_MAX_FILTERS];
+    tEdrvTxBuffer*           m_apTxBuffer[EDRV_MAX_AUTO_RESPONSES];
+#endif
 
     //tx msg counter
     DWORD                    m_dwMsgFree;
@@ -377,8 +310,19 @@ int             i;
 BYTE            abFilterMask[31],
                 abFilterValue[31];
 
-#if EDRV_DMA_OBSERVER != 0
-    PRINTF0("INFO: DMA monitor circuit is enabled.\n");
+    DEBUG_LVL_01_TRACE1("*** %s ***\n", __func__);
+    DEBUG_LVL_01_TRACE1(" PHY_NUM = %d\n", EDRV_PHY_NUM);
+    DEBUG_LVL_01_TRACE1(" MAX_RX_BUFFERS = %d\n", EDRV_MAX_RX_BUFFERS);
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
+    DEBUG_LVL_01_TRACE0(" PKT_LOC = TX+RX internal\n");
+    DEBUG_LVL_01_TRACE1(" PKT_SPAN = %d byte\n", EDRV_PKT_SPAN);
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
+    DEBUG_LVL_01_TRACE0(" PKT_LOC = TX internal / RX external\n");
+    DEBUG_LVL_01_TRACE1(" PKT_SPAN = %d byte\n", EDRV_PKT_SPAN);
+    DEBUG_LVL_01_TRACE1(" DMA_OBSERVER = %d\n", EDRV_DMA_OBSERVER);
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
+    DEBUG_LVL_01_TRACE0(" PKT_LOC = TX+RX external\n");
+    DEBUG_LVL_01_TRACE1(" DMA_OBSERVER = %d\n", EDRV_DMA_OBSERVER);
 #endif
 
     memset(&EdrvInstance_l, 0, sizeof(EdrvInstance_l)); //reset driver struct
@@ -390,8 +334,6 @@ BYTE            abFilterMask[31],
 #endif
 
     EdrvInstance_l.m_InitParam = *pEdrvInitParam_p;
-
-    PRINTF0("initialize openMAC...");
 
     ////////////////////
     // initialize phy //
@@ -462,7 +404,7 @@ BYTE            abFilterMask[31],
     if (EdrvInstance_l.m_hOpenMac == 0)
     {
         Ret = kEplNoResource;
-        PRINTF0(" error!\n");
+        DEBUG_LVL_ERROR_TRACE1("%s: omethCreate failed\n", __func__);
         goto Exit;
     }
 
@@ -482,11 +424,9 @@ BYTE            abFilterMask[31],
         }
     }
 
-    PRINTF1("%i phy found\n", EdrvInstance_l.m_ubPhyCnt);
-
     if(EdrvInstance_l.m_ubPhyCnt != EDRV_PHY_NUM)
     {
-        PRINTF1(" -> but %i phy should be found!\n", EDRV_PHY_NUM);
+        DEBUG_LVL_ERROR_TRACE2("%s: Not all phy are found as configured (%d)!\n", __func__, EDRV_PHY_NUM);
         Ret = kEplNoResource;
         goto Exit;
     }
@@ -514,7 +454,7 @@ BYTE            abFilterMask[31],
         }
 
         omethFilterDisable(EdrvInstance_l.m_ahFilter[i]);
-#if (EDRV_AUTO_RESPONSE == TRUE)
+
         if (i < EDRV_MAX_AUTO_RESPONSES)
         {
             int iRet;
@@ -530,7 +470,6 @@ BYTE            abFilterMask[31],
             // ... but disable it
             omethResponseDisable(EdrvInstance_l.m_ahFilter[i]);
         }
-#endif
     }
 
     //moved following lines here, since omethHookCreate may change tx buffer base!
@@ -554,7 +493,7 @@ BYTE            abFilterMask[31],
     // start Ethernet Driver //
     ///////////////////////////
     omethStart(EdrvInstance_l.m_hOpenMac, TRUE);
-    PRINTF0("Ethernet Driver started\n");
+    DEBUG_LVL_01_TRACE0(" OPENMAC started\n");
 
     ////////////////////
     // link NIOS' irq //
@@ -624,6 +563,7 @@ tEplKernel EdrvShutdown(void)
 
 #ifdef EDRV_DEBUG
     //okay, before we destroy openMAC, observe its statistics!
+    DEBUG_LVL_ERROR_TRACE1("%s: \n", __func__);
     {
         ometh_stat_typ *pMacStat = NULL;
 
@@ -631,24 +571,24 @@ tEplKernel EdrvShutdown(void)
 
         if( pMacStat == NULL )
         {
-            PRINTF0("Serious error occurred!? Can't find the statistics!\n");
+            DEBUG_LVL_ERROR_TRACE0(" Serious error occurred!? Can't find the statistics!\n");
         }
         else
         {
-            PRINTF0("--- omethStatistics ---\n");
-            PRINTF0("----  RX           ----\n");
-            PRINTF1(" CRC ERROR = %i\n",         (int)pMacStat->rxCrcError);
-            PRINTF1(" HOOK DISABLED = %i\n",     (int)pMacStat->rxHookDisabled);
-            PRINTF1(" HOOK OVERFLOW = %i\n",     (int)pMacStat->rxHookOverflow);
-            PRINTF1(" LOST = %i\n",                 (int)pMacStat->rxLost);
-            PRINTF1(" OK = %i\n",                 (int)pMacStat->rxOk);
-            PRINTF1(" OVERSIZE = %i\n",             (int)pMacStat->rxOversize);
-            PRINTF0("----  TX           ----\n");
-            PRINTF1(" COLLISION = %i\n",         (int)pMacStat->txCollision);
-            PRINTF1(" DONE = %i\n",                 (int)pMacStat->txDone[0]);
-            PRINTF1(" SPURIOUS IRQ = %i\n",         (int)pMacStat->txSpuriousInt);
+            DEBUG_LVL_ERROR_TRACE0(" --- omethStatistics ---\n");
+            DEBUG_LVL_ERROR_TRACE0(" ----  RX           ----\n");
+            DEBUG_LVL_ERROR_TRACE1("  CRC ERROR = %i\n", (int)pMacStat->rxCrcError);
+            DEBUG_LVL_ERROR_TRACE1("  HOOK DISABLED = %i\n", (int)pMacStat->rxHookDisabled);
+            DEBUG_LVL_ERROR_TRACE1("  HOOK OVERFLOW = %i\n", (int)pMacStat->rxHookOverflow);
+            DEBUG_LVL_ERROR_TRACE1("  LOST = %i\n", (int)pMacStat->rxLost);
+            DEBUG_LVL_ERROR_TRACE1("  OK = %i\n", (int)pMacStat->rxOk);
+            DEBUG_LVL_ERROR_TRACE1("  OVERSIZE = %i\n", (int)pMacStat->rxOversize);
+            DEBUG_LVL_ERROR_TRACE0(" ----  TX           ----\n");
+            DEBUG_LVL_ERROR_TRACE1("  COLLISION = %i\n", (int)pMacStat->txCollision);
+            DEBUG_LVL_ERROR_TRACE1("  DONE = %i\n", (int)pMacStat->txDone[0]);
+            DEBUG_LVL_ERROR_TRACE1("  SPURIOUS IRQ = %i\n", (int)pMacStat->txSpuriousInt);
         }
-        PRINTF0("\n");
+        DEBUG_LVL_01_TRACE0("\n");
     }
 
 #if EDRV_DMA_OBSERVER != 0
@@ -656,18 +596,16 @@ tEplKernel EdrvShutdown(void)
     {
         //if you see this openMAC DMA is connected to slow memory!
         // -> use embedded memory or 10 nsec SRAM!!!
-        PRINTF0("OPENMAC DMA TRANSFER ERROR\n");
+        DEBUG_LVL_ERROR_TRACE1("%s: OPENMAC DMA TRANSFER ERROR\n", __func__);
     }
 #endif
 #endif
-
-    PRINTF0("Shutdown Ethernet Driver... ");
 
     if (omethDestroy(EdrvInstance_l.m_hOpenMac) != 0) {
-        PRINTF0("error\n");
+        DEBUG_LVL_ERROR_TRACE1("%s: Edrv Shutdown failed\n", __func__);
         return kEplNoResource;
     }
-    PRINTF0("done\n");
+    DEBUG_LVL_01_TRACE0("Edrv Shutdown done\n");
 
     return kEplSuccessful;
 }
@@ -706,7 +644,7 @@ ometh_packet_typ*   pPacket = NULL;
     }
 
 #ifdef EDRV_DEBUG
-    PRINTF2("%s: allocate %i bytes\n", __func__, (int)(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length)));
+    DEBUG_LVL_01_TRACE2("%s: allocate %i bytes\n", __func__, (int)(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length)));
 #endif
 
 #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
@@ -751,7 +689,7 @@ ometh_packet_typ*   pPacket = NULL;
             {
                 if( (p > pBufHighAddr) || (p < pBufBaseAddr) )
                 {
-                    PRINTF0("MAC-internal buffer overflow!\n");
+                    DEBUG_LVL_ERROR_TRACE1("%s: MAC-internal buffer overflow!\n", __func__);
                     Ret = kEplEdrvNoFreeBufEntry;
                     goto Exit;
                 }
@@ -811,7 +749,7 @@ tEplKernel EdrvReleaseTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 
-    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
+    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_AUTO_RESPONSES)
     {
         // disable auto-response
         omethResponseDisable(EdrvInstance_l.m_ahFilter[pBuffer_p->m_BufferNumber.m_dwVal]);
@@ -862,9 +800,10 @@ Exit:
 tEplKernel EdrvUpdateTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 {
 tEplKernel          Ret = kEplSuccessful;
+#if EDRV_MAX_AUTO_RESPONSES > 0
 ometh_packet_typ*   pPacket = NULL;
 
-    if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
+    if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_AUTO_RESPONSES)
     {
         Ret = kEplEdrvInvalidParam;
         goto Exit;
@@ -893,6 +832,10 @@ ometh_packet_typ*   pPacket = NULL;
     }
 
 Exit:
+#else
+    //invalid call, since auto-resp is deactivated for MN support
+    Ret = kEplEdrvInvalidParam;
+#endif
     return Ret;
 }
 
@@ -918,18 +861,10 @@ tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
 
-#ifndef EDRV_TIME_TRIG_TX
-    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
-    {
-        Ret = kEplEdrvInvalidParam;
-        goto Exit;
-    }
-#endif
-
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
 
     pPacket->length = pBuffer_p->m_uiTxMsgLen;
-#ifdef EDRV_TIME_TRIG_TX
+#if EDRV_TIME_TRIG_TX != FALSE
     if( (pBuffer_p->m_dwTimeOffsetAbsTk & 1) == 1)
     {
         //free tx descriptors available
@@ -942,7 +877,7 @@ unsigned long       ulTxLength;
             //time triggered sent failed => move to 2nd tx queue
             if( (EdrvInstance_l.m_iTxQueueWr - EdrvInstance_l.m_iTxQueueRd) >= EDRV_MAX_TX_BUF2)
             {
-                PRINTF0("\n***Queue is FULL!***\n\n");
+                DEBUG_LVL_ERROR_TRACE1("%s: Edrv 2nd TX queue is full\n", __func__);
                 Ret = kEplEdrvNoFreeBufEntry;
                 goto Exit;
             }
@@ -954,7 +889,7 @@ unsigned long       ulTxLength;
                 goto Exit; //packet will be sent!
             }
 #else
-            PRINTF0("\n***No TX Descriptor available!***\n\n");
+            DEBUG_LVL_ERROR_TRACE1("%s: No TX descriptor available\n", __func__);
             Ret = kEplEdrvNoFreeBufEntry;
             goto Exit;
 #endif
@@ -965,7 +900,7 @@ unsigned long       ulTxLength;
 #endif
         ulTxLength = omethTransmitArg(EdrvInstance_l.m_hOpenMac, pPacket,
                             EdrvCbSendAck, pBuffer_p);
-#ifdef EDRV_TIME_TRIG_TX
+#if EDRV_TIME_TRIG_TX != FALSE
     }
 #endif
 
@@ -979,7 +914,9 @@ unsigned long       ulTxLength;
         Ret = kEplEdrvNoFreeBufEntry;
     }
 
+#if EDRV_TIME_TRIG_TX != FALSE
 Exit:
+#endif
     if( Ret != kEplSuccessful )
     {
         BENCHMARK_MOD_01_TOGGLE(7);
@@ -1030,7 +967,7 @@ unsigned int    uiIndex;
 unsigned int    uiEntry;
 
     if (((uiCount_p != 0) && (pFilter_p == NULL))
-        || (uiCount_p >= EDRV_MAX_AUTO_RESPONSES))
+        || (uiCount_p >= EDRV_MAX_FILTERS))
     {
         Ret = kEplEdrvInvalidParam;
         goto Exit;
@@ -1060,7 +997,7 @@ unsigned int    uiEntry;
                                        uiIndex,
                                        pFilter_p[uiEntry].m_abFilterMask[uiIndex]);
             }
-
+#if EDRV_MAX_AUTO_RESPONSES > 0
             // set auto response
             if (pFilter_p[uiEntry].m_pTxBuffer != NULL)
             {
@@ -1098,6 +1035,7 @@ unsigned int    uiEntry;
                 }
 #endif
             }
+#endif
 
             if (pFilter_p[uiEntry].m_fEnable != FALSE)
             {   // enable the filter
@@ -1314,28 +1252,14 @@ static void EdrvIrqHandler (void* pArg_p
         )
 {
 
-#ifdef CPU_UTIL
-    isrcall_cpuutil();
-#endif
-
 #if EDRV_DMA_OBSERVER != 0
-tEplEventSource EventSource;
-
     WORD uwObserverVal = EDRV_RD16(EDRV_DOB_BASE, 0);
     //read DMA observer feature
     if( uwObserverVal != 0 )
     {
         EdrvInstance_l.m_fDmaError = TRUE;
         BENCHMARK_MOD_01_TOGGLE(7);
-        PRINTF1("DMA observer recognized overflow! (%X)\n", uwObserverVal);
-
-        EventSource = kEplEventSourceEdrv;
-
-        // Error event for API layer
-        EplEventkPostError(kEplEventSourceEventk,
-                        kEplEdrvPktDmaError,
-                        sizeof(EventSource),
-                        &EventSource);
+        DEBUG_LVL_ERROR_TRACE2("%s: DMA observer recognized overflow! (%X)\n", __func__, uwObserverVal);
 
         omethStop(pArg_p); //since openMAC was naughty, stop it!
     }
@@ -1349,7 +1273,7 @@ tEplEventSource EventSource;
         BENCHMARK_MOD_01_RESET(1);
     }
 
-#if (defined(EDRV_2NDTXQUEUE) && defined(EDRV_TIME_TRIG_TX))
+#if (defined(EDRV_2NDTXQUEUE) && (EDRV_TIME_TRIG_TX != FALSE))
     //observe additional TX queue and send packet if necessary
     while( (EdrvInstance_l.m_iTxQueueWr - EdrvInstance_l.m_iTxQueueRd) &&
         (omethTransmitPending(EdrvInstance_l.m_hOpenMac) < 16U) )
@@ -1405,7 +1329,6 @@ tEplEventSource EventSource;
 static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time)
 {
     EdrvInstance_l.m_dwMsgFree++;
-    BENCHMARK_MOD_01_SET(1);
 
     if (arg != NULL)
     {
@@ -1416,8 +1339,6 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
             pTxBuffer->m_pfnTxHandler(pTxBuffer);
         }
     }
-
-    BENCHMARK_MOD_01_RESET(1);
 }
 
 
@@ -1442,7 +1363,9 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
 static int EdrvRxHook(void *arg, ometh_packet_typ  *pPacket, OMETH_BUF_FREE_FCT  *pFct)
 {
 tEdrvRxBuffer       rxBuffer;
+#if EDRV_MAX_AUTO_RESPONSES > 0
 unsigned int        uiIndex;
+#endif
 tEplTgtTimeStamp    TimeStamp;
 
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
@@ -1454,13 +1377,13 @@ tEplTgtTimeStamp    TimeStamp;
 #if XPAR_MICROBLAZE_USE_DCACHE
     /*
      * before handing over the received packet to the stack
-     * flush the packet's memory range
+     * invalidate the packet's memory range
      */
-    microblaze_flush_dcache_range((DWORD)pPacket, pPacket->length);
+    microblaze_invalidate_dcache_range((DWORD)pPacket, pPacket->length);
 #endif
 
     EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer); //pass frame to Powerlink Stack
-
+#if EDRV_MAX_AUTO_RESPONSES > 0
     uiIndex = (unsigned int) arg;
 
     if (EdrvInstance_l.m_apTxBuffer[uiIndex] != NULL)
@@ -1473,6 +1396,7 @@ tEplTgtTimeStamp    TimeStamp;
         }
         BENCHMARK_MOD_01_RESET(5);
     }
+#endif
 
     return 0;
 }
