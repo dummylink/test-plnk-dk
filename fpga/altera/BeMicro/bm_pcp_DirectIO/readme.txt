@@ -43,7 +43,7 @@ Otherwise you can use the supplied SOF file and go directly to step 8.
    Go to "Tools -> Options -> IP Search Path -> Add" 
    and browse to the POWERLINK IP-core folder e.g. in the CNDK reference design folder
    
-   <your path>/fpga/altera/IP_core/POWERLINK
+   <your path>/fpga/altera/ipcore/powerlink
 
 4. Press the button "Generate" in the SOPC Builder to regenerate the Nios II system.
 
