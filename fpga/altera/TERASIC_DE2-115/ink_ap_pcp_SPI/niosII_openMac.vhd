@@ -377,7 +377,7 @@ begin
   ap_cpu_jtag_debug_module_begins_xfer <= NOT d1_reasons_to_wait AND ((internal_ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module OR internal_ap_cpu_instruction_master_qualified_request_ap_cpu_jtag_debug_module));
   --assign ap_cpu_jtag_debug_module_readdata_from_sa = ap_cpu_jtag_debug_module_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   ap_cpu_jtag_debug_module_readdata_from_sa <= ap_cpu_jtag_debug_module_readdata;
-  internal_ap_cpu_data_master_requests_ap_cpu_jtag_debug_module <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("10000000000000000100000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_ap_cpu_jtag_debug_module <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("00000000000000001000000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --ap_cpu_jtag_debug_module_arb_share_counter set values, which is an e_mux
   ap_cpu_jtag_debug_module_arb_share_set_values <= std_logic'('1');
   --ap_cpu_jtag_debug_module_non_bursting_master_requests mux, which is an e_mux
@@ -448,7 +448,7 @@ begin
   internal_ap_cpu_data_master_qualified_request_ap_cpu_jtag_debug_module <= internal_ap_cpu_data_master_requests_ap_cpu_jtag_debug_module AND NOT (((((NOT ap_cpu_data_master_waitrequest) AND ap_cpu_data_master_write)) OR ap_cpu_instruction_master_arbiterlock));
   --ap_cpu_jtag_debug_module_writedata mux, which is an e_mux
   ap_cpu_jtag_debug_module_writedata <= ap_cpu_data_master_writedata;
-  internal_ap_cpu_instruction_master_requests_ap_cpu_jtag_debug_module <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_instruction_master_address_to_slave(28 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("10000000000000000100000000000")))) AND (ap_cpu_instruction_master_read))) AND ap_cpu_instruction_master_read;
+  internal_ap_cpu_instruction_master_requests_ap_cpu_jtag_debug_module <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_instruction_master_address_to_slave(28 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("00000000000000001000000000000")))) AND (ap_cpu_instruction_master_read))) AND ap_cpu_instruction_master_read;
   --ap_cpu/data_master granted ap_cpu/jtag_debug_module last time, which is an e_register
   process (clk, reset_n)
   begin
@@ -770,7 +770,7 @@ begin
   --r_2 master_run cascaded wait assignment, which is an e_assign
   r_2 <= Vector_To_Std_Logic((((((((((((((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_data_master_qualified_request_sdram_0_s1 OR ap_cpu_data_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_data_master_requests_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_granted_sdram_0_s1 OR NOT ap_cpu_data_master_qualified_request_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_data_master_read) OR ((ap_cpu_data_master_read_data_valid_sdram_0_s1 AND ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sdram_0_s1 OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(NOT sdram_0_s1_waitrequest_from_sa)))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_spi_master_spi_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_spi_master_spi_control_port OR NOT ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_read OR ap_cpu_data_master_write)))))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_requests_sync_irq_from_pcp_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))) AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_requests_system_timer_ap_s1)))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_read)))) OR (((std_logic_vector'("00000000000000000000000000000001") AND std_logic_vector'("00000000000000000000000000000001")) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_read)))))))) AND (((std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((NOT ap_cpu_data_master_qualified_request_system_timer_ap_s1 OR NOT ap_cpu_data_master_write)))) OR ((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(ap_cpu_data_master_write)))))))));
   --optimize select-logic by passing only those address bits which matter.
-  internal_ap_cpu_data_master_address_to_slave <= ap_cpu_data_master_address(28 DOWNTO 0);
+  internal_ap_cpu_data_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(ap_cpu_data_master_address(28)) & A_ToStdLogicVector(std_logic'('0')) & ap_cpu_data_master_address(26 DOWNTO 0));
   --ap_cpu/data_master readdata mux, which is an e_mux
   ap_cpu_data_master_readdata <= ((((((((((((A_REP(NOT ap_cpu_data_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_data_master_requests_async_irq_from_pcp_s1, 32) OR (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(async_irq_from_pcp_s1_readdata_from_sa)))))) AND ((A_REP(NOT ap_cpu_data_master_requests_benchmark_ap_pio_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (benchmark_ap_pio_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_inport_ap_s1, 32) OR (std_logic_vector'("000000000000000000000000") & (inport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_lcd_control_slave, 32) OR (std_logic_vector'("000000000000000000000000") & (lcd_control_slave_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_niosII_openMac_clock_0_in, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_outport_ap_s1, 32) OR (std_logic_vector'("00000000") & (outport_ap_s1_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sdram_0_s1, 32) OR registered_ap_cpu_data_master_readdata))) AND ((A_REP(NOT ap_cpu_data_master_requests_spi_master_spi_control_port, 32) OR (std_logic_vector'("0000000000000000") & (spi_master_spi_control_port_readdata_from_sa))))) AND ((A_REP(NOT ap_cpu_data_master_requests_sync_irq_from_pcp_s1, 32) OR (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(sync_irq_from_pcp_s1_readdata_from_sa)))))) AND ((A_REP(NOT ap_cpu_data_master_requests_system_timer_ap_s1, 32) OR (std_logic_vector'("0000000000000000") & (system_timer_ap_s1_readdata_from_sa))));
   --actual waitrequest port, which is an e_register
@@ -872,7 +872,7 @@ begin
   --r_2 master_run cascaded wait assignment, which is an e_assign
   r_2 <= Vector_To_Std_Logic((((std_logic_vector'("00000000000000000000000000000001") AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((ap_cpu_instruction_master_qualified_request_sdram_0_s1 OR ap_cpu_instruction_master_read_data_valid_sdram_0_s1) OR NOT ap_cpu_instruction_master_requests_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR(((ap_cpu_instruction_master_granted_sdram_0_s1 OR NOT ap_cpu_instruction_master_qualified_request_sdram_0_s1)))))) AND (std_logic_vector'("0000000000000000000000000000000") & (A_TOSTDLOGICVECTOR((((NOT ap_cpu_instruction_master_qualified_request_sdram_0_s1 OR NOT ap_cpu_instruction_master_read) OR ((ap_cpu_instruction_master_read_data_valid_sdram_0_s1 AND ap_cpu_instruction_master_read)))))))));
   --optimize select-logic by passing only those address bits which matter.
-  internal_ap_cpu_instruction_master_address_to_slave <= ap_cpu_instruction_master_address(28 DOWNTO 0);
+  internal_ap_cpu_instruction_master_address_to_slave <= Std_Logic_Vector'(A_ToStdLogicVector(ap_cpu_instruction_master_address(28)) & A_ToStdLogicVector(std_logic'('0')) & ap_cpu_instruction_master_address(26 DOWNTO 0));
   --ap_cpu/instruction_master readdata mux, which is an e_mux
   ap_cpu_instruction_master_readdata <= ((A_REP(NOT ap_cpu_instruction_master_requests_ap_cpu_jtag_debug_module, 32) OR ap_cpu_jtag_debug_module_readdata_from_sa)) AND ((A_REP(NOT ap_cpu_instruction_master_requests_sdram_0_s1, 32) OR sdram_0_s1_readdata_from_sa));
   --actual waitrequest port, which is an e_assign
@@ -1051,7 +1051,7 @@ begin
   async_irq_from_pcp_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_async_irq_from_pcp_s1);
   --assign async_irq_from_pcp_s1_readdata_from_sa = async_irq_from_pcp_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   async_irq_from_pcp_s1_readdata_from_sa <= async_irq_from_pcp_s1_readdata;
-  internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00001000000000000000000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_async_irq_from_pcp_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100010100000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --async_irq_from_pcp_s1_arb_share_counter set values, which is an e_mux
   async_irq_from_pcp_s1_arb_share_set_values <= std_logic'('1');
   --async_irq_from_pcp_s1_non_bursting_master_requests mux, which is an e_mux
@@ -1290,7 +1290,7 @@ begin
   benchmark_ap_pio_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_benchmark_ap_pio_s1);
   --assign benchmark_ap_pio_s1_readdata_from_sa = benchmark_ap_pio_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   benchmark_ap_pio_s1_readdata_from_sa <= benchmark_ap_pio_s1_readdata;
-  internal_ap_cpu_data_master_requests_benchmark_ap_pio_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("10000000000000001000001000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_benchmark_ap_pio_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("00000000000000000100001000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --benchmark_ap_pio_s1_arb_share_counter set values, which is an e_mux
   benchmark_ap_pio_s1_arb_share_set_values <= std_logic'('1');
   --benchmark_ap_pio_s1_non_bursting_master_requests mux, which is an e_mux
@@ -5951,7 +5951,7 @@ begin
   inport_ap_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_inport_ap_s1);
   --assign inport_ap_s1_readdata_from_sa = inport_ap_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   inport_ap_s1_readdata_from_sa <= inport_ap_s1_readdata;
-  internal_ap_cpu_data_master_requests_inport_ap_s1 <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000000000000001000001110000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))) AND ap_cpu_data_master_read;
+  internal_ap_cpu_data_master_requests_inport_ap_s1 <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100001110000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write)))) AND ap_cpu_data_master_read;
   --inport_ap_s1_arb_share_counter set values, which is an e_mux
   inport_ap_s1_arb_share_set_values <= std_logic'('1');
   --inport_ap_s1_non_bursting_master_requests mux, which is an e_mux
@@ -6449,7 +6449,7 @@ begin
   jtag_uart_1_avalon_jtag_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_jtag_uart_1_avalon_jtag_slave);
   --assign jtag_uart_1_avalon_jtag_slave_readdata_from_sa = jtag_uart_1_avalon_jtag_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_1_avalon_jtag_slave_readdata_from_sa <= jtag_uart_1_avalon_jtag_slave_readdata;
-  internal_ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("10000000000000001000010100000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_jtag_uart_1_avalon_jtag_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 3) & std_logic_vector'("000")) = std_logic_vector'("00000000000000000100010110000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --assign jtag_uart_1_avalon_jtag_slave_dataavailable_from_sa = jtag_uart_1_avalon_jtag_slave_dataavailable so that symbol knows where to group signals which may go to master only, which is an e_assign
   jtag_uart_1_avalon_jtag_slave_dataavailable_from_sa <= jtag_uart_1_avalon_jtag_slave_dataavailable;
   --assign jtag_uart_1_avalon_jtag_slave_readyfordata_from_sa = jtag_uart_1_avalon_jtag_slave_readyfordata so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -6702,7 +6702,7 @@ begin
   lcd_control_slave_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_lcd_control_slave);
   --assign lcd_control_slave_readdata_from_sa = lcd_control_slave_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   lcd_control_slave_readdata_from_sa <= lcd_control_slave_readdata;
-  internal_ap_cpu_data_master_requests_lcd_control_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000000000000001000010010000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_lcd_control_slave <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100010010000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --lcd_control_slave_arb_share_counter set values, which is an e_mux
   lcd_control_slave_arb_share_set_values <= std_logic'('1');
   --lcd_control_slave_non_bursting_master_requests mux, which is an e_mux
@@ -8634,7 +8634,7 @@ begin
   outport_ap_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_outport_ap_s1);
   --assign outport_ap_s1_readdata_from_sa = outport_ap_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   outport_ap_s1_readdata_from_sa <= outport_ap_s1_readdata;
-  internal_ap_cpu_data_master_requests_outport_ap_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000000000000001000001100000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_outport_ap_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100001100000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --outport_ap_s1_arb_share_counter set values, which is an e_mux
   outport_ap_s1_arb_share_set_values <= std_logic'('1');
   --outport_ap_s1_non_bursting_master_requests mux, which is an e_mux
@@ -8903,7 +8903,7 @@ begin
   pcp_cpu_jtag_debug_module_begins_xfer <= NOT d1_reasons_to_wait AND ((internal_pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module OR internal_pcp_cpu_instruction_master_qualified_request_pcp_cpu_jtag_debug_module));
   --assign pcp_cpu_jtag_debug_module_readdata_from_sa = pcp_cpu_jtag_debug_module_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   pcp_cpu_jtag_debug_module_readdata_from_sa <= pcp_cpu_jtag_debug_module_readdata;
-  internal_pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(25 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("01010000010000100000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  internal_pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(25 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("01010000001100100000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
   --pcp_cpu_jtag_debug_module_arb_share_counter set values, which is an e_mux
   pcp_cpu_jtag_debug_module_arb_share_set_values <= std_logic_vector'("01");
   --pcp_cpu_jtag_debug_module_non_bursting_master_requests mux, which is an e_mux
@@ -8974,7 +8974,7 @@ begin
   internal_pcp_cpu_data_master_qualified_request_pcp_cpu_jtag_debug_module <= internal_pcp_cpu_data_master_requests_pcp_cpu_jtag_debug_module AND NOT (((((NOT pcp_cpu_data_master_waitrequest) AND pcp_cpu_data_master_write)) OR pcp_cpu_instruction_master_arbiterlock));
   --pcp_cpu_jtag_debug_module_writedata mux, which is an e_mux
   pcp_cpu_jtag_debug_module_writedata <= pcp_cpu_data_master_writedata;
-  internal_pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_instruction_master_address_to_slave(24 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("1010000010000100000000000")))) AND (pcp_cpu_instruction_master_read))) AND pcp_cpu_instruction_master_read;
+  internal_pcp_cpu_instruction_master_requests_pcp_cpu_jtag_debug_module <= ((to_std_logic(((Std_Logic_Vector'(pcp_cpu_instruction_master_address_to_slave(24 DOWNTO 11) & std_logic_vector'("00000000000")) = std_logic_vector'("1010000001100100000000000")))) AND (pcp_cpu_instruction_master_read))) AND pcp_cpu_instruction_master_read;
   --pcp_cpu/data_master granted pcp_cpu/jtag_debug_module last time, which is an e_register
   process (clk, reset_n)
   begin
@@ -10297,7 +10297,7 @@ begin
   powerlink_0_MAC_BUF_begins_xfer <= NOT d1_reasons_to_wait AND (internal_pcp_cpu_data_master_qualified_request_powerlink_0_MAC_BUF);
   --assign powerlink_0_MAC_BUF_readdata_from_sa = powerlink_0_MAC_BUF_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   powerlink_0_MAC_BUF_readdata_from_sa <= powerlink_0_MAC_BUF_readdata;
-  internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(25 DOWNTO 13) & std_logic_vector'("0000000000000")) = std_logic_vector'("01010000001100000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
+  internal_pcp_cpu_data_master_requests_powerlink_0_MAC_BUF <= to_std_logic(((Std_Logic_Vector'(pcp_cpu_data_master_address_to_slave(25 DOWNTO 13) & std_logic_vector'("0000000000000")) = std_logic_vector'("01010000001010000000000000")))) AND ((pcp_cpu_data_master_read OR pcp_cpu_data_master_write));
   --assign powerlink_0_MAC_BUF_waitrequest_from_sa = powerlink_0_MAC_BUF_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   internal_powerlink_0_MAC_BUF_waitrequest_from_sa <= powerlink_0_MAC_BUF_waitrequest;
   --powerlink_0_MAC_BUF_arb_share_counter set values, which is an e_mux
@@ -12537,7 +12537,7 @@ begin
   sdram_0_s1_begins_xfer <= NOT d1_reasons_to_wait AND ((internal_ap_cpu_data_master_qualified_request_sdram_0_s1 OR internal_ap_cpu_instruction_master_qualified_request_sdram_0_s1));
   --assign sdram_0_s1_readdata_from_sa = sdram_0_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   sdram_0_s1_readdata_from_sa <= sdram_0_s1_readdata;
-  internal_ap_cpu_data_master_requests_sdram_0_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 27) & std_logic_vector'("000000000000000000000000000")) = std_logic_vector'("01000000000000000000000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_sdram_0_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 27) & std_logic_vector'("000000000000000000000000000")) = std_logic_vector'("10000000000000000000000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --assign sdram_0_s1_waitrequest_from_sa = sdram_0_s1_waitrequest so that symbol knows where to group signals which may go to master only, which is an e_assign
   internal_sdram_0_s1_waitrequest_from_sa <= sdram_0_s1_waitrequest;
   --assign sdram_0_s1_readdatavalid_from_sa = sdram_0_s1_readdatavalid so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -12637,7 +12637,7 @@ begin
   ap_cpu_data_master_read_data_valid_sdram_0_s1 <= ((sdram_0_s1_readdatavalid_from_sa AND ap_cpu_data_master_rdv_fifo_output_from_sdram_0_s1)) AND NOT ap_cpu_data_master_rdv_fifo_empty_sdram_0_s1;
   --sdram_0_s1_writedata mux, which is an e_mux
   sdram_0_s1_writedata <= ap_cpu_data_master_writedata;
-  internal_ap_cpu_instruction_master_requests_sdram_0_s1 <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_instruction_master_address_to_slave(28 DOWNTO 27) & std_logic_vector'("000000000000000000000000000")) = std_logic_vector'("01000000000000000000000000000")))) AND (ap_cpu_instruction_master_read))) AND ap_cpu_instruction_master_read;
+  internal_ap_cpu_instruction_master_requests_sdram_0_s1 <= ((to_std_logic(((Std_Logic_Vector'(ap_cpu_instruction_master_address_to_slave(28 DOWNTO 27) & std_logic_vector'("000000000000000000000000000")) = std_logic_vector'("10000000000000000000000000000")))) AND (ap_cpu_instruction_master_read))) AND ap_cpu_instruction_master_read;
   --ap_cpu/data_master granted sdram_0/s1 last time, which is an e_register
   process (clk, reset_n)
   begin
@@ -12953,7 +12953,7 @@ begin
   spi_master_spi_control_port_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_spi_master_spi_control_port);
   --assign spi_master_spi_control_port_readdata_from_sa = spi_master_spi_control_port_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   spi_master_spi_control_port_readdata_from_sa <= spi_master_spi_control_port_readdata;
-  internal_ap_cpu_data_master_requests_spi_master_spi_control_port <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("10000000000000001000000100000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_spi_master_spi_control_port <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("00000000000000000100000100000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --assign spi_master_spi_control_port_dataavailable_from_sa = spi_master_spi_control_port_dataavailable so that symbol knows where to group signals which may go to master only, which is an e_assign
   spi_master_spi_control_port_dataavailable_from_sa <= spi_master_spi_control_port_dataavailable;
   --assign spi_master_spi_control_port_readyfordata_from_sa = spi_master_spi_control_port_readyfordata so that symbol knows where to group signals which may go to master only, which is an e_assign
@@ -13200,7 +13200,7 @@ begin
   sync_irq_from_pcp_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_sync_irq_from_pcp_s1);
   --assign sync_irq_from_pcp_s1_readdata_from_sa = sync_irq_from_pcp_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   sync_irq_from_pcp_s1_readdata_from_sa <= sync_irq_from_pcp_s1_readdata;
-  internal_ap_cpu_data_master_requests_sync_irq_from_pcp_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("10000000000000001000010000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_sync_irq_from_pcp_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 4) & std_logic_vector'("0000")) = std_logic_vector'("00000000000000000100010000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --sync_irq_from_pcp_s1_arb_share_counter set values, which is an e_mux
   sync_irq_from_pcp_s1_arb_share_set_values <= std_logic'('1');
   --sync_irq_from_pcp_s1_non_bursting_master_requests mux, which is an e_mux
@@ -14042,7 +14042,7 @@ begin
   system_timer_ap_s1_begins_xfer <= NOT d1_reasons_to_wait AND (internal_ap_cpu_data_master_qualified_request_system_timer_ap_s1);
   --assign system_timer_ap_s1_readdata_from_sa = system_timer_ap_s1_readdata so that symbol knows where to group signals which may go to master only, which is an e_assign
   system_timer_ap_s1_readdata_from_sa <= system_timer_ap_s1_readdata;
-  internal_ap_cpu_data_master_requests_system_timer_ap_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("10000000000000001000000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
+  internal_ap_cpu_data_master_requests_system_timer_ap_s1 <= to_std_logic(((Std_Logic_Vector'(ap_cpu_data_master_address_to_slave(28 DOWNTO 5) & std_logic_vector'("00000")) = std_logic_vector'("00000000000000000100000000000")))) AND ((ap_cpu_data_master_read OR ap_cpu_data_master_write));
   --system_timer_ap_s1_arb_share_counter set values, which is an e_mux
   system_timer_ap_s1_arb_share_set_values <= std_logic'('1');
   --system_timer_ap_s1_non_bursting_master_requests mux, which is an e_mux

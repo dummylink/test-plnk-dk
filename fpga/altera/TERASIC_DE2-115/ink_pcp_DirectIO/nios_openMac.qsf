@@ -226,24 +226,8 @@ set_location_assignment PIN_AG25 -to SW_BENCHMARK_OUT[4]
 set_location_assignment PIN_AD25 -to SW_BENCHMARK_OUT[5]
 set_location_assignment PIN_AH25 -to SW_BENCHMARK_OUT[6]
 set_location_assignment PIN_AE25 -to SW_BENCHMARK_OUT[7]
-set_global_assignment -name ENABLE_LOGIC_ANALYZER_INTERFACE ON
-set_global_assignment -name USE_LOGIC_ANALYZER_INTERFACE_FILE benchmark.lai
-set_global_assignment -name SLD_NODE_CREATOR_ID 3698176 -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_ENTITY_NAME sld_multitap -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[0] -to altera_reserved_lai_0_0 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[1] -to altera_reserved_lai_0_1 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[2] -to altera_reserved_lai_0_2 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[3] -to altera_reserved_lai_0_3 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[4] -to altera_reserved_lai_0_4 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[5] -to altera_reserved_lai_0_5 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[6] -to altera_reserved_lai_0_6 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_PIN_FROM_SLD_NODE_ENTITY_PORT acq_output[7] -to altera_reserved_lai_0_7 -section_id auto_lai_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][0] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|phyMii0_TxEn" -section_id auto_lai_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][4] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|portio:\\genSimpleIO:thePortIO|x_portOutValid[1]" -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=3698176" -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BANK_WIDTH=8" -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_STATE=0" -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ACQ_MODE=0" -section_id auto_lai_0
+set_global_assignment -name ENABLE_LOGIC_ANALYZER_INTERFACE OFF
+set_global_assignment -name USE_LOGIC_ANALYZER_INTERFACE_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/ink_pcp_DirectIO/benchmark.lai"
 set_location_assignment PIN_AG22 -to altera_reserved_lai_0_0
 set_location_assignment PIN_AE24 -to altera_reserved_lai_0_1
 set_location_assignment PIN_AH22 -to altera_reserved_lai_0_2
@@ -277,13 +261,6 @@ set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
 set_global_assignment -name MISC_FILE "C:/mairt/workspace/openPOWERLINK_CNDK_mairt/fpga/altera/TERASIC_DE2-115/ink_pcp_DirectIO/nios_openMac.dpf"
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][1] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|openmac_ethernet:theOpenMac|OpenMAC:THE_OPENMAC|nTx_Int" -section_id auto_lai_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][2] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|openmac_ethernet:theOpenMac|OpenMAC:THE_OPENMAC|nRx_Int" -section_id auto_lai_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][3] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|openmac_ethernet:theOpenMac|openMAC_cmp:THE_MAC_TIME_CMP|irq" -section_id auto_lai_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_input[0][5] -to "niosII_openMac:inst|powerlink_0:the_powerlink_0|powerlink:powerlink_0|openmac_ethernet:theOpenMac|OpenMAC:THE_OPENMAC|Dma_Req" -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC=53161" -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BANK_SIZE=3" -section_id auto_lai_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BANK_SEL_WIDTH=2" -section_id auto_lai_0
 set_global_assignment -name SDC_FILE PLK_MII_base.sdc
 set_global_assignment -name VHDL_FILE sevsegEncode.vhd
 set_global_assignment -name BDF_FILE nios_pll.bdf

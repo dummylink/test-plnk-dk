@@ -63,7 +63,7 @@
  -- Pin directions (input, output or bidir) are based on device operating in user mode.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
+Quartus II Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Web Edition
 CHIP  "nios_openMac"  ASSIGNED TO AN: EP4CE115F29C7
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -225,11 +225,11 @@ SPI_MISO                     : AE16      : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : AE17      :        :                   :         : 4         :                
 RESERVED_INPUT               : AE18      :        :                   :         : 4         :                
 RESERVED_INPUT               : AE19      :        :                   :         : 4         :                
-altera_reserved_lai_0_4      : AE20      : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT               : AE20      :        :                   :         : 4         :                
 RESERVED_INPUT               : AE21      :        :                   :         : 4         :                
 SW_BENCHMARK_PCP_OUT[0]      : AE22      : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : AE23      :        :                   :         : 4         :                
-altera_reserved_lai_0_1      : AE24      : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT               : AE24      :        :                   :         : 4         :                
 SW_BENCHMARK_PCP_OUT[7]      : AE25      : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : AE26      :        :                   :         : 5         :                
 RESERVED_INPUT               : AE27      :        :                   :         : 5         :                
@@ -253,13 +253,13 @@ ASYNC_IRQ_OUT                : AF16      : output : 3.3-V LVTTL       :         
 RESERVED_INPUT               : AF17      :        :                   :         : 4         :                
 RESERVED_INPUT               : AF18      :        :                   :         : 4         :                
 RESERVED_INPUT               : AF19      :        :                   :         : 4         :                
-altera_reserved_lai_0_6      : AF20      : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT               : AF20      :        :                   :         : 4         :                
 SW_BENCHMARK_PCP_OUT[1]      : AF21      : output : 3.3-V LVTTL       :         : 4         : Y              
 SW_BENCHMARK_PCP_OUT[2]      : AF22      : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : AF23      :        :                   :         : 4         :                
 RESERVED_INPUT               : AF24      :        :                   :         : 4         :                
 RESERVED_INPUT               : AF25      :        :                   :         : 4         :                
-altera_reserved_lai_0_3      : AF26      : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT               : AF26      :        :                   :         : 4         :                
 RESERVED_INPUT               : AF27      :        :                   :         : 5         :                
 GND                          : AF28      : gnd    :                   :         :           :                
 VCCIO2                       : AG1       : power  :                   : 3.3V    : 2         :                
@@ -283,8 +283,8 @@ RESERVED_INPUT               : AG18      :        :                   :         
 RESERVED_INPUT               : AG19      :        :                   :         : 4         :                
 GND                          : AG20      : gnd    :                   :         :           :                
 RESERVED_INPUT               : AG21      :        :                   :         : 4         :                
-altera_reserved_lai_0_0      : AG22      : output : 3.3-V LVTTL       :         : 4         : Y              
-altera_reserved_lai_0_5      : AG23      : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT               : AG22      :        :                   :         : 4         :                
+RESERVED_INPUT               : AG23      :        :                   :         : 4         :                
 GND                          : AG24      : gnd    :                   :         :           :                
 SW_BENCHMARK_PCP_OUT[4]      : AG25      : output : 3.3-V LVTTL       :         : 4         : Y              
 RESERVED_INPUT               : AG26      :        :                   :         : 4         :                
@@ -310,11 +310,11 @@ RESERVED_INPUT               : AH18      :        :                   :         
 RESERVED_INPUT               : AH19      :        :                   :         : 4         :                
 VCCIO4                       : AH20      : power  :                   : 3.3V    : 4         :                
 RESERVED_INPUT               : AH21      :        :                   :         : 4         :                
-altera_reserved_lai_0_2      : AH22      : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT               : AH22      :        :                   :         : 4         :                
 RESERVED_INPUT               : AH23      :        :                   :         : 4         :                
 VCCIO4                       : AH24      : power  :                   : 3.3V    : 4         :                
 SW_BENCHMARK_PCP_OUT[6]      : AH25      : output : 3.3-V LVTTL       :         : 4         : Y              
-altera_reserved_lai_0_7      : AH26      : output : 3.3-V LVTTL       :         : 4         : Y              
+RESERVED_INPUT               : AH26      :        :                   :         : 4         :                
 VCCIO4                       : AH27      : power  :                   : 3.3V    : 4         :                
 VCCIO1                       : B1        : power  :                   : 3.3V    : 1         :                
 GND                          : B2        : gnd    :                   :         :           :                
