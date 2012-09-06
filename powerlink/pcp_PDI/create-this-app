@@ -135,6 +135,18 @@ CFLAGS="-D${DBG_MODE} -DCN_API_FLAGS=${CN_API_FLAGS} -DDEF_DEBUG_LVL=${DEF_DEBUG
 
 ###############################################################################
 # source files
+
+# select phy configuration file according to target board (SOPC directory)
+MatchCnt=$(echo $SOPC_DIR | grep "BeMicro" -c)
+if [ $MatchCnt -eq 1 ]; then
+    PHYCFG_C_FILE="omethlib_phycfg_bemicro.c"
+else
+    PHYCFG_C_FILE="omethlib_phycfg_generic.c"
+
+fi
+
+
+# set source files
 SRCFILES="pcpMain.c \
 pcpAsync.c \
 pcpPdo.c \
@@ -154,6 +166,7 @@ ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTgtTimeStamp_OpenMac.c \
 ${EDRV_DIR}/openmac/source/omethlib.c \
 ${EDRV_DIR}/openmac/source/omethlibint.c \
+${EDRV_DIR}/openmac/source/${PHYCFG_C_FILE} \
 ${POWERLINKDIR}/EplStack/EplDllk.c \
 ${POWERLINKDIR}/EplStack/EplDllkCal.c \
 ${POWERLINKDIR}/EplStack/EplDlluCal.c \
