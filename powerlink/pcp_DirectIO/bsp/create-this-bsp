@@ -60,7 +60,7 @@ exit 1
 fi
 
 if [ -z "$NO_OPT" ]; then
-    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O3"
+    NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O3 --set hal.stdout none --set hal.stderr none"
 else
     NIOS2_BSP_ARGS="${NIOS2_BSP_ARGS} --set hal.make.bsp_cflags_optimization -O1" # for debugging
 fi
