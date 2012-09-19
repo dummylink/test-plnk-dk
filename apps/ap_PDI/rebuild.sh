@@ -51,7 +51,36 @@ echo "Use parameter: --sopcdir <SOPC_directory>"
 exit 1
 fi
 
+# user input - Quartus rebuild option
+a=
+while [ -z "$a" ]; do
+    echo  -n "Would you like to rebuild the Quartus project (y/n)? "
+	read a
+	a=${a##*[^'y' 'n']*} #eliminate other characters then y and n 
+if [ -z "$a" ]; then
+	echo Invalid input!
+fi	
+done
+
+case "$a" in
+  'y')
+    pushd $SOPC_DIR >> /dev/null #change directory
+    cmd="./make.sh"              # rebuild Quartus project
+    $cmd || {
+        echo -e "ERROR: Quartus rebuild failed!"
+        exit 1
+    }      
+    popd >> /dev/null           # restore PWD
+    ;;
+  'n')
+    ;;
+  *)
+    exit 1
+    ;;
+esac   
+
 # user input - chose between debug and release
+echo; echo    "Software rebuild options:"
 a=
 while [ -z "$a" ]; do
     echo    "Select between [1] debug"
