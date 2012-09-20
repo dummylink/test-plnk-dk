@@ -84,6 +84,7 @@ ${OBJDICT_DIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTgtTimeStamp_OpenMac.c \
+${EDRV_DIR}/openmac/source/omethlib_phycfg_generic.c \
 ${EDRV_DIR}/openmac/source/omethlib.c \
 ${EDRV_DIR}/openmac/source/omethlibint.c \
 ${POWERLINK_DIR}/EplStack/EplDllk.c \
