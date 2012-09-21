@@ -17,18 +17,12 @@ DBG_MODE=_DEBUG	# compile printfs()
 # include project configuration
 PWD=`pwd`
 
-. ../../project.config  						#POWERLINK stack path
-EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path
-GENERIC_DIR=../generic
-CNDK_TARGET_DIR=../target
-PCP_DIR=$PWD/..                                 # use absolute path to be able to include
-                                                # from different source directoriesBSP_DIR=./bsp
-
-BSP_DIR=./bsp
-LIBAPIDIR=../../libCnApi
+. ../../project.config  						# include PATH settings
+PCP_DIR=$PWD/..                                  
+BSP_DIR=$PWD/bsp
 
 # replace this path to the object dictionary you wish to include
-OBJDICTDIR=../../objDicts/Direct_IO
+OBJDICTDIR=$PWD/../../objDicts/Direct_IO
 
 ###############################################################################
 
@@ -62,7 +56,7 @@ do
          SKIP_MAKE=1
          ;;
       --rebuild)
-         rm -f ./Makefile
+         rm -f ./Makefile ${BSP_DIR}/settings.bsp
          REBUILD=1
          ;;
       --debug)
@@ -76,7 +70,7 @@ do
 	  --sopcdir)
 		 shift
 		 #relative path!
-		 SOPC_DIR=$1
+		 SOPC_DIR=$PWD/$1
 		 echo INFO: SOPC_DIR set to \"$SOPC_DIR\"
 		 echo -------------------------------
 		 ;; 
@@ -87,9 +81,9 @@ done
 ###############################################################################
 # Include directories
 INCLUDES="\
-. \
+${PWD} \
 ${EDRV_DIR}/openmac/include \
-${CNDK_TARGET_DIR}/altera_nios/include \
+${PCP_TARGET_DIR}/altera_nios/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
@@ -145,13 +139,13 @@ fi
 
 # set source files
 SRCFILES="main.c \
-${CNDK_TARGET_DIR}/altera_nios/src/lcd.c \
-${CNDK_TARGET_DIR}/altera_nios/src/Cmp_Lcd.c \
-${CNDK_TARGET_DIR}/altera_nios/src/fpgaCfg.c \
-${CNDK_TARGET_DIR}/altera_nios/src/fwUpdate.c \
-${CNDK_TARGET_DIR}/altera_nios/src/boot.c \
-${CNDK_TARGET_DIR}/altera_nios/src/systemComponents.c \
-${GENERIC_DIR}/utils/crc32.c \
+${PCP_TARGET_DIR}/altera_nios/src/lcd.c \
+${PCP_TARGET_DIR}/altera_nios/src/Cmp_Lcd.c \
+${PCP_TARGET_DIR}/altera_nios/src/fpgaCfg.c \
+${PCP_TARGET_DIR}/altera_nios/src/fwUpdate.c \
+${PCP_TARGET_DIR}/altera_nios/src/boot.c \
+${PCP_TARGET_DIR}/altera_nios/src/systemComponents.c \
+${PCP_GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
@@ -193,9 +187,12 @@ if [ "$?" == "0" ] ; then
 INCLUDES=\"${INCLUDES}\"
 fi
 
-NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
+NIOS2_APP_GEN_ARGS="--elf-name epl.elf
+--set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
---set CFLAGS=\"${CFLAGS}\" --set APP_INCLUDE_DIRS=\"${INCLUDES}\" --src-files $SRCFILES"
+--set CFLAGS=\"${CFLAGS}\" \
+--set APP_INCLUDE_DIRS=$INCLUDES \
+--src-files $SRCFILES"
 
 
 if [ -z "$SOPC_DIR" ]; then
@@ -319,9 +316,7 @@ $cmd || {
     exit 1
 }
 
-cat >> Makefile <<'Heredoc'
-
-# Rules for EPCS flash programming commands (EPCS contains SOF and application)
+echo '# Rules for EPCS flash programming commands (EPCS contains SOF and application)
 PROGRAM_EPCS_SUFFIX := -epcs
 PROGRAM_EPCS_TARGET := $(addsuffix $(PROGRAM_EPCS_SUFFIX), $(FLASH_FILES))
 
@@ -340,8 +335,9 @@ $(PROGRAM_EPCS_TARGET) : $(ELF)
 		sof2flash --epcs --input=$(SOF_FILE) --output=sof.flash; \
 		$(ELF2FLASH) --after=sof.flash --input=$(ELF) --outfile=$(basename $@)_after_sof.flash --sim_optimize=$(SIM_OPTIMIZE) $(elf2flash_extra_args); \
 		$(ECHO) $(FLASHPROG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) sof.flash $(basename $@)_after_sof.flash; \
-		$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) -g --override=../generic/target/altera_nios/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
-	fi
+		$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) \
+        -g --override='$PCP_GENERIC_DIR'/target/altera_nios/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
+	fi' >> makefile
 
 Heredoc
 

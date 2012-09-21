@@ -10,7 +10,7 @@
 CN_API_FLAGS= 	# empty
 
 # replace this path to the object dictionary you wish to include
-OBJDICTDIR=../../objDicts/PDI
+OBJDICTDIR=$PWD/../../objDicts/PDI
                                                                               #
 ###############################################################################
 
@@ -18,14 +18,12 @@ OBJDICTDIR=../../objDicts/PDI
 # include project configuration
 PWD=`pwd`
 
-. ../../project.config  						#POWERLINK stack path
-EDRV_DIR=../generic/POWERLINK_IP_Edrv			#Ethernet driver path
-GENERIC_DIR=../generic
-CNDK_TARGET_DIR=../target
-PCP_DIR=$PWD/..                                 # use absolute path to be able to include
-                                                # from different source directories
-BSP_DIR=./bsp
-LIBAPIDIR=../../libCnApi
+. ../../project.config  						# include PATH settings
+PCP_DIR=$PWD/..                                  
+BSP_DIR=$PWD/bsp
+
+# replace this path to the object dictionary you wish to include
+OBJDICTDIR=$PWD/../../objDicts/Direct_IO
 
 ###############################################################################
 INPUT_VARS=$@
@@ -57,7 +55,7 @@ do
          SKIP_MAKE=1
          ;;
       --rebuild)
-         rm -f ./Makefile
+         rm -f ./Makefile ${BSP_DIR}/settings.bsp
          REBUILD=1
          ;;
       --debug)
@@ -71,7 +69,7 @@ do
 	  --sopcdir)
 		 shift
 		 #relative path!
-		 SOPC_DIR=$1
+		 SOPC_DIR=$PWD/$1
 		 echo INFO: SOPC_DIR set to \"$SOPC_DIR\"
 		 echo -------------------------------
 		 ;; 
@@ -82,9 +80,9 @@ done
 ###############################################################################
 # Include directories
 INCLUDES="\
-. \
+${PWD} \
 ${EDRV_DIR}/openmac/include \
-${CNDK_TARGET_DIR}/altera_nios/include \
+${PCP_TARGET_DIR}/altera_nios/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
@@ -154,11 +152,11 @@ pcpAsyncSm.c \
 pcpStateMachine.c \
 pcpEvent.c \
 pcpSync.c \
-${CNDK_TARGET_DIR}/altera_nios/src/fpgaCfg.c \
-${CNDK_TARGET_DIR}/altera_nios/src/fwUpdate.c \
-${CNDK_TARGET_DIR}/altera_nios/src/boot.c \
-${CNDK_TARGET_DIR}/altera_nios/src/systemComponents.c \
-${GENERIC_DIR}/utils/crc32.c \
+${PCP_TARGET_DIR}/altera_nios/src/fpgaCfg.c \
+${PCP_TARGET_DIR}/altera_nios/src/fwUpdate.c \
+${PCP_TARGET_DIR}/altera_nios/src/boot.c \
+${PCP_TARGET_DIR}/altera_nios/src/systemComponents.c \
+${PCP_GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${LIBAPIDIR}/utils/stateMachine.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
@@ -201,9 +199,12 @@ if [ "$?" == "0" ] ; then
 INCLUDES=\"${INCLUDES}\"
 fi
 
-NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
+NIOS2_APP_GEN_ARGS="--elf-name epl.elf
+--set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
---set CFLAGS=${CFLAGS} --set APP_INCLUDE_DIRS=${INCLUDES} --src-files $SRCFILES"
+--set CFLAGS=${CFLAGS} \
+--set APP_INCLUDE_DIRS=$INCLUDES \
+--src-files $SRCFILES"
 
 if [ -z "$SOPC_DIR" ]; then
     echo "No SOPC directory specified !"
@@ -387,7 +388,7 @@ $(PROGRAM_EPCS_TARGET) : $(ELF)
 		$(ELF2FLASH) --after=sof.flash --input=$(ELF) --outfile=$(basename $@)_after_sof.flash --sim_optimize=$(SIM_OPTIMIZE) $(elf2flash_extra_args); \
 		$(ECHO) $(FLASHPROG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) sof.flash $(basename $@)_after_sof.flash; \
 		$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --instance='$UART_INSTANCE_ID '--epcs --base=$($(basename $@)_START) \
-        -g --override=../generic/target/altera_nios/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
+        -g --override='$PCP_GENERIC_DIR'/target/altera_nios/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
     fi' >> makefile
 
 if [ -z "$SKIP_MAKE" ]; then

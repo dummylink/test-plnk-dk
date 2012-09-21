@@ -11,12 +11,12 @@ CN_API_FLAGS= 	# empty
 
 ###############################################################################
 # include project configuration
+$PWD=`pwd`
 
 . ../../project.config
-POWERLINKDIR=../powerlink/pcp_PDI/${POWERLINKDIR}
-BSP_DIR=./bsp
-LIBAPIDIR=../../libCnApi
-APPDIR=.
+POWERLINKDIR=$PWD/../powerlink/generic/${POWERLINKFLDR}
+BSP_DIR=$PWD/bsp
+APPDIR=$PWD
 
 ###############################################################################
 INPUT_VARS=$@
@@ -47,7 +47,7 @@ do
           SKIP_MAKE=1
           ;;
       --rebuild)
-          rm -f ./Makefile
+          rm -f ./Makefile ${BSP_DIR}/settings.bsp
           REBUILD=1
           ;;
       --debug)
@@ -61,7 +61,7 @@ do
 	  --sopcdir)
 		 shift
 		 #relative path!
-		 SOPC_DIR=$1
+		 SOPC_DIR=$PWD/$1
 		 echo SOPC_DIR set to \"$SOPC_DIR\"
 		 echo -------------------------------
 		 ;;		  
@@ -72,6 +72,7 @@ done
 ###############################################################################
 # Include directories
 INCLUDES="\
+${PWD} \
 ${LIBAPIDIR}/include \
 ${LIBAPIDIR}/include/openPOWERLINK \
 ${LIBAPIDIR}/utils \
@@ -140,12 +141,13 @@ if [ "$?" == "0" ] ; then
 INCLUDES=\"${INCLUDES}\"
 fi
 
-NIOS2_APP_GEN_ARGS="--elf-name epl.elf --set OBJDUMP_INCLUDE_SOURCE 1 \
+NIOS2_APP_GEN_ARGS="--elf-name epl.elf \
+--set OBJDUMP_INCLUDE_SOURCE 1 \
 --set CREATE_OBJDUMP 0 \
---set CFLAGS=\"${CFLAGS}\" \
---set APP_LIBRARY_DIRS=\"${LIBDIRS}\" \
---set APP_LIBRARY_NAMES=\"${LIBNAMES}\" \
---set APP_INCLUDE_DIRS=\"${INCLUDES}\" \
+--set CFLAGS=${CFLAGS} \
+--set APP_LIBRARY_DIRS=$LIBDIRS \
+--set APP_LIBRARY_NAMES=$LIBNAMES \
+--set APP_INCLUDE_DIRS=$INCLUDES \
 --src-files $SRCFILES"
 
 if [ -z "$SOPC_DIR" ]; then
