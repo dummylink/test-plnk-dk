@@ -16,7 +16,8 @@ include makefile.settings
 POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
 APP_DIR=${CNDK_DIR}/apps/ap_PDI
 OBJDICT_DIR=${CNDK_DIR}/objDicts/PDI
-CN_API_DIR=${CNDK_DIR}/libCnApi
+LIBCNAPI_DIR=${CNDK_DIR}/libCnApi
+LIBCNAPI_BUILD_DIR=${LIBCNAPI_DIR}/target/microblaze_newlib
 TOOLS_PATH=${CNDK_DIR}/tools/xilinx
 
 BOOTLOADER_PATH=$(TOOLS_PATH)/mem_bootloader
@@ -40,6 +41,7 @@ CP=cp
 RM=rm -rf
 PERL=xilperl
 EXECUTABLE=ap_pdi
+LIBCNAPI_NAME=CnApi
 
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
@@ -59,11 +61,11 @@ BITSTREAM= download
 INCLUDES=-I${APP_DIR}\
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
--I${CN_API_DIR}/include \
--I${CN_API_DIR}/include/openPOWERLINK \
--I${CN_API_DIR}/include/openPOWERLINK/kernel \
--I${CN_API_DIR}/include/openPOWERLINK/user \
--I${CN_API_DIR}/utils \
+-I${LIBCNAPI_DIR}/include \
+-I${LIBCNAPI_DIR}/include/openPOWERLINK \
+-I${LIBCNAPI_DIR}/include/openPOWERLINK/kernel \
+-I${LIBCNAPI_DIR}/include/openPOWERLINK/user \
+-I${LIBCNAPI_DIR}/utils \
 -I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
 -I${APP_DIR}/target/xilinx_microblaze/include 
 
@@ -97,8 +99,7 @@ endif
 
 ###################################
 # libraries
-CNAPILIB=${CN_API_DIR}/target/microblaze_newlib/libCnApi.a
-LIBSPATH=-L${BSP_PATH}/${PROCESSOR_NAME}/lib -L${CN_API_DIR}/target/microblaze_newlib
+LIBSPATH=-L${BSP_PATH}/${PROCESSOR_NAME}/lib -L${LIBCNAPI_BUILD_DIR}
 
 ###################################
 # objects
@@ -135,6 +136,13 @@ buildapp: builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck $
 builddir:
 	$(shell mkdir $(OBJDIR))
 
+# rule for building the libCnApi
+$(LIBCNAPI_BUILD_DIR)/lib$(LIBCNAPI_NAME).a :
+	@echo Building lib$(LIBCNAPI_NAME).a
+	$(MAKE) -C $(LIBCNAPI_BUILD_DIR) all BUS_INTERFACE=$(BUS_INTERFACE)
+	@echo Finished building: $<
+	@echo ' '
+
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<
 	@echo Invoking: MicroBlaze gcc compiler
@@ -150,10 +158,10 @@ $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 	@echo Finished building: $<
 	@echo ' '
 
-${EXECUTABLE}.elf: ${OBJ} ${LSSCRIPT} ${CNAPILIB}
+${EXECUTABLE}.elf: ${OBJ} ${LSSCRIPT} $(LIBCNAPI_BUILD_DIR)/lib$(LIBCNAPI_NAME).a
 	@echo Building target: $@
 	@echo Invoking: MicroBlaze gcc linker
-	$(CC) $(LDFLAGS) ${LIBSPATH} ${OBJ} -o ${EXECUTABLE}.elf ${CNAPILIB}
+	$(CC) $(LDFLAGS) ${LIBSPATH} ${OBJ} -l$(LIBCNAPI_NAME) -o ${EXECUTABLE}.elf
 	@echo Finished building target: $@
 	@echo ' '
 	
@@ -203,7 +211,7 @@ ${FLASH_IMAGE_NAME_DUAL}.mcs : ${EXECUTABLE}.mem $(BITSTREAM).bit
 	@echo Invoking: promgen
 	promgen $(PROMGEN_FLAGS) -o ${FLASH_IMAGE_NAME}.mcs $(PROMGEN_TYPE) $(BITSTREAM).bit $(PROMGEN_PREFIX)
 	@echo Invoking: pcublaze.pl
-	xilperl $(BOOTLOADER_PATH)/src/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
+	$(PERL) $(BOOTLOADER_PATH)/src/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
 	@echo Finished generating: $@
 	@echo ' '
 
@@ -216,19 +224,21 @@ prog_flash : gen_flash
 
 .PHONY: clean
 clean:
-	-touch $(FLASH_IMAGE_NAME)
-	-touch $(EXECUTABLE)
+	-@touch $(FLASH_IMAGE_NAME)
+	-@touch $(EXECUTABLE)
 	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
 	-$(MAKE) -C $(BOOTLOADER_PATH) clean
+	-$(MAKE) -C $(LIBCNAPI_BUILD_DIR) clean
 	-@echo ' '
 else
 #######################################
 # two processors are in one bitstream! (Disable burning to flash!)
 .PHONY: clean
 clean:
-	-touch $(FLASH_IMAGE_NAME)
-	-touch $(EXECUTABLE)
+	-@touch $(FLASH_IMAGE_NAME)
+	-@touch $(EXECUTABLE)
 	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
+	-$(MAKE) -C $(LIBCNAPI_BUILD_DIR) clean
 	-@echo ' '
 endif
 

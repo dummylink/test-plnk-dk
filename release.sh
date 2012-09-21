@@ -62,7 +62,6 @@ change_platform_files()
         rm -rf $1/apps/ap_PDI/build_xilinx/
         #modify makefile path
         sed -i 's/^CNDK\_DIR.*/CNDK\_DIR=\.\.\/\.\./' $1/apps/ap_PDI/makefile.settings
-        sed -i 's/^CNAPILIB.*/CNAPILIB\=\$\{CN\_API\_DIR\}\/libCnApi\.a/' $1/apps/ap_PDI/Makefile
         #delete altera txt files
         rm -rf $1/apps/ap_PDI/alt_readme.txt
         mv $1/apps/ap_PDI/xil_readme.txt $1/apps/ap_PDI/readme.txt
@@ -88,13 +87,6 @@ change_platform_files()
         #delete altera txt files
         rm -rf $1/powerlink/pcp_DirectIO/alt_readme.txt
         mv $1/powerlink/pcp_DirectIO/xil_readme.txt $1/powerlink/pcp_DirectIO/readme.txt
-
-        echo "Cleanup $1/libCnApi/ program..."
-        rm -rf $1/libCnApi/target/nios2_newlib
-        mv $1/libCnApi/target/microblaze_newlib/* $1/libCnApi
-        rm -rf $1/libCnApi/target
-        sed -i 's/^CNDK\_DIR.*/CNDK\_DIR=\.\./' $1/libCnApi/makefile.settings
-        
 
     else
         #cleanup for altera
