@@ -13,7 +13,7 @@ include makefile.settings
 
 ##################################
 # IP-Core version
-EXPECTED_POWERLINK_IP_REV= 0.2.5
+EXPECTED_POWERLINK_IP_REV= 0.2.6
 
 ##################################
 # Directory structure
