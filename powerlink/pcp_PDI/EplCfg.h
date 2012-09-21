@@ -212,6 +212,12 @@
 // Async buffer for Sync Response TX in bytes
 #define EPL_DLLCAL_BUFFER_SIZE_TX_SYNC  4096
 
+// =========================================================================
+// Event kernel/user module defines
+// =========================================================================
+
+// kernel to user queue size
+#define EPL_EVENT_SIZE_SHB_KERNEL_TO_USER    4096
 
 // =========================================================================
 // Process Data Object User Space (Pdou) specific defines
