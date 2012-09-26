@@ -7,7 +7,7 @@
 # contents		: Controls the build of the CNDK bootoader
 ################################################################################
 
-VERSION = 0.1
+VERSION = 0.2
 
 ##################################
 # variables inside makefiles.settings get overriden
@@ -30,7 +30,7 @@ CC=mb-gcc
 AR=mb-ar
 AS=mb-as
 CP=cp
-RM=rm -rf
+RM=rm
 EXECUTABLE=mem_bootloader
 LSSCRIPT=$(SRC_DIR)/lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(APP_MODE)_$(PROCESSOR_NAME).ld
 MACROS=
@@ -86,7 +86,7 @@ CFLAGS += ${INCLUDES}
 .PHONY:	header clean builddir
 
 header:
-	@echo
+	@echo ""
 	@echo "================================================================================"
 	@echo " Bootloader - Build System (Xilinx)"
 	@echo "================================================================================"
@@ -94,8 +94,10 @@ header:
 	@echo " Copyright (c) 2012 B&R"
 	@echo " Version $(VERSION)"
 	@echo "================================================================================"
-	@echo
+	@echo ""
 	@echo "Write 'make all' to build the bootloader"
+	@echo ""
+	@echo "Write 'make clean' to remove all generated files"
 	@echo ""
 	@echo "Change 'makefile.setting' to configure the build system"
 
@@ -142,7 +144,7 @@ $(BUILD_DIR)/${EXECUTABLE}.elfcheck: $(BUILD_DIR)/${EXECUTABLE}.elf
 	@echo ' '
 
 clean : 
-	-touch $(BUILD_DIR)/$(EXECUTABLE)
-	-$(RM) $(OBJ) $(OBJD) $(BUILD_DIR)/$(EXECUTABLE).*
+	-@touch $(BUILD_DIR)/$(EXECUTABLE)
+	-$(RM) -rf $(OBJ) $(OBJD) $(BUILD_DIR)/$(EXECUTABLE).*
 
 -include $(OBJD)

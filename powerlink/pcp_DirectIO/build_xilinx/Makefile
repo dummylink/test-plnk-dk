@@ -35,7 +35,7 @@ OBJDIR=obj
 CC=mb-gcc
 AR=mb-ar
 CP=cp
-RM=rm -rf
+RM=rm
 PERL=xilperl
 EXECUTABLE=directIO
 
@@ -184,18 +184,20 @@ CFLAGS += ${INCLUDES}
 
 .PHONY:	header
 header:
-	@echo
+	@echo ""
 	@echo "================================================================================"
 	@echo " Direct IO - Build System (Xilinx)"
 	@echo "================================================================================"
-	@echo
+	@echo ""
 	@echo " Copyright (c) 2012 B&R"
 	@echo " Version $(VERSION)"
 	@echo "================================================================================"
-	@echo
+	@echo ""
 	@echo "Write 'make all' to build the Direct I/O software example"
 	@echo "Write 'make gen_flash' to generate the .mcs flash image"
 	@echo "Write 'make prog_flash' to program the .mcs flash image to flash"
+	@echo ""
+	@echo "Write 'make clean' to remove all generated files"
 	@echo ""
 	@echo "Change 'makefile.setting' to configure the build system"
 
@@ -300,8 +302,8 @@ prog_flash : gen_flash
 
 .PHONY: clean
 clean:
-	touch $(FLASH_IMAGE_NAME)
-	touch $(EXECUTABLE)
+	-@touch $(FLASH_IMAGE_NAME)
+	-@touch $(EXECUTABLE)
 	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
 	-$(MAKE) -C $(BOOTLOADER_PATH) clean
 	-@echo ' '

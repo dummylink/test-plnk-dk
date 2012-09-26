@@ -38,7 +38,7 @@ endif
 CC=mb-gcc
 AR=mb-ar
 CP=cp
-RM=rm -rf
+RM=rm
 PERL=xilperl
 EXECUTABLE=ap_pdi
 LIBCNAPI_NAME=CnApi
@@ -112,36 +112,36 @@ CFLAGS += ${INCLUDES}
 
 .PHONY:	header
 header:
-	@echo
+	@echo ""
 	@echo "================================================================================"
 	@echo " AP PDI - Build System (Xilinx)"
 	@echo "================================================================================"
-	@echo
+	@echo ""
 	@echo " Copyright (c) 2012 B&R"
 	@echo " Version $(VERSION)"
 	@echo "================================================================================"
-	@echo
+	@echo ""
 	@echo "Write 'make all' to build the AP PDI example"
 	@echo "Write 'make gen_flash' to generate the .mcs flash image"
 	@echo "Write 'make prog_flash' to program the .mcs flash image to flash"
+	@echo ""
+	@echo "Write 'make clean' to remove all generated files"
 	@echo ""
 	@echo "Change 'makefile.setting' to configure build system"		
 
 all: buildapp
 
 .PHONY: buildapp
-buildapp: builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
+buildapp: libcnapi builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
 
 .PHONY:	builddir
 builddir:
 	$(shell mkdir $(OBJDIR))
 
 # rule for building the libCnApi
-$(LIBCNAPI_BUILD_DIR)/lib$(LIBCNAPI_NAME).a :
-	@echo Building lib$(LIBCNAPI_NAME).a
-	$(MAKE) -C $(LIBCNAPI_BUILD_DIR) all BUS_INTERFACE=$(BUS_INTERFACE)
-	@echo Finished building: $<
-	@echo ' '
+.PHONY:	libcnapi
+libcnapi :
+	@$(MAKE) -C $(LIBCNAPI_BUILD_DIR) all BUS_INTERFACE=$(BUS_INTERFACE)
 
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<

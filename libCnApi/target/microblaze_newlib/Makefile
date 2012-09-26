@@ -24,7 +24,7 @@ OBJDIR=obj
 CC=mb-gcc
 AR=mb-ar
 CP=cp
-RM=rm -rf
+RM=rm
 PERL=xilperl
 LIBRARY=libCnApi.a
 
@@ -91,16 +91,19 @@ CFLAGS += ${INCLUDES}
 
 .PHONY:	header
 header:
-	@echo
+	@echo ""
 	@echo "================================================================================"
 	@echo " libCnApi - Build System (Xilinx)"
 	@echo "================================================================================"
-	@echo
+	@echo ""
 	@echo " Copyright (c) 2012 B&R"
 	@echo " Version $(VERSION)"
 	@echo "================================================================================"
-	@echo
-	@echo "Write 'make all' to build the libCnApi"
+	@echo ""
+	@echo "Write 'make all' to build the $(LIBRARY)"
+	@echo ""
+	@echo "Write 'make clean' to remove all generated files"
+	@echo ""
 	@echo "Change 'makefile.setting' to configure build system"	
 
 all: builddir ${LIBRARY}
@@ -127,14 +130,13 @@ $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 ${LIBRARY}: ${OBJ}
 	@echo Building library: $@
 	@echo Invoking: MicroBlaze ar archiver
-	$(RM) $@
+	-@$(RM) -rf $@
 	$(AR) $(ARFLAGS) $@ $^
 	@echo Finished building library: $@
 	@echo ' '
 
 .PHONY:	clean
 clean:
-	-$(RM) $(LIBRARY) $(OBJ) $(OBJD)
-	-@echo ' '
-	
+	-$(RM) -rf $(LIBRARY) $(OBJ) $(OBJD)
+
 -include $(OBJD)
