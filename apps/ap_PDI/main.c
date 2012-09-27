@@ -433,13 +433,13 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                                     case kPcpGenErrInitFailed:
                                     case kPcpGenErrSyncCycleCalcError:
                                     {
-                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: PCP Init failed!");
+                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: PCP Init failed!\n");
                                         break;
                                     }
                                     case kPcpGenErrAsyncComTimeout:
                                     case kPcpGenErrAsyncIntChanComError:
                                     {
-                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"Asynchronous communication error at PCP!");
+                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"Asynchronous communication error at PCP!\n");
                                         break;
                                     }
                                     case kPcpGenErrPhy0LinkLoss:
