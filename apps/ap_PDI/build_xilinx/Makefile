@@ -141,7 +141,8 @@ builddir:
 # rule for building the libCnApi
 .PHONY:	libcnapi
 libcnapi :
-	@$(MAKE) -C $(LIBCNAPI_BUILD_DIR) all BUS_INTERFACE=$(BUS_INTERFACE) OPT_LEVEL=$(OPT_LEVEL)
+	@$(MAKE) -C $(LIBCNAPI_BUILD_DIR) all BUS_INTERFACE=$(BUS_INTERFACE) OPT_LEVEL=$(OPT_LEVEL) \
+	DBG_MODE=$(DBG_MODE) DEF_DEBUG_LVL=$(DEF_DEBUG_LVL)
 
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<
