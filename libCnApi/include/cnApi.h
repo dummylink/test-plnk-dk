@@ -19,7 +19,8 @@ This header file contains definitions for the CN API.
 /******************************************************************************/
 /* includes */
 #include "cnApiCfg.h"
-#include "cnApiTyp.h"
+#include "cnApiGlobal.h"
+#include "cnApiDebug.h"
 
 #include "cnApiEvent.h"     ///< public defines for the event module
 
@@ -72,7 +73,6 @@ typedef struct sCnApiInitParm {
 
 /******************************************************************************/
 /* global variables */
-extern volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
 extern tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK init parameters
 extern BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
 

@@ -109,6 +109,7 @@ This header file contains definitions for the CN API.
 
 /******************************************************************************/
 /* global variables */
+extern volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
 
 /******************************************************************************/
 /* function declarations */
