@@ -39,13 +39,6 @@ This header file contains definitions for the CN API.
 #error "cnApiCfg.h has not been generated correctly!"
 #endif /* PCP_PDI_TPDO_CHANNELS */
 
-/* Convert endian define to enable usage while runtime */
-#ifdef AP_IS_BIG_ENDIAN
-#define CNAPI_BIG_ENDIAN TRUE
-#else
-#define CNAPI_BIG_ENDIAN FALSE
-#endif
-
 /******************************************************************************/
 /* type definitions */
 typedef void (* tCnApiAppCbSync) ( void );
@@ -73,8 +66,6 @@ typedef struct sCnApiInitParm {
 
 /******************************************************************************/
 /* global variables */
-extern tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK init parameters
-extern BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
 
 /******************************************************************************/
 /* function declarations */

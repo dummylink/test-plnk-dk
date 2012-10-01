@@ -26,6 +26,13 @@ This header file contains definitions for the CN API.
 /* defines */
 #define PCP_MAGIC                   0x50435000      ///< magic number identifies valid PCP memory
 
+/* Convert endian define to enable usage while runtime */
+#ifdef AP_IS_BIG_ENDIAN
+#define CNAPI_BIG_ENDIAN TRUE
+#else
+#define CNAPI_BIG_ENDIAN FALSE
+#endif
+
 /******************************************************************************/
 /* typedefs */
 
@@ -110,6 +117,8 @@ This header file contains definitions for the CN API.
 /******************************************************************************/
 /* global variables */
 extern volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
+extern BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
+extern tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK init parameters
 
 /******************************************************************************/
 /* function declarations */
