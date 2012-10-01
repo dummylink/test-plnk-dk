@@ -263,6 +263,7 @@ FUNC_ENTRYACT(kApStateError)
 *******************************************************************************/
 static void stateChange(BYTE current, BYTE target)
 {
+    tCnApiStatus Ret = kCnApiStatusOk;
 	BYTE	currentIdx, targetIdx;
     tCnApiEventArg CnApiEventArg;
 
@@ -275,10 +276,9 @@ static void stateChange(BYTE current, BYTE target)
 	/* inform application */
 	CnApiEventArg.NewApState_m = (tApStates) target;
 
-    if(pfnAppCbEvent_g != NULL)
+	Ret = CnApi_callEventCallback(kCnApiEventApStateChange, &CnApiEventArg, NULL);
+    if(Ret != kCnApiStatusOk)
     {
-        pfnAppCbEvent_g(kCnApiEventApStateChange, &CnApiEventArg, NULL);
-    } else {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "%s: Error while posting a state change!\n", __func__);
     }
 

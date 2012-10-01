@@ -529,14 +529,7 @@ exit:
         CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m = FALSE;
     }
 
-    if(pfnAppCbEvent_g != NULL)
-    {
-        pfnAppCbEvent_g(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
-    } else {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "%s: Error while posting the link PDO request message!\n", __func__);
-        Ret = kCnApiStatusInvalidParameter;
-    }
-
+    Ret = CnApi_callEventCallback(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
 
     return Ret;
 }

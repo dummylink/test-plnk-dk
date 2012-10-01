@@ -42,7 +42,10 @@
 
 /******************************************************************************/
 /* global variables */
-void (*pfnAppCbEvent_g)(tCnApiEventType EventType_p,
+
+/******************************************************************************/
+/* local variables */
+static void (*pfnAppCbEvent_l)(tCnApiEventType EventType_p,
         tCnApiEventArg * pEventArg_p, void * pUserArg_p) = NULL;
 
 /******************************************************************************/
@@ -71,7 +74,7 @@ tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p)
     /* set application event callback */
     if (pfnAppCbEvent_p != NULL)
     {
-        pfnAppCbEvent_g = pfnAppCbEvent_p;  ///< make callback global
+        pfnAppCbEvent_l = pfnAppCbEvent_p;  ///< make callback global
     } else {
         Ret = kCnApiStatusInvalidParameter;
     }
@@ -185,6 +188,33 @@ void CnApi_checkAsyncEvent(void)
             DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "%s: Error while processing an async event!\n", __func__);
         }
     }
+}
+
+/**
+********************************************************************************
+ \brief Calls the event callback function which informs the user application
+
+ \param EventType_p     type of CnApi event
+ \param pEventArg_p     pointer to argument of CnApi event which matches the event type
+ \param pUserArg_p      pointer to user argument
+
+ \return                tCnApiStatus
+ \retval                kCnApiStatusOk                  if successful
+ \retval                kCnApiStatusInvalidParameter    when not initialized
+*******************************************************************************/
+tCnApiStatus CnApi_callEventCallback(tCnApiEventType EventType_p,
+        tCnApiEventArg * pEventArg_p, void * pUserArg_p)
+{
+    tCnApiStatus Ret = kCnApiStatusOk;
+
+    if(pfnAppCbEvent_l != NULL)
+    {
+        pfnAppCbEvent_l(EventType_p, pEventArg_p, pUserArg_p);
+    } else {
+        Ret = kCnApiStatusInvalidParameter;
+    }
+
+    return Ret;
 }
 
 /**
@@ -373,16 +403,10 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
 
     if (fInformApplication == TRUE )
     {    /* inform application */
-        if(pfnAppCbEvent_g != NULL)
-        {
-            pfnAppCbEvent_g(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
-        } else {
-            Ret = kCnApiStatusInvalidParameter;
-            goto Exit;
-        }
+        Ret = CnApi_callEventCallback(CnApiEvent.Typ_m,
+                &CnApiEvent.Arg_m, NULL);
     }
 
-Exit:
     return Ret;
 
 }
