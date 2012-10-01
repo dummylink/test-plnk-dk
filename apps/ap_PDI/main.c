@@ -587,7 +587,7 @@ static void syncIntHandler(void* pArg_p)
 #endif
 {
     /* Call CN API check PDO function! (transfer PDO's and call sync callback) */
-    CnApi_checkPdo();
+    CnApi_processPdo();
 
     CnApi_ackSyncIrq();                // acknowledge IR from PCP
 }

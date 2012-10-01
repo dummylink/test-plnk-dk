@@ -120,8 +120,8 @@ extern void CnApi_disableSyncInt(void);
 extern void CnApi_ackSyncIrq(void);
 extern DWORD CnApi_getSyncIntPeriod(void);
 
-/* functions for PDO transfer and sync callback*/
-extern void CnApi_checkPdo(void);
+/* functions for PDO transfer*/
+extern void CnApi_processPdo(void);
 extern tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p,
         DWORD dwErrorCode_p);
 

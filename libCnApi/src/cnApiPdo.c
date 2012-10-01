@@ -665,7 +665,7 @@ CnApi_checkPdo() transfers PDO data. It receives RX data from the PCP and
 sends TX data to the PCP. After the RX transfer is finished the sync callback is
 executed.
 *******************************************************************************/
-void CnApi_checkPdo(void)
+void CnApi_processPdo(void)
 {
     CnApi_receivePdo();
 
