@@ -50,18 +50,7 @@ This header file contains definitions for the CN API.
 typedef void (* tCnApiAppCbSync) ( void );
 typedef tEplKernel (* tCnApiObdDefAcc) (tEplObdParam * pObdParam_p);
 
-typedef struct sCnApiObjId {
-	WORD		m_wIndex;
-	BYTE		m_bSubIndex;
-	BYTE		m_bNumEntries;
-} PACK_STRUCT tCnApiObjId;
 
-typedef struct sCnApiObjCreateObjLinksHdl {
-    WORD                wNumCreateObjs_m; ///< number of objects to be created
-    WORD                wCurObjs_m; ///< current number of objects to be created
-    WORD                wReqObjs_m; ///< already created (=linked) objects
-    tCnApiObjId *       pObj_m;     ///< pointer to current object entry
-} tCnApiObjCreateObjLinksHdl;
 
 /**
  * \brief structure for libCnApi initialization parameters

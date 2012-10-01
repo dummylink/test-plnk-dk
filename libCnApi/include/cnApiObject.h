@@ -27,6 +27,11 @@ This header file contains definitions for the CN API.
 
 /******************************************************************************/
 /* typedefs */
+typedef struct sCnApiObjId {
+    WORD        m_wIndex;
+    BYTE        m_bSubIndex;
+    BYTE        m_bNumEntries;
+} PACK_STRUCT tCnApiObjId;
 
 /******************************************************************************/
 /* external variable declarations */
