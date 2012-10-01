@@ -295,8 +295,6 @@ tEplKernel EplRet = kEplSuccessful;
     // call callback function which was assigned by caller
     EplRet = pObdParam_p->m_pfnAccessFinished(pObdParam_p);
 
-    CNAPI_MEMSET(pObdParam_p, 0 , sizeof(tEplObdParam));
-
 Exit:
     if (EplRet != kEplSuccessful)
     {

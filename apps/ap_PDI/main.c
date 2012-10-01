@@ -865,6 +865,9 @@ static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
 
     CnApi_DefObdAccFinished(pObdParam_p);
 
+    /* reset structure when object access is finished */
+    memset(pObdParam_p, 0 , sizeof(tEplObdParam));
+
 Exit:
     return;
 }
