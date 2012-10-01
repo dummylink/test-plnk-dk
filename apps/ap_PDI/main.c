@@ -135,15 +135,15 @@ int main (void)
 
     /* Set initial POWERLINK parameters for the PCP */
     InitPcpParam.m_bNodeId = DEFAULT_NODEID;       // in case you dont want to use Node Id switches, use a different value then 0x00
-    memcpy(InitPcpParam.m_abMac, abMacAddr_l, sizeof(InitPcpParam.m_abMac));
+    CNAPI_MEMCPY(InitPcpParam.m_abMac, abMacAddr_l, sizeof(InitPcpParam.m_abMac));
     InitPcpParam.m_dwDeviceType = -1;
     InitPcpParam.m_dwVendorId = DEMO_VENDOR_ID;
     InitPcpParam.m_dwProductCode = DEMO_PRODUCT_CODE;
     InitPcpParam.m_dwRevision = DEMO_REVISION;
     InitPcpParam.m_dwSerialNum = DEMO_SERIAL_NUMBER;
-    memcpy(InitPcpParam.m_strDevName, strDevName, sizeof(InitPcpParam.m_strDevName));
-    memcpy(InitPcpParam.m_strHwVersion, strHwVersion, sizeof(InitPcpParam.m_strHwVersion));
-    memcpy(InitPcpParam.m_strSwVersion, strSwVersion, sizeof(InitPcpParam.m_strSwVersion));
+    CNAPI_MEMCPY(InitPcpParam.m_strDevName, strDevName, sizeof(InitPcpParam.m_strDevName));
+    CNAPI_MEMCPY(InitPcpParam.m_strHwVersion, strHwVersion, sizeof(InitPcpParam.m_strHwVersion));
+    CNAPI_MEMCPY(InitPcpParam.m_strSwVersion, strSwVersion, sizeof(InitPcpParam.m_strSwVersion));
 
 
     /* Set initial libCnApi parameters */
@@ -795,7 +795,7 @@ tEplKernel       Ret = kEplSuccessful;
             }
 
             // save handle
-            EPL_MEMCPY(&ObdParam_l, pObdParam_p, sizeof (tEplObdParam));
+            CNAPI_MEMCPY(&ObdParam_l, pObdParam_p, sizeof (tEplObdParam));
 
             // TODO: before exiting this function, initiate custom object transfer HERE
             // - if if fails, return kEplInvalidOperation
@@ -866,7 +866,7 @@ static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
     CnApi_DefObdAccFinished(pObdParam_p);
 
     /* reset structure when object access is finished */
-    memset(pObdParam_p, 0 , sizeof(tEplObdParam));
+    CNAPI_MEMSET(pObdParam_p, 0 , sizeof(tEplObdParam));
 
 Exit:
     return;

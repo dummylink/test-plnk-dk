@@ -198,7 +198,7 @@ static inline void CopyVarConvertEndian(BYTE* pDest_p,
                 CnApi_Spi_write((DWORD)pDest_p,wSize_p,pSrc_p);
 #else
             //copy them without conversion
-            EPL_MEMCPY (pDest_p, pSrc_p, wSize_p);
+            CNAPI_MEMCPY (pDest_p, pSrc_p, wSize_p);
 #endif
             break;
         }

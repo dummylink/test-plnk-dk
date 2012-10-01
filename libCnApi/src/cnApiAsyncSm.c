@@ -525,7 +525,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
             /* write asynchronous message payload to PDI buffer */
-            memcpy((BYTE *)&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
+            CNAPI_MEMCPY((BYTE *)&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
 
 #ifdef CN_API_USING_SPI
             /* write asynchronous message payload to PDI buffer */
@@ -964,7 +964,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                         (BYTE*) pCurLclMsgFrgmt);
 #else
             /* copy local buffer fragment into the PDI buffer */
-            memcpy(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
+            CNAPI_MEMCPY(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
 #endif /* CN_API_USING_SPI */
 
 
@@ -1601,7 +1601,7 @@ tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir D
     pMsgDescr->pPdiBuffer_m = (tPcpPdiAsyncMsgBufDescr *) pPdiBuffer_p;
     pMsgDescr->TransfType_m = TransferType_p;
     pMsgDescr->Param_m.ChanType_m = ChanType_p;
-    memcpy(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
+    CNAPI_MEMCPY(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
     pMsgDescr->Param_m.wTimeout_m = wTimeout_p;
 
     Ret = kPdiAsyncStatusSuccessful;

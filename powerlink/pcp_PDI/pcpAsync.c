@@ -102,8 +102,8 @@ int CnApiAsync_init(void)
     register WORD wCnt;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-    CNAPI_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
-    CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
+    EPL_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
+    EPL_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PDI_ASYNC_CHANNELS_MAX );
 
     /* Attention: control register is seen for AP point of view -> PCP Tx is AP Rx and vice versa! */
     aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (PDI_DPRAM_BASE_PCP + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)));
@@ -136,11 +136,11 @@ int CnApiAsync_init(void)
                          aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m);
 
             /* reset headers and buffer payload */
-            memset(aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m,
+            EPL_MEMSET(aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m,
                    0x00,
                    aPcpPdiAsyncTxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader));
 
-            memset(aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m,
+            EPL_MEMSET(aPcpPdiAsyncRxMsgBuffer_g[wCnt].pAdr_m,
                    0x00,
                    aPcpPdiAsyncRxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader));
 
@@ -757,7 +757,7 @@ static tPdiAsyncStatus cnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
 
     /* setup message */
     /*----------------------------------------------------------------------------*/
-    memcpy(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
+    EPL_MEMCPY(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
 
     pObjAccReqDst->m_bReqId =  bReqId_l;//TODO: dont use this Id, only rely on m_wHdlCom
     AmiSetWordToLe(&pObjAccReqDst->m_wHdlCom, pSdoComConInArg->m_wSdoSeqConHdl);

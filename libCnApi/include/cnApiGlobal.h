@@ -138,11 +138,13 @@ This file has to be included before other include files.
 #       define CNAPI_MALLOC(siz)             GS_Malloc(siz)
 #       define CNAPI_FREE(ptr)               GS_Free(ptr)
 #       define CNAPI_MEMSET(ptr, bVal, bCnt) UC_SetMem(ptr, bVal, bCnt)
+#       define CNAPI_MEMCPY(ptr, bVal, bSize) GS_Memcpy(ptr, bVal, bSize)
 #   else
 #       define CNAPI_USLEEP(x)               usleep(x)
 #       define CNAPI_MALLOC(siz)             malloc(siz)
 #       define CNAPI_FREE(ptr)               free(ptr)
 #       define CNAPI_MEMSET(ptr, bVal, bCnt) memset(ptr, bVal, bCnt)
+#       define CNAPI_MEMCPY(ptr, bVal, bSize) memcpy(ptr, bVal, bSize)
 #   endif
 #else
 #    error you must 16bit-align these structures with the appropriate compiler directives

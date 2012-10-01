@@ -205,7 +205,7 @@ int main (void)
             {
                 DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
 
-                usleep(5000000); // wait 5 seconds
+                CNAPI_USLEEP(5000000); // wait 5 seconds
 
                 // user image was loaded, but has invalid IIB
                 // -> reset to factory image
@@ -229,7 +229,7 @@ int main (void)
             {
                 DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
 
-                usleep(5000000); // wait 5 seconds
+                CNAPI_USLEEP(5000000); // wait 5 seconds
 
                 // user image was loaded, but has invalid IIB
                 // -> reset to factory image
@@ -246,7 +246,7 @@ int main (void)
         case kFgpaCfgWrongSystemID:
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
-            usleep(5000000); // wait 5 seconds
+            CNAPI_USLEEP(5000000); // wait 5 seconds
 
             // reset to factory image
             FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
@@ -259,7 +259,7 @@ int main (void)
         {
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
-            usleep(5000000); // wait 5 seconds
+            CNAPI_USLEEP(5000000); // wait 5 seconds
 
             // reset to factory image
             FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);

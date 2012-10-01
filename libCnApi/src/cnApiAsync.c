@@ -360,8 +360,8 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
 
     /* handle Tx Message */
     /* build up InitPcpReq */
-    memset (pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    memcpy (pInitPcpReq->m_abMac, &pInitPcpParm_g->m_abMac, sizeof(pInitPcpParm_g->m_abMac));
+    CNAPI_MEMSET(pInitPcpReq, 0x00, sizeof(pInitPcpReq));
+    CNAPI_MEMCPY (pInitPcpReq->m_abMac, &pInitPcpParm_g->m_abMac, sizeof(pInitPcpParm_g->m_abMac));
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParm_g->m_dwDeviceType);
 
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParm_g->m_bNodeId);
@@ -369,9 +369,9 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParm_g->m_dwSerialNum);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParm_g->m_dwVendorId);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitPcpParm_g->m_dwProductCode);
-    memcpy(pInitPcpReq->m_strDevName, &pInitPcpParm_g->m_strDevName, sizeof(pInitPcpParm_g->m_strDevName));
-    memcpy(pInitPcpReq->m_strHwVersion, &pInitPcpParm_g->m_strHwVersion, sizeof(pInitPcpParm_g->m_strHwVersion));
-    memcpy(pInitPcpReq->m_strSwVersion, &pInitPcpParm_g->m_strSwVersion, sizeof(pInitPcpParm_g->m_strSwVersion));
+    CNAPI_MEMCPY(pInitPcpReq->m_strDevName, &pInitPcpParm_g->m_strDevName, sizeof(pInitPcpParm_g->m_strDevName));
+    CNAPI_MEMCPY(pInitPcpReq->m_strHwVersion, &pInitPcpParm_g->m_strHwVersion, sizeof(pInitPcpParm_g->m_strHwVersion));
+    CNAPI_MEMCPY(pInitPcpReq->m_strSwVersion, &pInitPcpParm_g->m_strSwVersion, sizeof(pInitPcpParm_g->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 
@@ -444,7 +444,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
 
     /* setup message */
     /*----------------------------------------------------------------------------*/
-    memcpy(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
+    CNAPI_MEMCPY(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
 
     // overwrite segment size - because this SDO command layer frame is misused as an customized acknowledge message
     AmiSetWordToLe(&pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize, pSdoComCon->m_uiTransferredByte);

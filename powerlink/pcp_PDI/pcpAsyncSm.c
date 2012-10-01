@@ -504,7 +504,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
             /* copy local buffer fragment into the PDI buffer */
-            memcpy(&pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan, pCurLclMsgFrgmt, wCopyLength);
+            EPL_MEMCPY(&pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan, pCurLclMsgFrgmt, wCopyLength);
 
             AmiSetWordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_wFrgmtLen, wCopyLength); // update  PDI buffer control header
 
@@ -896,7 +896,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
             /* copy local buffer fragment into the PDI buffer */
-            memcpy(pCurLclMsgFrgmt, &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan,  wCopyLength);
+            EPL_MEMCPY(pCurLclMsgFrgmt, &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan,  wCopyLength);
 
             /* calculate new pending payload */
             pMsgDescr->dwPendTranfSize_m -= wCopyLength;
@@ -1524,7 +1524,7 @@ tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir D
     pMsgDescr->pPdiBuffer_m = (tPcpPdiAsyncMsgBufDescr *) pPdiBuffer_p;
     pMsgDescr->TransfType_m = TransferType_p;
     pMsgDescr->Param_m.ChanType_m = ChanType_p;
-    memcpy(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
+    EPL_MEMCPY(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
     pMsgDescr->Param_m.wTimeout_m = wTimeout_p;
 
     Ret = kPdiAsyncStatusSuccessful;
@@ -1973,8 +1973,8 @@ void CnApi_resetAsyncStateMachine(void)
 
     PdiAsyncPendTrfContext_l.fMsgPending_m = FALSE;
 
-    CNAPI_MEMSET( aPdiAsyncRxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_RX_MESSAGES );
-    CNAPI_MEMSET( aPdiAsyncTxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_TX_MESSAGES );
+    EPL_MEMSET( aPdiAsyncRxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_RX_MESSAGES );
+    EPL_MEMSET( aPdiAsyncTxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_TX_MESSAGES );
 
     /* initialize state machine */
     sm_reset(&PdiAsyncStateMachine_l);
