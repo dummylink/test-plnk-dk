@@ -19,6 +19,7 @@ application processor (AP).
 /* includes */
 #include "cnApi.h"
 #include "cnApiIntern.h"
+#include "cnApiEventIntern.h"
 #include "cnApiAsyncSm.h"
 
 #include "stateMachine.h"

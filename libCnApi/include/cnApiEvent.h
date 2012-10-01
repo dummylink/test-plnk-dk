@@ -1,7 +1,7 @@
 /******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
 */
 
 /**
@@ -11,35 +11,27 @@
 
 \brief      header file for PCP PDI (CN) event handling
 
-\author     hoggerm
+\author     mairt
 
-\date       29.04.2011
+\date       01.10.2012
 
-\since      29.04.2011
+\since      01.10.2012
 
 *******************************************************************************/
 #ifndef CNAPIEVENT_H_
 #define CNAPIEVENT_H_
+
 /******************************************************************************/
 /* includes */
-#include "cnApiTypAsync.h"
 #include "cnApiTypEvent.h"
+#include "cnApiTypAsync.h"
 
 /******************************************************************************/
 /* defines */
 
-#define ASYNC_IRQ_PEND  0
-#define ASYNC_IRQ_EN   15
-
-// 0x9xxx PCP errors
-#define PCP_IF_COMMUNICATION_ERROR      0x9100
-#define PCP_IF_INVALID_STATE_CHANGE     0x9200
-#define PCP_IF_CONFIGURATION_ERROR      0x9300
-
 /******************************************************************************/
 /* typedefs */
 
-/* CN API events */
 typedef enum eCnApiEventErrorType{
     kCnApiEventErrorFromPcp,  ///< error source is PCP PDI
     kCnApiEventErrorLcl,      ///< error source is local function
@@ -50,35 +42,6 @@ tPcpPdiEvent PcpError_m;
 //tCnApiRetCode cnApiError_m; //TODO: define general Ret Code
 } tCnApiEventErrorArg;
 
-typedef struct sCnApiEventError{
-    tCnApiEventErrorType ErrTyp_m;
-    tCnApiEventErrorArg  ErrArg_m; //TODO: delete
-} tCnApiEventError;
-
-typedef enum eCnApiEventTypeAsyncComm{
-    kCnApiEventTypeAsyncCommExtChanFinished,     ///< asynchronous communication with PCP has finished and external channel is now available again
-    kCnApiEventTypeAsyncCommExtChanMsgPresent,   ///< message from PCP is present in external channel
-    kCnApiEventTypeAsyncCommExtChanBusy,         ///< access to external channel has been denied because it is in use
-    kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq  ///< Link Pdos Message received
-} tCnApiEventTypeAsyncComm;
-
-typedef union {
-    struct sLinkPdoReqRxHdl
-    {
-        tLinkPdosReq * pMsg_m;              ///< pointer to local LinkPdosReq message
-        WORD wObjNotLinked_m;               ///< count of mapped but not linked objects
-        BOOL fSuccess_m;                    ///< flag indicating error while receiving LinkPdosReq message
-    } LinkPdosReq_m;                        ///< argument of kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq
-} tCnApiEventArgAsyncComm;
-
-typedef struct sCnApiEventAsyncComm {
-    tCnApiEventTypeAsyncComm Typ_m;
-    tCnApiEventArgAsyncComm  Arg_m;
-} tCnApiEventAsyncComm;
-
-/**
- * \brief enumeration with valid CnApi events
- */
 typedef enum eCnApiEventType {
     kCnApiEventUserDef,           ///< user defined event
     kCnApiEventPcp,               ///< generic event from PCP (all events except errors)
@@ -102,6 +65,32 @@ typedef enum eApStates{
     kNumApState
 } tApStates;
 
+typedef enum eCnApiEventTypeAsyncComm{
+    kCnApiEventTypeAsyncCommExtChanFinished,     ///< asynchronous communication with PCP has finished and external channel is now available again
+    kCnApiEventTypeAsyncCommExtChanMsgPresent,   ///< message from PCP is present in external channel
+    kCnApiEventTypeAsyncCommExtChanBusy,         ///< access to external channel has been denied because it is in use
+    kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq  ///< Link Pdos Message received
+} tCnApiEventTypeAsyncComm;
+
+typedef struct sCnApiEventError{
+    tCnApiEventErrorType ErrTyp_m;
+    tCnApiEventErrorArg  ErrArg_m; //TODO: delete
+} tCnApiEventError;
+
+typedef union {
+    struct sLinkPdoReqRxHdl
+    {
+        tLinkPdosReq * pMsg_m;              ///< pointer to local LinkPdosReq message
+        WORD wObjNotLinked_m;               ///< count of mapped but not linked objects
+        BOOL fSuccess_m;                    ///< flag indicating error while receiving LinkPdosReq message
+    } LinkPdosReq_m;                        ///< argument of kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq
+} tCnApiEventArgAsyncComm;
+
+typedef struct sCnApiEventAsyncComm {
+    tCnApiEventTypeAsyncComm Typ_m;
+    tCnApiEventArgAsyncComm  Arg_m;
+} tCnApiEventAsyncComm;
+
 /**
  * \brief union of valid CnApi event arguments
  */
@@ -115,12 +104,6 @@ typedef union {
     tCnApiEventAsyncComm     AsyncComm_m;         ///< argument of kCnApiEventAsyncComm
 } tCnApiEventArg;
 
-typedef struct {
-    tCnApiEventType Typ_m;
-    tCnApiEventArg  Arg_m;
-} tCnApiEvent;
-
-/* event callback type */
 typedef void (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
         tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 
@@ -129,8 +112,6 @@ typedef void (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
 
 /******************************************************************************/
 /* global variables */
-extern void (*pfnAppCbEvent_g)(tCnApiEventType EventType_p,
-        tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 
 /******************************************************************************/
 /* function declarations */
@@ -140,7 +121,12 @@ extern void (*pfnAppCbEvent_g)(tCnApiEventType EventType_p,
 
 /******************************************************************************/
 /* functions */
-tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p);
+
+extern void CnApi_enableAsyncEventIRQ(void);
+extern void CnApi_disableAsyncEventIRQ(void);
+extern void CnApi_checkAsyncEvent(void);
+
+
 
 
 #endif /* CNAPIEVENT_H_ */
@@ -149,13 +135,13 @@ tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p);
 *
 * License Agreement
 *
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1  
+* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 * All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms,
 * with or without modification,
 * are permitted provided that the following conditions are met:
-* 
+*
 *   * Redistributions of source code must retain the above copyright notice,
 *     this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above copyright notice,
@@ -165,7 +151,7 @@ tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p);
 *   * Neither the name of the B&R nor the names of its contributors
 *     may be used to endorse or promote products derived from this software
 *     without specific prior written permission.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR

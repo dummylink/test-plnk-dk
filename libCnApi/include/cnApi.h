@@ -21,7 +21,7 @@ This header file contains definitions for the CN API.
 #include "cnApiCfg.h"
 #include "cnApiTyp.h"
 
-#include "cnApiEvent.h"
+#include "cnApiEvent.h"     ///< public defines for the event module
 
 #include "EplErrDef.h"
 #include "EplObd.h"
@@ -127,11 +127,6 @@ extern tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p,
 
 /* functions for async state machine */
 extern BOOL CnApi_processAsyncStateMachine(void);
-
-/* functions for async event handling */
-extern void CnApi_enableAsyncEventIRQ(void);
-extern void CnApi_disableAsyncEventIRQ(void);
-extern void CnApi_checkAsyncEvent(void);
 
 /* functions for the LED module */
 extern tCnApiStatus CnApi_setLed(tCnApiLedType bLed_p, BOOL bOn_p);

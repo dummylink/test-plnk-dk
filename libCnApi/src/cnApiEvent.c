@@ -19,6 +19,7 @@
 *******************************************************************************/
 /* includes */
 #include "cnApiEvent.h"
+#include "cnApiEventIntern.h"
 #include "cnApiIntern.h"
 
 #include "cnApiAsyncSm.h"

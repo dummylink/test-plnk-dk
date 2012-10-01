@@ -20,6 +20,7 @@ processor (AP) to the POWERLINK communication processor (PCP).
 /* includes */
 #include "cnApi.h"
 #include "cnApiIntern.h"
+#include "cnApiEventIntern.h"
 
 #include "cnApiAsync.h"
 #include "cnApiPdo.h"
