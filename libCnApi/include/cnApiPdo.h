@@ -20,6 +20,7 @@ This header file contains definitions for the CN API PDO module.
 /* includes */
 #include "cnApiTyp.h"
 
+#include "cnApiAsyncSm.h"
 #include "cnApiTypPdo.h"
 
 /******************************************************************************/

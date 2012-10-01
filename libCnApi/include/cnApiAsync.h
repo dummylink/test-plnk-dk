@@ -102,7 +102,6 @@ typedef struct sPdiAsyncMsgDescr {
 /* external variable declarations */
 extern tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[];
 extern tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[];
-extern tLinkPdosResp LinkPdosResp_g;        ///< Link Pdos Response message
 
 /******************************************************************************/
 /* global variables */

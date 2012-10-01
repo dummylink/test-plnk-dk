@@ -21,7 +21,6 @@ This header file contains definitions for the CN API.
 #include "cnApiCfg.h"
 #include "cnApiTyp.h"
 
-#include "cnApiAsyncSm.h"
 #include "cnApiEvent.h"
 
 #include "EplErrDef.h"
@@ -123,6 +122,8 @@ extern DWORD CnApi_getSyncIntPeriod(void);
 
 /* functions for PDO transfer and sync callback*/
 extern void CnApi_checkPdo(void);
+extern tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p,
+        DWORD dwErrorCode_p);
 
 /* functions for async state machine */
 extern BOOL CnApi_processAsyncStateMachine(void);

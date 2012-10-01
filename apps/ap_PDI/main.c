@@ -316,6 +316,8 @@ void workInputOutput(void)
  *******************************************************************************/
 void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p)
 {
+    tPdiAsyncStatus Ret;        ///< return code of pdo response message
+    DWORD dwPdoRespErrCode;     ///< error code for the pdo response message
 
     switch (EventType_p)
     {
@@ -524,19 +526,20 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Mapping or linking failed!\n");
 
                             /* set status */
-                            LinkPdosResp_g.m_dwErrCode = EPL_SDOAC_GENERAL_ERROR;
+                            dwPdoRespErrCode = EPL_SDOAC_GENERAL_ERROR;
                         }
                         else // successful
                         { /* set status */
-                            LinkPdosResp_g.m_dwErrCode = 0; // 0: OK
+                            dwPdoRespErrCode = 0; // 0: OK
                         }
 
-                        /* return LinkPdosReq fields in LinkPdosResp message */
-                        LinkPdosResp_g.m_bMsgId = pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bMsgId;
-                        LinkPdosResp_g.m_bOrigin = pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bOrigin;
-
-                        /* send LinkPdosResp message to PCP */
-                        CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosResp, 0,0,0);
+                        Ret = CnApi_sendPdoResp(pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bMsgId,
+                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bOrigin,
+                                dwPdoRespErrCode);
+                        if(Ret != kPdiAsyncStatusSuccessful)
+                        {
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to post Pdo response message!\n");
+                        }
                     }
 
                     default:

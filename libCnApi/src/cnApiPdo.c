@@ -63,7 +63,7 @@ typedef enum eTypes {
 
 /******************************************************************************/
 /* external variable declarations */
-tLinkPdosResp LinkPdosResp_g;           ///< Link Pdos Response message
+tLinkPdosResp LinkPdosResp_l;           ///< Link Pdos Response message
 
 /******************************************************************************/
 /* global variables */
@@ -591,18 +591,18 @@ tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxM
 
     /* handle Tx Message */
     /* build up InitPcpReq */
-    pLinkPdosResp->m_bMsgId = LinkPdosResp_g.m_bMsgId;
-    pLinkPdosResp->m_bOrigin = LinkPdosResp_g.m_bOrigin;
-    AmiSetDwordToLe(&pLinkPdosResp->m_dwErrCode, LinkPdosResp_g.m_dwErrCode);
+    pLinkPdosResp->m_bMsgId = LinkPdosResp_l.m_bMsgId;
+    pLinkPdosResp->m_bOrigin = LinkPdosResp_l.m_bOrigin;
+    AmiSetDwordToLe(&pLinkPdosResp->m_dwErrCode, LinkPdosResp_l.m_dwErrCode);
     //TODO: Assign m_wCommHdl
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = sizeof(tLinkPdosResp); // sent size
 
 exit:
-    if ((LinkPdosResp_g.m_bOrigin == kAsyncLnkPdoMsgOrigNmtCmd) &&
+    if ((LinkPdosResp_l.m_bOrigin == kAsyncLnkPdoMsgOrigNmtCmd) &&
         (Ret == kPdiAsyncStatusSuccessful)                      &&
-        (LinkPdosResp_g.m_dwErrCode == 0)                         )
+        (LinkPdosResp_l.m_dwErrCode == 0)                         )
     { /* assign call back - move to ReadyToOperate state */
         pMsgDescr_p->pfnTransferFinished_m = CnApi_pfnCbLinkPdosRespFinished;
     }
@@ -673,6 +673,36 @@ void CnApi_checkPdo(void)
     pfnAppCbSync_g();
 
     CnApi_transmitPdo();
+}
+
+/**
+********************************************************************************
+\brief  Send a PDO response message to the pcp
+
+\param  bMsgId_p         Id of the pdo response message
+\param  bOrigin_p        origin of the pdo response message
+\param  dwErrorCode_p    error code
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful   when successful
+
+CnApi_sendPdoResp() posts a pdo response message to the asychronous state
+machine.
+*******************************************************************************/
+tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p, DWORD dwErrorCode_p)
+{
+    tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
+
+    LinkPdosResp_l.m_dwErrCode = dwErrorCode_p;
+
+    /* return LinkPdosReq fields in LinkPdosResp message */
+    LinkPdosResp_l.m_bMsgId = bMsgId_p;
+    LinkPdosResp_l.m_bOrigin = bOrigin_p;
+
+    /* send LinkPdosResp message to PCP */
+    Ret = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosResp, 0,0,0);
+
+    return Ret;
 }
 
 
