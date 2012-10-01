@@ -25,7 +25,7 @@ application processor (AP).
 #include "stateMachine.h"
 
 #ifdef CN_API_USING_SPI
-#include "cnApiPdiSpi.h"
+  #include "cnApiPdiSpiIntern.h"
 #endif
 
 #include <string.h>

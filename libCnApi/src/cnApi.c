@@ -25,6 +25,11 @@ processor (AP) to the POWERLINK communication processor (PCP).
 #include "cnApiAsync.h"
 #include "cnApiPdo.h"
 
+
+#ifdef CN_API_USING_SPI
+  #include "cnApiPdiSpiIntern.h"
+#endif
+
 #ifdef __NIOS2__
 #include <unistd.h>    //for usleep()
 #elif defined(__MICROBLAZE__)

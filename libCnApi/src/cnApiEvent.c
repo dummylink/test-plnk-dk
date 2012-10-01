@@ -25,7 +25,7 @@
 #include "cnApiAsyncSm.h"
 
 #ifdef CN_API_USING_SPI
-#include "cnApiPdiSpi.h"
+  #include "cnApiPdiSpiIntern.h"
 #endif //CN_API_USING_SPI
 
 #include "EplAmi.h"

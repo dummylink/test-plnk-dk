@@ -86,9 +86,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h> // for memcpy() memset()
 
 /* Cn API header files */
-#include "cnApiPdiSpi.h"
+#include "cnApiPdiSpiIntern.h"
 #include "cnApiDebug.h"
 #include "cnApi.h"
+
+#ifdef CN_API_USING_SPI
 
 /***************************************************************************************
  * LOCAL DEFINES
@@ -1172,3 +1174,5 @@ static int buildCmdFrame
 
     return iRet;
 }
+
+#endif //#CN_API_USING_SPI

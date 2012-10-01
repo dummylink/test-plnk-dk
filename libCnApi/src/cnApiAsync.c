@@ -27,7 +27,7 @@ This module contains functions for the asynchronous transfer in the CN API libra
 #include "EplAmi.h"
 
 #ifdef CN_API_USING_SPI
-    #include "cnApiPdiSpi.h"
+  #include "cnApiPdiSpiIntern.h"
 #endif
 
 /******************************************************************************/

@@ -33,7 +33,7 @@ the Tx and Rx direction towards and from the AP is handled.
 #include "cnApiIntern.h"
 
 #ifdef CN_API_USING_SPI
-#include "cnApiPdiSpi.h"     ///< serial interface
+  #include "cnApiPdiSpiIntern.h"     ///< serial interface
 #endif
 
 #include "EplAmi.h"

@@ -28,9 +28,8 @@ This header file contains definitions for the CN API.
 #include "EplSdoAc.h"
 
 #ifdef CN_API_USING_SPI
-#include "cnApiPdiSpi.h"
+  #include "cnApiPdiSpi.h"
 #endif
-
 
 
 /******************************************************************************/
