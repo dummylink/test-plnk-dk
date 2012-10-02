@@ -108,8 +108,10 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     pCtrlReg_g = &PcpCntrlRegMirror;         ///< if SPI is used, take local var instead of parameter
 #else
     pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParm_p->m_pDpram_p;    ///< if no SPI is used, take parameter to dpram
-    pDpramBase_g = pInitCnApiParm_p->m_pDpram_p;
 #endif // CN_API_USING_SPI
+
+    /* make dpram base global */
+    pDpramBase_g = pInitCnApiParm_p->m_pDpram_p;
 
 
 #ifdef CN_API_USING_SPI
