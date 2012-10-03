@@ -380,6 +380,17 @@ add_parameter enDmaObserver BOOLEAN false
 set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer monitor circuit"
 set_parameter_property enDmaObserver DESCRIPTION "The DMA monitor verifies the error-free Ethernet packet data transfer to/from the memory."
 
+add_parameter macVethEnable BOOLEAN FALSE
+set_parameter_property macVethEnable VISIBLE true
+set_parameter_property macVethEnable DISPLAY_NAME "Enable Virtual Ethernet driver"
+set_parameter_property macVethEnable DESCRIPTION "This option enables the Virtual Ethernet driver. Please set the number of RX buffers according to your needs!"
+
+add_parameter macVethRxBuffer INTEGER 4
+set_parameter_property macVethRxBuffer ALLOWED_RANGES {1:6}
+set_parameter_property macVethRxBuffer VISIBLE false
+set_parameter_property macVethRxBuffer DISPLAY_NAME "Virtual Ethernet driver: Number of pending RX packets"
+set_parameter_property macVethRxBuffer DESCRIPTION "This option enables additional RX buffers which results in an increase of 1500 bytes memory per buffer."
+
 #parameters for PDI HDL
 add_parameter genOnePdiClkDomain_g BOOLEAN false
 set_parameter_property genOnePdiClkDomain_g HDL_PARAMETER true
@@ -634,6 +645,15 @@ proc my_validation_callback {} {
     
     set expert                      [get_parameter_value expertMode]
 	
+	set veth_enable                 [get_parameter_value macVethEnable]
+
+	if {$veth_enable } {
+		set_parameter_property macVethRxBuffer VISIBLE true
+		set veth_rx_buffers			[get_parameter_value macVethRxBuffer]
+	} else {
+		set_parameter_property macVethRxBuffer VISIBLE false
+	}
+
 	if {$mii == "RMII"} {
 		set_parameter_value useRmii_g true
 	} else {
@@ -828,7 +848,9 @@ proc my_validation_callback {} {
 	
 	set_parameter_property mac2phys VISIBLE true
     set_parameter_property macGen2ndSmi VISIBLE false
-	
+
+	set_parameter_property macVethEnable VISIBLE true
+
 	set_parameter_property rpdoNum VISIBLE true
 	set_parameter_property tpdoNum VISIBLE true
 	
@@ -1013,7 +1035,13 @@ proc my_validation_callback {} {
     set rxBufSize   [expr ($rxBufSize + 3) & ~3]
 	
 	if {$ploc == "TX and RX into DPRAM"} {
-		set macBufSize [expr $txBufSize + $rxBufSize]
+		# add virtual ethernet RX buffers to dpram size
+		if {$veth_enable } {
+			set veth_rx_buff_size [ expr $veth_rx_buffers * ($ethHd + $mtu + $crc + $macRxHd) ];
+		} else {
+			set veth_rx_buff_size 0
+		}
+		set macBufSize [expr $txBufSize + $rxBufSize + $veth_rx_buff_size]
 		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
 		set enDmaObserver false
 	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master" } {
@@ -1153,6 +1181,14 @@ proc my_validation_callback {} {
 		set_module_assignment embeddedsw.CMacro.DMAOBSERV			FALSE
 	}
 	
+	if {$veth_enable} {
+		set_module_assignment embeddedsw.CMacro.VETHENABLE			TRUE
+		set_module_assignment embeddedsw.CMacro.VETHRXBUFFERS		$veth_rx_buffers
+	} else {
+		set_module_assignment embeddedsw.CMacro.VETHENABLE			FALSE
+		set_module_assignment embeddedsw.CMacro.VETHRXBUFFERS		0
+	}
+
 	if {[get_parameter_value hwSupportSyncIrq]} {
 		set_module_assignment embeddedsw.CMacro.TIMESYNCHW		    TRUE
 	} else {
@@ -1285,6 +1321,8 @@ add_display_item "openMAC" macTxBurstSize  PARAMETER
 add_display_item "openMAC" macRxBurstSize  PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
 add_display_item "openMAC" macRxBuf  PARAMETER
+add_display_item "openMAC" macVethEnable  PARAMETER
+add_display_item "openMAC" macVethRxBuffer  PARAMETER
 
 #INTERFACES
 
