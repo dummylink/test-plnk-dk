@@ -1,22 +1,19 @@
-/*******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
-*/
-
 /**
 ********************************************************************************
-
 \file       cnApiEvent.c
 
-\brief      event handling of the PCP PDI (CN) API
+\brief      Event handling of the PCP PDI (CN) API
 
-\author     hoggerm
+This module contains functions for the asynchronous event handling in the CN API
+library.
 
-\date       29.04.2011
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
-\since      29.04.2011
 *******************************************************************************/
+
+/******************************************************************************/
 /* includes */
 #include "cnApiEvent.h"
 #include "cnApiEventIntern.h"

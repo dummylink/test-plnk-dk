@@ -1,21 +1,8 @@
-/*******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
-*/
-
 /**
 ********************************************************************************
-
 \file       cnApiAsyncSm.c
 
 \brief      Asynchronous PDI state machine module
-
-\author     hoggerm
-
-\date       28.03.2011
-
-\since      28.03.2011
 
 This is the source file for the asynchronous communication between the
 POWERLINK Communication Processor (PCP) and the Application Processor (AP)
@@ -23,7 +10,13 @@ using the Process Data Interface (PDI) as buffer. The communication is handled
 with a state machine in order to avoid blocking. In this state machine,
 the Tx and Rx direction towards and from the AP is handled.
 
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
+
 *******************************************************************************/
+
+/******************************************************************************/
 /* includes */
 #include "cnApiTypAsync.h"
 #include "cnApiTypAsyncSm.h"

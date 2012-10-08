@@ -1,21 +1,15 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved. All use of this software and documentation is
-* subject to the License Agreement located at the end of this file below.
-*/
-
 /**
 ********************************************************************************
+\file       cnApiTypAsyncSm.h
 
-\file       cnApiTypAsync.h
+\brief      Global header file for PCP PDI (CN) and libCnApi (AsyncSm module)
 
-\brief      global header file for PCP PDI (CN) and libCnApi (AsyncSm module)
+This header provides data structures for the PCP and AP processors async state
+machine module. It defines message formats and common types.
 
-\author     hoggerm
-
-\date       29.04.2011
-
-\since      29.04.2011
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 

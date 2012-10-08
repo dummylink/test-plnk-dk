@@ -1,29 +1,22 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
-*/
-
 /**
 ********************************************************************************
-
 \file       cnApiAsyncSm.h
 
 \brief      Asynchronous PDI state machine header
-
-\author     hoggerm
-
-\date       28.03.2011
-
-\since      28.03.2011
 
 This is the header file for the asynchronous communication between the
 POWERLINK Communication Processor (PCP) and the Application Processor (AP)
 using the Process Data Interface (PDI) as buffer.
 
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
+
 *******************************************************************************/
+
 #ifndef PCPPDIASYNCSM_H_
 #define PCPPDIASYNCSM_H_
+
 /******************************************************************************/
 /* includes */
 #include "stateMachine.h"
@@ -68,6 +61,9 @@ void CnApi_disableAsyncSmProcessing(void);
 /******************************************************************************/
 /* private functions */
 
+
+#endif /* PCPPDIASYNCSM_H_ */
+
 /*******************************************************************************
 *
 * License Agreement
@@ -102,5 +98,4 @@ void CnApi_disableAsyncSmProcessing(void);
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-#endif /* PCPPDIASYNCSM_H_ */
 /* END-OF-FILE */

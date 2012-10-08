@@ -2,15 +2,14 @@
 ********************************************************************************
 \file       cnApiObject.h
 
-\brief      header file of cnApi object module
+\brief      Header file of cnApi object module
 
-\author     Josef Baumgartner
+This header file contains definitions for the libCnApi object handling.
 
-\date       22.03.2010
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
-
-This header file contains definitions for the CN API.
 *******************************************************************************/
 
 #ifndef CNAPIOBJECT_H_

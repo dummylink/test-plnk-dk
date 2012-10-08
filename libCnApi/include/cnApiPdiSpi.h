@@ -4,25 +4,22 @@
 
 \brief      Api header file of CN API SPI library
 
-\author     mairt
+This header file contains the API parts of the SPI driver.
 
-\date       08.10.2012
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
-
-This header file contains the API parts of the SPI driver
 *******************************************************************************/
 
 #ifndef _CNAPI_PDI_SPI_H_
 #define _CNAPI_PDI_SPI_H_
 
+/******************************************************************************/
+/* includes */
 #include "cnApiCfg.h"
 
 #ifdef CN_API_USING_SPI
-
-
-/******************************************************************************/
-/* includes */
 
 /******************************************************************************/
 /* defines */

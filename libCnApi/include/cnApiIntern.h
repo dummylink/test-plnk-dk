@@ -2,15 +2,15 @@
 ********************************************************************************
 \file       cnApiIntern.h
 
-\brief      internal header file of cnApi module
+\brief      Internal header file of cnApi module
 
-\author     Josef Baumgartner
+This header file contains internal definitions for the CN API and is used
+library wide.
 
-\date       22.03.2010
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
-
-This header file contains definitions for the CN API.
 *******************************************************************************/
 
 #ifndef CNAPIINTERN_H_

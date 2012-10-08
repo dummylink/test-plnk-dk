@@ -1,32 +1,27 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
-*/
-
 /**
 ********************************************************************************
-
 \file       cnApiEventIntern.h
 
-\brief      library internal header file for PCP PDI (CN) event handling
+\brief      Library internal header file for PCP PDI (CN) event handling
 
-\author     hoggerm
+This file provides the private interface for the event handling module in the
+libCnApi libarary.
 
-\date       29.04.2011
-
-\since      29.04.2011
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
+
 #ifndef CNAPIEVENTINTERN_H_
 #define CNAPIEVENTINTERN_H_
+
 /******************************************************************************/
 /* includes */
 #include "cnApiTypEvent.h"
 
 /******************************************************************************/
 /* defines */
-
 #define ASYNC_IRQ_PEND  0
 #define ASYNC_IRQ_EN   15
 

@@ -1,21 +1,15 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved. All use of this software and documentation is
-* subject to the License Agreement located at the end of this file below.
-*/
-
 /**
 ********************************************************************************
-
 \file       cnApiTypPdo.h
 
-\brief      global header file for PCP PDI (CN) and libCnApi (PDO module)
+\brief      Global header file for PCP PDI (CN) and libCnApi (PDO module)
 
-\author     hoggerm
+This header provides data structures for the PCP and AP processors PDO module.
+It defines message formats and common types.
 
-\date       29.04.2011
-
-\since      29.04.2011
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 

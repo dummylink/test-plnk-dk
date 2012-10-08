@@ -2,16 +2,15 @@
 ********************************************************************************
 \file       cnApiObd.h
 
-\brief      header file of cnApi object dictionary module
-
-\author     mairt
-
-\date       08.10.2012
-
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
+\brief      Header file of cnApi object dictionary module
 
 This header file contains public defines for object dictionary access on the
 AP processor.
+
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
+
 *******************************************************************************/
 
 #ifndef CNAPIOBD_H_

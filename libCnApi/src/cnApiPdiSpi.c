@@ -1,82 +1,19 @@
 /**
 ********************************************************************************
-\file        cnApiPdiSpi.c
+\file       cnApiPdiSpi.c
 
-\brief        Library for FPGA PDI via SPI
+\brief      Library for FPGA PDI via SPI
 
-\author        Joerg Zelenka
+This module implements  the API parts of the SPI driver.
 
-\date        2010/09/09
-
-------------------------------------------------------------------------------
-Copyright (c) 2010, B&R
-All rights reserved.
-
-Redistribution and use in source and binary forms,
-with or without modification,
-are permitted provided that the following conditions are met:
-
-- Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer.
-
-- Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer
-in the documentation and/or other materials provided with the distribution.
-
-- Neither the name of the B&R nor the names of
-its contributors may be used to endorse or promote products derived
-from this software without specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-------------------------------------------------------------------------------
-
- Functions:
-            CnApi_initSpiMaster     initialize the PDI SPI driver
-
-            CnApi_Spi_write         write given data size from PDI
-
-            CnApi_Spi_read          read given data size to PDI
-
-            CnApi_Spi_writeByte     write given byte to given address
-
-            CnApi_Spi_readByte      read a byte from given address
-
-
-            writeSq         write given bytes to given address
-
-            readSq          read bytes from given address
-
-            setPdiAddrReg   build addressing commands for given address
-
-            sendTxBuffer    finally send the Tx Buffers in the driver instance
-
-            recRxBuffer     receive one byte and store to driver instance
-
-            buildCmdFrame   build a CMD Frame
-
-------------------------------------------------------------------------------
- History:
-    2010/09/09    zelenkaj    created
-    2010/10/25    hoggerm     added function for scalable data size transfers
-    2010/12/13    zelenkaj    added sq-functionality
-    2011/01/10    zelenkaj    added wake up functionality
-    2011/03/01    zelenkaj    extend wake up (4 wake up pattern, inversion)
-    2011/03/03    hoggerm     added SPI HW Layer test
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 
-/* target specific header files */
+/******************************************************************************/
+/* includes */
 #ifdef __NIOS2__
 #include <unistd.h>    //for usleep()
 #elif defined(__MICROBLAZE__)
@@ -92,24 +29,32 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef CN_API_USING_SPI
 
-/***************************************************************************************
- * LOCAL DEFINES
- ***************************************************************************************/
+
+/******************************************************************************/
+/* defines */
+
 #define ADDR_WR_DOWN    1
 #define ADDR_CHECK      2
 #define ADDR_WR_DOWN_LO 3
 #define ADDR_CHECK_LO   4
 
 
-/***************************************************************************************
- * GLOBAL VARS
- ***************************************************************************************/
+/******************************************************************************/
+/* typedefs */
+
+/******************************************************************************/
+/* external variable declarations */
+
+/******************************************************************************/
+/* global variables */
 void (*pfnEnableGlobalIntH_g)(void) = NULL; ///< function pointer to global interrupt enable callback
 void (*pfnDisableGlobalIntH_g)(void) = NULL; ///< function pointer to global interrupt disable callback
 
-/***************************************************************************************
- * LOCALS
- ***************************************************************************************/
+/******************************************************************************/
+/* function declarations */
+
+/******************************************************************************/
+/* private functions */
 static void byteSwap(
     BYTE *pVal_p, ///< register base to be swapped
     int iSize_p ///< size of register
@@ -156,9 +101,8 @@ static int buildCmdFrame
  */
 static tPdiSpiInstance PdiSpiInstance_l;
 
-/***************************************************************************************
- * PUBLIC FUNCTIONS
- ***************************************************************************************/
+/******************************************************************************/
+/* public functions */
 
 /**
 ********************************************************************************
@@ -1176,3 +1120,41 @@ static int buildCmdFrame
 }
 
 #endif //#CN_API_USING_SPI
+
+/*******************************************************************************
+*
+* License Agreement
+*
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms,
+* with or without modification,
+* are permitted provided that the following conditions are met:
+*
+*   * Redistributions of source code must retain the above copyright notice,
+*     this list of conditions and the following disclaimer.
+*   * Redistributions in binary form must reproduce the above copyright notice,
+*     this list of conditions and the following disclaimer
+*     in the documentation and/or other materials provided with the
+*     distribution.
+*   * Neither the name of the B&R nor the names of its contributors
+*     may be used to endorse or promote products derived from this software
+*     without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+* A PARTICULAR PURPOSE ARE DISCLAIMED.
+* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+*******************************************************************************/
+/* END-OF-FILE */
+
+

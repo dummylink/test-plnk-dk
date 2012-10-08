@@ -1,31 +1,24 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
-*/
-
 /**
 ********************************************************************************
-
 \file       cnApiAsync.h
 
-\brief      header file for asynchronous communication AP <-> PCP
+\brief      Header file for asynchronous communication AP <-> PCP
 
-\author     hoggerm
+This header files uses the asynchronous state machine to send and receive
+messages from the PCP to the AP processor.
 
-\date       29.03.2011
-
-\since      29.03.2011
-
-\version    {REVISION NUMBER}
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
+
 #ifndef CNAPIASYNC_H_
 #define CNAPIASYNC_H_
+
 /******************************************************************************/
 /* includes */
 #include "cnApi.h"
-
 #include "cnApiTypAsync.h"
 
 #include "Epl.h"
@@ -119,6 +112,8 @@ tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgD
 /* private functions */
 
 
+#endif /* CNAPIASYNC_H_ */
+
 /*******************************************************************************
 *
 * License Agreement
@@ -153,6 +148,5 @@ tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgD
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-#endif /* CNAPIASYNC_H_ */
 /* END-OF-FILE */
 

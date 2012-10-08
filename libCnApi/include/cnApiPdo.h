@@ -1,16 +1,15 @@
 /**
 ********************************************************************************
-\file		cnApiPdo.h
+\file       cnApiPdo.h
 
-\brief		header file with definitions for CN API PDO module
+\brief      Header file with definitions for CN API PDO module
 
-\author		Josef Baumgartner
+This module handles the process data object handling inside the libCnApi.
 
-\date		22.03.2010
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
-
-This header file contains definitions for the CN API PDO module.
 *******************************************************************************/
 
 #ifndef CNAPIPDO_H_

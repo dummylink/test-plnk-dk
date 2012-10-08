@@ -1,23 +1,18 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved. All use of this software and documentation is
-* subject to the License Agreement located at the end of this file below.
-*/
-
 /**
 ********************************************************************************
-
 \file       cnApiEvent.h
 
-\brief      header file for PCP PDI (CN) event handling
+\brief      Header file for PCP PDI (CN) event handling
 
-\author     mairt
+This file provides the public interface for the event handling module in the
+libCnApi libarary.
 
-\date       01.10.2012
-
-\since      01.10.2012
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
+
 #ifndef CNAPIEVENT_H_
 #define CNAPIEVENT_H_
 
@@ -125,8 +120,6 @@ typedef void (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
 extern void CnApi_enableAsyncEventIRQ(void);
 extern void CnApi_disableAsyncEventIRQ(void);
 extern void CnApi_checkAsyncEvent(void);
-
-
 
 
 #endif /* CNAPIEVENT_H_ */
