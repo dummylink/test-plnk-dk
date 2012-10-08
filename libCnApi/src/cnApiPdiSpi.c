@@ -113,16 +113,19 @@ this library to register the SPI Master Tx/Rx handler.
 Furthermore the function sets the Address Register of the PDI SPI Slave
 to a known state.
 
-\param  SpiMasterTxH_p     SPI Master Tx Handler callback
-\param  SpiMasterRxH_p     SPI Master Rx Handler callback
+\param  SpiMasterTxH_p             SPI Master Tx Handler callback
+\param  SpiMasterRxH_p             SPI Master Rx Handler callback
+\param  pfnEnableGlobalIntH_p      SPI Master critical section enable
+\param  pfnDisableGlobalIntH_p     SPI Master critical section disable
 
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 int CnApi_initSpiMaster
 (
-    tSpiMasterTxHandler     SpiMasterTxH_p, ///< SPI Master Tx Handler
-    tSpiMasterRxHandler     SpiMasterRxH_p,  ///< SPI MASTER Rx Handler
+    tSpiMasterTxHandler     SpiMasterTxH_p,
+    tSpiMasterRxHandler     SpiMasterRxH_p,
     void                    *pfnEnableGlobalIntH_p,
     void                    *pfnDisableGlobalIntH_p
 )
@@ -308,22 +311,22 @@ exit:
 CnApi_Spi_writeByte() writes one byte to the POWERLINK CN PDI via SPI.
 This byte will be written to PDI address.
 
-\param  uwAddr_p    PDI address to be written to
-\param  pData_p     Write data
+\param  uwAddr_p     PDI address to be written to
+\param  ubData_p     Write data
 
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 int CnApi_Spi_writeByte
 (
-    WORD          uwAddr_p,       ///< PDI Address to be written to
-    BYTE           ubData_p        ///< Write data
+    WORD          uwAddr_p,
+    BYTE           ubData_p
 )
 {
     int             iRet = PDISPI_OK;
     BYTE            ubTxData;
 
-    ///< as SPI is not interrupt safe disable global interrupts
     (void)pfnDisableGlobalIntH_g();
 
     //check the pdi's address register for the following cmd
@@ -356,7 +359,6 @@ int CnApi_Spi_writeByte
 
     PdiSpiInstance_l.m_addrReg++;
 
-    ///< enable the interrupts again
     (void)pfnEnableGlobalIntH_g();
 
 exit:
@@ -373,19 +375,19 @@ This data will be read from PDI address and stored to a local address.
 \param  uwAddr_p     PDI address to be read from
 \param  pData_p      Read data
 
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 int CnApi_Spi_readByte
 (
-    WORD          uwAddr_p,       ///< PDI Address to be read from
-    BYTE           *pData_p        ///< Read data
+    WORD          uwAddr_p,
+    BYTE           *pData_p
 )
 {
     int             iRet = PDISPI_OK;
     BYTE            ubTxData;
 
-    ///< as SPI is not interrupt safe disable global interrupts
     (void)pfnDisableGlobalIntH_g();
 
     //check the pdi's address register for the following cmd
@@ -430,7 +432,6 @@ int CnApi_Spi_readByte
 
     PdiSpiInstance_l.m_addrReg++;
 
-    ///< enable the interrupts again
     (void)pfnEnableGlobalIntH_g();
 
 exit:
@@ -455,6 +456,21 @@ static void byteSwap(BYTE *pVal_p, int iSize_p)
     }
 }
 
+/**
+********************************************************************************
+\brief  write one word from the CN PDI via SPI
+
+CnApi_Spi_writeWord() writes one word to the POWERLINK CN PDI via SPI.
+This byte will be written to PDI address.
+
+\param  uwAddr_p      PDI address to be written to
+\param  wData_p       Write data
+\param  ubBigEndian_p Endianess of the word to be read
+
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
+*******************************************************************************/
 int CnApi_Spi_writeWord(WORD uwAddr_p, WORD wData_p, BYTE ubBigEndian_p)
 {
     int iRet = PDISPI_OK;
@@ -469,6 +485,21 @@ int CnApi_Spi_writeWord(WORD uwAddr_p, WORD wData_p, BYTE ubBigEndian_p)
     return iRet;
 }
 
+/**
+********************************************************************************
+\brief  read one word from the CN PDI via SPI
+
+CnApi_Spi_readByte() reads one word from the POWERLINK CN PDI via SPI.
+This data will be read from PDI address and stored to a local address.
+
+\param  uwAddr_p      PDI address to be read from
+\param  pData_p       Read data
+\param  ubBigEndian_p Endianess the data should be read
+
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
+*******************************************************************************/
 int CnApi_Spi_readWord(WORD uwAddr_p, WORD *pData_p, BYTE ubBigEndian_p)
 {
     int iRet = PDISPI_OK;
@@ -483,6 +514,21 @@ int CnApi_Spi_readWord(WORD uwAddr_p, WORD *pData_p, BYTE ubBigEndian_p)
     return iRet;
 }
 
+/**
+********************************************************************************
+\brief  write one double word from the CN PDI via SPI
+
+CnApi_Spi_writeDword() writes one double word to the POWERLINK CN PDI via SPI.
+This byte will be written to PDI address.
+
+\param  uwAddr_p       PDI address to be written to
+\param  dwData_p       Write data
+\param  ubBigEndian_p  Endianess of the word to be read
+
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
+*******************************************************************************/
 int CnApi_Spi_writeDword(WORD uwAddr_p, DWORD dwData_p, BYTE ubBigEndian_p)
 {
     int iRet = PDISPI_OK;
@@ -497,6 +543,21 @@ int CnApi_Spi_writeDword(WORD uwAddr_p, DWORD dwData_p, BYTE ubBigEndian_p)
     return iRet;
 }
 
+/**
+********************************************************************************
+\brief  read one double word from the CN PDI via SPI
+
+CnApi_Spi_readByte() reads one double word from the POWERLINK CN PDI via SPI.
+This data will be read from PDI address and stored to a local address.
+
+\param  uwAddr_p      PDI address to be read from
+\param  pData_p       Read data
+\param  ubBigEndian_p Endianess the data should be read
+
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
+*******************************************************************************/
 int CnApi_Spi_readDword(WORD uwAddr_p, DWORD *pData_p, BYTE ubBigEndian_p)
 {
     int iRet = PDISPI_OK;
@@ -511,6 +572,21 @@ int CnApi_Spi_readDword(WORD uwAddr_p, DWORD *pData_p, BYTE ubBigEndian_p)
     return iRet;
 }
 
+/**
+********************************************************************************
+\brief  write one quad word from the CN PDI via SPI
+
+CnApi_Spi_writeDword() writes one quad word to the POWERLINK CN PDI via SPI.
+This byte will be written to PDI address.
+
+\param  uwAddr_p       PDI address to be written to
+\param  qwData_p       Write data
+\param  ubBigEndian_p  Endianess of the word to be read
+
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
+*******************************************************************************/
 int CnApi_Spi_writeQword(WORD uwAddr_p, QWORD qwData_p, BYTE ubBigEndian_p)
 {
     int iRet = PDISPI_OK;
@@ -525,6 +601,21 @@ int CnApi_Spi_writeQword(WORD uwAddr_p, QWORD qwData_p, BYTE ubBigEndian_p)
     return iRet;
 }
 
+/**
+********************************************************************************
+\brief  read one quad word from the CN PDI via SPI
+
+CnApi_Spi_readByte() reads one quad word from the POWERLINK CN PDI via SPI.
+This data will be read from PDI address and stored to a local address.
+
+\param  uwAddr_p      PDI address to be read from
+\param  pData_p       Read data
+\param  ubBigEndian_p Endianess the data should be read
+
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
+*******************************************************************************/
 int CnApi_Spi_readQword(WORD uwAddr_p, QWORD *pData_p, BYTE ubBigEndian_p)
 {
     int iRet = PDISPI_OK;
@@ -546,18 +637,19 @@ int CnApi_Spi_readQword(WORD uwAddr_p, QWORD *pData_p, BYTE ubBigEndian_p)
 CnCnApi_Spi_writerites a certain amount of data to the POWERLINK CN PDI
 via SPI. This data will be read from a local address and stored to a PDI address.
 
-\param  wAddr_p     PDI Address to be written to
-\param  wSize_p     Size of transmitted data in Bytes
-\param  pSrcVar     (Byte-) Pointer to local source address
+\param  wPcpAddr_p     PDI Address to be written to
+\param  wSize_p        Size of transmitted data in Bytes
+\param  pApSrcVar_p   (Byte-) Pointer to local source address
 
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 int CnApi_Spi_write
 (
-    WORD   wPcpAddr_p,          ///< PDI Address to be written to
-    WORD   wSize_p,             ///< size in Bytes
-    BYTE*  pApSrcVar_p          ///< ptr to local source
+    WORD   wPcpAddr_p,
+    WORD   wSize_p,
+    BYTE*  pApSrcVar_p
 )
 {
     int iRet = PDISPI_OK;
@@ -606,18 +698,19 @@ int CnApi_Spi_write
 CnApi_Spi_read() reads a certain amount of data from the POWERLINK CN PDI
 via SPI. This data will be read from PDI address and stored to a local address.
 
-\param    wAddr_p        PDI address to be read from
-\param    wSize_p        Size of transmitted data in Bytes
-\param    pTgtVar       (Byte-) Pointer to local target address
+\param    wPcpAddr_p        PDI address to be read from
+\param    wSize_p           Size of transmitted data in Bytes
+\param    pApTgtVar_p       (Byte-) Pointer to local target address
 
-\retval    iRet     can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 int CnApi_Spi_read
 (
-   WORD   wPcpAddr_p,      ///< PDI Address to be read from
-   WORD   wSize_p,         ///< size in Bytes
-   BYTE*  pApTgtVar_p      ///< ptr to local target
+   WORD   wPcpAddr_p,
+   WORD   wSize_p,
+   BYTE*  pApTgtVar_p
 )
 {
     int iRet = PDISPI_OK;
@@ -674,14 +767,15 @@ This data will be written to PDI address.
 \param  uwSize_p    Write data size
 \param  pData_p     Write data
 
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 static int writeSq
 (
-    WORD            uwAddr_p,       ///< PDI Address to be written to
-    WORD            uwSize_p,       ///< Write data size (bytes)
-    BYTE            *pData_p        ///< Write data
+    WORD            uwAddr_p,
+    WORD            uwSize_p,
+    BYTE            *pData_p
 )
 {
     int             iRet = PDISPI_OK;
@@ -762,14 +856,15 @@ This data will be read from PDI address and stored to a local address.
 \param uwSize_p      Read data size (in bytes)
 \param  pData_p      Read data
 
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 static int readSq
 (
-    WORD            uwAddr_p,       ///< PDI Address to be read from
-    WORD            uwSize_p,       ///< Read data size
-    BYTE            *pData_p        ///< Read data
+    WORD            uwAddr_p,
+    WORD            uwSize_p,
+    BYTE            *pData_p
 )
 {
     int             iRet = PDISPI_OK;
@@ -838,7 +933,6 @@ static int readSq
     }
     while( uwSize_p );
 
-    ///< enable the interrupts again
     (void)pfnEnableGlobalIntH_g();
 
 exit:
@@ -857,13 +951,14 @@ written down without verification.
 \param  uwAddr_p    address to be accessed at PDI
 \param  fWr_p        way of handle address change
 
-\retval iRet        PDISPI_OK if address register is set correctly
-                    PDISPI_ERROR otherwise (e.g. full TX buffer)
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error (e.g. full TX buffer)
 *******************************************************************************/
 static int setPdiAddrReg
 (
-    WORD            uwAddr_p,   ///< address to be accessed at PDI
-    int             fWr_p       ///< way of handle address change
+    WORD            uwAddr_p,
+    int             fWr_p
 )
 {
     int             iRet = PDISPI_OK;
@@ -964,7 +1059,9 @@ exit:
 sendTxBuffer() calls the SPI master TX handler. The to be sent bytes should be
 stored in m_txBuffer.
 
-\retval iRet        PDISPI_OK - RX done / otherwise error!
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 static int sendTxBuffer
 (
@@ -1010,7 +1107,9 @@ exit:
 recRxBuffer() calls the SPI master RX handler. The received bytes are stored
 in m_rxBuffer.
 
-\retval iRet        PDISPI_OK - RX done / otherwise error!
+\return iRet
+\retval PDISPI_OK                  if transfer was successful
+\retval PDISPI_ERROR               in case of an error
 *******************************************************************************/
 static int recRxBuffer
 (
@@ -1061,14 +1160,15 @@ uwPayload_p. ubType_p gives the command type (use defines).
 \param  pFrame_p    frame buffer pointer
 \param  ubTyp_p     cmd frame type
 
-\retval iRet        can be PDISPI_OK only - if ubTyp_p is unknown, idle frame
-                    is returned!
+\return iRet
+\retval PDISPI_OK                  can be PDISPI_OK only - if ubTyp_p is
+                                   unknown, idle frame is returned!
 *******************************************************************************/
 static int buildCmdFrame
 (
-    WORD            uwPayload_p,   ///< CMD frame payload
-    BYTE            *pFrame_p,  ///< buffer for CMD frame to be built
-    BYTE            ubTyp_p     ///< CMD frame type
+    WORD            uwPayload_p,
+    BYTE            *pFrame_p,
+    BYTE            ubTyp_p
 )
 {
     int         iRet = PDISPI_OK;

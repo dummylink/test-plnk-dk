@@ -80,6 +80,13 @@ static tPdiAsyncStatus CnApi_handleInitPcpResp(
 /**
 ********************************************************************************
 \brief  activate asynchronous functions
+
+Initially create the CnApi async module. This activates the state machine and
+calls CnApiAsync_init().
+
+\return int
+\retval OK                  on success
+\retval ERROR               when create fails
 *******************************************************************************/
 int CnApiAsync_create(void)
 {
@@ -95,6 +102,13 @@ int CnApiAsync_create(void)
 /**
 ********************************************************************************
 \brief  reset asynchronous functions
+
+Reset the cnApi async module. This is done by disabling the module, doing
+a reset and calling CnApiAsync_init() again.
+
+\return int
+\retval OK                  on success
+\retval ERROR               when create fails
 *******************************************************************************/
 int CnApiAsync_reset(void)
 {
@@ -113,6 +127,14 @@ int CnApiAsync_reset(void)
 /**
 ********************************************************************************
 \brief  initialize asynchronous functions
+
+This function inits all asynchronous structures and sets the addresses of all
+asynchronous buffers. In addition it creates all internal messages and calls
+CnApiAsync_finishMsgInit() afterwards.
+
+\return int
+\retval OK                  on success
+\retval ERROR               when create fails
 *******************************************************************************/
 int CnApiAsync_init(void)
 {
@@ -167,7 +189,7 @@ int CnApiAsync_init(void)
         }
     }
 
-    bReqId_l = 0;  ///< reset asynchronous sequence number
+    bReqId_l = 0;  // reset asynchronous sequence number
 
     Ret = CnApiAsync_initInternalMsgs();
     if (Ret != kPdiAsyncStatusSuccessful)
@@ -191,11 +213,14 @@ exit:
 /**
  ********************************************************************************
  \brief call back function, invoked if InitPcpResp has finished
- \param  pMsgDescr_p         pointer to asynchronous message descriptor
- \return Ret                 tPdiAsyncStatus value
 
  This function triggers an CMD_INIT which will be sent to the PCP
 
+ \param  pMsgDescr_p         pointer to asynchronous message descriptor
+
+
+ \return tPdiAsyncStatus
+ \retval kPdiAsyncStatusSuccessful           on success
  *******************************************************************************/
 tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgDescr_p)
 {
@@ -207,7 +232,10 @@ tPdiAsyncStatus CnApi_pfnCbInitPcpRespFinished (struct sPdiAsyncMsgDescr * pMsgD
 /**
 ********************************************************************************
 \brief  initialize asynchronous messages using the internal channel
-\return Ret                 tPdiAsyncStatus value
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful                on success
+\retval kPdiAsyncStatusInvalidInstanceParam      in case of a failed init
 *******************************************************************************/
 static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 {
@@ -311,7 +339,11 @@ exit:
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful                on success
+\retval kPdiAsyncStatusInvalidInstanceParam      in case of a failed init
+\retval kPdiAsyncStatusDataTooLong               when the message size is exceeded
 
 CnApi_doInitPcpReq() executes an initPcp command. The initialization parameters
 stored in pInitParm_g will be copied to the initPcpReq message and transfered
@@ -385,11 +417,17 @@ exit:
 /**
 ********************************************************************************
 \brief  create an object access request message
+
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful                on success
+\retval kPdiAsyncStatusInvalidInstanceParam      in case of a failed init
+\retval kPdiAsyncStatusDataTooLong               when the message size is exceeded
+
 *******************************************************************************/
 static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pMsgBuffer_p,
                                                      BYTE * pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p)
@@ -475,11 +513,17 @@ exit:
 /**
 ********************************************************************************
 \brief  handle an initPcpResp
+
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful                on success
+\retval kPdiAsyncStatusInvalidInstanceParam      in case of a failed init
+\retval kPdiAsyncStatusRespError                 when response msg fails
+
 *******************************************************************************/
 static tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                         BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
@@ -538,11 +582,17 @@ exit:
 /**
 ********************************************************************************
 \brief  handle an object access request message
+
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful                on success
+\retval kPdiAsyncStatusInvalidInstanceParam      in case of a failed init
+\retval kPdiAsyncStatusInvalidOperation          when internal processing fails
+
 *******************************************************************************/
 static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
                                   BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p        )

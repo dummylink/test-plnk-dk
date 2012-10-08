@@ -120,78 +120,78 @@ typedef struct _tPdiSpiInstance
 /* functions */
 int CnApi_initSpiMaster
 (
-    tSpiMasterTxHandler     SpiMasterTxH_p, ///< SPI Master Tx Handler
-    tSpiMasterRxHandler     SpiMasterRxH_p,  ///< SPI MASTER Rx Handler
+    tSpiMasterTxHandler     SpiMasterTxH_p,
+    tSpiMasterRxHandler     SpiMasterRxH_p,
     void                    *pfnEnableGlobalIntH_p,
     void                    *pfnDisableGlobalIntH_p
 );
 
 int CnApi_Spi_writeByte
 (
-    WORD    uwAddr_p,       ///< PDI Address to be written to
-    BYTE  ubData_p        ///< Write data
+    WORD    uwAddr_p,
+    BYTE  ubData_p
 );
 
 int CnApi_Spi_readByte
 (
-    WORD    uwAddr_p,       ///< PDI Address to be read from
-    BYTE  *pData_p        ///< Read data
+    WORD    uwAddr_p,
+    BYTE  *pData_p
 );
 
 int CnApi_Spi_writeWord
 (
-    WORD    uwAddr_p,       ///< PDI Address to be written to
-    WORD    wData_p,       ///< Write data
-    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+    WORD    uwAddr_p,
+    WORD    wData_p,
+    BYTE    ubBigEndian_p
 );
 
 int CnApi_Spi_readWord
 (
-    WORD    uwAddr_p,       ///< PDI Address to be read from
-    WORD    *pData_p,        ///< Read data
-    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+    WORD    uwAddr_p,
+    WORD    *pData_p,
+    BYTE    ubBigEndian_p
 );
 
 int CnApi_Spi_writeDword
 (
-    WORD    uwAddr_p,       ///< PDI Address to be written to
-    DWORD   dwData_p,        ///< Write data
-    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+    WORD    uwAddr_p,
+    DWORD   dwData_p,
+    BYTE    ubBigEndian_p
 );
 
 int CnApi_Spi_readDword
 (
-    WORD    uwAddr_p,       ///< PDI Address to be read from
-    DWORD   *pData_p,        ///< Read data
-    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+    WORD    uwAddr_p,
+    DWORD   *pData_p,
+    BYTE    ubBigEndian_p
 );
 
 int CnApi_Spi_writeQword
 (
-    WORD    uwAddr_p,       ///< PDI Address to be written to
-    QWORD   qwData_p,        ///< Write data
-    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+    WORD    uwAddr_p,
+    QWORD   qwData_p,
+    BYTE    ubBigEndian_p
 );
 
 int CnApi_Spi_readQword
 (
-    WORD    uwAddr_p,       ///< PDI Address to be read from
-    QWORD   *pData_p,        ///< Read data
-    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+    WORD    uwAddr_p,
+    QWORD   *pData_p,
+    BYTE    ubBigEndian_p
 );
 
 int CnApi_Spi_read
 (
-   WORD    wPcpAddr_p,      ///< PDI Address to be read from
-   WORD    wSize_p,         ///< size in Bytes
-   BYTE    *pApTgtVar_p      ///< ptr to local target
+   WORD    wPcpAddr_p,
+   WORD    wSize_p,
+   BYTE    *pApTgtVar_p
 );
 
 int CnApi_Spi_write
 (
-   WORD    wPcpAddr_p,      ///< PDI Address to be written to
-   WORD    wSize_p,         ///< size in Bytes
-   BYTE    *pApSrcVar_p      ///< ptr to local source
+   WORD    wPcpAddr_p,
+   WORD    wSize_p,
+   BYTE    *pApSrcVar_p
 );
 
 #endif //CN_API_USING_SPI

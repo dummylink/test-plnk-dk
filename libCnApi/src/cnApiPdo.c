@@ -344,7 +344,11 @@ exit:
 ********************************************************************************
 \brief	initialize pdo module
 
-\param
+\param    pfnAppCbSync_p       function pointer to AppCbSync callback function
+
+\return     int
+\retval     OK                 on success
+\retval     ERROR              in case of an error
 
 CnApi_initPdo() is used to initialize the PDO module.
 *******************************************************************************/
@@ -360,7 +364,7 @@ int CnApi_initPdo(tCnApiAppCbSync pfnAppCbSync_p)
         goto exit;
     }
 
-    /** group TPDO PDI channels address, size and acknowledge settings */
+    /* group TPDO PDI channels address, size and acknowledge settings */
 #if (PCP_PDI_TPDO_CHANNELS >= 1)
     aTPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufAoffs)));
     aTPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufSize));
@@ -372,7 +376,7 @@ int CnApi_initPdo(tCnApiAppCbSync pfnAppCbSync_p)
     #endif /* CN_API_USING_SPI */
 #endif /* TPDO_CHANNELS_MAX >= 1 */
 
-    /** group RPDO PDI channels address, size and acknowledge settings */
+    /* group RPDO PDI channels address, size and acknowledge settings */
 #if (PCP_PDI_RPDO_CHANNELS >= 1)
     aRPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufAoffs)));
     aRPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufSize));
@@ -451,7 +455,11 @@ exit:
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful             on success
+\retval kPdiAsyncStatusInvalidInstanceParam   on invalid parameters
+\retval kPdiAsyncStatusInvalidOperation       when CnApi_readPdoDesc() fails
 
 This function sets up the mapping connection PCP PDI <-> local Objects
 *******************************************************************************/
@@ -460,10 +468,10 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
 {
     register int        iCnt;
     WORD                wNumDescr;
-    tPdoDescHeader *    pPdoDescHeader;         ///< ptr to descriptor
-    tLinkPdosReq *      pLinkPdosReq = NULL;    ///< ptr to message (Rx)
-    tCnApiEvent         CnApiEvent;             ///< forwarded to application
-    BOOL fRet = TRUE;                           ///< temporary return value
+    tPdoDescHeader *    pPdoDescHeader;         //< ptr to descriptor
+    tLinkPdosReq *      pLinkPdosReq = NULL;    //< ptr to message (Rx)
+    tCnApiEvent         CnApiEvent;             //< forwarded to application
+    BOOL fRet = TRUE;                           //< temporary return value
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
@@ -542,7 +550,11 @@ exit:
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
-\return Ret                 tPdiAsyncStatus value
+
+\return tPdiAsyncStatus
+\retval kPdiAsyncStatusSuccessful             on success
+\retval kPdiAsyncStatusInvalidInstanceParam   on invalid parameters
+\retval kPdiAsyncStatusDataTooLong            when posted message is to long
 
 CnApi_doLinkPdosResp() executes an LinkPdosResp command. The parameters
 stored in pInitParm_g will be copied to the LinkPdosResp message and transfered
@@ -551,7 +563,7 @@ to the PCP.
 tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxMsgBuffer_p,
                                      BYTE* pRxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
-    tLinkPdosResp *    pLinkPdosResp = NULL;        ///< pointer to message (Tx)
+    tLinkPdosResp *    pLinkPdosResp = NULL;        //< pointer to message (Tx)
     tPdiAsyncStatus    Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
@@ -613,7 +625,9 @@ exit:
  ********************************************************************************
  \brief call back function, invoked if handleLinkPdosReq has finished
  \param  pMsgDescr_p         pointer to asynchronous message descriptor
- \return Ret                 tPdiAsyncStatus value
+
+ \return tPdiAsyncStatus
+ \retval kPdiAsyncStatusSuccessful    on success
 
  This function triggers an CMD_READY_TO_OPERATE which will be sent to the PCP
 
@@ -632,7 +646,10 @@ tPdiAsyncStatus CnApi_pfnCbLinkPdosRespFinished (struct sPdiAsyncMsgDescr * pMsg
 \brief	read PDO descriptor
 
 \param  pPdoDescHeader_p    pointer to Pdo descriptor
-\return FALSE if error occurred, else TRUE
+
+\return BOOL
+\retval FALSE               if error occurred
+\retval TRUE                on success
 
 CnApi_readPdoDesc() checks if the mapping changed. If it changed the
 PDO descriptor is read and the copy table is updated.

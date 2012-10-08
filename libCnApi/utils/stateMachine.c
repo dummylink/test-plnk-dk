@@ -44,6 +44,7 @@ subject to the License Agreement located at the end of this file below.
 * \param	pStateMachine_p	pointer to used state machine
 * \param	pState_p		pointer to state which has to be checked
 *
+* \return   tTransition*
 * \retval	pointer to the active transition or NULL if no transition is active
 ******************************************************************************/
 static tTransition* sm_getActiveTransition(tStateMachine *pStateMachine_p,
@@ -108,8 +109,9 @@ static void sm_activate(tStateMachine *pStateMachine_p)
 * \param	pfnAction_p			pointer to function which contains an action
 * 								to be performed for this transition
 *
-* \retval	OK, if transition was added or ERROR if there is no more space for
-*           this transition.
+* \return   int
+* \retval	OK                  if transition was added
+* \retval   ERROR               if there is no more space for this transition.
 ******************************************************************************/
 int sm_addTransition(tStateMachine *pStateMachine_p, BYTE bState_p, BYTE bTargetState_p,
 		             tpfnEvent pfnEvent_p, tpfnAction pfnAction_p)
@@ -156,8 +158,9 @@ int sm_addTransition(tStateMachine *pStateMachine_p, BYTE bState_p, BYTE bTarget
 * \param	pfnDoAction_p		pointer to function which contains do action
 * \param	pfnExitAction_p		pointer to function which contains exit action
 *
-* \retval	OK, if transition was added or ERROR if there is no more space for
-*           this transition.
+* \return   int
+* \retval	OK                  if transition was added
+* \retval   ERROR               if there is no more space for this transition.
 ******************************************************************************/
 int sm_addAction(tStateMachine* pStateMachine_p, BYTE bState_p, tpfnAction pfnEntryAction_p,
 		         tpfnAction pfnDoAction_p, tpfnAction pfnExitAction_p)
@@ -193,6 +196,7 @@ int sm_addAction(tStateMachine* pStateMachine_p, BYTE bState_p, tpfnAction pfnEn
 * \param	bInitState_p		the initial state of the state machine. This
 * 								state will be entered, when the state machine
 * 								is activated.
+* \param    pfnOnStateChange_p  callback for a state change
 ******************************************************************************/
 void sm_init(tStateMachine *pStateMachine_p, tState *pStates_p,
 						BYTE bNumStates_p, tTransition * pTransitions_p,
@@ -217,6 +221,7 @@ sm_getState() returns the current state of the state machine.
 
 \param	pStateMachine_p			pointer to state machine being checked
 
+\return int
 \retval	state		state the state machine is in
 *******************************************************************************/
 int sm_getState(tStateMachine *pStateMachine_p)
@@ -248,6 +253,7 @@ state machine is updated.
 
 \param	pStateMachine_p		pointer to state machine being updated
 
+\return BOOL
 \retval	TRUE				if state machine is activated
 \retval	FALSE				if state machine is finished or not yet activated
 *******************************************************************************/

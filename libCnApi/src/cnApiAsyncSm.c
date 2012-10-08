@@ -21,12 +21,12 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiTypAsync.h"
 #include "cnApiTypAsyncSm.h"
 
-#include "cnApiAsyncSm.h"    ///< external function declarations
-#include "cnApiAsync.h"      ///< state machine constants
+#include "cnApiAsyncSm.h"    // external function declarations
+#include "cnApiAsync.h"      // state machine constants
 #include "cnApiIntern.h"
 
 #ifdef CN_API_USING_SPI
-  #include "cnApiPdiSpiIntern.h"     ///< serial interface
+  #include "cnApiPdiSpiIntern.h"     // serial interface
 #endif
 
 #include "EplAmi.h"
@@ -264,10 +264,10 @@ FUNC_ENTRYACT(kPdiAsyncStateWait)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPdiAsyncStateWait)
 {
-    BYTE         bMsgTypeField = 0;                     ///< pointer to command byte field of asynchr. message
-    BYTE         bCurPdiChannelNum = INVALID_ELEMENT;   ///< current PDI channel number
-    register BYTE bCnt = 0;                             ///< loop counter
-    BYTE         bElement = INVALID_ELEMENT;            ///< function argument for getArrayNumOfMsgDescr()
+    BYTE         bMsgTypeField = 0;                     // pointer to command byte field of asynchr. message
+    BYTE         bCurPdiChannelNum = INVALID_ELEMENT;   // current PDI channel number
+    register BYTE bCnt = 0;                             // loop counter
+    BYTE         bElement = INVALID_ELEMENT;            // function argument for getArrayNumOfMsgDescr()
 
     /* check if waiting for Rx message is required -> transit to  ASYNC_RX_PENDING*/
     if ((fRxTriggered == TRUE) || fTxTriggered == TRUE)
@@ -449,11 +449,11 @@ FUNC_EVT(kPdiAsyncStateWait, kPdiAsyncStateStopped, 1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
 {
-    volatile tAsyncMsg *     pUtilTxPdiBuf = NULL;   ///< Tx Pdi Buffer utilized by message
-    tPdiAsyncMsgDescr * pMsgDescr = NULL;   ///< pointer to current message descriptor
-    WORD          wCopyLength   = 0;        ///< length of data to be copied (for local buffered transfer)
-    DWORD         dwMaxBufPayload = 0;      ///< maximum payload for message storage
-    BYTE *        pCurLclMsgFrgmt = 0;      ///< pointer to currently handled local message fragment
+    volatile tAsyncMsg *     pUtilTxPdiBuf = NULL;   // Tx Pdi Buffer utilized by message
+    tPdiAsyncMsgDescr * pMsgDescr = NULL;   // pointer to current message descriptor
+    WORD          wCopyLength   = 0;        // length of data to be copied (for local buffered transfer)
+    DWORD         dwMaxBufPayload = 0;      // maximum payload for message storage
+    BYTE *        pCurLclMsgFrgmt = 0;      // pointer to currently handled local message fragment
 
     if (bActivTxMsg_l == INVALID_ELEMENT)
     {
@@ -629,7 +629,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStatePending)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPdiAsyncTxStatePending)
 {
-    BYTE         bElement = INVALID_ELEMENT;            ///< function argument for getArrayNumOfMsgDescr()
+    BYTE         bElement = INVALID_ELEMENT;            // function argument for getArrayNumOfMsgDescr()
 
     /* first, process internal messages */
     if (aPdiAsyncTxMsgs[bActivTxMsg_l].Param_m.ChanType_m != kAsyncChannelInternal)
@@ -826,14 +826,14 @@ FUNC_EVT(kPdiAsyncTxStatePending, kPdiAsyncStateStopped, 1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
 {
-    tAsyncMsg *   pUtilRxPdiBuf = NULL;     ///< Tx Pdi Buffer utilized by message
-    tPdiAsyncMsgDescr * pMsgDescr = NULL;   ///< pointer to current message descriptor
-    WORD          wCopyLength   = 0;        ///< length of data to be copied (for local buffered transfer)
-    DWORD         dwMaxBufPayload = 0;      ///< maximum payload for message storage
-    BYTE *        pCurLclMsgFrgmt = NULL;   ///< pointer to currently handled local message fragment
-    BYTE *        pRespChan = NULL;         ///< pointer to Tx response message payload
-    BYTE *        pRxChan = NULL;           ///< pointer to Rx message payload
-    BYTE          bElement = INVALID_ELEMENT;///< function argument for getArrayNumOfMsgDescr()
+    tAsyncMsg *   pUtilRxPdiBuf = NULL;     // Tx Pdi Buffer utilized by message
+    tPdiAsyncMsgDescr * pMsgDescr = NULL;   // pointer to current message descriptor
+    WORD          wCopyLength   = 0;        // length of data to be copied (for local buffered transfer)
+    DWORD         dwMaxBufPayload = 0;      // maximum payload for message storage
+    BYTE *        pCurLclMsgFrgmt = NULL;   // pointer to currently handled local message fragment
+    BYTE *        pRespChan = NULL;         // pointer to Tx response message payload
+    BYTE *        pRxChan = NULL;           // pointer to Rx message payload
+    BYTE          bElement = INVALID_ELEMENT;// function argument for getArrayNumOfMsgDescr()
     DWORD         dwStreamLength;
     WORD          wFragmentLength;
 
@@ -1474,22 +1474,26 @@ static void stateChange(BYTE current, BYTE target)
 /**
  ********************************************************************************
  \brief initializes an asynchronous PDI message descriptor
+
  \param MsgType_p           type of message
+ \param Direction_p         direction of the message (send or receive)
  \param pfnCbMsgHdl_p       pointer to message handle call-back function
  \param pPdiBuffer_p        pointer to one-way PDI buffer
- \param pResponseMsgDescr_p optional response message; set to NULL if not used
+ \param RespMsgType_p       optional response message; set to NULL if not used
  \param TransferType_p      local buffering (for large messages) or direct PDI buffer access
  \param ChanType_p          channel type (internal or external)
  \param paValidNmtList_p    list of NmtStates the massage can be processed in
  \param wTimeout_p         AP <-> PCP timeout communication value for this message
                             (0 means wait forever)
 
- \return    tPdiAsyncStatus value
+ \return tPdiAsyncStatus
+ \retval kPdiAsyncStatusSuccessful              on success
+ \retval kPdiAsyncStatusInvalidInstanceParam    invalid init parameters
 
-This function initializes the message descriptor for a certain asynchronous
-PDI message. If a response message descriptor will be assigned, the state machine
-will wait for the response immediately after the Tx transfer has been finished or
-trigger a Tx transfer if an Rx message has been processed, depending on this message type.
+ This function initializes the message descriptor for a certain asynchronous
+ PDI message. If a response message descriptor will be assigned, the state machine
+ will wait for the response immediately after the Tx transfer has been finished or
+ trigger a Tx transfer if an Rx message has been processed, depending on this message type.
 
  *******************************************************************************/
 tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
@@ -1606,18 +1610,20 @@ exit:
 /**
  ********************************************************************************
  \brief assigns response message descriptors to originating message descriptors
- \return    tPdiAsyncStatus value
+ \return    tPdiAsyncStatus
+ \retval    kPdiAsyncStatusSuccessful          on success
+ \retval    kPdiAsyncStatusFreeInstance        if message descriptor is not found
 
  This function has to be executed after the last call of cnApiAsync_initMsg().
  *******************************************************************************/
 tPdiAsyncStatus CnApiAsync_finishMsgInit(void)
 {
     tPdiAsyncMsgDescr * pOrigMsgDescr = NULL;
-    tPdiAsyncMsgDescr * paSameDirMsgs = NULL; ///< pointer to descriptor array with same message direction
+    tPdiAsyncMsgDescr * paSameDirMsgs = NULL; // pointer to descriptor array with same message direction
     tPcpPdiAsyncDir     OrigDirection = 0;
     BYTE bElement = INVALID_ELEMENT;
     BYTE bMsgType = kPdiAsyncMsgInvalid;
-    BYTE bCnt = 0;                            ///< loop counter
+    BYTE bCnt = 0;                            // loop counter
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
 
@@ -1694,6 +1700,7 @@ exit:
                         of Rx response message (if assigned) has finished
                         0: no assignment
 
+ \return    tPdiAsyncStatus
  \retval    kPdiAsyncStatusSuccessful       if message sending has been triggered
  \retval    kPdiAsyncStatusNoResource       if message does not exist or no memory available
 
@@ -1832,7 +1839,10 @@ exit:
 /**
  ********************************************************************************
  \brief saves the context of the current message
- \return TRUE if successful, FALSE if there is already a message pending
+
+ \return BOOL
+ \retval TRUE       if successful
+ \retval FALSE      if there is already a message pending
 
  This function saves all global variables temporarily, so current message transfer
  can be interrupted by another message transfer. The message context can be
@@ -1895,7 +1905,10 @@ BOOL CnApiAsync_saveMsgContext(void)
 /**
  ********************************************************************************
  \brief restores the context of a pending message
- \return TRUE if successful, FALSE if no pending message present
+
+ \return BOOL
+ \retval TRUE       if successful
+ \retval FALSE      if no pending message present
 
  This function restores all global variables with the values they had before
  CnApiAsync_saveMsgContext() was executed, so a pending message transfer is
@@ -2020,25 +2033,25 @@ void CnApi_resetAsyncStateMachine(void)
 {
     DEBUG_FUNC;
 
-    fError = FALSE;                 ///< transition event
-    fTimeout = FALSE;               ///< transition event
-    fReset = FALSE;                 ///< transition event
-    fRxTriggered = FALSE;           ///< transition event -> explicitly wait for special message
-    fTxTriggered = FALSE;           ///< transition event
-    fFrgmtAvailable = FALSE;        ///< transition event
-    fFrgmtStored = FALSE;           ///< transition event
-    fFrgmtDelivered = FALSE;        ///< transition event
-    fMsgTransferFinished = FALSE;   ///< transition event
-    fMsgTransferIncomplete = FALSE; ///< transition event
-    fFragmentedTransfer = FALSE;    ///< indicates stream segmentation
+    fError = FALSE;                 // transition event
+    fTimeout = FALSE;               // transition event
+    fReset = FALSE;                 // transition event
+    fRxTriggered = FALSE;           // transition event -> explicitly wait for special message
+    fTxTriggered = FALSE;           // transition event
+    fFrgmtAvailable = FALSE;        // transition event
+    fFrgmtStored = FALSE;           // transition event
+    fFrgmtDelivered = FALSE;        // transition event
+    fMsgTransferFinished = FALSE;   // transition event
+    fMsgTransferIncomplete = FALSE; // transition event
+    fFragmentedTransfer = FALSE;    // indicates stream segmentation
 
     ErrorHistory_l = kPdiAsyncStatusSuccessful;
 
-    bActivTxMsg_l = INVALID_ELEMENT; ///< indicates inactive message
-    bActivRxMsg_l = INVALID_ELEMENT; ///< indicates inactive message
-    pLclAsyncTxMsgBuffer_l = NULL;   ///< pointer to local Tx message buffer
-    pLclAsyncRxMsgBuffer_l = NULL;   ///< pointer to local Rx message buffer
-    dwTimeoutWait_l = 0;              ///< timeout counter
+    bActivTxMsg_l = INVALID_ELEMENT; // indicates inactive message
+    bActivRxMsg_l = INVALID_ELEMENT; // indicates inactive message
+    pLclAsyncTxMsgBuffer_l = NULL;   // pointer to local Tx message buffer
+    pLclAsyncRxMsgBuffer_l = NULL;   // pointer to local Rx message buffer
+    dwTimeoutWait_l = 0;              // timeout counter
 
     PdiAsyncPendTrfContext_l.fMsgPending_m = FALSE;
 
@@ -2050,8 +2063,12 @@ void CnApi_resetAsyncStateMachine(void)
 }
 
 /**
-********************************************************************************
-\brief  update state machine
+ ********************************************************************************
+ \brief  update state machine
+
+ \return BOOL
+ \retval TRUE       if successful
+ \retval FALSE      if no message needs to be processed
 *******************************************************************************/
 BOOL CnApi_processAsyncStateMachine(void)
 {
@@ -2066,6 +2083,10 @@ BOOL CnApi_processAsyncStateMachine(void)
 /**
 ********************************************************************************
 \brief  check if state machine is running
+
+ \return BOOL
+ \retval TRUE       state machine is running
+ \retval FALSE      state mchine is final
 *******************************************************************************/
 BOOL CnApi_checkAsyncStateMachineRunning(void)
 {

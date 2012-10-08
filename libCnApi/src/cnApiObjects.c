@@ -51,6 +51,14 @@ static void CnApi_resetLinkCounter(void);
 /**
 ********************************************************************************
 \brief	initialize objects module
+
+Initialize the libCnApi internal objects. (This function calls a malloc)
+
+\param  dwMaxLinks_p        maximum number of linkable objects
+
+\return int
+\retval OK                  if init succeeds
+\retval ERROR               when out of memory
 *******************************************************************************/
 int CnApi_initObjects(DWORD dwMaxLinks_p)
 {
@@ -102,7 +110,9 @@ Application Example:   CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
 \param		pAdrs_p				pointer to object data
 
 
-\return		status of write operation
+\return		int
+\retval     OK                  when link is successful
+\retval     ERROR               in case of an error
 
 *******************************************************************************/
 int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p)
@@ -136,6 +146,10 @@ int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs
 \param bSubIndex_p  requested subindex
 \param wSize_p      OUT: size of object
 \param pAdrs_p      OUT: pointer to object
+
+\return BOOL
+\retval TRUE        when object is found
+\retval FALSE       if not found
 
 The function CnApi_getObjectParam() compares the local linking table and the
 descriptor table. If the object entry is found, the data pointer and
@@ -176,6 +190,10 @@ void CnApi_resetObjectSelector(void)
 /**
 ********************************************************************************
 \brief	increment oject structure to next object, if it exists
+
+\param  pObjId         the id of the object
+
+\return int
 *******************************************************************************/
 int CnApi_getNextObject(tCnApiObjId *pObjId)
 {
@@ -217,10 +235,8 @@ write data will be written to the PCP.
 \param		sync				synchronization flag. If FALSE, write request
 								will be queued. If TRUE, write request will be
 								transfered to the PCP.
-\param		errCode				must contain a pointer where the function should
-								store an error code if execution fails
 
-\return		status of write operation
+\return		int
 *******************************************************************************/
 int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen,
 		               BYTE* p_data, BOOL sync)

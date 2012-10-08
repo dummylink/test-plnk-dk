@@ -80,11 +80,12 @@ tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK in
 CnApi_init() is used to initialize the user API library. The function must be
 called by the application in order to use the API.
 
-\param      tCnApiInitParm             pointer to the libCnApi initialization structure
-\param      pInitParm_p                pointer to the POWERLINK initialization structure
+\param      pInitCnApiParm_p           pointer to the libCnApi initialization structure
+\param      pInitPcpParm_p             pointer to the POWERLINK initialization structure
 
 \return     tCnApiStatus
 \retval     kCnApiStatusOk             if API was successfully initialized
+\retval     kCnApiStatusError          in case of an init error
 *******************************************************************************/
 tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcpParm_p)
 {
@@ -100,13 +101,13 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\n\nInitialize CN API functions...");
 
     /* initialize global pointers */
-    pInitPcpParm_g = pInitPcpParm_p;    ///< make pInitParm_p global
+    pInitPcpParm_g = pInitPcpParm_p;    //< make pInitParm_p global
 
     /* Control and Status Register is little endian */
 #ifdef CN_API_USING_SPI
-    pCtrlReg_g = &PcpCntrlRegMirror;         ///< if SPI is used, take local var instead of parameter
+    pCtrlReg_g = &PcpCntrlRegMirror;         //< if SPI is used, take local var instead of parameter
 #else
-    pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParm_p->m_pDpram_p;    ///< if no SPI is used, take parameter to dpram
+    pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParm_p->m_pDpram_p;    //< if no SPI is used, take parameter to dpram
 #endif // CN_API_USING_SPI
 
     /* make dpram base global */
@@ -231,7 +232,7 @@ exit:
 ********************************************************************************
 \brief  exit CN API
 
-CnApi_exit() is used to deinitialize and do all necessary cleanups for the
+CnApi_exit() is used to de-initialize and do all necessary cleanups for the
 API library.
 *******************************************************************************/
 void CnApi_exit(void)
@@ -248,8 +249,8 @@ CnApi_initSyncInt() is used to initialize the synchronization interrupt used by
 the PCP to inform the AP that process data must be transfered. The cycle timing
 of the synchronization will be calculated depending on the given parameters.
 
-\param  dwMinCycleTime_p    minimum cycle time
-\param  dwMaxCycleTime_p    maximum cycle time
+\param  dwMinCycleTime_p    minimum powerlink cycle time
+\param  dwMaxCycleTime_p    maximum powerlink cycle time
 \param  bReserved_p         reserved for future use
 *******************************************************************************/
 void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved_p)
@@ -340,6 +341,8 @@ void CnApi_disableSyncInt(void)
 /**
 ********************************************************************************
 \brief  acknowledges synchronous IRQ form PCP
+
+Acknowledge the synchronous interrupt after the execution of it is finished.
 *******************************************************************************/
 void CnApi_ackSyncIrq(void)
 {
@@ -374,6 +377,7 @@ void CnApi_ackSyncIrq(void)
 
 CnApi_getSyncIntPeriod() reads time of the periodic synchronization interrupt
 
+\return DWORD
 \retval dwSyncIntCycTime      synchronization interrupt time of PCP
 *******************************************************************************/
 DWORD CnApi_getSyncIntPeriod(void)
@@ -393,7 +397,8 @@ DWORD CnApi_getSyncIntPeriod(void)
 
 CnApi_getPcpState() reads the state of the PCP and returns it.
 
-\retval pcpState        state of PCP
+\return BYTE
+\retval m_wState        state of PCP
 *******************************************************************************/
 BYTE CnApi_getPcpState(void)
 {
@@ -413,7 +418,8 @@ BYTE CnApi_getPcpState(void)
 
 CnApi_getPcpMagic() reads the magic number stored in the PCP DPRAM area.
 
-\retval pcpMagic        magic number of PCP
+\return DWORD
+\retval m_dwMagic        magic word of PCP
 *******************************************************************************/
 DWORD CnApi_getPcpMagic(void)
 {
@@ -432,6 +438,7 @@ DWORD CnApi_getPcpMagic(void)
 
 CnApi_getRelativeTimeLow() reads the RelativeTime low dword stored in the PCP DPRAM area.
 
+\return DWORD
 \retval pcpRelativeTimeLow        RelativeTime low of PCP
 *******************************************************************************/
 DWORD CnApi_getRelativeTimeLow(void)
@@ -451,6 +458,7 @@ DWORD CnApi_getRelativeTimeLow(void)
 
 CnApi_getRelativeTimeHigh() reads the RelativeTime high dword stored in the PCP DPRAM area.
 
+\return DWORD
 \retval pcpRelativeTimeHigh        RelativeTime high of PCP
 *******************************************************************************/
 DWORD CnApi_getRelativeTimeHigh(void)
@@ -471,6 +479,7 @@ DWORD CnApi_getRelativeTimeHigh(void)
 CnApi_getNetTimeSeconds() reads the NetTime seconds stored in the PCP DPRAM area.
 The Nettime value is always from the last round!
 
+\return DWORD
 \retval pcpNetTimeSeconds        NetTime seconds of PCP
 *******************************************************************************/
 DWORD CnApi_getNetTimeSeconds(void)
@@ -491,6 +500,7 @@ DWORD CnApi_getNetTimeSeconds(void)
 CnApi_getNetTimeNanoSeconds() reads the NetTime nano seconds stored in the PCP DPRAM area.
 The Nettime value is always from the last round!
 
+\return DWORD
 \retval pcpNetTimeNanoSeconds        NetTime nano seconds of PCP
 *******************************************************************************/
 DWORD CnApi_getNetTimeNanoSeconds(void)
@@ -510,6 +520,7 @@ DWORD CnApi_getNetTimeNanoSeconds(void)
 
 CnApi_getTimeAfterSync() reads the Time After Sync stored in the PCP DPRAM area.
 
+\return WORD
 \retval pcpTimeAfterSync        Time after sync of PCP
 *******************************************************************************/
 WORD CnApi_getTimeAfterSync(void)
@@ -526,6 +537,10 @@ WORD CnApi_getTimeAfterSync(void)
 /**
 ********************************************************************************
 \brief  set the AP's command
+
+Write a command to the AP command register
+
+\param bCmd_p                 command written to AP command register
 *******************************************************************************/
 void CnApi_setApCommand(BYTE bCmd_p)
 {
@@ -534,14 +549,20 @@ void CnApi_setApCommand(BYTE bCmd_p)
 #ifdef CN_API_USING_SPI
     CnApi_Spi_write(PCP_CTRLREG_CMD_OFFSET,
                     sizeof(pCtrlReg_g->m_wCommand),
-                    (BYTE*) &pCtrlReg_g->m_wCommand);    ///< update pcp register
+                    (BYTE*) &pCtrlReg_g->m_wCommand);    //< update pcp register
 #endif /* CN_API_USING_SPI */
 }
 
 /**
 ********************************************************************************
 \brief  verifies the PCP PDI revision
-\retval FALSE if revision number differs, TRUE if it equals
+
+This function verifies if the PCP PDI revision matches to the one provided
+in the POWERLINK ipcore.
+
+\return BOOL
+\retval FALSE          if revision number differs
+\retval TRUE           if it equals
 *******************************************************************************/
 BOOL CnApi_verifyPcpPdiRevision(void)
 {
@@ -567,9 +588,15 @@ BOOL CnApi_verifyPcpPdiRevision(void)
 
 /**
 ********************************************************************************
-\brief  verifies the PCP FPGA's SYSTEM ID (user defined in SOPC Builder)
-\retval FALSE if SYSTEM ID of this library build is not based on the current
-        FPGA build SYSTEM ID , TRUE if it matches
+\brief  verifies the PCP FPGA's SYSTEM ID (user defined in SOPC Builder / XPS)
+
+Reads the PCP system id from the PDI and compares the value to the one in the
+cnApiCfg.h
+
+\return BOOL
+\retval FALSE    if SYSTEM ID of this library build is not based on the current
+                 FPGA build SYSTEM ID
+\retval TRUE     if it matches
 *******************************************************************************/
 BOOL CnApi_verifyPcpSystemId(void)
 {
@@ -600,6 +627,7 @@ and returns it. This function will only return a valid value if it is executed
 after PCP has reached state PCP_INIT (or in case of an related event).
 Range of a valid Powerlink Slave Node ID: [0x01h .. 0xEFh]
 
+\return WORD
 \retval m_wNodeId        Powerlink Node ID
 *******************************************************************************/
 WORD CnApi_getNodeId(void)
@@ -621,8 +649,12 @@ WORD CnApi_getNodeId(void)
 
 Sets the LED according to bLed_p to the value bOn_p
 
-\retval bLed_p        Type of Led to set
-\retval bOn_p         (TRUE = On, FALSE = Off)
+\param bLed_p        Type of Led to set
+\param bOn_p         (TRUE = On, FALSE = Off)
+
+\return tCnApiStatus
+\retval kCnApiStatusOk        when command succeeds
+\retval kCnApiStatusError     when the LED is not existing
 *******************************************************************************/
 tCnApiStatus CnApi_setLed(tCnApiLedType bLed_p, BOOL bOn_p)
 {

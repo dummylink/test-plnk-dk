@@ -63,6 +63,13 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p,
 /**
 ********************************************************************************
  \brief init the async event module
+
+ \param pfnAppCbEvent_p        Callback in case of an event
+
+ \return tCnApiStatus
+ \retval kCnApiStatusOk                   on success
+ \retval kCnApiStatusInvalidParameter     when the registration of the callback
+                                          failed.
 *******************************************************************************/
 tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p)
 {
@@ -71,7 +78,7 @@ tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p)
     /* set application event callback */
     if (pfnAppCbEvent_p != NULL)
     {
-        pfnAppCbEvent_l = pfnAppCbEvent_p;  ///< make callback global
+        pfnAppCbEvent_l = pfnAppCbEvent_p;  //< make callback global
     } else {
         Ret = kCnApiStatusInvalidParameter;
     }
@@ -82,6 +89,9 @@ tCnApiStatus CnApi_initAsyncEvent(tCnApiAppCbEvent pfnAppCbEvent_p)
 /**
 ********************************************************************************
  \brief activates the PCP IRQ for event signaling
+
+ Activate the asynchronous event interrupt. With this interrupt fast reaction
+ on events is possible.
 *******************************************************************************/
 void CnApi_enableAsyncEventIRQ(void)
 {
@@ -111,6 +121,9 @@ void CnApi_enableAsyncEventIRQ(void)
 /**
 ********************************************************************************
  \brief disables the PCP IRQ for event signaling
+
+Deactivate the asynchronous event interrupt. With this interrupt fast reaction
+on events is possible.
 *******************************************************************************/
 void CnApi_disableAsyncEventIRQ(void)
 {
@@ -141,6 +154,10 @@ void CnApi_disableAsyncEventIRQ(void)
 /**
 ********************************************************************************
  \brief acknowledges asynchronous events and IR signal
+
+ Acknowledge the asynchronous event after the event is handled by the
+ application.
+
  \param pAckBits_p  pointer to 16 bit field, whereas a '1' indicates a
                     pending event which should be acknowledged
 *******************************************************************************/
@@ -160,6 +177,9 @@ void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p)
 /**
 ********************************************************************************
  \brief checks if asynchronous event occurred and simulates IRQ
+
+ Check if an asynchronous event is pending. Needed when the events are polled
+ and no interrupt is used.
 *******************************************************************************/
 void CnApi_checkAsyncEvent(void)
 {
