@@ -23,9 +23,10 @@ This header file contains definitions for the CN API.
 #include "cnApiDebug.h"
 
 #include "cnApiEvent.h"     ///< public defines for the event module
+#include "cnApiObd.h"
+
 
 #include "EplErrDef.h"
-#include "EplObd.h"
 #include "EplSdoAc.h"
 
 #ifdef CN_API_USING_SPI

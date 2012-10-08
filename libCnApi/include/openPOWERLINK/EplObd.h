@@ -72,6 +72,8 @@
 #ifndef _EPLOBD_H_
 #define _EPLOBD_H_
 
+#include "cnApiObd.h"
+
 #include "EplInc.h"
 
 
@@ -121,25 +123,6 @@ typedef enum
     kEplObdCommUnknown     = 0xFF
 }tEplObdCommand;
 
-//-----------------------------------------------------------------------------------------------------------
-// events of object callback function
-typedef enum
-{
-//                                                                                                      m_pArg points to
-//                                                                                                    ---------------------
-    kEplObdEvCheckExist            = 0x06,    // checking if object does exist (reading and writing)    NULL
-    kEplObdEvPreRead               = 0x00,    // before reading an object                               source data buffer in OD
-    kEplObdEvPostRead              = 0x01,    // after reading an object                                destination data buffer from caller
-    kEplObdEvPostReadLe            = 0x08,    // after reading an object                                destination data buffer from caller in little endian
-    kEplObdEvWrStringDomain        = 0x07,    // event for changing string/domain data pointer or size  struct tEplObdVStringDomain in RAM
-    kEplObdEvInitWrite             = 0x05,    // initializes writing an object (checking object size)   size of object in OD (tEplObdSize)
-    kEplObdEvInitWriteLe           = 0x04,    // initializes writing an object (checking object size)   size of object in OD (tEplObdSize)
-    kEplObdEvPreWrite              = 0x02,    // before writing an object                               source data buffer from caller
-    kEplObdEvPostWrite             = 0x03,    // after writing an object                                destination data buffer in OD
-//    kEplObdEvAbortSdo              = 0x05     // after an abort of an SDO transfer
-
-} tEplObdEvent;
-
 // part of OD (bit oriented)
 typedef unsigned int tEplObdPart;
 
@@ -154,9 +137,7 @@ typedef unsigned int tEplObdPart;
 #define kEplObdPartAll         (kEplObdPartGen | kEplObdPartMan | kEplObdPartDev | kEplObdPartUsr)   // whole OD
 
 //-----------------------------------------------------------------------------------------------------------
-// access types for objects
-// must be a difine because bit-flags
-typedef unsigned int tEplObdAccess;
+
 
 #define kEplObdAccRead         0x01    // object can be read
 #define kEplObdAccWrite        0x02    // object can be written
@@ -209,48 +190,9 @@ typedef unsigned int tEplObdAccess;
 
 
 
-typedef unsigned int tEplObdSize; // For all objects as objects size are used an unsigned int.
-
-
 // -------------------------------------------------------------------------
 // types for data types defined in DS301
 // -------------------------------------------------------------------------
-
-// types of objects in object dictionary
-// DS-301 defines these types as WORD
-typedef enum
-{
-// types which are always supported
-    kEplObdTypBool         = 0x0001,
-
-    kEplObdTypInt8         = 0x0002,
-    kEplObdTypInt16        = 0x0003,
-    kEplObdTypInt32        = 0x0004,
-    kEplObdTypUInt8        = 0x0005,
-    kEplObdTypUInt16       = 0x0006,
-    kEplObdTypUInt32       = 0x0007,
-    kEplObdTypReal32       = 0x0008,
-    kEplObdTypVString      = 0x0009,
-    kEplObdTypOString      = 0x000A,
-    kEplObdTypDomain       = 0x000F,
-
-    kEplObdTypInt24        = 0x0010,
-    kEplObdTypUInt24       = 0x0016,
-
-    kEplObdTypReal64       = 0x0011,
-    kEplObdTypInt40        = 0x0012,
-    kEplObdTypInt48        = 0x0013,
-    kEplObdTypInt56        = 0x0014,
-    kEplObdTypInt64        = 0x0015,
-    kEplObdTypUInt40       = 0x0018,
-    kEplObdTypUInt48       = 0x0019,
-    kEplObdTypUInt56       = 0x001A,
-    kEplObdTypUInt64       = 0x001B,
-    kEplObdTypTimeOfDay    = 0x000C,
-    kEplObdTypTimeDiff     = 0x000D
-
-} tEplObdType;
-// other types are not supported in this version
 
 
 // -------------------------------------------------------------------------
@@ -402,31 +344,6 @@ typedef struct
 // r.d.: has always to be, because of new OBD-Macros for arrays
 typedef tEplObdSubEntry * tEplObdSubEntryPtr;
 
-
-typedef enum
-{
-    kEplSdoAddrTypeNodeId   =   0x00,
-    kEplSdoAddrTypeIp       =   0x01,
-
-} tEplSdoAddrType;
-
-typedef struct
-{
-    tEplSdoAddrType m_SdoAddrType;
-    unsigned int    m_uiNodeId;     // Node-ID of the remote side
-#if 0
-    union
-    {
-        struct sockaddr_storage m_SockAddr;
-    } m_Address;
-#endif
-} tEplSdoAddress;
-
-
-struct _tEplObdParam;
-
-typedef struct _tEplObdParam tEplObdParam;
-
 typedef enum
 {
     kEplObdDefAccHdlEmpty               =   0x00, // new handle can be stored
@@ -445,35 +362,9 @@ typedef struct sDefObdAccHdl
 
 } tDefObdAccHdl;
 
-typedef tEplKernel (PUBLIC ROM* tEplObdCbAccessFinished) (/*EPL_MCO_DECL_INSTANCE_HDL_*/
-    tEplObdParam MEM* pParam_p);
-
 // -------------------------------------------------------------------------
 // callback function for object dictionary module
 // -------------------------------------------------------------------------
-
-// parameters for callback function
-struct _tEplObdParam
-{
-    tEplObdEvent    m_ObdEvent;
-    unsigned int    m_uiIndex;
-    unsigned int    m_uiSubIndex;
-    void *          m_pArg;             // obsolete
-    DWORD           m_dwAbortCode;
-    tEplSdoAddress* m_pRemoteAddress;   // pointer to caller identification
-    void *          m_pData;
-    tEplObdSize     m_TransferSize;     // transfer size from SDO or local app
-    tEplObdSize     m_ObjSize;          // current object size from OD
-    tEplObdSize     m_SegmentSize;
-    tEplObdSize     m_SegmentOffset;
-
-    tEplObdType     m_Type;
-    tEplObdAccess   m_Access;
-
-    void *          m_pHandle;
-    tEplObdCbAccessFinished m_pfnAccessFinished;
-
-};
 
 #define tEplObdCbParam      tEplObdParam
 
