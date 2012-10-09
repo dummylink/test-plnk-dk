@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file       systemComponents.c
+\file       xilinx_microblaze/src/systemComponents.c
 
 \brief      Header file which contains processor specific definitions
             (Microblaze version)
@@ -51,9 +51,9 @@ XSpi pSpiMaster;
 
 /**
 ********************************************************************************
-\brief  inits the peripherals of the AP
+\brief  init the peripherals of the AP
 
-This function inits the peripherals of the AP like cache and the interrupt
+This function init's the peripherals of the AP like cache and the interrupt
 controller.
 *******************************************************************************/
 void SysComp_initPeripheral(void)
@@ -101,9 +101,9 @@ void SysComp_initPeripheral(void)
 
 This function enables the microblaze interrupts
 *******************************************************************************/
-inline void SysComp_enableInterrupts()
+inline void SysComp_enableInterrupts(void)
 {
-    XIntc_MasterEnable(XPAR_AP_INTC_BASEADDR);     ///<enable interrupt master
+    XIntc_MasterEnable(XPAR_AP_INTC_BASEADDR);     // enable interrupt master
 }
 
 /**
@@ -114,7 +114,7 @@ This function disables the microblaze interrupts
 *******************************************************************************/
 inline void SysComp_disableInterrupts(void)
 {
-    XIntc_MasterDisable(XPAR_AP_INTC_BASEADDR);     ///<disable interrupt master
+    XIntc_MasterDisable(XPAR_AP_INTC_BASEADDR);     // disable interrupt master
 }
 
 
@@ -126,12 +126,11 @@ SysComp_initSyncInterrupt() initializes the synchronous interrupt. The timing pa
 will be initialized, the interrupt handler will be connected and the interrupt
 will be enabled.
 
-\param  callback             The callback of the interrupt
-\param  dwMinCycleTime_p     The minimum cycle time for the interrupt
-\param  dwMaxCycleTime_p     The maximum cycle time for the interrupt
-\param  bReserved_p          Reserved for future use
+\param  callbackFunc             The callback of the sync interrupt
 
-\return	OK, or ERROR if interrupt couldn't be connected
+\return	int
+\retval OK                       on success
+\retval ERROR                    if interrupt couldn't be connected
 *******************************************************************************/
 int SysComp_initSyncInterrupt(void (*callbackFunc)(void*))
 {
@@ -154,7 +153,6 @@ int SysComp_initSyncInterrupt(void (*callbackFunc)(void*))
 \brief  Enable synchronous interrupt
 
 SysComp_enableSyncInterrupt() enables the synchronous interrupt.
-
 *******************************************************************************/
 inline void SysComp_enableSyncInterrupt(void)
 {
@@ -169,7 +167,6 @@ inline void SysComp_enableSyncInterrupt(void)
 \brief  Disable synchronous interrupt
 
 SysComp_disableSyncInterrupt() disable the synchronous interrupt.
-
 *******************************************************************************/
 inline void SysComp_disableSyncInterrupt(void)
 {
@@ -186,9 +183,11 @@ inline void SysComp_disableSyncInterrupt(void)
 SysComp_initAsyncInterrupt() initializes the asynchronous interrupt. The interrupt handler
 will be connected and the interrupt will be enabled.
 
-\param  callback             The callback of the interrupt
+\param  callbackFunc             The callback of the async interrupt
 
-\return OK, or ERROR if interrupt couldn't be connected
+\return int
+\retval OK                       on success
+\retval ERROR                    if interrupt couldn't be connected
 *******************************************************************************/
 int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
 {
@@ -211,7 +210,6 @@ int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
 \brief  Enable synchronous interrupt
 
 SysComp_enableSyncInterrupt() enables the synchronous interrupt.
-
 *******************************************************************************/
 inline void SysComp_enableAsyncInterrupt(void)
 {
@@ -226,7 +224,6 @@ inline void SysComp_enableAsyncInterrupt(void)
 \brief  Disable synchronous interrupt
 
 SysComp_disableSyncInterrupt() disable the synchronous interrupt.
-
 *******************************************************************************/
 inline void SysComp_disableAsyncInterrupt(void)
 {
@@ -248,6 +245,9 @@ alt_avalon_spi_command function
 \param  pRxBuf_p             A pointer to the buffer where the data should be stored
 \param  iBytes_p             The number of bytes to send or receive
 
+\return int
+\retval OK                       on success
+\retval ERROR                    in case of an error
 *******************************************************************************/
 int SysComp_SPICommand(unsigned char *pTxBuf_p, unsigned char *pRxBuf_p, int iBytes_p)
 {
@@ -278,7 +278,7 @@ int SysComp_SPICommand(unsigned char *pTxBuf_p, unsigned char *pRxBuf_p, int iBy
 
 This function writes a value to the output port of the AP
 
-\param  bValue_p       the value to write
+\param  dwValue_p       the value to write
 *******************************************************************************/
 void SysComp_writeOutputPort(DWORD dwValue_p)
 {
@@ -293,7 +293,8 @@ void SysComp_writeOutputPort(DWORD dwValue_p)
 
 This function reads a value from the input port of the AP
 
-\return  bValue_p       the read value
+\return  DWORD
+\retval  dwValue              the value of the input port
 *******************************************************************************/
 DWORD SysComp_readInputPort(void)
 {

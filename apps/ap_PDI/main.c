@@ -38,17 +38,17 @@ subject to the License Agreement located at the end of this file below.
 /* USER OPTIONS */
 
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
-#define DEFAULT_NODEID      0x00    // default node ID to use, should be NOT 0xF0 (=MN)
+#define DEFAULT_NODEID      0x00    ///< default node ID to use, should be NOT 0xF0 (=MN)
 
-//#define USE_POLLING_MODE_SYNC // comment this out to enable the sync event interrupt
-#define USE_POLLING_MODE_ASYNC // comment this out to enable the async event interrupt
+//#define USE_POLLING_MODE_SYNC ///< comment this out to enable the sync event interrupt
+#define USE_POLLING_MODE_ASYNC ///< comment this out to enable the async event interrupt
 
 #if defined(CN_API_INT_AVALON) && !defined(USE_POLLING_MODE_ASYNC)
     #error "Dual-Nios design can not use 2 interrupts -> interrupt mode for events is not possible!"
 #endif
 
-#define DEMO_VENDOR_ID      0x00000000
-#define DEMO_PRODUCT_CODE   0
+#define DEMO_VENDOR_ID      0x00000000                          ///< The vendor id of this demo
+#define DEMO_PRODUCT_CODE   0                                   ///< The product code of this demo
 #define DEMO_REVISION       0x00010020                          ///< B & R firmware file generation tool supports only 0..999 dec.
 #define DEMO_SERIAL_NUMBER  0x00000000
 #define DEMO_DEVICE_NAME "POWERLINK CN DEMO"
@@ -66,8 +66,8 @@ subject to the License Agreement located at the end of this file below.
 /* global variables */
 static BYTE     abMacAddr_l[] = { MAC_ADDR };                   ///< The MAC address to be used
 static BYTE     strDevName[] = DEMO_DEVICE_NAME;
-static BYTE     strHwVersion[] = "1.00";
-static BYTE     strSwVersion[] = "EPL V2 V1.8.1 CNDK";
+static BYTE     strHwVersion[] = "1.00";                        ///< Version of the used hardware
+static BYTE     strSwVersion[] = "EPL V2 V1.8.1 CNDK";          ///< The version of this software
 
 static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values of the digital input pins of the board will be stored here
 static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here
@@ -75,7 +75,7 @@ static BOOL     fOperational_l = FALSE;                         ///< indicates A
 
 // Object access
 static DWORD dwExampleData_l = 0xABCD0001;              ///< this is only an example object data
-static tEplObdParam   ObdParam_l = {0};           ///< OBD access handle
+static tEplObdParam   ObdParam_l = {0};                 ///< OBD access handle
 
 /******************************************************************************/
 /* private functions */
@@ -112,11 +112,14 @@ static tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
 
 /**
 ********************************************************************************
-\brief	main function of CN API Example
+\brief	entry function of CN API example
 
 main() implements the main program function of the CN API example.
 First all initialization is done, then the program runs in a loop where the
 APs state machine will be updated and input/output ports will be processed.
+
+\return int
+
 *******************************************************************************/
 int main (void)
 {
@@ -196,14 +199,14 @@ int main (void)
     CnApi_disableSyncInt();
 #else
     /* initialize PCP interrupt handler*/
-    if(SysComp_initSyncInterrupt(syncIntHandler) != OK)    ///< local AP IRQ is enabled here
+    if(SysComp_initSyncInterrupt(syncIntHandler) != OK)    //< local AP IRQ is enabled here
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to init the synchronous interrupt!\n");
         return ERROR;
     }
 
     CnApi_initSyncInt(3000, 100000, 0);
-    CnApi_disableSyncInt();    ///< interrupt will be enabled when CN is operational
+    CnApi_disableSyncInt();    //< interrupt will be enabled when CN is operational
 #endif /* USE_POLLING_MODE_SYNC */
 
 #ifdef USE_POLLING_MODE_ASYNC
@@ -266,7 +269,7 @@ int main (void)
 workInputOutput() reads the input ports and writes the output ports. It must
 be periodically called in the main loop.
 *******************************************************************************/
-void workInputOutput(void)
+static void workInputOutput(void)
 {
 	register BYTE iCnt;
 	DWORD dwOutPort = 0;
@@ -312,7 +315,7 @@ void workInputOutput(void)
  will be called.
 
  *******************************************************************************/
-void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p)
+static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p)
 {
     tPdiAsyncStatus Ret;        ///< return code of pdo response message
     DWORD dwPdoRespErrCode;     ///< error code for the pdo response message
@@ -562,7 +565,7 @@ void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p,
  CnApi_linkObject()have been updated locally.
 
  *******************************************************************************/
-void CnApi_AppCbSync(void)
+static void CnApi_AppCbSync(void)
 {
     workInputOutput();                 // update the PCB's inputs and outputs
 }
@@ -628,7 +631,7 @@ to the SPI slave
 \return OK, or ERROR if the frame could not be sent
 *******************************************************************************/
 
-int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
+static int CnApi_CbSpiMasterTx(unsigned char *pTxBuf_p, int iBytes_p)
 {
     if(SysComp_SPICommand(pTxBuf_p,NULL,iBytes_p) != OK)
     {
@@ -651,7 +654,7 @@ from the SPI slave
 
 \return OK, or ERROR if the frame could not be received
 *******************************************************************************/
-int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
+static int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
 {
     if(SysComp_SPICommand(NULL,pRxBuf_p,iBytes_p) != OK)
     {
@@ -669,7 +672,7 @@ int CnApi_CbSpiMasterRx(unsigned char *pRxBuf_p, int iBytes_p)
 enableGlobalInterrupts() is the callback function for enabling the global interrupts
 of the system
 *******************************************************************************/
-void enableGlobalInterrupts(void)
+static void enableGlobalInterrupts(void)
 {
     SysComp_enableInterrupts();
 }
@@ -681,7 +684,7 @@ void enableGlobalInterrupts(void)
 disableGlobalInterrupts() is the callback function for disabling the global interrupts
 of the system
 *******************************************************************************/
-void disableGlobalInterrupts(void)
+static void disableGlobalInterrupts(void)
 {
     SysComp_disableInterrupts();
 }
@@ -699,7 +702,7 @@ void disableGlobalInterrupts(void)
  be called. If the access to the desired object can not be handled immediately,
  kEplObdAccessAdopted has to be returned.
  *******************************************************************************/
-tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam *  pObdParam_p)
+static tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam *  pObdParam_p)
 {
 tEplKernel       Ret = kEplSuccessful;
 

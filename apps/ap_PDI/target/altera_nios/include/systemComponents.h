@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file       systemComponents.h
+\file       altera_nios/include/systemComponents.h
 
 \brief      Header file which contains processor specific definitions
             (Nios II version)

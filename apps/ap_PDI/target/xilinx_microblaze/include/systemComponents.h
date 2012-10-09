@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file       systemComponents.h
+\file       xilinx_microblaze/include/systemComponents.h
 
 \brief      Header file which contains processor specific definitions
             (Microblaze version)
