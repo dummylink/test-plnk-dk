@@ -20,13 +20,12 @@
 :AP_PDI_DOC
 @ set AP_PDI_DOXYFILE=apPdi.doxyfile
 @ set AP_PDI_DOXYFILE_PATH=..\apps\ap_PDI\
-c:\Work\RepositoryWORK\openPOWERLINK_CNDK\apps\ap_PDI\
 
 
 :start
 @ REM ######################################
 @ REM # Discover the root nios2eds directory
-@ set DOXYGEN_KIT_PATH=c:\Program\Doxygen
+@ set DOXYGEN_KIT_PATH=C:\Program Files\doxygen
 @ REM ######################################
 
 @ REM ######################################
