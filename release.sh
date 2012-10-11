@@ -43,6 +43,13 @@ change_platform_files()
     echo "Delete $1/fpga/$2 folder..."
     rm -rf $1/fpga/$2
 
+    # delete post-checkout script
+    rm -rf $1/post-checkout
+
+    echo "Cleanup openPOWERLINK_CNDKPatched directory..."
+    rm -rf  $1/powerlink/generic/openPOWERLINK_CNDKPatched/Examples
+    rm -rf  $1/powerlink/generic/openPOWERLINK_CNDKPatched/Edrv
+
     if [ "$2" = "altera" ]
     then
         #cleanup for xilinx
@@ -57,36 +64,25 @@ change_platform_files()
 
         # cleanup ap_PDI program
         echo "Cleanup $1/apps/ap_PDI/ program..."
-        rm -rf $1/apps/ap_PDI/Makefile $1/apps/ap_PDI/create-this-app $1/apps/ap_PDI/bsp $1/apps/ap_PDI/*.bat $1/apps/ap_PDI/*.sh $1/apps/ap_PDI/*.elf
-        mv $1/apps/ap_PDI/build_xilinx/* $1/apps/ap_PDI/
-        rm -rf $1/apps/ap_PDI/build_xilinx/
-        #modify makefile path
-        sed -i 's/^CNDK\_DIR.*/CNDK\_DIR=\.\.\/\.\./' $1/apps/ap_PDI/makefile.settings
-        #delete altera txt files
-        rm -rf $1/apps/ap_PDI/alt_readme.txt
-        mv $1/apps/ap_PDI/xil_readme.txt $1/apps/ap_PDI/readme.txt
+        cp -rf $1/apps/ap_PDI/xilinx/* $1/apps/ap_PDI/
+        cp -rf $1/apps/ap_PDI/xilinx/.??* $1/apps/ap_PDI/
+        rm -rf $1/apps/ap_PDI/xilinx/ $1/apps/ap_PDI/altera/
 
         # cleanup pcp_PDI program
         echo "Cleanup $1/powerlink/pcp_PDI/ program..."
-        rm -rf $1/powerlink/pcp_PDI/Makefile $1/powerlink/pcp_PDI/create-this-app $1/powerlink/pcp_PDI/bsp $1/powerlink/pcp_PDI/*.bat $1/powerlink/pcp_PDI/*.sh $1/powerlink/pcp_PDI/*.elf
-        mv $1/powerlink/pcp_PDI/build_xilinx/* $1/powerlink/pcp_PDI/
-        rm -rf $1/powerlink/pcp_PDI/build_xilinx/
-        #modify makefile path
-        sed -i 's/^CNDK\_DIR.*/CNDK\_DIR=\.\.\/\.\./' $1/powerlink/pcp_PDI/makefile.settings
-        #delete altera txt files
-        rm -rf $1/powerlink/pcp_PDI/alt_readme.txt
-        mv $1/powerlink/pcp_PDI/xil_readme.txt $1/powerlink/pcp_PDI/readme.txt
+        cp -rf $1/powerlink/pcp_PDI/xilinx/* $1/powerlink/pcp_PDI/
+        cp -rf $1/powerlink/pcp_PDI/xilinx/.??* $1/powerlink/pcp_PDI/
+        rm -rf $1/powerlink/pcp_PDI/xilinx/ $1/powerlink/pcp_PDI/altera/
 
         # cleanup pcp_DirectIO program
         echo "Cleanup $1/powerlink/pcp_DirectIO/ program..."
-        rm -rf $1/powerlink/pcp_DirectIO/Makefile $1/powerlink/pcp_DirectIO/create-this-app $1/powerlink/pcp_DirectIO/bsp $1/powerlink/pcp_DirectIO/*.bat $1/powerlink/pcp_DirectIO/*.sh $1/powerlink/pcp_DirectIO/*.elf
-        mv $1/powerlink/pcp_DirectIO/build_xilinx/* $1/powerlink/pcp_DirectIO/
-        rm -rf $1/powerlink/pcp_DirectIO/build_xilinx/
-        #modify makefile path
-        sed -i 's/^CNDK\_DIR.*/CNDK\_DIR=\.\.\/\.\./' $1/powerlink/pcp_DirectIO/makefile.settings
-        #delete altera txt files
-        rm -rf $1/powerlink/pcp_DirectIO/alt_readme.txt
-        mv $1/powerlink/pcp_DirectIO/xil_readme.txt $1/powerlink/pcp_DirectIO/readme.txt
+        cp -rf $1/powerlink/pcp_DirectIO/xilinx/* $1/powerlink/pcp_DirectIO/
+        cp -rf $1/powerlink/pcp_DirectIO/xilinx/.??* $1/powerlink/pcp_DirectIO/
+        rm -rf $1/powerlink/pcp_DirectIO/xilinx/ $1/powerlink/pcp_DirectIO/altera/
+
+        echo "Cleanup $1/libCnApi/ program..."
+        cp -rf $1/libCnApi/target/microblaze_newlib/.??* $1/libCnApi/
+        rm -rf $1/libCnApi/target/nios2_newlib
 
     else
         #cleanup for altera
@@ -99,26 +95,24 @@ change_platform_files()
 
         # cleanup ap_PDI program
         echo "Cleanup $1/apps/ap_PDI/ program..."
-        rm -rf $1/apps/ap_PDI/build_xilinx
-        #delete xilinx txt files
-        rm -rf $1/apps/ap_PDI/xil_readme.txt
-        mv $1/apps/ap_PDI/alt_readme.txt $1/apps/ap_PDI/readme.txt
+        cp -rf $1/apps/ap_PDI/altera/* $1/apps/ap_PDI/
+        cp -rf $1/apps/ap_PDI/altera/.??* $1/apps/ap_PDI/
+        rm -rf $1/apps/ap_PDI/altera/ $1/apps/ap_PDI/xilinx/
 
         # cleanup pcp_PDI program
         echo "Cleanup $1/powerlink/pcp_PDI/ program..."
-        rm -rf $1/powerlink/pcp_PDI/build_xilinx
-        #delete xilinx txt files
-        rm -rf $1/powerlink/pcp_PDI/xil_readme.txt
-        mv $1/powerlink/pcp_PDI/alt_readme.txt $1/powerlink/pcp_PDI/readme.txt
+        cp -rf $1/powerlink/pcp_PDI/altera/* $1/powerlink/pcp_PDI/
+        cp -rf $1/powerlink/pcp_PDI/altera/.??* $1/powerlink/pcp_PDI/
+        rm -rf $1/powerlink/pcp_PDI/altera/ $1/powerlink/pcp_PDI/xilinx/
 
         # cleanup pcp_DirectIO program
         echo "Cleanup $1/powerlink/pcp_DirectIO/ program..."
-        rm -rf $1/powerlink/pcp_DirectIO/build_xilinx
-        #delete xilinx txt files
-        rm -rf $1/powerlink/pcp_DirectIO/xil_readme.txt
-        mv $1/powerlink/pcp_DirectIO/alt_readme.txt $1/powerlink/pcp_DirectIO/readme.txt
+        cp -rf $1/powerlink/pcp_DirectIO/altera/* $1/powerlink/pcp_DirectIO/
+        cp -rf $1/powerlink/pcp_DirectIO/altera/.??* $1/powerlink/pcp_DirectIO/
+        rm -rf $1/powerlink/pcp_DirectIO/altera/ $1/powerlink/pcp_DirectIO/xilinx/
 
         echo "Cleanup $1/libCnApi/ program..."
+        cp -rf $1/libCnApi/target/nios2_newlib/.??* $1/libCnApi/
         rm -rf $1/libCnApi/target/microblaze_newlib
     fi
 
