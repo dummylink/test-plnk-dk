@@ -16,7 +16,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="pcp_PDI" buildProperties="" description="" id="xilinx.gnu.mb.toolchain.1253957596" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+				<configuration artifactName="pcp_DirectIO" buildProperties="" description="" id="xilinx.gnu.mb.toolchain.1253957596" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="xilinx.gnu.mb.toolchain.1253957596.305232042" name="/" resourcePath="">
 						<toolChain id="xilinx.gnu.mb.toolchain.357250485" name="xilinx.gnu.mb.toolchain" superClass="xilinx.gnu.mb.toolchain">
 							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.mb" id="xilinx.mb.target.gnu.base.2051568357" isAbstract="false" name="Debug Platform" superClass="xilinx.mb.target.gnu.base"/>
@@ -27,20 +27,19 @@
 							</tool>
 							<tool id="xilinx.gnu.mb.c.toolchain.compiler.1673480845" name="MicroBlaze gcc compiler" superClass="xilinx.gnu.mb.c.toolchain.compiler">
 								<option id="xilinx.gnu.compiler.dircategory.includes.301531839" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/POWERLINK_IP_Edrv/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/openPOWERLINK_CNDKPatched/Include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/openPOWERLINK_CNDKPatched/Include/kernel}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/openPOWERLINK_CNDKPatched/Include/user}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/target/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/openPOWERLINK_CNDKPatched/target/no_os/gnu/generic}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/openPOWERLINK_CNDKPatched/ObjDicts}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI/libCnApi/include/public}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_PDI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/openPOWERLINK_CNDKPatched/ObjDicts}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/openPOWERLINK_CNDKPatched/target/no_os/gnu/generic}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/target/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/openPOWERLINK_CNDKPatched/Include/user}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/openPOWERLINK_CNDKPatched/Include/kernel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/openPOWERLINK_CNDKPatched/Include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/POWERLINK_IP_Edrv/include}&quot;"/>
 								</option>
 								<option id="xilinx.gnu.compiler.option.optimization.level.1438028258" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.mbversion.27378811" name="MicroBlaze Version" superClass="xilinx.gnu.mb.compiler.inferred.mbversion" value="8.20.a" valueType="string"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.228811020" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_intplb-pcp-plb/pcp/include"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/include"/>
 								</option>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.74554588" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="false" valueType="boolean"/>
 								<inputType id="xilinx.gnu.compiler.input.1625903823" name="C source files" superClass="xilinx.gnu.compiler.input"/>
@@ -48,7 +47,7 @@
 							<tool id="xilinx.gnu.mb.cxx.toolchain.compiler.1700838143" name="MicroBlaze g++ compiler" superClass="xilinx.gnu.mb.cxx.toolchain.compiler">
 								<option id="xilinx.gnu.mb.compiler.inferred.mbversion.1973256619" name="MicroBlaze Version" superClass="xilinx.gnu.mb.compiler.inferred.mbversion" value="8.20.a" valueType="string"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1902275680" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_intplb-pcp-plb/pcp/include"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/include"/>
 								</option>
 								<option id="xilinx.gnu.mb.compiler.inferred.usele.1805517878" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="false" valueType="boolean"/>
 							</tool>
@@ -56,7 +55,7 @@
 							<tool id="xilinx.gnu.mb.c.toolchain.linker.1185029247" name="MicroBlaze gcc linker" superClass="xilinx.gnu.mb.c.toolchain.linker">
 								<option id="xilinx.gnu.mb.linker.inferred.mbversion.512813988" name="MicroBlaze Version" superClass="xilinx.gnu.mb.linker.inferred.mbversion" value="8.20.a" valueType="string"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.796503331" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_intplb-pcp-plb/pcp/lib"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/lib"/>
 								</option>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.924752246" name="Produce little endian artifacts (-mlittle-endian)" superClass="xilinx.gnu.mb.linker.inferred.usele" value="false" valueType="boolean"/>
 								<option id="xilinx.gnu.c.linker.option.lscript.261785348" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../lscript.ld" valueType="string"/>
@@ -69,7 +68,7 @@
 							<tool id="xilinx.gnu.mb.cxx.toolchain.linker.766294257" name="MicroBlaze g++ linker" superClass="xilinx.gnu.mb.cxx.toolchain.linker">
 								<option id="xilinx.gnu.mb.linker.inferred.mbversion.1632900049" name="MicroBlaze Version" superClass="xilinx.gnu.mb.linker.inferred.mbversion" value="8.20.a" valueType="string"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1686612104" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_intplb-pcp-plb/pcp/lib"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/lib"/>
 								</option>
 								<option id="xilinx.gnu.mb.linker.inferred.usele.786657527" name="Produce little endian artifacts (-mlittle-endian)" superClass="xilinx.gnu.mb.linker.inferred.usele" value="false" valueType="boolean"/>
 								<option id="xilinx.gnu.c.linker.option.lscript.872225419" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../lscript.ld" valueType="string"/>

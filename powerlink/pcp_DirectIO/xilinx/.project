@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>pcp_PDI</name>
+	<name>pcp_DirectIO</name>
 	<comment></comment>
 	<projects>
-		<project>standalone_bsp_lx150t_intplb-pcp-plb</project>
+		<project>standalone_bsp_lx150t_directIO-plb</project>
+		<project>standalone_bsp_lx150t_directio-plb</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -32,7 +33,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/pcp_PDI}</value>
+					<value>${workspace_loc:/pcp_PDI/build_xilinx}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
@@ -87,9 +88,9 @@
 			<locationURI>EDRV_LOC/openmac/include</locationURI>
 		</link>
 		<link>
-			<name>libCnApi/utils</name>
+			<name>objDicts/Direct_IO</name>
 			<type>2</type>
-			<locationURI>LIBCNAPI_LOC/utils</locationURI>
+			<locationURI>CNDK_LOC/objDicts/Direct_IO</locationURI>
 		</link>
 		<link>
 			<name>openPOWERLINK_CNDKPatched/EplApiGeneric.c</name>
@@ -242,19 +243,9 @@
 			<locationURI>EDRV_LOC/openmac/source/omethlibint.c</locationURI>
 		</link>
 		<link>
-			<name>libCnApi/include/public</name>
-			<type>2</type>
-			<locationURI>LIBCNAPI_LOC/include/public</locationURI>
-		</link>
-		<link>
 			<name>openPOWERLINK_CNDKPatched/ObjDicts/Generic</name>
 			<type>2</type>
 			<locationURI>PLK_LOC/ObjDicts/Generic</locationURI>
-		</link>
-		<link>
-			<name>objDicts/PDI</name>
-			<type>2</type>
-			<locationURI>CNDK_LOC/objDicts/PDI</locationURI>
 		</link>
 		<link>
 			<name>openPOWERLINK_CNDKPatched/SharedBuff/SharedBuff.c</name>
