@@ -31,11 +31,11 @@ ACDS_VERSION += 9.1sp2
 ALT_LIBRARY_DIRS += $(ALT_LIBRARY_ROOT_DIR)
 
 # Library name for -l linker option (-l added when used).
-ALT_LIBRARY_NAMES += CN_API
+ALT_LIBRARY_NAMES += CnApi
 
 # Library dependencies for the linker.
 # This is the full pathname of the library (*.a) file.
-ALT_LDDEPS += $(ALT_LIBRARY_ROOT_DIR)/libCN_API.a
+ALT_LDDEPS += $(ALT_LIBRARY_ROOT_DIR)/libCnApi.a
 
 # This library supports running make to build it.
 MAKEABLE_LIBRARY_ROOT_DIRS += $(ALT_LIBRARY_ROOT_DIR)

@@ -196,7 +196,7 @@ if [ -n "$REBUILD" -o ! -f $BSP_DIR/public.mk ]; then
     popd >> /dev/null
 fi
 
-cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --set QUARTUS_PROJECT_DIR=$SOPC_DIR $NIOS2_APP_GEN_ARGS"
+cmd="nios2-app-generate-makefile --bsp-dir $BSP_DIR --set QUARTUS_PROJECT_DIR=$SOPC_DIR $NIOS2_APP_GEN_ARGS --use-lib-dir $LIBTARGETFOLDER"
 
 echo "create-this-app: Running \"$cmd\""
 $cmd || {
