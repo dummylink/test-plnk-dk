@@ -74,6 +74,7 @@ done
 INCLUDES="\
 ${PWD} \
 ${LIBAPIDIR}/include \
+${LIBAPIDIR}/include/public \
 ${LIBAPIDIR}/include/openPOWERLINK \
 ${LIBAPIDIR}/utils \
 ${POWERLINKDIR}/Include \

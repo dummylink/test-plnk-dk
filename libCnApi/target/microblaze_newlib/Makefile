@@ -40,6 +40,7 @@ INCLUDES=-I${APP_DIR}\
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${CN_API_DIR}/include \
+-I${CN_API_DIR}/include/public \
 -I${CN_API_DIR}/include/openPOWERLINK \
 -I${CN_API_DIR}/include/openPOWERLINK/kernel \
 -I${CN_API_DIR}/include/openPOWERLINK/user \

@@ -62,6 +62,7 @@ INCLUDES=-I${APP_DIR}\
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${LIBCNAPI_DIR}/include \
+-I${LIBCNAPI_DIR}/include/public \
 -I${LIBCNAPI_DIR}/include/openPOWERLINK \
 -I${LIBCNAPI_DIR}/include/openPOWERLINK/kernel \
 -I${LIBCNAPI_DIR}/include/openPOWERLINK/user \

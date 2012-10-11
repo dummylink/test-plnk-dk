@@ -4,7 +4,7 @@
 
 # List of include directories for -I compiler option (-I added when used).
 # Includes the BSP.
-ALT_INCLUDE_DIRS := ../../include ../../utils 
+ALT_INCLUDE_DIRS := ../../include ../../include/public ../../utils 
 
 # Define path to the root of the BSP.
 BSP_ROOT_DIR := ../../../apps/ap_PDI/bsp
