@@ -388,8 +388,20 @@ $(PROGRAM_EPCS_TARGET) : $(ELF)
 		$(ELF2FLASH) --after=sof.flash --input=$(ELF) --outfile=$(basename $@)_after_sof.flash --sim_optimize=$(SIM_OPTIMIZE) $(elf2flash_extra_args); \
 		$(ECHO) $(FLASHPROG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $@)_START) sof.flash $(basename $@)_after_sof.flash; \
 		$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --instance='$UART_INSTANCE_ID '--epcs --base=$($(basename $@)_START) \
-        -g --override='$PCP_GENERIC_DIR'/target/altera_nios/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
-    fi' >> makefile
+		-g --override='$PCP_GENERIC_DIR'/target/altera_nios/nios2-flash-override.txt sof.flash $(basename $@)_after_sof.flash; \
+	fi
+
+# Rule for erasing the EPCS memory content    
+.PHONY : erase-epcs
+erase-epcs:
+	@nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR); \
+	$(ECHO) $(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --epcs --base=$($(basename $(PROGRAM_EPCS_TARGET))_START) --accept-bad-sysid --erase-all; \
+	$(FLASHPROG) $(DOWNLOAD_CABLE_FLAG) $(SOPC_SYSID_FLAG) --instance='$UART_INSTANCE_ID '--epcs --base=$($(basename $(PROGRAM_EPCS_TARGET))_START) --accept-bad-sysid --erase-all
+
+# Rule for downloading the FPGA bitstream to the target    
+.PHONY : download-bits
+download-bits:
+	nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR)' >> makefile
 
 if [ -z "$SKIP_MAKE" ]; then
 	cmd="make"
@@ -406,7 +418,7 @@ if [ -z "$SKIP_MAKE" ]; then
 	echo
 	echo "To download and run the application:"
 	echo "    1. Make sure the board is connected to the system."
-	echo "    2. Run 'nios2-configure-sof -C $SOPC_DIR' to configure the FPGA with the hardware design."
+	echo "    2. Run 'make download-bits' to configure the FPGA with the hardware design."
 	echo "    3. If you have a stdio device, run 'nios2-terminal' in a different shell."
 	echo "    4. Run 'make download-elf' from the application directory."
 	echo
