@@ -51,33 +51,61 @@ echo "Use parameter: --sopcdir <SOPC_directory>"
 exit 1
 fi
 
-# user input - Quartus rebuild option
-a=
-while [ -z "$a" ]; do
-    echo  -n "Would you like to rebuild the Quartus project (y/n)? "
-	read a
-	a=${a##*[^'y' 'n']*} #eliminate other characters then y and n 
-if [ -z "$a" ]; then
-	echo Invalid input!
-fi	
-done
+# check if FPGA design contains also PCP
+UART_INSTANCE_ID=
+ASK_FOR_QUARTUS_REBUILD=0
+#######################################
+# read UART_INSTANCE_ID of CPU_NAME
+# from JDI file
+#######################################
+CPU_NAME="pcp_cpu"
+JDI_FILE=$SOPC_DIR/nios_openMac.jdi
+IN_FILE=$JDI_FILE
 
-case "$a" in
-  'y')
-    pushd $SOPC_DIR >> /dev/null #change directory
-    cmd="./make.sh"              # rebuild Quartus project
-    $cmd || {
-        echo -e "ERROR: Quartus rebuild failed!"
+# check if *.sof was build
+SOF_CNT=$(ls ${SOPC_DIR} | grep ".sof" -c)
+if [ $SOF_CNT -eq 0 ]
+then
+   ASK_FOR_QUARTUS_REBUILD=1
+fi
+
+# check if cpu name is present in file
+pattern=$CPU_NAME 
+
+match_count=$(grep -w -c "$pattern" ${IN_FILE})
+if [ $match_count -eq 0 ]; then
+   ASK_FOR_QUARTUS_REBUILD=1
+fi
+
+if [ $ASK_FOR_QUARTUS_REBUILD -eq 1 ]; then
+    # user input - Quartus rebuild option
+    a=
+    while [ -z "$a" ]; do
+        echo  -n "Would you like to rebuild the Quartus project (y/n)? "
+        read a
+        a=${a##*[^'y' 'n']*} #eliminate other characters then y and n 
+    if [ -z "$a" ]; then
+        echo Invalid input!
+    fi	
+    done
+
+    case "$a" in
+      'y')
+        pushd $SOPC_DIR >> /dev/null #change directory
+        cmd="./make.sh"              # rebuild Quartus project
+        $cmd || {
+            echo -e "ERROR: Quartus rebuild failed!"
+            exit 1
+        }      
+        popd >> /dev/null           # restore PWD
+        ;;
+      'n')
+        ;;
+      *)
         exit 1
-    }      
-    popd >> /dev/null           # restore PWD
-    ;;
-  'n')
-    ;;
-  *)
-    exit 1
-    ;;
-esac   
+        ;;
+    esac 
+fi
 
 # user input - chose between debug and release
 echo; echo    "Software rebuild options:"
