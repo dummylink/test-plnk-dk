@@ -109,7 +109,7 @@ typedef enum ePdiAsyncStatus{
     kPdiAsyncStatusNoResource           = 0x000E,   ///< resource could not be created
     kPdiAsyncStatusShutdown             = 0x000F,   ///< stack is shutting down
     kPdiAsyncStatusReject               = 0x0010,   ///< reject the subsequent command
-    kPdiAsyncStatusRetry                = 0x0011,   ///< retry this command
+    kPdiAsyncStatusRetry                = 0x0011,   ///< retry this command (flow control)
     kPdiAsyncStatusInvalidEvent         = 0x0012,   ///< invalid event was posted to process function
     kPdiAsyncStatusInvalidState         = 0x0013,   ///< message is invalid in current NmtState
     kPdiAsyncStatusInvalidMessage       = 0x0014,   ///< unexpected message received

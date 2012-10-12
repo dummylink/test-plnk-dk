@@ -66,6 +66,7 @@ static BOOL                 fFrgmtStored = FALSE;           ///< transition even
 static BOOL                 fFrgmtDelivered = FALSE;        ///< transition event
 static BOOL                 fMsgTransferFinished = FALSE;   ///< transition event
 static BOOL                 fMsgTransferIncomplete = FALSE; ///< transition event
+static BOOL                 fMsgTrfFinishBlocked = FALSE;   ///< transition event
 static BOOL                 fFragmentedTransfer = FALSE;    ///< indicates stream segmentation
 static BOOL                 fDeactivateRxMsg = FALSE;       ///< aid flag for not setting bActivRxMsg_l
                                                             ///< immediately to INVALID_ELEMENT
@@ -818,7 +819,8 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     //TODO: check if this message is allowed in the current NmtState
 
     /* initialization for 1st fragment */
-    if (pMsgDescr->dwPendTranfSize_m == 0) //indicates 1st fragment
+    if ((pMsgDescr->dwPendTranfSize_m == 0)                            &&
+        (pMsgDescr->MsgStatus_m != kPdiAsyncMsgStatusTransferCompleted)   ) //indicates 1st fragment
     {
 
         /* choose transfer type according to message size */
@@ -872,77 +874,97 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     wFragmentLength = AmiGetWordFromLe((BYTE*)&(pUtilRxPdiBuf->m_header.m_wFrgmtLen));
 
     /* process Rx message */
-    switch (pMsgDescr->TransfType_m)
+    if (pMsgDescr->MsgStatus_m != kPdiAsyncMsgStatusTransferCompleted)
     {
-        case kPdiAsyncTrfTypeLclBuffering:
+        switch (pMsgDescr->TransfType_m)
         {
-            if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL )
+            case kPdiAsyncTrfTypeLclBuffering:
             {
-                ErrorHistory_l = kPdiAsyncStatusInvalidInstanceParam;
-                fError = TRUE; // triggers transition
-                goto exit;
+                if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL )
+                {
+                    ErrorHistory_l = kPdiAsyncStatusInvalidInstanceParam;
+                    fError = TRUE; // triggers transition
+                    goto exit;
+                }
+
+                /* check inconsistent message header values */
+                if (wFragmentLength > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+                {
+                    ErrorHistory_l = kPdiAsyncStatusDataTooLong;
+                    fError = TRUE;
+                    goto exit;
+                }
+                else
+                {
+                    wCopyLength = wFragmentLength;
+                }
+
+                /* calculate start address of new local buffer fragment */
+                pCurLclMsgFrgmt = pMsgDescr->MsgHdl_m.pLclBuf_m +
+                                  (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
+
+                /* copy local buffer fragment into the PDI buffer */
+                MEMCPY(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
+                /* calculate new pending payload */
+                pMsgDescr->dwPendTranfSize_m -= wCopyLength;
+
+                if (pMsgDescr->dwPendTranfSize_m > pMsgDescr->dwMsgSize_m)
+                {
+                    ErrorHistory_l = kPdiAsyncStatusDataTooLong;
+                    fError = TRUE;
+                    goto exit;
+                }
+                else if (pMsgDescr->dwPendTranfSize_m > 0)
+                {
+                    /* wait for next fragment */
+                    fMsgTransferIncomplete = TRUE; // trigger transition to ASYNC_RX_PENDING
+                    goto exit;
+                }
+                else // pMsgDescr->dwPendTranfSize_m == 0
+                {/* transfer has finished  */
+                    pRxChan = pMsgDescr->MsgHdl_m.pLclBuf_m;
+                    pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
+                }
+
+                break;
             }
 
-            /* check inconsistent message header values */
-            if (wFragmentLength > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+            case kPdiAsyncTrfTypeDirectAccess:
             {
-                ErrorHistory_l = kPdiAsyncStatusDataTooLong;
-                fError = TRUE;
-                goto exit;
-            }
-            else
-            {
-                wCopyLength = wFragmentLength;
-            }
-
-            /* calculate start address of new local buffer fragment */
-            pCurLclMsgFrgmt = pMsgDescr->MsgHdl_m.pLclBuf_m +
-                              (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
-
-            /* copy local buffer fragment into the PDI buffer */
-            MEMCPY(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
-
-            /* calculate new pending payload */
-            pMsgDescr->dwPendTranfSize_m -= wCopyLength;
-
-            if (pMsgDescr->dwPendTranfSize_m > pMsgDescr->dwMsgSize_m)
-            {
-                ErrorHistory_l = kPdiAsyncStatusDataTooLong;
-                fError = TRUE;
-                goto exit;
-            }
-            else if (pMsgDescr->dwPendTranfSize_m > 0)
-            {
-                /* wait for next fragment */
-                fMsgTransferIncomplete = TRUE; // trigger transition to ASYNC_RX_PENDING
-                goto exit;
-            }
-            else // pMsgDescr->dwPendTranfSize_m == 0
-            {/* transfer has finished  */
-                pRxChan = pMsgDescr->MsgHdl_m.pLclBuf_m;
+                pRxChan = (BYTE *) &pUtilRxPdiBuf->m_chan;
+                pMsgDescr->dwPendTranfSize_m = 0;                             // indicate finished transfer
                 pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
+                break;
             }
 
+            default:
             break;
-        }
-
-        case kPdiAsyncTrfTypeDirectAccess:
+        } // end of switch (pMsgDescr->TransfType_m)
+    }
+    else // kPdiAsyncMsgStatusTransferCompleted
+    {
+        switch (pMsgDescr->TransfType_m)
         {
-            pRxChan = (BYTE *) &pUtilRxPdiBuf->m_chan;
-            pMsgDescr->dwPendTranfSize_m = 0;                             // indicate finished transfer
-            pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
+            case kPdiAsyncTrfTypeLclBuffering:
+            {
+                pRxChan = pMsgDescr->MsgHdl_m.pLclBuf_m;
+                break;
+            }
+
+            case kPdiAsyncTrfTypeDirectAccess:
+            {
+                pRxChan = (BYTE *) &pUtilRxPdiBuf->m_chan;
+                break;
+            }
+
+            default:
             break;
         }
-
-        default:
-        break;
     }
 
     /* Rx transfer has finished -> handle Rx message */
     if (pMsgDescr->MsgStatus_m == kPdiAsyncMsgStatusTransferCompleted)
     {
-        dwTimeoutWait_l = 0; // reset to initial value
-
         if (pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m != NULL)
         {/* prepare Rx call back */
 
@@ -998,10 +1020,21 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             // Check within call-back function if expected message size exceeds the Tx PDI buffer!
             // Also, call-back function has to write the written message size 'dwMsgSize_m' to the Tx descriptor.
             ErrorHistory_l = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr, pRxChan, pRespChan, dwMaxBufPayload);
-            if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
+            if ((ErrorHistory_l == kPdiAsyncStatusRetry))
+            {
+                // flow control by callback - try again
+                ErrorHistory_l = kPdiAsyncStatusSuccessful;
+                fMsgTrfFinishBlocked = TRUE; // trigger transition to ASYNC_RX_PENDING
+                goto exit;
+            }
+            else if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
             {
                 fError = TRUE; // triggers transition
                 goto exit;
+            }
+            else
+            {
+                // continue
             }
         }
         else /* handling has to take place in Tx handle */
@@ -1084,6 +1117,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             fDeactivateRxMsg = TRUE; // set bActivRxMsg_l to INVALID_ELEMENT at transition
         }
 
+        dwTimeoutWait_l = 0; // reset to initial value
         fMsgTransferFinished = TRUE;
         goto exit;
     }
@@ -1130,6 +1164,11 @@ FUNC_EVT(kPdiAsyncRxStateBusy, kPdiAsyncRxStatePending, 1)
         confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
 
         return TRUE; // do transition
+    }
+    else if (checkEvent(&fMsgTrfFinishBlocked))
+    {
+        // do transition without confirming the reception (flow control)
+        return TRUE;
     }
     else
     {
