@@ -410,7 +410,9 @@ tEplKernel PUBLIC EplSdoAsySeqSendData(tEplSdoSeqConHdl SdoSeqConHdl_p,
     PdiRet = CnApiAsync_postMsg(
                     kPdiAsyncMsgIntObjAccResp,
                     (BYTE *) &PdiObjAccCon,
-                    0,
+                    NULL,
+                    NULL,
+                    NULL,
                     0);
 
     if (PdiRet == kPdiAsyncStatusRetry)

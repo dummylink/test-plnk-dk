@@ -50,7 +50,8 @@ typedef enum eLnkPdoMsgOrig {
 
 typedef enum ePdiAsyncTransferType{
     kPdiAsyncTrfTypeDirectAccess = 0x01, ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
-    kPdiAsyncTrfTypeLclBuffering,        ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
+    kPdiAsyncTrfTypeLclBuffering,        ///< segmented access to Pdi buffer (Pdi buffer size is to small)
+    kPdiAsyncTrfTypeUserBuffering,       ///< user provides buffer (valid through whole transfer time)
     kPdiAsyncTrfTypeAutoDecision,        ///< transfer type will be chosen automatically (only works for Rx)
 } tPdiAsyncTransferType;
 

@@ -634,6 +634,8 @@ tEplKernel      Ret = kEplSuccessful;
     PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq,
                                 (BYTE *) &LinkPdosReqComCon,
                                 Gi_ObdAccessSrcPdiFinished,
+                                NULL,
+                                NULL,
                                 0);
     if (PdiRet != kPdiAsyncStatusSuccessful)
     {

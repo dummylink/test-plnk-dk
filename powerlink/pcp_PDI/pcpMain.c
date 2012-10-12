@@ -753,7 +753,12 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     /* setup PDO <-> DPRAM copy table */
                     // this is needed for static mapping, single PDO descriptors
                     // are already sent if mapping objects are accessed dynamically
-                    PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq, 0,0,0);
+                    PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                0);
                     if (PdiRet != kPdiAsyncStatusSuccessful)
                     {
                         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Posting kPdiAsyncMsgIntLinkPdosReq failed with: %d\n", PdiRet);
@@ -2249,6 +2254,8 @@ static tEplKernel Gi_forwardObdAccessToPdi(tEplObdParam * pObdParam_p)
                     kPdiAsyncMsgIntObjAccReq,
                     (BYTE *) &PdiObjAccCon,
                     Gi_ObdAccessSrcPdiFinished,
+                    NULL,
+                    NULL,
                     0);
 
     if (PdiRet == kPdiAsyncStatusRetry)

@@ -399,19 +399,29 @@ FUNC_DOACT(kPdiAsyncStateWait)
     else // message activated
     {
         // if local buffering is used, assign buffer pointer
-        if (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+        switch (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m)
         {
-            if (pLclAsyncTxMsgBuffer_l != NULL)
+            case kPdiAsyncTrfTypeLclBuffering:
+            case kPdiAsyncTrfTypeUserBuffering:
             {
-                ErrorHistory_l = kPdiAsyncStatusNoResource;
-                fError = TRUE;
-                goto exit;
+                if (pLclAsyncTxMsgBuffer_l != NULL)
+                {
+                    ErrorHistory_l = kPdiAsyncStatusNoResource;
+                    fError = TRUE;
+                    goto exit;
+                }
+
+                pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m;
+                break;
             }
 
-            pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m;
+            default:
+            {
+                break;
+            }
         }
 
-        /*transit to ASYNC_TX_BUSY */
+        /* transit to ASYNC_TX_BUSY */
         fTxTriggered = TRUE;
         goto exit;
     }
@@ -490,9 +500,9 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
     /* different handling of Pdi Buffer access */
     switch (pMsgDescr->TransfType_m)
     {
-
         case kPdiAsyncTrfTypeLclBuffering:
-        {/* local buffered transfer */
+        case kPdiAsyncTrfTypeUserBuffering:
+        { /* local buffered transfer */
 
             if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL )
             {
@@ -535,7 +545,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
         }
 
         case kPdiAsyncTrfTypeDirectAccess:
-        {/* direct buffer access */
+        { /* direct buffer access */
 
             /* invoke call-back function which fills PDI buffer Tx once. */
             if (pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m != NULL) //otherwise buffer has already been set up by Rx handle
@@ -694,10 +704,11 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                 }
             }
 
-            /* free allocated buffers*/
+            /* reset assigned buffers*/
             switch (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m)
             {
                 case kPdiAsyncTrfTypeLclBuffering:
+                case kPdiAsyncTrfTypeUserBuffering:
                 {
                     if (pLclAsyncTxMsgBuffer_l != NULL)
                     {
@@ -708,11 +719,15 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                             fError = TRUE;
                             goto exit;
                         }
-                        FREE(pLclAsyncTxMsgBuffer_l);
+
+                        if (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m ==
+                            kPdiAsyncTrfTypeLclBuffering                   )
+                        {
+                            FREE(pLclAsyncTxMsgBuffer_l);
+                        }
                         pLclAsyncTxMsgBuffer_l = NULL;
                         aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                     }
-
                     break;
                 }
 
@@ -766,6 +781,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                     }
 
                     case kPdiAsyncTrfTypeDirectAccess:
+                    case kPdiAsyncTrfTypeUserBuffering:
                     {
 
                     }
@@ -1051,7 +1067,12 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                         case kPdiAsyncTrfTypeLclBuffering:
                         {
                             //no call-back assigned, so this will only allocate the Tx buffer
-                            CnApiAsync_postMsg(pMsgDescr->pRespMsgDescr_m->MsgType_m, 0, 0 ,0); // message is set to valid
+                            CnApiAsync_postMsg(pMsgDescr->pRespMsgDescr_m->MsgType_m,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                0); // message is set to valid
 
                             dwMaxBufPayload = MAX_ASYNC_STREAM_LENGTH;
                             pRespChan = pMsgDescr->pRespMsgDescr_m->MsgHdl_m.pLclBuf_m;
@@ -1405,9 +1426,13 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
         {
-            FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
+            if (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+            {
+                FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
+                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
+            }
+
             aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
-            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         }
 
         bActivTxMsg_l = INVALID_ELEMENT;
@@ -1451,15 +1476,21 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
         {
-            FREE(aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m);
+            if (aPdiAsyncTxMsgs[bActivRxMsg_l].TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+            {
+                FREE(aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m);
+                DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
+            }
+
             aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
-            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
         }
 
         bActivRxMsg_l = INVALID_ELEMENT;
     }
 
     /* free buffers */
+    //TODO: not know if there was a buffer allocated since 'kPdiAsyncTrfTypeUserBuffering'
+    // Find a solution to find out if this is a user defined buffer (pointer)
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
         FREE(pLclAsyncTxMsgBuffer_l);
@@ -1739,6 +1770,10 @@ exit:
  \param pfnCbRespMsg_p  [IN] call back function which will be invoked if transfer
                         of Rx response message (if assigned) has finished
                         0: no assignment
+ \param pUserBuffer_p   [IN] optional pointer to user provides buffer, only used if
+                        message has transfer type 'kPdiAsyncTrfTypeUserBuffering'
+ \param dwUserBufSize_p optional size of user provided buffer only used if
+                        message has transfer type 'kPdiAsyncTrfTypeUserBuffering'
 
  \return    tPdiAsyncStatus
  \retval    kPdiAsyncStatusSuccessful       if message sending has been triggered
@@ -1752,10 +1787,13 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 tPdiAsyncMsgType MsgType_p,
                 BYTE * pUserHandle_p,
                 tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
-                tPdiAsyncCbTransferFinished pfnCbRespMsg_p)
+                tPdiAsyncCbTransferFinished pfnCbRespMsg_p,
+                BYTE * pUserBuffer_p,
+                DWORD dwUserBufSize_p)
 {
     tPdiAsyncMsgDescr * pMsgDescr = NULL;
     BYTE bElement = INVALID_ELEMENT;
+    DWORD dwMaxBufSize = 0;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
     /* search for message type */
@@ -1815,6 +1853,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
         }
 
         case kPdiAsyncTrfTypeLclBuffering:
+        case kPdiAsyncTrfTypeUserBuffering:
         {
             //TODO: Multiple access to this function have to be restricted to 2 (for each channel and lcl buffering) (+ memory space restriction and multiple message activation)
             if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
@@ -1824,11 +1863,28 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 goto exit;
             }
 
-            pMsgDescr->MsgHdl_m.pLclBuf_m = MALLOC(MAX_ASYNC_STREAM_LENGTH);
-            if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL)
+            if (pMsgDescr->TransfType_m == kPdiAsyncTrfTypeLclBuffering)
             {
-                Ret = kPdiAsyncStatusNoResource;
-                goto exit;
+                // allocate buffer
+                pMsgDescr->MsgHdl_m.pLclBuf_m = MALLOC(MAX_ASYNC_STREAM_LENGTH);
+                if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL)
+                {
+                    Ret = kPdiAsyncStatusNoResource;
+                    goto exit;
+                }
+                dwMaxBufSize = MAX_ASYNC_STREAM_LENGTH;
+            }
+            else // kPdiAsyncTrfTypeUserBuffering
+            {
+                // assign user buffer - needs to be valid until "pfnTransferFinished_m" is called
+                if ((pUserBuffer_p == NULL) || (dwUserBufSize_p == 0))
+                {
+                    Ret = kPdiAsyncStatusNoResource;
+                    goto exit;
+                }
+
+                pMsgDescr->MsgHdl_m.pLclBuf_m = pUserBuffer_p;
+                dwMaxBufSize = dwUserBufSize_p;
             }
 
             /* invoke call back function to fill the local buffer */
@@ -1838,20 +1894,23 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 // call back function has to update the actual used buffer size to 'dwMsgSize_m'
                 // and check if Tx buffer storage is sufficient in advance.
                 Ret = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr, (BYTE*) pMsgDescr->MsgHdl_m.pLclBuf_m,
-                                                        NULL , MAX_ASYNC_STREAM_LENGTH);
+                                                        NULL , dwMaxBufSize);
                 // pRespMsgBuffer_p is not assigned (NULL) because the Rx handle can only be triggered
                 // by the state machine. (Tx handle can be triggered by this function and the state machine)
                 if (Ret != kPdiAsyncStatusSuccessful)
                 {
                     if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
                     {
-                        FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                        if (pMsgDescr->TransfType_m == kPdiAsyncTrfTypeLclBuffering)
+                        {
+                            FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                        }
                         pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     }
                     goto exit;
                 }
 
-                if (pMsgDescr->dwMsgSize_m > MAX_ASYNC_STREAM_LENGTH)
+                if (pMsgDescr->dwMsgSize_m > dwMaxBufSize)
                 {
                     Ret = kPdiAsyncStatusDataTooLong; // to much data written to buffer!
                     goto exit;

@@ -2737,7 +2737,9 @@ BYTE*           pbPayload;
             PdiRet = CnApiAsync_postMsg(
                             kPdiAsyncMsgIntObjAccReq,
                             (BYTE *) &PdiObjAccCon,
-                            0,
+                            NULL,
+                            NULL,
+                            NULL,
                             0);
 
             if (PdiRet == kPdiAsyncStatusRetry)
@@ -3077,7 +3079,9 @@ unsigned int    uiSizeOfFrame;
             PdiRet = CnApiAsync_postMsg(
                             kPdiAsyncMsgIntObjAccReq,
                             (BYTE *) &PdiObjAccCon,
-                            0,
+                            NULL,
+                            NULL,
+                            NULL,
                             0);
 
             if (PdiRet == kPdiAsyncStatusRetry)

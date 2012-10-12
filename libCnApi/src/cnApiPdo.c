@@ -711,7 +711,12 @@ tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p, DWORD dwErrorCo
     LinkPdosResp_l.m_bOrigin = bOrigin_p;
 
     /* send LinkPdosResp message to PCP */
-    Ret = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosResp, 0,0,0);
+    Ret = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosResp,
+                                NULL,
+                                NULL,
+                                NULL,
+                                NULL,
+                                0);
 
     return Ret;
 }

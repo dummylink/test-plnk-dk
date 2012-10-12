@@ -51,7 +51,9 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 tPdiAsyncMsgType MsgType_p,
                 BYTE * pUserHandle_p,
                 tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
-                tPdiAsyncCbTransferFinished pfnCbRespMsg_p);
+                tPdiAsyncCbTransferFinished pfnCbRespMsg_p,
+                BYTE * pUserBuffer_p,
+                DWORD dwUserBufSize_p);
 
 tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
                                 const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p, tPdiAsyncMsgType RespMsgType_p,

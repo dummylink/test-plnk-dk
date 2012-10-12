@@ -51,10 +51,12 @@ tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir D
 void CnApiAsync_resetMsgLogCounter(void);
 
 tPdiAsyncStatus CnApiAsync_postMsg(
-                       tPdiAsyncMsgType MsgType_p,
-                       BYTE * pUserHandle_p,
-                       tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
-                       tPdiAsyncCbTransferFinished pfnCbRespMsg_p);
+                        tPdiAsyncMsgType MsgType_p,
+                        BYTE * pUserHandle_p,
+                        tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
+                        tPdiAsyncCbTransferFinished pfnCbRespMsg_p,
+                        BYTE * pUserBuffer_p,
+                        DWORD dwUserBufSize_p);
 
 void CnApi_activateAsyncStateMachine(void);
 void CnApi_resetAsyncStateMachine(void);

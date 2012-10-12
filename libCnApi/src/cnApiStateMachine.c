@@ -103,7 +103,9 @@ FUNC_ENTRYACT(kApStateReadyToInit)
     AsyncRet = CnApiAsync_postMsg(kPdiAsyncMsgIntInitPcpReq,
                                   NULL,
                                   NULL,
-                                  CnApi_pfnCbInitPcpRespFinished);
+                                  CnApi_pfnCbInitPcpRespFinished,
+                                  NULL,
+                                  0);
 
     if (AsyncRet != kPdiAsyncStatusSuccessful)
     {
