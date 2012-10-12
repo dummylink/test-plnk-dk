@@ -27,6 +27,7 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* defines */
 #define MAX_ASYNC_TIMEOUT   500     ///< timeout counter for asynchronous transfers
+#define ASYNC_PDI_CHANNELS  PCP_PDI_ASYNC_BUF_MAX  ///< from cnApiCfg.h
 
 
 /******************************************************************************/

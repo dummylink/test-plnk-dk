@@ -25,6 +25,11 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* defines */
+#define USLEEP(x)                   CNAPI_USLEEP(x)
+#define MALLOC(siz)                 CNAPI_MALLOC(siz)
+#define FREE(ptr)                   CNAPI_FREE(ptr)
+#define MEMSET(ptr, bVal, bCnt)     CNAPI_MEMSET(ptr, bVal, bCnt)
+#define MEMCPY(dst,src,siz)         memcpy(dst,src,siz)
 
 /******************************************************************************/
 /* typedefs */

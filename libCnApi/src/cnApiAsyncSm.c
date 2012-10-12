@@ -49,14 +49,14 @@ subject to the License Agreement located at the end of this file below.
 // This state names must have the same order as the related constants
 // in tAsyncState! The two leading "INITIAL" and "FINAL" states are mandatory!
 char * strAsyncStateNames_l[] = { "INITIAL", "FINAL", "ASYNC_WAIT",
-                             "ASYNC_TX_BUSY", "ASYNC_TX_PENDING",
-                             "ASYNC_RX_BUSY", "ASYNC_RX_PENDING",
-                             "ASYNC_STOPPED"};
+                                  "ASYNC_TX_BUSY", "ASYNC_TX_PENDING",
+                                  "ASYNC_RX_BUSY", "ASYNC_RX_PENDING",
+                                  "ASYNC_STOPPED"};
 /* state machine */
 static tStateMachine        PdiAsyncStateMachine_l;
 static tState               aPdiAsyncStates_l[kPdiNumAsyncStates];
 static tTransition          aPdiAsyncTransitions_l[MAX_TRANSITIONS_PER_STATE * kPdiNumAsyncStates];
-static BOOL                 fSmProcessingAllowed_l = TRUE;    ///< flag to block state machine processing
+static BOOL                 fSmProcessingAllowed_l = TRUE;  ///< flag to block state machine processing
 static BOOL                 fError = FALSE;                 ///< transition event
 static BOOL                 fTimeout = FALSE;               ///< transition event
 static BOOL                 fReset = FALSE;                 ///< transition event
@@ -296,7 +296,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
         }
         else // no interrupted message -> check if external Rx message is available */
         {
-            for (bCnt = 0; bCnt < PCP_PDI_ASYNC_BUF_MAX; ++bCnt)
+            for (bCnt = 0; bCnt < ASYNC_PDI_CHANNELS; ++bCnt)
             {
 #ifdef CN_API_USING_SPI
                 /* read PDI buffer header to local copy */
@@ -315,7 +315,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
     }
 
     /* check if internal Rx message is available */
-    for (bCnt = 0; bCnt < PCP_PDI_ASYNC_BUF_MAX; ++bCnt)
+    for (bCnt = 0; bCnt < ASYNC_PDI_CHANNELS; ++bCnt)
     {
 
 #ifdef CN_API_USING_SPI
@@ -518,7 +518,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
             /* write asynchronous message payload to PDI buffer */
-            CNAPI_MEMCPY((BYTE *)&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
+            MEMCPY((BYTE *)&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
 
 #ifdef CN_API_USING_SPI
             /* write asynchronous message payload to PDI buffer */
@@ -707,7 +707,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                             fError = TRUE;
                             goto exit;
                         }
-                        CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+                        FREE(pLclAsyncTxMsgBuffer_l);
                         pLclAsyncTxMsgBuffer_l = NULL;
                         aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                     }
@@ -757,7 +757,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                     {
                         if (pLclAsyncRxMsgBuffer_l != NULL)
                         {
-                            CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+                            FREE(pLclAsyncRxMsgBuffer_l);
                             pLclAsyncRxMsgBuffer_l = NULL;
                             aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                         }
@@ -897,7 +897,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
 
             /* allocate data block for Rx message payload */
-            pLclAsyncRxMsgBuffer_l = (BYTE *) CNAPI_MALLOC(dwStreamLength);
+            pLclAsyncRxMsgBuffer_l = (BYTE *) MALLOC(dwStreamLength);
 
             if (pLclAsyncRxMsgBuffer_l == NULL)
             {
@@ -957,7 +957,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                         (BYTE*) pCurLclMsgFrgmt);
 #else
             /* copy local buffer fragment into the PDI buffer */
-            CNAPI_MEMCPY(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
+            MEMCPY(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
 #endif /* CN_API_USING_SPI */
 
 
@@ -1123,7 +1123,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                 {
                     if (pLclAsyncRxMsgBuffer_l != NULL)
                     {
-                        CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+                        FREE(pLclAsyncRxMsgBuffer_l);
                         pLclAsyncRxMsgBuffer_l = NULL;
                         pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     }
@@ -1365,7 +1365,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
         {
-            CNAPI_FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
+            FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
             aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         }
@@ -1411,7 +1411,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
         {
-            CNAPI_FREE(aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m);
+            FREE(aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m);
             aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
         }
@@ -1422,14 +1422,14 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     /* free buffers */
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
-        CNAPI_FREE(pLclAsyncTxMsgBuffer_l);
+        FREE(pLclAsyncTxMsgBuffer_l);
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         pLclAsyncTxMsgBuffer_l = NULL;
     }
 
     if (pLclAsyncRxMsgBuffer_l != NULL)
     {
-        CNAPI_FREE(pLclAsyncRxMsgBuffer_l);
+        FREE(pLclAsyncRxMsgBuffer_l);
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
         pLclAsyncRxMsgBuffer_l = NULL;
     }
@@ -1598,7 +1598,7 @@ tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir D
     pMsgDescr->pPdiBuffer_m = (tPcpPdiAsyncMsgBufDescr *) pPdiBuffer_p;
     pMsgDescr->TransfType_m = TransferType_p;
     pMsgDescr->Param_m.ChanType_m = ChanType_p;
-    CNAPI_MEMCPY(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
+    MEMCPY(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
     pMsgDescr->Param_m.wTimeout_m = wTimeout_p;
 
     Ret = kPdiAsyncStatusSuccessful;
@@ -1784,7 +1784,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 goto exit;
             }
 
-            pMsgDescr->MsgHdl_m.pLclBuf_m = CNAPI_MALLOC(MAX_ASYNC_STREAM_LENGTH);
+            pMsgDescr->MsgHdl_m.pLclBuf_m = MALLOC(MAX_ASYNC_STREAM_LENGTH);
             if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL)
             {
                 Ret = kPdiAsyncStatusNoResource;
@@ -1805,7 +1805,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 {
                     if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
                     {
-                        CNAPI_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                        FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
                         pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     }
                     goto exit;
@@ -2051,12 +2051,12 @@ void CnApi_resetAsyncStateMachine(void)
     bActivRxMsg_l = INVALID_ELEMENT; // indicates inactive message
     pLclAsyncTxMsgBuffer_l = NULL;   // pointer to local Tx message buffer
     pLclAsyncRxMsgBuffer_l = NULL;   // pointer to local Rx message buffer
-    dwTimeoutWait_l = 0;              // timeout counter
+    dwTimeoutWait_l = 0;             // timeout counter
 
     PdiAsyncPendTrfContext_l.fMsgPending_m = FALSE;
 
-    CNAPI_MEMSET( aPdiAsyncRxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_RX_MESSAGES );
-    CNAPI_MEMSET( aPdiAsyncTxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_TX_MESSAGES );
+    MEMSET( aPdiAsyncRxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_RX_MESSAGES );
+    MEMSET( aPdiAsyncTxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_TX_MESSAGES );
 
     /* initialize state machine */
     sm_reset(&PdiAsyncStateMachine_l);

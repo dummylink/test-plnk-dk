@@ -47,11 +47,10 @@ the Tx and Rx direction towards and from the AP is handled.
 
 // This state names must have the same order as the related constants
 // in tAsyncState! The two leading "INITIAL" and "FINAL" states are mandatory!
-char * strAsyncStateNames_l[] = { "INITIAL", "FINAL", "ASYNC_WAIT",   \
-                                   "ASYNC_TX_BUSY", "ASYNC_TX_PENDING", \
-                                   "ASYNC_RX_BUSY", "ASYNC_RX_PENDING", \
-                                   "ASYNC_STOPPED"};
-
+char * strAsyncStateNames_l[] = { "INITIAL", "FINAL", "ASYNC_WAIT",
+                                  "ASYNC_TX_BUSY", "ASYNC_TX_PENDING",
+                                  "ASYNC_RX_BUSY", "ASYNC_RX_PENDING",
+                                  "ASYNC_STOPPED"};
 /* state machine */
 static tStateMachine        PdiAsyncStateMachine_l;
 static tState               aPdiAsyncStates_l[kPdiNumAsyncStates];
@@ -95,7 +94,7 @@ static BYTE                     bLinkLogCounter_l = 0;    ///< counter of curren
 /******************************************************************************/
 /* function declarations */
 static BOOL checkEvent(BOOL * pfEvent_p);
-static inline void setBuffToReadOnly(tAsyncMsg * pPdiBuffer_p);
+static inline void setBuffToReadOnly(volatile tAsyncMsg * pPdiBuffer_p);
 static inline void confirmFragmentReception(tAsyncMsg * pPdiBuffer_p);
 static inline BOOL checkMsgDelivery(tAsyncMsg * pPdiBuffer_p);
 static inline BOOL checkMsgPresence(tAsyncMsg * pPdiBuffer_p);
@@ -128,9 +127,9 @@ static BOOL checkEvent(BOOL * pfEvent_p)
 /**
  ********************************************************************************
  \brief set the synchronization bit for an asynchronous PDI Tx (lock the buffer)
- \param	pPdiBuffer_p pointer to Pdi Buffer with structure tAsyncMsg
+ \param pPdiBuffer_p pointer to Pdi Buffer with structure tAsyncMsg
  *******************************************************************************/
-static inline void setBuffToReadOnly(tAsyncMsg * pPdiBuffer_p)
+static inline void setBuffToReadOnly(volatile tAsyncMsg * pPdiBuffer_p)
 {
     pPdiBuffer_p->m_header.m_bSync = kMsgBufReadOnly;
 }
@@ -183,14 +182,14 @@ static inline BOOL checkMsgPresence(tAsyncMsg * pPdiBuffer_p)
 
 /**
  ********************************************************************************
- \brief	    returns the element number of the message descriptor array for a
+ \brief     returns the element number of the message descriptor array for a
             certain message type
  \param     MsgType_p           type of message which will be searched
- \param	    paMsgDescr_p		pointer to array of message descriptors
+ \param     paMsgDescr_p        pointer to array of message descriptors
  \param     pbArgElement_p      in: max elements of array;
                                 out: found element number of array or INVALID_ELEMENT
- \retval	kPdiAsyncStatusSuccessful	    if message type found
- \retval	kPdiAsyncStatusFreeInstance		if message type was not found, but free descriptor
+ \retval    kPdiAsyncStatusSuccessful       if message type found
+ \retval    kPdiAsyncStatusFreeInstance     if message type was not found, but free descriptor
  \retval    kPdiAsyncStatusNoFreeInstance   if no free descriptor found
 
 The function will return the found array element number of the specified message type,
@@ -296,7 +295,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
         }
         else // no interrupted message -> check if external Rx message is available */
         {
-            for (bCnt = 0; bCnt < PDI_ASYNC_CHANNELS_MAX; ++bCnt)
+            for (bCnt = 0; bCnt < ASYNC_PDI_CHANNELS; ++bCnt)
             {
                 if (checkMsgPresence(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m))
                 {
@@ -307,9 +306,8 @@ FUNC_DOACT(kPdiAsyncStateWait)
         }
     }
 
-
     /* check if internal Rx message is available */
-    for (bCnt = 0; bCnt < PDI_ASYNC_CHANNELS_MAX; ++bCnt)
+    for (bCnt = 0; bCnt < ASYNC_PDI_CHANNELS; ++bCnt)
     {
         if (checkMsgPresence(aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m) &&
             aPcpPdiAsyncRxMsgBuffer_g[bCnt].pAdr_m->m_header.m_bChannel == kAsyncChannelInternal)
@@ -435,11 +433,11 @@ FUNC_EVT(kPdiAsyncStateWait, kPdiAsyncStateStopped, 1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
 {
-    tAsyncMsg *     pUtilTxPdiBuf = NULL;   ///< Tx Pdi Buffer utilized by message
+    volatile tAsyncMsg *     pUtilTxPdiBuf = NULL;   ///< Tx Pdi Buffer utilized by message
     tPdiAsyncMsgDescr * pMsgDescr = NULL;   ///< pointer to current message descriptor
     WORD          wCopyLength   = 0;        ///< length of data to be copied (for local buffered transfer)
     DWORD         dwMaxBufPayload = 0;      ///< maximum payload for message storage
-    BYTE*         pCurLclMsgFrgmt = 0;      ///< pointer to currently handled local message fragment
+    BYTE *        pCurLclMsgFrgmt = 0;      ///< pointer to currently handled local message fragment
 
     if (bActivTxMsg_l == INVALID_ELEMENT)
     {
@@ -503,10 +501,11 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             pCurLclMsgFrgmt = pMsgDescr->MsgHdl_m.pLclBuf_m +
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
-            /* copy local buffer fragment into the PDI buffer */
-            EPL_MEMCPY(&pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan, pCurLclMsgFrgmt, wCopyLength);
+            /* write asynchronous message payload to PDI buffer */
+            MEMCPY((BYTE *)&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
 
-            AmiSetWordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_wFrgmtLen, wCopyLength); // update  PDI buffer control header
+            /* write fragment length to PDI buffer header */
+            AmiSetWordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_wFrgmtLen, wCopyLength);
 
             break;
         }
@@ -523,7 +522,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
                 // Check within call-back function if expected message size exceeds the PDI buffer!
                 // Also, call-back function has to write the written message size 'dwMsgSize_m' to the Tx descriptor.
                 ErrorHistory_l = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr,
-                                                                   (BYTE *) &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan,
+                                                                   (BYTE *) &pUtilTxPdiBuf->m_chan,
                                                                    (BYTE *) &pMsgDescr->pRespMsgDescr_m->pPdiBuffer_m->pAdr_m->m_chan,
                                                                    dwMaxBufPayload);
                 if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
@@ -541,7 +540,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             }
 
             /* setup the buffer header with the actual written size, which the call-back function has updated */
-            AmiSetWordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_wFrgmtLen, (WORD)pMsgDescr->dwMsgSize_m);  // update  PDI buffer control header
+            AmiSetWordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_wFrgmtLen, pMsgDescr->dwMsgSize_m); // update  PDI buffer control header
 
             break;
         }
@@ -557,6 +556,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
     pUtilTxPdiBuf->m_header.m_bChannel =  pMsgDescr->Param_m.ChanType_m;
     pUtilTxPdiBuf->m_header.m_bMsgType = pMsgDescr->MsgType_m;
     AmiSetDwordToLe((BYTE*)&pUtilTxPdiBuf->m_header.m_dwStreamLen, pMsgDescr->dwMsgSize_m);
+
     setBuffToReadOnly(pUtilTxPdiBuf); // set sync flag
 
     fFrgmtStored = TRUE; // transit to ASYNC_TX_PENDING;
@@ -663,7 +663,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                             fError = TRUE;
                             goto exit;
                         }
-                        EPL_FREE(pLclAsyncTxMsgBuffer_l);
+                        FREE(pLclAsyncTxMsgBuffer_l);
                         pLclAsyncTxMsgBuffer_l = NULL;
                         aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                     }
@@ -713,7 +713,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
                     {
                         if (pLclAsyncRxMsgBuffer_l != NULL)
                         {
-                            EPL_FREE(pLclAsyncRxMsgBuffer_l);
+                            FREE(pLclAsyncRxMsgBuffer_l);
                             pLclAsyncRxMsgBuffer_l = NULL;
                             aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
                         }
@@ -793,7 +793,6 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     DWORD         dwStreamLength;
     WORD          wFragmentLength;
 
-
     if (bActivRxMsg_l == INVALID_ELEMENT)
     {
         ErrorHistory_l = kPdiAsyncStatusIllegalInstance;
@@ -803,11 +802,12 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
 
     /* initialize temporary pointers */
     pMsgDescr = &aPdiAsyncRxMsgs[bActivRxMsg_l];
-    pUtilRxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m;
 
-    dwStreamLength = AmiGetDwordFromLe((BYTE*)&(pUtilRxPdiBuf->m_header.m_dwStreamLen));
+    pUtilRxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m; //assign Pdi Rx buffer which this message wants to use
 
     /* verify message type */
+    dwStreamLength = AmiGetDwordFromLe((BYTE*)&(pUtilRxPdiBuf->m_header.m_dwStreamLen));
+
     if (pUtilRxPdiBuf->m_header.m_bMsgType != pMsgDescr->MsgType_m)
     {
         ErrorHistory_l = kPdiAsyncStatusInvalidMessage;
@@ -820,6 +820,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
     /* initialization for 1st fragment */
     if (pMsgDescr->dwPendTranfSize_m == 0) //indicates 1st fragment
     {
+
         /* choose transfer type according to message size */
         if (dwStreamLength > MAX_ASYNC_STREAM_LENGTH)
         { /* data size exceeded -> reject transfer */
@@ -827,7 +828,10 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             fError = TRUE;
             goto exit;
         }
-        else if (dwStreamLength > pMsgDescr->pPdiBuffer_m->wMaxPayload_m)
+
+        else if (dwStreamLength > pMsgDescr->pPdiBuffer_m->wMaxPayload_m ||
+                 pMsgDescr->TransfType_m == kPdiAsyncTrfTypeLclBuffering) // transfer type already fixed because it is
+                                                                          // required for serial interface
         { /* message fits in local buffer */
             pMsgDescr->TransfType_m = kPdiAsyncTrfTypeLclBuffering;
 
@@ -842,7 +846,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
             }
 
             /* allocate data block for Rx message payload */
-            pLclAsyncRxMsgBuffer_l = (BYTE *) EPL_MALLOC(dwStreamLength);
+            pLclAsyncRxMsgBuffer_l = (BYTE *) MALLOC(dwStreamLength);
 
             if (pLclAsyncRxMsgBuffer_l == NULL)
             {
@@ -896,7 +900,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
             /* copy local buffer fragment into the PDI buffer */
-            EPL_MEMCPY(pCurLclMsgFrgmt, &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan,  wCopyLength);
+            MEMCPY(pCurLclMsgFrgmt, &pUtilRxPdiBuf->m_chan,  wCopyLength);
 
             /* calculate new pending payload */
             pMsgDescr->dwPendTranfSize_m -= wCopyLength;
@@ -924,7 +928,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
 
         case kPdiAsyncTrfTypeDirectAccess:
         {
-            pRxChan = (BYTE *) &pMsgDescr->pPdiBuffer_m->pAdr_m->m_chan;
+            pRxChan = (BYTE *) &pUtilRxPdiBuf->m_chan;
             pMsgDescr->dwPendTranfSize_m = 0;                             // indicate finished transfer
             pMsgDescr->MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted; // tag message payload as complete
             break;
@@ -1060,7 +1064,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                 {
                     if (pLclAsyncRxMsgBuffer_l != NULL)
                     {
-                        EPL_FREE(pLclAsyncRxMsgBuffer_l);
+                        FREE(pLclAsyncRxMsgBuffer_l);
                         pLclAsyncRxMsgBuffer_l = NULL;
                         pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     }
@@ -1106,6 +1110,7 @@ FUNC_EVT(kPdiAsyncRxStateBusy, kPdiAsyncStateWait, 1)
     if (checkEvent(&fMsgTransferFinished))
     {
         confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+
         if (checkEvent(&fDeactivateRxMsg))
         {
             bActivRxMsg_l = INVALID_ELEMENT;
@@ -1123,6 +1128,7 @@ FUNC_EVT(kPdiAsyncRxStateBusy, kPdiAsyncRxStatePending, 1)
     if (checkEvent(&fMsgTransferIncomplete))
     {
         confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+
         return TRUE; // do transition
     }
     else
@@ -1189,7 +1195,7 @@ FUNC_DOACT(kPdiAsyncRxStatePending)
 
     /* check if fragment is present */
     if (checkMsgPresence(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m))
-    {/* fragment is available in Rx buffer */
+    { /* fragment is available in Rx buffer */
 
         if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgType_m !=
             aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bMsgType)
@@ -1293,7 +1299,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
         {
-            EPL_FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
+            FREE(aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m);
             aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         }
@@ -1341,7 +1347,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m != NULL)
         {
-            EPL_FREE(aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m);
+            FREE(aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m);
             aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m = NULL;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
         }
@@ -1352,14 +1358,14 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     /* free buffers */
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
-        EPL_FREE(pLclAsyncTxMsgBuffer_l);
+        FREE(pLclAsyncTxMsgBuffer_l);
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
         pLclAsyncTxMsgBuffer_l = NULL;
     }
 
     if (pLclAsyncRxMsgBuffer_l != NULL)
     {
-        EPL_FREE(pLclAsyncRxMsgBuffer_l);
+        FREE(pLclAsyncRxMsgBuffer_l);
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
         pLclAsyncRxMsgBuffer_l = NULL;
     }
@@ -1403,8 +1409,8 @@ static void stateChange(BYTE current, BYTE target)
 
 /**
  ********************************************************************************
- \brief	initializes an asynchronous PDI message descriptor
- \param	MsgType_p		    type of message
+ \brief initializes an asynchronous PDI message descriptor
+ \param MsgType_p           type of message
  \param pfnCbMsgHdl_p       pointer to message handle call-back function
  \param pPdiBuffer_p        pointer to one-way PDI buffer
  \param pResponseMsgDescr_p optional response message; set to NULL if not used
@@ -1414,7 +1420,7 @@ static void stateChange(BYTE current, BYTE target)
  \param wTimeout_p         AP <-> PCP timeout communication value for this message
                             (0 means wait forever)
 
- \return	tPdiAsyncStatus value
+ \return    tPdiAsyncStatus value
 
 This function initializes the message descriptor for a certain asynchronous
 PDI message. If a response message descriptor will be assigned, the state machine
@@ -1524,7 +1530,7 @@ tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir D
     pMsgDescr->pPdiBuffer_m = (tPcpPdiAsyncMsgBufDescr *) pPdiBuffer_p;
     pMsgDescr->TransfType_m = TransferType_p;
     pMsgDescr->Param_m.ChanType_m = ChanType_p;
-    EPL_MEMCPY(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
+    MEMCPY(&pMsgDescr->Param_m.aNmtList_m, paValidNmtList_p, sizeof(pMsgDescr->Param_m.aNmtList_m));
     pMsgDescr->Param_m.wTimeout_m = wTimeout_p;
 
     Ret = kPdiAsyncStatusSuccessful;
@@ -1624,8 +1630,8 @@ exit:
                         of Rx response message (if assigned) has finished
                         0: no assignment
 
- \retval	kPdiAsyncStatusSuccessful		if message sending has been triggered
- \retval	kPdiAsyncStatusNoResource		if message does not exist or no memory available
+ \retval    kPdiAsyncStatusSuccessful  if message sending has been triggered
+ \retval    kPdiAsyncStatusNoResource  if message does not exist or no memory available
 
  This function activates the message descriptor of a certain message.
  The PdiAsync state machine will recognize the activation and handle the
@@ -1707,7 +1713,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 goto exit;
             }
 
-            pMsgDescr->MsgHdl_m.pLclBuf_m = EPL_MALLOC(MAX_ASYNC_STREAM_LENGTH);
+            pMsgDescr->MsgHdl_m.pLclBuf_m = MALLOC(MAX_ASYNC_STREAM_LENGTH);
             if (pMsgDescr->MsgHdl_m.pLclBuf_m == NULL)
             {
                 Ret = kPdiAsyncStatusNoResource;
@@ -1728,7 +1734,7 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                 {
                     if (pMsgDescr->MsgHdl_m.pLclBuf_m != NULL)
                     {
-                        EPL_FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
+                        FREE(pMsgDescr->MsgHdl_m.pLclBuf_m);
                         pMsgDescr->MsgHdl_m.pLclBuf_m = NULL;
                     }
                     goto exit;
@@ -1761,7 +1767,7 @@ exit:
 
 /**
  ********************************************************************************
- \brief	saves the context of the current message
+ \brief saves the context of the current message
  \return TRUE if successful, FALSE if there is already a message pending
 
  This function saves all global variables temporarily, so current message transfer
@@ -1769,7 +1775,7 @@ exit:
  restored again with CnApiAsync_restoreMsgContext(). In addition, all global
  variables are restored to their default values.
  *******************************************************************************/
-static BOOL CnApiAsync_saveMsgContext(void)
+BOOL CnApiAsync_saveMsgContext(void)
 {
     if (PdiAsyncPendTrfContext_l.fMsgPending_m == FALSE)
     {
@@ -1831,7 +1837,7 @@ static BOOL CnApiAsync_saveMsgContext(void)
  CnApiAsync_saveMsgContext() was executed, so a pending message transfer is
  able to continue after interruption.
  *******************************************************************************/
-static BOOL CnApiAsync_restoreMsgContext(void)
+BOOL CnApiAsync_restoreMsgContext(void)
 {
     if (PdiAsyncStateMachine_l.m_fResetInProgress == TRUE)
     {
@@ -1877,7 +1883,6 @@ static BOOL CnApiAsync_restoreMsgContext(void)
 void CnApiAsync_resetMsgLogCounter(void)
 {
     bLinkLogCounter_l = 0;
-
 }
 
 /**
@@ -1973,8 +1978,8 @@ void CnApi_resetAsyncStateMachine(void)
 
     PdiAsyncPendTrfContext_l.fMsgPending_m = FALSE;
 
-    EPL_MEMSET( aPdiAsyncRxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_RX_MESSAGES );
-    EPL_MEMSET( aPdiAsyncTxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_TX_MESSAGES );
+    MEMSET( aPdiAsyncRxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_RX_MESSAGES );
+    MEMSET( aPdiAsyncTxMsgs, 0x00, sizeof(tPdiAsyncMsgDescr) * MAX_PDI_ASYNC_TX_MESSAGES );
 
     /* initialize state machine */
     sm_reset(&PdiAsyncStateMachine_l);

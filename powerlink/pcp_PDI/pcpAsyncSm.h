@@ -30,6 +30,11 @@
 
 /******************************************************************************/
 /* defines */
+#define USLEEP(x)                   EPL_USLEEP(x)
+#define MALLOC(siz)                 EPL_MALLOC(siz)
+#define FREE(ptr)                   EPL_FREE(ptr)
+#define MEMSET(ptr, bVal, bCnt)     EPL_MEMSET(ptr, bVal, bCnt)
+#define MEMCPY(dst,src,siz)         EPL_MEMCPY(dst,src,siz)
 
 /******************************************************************************/
 /* typedefs */

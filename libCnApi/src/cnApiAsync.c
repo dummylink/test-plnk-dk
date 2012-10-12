@@ -37,8 +37,8 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* external variable declarations */
-tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[PCP_PDI_ASYNC_BUF_MAX];
-tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[PCP_PDI_ASYNC_BUF_MAX];
+tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[ASYNC_PDI_CHANNELS];
+tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[ASYNC_PDI_CHANNELS];
 
 
 /******************************************************************************/
@@ -141,8 +141,8 @@ int CnApiAsync_init(void)
     register WORD wCnt;
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
-    CNAPI_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PCP_PDI_ASYNC_BUF_MAX );
-    CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * PCP_PDI_ASYNC_BUF_MAX );
+    CNAPI_MEMSET( aPcpPdiAsyncTxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * ASYNC_PDI_CHANNELS );
+    CNAPI_MEMSET( aPcpPdiAsyncRxMsgBuffer_g, 0x00, sizeof(tPcpPdiAsyncMsgBufDescr) * ASYNC_PDI_CHANNELS );
 
 #ifdef CN_API_USING_SPI
     aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = &LclCpyAsyncMsgHeader_l[0];
@@ -166,7 +166,7 @@ int CnApiAsync_init(void)
     aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
     aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
 
-    for (wCnt = 0; wCnt < PCP_PDI_ASYNC_BUF_MAX; ++wCnt)
+    for (wCnt = 0; wCnt < ASYNC_PDI_CHANNELS; ++wCnt)
     {
         if ((aPcpPdiAsyncTxMsgBuffer_g[wCnt].pAdr_m == NULL)                                        ||
             (aPcpPdiAsyncTxMsgBuffer_g[wCnt].wMaxPayload_m + sizeof(tAsyncPdiBufCtrlHeader) == 0)   ||
