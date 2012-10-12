@@ -18,7 +18,6 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiCfg.h"
 #include "cnApiTyp.h"
 
 /******************************************************************************/
