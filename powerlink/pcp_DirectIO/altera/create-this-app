@@ -5,12 +5,8 @@
 ###############################################################################
 
 ###############################################################################
-# USER SETTINGS: Select here the debug level and general settings  	  		  #
+# USER SETTINGS: Select here the debug level and general settings
 
-DBG_MODE=_DEBUG	# compile printfs()
-# DBG_MODE=NDEBUG # This define overwrites all others printf-debug defines
-				# -> no printfs() will be compiled!
-                                                                              #
 ###############################################################################
 
 ###############################################################################
@@ -87,9 +83,8 @@ ${PCP_TARGET_DIR}/altera_nios/include \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
-${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
 ${OBJDICTDIR} \
-${LIBAPIDIR}/include \
+${LIBAPIDIR}/include/public \
 ${LIBAPIDIR}/utils"
 
 ###############################################################################

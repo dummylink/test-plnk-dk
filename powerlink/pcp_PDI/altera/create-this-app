@@ -5,13 +5,8 @@
 ###############################################################################
 
 ###############################################################################
-# USER SETTINGS: Select here the debug level and general CN API settings  	  #
+# USER SETTINGS: Select here the debug level and general CN API settings
 
-CN_API_FLAGS= 	# empty
-
-# replace this path to the object dictionary you wish to include
-OBJDICTDIR=$PWD/../../objDicts/PDI
-                                                                              #
 ###############################################################################
 
 ###############################################################################
@@ -23,7 +18,7 @@ PCP_DIR=$PWD/..
 BSP_DIR=$PWD/bsp
 
 # replace this path to the object dictionary you wish to include
-OBJDICTDIR=$PWD/../../objDicts/Direct_IO
+OBJDICTDIR=$PWD/../../objDicts/PDI
 
 ###############################################################################
 INPUT_VARS=$@
@@ -87,7 +82,6 @@ ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
-${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/include \
 ${OBJDICTDIR} \
 ${LIBAPIDIR}/include/public \
 ${LIBAPIDIR}/utils"
