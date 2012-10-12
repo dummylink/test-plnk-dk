@@ -38,7 +38,7 @@ then
 fi
 
 # first clean the project directories (can be dangerous)
-#git clean -f -X -d $PCP_PDI_DIR $PCP_DIRECTIO_DIR $AP_PDI_DIR
+#git clean -xdf $PCP_PDI_DIR $PCP_DIRECTIO_DIR $AP_PDI_DIR
 
 # do checkout for desired platform
 echo "INFO: (post-checkout) Prepare repository for $PLATFORM platform!"
@@ -49,7 +49,7 @@ then
 	echo "HOOK ERROR: (post-checkout) Unable to copy files for $PCP_PDI_DIR! Exiting..."
 	exit 1
 fi
-cp -rf $PCP_PDI_DIR/$PLATFORM/.??* $PCP_PDI_DIR/    # exist status is ignored for this copy
+cp -rf $PCP_DIRECTIO_DIR/$PLATFORM/.??* $PCP_DIRECTIO_DIR/    # exist status is ignored for this copy
 cp -rf $PCP_DIRECTIO_DIR/$PLATFORM/* $PCP_DIRECTIO_DIR/
 if [ $? -ne 0 ]
 then
@@ -57,7 +57,7 @@ then
 	exit 1
 fi
 
-cp -rf $PCP_PDI_DIR/$PLATFORM/.??* $PCP_PDI_DIR/    # exist status is ignored for this copy
+cp -rf $AP_PDI_DIR/$PLATFORM/.??* $AP_PDI_DIR/    # exist status is ignored for this copy
 cp -rf $AP_PDI_DIR/$PLATFORM/* $AP_PDI_DIR/
 if [ $? -ne 0 ]
 then
@@ -68,8 +68,6 @@ fi
 if [ $PLATFORM == "xilinx" ]
 then
 	cp -rf $LIBCNAPI_DIR/target/microblaze_newlib/.??* $LIBCNAPI_DIR/
-else
-	cp -rf $LIBCNAPI_DIR/target/nios2_newlib/.??* $LIBCNAPI_DIR/
 fi
 
 
