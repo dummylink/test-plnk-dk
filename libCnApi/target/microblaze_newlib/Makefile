@@ -37,6 +37,7 @@ LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 ##################################
 # Include directory
 INCLUDES=-I${APP_DIR}\
+-I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${CN_API_DIR}/include \

@@ -100,10 +100,10 @@
 // do not use kernel part event queue (high priority), so make direct calls for kernel part events
 #define EPL_EVENT_USE_KERNEL_QUEUE      FALSE
 
-#ifndef BENCHMARK_MODULES
-//#define BENCHMARK_MODULES       0 //0xEE800042L
-#define BENCHMARK_MODULES       0xEE800043L
-#endif
+//#ifndef BENCHMARK_MODULES
+////#define BENCHMARK_MODULES       0 //0xEE800042L
+//#define BENCHMARK_MODULES       0xEE800043L
+//#endif
 
 // Default defug level:
 // Only debug traces of these modules will be compiled which flags are set in define DEF_DEBUG_LVL.
