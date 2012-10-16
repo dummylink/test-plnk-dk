@@ -22,6 +22,7 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiCfg.h"
 #include "cnApiGlobal.h"
 #include "cnApiDebug.h"
+#include "cnApiBenchmark.h"
 
 #include "cnApiEvent.h"     ///< public defines for the event module
 #include "cnApiObd.h"

@@ -588,10 +588,14 @@ static void syncIntHandler(void* pArg_p, void* dwInt_p)
 static void syncIntHandler(void* pArg_p)
 #endif
 {
+    BENCHMARK_MOD_01_SET(0);
+
     /* Call CN API check PDO function! (transfer PDO's and call sync callback) */
     CnApi_processPdo();
 
     CnApi_ackSyncIrq();                // acknowledge IR from PCP
+
+    BENCHMARK_MOD_01_RESET(0);
 }
 #endif /* USE_POLLING_MODE_SYNC */
 
@@ -613,8 +617,11 @@ static void asyncIntHandler(void* pArg_p, void* dwInt_p)
 static void asyncIntHandler(void* pArg_p)
 #endif
 {
+	BENCHMARK_MOD_01_SET(1);
+
     CnApi_checkAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
 
+	BENCHMARK_MOD_01_RESET(1);
 }
 #endif /* USE_POLLING_MODE_ASYNC */
 
@@ -676,6 +683,8 @@ of the system
 static void enableGlobalInterrupts(void)
 {
     SysComp_enableInterrupts();
+
+	BENCHMARK_MOD_02_RESET(2);
 }
 
 /**
@@ -688,6 +697,8 @@ of the system
 static void disableGlobalInterrupts(void)
 {
     SysComp_disableInterrupts();
+
+	BENCHMARK_MOD_02_SET(2);
 }
 #endif /* CN_API_USING_SPI */
 
@@ -853,7 +864,7 @@ static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
         pObdParam_p->m_SegmentSize = sizeof(dwExampleData_l);
 
         // if an error occured (e.g. object does not exist):
-        //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+        //pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
 
     }
     else
@@ -862,7 +873,7 @@ static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
         // write to some variable
 
         // nothing else to do except optional error handling
-        //pAllocObdParam_l->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+        //pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
     }
 
     CnApi_DefObdAccFinished(pObdParam_p);
