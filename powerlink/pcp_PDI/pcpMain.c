@@ -38,6 +38,8 @@
 #include "Epl.h"
 #include "EplPdou.h"
 #include "EplSdoComu.h"
+#include "EplNmt.h"
+#include "user/EplNmtu.h"
 
 #include "EplSdo.h"
 #include "EplAmi.h"
@@ -56,7 +58,6 @@
 //---------------------------------------------------------------------------
 volatile tPcpCtrlReg *         pCtrlReg_g;    ///< ptr. to PCP control register
 tPcpInitParm       initParm_g = {{0}};        ///< Powerlink initialization parameter
-BOOL               fPLisInitalized_g = FALSE; ///< Powerlink initialization after boot-up flag
 BOOL               fIsUserImage_g;            ///< if set user image is booted
 UINT32             uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 BOOL               fOperational = FALSE;
@@ -152,6 +153,11 @@ static void rebootCN(void);
 static WORD getPcpState(void);
 
 static void processPowerlink(void);
+static tEplKernel initPowerlink(tPcpInitParm *pInitParm_p);
+static int startPowerlink(void);
+static void switchoffPowerlink(void);
+static void enterPreOpPowerlink(void);
+static void enterReadyToOperatePowerlink(void);
 
 
 
@@ -342,8 +348,13 @@ void rebootCN(void)
 /**
 ********************************************************************************
 \brief    initialize openPOWERLINK stack
+
+\param    pInitParm_p           init structure from the AP
+
+\return   tEplKernel
+\retval   kEplSuccessful        on success
 *******************************************************************************/
-int initPowerlink(tPcpInitParm *pInitParm_p)
+static tEplKernel initPowerlink(tPcpInitParm *pInitParm_p)
 {
     DWORD                       ip = IP_ADDR;      // ip address
     static tEplApiInitParam     EplApiInitParam;   // epl init parameter
@@ -446,15 +457,11 @@ int initPowerlink(tPcpInitParm *pInitParm_p)
     initFirmwareUpdate(pInitParm_p->m_dwProductCode, pInitParm_p->m_dwRevision);
 
     /* initialize POWERLINK stack */
-    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK stack API...\n");
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "init POWERLINK stack API...\n");
     EplRet = EplApiInitialize(&EplApiInitParam);
     if(EplRet != kEplSuccessful)
     {
         goto Exit;
-    }
-    else
-    {
-        fPLisInitalized_g = TRUE;
     }
 
     // link object variables used by CN to object dictionary (if needed)
@@ -477,22 +484,26 @@ Exit:
 /**
 ********************************************************************************
 \brief    start the POWERLINK stack
+
+\return   int
+\retval   OK         on success
+\retval   ERROR      when start of powerlink failed
 *******************************************************************************/
-int startPowerlink(void)
+static int startPowerlink(void)
 {
     tEplKernel                 EplRet;
 
     // start the POWERLINK stack
-    DEBUG_TRACE0(DEBUG_LVL_29, "start EPL Stack...\n");
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "start POWERLINK stack...\n");
     EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
     if (EplRet != kEplSuccessful)
     {
-        DEBUG_TRACE0(DEBUG_LVL_29, "start EPL Stack... error\n\n");
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "... error\n\n");
         return ERROR;
     }
     else
     {
-        DEBUG_TRACE0(DEBUG_LVL_29, "start POWERLINK Stack... ok\n\n");
+        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "... ok!\n\n");
         return OK;
     }
 }
@@ -505,17 +516,17 @@ static void processPowerlink(void)
 {
 	SysComp_enableInterrupts();
 
-    while (stateMachineIsRunning())
+    while (Gi_stateMachineIsRunning())
     {
         /* process Powerlink and it API */
         CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
 
-        if (fPLisInitalized_g)
+        if (Gi_getPlkInitStatus())
         {
             EplApiProcess();
         }
 
-        updateStateMachine();
+        Gi_updateStateMachine();
         updateFirmwarePeriodic();               // periodically call firmware update state machine
 
         /* Check if previous event has been confirmed by AP */
@@ -537,6 +548,61 @@ static void processPowerlink(void)
     Gi_shutdown();
 
     return;
+}
+
+/**
+********************************************************************************
+\brief    switch off POWERLINK stack
+*******************************************************************************/
+static void switchoffPowerlink(void)
+{
+    tEplKernel Ret;
+
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "SwitchOff POWERLINK stack... \n");
+    // shutdown and cleanup POWERLINK
+    Ret = EplNmtuNmtEvent(kEplNmtEventSwitchOff);
+    if(Ret != kEplSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "... error!\n\n");
+        //TODO react on error (shutdown?)
+        return;
+    }
+
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "... ok!\n\n");
+    return;
+}
+
+/**
+********************************************************************************
+\brief    POWERLINK enter pre-operational 2
+*******************************************************************************/
+static void enterPreOpPowerlink(void)
+{
+    tEplKernel Ret;
+
+    Ret = EplNmtuNmtEvent(kEplNmtEventEnterPreOperational2); // trigger NMT state change
+    if(Ret != kEplSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Post enter PreOp2 to stack failed!\n");
+        //TODO react on error (shutdown?)
+    }
+}
+
+/**
+********************************************************************************
+\brief    POWERLINK enter ready to operate
+*******************************************************************************/
+static void enterReadyToOperatePowerlink(void)
+{
+    tEplKernel Ret;
+
+    Ret = EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate); // trigger NMT state change
+    if(Ret != kEplSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Post enter ReadyToOperate "
+                "to stack failed!\n");
+        //TODO react on error (shutdown?)
+    }
 }
 
 /**
@@ -588,7 +654,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 {   // NMT state machine was shut down,
                     // because of critical EPL stack error
                     // -> also shut down EplApiProcess() and main()
-                    setPowerlinkEvent(kPowerlinkEventShutdown);
+                    Gi_setPowerlinkEvent(kPowerlinkEventShutdown);
                     EplRet = kEplShutdown;
                     break;
                 }
@@ -600,7 +666,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 }
                 case kEplNmtCsStopped:
                 {
-                    setPowerlinkEvent(kPowerlinkEventEnterPreOp);
+                    Gi_setPowerlinkEvent(kPowerlinkEventEnterPreOp);
 
                     break;
                 }
@@ -608,7 +674,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtCsPreOperational2:
                 {
 
-                    setPowerlinkEvent(kPowerlinkEventEnterPreOp);
+                    Gi_setPowerlinkEvent(kPowerlinkEventEnterPreOp);
 
                     EplRet = kEplReject; // prevent automatic change to kEplNmtCsReadyToOperate
                     break;
@@ -627,7 +693,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     if (getPcpState() > kPcpStatePreOp)
                     {
                         // fall back to PCP_PREOP (API-STATE)
-                        setPowerlinkEvent(kPowerlinkEventEnterPreOp);
+                        Gi_setPowerlinkEvent(kPowerlinkEventEnterPreOp);
                     }
                     break;
                 }
@@ -668,7 +734,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                     if (getPcpState() > kPcpStatePreOp)
                     {
                         // fall back to PCP_PREOP (API-STATE)
-                        setPowerlinkEvent(kPowerlinkEventEnterPreOp);
+                        Gi_setPowerlinkEvent(kPowerlinkEventEnterPreOp);
                     }
 
                     break;
@@ -680,7 +746,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 case kEplNmtCsOperational:
                     fOperational = TRUE;
 
-                    setPowerlinkEvent(kPowerlinkEventEnterOperational);
+                    Gi_setPowerlinkEvent(kPowerlinkEventEnterOperational);
 
                     break;
 
@@ -1081,6 +1147,7 @@ static int Gi_init(void)
     int         iRet= OK;
     UINT32      uiApplicationSwDate = 0;
     UINT32      uiApplicationSwTime = 0;
+    tInitStateMachine StateMachineInit;
 
 #ifdef CONFIG_IIB_IS_PRESENT
     tFwRet      FwRetVal = kFwRetSuccessful;
@@ -1112,11 +1179,26 @@ static int Gi_init(void)
     while (getCommandFromAp() != kApCmdReset)
         ;
 
+    // init event fifo queue
+    Gi_pcpEventFifoInit();
+
     // init time sync module
     Gi_initSync();
 
+    // setup state machine init parameters
+    StateMachineInit.m_fpInitPlk = initPowerlink;
+    StateMachineInit.m_fpStartPlk = startPowerlink;
+    StateMachineInit.m_fpShutdownPlk = switchoffPowerlink;
+    StateMachineInit.m_fpRdyToOpPlk = enterReadyToOperatePowerlink;
+    StateMachineInit.m_fpPreOpPlk = enterPreOpPowerlink;
+
     // start PCP API state machine and move to PCP_BOOTED state
-    activateStateMachine();
+    if(Gi_initStateMachine(&StateMachineInit) == FALSE)
+    {
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
+        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initStateMachine() FAILED!\n");
+        goto exit;
+    }
 
     // init asynchronous PCP <-> AP communication
     iRet = CnApiAsync_create();
@@ -1136,9 +1218,6 @@ static int Gi_init(void)
         DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
         goto exit;
     }
-
-    // init event fifo queue
-    Gi_pcpEventFifoInit();
 
 exit:
     return iRet;

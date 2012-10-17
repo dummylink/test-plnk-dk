@@ -32,6 +32,12 @@
 /******************************************************************************/
 /* typedefs */
 
+typedef tEplKernel (* tInitPowerlink) ( tPcpInitParm *pInitParm_p );
+typedef int (* tStartPowerlink) ( void );
+typedef void (* tShutdownPowerlink) ( void );
+typedef void (* tRdyToOpPowerlink) ( void );
+typedef void (* tPreOpPowerlink) ( void );
+
 typedef enum ePowerlinkEvent {
 	kPowerlinkEventNone,
 	kPowerlinkEventEnterPreOp,
@@ -40,6 +46,19 @@ typedef enum ePowerlinkEvent {
 	kPowerlinkEventEnterOperational,
 	kPowerlinkEventShutdown
 } tPowerlinkEvent;
+
+/**
+ * init structure for the PCP state machine module
+ */
+typedef struct sInitStateMachine {
+    tInitPowerlink     m_fpInitPlk;
+    tStartPowerlink    m_fpStartPlk;
+    tShutdownPowerlink m_fpShutdownPlk;
+    tRdyToOpPowerlink  m_fpRdyToOpPlk;
+    tPreOpPowerlink    m_fpPreOpPlk;
+} tInitStateMachine;
+
+
 
 /******************************************************************************/
 /* external variable declarations */
@@ -55,12 +74,12 @@ typedef enum ePowerlinkEvent {
 
 /******************************************************************************/
 /* functions */
-void initStateMachine(void);
-void activateStateMachine(void);
-void resetStateMachine(void);
-BOOL updateStateMachine(void);
-BOOL stateMachineIsRunning(void);
-void setPowerlinkEvent(tPowerlinkEvent event_p);
+BOOL Gi_initStateMachine( tInitStateMachine *InitParams_p);
+void Gi_resetStateMachine(void);
+BOOL Gi_updateStateMachine(void);
+BOOL Gi_stateMachineIsRunning(void);
+void Gi_setPowerlinkEvent(tPowerlinkEvent event_p);
+BOOL Gi_getPlkInitStatus(void);
 
 #endif /* PCPSTATEMACHINE_H_ */
 /* END-OF-FILE */

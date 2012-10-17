@@ -22,8 +22,6 @@ POWERLINK CN generic interface.
 #include "stateMachine.h"
 
 #include "Epl.h"
-#include "EplNmt.h"
-#include "user/EplNmtu.h"
 
 
 /******************************************************************************/
@@ -43,8 +41,17 @@ static tTransition 			aPcpTransitions_l[MAX_TRANSITIONS_PER_STATE * kNumPcpState
 static BOOL					fEvent = FALSE;
 static tPowerlinkEvent		powerlinkEvent;
 
+static tInitPowerlink       fpInitPlk_l = NULL;
+static tStartPowerlink      fpStartPlk_l = NULL;
+static tShutdownPowerlink   fpShutdownPlk_l = NULL;
+static tRdyToOpPowerlink    fpRdyToOpPlk_l = NULL;
+static tPreOpPowerlink      fpPreOpPlk_l = NULL;
 
-char	*strPcpStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "INIT", "PREOP", "READY_TO_OPERATE", "OPERATIONAL"};
+static BOOL                 fPLisInitalized_l; ///< Powerlink initialization after boot-up flag
+
+
+static char                 *strPcpStateNames_l[] = { "INITIAL", "FINAL",
+        "BOOTED", "INIT", "PREOP", "READY_TO_OPERATE", "OPERATIONAL"};
 
 
 /******************************************************************************/
@@ -132,11 +139,11 @@ FUNC_ENTRYACT(kPcpStateBooted)
     Gi_controlLED(kCnApiLedInit, TRUE);    ///< set all LEDs at bootup
     Gi_controlLED(kCnApiLedInit, FALSE);    ///< reset all LEDs at bootup
 
-	///< if this is not the first boot: shutdown POWERLINK first
-	if(fPLisInitalized_g == TRUE)
-	{
-		EplNmtuNmtEvent(kEplNmtEventSwitchOff); // shutdown and cleanup POWERLINK
-	}
+    ///< if this is not the first boot: shutdown POWERLINK first
+    if(fPLisInitalized_l == TRUE)
+    {   //call shutdown powerlink callback
+        fpShutdownPlk_l();
+    }
 
 	storePcpState(kPcpStateBooted);
 	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateBooted);
@@ -164,19 +171,20 @@ FUNC_EVT(kPcpStateBooted,kPcpStateInit,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateInit)
 {
-    int iStatus = kEplSuccessful;
+    tEplKernel iStatus = kEplSuccessful;
 
-    DEBUG_TRACE0(DEBUG_LVL_28, "init POWERLINK Stack...\n");
-    if(fPLisInitalized_g == FALSE) // POWERLINK is not initialized yet
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "init POWERLINK stack...\n");
+    if(fPLisInitalized_l == FALSE) // POWERLINK is not initialized yet
     {
-        iStatus = initPowerlink(&initParm_g);
+        iStatus = fpInitPlk_l(&initParm_g);
         if (iStatus == kEplSuccessful)
         {
-            DEBUG_TRACE0(DEBUG_LVL_28, "...ok!\n\n");
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "...ok!\n\n");
+            fPLisInitalized_l = TRUE;
         }
         else
         {
-            DEBUG_TRACE1(DEBUG_LVL_28, "... error! Ret: 0x%X\n\n", iStatus);
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "... error! Ret: 0x%X\n\n", iStatus);
             // TODO: Do error handling. Introduce "STOPPED" or "ERROR" state.
             return;
         }
@@ -185,7 +193,7 @@ FUNC_ENTRYACT(kPcpStateInit)
     {
         // powerlink should not be initialized again, because this
         // would disable the hub functionality for some time!
-        DEBUG_TRACE0(DEBUG_LVL_28, "... skipped (already initialized)!\n\n");
+        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "... skipped (already initialized)!\n\n");
 
         // simply proceed as usual, because this happens at reset
     }
@@ -201,8 +209,8 @@ FUNC_DOACT(kPcpStateInit)
     if (checkApCommand(kApCmdPreop))
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: get ApCmdPreop\n");
-        iStatus = startPowerlink();
-        if (iStatus == kEplSuccessful)
+        iStatus = fpStartPlk_l();
+        if (iStatus == OK)
         {
             fEvent = TRUE;
         }
@@ -295,7 +303,12 @@ FUNC_EVT(kPcpStatePreOp,kPcpStateBooted,1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPcpStateReadyToOperate)
 {
-    EplNmtuNmtEvent(kEplNmtEventEnterReadyToOperate); // trigger NMT state change
+    //call ready to operate callback
+    if(fpRdyToOpPlk_l != NULL)
+    {
+        fpRdyToOpPlk_l();
+    }
+
 	storePcpState(kPcpStateReadyToOperate);
 	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateReadyToOperate);
 }
@@ -348,7 +361,10 @@ FUNC_DOACT(kPcpStateOperational)
     if(checkApCommand(kApCmdPreop))
     {
         // fall back to PreOp state
-        EplNmtuNmtEvent(kEplNmtEventEnterPreOperational2);
+        if(fpPreOpPlk_l != NULL)
+        {   // call enter pre operationl callback
+            fpPreOpPlk_l();
+        }
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -403,16 +419,37 @@ static void stateChange(BYTE current, BYTE target)
 ********************************************************************************
 \brief	initialize state machine
 
-detailed_function_description
+initialize the powerlink PCP state machine. Register all states and transissions,
+do a reset of the state machine and register all needed callbacks.
 
-\param		parameter			parameter_description
+\param      InitParams_p     Init structure of the state machine module with
+                             all callbacks set
 
-\return		return
-\retval		return_value			return_value_description
+\return     BOOL
+\retval     FALSE            when init failed
+\retval     TRUE             on success
 *******************************************************************************/
-void initStateMachine(void)
+BOOL Gi_initStateMachine( tInitStateMachine *InitParams_p)
 {
 	DEBUG_FUNC;
+
+    if( InitParams_p->m_fpInitPlk != NULL &&
+            InitParams_p->m_fpStartPlk != NULL &&
+            InitParams_p->m_fpShutdownPlk != NULL &&
+            InitParams_p->m_fpRdyToOpPlk != NULL &&
+            InitParams_p->m_fpPreOpPlk != NULL )
+    {
+        // make powerlink callbacks local
+        fpInitPlk_l = InitParams_p->m_fpInitPlk;
+        fpStartPlk_l = InitParams_p->m_fpStartPlk;
+        fpShutdownPlk_l = InitParams_p->m_fpShutdownPlk;
+        fpRdyToOpPlk_l = InitParams_p->m_fpRdyToOpPlk;
+        fpPreOpPlk_l = InitParams_p->m_fpPreOpPlk;
+    }
+    else
+    {
+        return FALSE;
+    }
 
 	/* initialize state machine */
 	sm_init(&pcpStateMachine_l, aPcpStates_l, kNumPcpStates, aPcpTransitions_l,
@@ -444,24 +481,17 @@ void initStateMachine(void)
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, kPcpStateBooted, 1);
 	SM_ADD_TRANSITION(&pcpStateMachine_l, kPcpStateOperational, STATE_FINAL, 1);
 	SM_ADD_ACTION_110(&pcpStateMachine_l, kPcpStateOperational);
-}
 
-/**
-********************************************************************************
-\brief  start state machine
-*******************************************************************************/
-void activateStateMachine(void)
-{
-    initStateMachine();
+	Gi_resetStateMachine();
 
-    resetStateMachine();
+	return TRUE;
 }
 
 /**
 ********************************************************************************
 \brief  reset state machine
 *******************************************************************************/
-void resetStateMachine(void)
+void Gi_resetStateMachine(void)
 {
 	DEBUG_FUNC;
 
@@ -474,8 +504,12 @@ void resetStateMachine(void)
 /**
 ********************************************************************************
 \brief	update state machine
+
+\return BOOL
+\retval TRUE          when update succeeds
+\retval FALSE         when state machine is in final state
 *******************************************************************************/
-BOOL updateStateMachine(void)
+BOOL Gi_updateStateMachine(void)
 {
 	return sm_update(&pcpStateMachine_l);
 }
@@ -483,8 +517,12 @@ BOOL updateStateMachine(void)
 /**
 ********************************************************************************
 \brief	check if state machine is running
+
+\return BOOL
+\retval TRUE             when state machine is running
+\retval FALSE            when state machine is stopped
 *******************************************************************************/
-BOOL stateMachineIsRunning(void)
+BOOL Gi_stateMachineIsRunning(void)
 {
 	if (sm_getState(&pcpStateMachine_l) != STATE_FINAL)
 		return TRUE;
@@ -495,10 +533,25 @@ BOOL stateMachineIsRunning(void)
 /**
 ********************************************************************************
 \brief	set powerlink event
+
+\param event_p               powerlink event to set
 *******************************************************************************/
-void setPowerlinkEvent(tPowerlinkEvent event_p)
+void Gi_setPowerlinkEvent(tPowerlinkEvent event_p)
 {
 	powerlinkEvent = event_p;
+}
+
+/**
+********************************************************************************
+\brief  get the powerlink initialisation status
+
+\return BOOL
+\return TRUE            POWERLINK is already initialized
+\return FALSE           POWERLINK is not initialized
+*******************************************************************************/
+BOOL Gi_getPlkInitStatus(void)
+{
+    return fPLisInitalized_l;
 }
 
 

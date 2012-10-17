@@ -64,7 +64,6 @@ extern volatile tPcpCtrlReg *     pCtrlReg_g;       ///< ptr. to PCP control reg
 extern tPcpInitParm  initParm_g;        ///< Powerlink initialization parameter
 
 
-extern BOOL            fPLisInitalized_g; ///< Powerlink initialization after boot-up flag
 extern WORD            wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
 
 // Api PDI communication instance
@@ -74,9 +73,6 @@ extern tApiPdiComCon ApiPdiComInstance_g;
 /* function declarations */
 extern BYTE getCommandFromAp(void);
 extern void storePcpState(BYTE bState_p);
-
-extern int initPowerlink(tPcpInitParm *pInitParm_p);
-extern int startPowerlink(void);
 
 
 extern int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
