@@ -105,6 +105,7 @@ static tPdiAsyncStatus getArrayNumOfMsgDescr(tPdiAsyncMsgType MsgType_p,
                                              BYTE * pbArgElement_p            );
 static BOOL CnApiAsync_saveMsgContext(void);
 static BOOL CnApiAsync_restoreMsgContext(void);
+static tPdiAsyncStatus CnApiAsync_prepareTxTransfer(tPdiAsyncMsgDescr* pMsgDescr_p);
 
 /******************************************************************************/
 /* private functions */
@@ -271,9 +272,20 @@ FUNC_DOACT(kPdiAsyncStateWait)
     BYTE         bElement = INVALID_ELEMENT;            // function argument for getArrayNumOfMsgDescr()
 
     /* check if waiting for Rx message is required -> transit to  ASYNC_RX_PENDING*/
-    if ((fRxTriggered == TRUE) || fTxTriggered == TRUE)
+    if (fRxTriggered == TRUE)
     {
-        goto exit; // trigger ASYNC_RX_PENDING or ASYNC_TX_BUSY
+        goto exit; // trigger ASYNC_RX_PENDING
+    }
+    if(fTxTriggered == TRUE)
+    {
+        ErrorHistory_l = CnApiAsync_prepareTxTransfer(&aPdiAsyncTxMsgs[bActivTxMsg_l]);
+        if(ErrorHistory_l != kPdiAsyncStatusSuccessful)
+        {
+            fTxTriggered = FALSE;   // do not start transmission
+            fError = TRUE;          // rather go to error state
+            goto exit;
+        }
+        goto exit; // trigger ASYNC_TX_BUSY
     }
 
     /* search for external messages */
@@ -398,27 +410,11 @@ FUNC_DOACT(kPdiAsyncStateWait)
     }
     else // message activated
     {
-        // if local buffering is used, assign buffer pointer
-        switch (aPdiAsyncTxMsgs[bActivTxMsg_l].TransfType_m)
+        ErrorHistory_l = CnApiAsync_prepareTxTransfer(&aPdiAsyncTxMsgs[bActivTxMsg_l]);
+        if(ErrorHistory_l != kPdiAsyncStatusSuccessful)
         {
-            case kPdiAsyncTrfTypeLclBuffering:
-            case kPdiAsyncTrfTypeUserBuffering:
-            {
-                if (pLclAsyncTxMsgBuffer_l != NULL)
-                {
-                    ErrorHistory_l = kPdiAsyncStatusNoResource;
-                    fError = TRUE;
-                    goto exit;
-                }
-
-                pLclAsyncTxMsgBuffer_l = aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m;
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
+            fError = TRUE;
+            goto exit;
         }
 
         /* transit to ASYNC_TX_BUSY */
@@ -1537,6 +1533,40 @@ static void stateChange(BYTE current, BYTE target)
     targetIdx = target + 2;
 
     DEBUG_TRACE2(DEBUG_LVL_CNAPI_ASYNC_INFO, "\nASYCN STATE: %s->%s\n", strAsyncStateNames_l[currentIdx], strAsyncStateNames_l[targetIdx]);
+}
+
+/**
+********************************************************************************
+\brief  prepare Tx transfer in WAIT state before moving to Tx Busy
+\param  pMsgDescr_p  pointer to message descriptor
+\retval kPdiAsyncStatusSuccessful
+\retval kPdiAsyncStatusNoResource   Tx buffer assignment failed
+*******************************************************************************/
+static tPdiAsyncStatus CnApiAsync_prepareTxTransfer(tPdiAsyncMsgDescr* pMsgDescr_p)
+{
+    tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
+
+    // if local buffering is used, assign buffer pointer
+    switch (pMsgDescr_p->TransfType_m)
+    {
+        case kPdiAsyncTrfTypeLclBuffering:
+        case kPdiAsyncTrfTypeUserBuffering:
+        {
+            if (pLclAsyncTxMsgBuffer_l != NULL)
+            {
+                return kPdiAsyncStatusNoResource;
+            }
+            pLclAsyncTxMsgBuffer_l = pMsgDescr_p->MsgHdl_m.pLclBuf_m;
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
+    }
+
+    return Ret;
 }
 
 /******************************************************************************/
