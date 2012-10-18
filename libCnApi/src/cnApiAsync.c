@@ -401,17 +401,17 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     /* handle Tx Message */
     /* build up InitPcpReq */
     CNAPI_MEMSET(pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    CNAPI_MEMCPY (pInitPcpReq->m_abMac, &pInitPcpParm_g->m_abMac, sizeof(pInitPcpParm_g->m_abMac));
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParm_g->m_dwDeviceType);
+    CNAPI_MEMCPY (pInitPcpReq->m_abMac, &pInitPcpParam_g->m_abMac, sizeof(pInitPcpParam_g->m_abMac));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParam_g->m_dwDeviceType);
 
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParm_g->m_bNodeId);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitPcpParm_g->m_dwRevision);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParm_g->m_dwSerialNum);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParm_g->m_dwVendorId);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitPcpParm_g->m_dwProductCode);
-    CNAPI_MEMCPY(pInitPcpReq->m_strDevName, &pInitPcpParm_g->m_strDevName, sizeof(pInitPcpParm_g->m_strDevName));
-    CNAPI_MEMCPY(pInitPcpReq->m_strHwVersion, &pInitPcpParm_g->m_strHwVersion, sizeof(pInitPcpParm_g->m_strHwVersion));
-    CNAPI_MEMCPY(pInitPcpReq->m_strSwVersion, &pInitPcpParm_g->m_strSwVersion, sizeof(pInitPcpParm_g->m_strSwVersion));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParam_g->m_bNodeId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitPcpParam_g->m_dwRevision);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParam_g->m_dwSerialNum);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParam_g->m_dwVendorId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitPcpParam_g->m_dwProductCode);
+    CNAPI_MEMCPY(pInitPcpReq->m_strDevName, &pInitPcpParam_g->m_strDevName, sizeof(pInitPcpParam_g->m_strDevName));
+    CNAPI_MEMCPY(pInitPcpReq->m_strHwVersion, &pInitPcpParam_g->m_strHwVersion, sizeof(pInitPcpParam_g->m_strHwVersion));
+    CNAPI_MEMCPY(pInitPcpReq->m_strSwVersion, &pInitPcpParam_g->m_strSwVersion, sizeof(pInitPcpParam_g->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 

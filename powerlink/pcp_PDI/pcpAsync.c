@@ -376,7 +376,7 @@ exit:
 static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                              BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
-    tPcpInitParm *      pInitParm = &initParm_g;
+    tPcpInitParam *      pInitParam = &initParam_g;
 	tInitPcpReq *       pInitPcpReq = NULL;        ///< pointer to request message (Rx)
 	tInitPcpResp *      pInitPcpResp = NULL;       ///< pointer to response message (Tx)
 	tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
@@ -417,21 +417,21 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
 
      /* handle Rx Message */
 	/* store data from InitPcpReq */
-    EPL_MEMCPY(pInitParm->m_abMac, pInitPcpReq->m_abMac,
+    EPL_MEMCPY(pInitParam->m_abMac, pInitPcpReq->m_abMac,
                sizeof(pInitPcpReq->m_abMac)             );
 
 
-	pInitParm->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
-	pInitParm->m_bNodeId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwNodeId));
-	pInitParm->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));
-	pInitParm->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
-	pInitParm->m_dwVendorId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwVendorId));
-	pInitParm->m_dwProductCode = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwProductCode));
-	EPL_MEMCPY (pInitParm->m_strDevName, pInitPcpReq->m_strDevName,
+	pInitParam->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
+	pInitParam->m_bNodeId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwNodeId));
+	pInitParam->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));
+	pInitParam->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
+	pInitParam->m_dwVendorId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwVendorId));
+	pInitParam->m_dwProductCode = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwProductCode));
+	EPL_MEMCPY (pInitParam->m_strDevName, pInitPcpReq->m_strDevName,
 	            sizeof(pInitPcpReq->m_strDevName));
-	EPL_MEMCPY (pInitParm->m_strHwVersion, pInitPcpReq->m_strHwVersion,
+	EPL_MEMCPY (pInitParam->m_strHwVersion, pInitPcpReq->m_strHwVersion,
 	            sizeof(pInitPcpReq->m_strHwVersion));
-	EPL_MEMCPY (pInitParm->m_strSwVersion, pInitPcpReq->m_strSwVersion,
+	EPL_MEMCPY (pInitParam->m_strSwVersion, pInitPcpReq->m_strSwVersion,
 	            sizeof(pInitPcpReq->m_strSwVersion));
 
 	/* setup response */

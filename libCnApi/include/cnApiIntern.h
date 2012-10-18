@@ -118,7 +118,7 @@ subject to the License Agreement located at the end of this file below.
 /* global variables */
 extern volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
 extern BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
-extern tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK init parameters
+extern tPcpInitParam *               pInitPcpParam_g;        ///< pointer to POWERLINK init parameters
 
 /******************************************************************************/
 /* function declarations */

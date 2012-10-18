@@ -5,7 +5,7 @@
 \brief      Header file for PCP PDI (CN) event handling
 
 This file provides the public interface for the event handling module in the
-libCnApi libarary.
+libCnApi library.
 
 Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 All rights reserved. All use of this software and documentation is

@@ -32,7 +32,7 @@
 /******************************************************************************/
 /* typedefs */
 
-typedef tEplKernel (* tInitPowerlink) ( tPcpInitParm *pInitParm_p );
+typedef tEplKernel (* tInitPowerlink) ( tPcpInitParam *pInitParam_p );
 typedef int (* tStartPowerlink) ( void );
 typedef void (* tShutdownPowerlink) ( void );
 typedef void (* tRdyToOpPowerlink) ( void );

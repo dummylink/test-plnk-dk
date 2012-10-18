@@ -55,7 +55,7 @@ tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of 
 #endif
 
 BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
-tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK init parameters
+tPcpInitParam *               pInitPcpParam_g;        ///< pointer to POWERLINK init parameters
 
 
 /******************************************************************************/
@@ -74,14 +74,14 @@ tPcpInitParm *               pInitPcpParm_g;        ///< pointer to POWERLINK in
 CnApi_init() is used to initialize the user API library. The function must be
 called by the application in order to use the API.
 
-\param      pInitCnApiParm_p           pointer to the libCnApi initialization structure
-\param      pInitPcpParm_p             pointer to the POWERLINK initialization structure
+\param      pInitCnApiParam_p          pointer to the libCnApi initialization structure
+\param      pInitPcpParam_p             pointer to the POWERLINK initialization structure
 
 \return     tCnApiStatus
 \retval     kCnApiStatusOk             if API was successfully initialized
 \retval     kCnApiStatusError          in case of an init error
 *******************************************************************************/
-tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcpParm_p)
+tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInitPcpParam_p)
 {
     tCnApiStatus    FncRet = kCnApiStatusOk;
     tEplKernel      EplRet = kEplSuccessful;
@@ -95,17 +95,17 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\n\nInitialize CN API functions...");
 
     /* initialize global pointers */
-    pInitPcpParm_g = pInitPcpParm_p;    //< make pInitParm_p global
+    pInitPcpParam_g = pInitPcpParam_p;    //< make pInitParm_p global
 
     /* Control and Status Register is little endian */
 #ifdef CN_API_USING_SPI
     pCtrlReg_g = &PcpCntrlRegMirror;         //< if SPI is used, take local var instead of parameter
 #else
-    pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParm_p->m_pDpram_p;    //< if no SPI is used, take parameter to dpram
+    pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParam_p->m_pDpram_p;    //< if no SPI is used, take parameter to dpram
 #endif // CN_API_USING_SPI
 
     /* make dpram base global */
-    pDpramBase_g = pInitCnApiParm_p->m_pDpram_p;
+    pDpramBase_g = pInitCnApiParam_p->m_pDpram_p;
 
 
 #ifdef CN_API_USING_SPI
@@ -182,7 +182,7 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     }
 
     /* assign callback for all objects which don't exist in local OBD */
-    EplRet = EplObdSetDefaultObdCallback(pInitCnApiParm_p->m_pfnDefaultObdAccess_p);
+    EplRet = EplObdSetDefaultObdCallback(pInitCnApiParam_p->m_pfnDefaultObdAccess_p);
     if (EplRet != kEplSuccessful)
     {
         FncRet = kCnApiStatusError;
@@ -190,7 +190,7 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     }
 
     /* init cnApi async event module */
-    EplRet = CnApi_initAsyncEvent(pInitCnApiParm_p->m_pfnAppCbEvent);
+    EplRet = CnApi_initAsyncEvent(pInitCnApiParam_p->m_pfnAppCbEvent);
     if (EplRet != kEplSuccessful)
     {
         FncRet = kCnApiStatusError;
@@ -210,7 +210,7 @@ tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcp
     }
 
     /* initialize PDO transfer functions */
-    iStatus = CnApi_initPdo(pInitCnApiParm_p->m_pfnAppCbSync);
+    iStatus = CnApi_initPdo(pInitCnApiParam_p->m_pfnAppCbSync);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApi_initPdo() failed!\n");

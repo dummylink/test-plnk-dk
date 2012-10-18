@@ -119,8 +119,8 @@ int main (void)
 {
     tCnApiStatus        status;
 
-    tCnApiInitParm      InitCnApiParm = {0};
-    tPcpInitParm        InitPcpParam = {{0}};
+    tCnApiInitParam      InitCnApiParam = {0};
+    tPcpInitParam        InitPcpParam = {{0}};
 
     SysComp_initPeripheral();
 
@@ -142,18 +142,18 @@ int main (void)
 
 
     /* Set initial libCnApi parameters */
-    InitCnApiParm.m_pDpram_p = (BYTE *)PDI_DPRAM_BASE_AP;
-    InitCnApiParm.m_pfnAppCbSync = CnApi_AppCbSync;
-    InitCnApiParm.m_pfnAppCbEvent = CnApi_AppCbEvent;
-    InitCnApiParm.m_pfnDefaultObdAccess_p = CnApi_CbDefaultObdAccess;
+    InitCnApiParam.m_pDpram_p = (BYTE *)PDI_DPRAM_BASE_AP;
+    InitCnApiParam.m_pfnAppCbSync = CnApi_AppCbSync;
+    InitCnApiParam.m_pfnAppCbEvent = CnApi_AppCbEvent;
+    InitCnApiParam.m_pfnDefaultObdAccess_p = CnApi_CbDefaultObdAccess;
 #ifdef CN_API_USING_SPI
-    InitCnApiParm.m_SpiMasterTxH_p = CnApi_CbSpiMasterTx;
-    InitCnApiParm.m_SpiMasterRxH_p = CnApi_CbSpiMasterRx;
-    InitCnApiParm.m_pfnEnableGlobalIntH_p = enableGlobalInterrupts;
-    InitCnApiParm.m_pfnDisableGlobalIntH_p = disableGlobalInterrupts;
+    InitCnApiParam.m_SpiMasterTxH_p = CnApi_CbSpiMasterTx;
+    InitCnApiParam.m_SpiMasterRxH_p = CnApi_CbSpiMasterRx;
+    InitCnApiParam.m_pfnEnableGlobalIntH_p = enableGlobalInterrupts;
+    InitCnApiParam.m_pfnDisableGlobalIntH_p = disableGlobalInterrupts;
 #endif
 
-    status = CnApi_init(&InitCnApiParm, &InitPcpParam);   // initialize and start the CN API
+    status = CnApi_init(&InitCnApiParam, &InitPcpParam);   // initialize and start the CN API
     if (status > 0)
     {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"\nERROR: CN API library could not be initialized (%d)\n", status);

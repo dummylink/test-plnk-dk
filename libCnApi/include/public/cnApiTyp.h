@@ -133,7 +133,7 @@ typedef struct sPcpInitParm {
     BYTE            m_strDevName[CN_API_INIT_PARAM_STRNG_SIZE];
     BYTE            m_strHwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
     BYTE            m_strSwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
-} tPcpInitParm;
+} tPcpInitParam;
 
 /**
 * \brief PCP control registers

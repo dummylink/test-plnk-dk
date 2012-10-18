@@ -61,7 +61,7 @@ typedef struct sApiPdiComCon {
 /******************************************************************************/
 /* global variables */
 extern volatile tPcpCtrlReg *     pCtrlReg_g;       ///< ptr. to PCP control register
-extern tPcpInitParm  initParm_g;        ///< Powerlink initialization parameter
+extern tPcpInitParam  initParam_g;        ///< Powerlink initialization parameter
 
 
 extern WORD            wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)

@@ -63,14 +63,14 @@ typedef struct sCnApiInitParm {
     void *                  m_pfnEnableGlobalIntH_p;
     void *                  m_pfnDisableGlobalIntH_p;
 #endif //CN_API_USING_SPI
-} tCnApiInitParm;
+} tCnApiInitParam;
 
 /******************************************************************************/
 /* global variables */
 
 /******************************************************************************/
 /* function declarations */
-extern tCnApiStatus CnApi_init(tCnApiInitParm *pInitCnApiParm_p, tPcpInitParm *pInitPcpParm_p);
+extern tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInitPcpParam_p);
 extern void CnApi_exit(void);
 extern WORD CnApi_getNodeId(void);
 
