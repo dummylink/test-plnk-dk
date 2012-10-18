@@ -23,12 +23,6 @@ subject to the License Agreement located at the end of this file below.
 /* includes */
 #include "cnApi.h"
 
-#ifdef __NIOS2__
-#include <unistd.h>
-#elif defined(__MICROBLAZE__)
-#include "xilinx_usleep.h"
-#endif
-
 #include "systemComponents.h"
 
 /******************************************************************************/

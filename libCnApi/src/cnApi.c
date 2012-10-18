@@ -28,12 +28,6 @@ subject to the License Agreement located at the end of this file below.
   #include "cnApiPdiSpiIntern.h"
 #endif
 
-#ifdef __NIOS2__
-#include <unistd.h>    //for usleep()
-#elif defined(__MICROBLAZE__)
-#include "xilinx_usleep.h"
-#endif
-
 #include "EplAmi.h"
 #include "kernel/EplObdk.h"
 
