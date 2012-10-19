@@ -21,12 +21,6 @@ subject to the License Agreement located at the end of this file below.
 
 #include "cnApiAsyncSm.h"
 
-#ifdef CN_API_USING_SPI
-  #include "cnApiPdiSpiIntern.h"
-#endif //CN_API_USING_SPI
-
-#include "EplAmi.h"
-
 
 /******************************************************************************/
 /* defines */
@@ -47,7 +41,6 @@ static void (*pfnAppCbEvent_l)(tCnApiEventType EventType_p,
 
 /******************************************************************************/
 /* function declarations */
-static void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p);
 static tCnApiStatus CnApi_getAsyncIRQEvent(void);
 static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p,
         tPcpPdiEventArg wEventArg_p);
@@ -97,25 +90,11 @@ void CnApi_enableAsyncEventIRQ(void)
 {
     WORD wAsyncIrqControl;
 
-#ifdef CN_API_USING_SPI
-    /* update local PDI register copy */
-    CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
-#endif /* CN_API_USING_SPI */
-
-    wAsyncIrqControl = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
+    wAsyncIrqControl = CnApi_getAsyncIrqControl();
 
     wAsyncIrqControl |= (1 << ASYNC_IRQ_EN);
 
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl, wAsyncIrqControl);
-
-#ifdef CN_API_USING_SPI
-    /* update PCP register */
-    CnApi_Spi_write(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
-#endif /* CN_API_USING_SPI */
+    CnApi_setAsyncIrqControl(wAsyncIrqControl);
 }
 
 /**
@@ -129,49 +108,11 @@ void CnApi_disableAsyncEventIRQ(void)
 {
     WORD wAsyncIrqControl;
 
-#ifdef CN_API_USING_SPI
-    /* update local PDI register copy */
-    CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
-#endif /* CN_API_USING_SPI */
-
-    wAsyncIrqControl = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
+    wAsyncIrqControl = CnApi_getAsyncIrqControl();
 
     wAsyncIrqControl &= ~(1 << ASYNC_IRQ_EN);
 
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl, wAsyncIrqControl);
-
-
-#ifdef CN_API_USING_SPI
-    /* update PCP register */
-    CnApi_Spi_write(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
-#endif /* CN_API_USING_SPI */
-}
-
-/**
-********************************************************************************
- \brief acknowledges asynchronous events and IR signal
-
- Acknowledge the asynchronous event after the event is handled by the
- application.
-
- \param pAckBits_p  pointer to 16 bit field, whereas a '1' indicates a
-                    pending event which should be acknowledged
-*******************************************************************************/
-void CnApi_ackAsyncIRQEvent(const WORD * pAckBits_p)
-{
-    /* reset asserted IR signal and acknowledge events */
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, *pAckBits_p);
-
-#ifdef CN_API_USING_SPI
-    /* update PCP register */
-    CnApi_Spi_write(PCP_CTRLREG_EVENT_ACK_OFFSET,
-                   sizeof(pCtrlReg_g->m_wEventAck),
-                   (BYTE*) &pCtrlReg_g->m_wEventAck);
-#endif /* CN_API_USING_SPI */
+    CnApi_setAsyncIrqControl(wAsyncIrqControl);
 }
 
 /**
@@ -187,14 +128,7 @@ void CnApi_checkAsyncEvent(void)
     /* check if IRQ-bit is set */
     WORD wCtrlRegField;
 
-#ifdef CN_API_USING_SPI
-    /* update local PDI register copy */
-    CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
-                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
-                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
-#endif /* CN_API_USING_SPI */
-
-    wCtrlRegField = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
+    wCtrlRegField = CnApi_getAsyncIrqControl();
 
     if (wCtrlRegField & (1 << ASYNC_IRQ_PEND))
     {
@@ -246,15 +180,7 @@ static tCnApiStatus CnApi_getAsyncIRQEvent(void)
     WORD wCtrlRegField;
     tPcpPdiEvent Event;
 
-#ifdef CN_API_USING_SPI
-    /* update local PDI register copy */
-    CnApi_Spi_read(PCP_CTRLREG_EVENT_ACK_OFFSET,
-                   sizeof(pCtrlReg_g->m_wEventAck),
-                   (BYTE*) &pCtrlReg_g->m_wEventAck);
-#endif /* CN_API_USING_SPI */
-
-    wCtrlRegField = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventAck);
-
+    wCtrlRegField = CnApi_getAsyncAckReg();
 
     if (wCtrlRegField & (1 << EVT_PHY0_LINK))
     {
@@ -283,18 +209,8 @@ static tCnApiStatus CnApi_getAsyncIRQEvent(void)
         /* generic event -> forward event */
         //TODO: create event queue -> for now: direct call
 
-#ifdef CN_API_USING_SPI
-    /* update local PDI register copy */
-    CnApi_Spi_read(PCP_CTRLREG_EVENT_TYPE_OFFSET,
-                   sizeof(pCtrlReg_g->m_wEventType),
-                   (BYTE*) &pCtrlReg_g->m_wEventType);
-    CnApi_Spi_read(PCP_CTRLREG_EVENT_ARG_OFFSET,
-                   sizeof(pCtrlReg_g->m_wEventArg),
-                   (BYTE*) &pCtrlReg_g->m_wEventArg);
-#endif /* CN_API_USING_SPI */
-
-        Event.Typ_m = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventType);
-        Event.Arg_m.wVal_m = AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventArg);
+        Event.Typ_m = CnApi_getEventTyp();
+        Event.Arg_m.wVal_m = CnApi_getEventArg();
 
         Ret = CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
     }
@@ -302,7 +218,7 @@ static tCnApiStatus CnApi_getAsyncIRQEvent(void)
     /* if no event -> don't care and exit */
 
     /* acknowledge all signaled events */
-    CnApi_ackAsyncIRQEvent(&wCtrlRegField);
+    CnApi_ackAsyncIRQEvent(wCtrlRegField);
 
     return Ret;
 }

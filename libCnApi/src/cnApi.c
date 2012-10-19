@@ -140,6 +140,7 @@ static BOOL CnApi_checkPcpPresent(void)
     return fPcpStateOk;
 }
 
+
 /******************************************************************************/
 /* functions */
 
@@ -768,6 +769,159 @@ tCnApiStatus CnApi_setLed(tCnApiLedType bLed_p, BOOL bOn_p)
 
 Exit:
     return FncRet;
+}
+
+/******************************************************************************/
+/* get/set functions library internal */
+
+/**
+********************************************************************************
+\brief  get event type from control register
+
+\return WORD
+\retval wEventType          the event type number
+*******************************************************************************/
+WORD CnApi_getEventTyp(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_EVENT_TYPE_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventType),
+                   (BYTE*) &pCtrlReg_g->m_wEventType);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventType);
+}
+
+/**
+********************************************************************************
+\brief  set event type in control register
+
+\param  wEventType_p        the event type to set
+*******************************************************************************/
+void CnApi_setEventTyp(WORD wEventType_p)
+{
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, wEventType_p);
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_write(PCP_CTRLREG_EVENT_TYPE_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventType),
+                   (BYTE*) &pCtrlReg_g->m_wEventType);
+#endif /* CN_API_USING_SPI */
+
+}
+
+/**
+********************************************************************************
+\brief  get event argument from control register
+
+\return WORD
+\retval m_wEventArg          the event argument number
+*******************************************************************************/
+WORD CnApi_getEventArg(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_EVENT_ARG_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventArg),
+                   (BYTE*) &pCtrlReg_g->m_wEventArg);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventArg);
+
+}
+
+/**
+********************************************************************************
+\brief  set event argument in control register
+
+\param  wEventArg_p        the event argument to set
+*******************************************************************************/
+void CnApi_setEventArg(WORD wEventArg_p)
+{
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, wEventArg_p);
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_write(PCP_CTRLREG_EVENT_ARG_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventArg),
+                   (BYTE*) &pCtrlReg_g->m_wEventArg);
+#endif /* CN_API_USING_SPI */
+
+}
+
+/**
+********************************************************************************
+\brief  get the async interrupt control register
+
+\return WORD
+\retval wAsyncIrqControl          the async interrupt control register
+*******************************************************************************/
+WORD CnApi_getAsyncIrqControl(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl);
+}
+
+/**
+********************************************************************************
+\brief  set the async interrupt control register
+
+\param  wAsyncIrqControl_p        the new irq control register
+*******************************************************************************/
+void CnApi_setAsyncIrqControl(WORD wAsyncIrqControl_p)
+{
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wAsyncIrqControl, wAsyncIrqControl_p);
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_write(PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET,
+                   sizeof(pCtrlReg_g->m_wAsyncIrqControl),
+                   (BYTE*) &pCtrlReg_g->m_wAsyncIrqControl);
+#endif /* CN_API_USING_SPI */
+}
+
+/**
+********************************************************************************
+ \brief acknowledges asynchronous events and IR signal
+
+ Acknowledge the asynchronous event after the event is handled by the
+ application.
+
+ \param pAckBits_p  pointer to 16 bit field, whereas a '1' indicates a
+                    pending event which should be acknowledged
+*******************************************************************************/
+void CnApi_ackAsyncIRQEvent(WORD wAckBits_p)
+{
+    /* reset asserted IR signal and acknowledge events */
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, wAckBits_p);
+
+#ifdef CN_API_USING_SPI
+    /* update PCP register */
+    CnApi_Spi_write(PCP_CTRLREG_EVENT_ACK_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventAck),
+                   (BYTE*) &pCtrlReg_g->m_wEventAck);
+#endif /* CN_API_USING_SPI */
+}
+
+/**
+********************************************************************************
+ \brief reads the async ack register
+
+\return WORD
+\retval wEventAck          the async interrupt ack register
+*******************************************************************************/
+WORD CnApi_getAsyncAckReg(void)
+{
+#ifdef CN_API_USING_SPI
+    /* update local PDI register copy */
+    CnApi_Spi_read(PCP_CTRLREG_EVENT_ACK_OFFSET,
+                   sizeof(pCtrlReg_g->m_wEventAck),
+                   (BYTE*) &pCtrlReg_g->m_wEventAck);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetWordFromLe((BYTE*)&pCtrlReg_g->m_wEventAck);
 }
 
 /*******************************************************************************

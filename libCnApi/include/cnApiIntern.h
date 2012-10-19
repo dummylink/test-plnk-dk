@@ -127,6 +127,15 @@ BOOL CnApi_verifyPcpSystemId(void);
 BOOL CnApi_verifyPcpPdiRevision(void);
 void CnApi_setApCommand(BYTE bCmd_p);
 
+WORD CnApi_getEventTyp(void);
+void CnApi_setEventTyp(WORD wEventType_p);
+WORD CnApi_getEventArg(void);
+void CnApi_setEventArg(WORD wEventArg_p);
+WORD CnApi_getAsyncIrqControl(void);
+void CnApi_setAsyncIrqControl(WORD wAsyncIrqControl_p);
+void CnApi_ackAsyncIRQEvent(WORD wAckBits_p);
+WORD CnApi_getAsyncAckReg(void);
+
 /******************************************************************************/
 /* private functions */
 
