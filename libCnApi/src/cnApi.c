@@ -54,7 +54,6 @@ volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control 
 tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of the PCP Control Register
 #endif
 
-BYTE *                       pDpramBase_g;          ///< pointer to Dpram base address
 tPcpInitParam *               pInitPcpParam_g;        ///< pointer to POWERLINK init parameters
 
 
@@ -103,10 +102,6 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 #else
     pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParam_p->m_pDpram_p;    //< if no SPI is used, take parameter to dpram
 #endif // CN_API_USING_SPI
-
-    /* make dpram base global */
-    pDpramBase_g = pInitCnApiParam_p->m_pDpram_p;
-
 
 #ifdef CN_API_USING_SPI
     /* initialize user-callback functions for SPI */
@@ -201,7 +196,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     CnApi_activateApStateMachine();
 
     /* initialize asynchronous transfer functions */
-    iStatus = CnApiAsync_create();
+    iStatus = CnApiAsync_create(pInitCnApiParam_p->m_pDpram_p);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_create() failed!\n");
@@ -210,7 +205,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     }
 
     /* initialize PDO transfer functions */
-    iStatus = CnApi_initPdo(pInitCnApiParam_p->m_pfnAppCbSync);
+    iStatus = CnApi_initPdo(pInitCnApiParam_p->m_pfnAppCbSync, pInitCnApiParam_p->m_pDpram_p);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApi_initPdo() failed!\n");

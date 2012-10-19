@@ -36,17 +36,19 @@ subject to the License Agreement located at the end of this file below.
 /* typedefs */
 
 /******************************************************************************/
-/* external variable declarations */
+/* global variables */
 tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncTxMsgBuffer_g[ASYNC_PDI_CHANNELS];
 tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[ASYNC_PDI_CHANNELS];
 
 
 /******************************************************************************/
-/* global variables */
+/* local variables */
 static BYTE bReqId_l = 0;            ///< asynchronous msg counter
 #ifdef CN_API_USING_SPI
 static tAsyncMsg LclCpyAsyncMsgHeader_l[4]; ///< local copy of asynchronous PDI message header
 #endif
+
+static BYTE *           pDpramBase_l = NULL;
 
 /******************************************************************************/
 /* function declarations */
@@ -95,13 +97,18 @@ static tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p,
 Initially create the CnApi async module. This activates the state machine and
 calls CnApiAsync_init().
 
+\param  pbDpramBase_p       pointer to Dpram base address
+
 \return int
 \retval OK                  on success
 \retval ERROR               when create fails
 *******************************************************************************/
-int CnApiAsync_create(void)
+int CnApiAsync_create(BYTE * pbDpramBase_p)
 {
     int iRet = OK;
+
+    // make dprambase local
+    pDpramBase_l = pbDpramBase_p;
 
     CnApi_activateAsyncStateMachine();
 
@@ -166,10 +173,10 @@ int CnApiAsync_init(void)
     aPcpPdiAsyncTxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs));
     aPcpPdiAsyncRxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs));
 #else
-    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Aoffs)));
-    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)));
-    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs)));
-    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_g + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs)));
+    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs)));
 #endif /* CN_API_USING_SPI */
 
     aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
