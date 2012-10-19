@@ -34,10 +34,16 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* defines */
 /* wait for PCP definitions */
-#define PCP_PRESENCE_RETRY_COUNT         500        ///< number of retries until abort
-#define PCP_PRESENCE_RETRY_TIMEOUT_US    100000     ///< wait time in us until retry
+#define PCP_PRESENCE_RETRY_COUNT         20        ///< number of retries until abort
+#define PCP_PRESENCE_RETRY_TIMEOUT_US    5000000     ///< wait time in us until retry
+
+#define PCP_PRESENCE_RESET_TIMEOUT_US    500000     ///< time for the PCP to do the reset (us)
 
 #define SYNC_IRQ_ACK                0               ///< Sync IRQ Bit shift (for AP only)
+
+#define PCP_CONV_INVALID                 5
+
+#define CONV_STATE(state)       (state > kPcpStateOperational) ? PCP_CONV_INVALID : state
 
 /******************************************************************************/
 /* typedefs */
@@ -51,14 +57,88 @@ subject to the License Agreement located at the end of this file below.
 volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
 
 #ifdef CN_API_USING_SPI
-tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of the PCP Control Register
+static tPcpCtrlReg     PcpCntrlRegMirror_l; ///< if SPI is used, we need a local copy of the PCP Control Register
 #endif
+
+static char *strPcpStates[] = {          ///< strings of PCP states
+        "kPcpStateBooted",
+        "kPcpStateInit",
+        "kPcpStatePreOp",
+        "kPcpStateReadyToOperate",
+        "kPcpStateOperational",
+        "kPcpStateInvalid"
+    };
 
 /******************************************************************************/
 /* function declarations */
+static BOOL CnApi_checkPcpPresent(void);
 
 /******************************************************************************/
 /* private functions */
+
+/**
+********************************************************************************
+\brief  checks if the PCP interface is present and ready
+
+Checks if the PCP is present by reading the magic value. If the magic word
+is available it checks if the PCP is in init state.
+
+\return BOOL
+\retval TRUE             PCP is here and ready
+\retval FALSE            unable to reach PCP
+*******************************************************************************/
+static BOOL CnApi_checkPcpPresent(void)
+{
+    int iCnt;
+    BOOL fPcpMagicOk = FALSE;
+    BOOL fPcpStateOk = FALSE;
+
+    /* check if PCP interface is present */
+    for(iCnt = 0; iCnt < PCP_PRESENCE_RETRY_COUNT; iCnt++)
+    {
+        if(CnApi_getPcpMagic() == PCP_MAGIC)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "PCP Magic value: %#08lx ... OK!\n",
+                                                CnApi_getPcpMagic());
+            fPcpMagicOk = TRUE;
+            break;
+        }
+        else
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "PCP Magic value: %#08lx ... ERROR! => Retry!\n",
+                                                CnApi_getPcpMagic());
+        }
+        CNAPI_USLEEP(PCP_PRESENCE_RETRY_TIMEOUT_US);
+    }
+
+    if(fPcpMagicOk)
+    {
+        CnApi_setApCommand(kApCmdReset);
+        CNAPI_USLEEP(PCP_PRESENCE_RESET_TIMEOUT_US);
+
+        /* check if PCP is activated */
+        for(iCnt = 0; iCnt < PCP_PRESENCE_RETRY_COUNT; iCnt++)
+        {
+            if(CnApi_getPcpState() == kPcpStateBooted)
+            {
+                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "PCP state: %s ... OK!\n",
+                        strPcpStates[CONV_STATE(CnApi_getPcpState())]);
+                fPcpStateOk = TRUE;
+                break;
+            }
+            else
+            {
+                DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "PCP state: %s ... ERROR! => Retry!\n",
+                        strPcpStates[CONV_STATE(CnApi_getPcpState())]);
+            }
+            CNAPI_USLEEP(PCP_PRESENCE_RETRY_TIMEOUT_US);
+        }
+    }
+
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\n");
+
+    return fPcpStateOk;
+}
 
 /******************************************************************************/
 /* functions */
@@ -83,16 +163,15 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     tEplKernel      EplRet = kEplSuccessful;
     BOOL            fPcpPresent = FALSE;
     int             iStatus;
-    int             iCnt;
 #ifdef CN_API_USING_SPI
     int iRet = OK;
 #endif //CN_API_USING_SPI
 
-    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\n\nInitialize CN API functions...");
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\n\nInitialize CN API functions...\n");
 
     /* Control and Status Register is little endian */
 #ifdef CN_API_USING_SPI
-    pCtrlReg_g = &PcpCntrlRegMirror;         //< if SPI is used, take local var instead of parameter
+    pCtrlReg_g = &PcpCntrlRegMirror_l;         //< if SPI is used, take local var instead of parameter
 #else
     pCtrlReg_g = (tPcpCtrlReg *)pInitCnApiParam_p->m_pDpram_p;    //< if no SPI is used, take parameter to dpram
 #endif // CN_API_USING_SPI
@@ -108,44 +187,16 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     }
 #endif /* CN_API_USING_SPI */
 
-    /* check if PCP interface is present */
-    for(iCnt = 0; iCnt < PCP_PRESENCE_RETRY_COUNT; iCnt++)
-    {
-        if(CnApi_getPcpMagic() == PCP_MAGIC)
-        {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP Magic value: %#08lx ..\n",
-                                                CnApi_getPcpMagic());
-            break;
-        }
-        CNAPI_USLEEP(PCP_PRESENCE_RETRY_TIMEOUT_US);
-    }
-
-    CnApi_setApCommand(kApCmdReset);
-
-    /* check if PCP is activated */
-    for(iCnt = 0; iCnt < PCP_PRESENCE_RETRY_COUNT; iCnt++)
-    {
-        if(CnApi_getPcpState() == kPcpStateBooted)
-        {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nPCP state: %d ..",
-                                                CnApi_getPcpState());
-            fPcpPresent = TRUE;
-            break;
-        }
-        CNAPI_USLEEP(PCP_PRESENCE_RETRY_TIMEOUT_US);
-    }
-
+    /* Check if PCP interface is ready */
+    fPcpPresent = CnApi_checkPcpPresent();
     if(!fPcpPresent)
     {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, ".ERROR!\n\n");
-
         /* PCP_PRESENCE_RETRY_COUNT exceeded */
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: PCP not responding!\n");
         FncRet = kCnApiStatusError;
         goto exit;
     }
 
-    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".OK!\n");
 #ifdef CN_API_USING_SPI
     /* update PCP control register */
     CnApi_Spi_read(PCP_CTRLREG_START_ADR, PCP_CTRLREG_SPAN, (BYTE*) pCtrlReg_g);
@@ -190,7 +241,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     CnApi_activateApStateMachine();
 
     /* initialize asynchronous transfer functions */
-    iStatus = CnApiAsync_create(&pInitPcpParam_p, pInitCnApiParam_p->m_pDpram_p);
+    iStatus = CnApiAsync_create(pInitPcpParam_p, pInitCnApiParam_p->m_pDpram_p);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_create() failed!\n");
