@@ -103,7 +103,7 @@ extern tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[];
 /******************************************************************************/
 /* function declarations */
 int CnApiAsync_init(void);
-int CnApiAsync_create(BYTE * pbDpramBase_p);
+int CnApiAsync_create(tPcpInitParam *pInitPcpParam_p, BYTE * pDpramBase_p);
 int CnApiAsync_reset(void);
 
 /* functions for asynchronous transfers */

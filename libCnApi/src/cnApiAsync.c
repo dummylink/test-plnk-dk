@@ -48,7 +48,8 @@ static BYTE bReqId_l = 0;            ///< asynchronous msg counter
 static tAsyncMsg LclCpyAsyncMsgHeader_l[4]; ///< local copy of asynchronous PDI message header
 #endif
 
-static BYTE *           pDpramBase_l = NULL;
+static tPcpInitParam *   pInitPcpParam_l = NULL;
+static BYTE *            pDpramBase_l = NULL;
 
 /******************************************************************************/
 /* function declarations */
@@ -97,23 +98,34 @@ static tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p,
 Initially create the CnApi async module. This activates the state machine and
 calls CnApiAsync_init().
 
-\param  pbDpramBase_p       pointer to Dpram base address
+\param  pInitPcpParam_p     pointer to pcp init structure
+\param  pDpramBase_p        pointer to Dpram base address
 
 \return int
 \retval OK                  on success
 \retval ERROR               when create fails
 *******************************************************************************/
-int CnApiAsync_create(BYTE * pbDpramBase_p)
+int CnApiAsync_create(tPcpInitParam *pInitPcpParam_p, BYTE * pDpramBase_p)
 {
     int iRet = OK;
 
-    // make dprambase local
-    pDpramBase_l = pbDpramBase_p;
+    if(pInitPcpParam_p != NULL && pDpramBase_p != NULL)
+    {
+        // make dprambase local
+        pInitPcpParam_l = pInitPcpParam_p;
+        pDpramBase_l = pDpramBase_p;
+    }
+    else
+    {
+        iRet = ERROR;
+        goto Exit;
+    }
 
     CnApi_activateAsyncStateMachine();
 
     iRet = CnApiAsync_init();
 
+Exit:
     return iRet;
 }
 
@@ -408,17 +420,17 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     /* handle Tx Message */
     /* build up InitPcpReq */
     CNAPI_MEMSET(pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    CNAPI_MEMCPY (pInitPcpReq->m_abMac, &pInitPcpParam_g->m_abMac, sizeof(pInitPcpParam_g->m_abMac));
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParam_g->m_dwDeviceType);
+    CNAPI_MEMCPY (pInitPcpReq->m_abMac, &pInitPcpParam_l->m_abMac, sizeof(pInitPcpParam_l->m_abMac));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParam_l->m_dwDeviceType);
 
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParam_g->m_bNodeId);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitPcpParam_g->m_dwRevision);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParam_g->m_dwSerialNum);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParam_g->m_dwVendorId);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitPcpParam_g->m_dwProductCode);
-    CNAPI_MEMCPY(pInitPcpReq->m_strDevName, &pInitPcpParam_g->m_strDevName, sizeof(pInitPcpParam_g->m_strDevName));
-    CNAPI_MEMCPY(pInitPcpReq->m_strHwVersion, &pInitPcpParam_g->m_strHwVersion, sizeof(pInitPcpParam_g->m_strHwVersion));
-    CNAPI_MEMCPY(pInitPcpReq->m_strSwVersion, &pInitPcpParam_g->m_strSwVersion, sizeof(pInitPcpParam_g->m_strSwVersion));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParam_l->m_bNodeId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitPcpParam_l->m_dwRevision);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParam_l->m_dwSerialNum);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParam_l->m_dwVendorId);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitPcpParam_l->m_dwProductCode);
+    CNAPI_MEMCPY(pInitPcpReq->m_strDevName, &pInitPcpParam_l->m_strDevName, sizeof(pInitPcpParam_l->m_strDevName));
+    CNAPI_MEMCPY(pInitPcpReq->m_strHwVersion, &pInitPcpParam_l->m_strHwVersion, sizeof(pInitPcpParam_l->m_strHwVersion));
+    CNAPI_MEMCPY(pInitPcpReq->m_strSwVersion, &pInitPcpParam_l->m_strSwVersion, sizeof(pInitPcpParam_l->m_strSwVersion));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 

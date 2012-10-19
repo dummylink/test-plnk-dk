@@ -54,9 +54,6 @@ volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control 
 tPcpCtrlReg     PcpCntrlRegMirror; ///< if SPI is used, we need a local copy of the PCP Control Register
 #endif
 
-tPcpInitParam *               pInitPcpParam_g;        ///< pointer to POWERLINK init parameters
-
-
 /******************************************************************************/
 /* function declarations */
 
@@ -92,9 +89,6 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 #endif //CN_API_USING_SPI
 
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\n\nInitialize CN API functions...");
-
-    /* initialize global pointers */
-    pInitPcpParam_g = pInitPcpParam_p;    //< make pInitParm_p global
 
     /* Control and Status Register is little endian */
 #ifdef CN_API_USING_SPI
@@ -196,7 +190,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     CnApi_activateApStateMachine();
 
     /* initialize asynchronous transfer functions */
-    iStatus = CnApiAsync_create(pInitCnApiParam_p->m_pDpram_p);
+    iStatus = CnApiAsync_create(&pInitPcpParam_p, pInitCnApiParam_p->m_pDpram_p);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_create() failed!\n");
