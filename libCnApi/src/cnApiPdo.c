@@ -353,7 +353,8 @@ exit:
 
 CnApi_initPdo() is used to initialize the PDO module.
 *******************************************************************************/
-int CnApi_initPdo(tCnApiAppCbSync pfnAppCbSync_p, BYTE * pDpramBase_p)
+int CnApi_initPdo(tPcpCtrlReg *pCtrlReg_p, tCnApiAppCbSync pfnAppCbSync_p,
+        BYTE * pDpramBase_p)
 {
     register WORD wCnt;
 
@@ -367,46 +368,46 @@ int CnApi_initPdo(tCnApiAppCbSync pfnAppCbSync_p, BYTE * pDpramBase_p)
 
     /* group TPDO PDI channels address, size and acknowledge settings */
 #if (PCP_PDI_TPDO_CHANNELS >= 1)
-    aTPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufAoffs)));
-    aTPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufSize));
-    aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wTxPdo0Ack);
+    aTPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wTxPdo0BufAoffs)));
+    aTPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wTxPdo0BufSize));
+    aTPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_p->m_wTxPdo0Ack);
 
     #ifdef CN_API_USING_SPI
-    aTPdosPdi_l[0].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxPdo0BufAoffs));
+    aTPdosPdi_l[0].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wTxPdo0BufAoffs));
     aTPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_TPDO_0_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* TPDO_CHANNELS_MAX >= 1 */
 
     /* group RPDO PDI channels address, size and acknowledge settings */
 #if (PCP_PDI_RPDO_CHANNELS >= 1)
-    aRPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufAoffs)));
-    aRPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufSize));
-    aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo0Ack);
+    aRPdosPdi_l[0].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo0BufAoffs)));
+    aRPdosPdi_l[0].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo0BufSize));
+    aRPdosPdi_l[0].pAck_m = (BYTE*) (&pCtrlReg_p->m_wRxPdo0Ack);
 
     #ifdef CN_API_USING_SPI
-    aRPdosPdi_l[0].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo0BufAoffs));
+    aRPdosPdi_l[0].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo0BufAoffs));
     aRPdosPdi_l[0].wSpiAckOffs_m = PCP_CTRLREG_RPDO_0_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 1 */
 
 #if (PCP_PDI_RPDO_CHANNELS >= 2)
-    aRPdosPdi_l[1].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufAoffs)));
-    aRPdosPdi_l[1].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufSize));
-    aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo1Ack);
+    aRPdosPdi_l[1].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo1BufAoffs)));
+    aRPdosPdi_l[1].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo1BufSize));
+    aRPdosPdi_l[1].pAck_m = (BYTE*) (&pCtrlReg_p->m_wRxPdo1Ack);
 
     #ifdef CN_API_USING_SPI
-    aRPdosPdi_l[1].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo1BufAoffs));
+    aRPdosPdi_l[1].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo1BufAoffs));
     aRPdosPdi_l[1].wSpiAckOffs_m = PCP_CTRLREG_RPDO_1_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 2 */
 
 #if (PCP_PDI_RPDO_CHANNELS >= 3)
-    aRPdosPdi_l[2].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufAoffs)));
-    aRPdosPdi_l[2].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufSize));
-    aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_g->m_wRxPdo2Ack);
+    aRPdosPdi_l[2].pAdrs_m = (BYTE*) (pDpramBase_p + AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo2BufAoffs)));
+    aRPdosPdi_l[2].wSize_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo2BufSize));
+    aRPdosPdi_l[2].pAck_m = (BYTE*) (&pCtrlReg_p->m_wRxPdo2Ack);
 
     #ifdef CN_API_USING_SPI
-    aRPdosPdi_l[2].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxPdo2BufAoffs));
+    aRPdosPdi_l[2].dwSpiBufOffs_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_p->m_wRxPdo2BufAoffs));
     aRPdosPdi_l[2].wSpiAckOffs_m = PCP_CTRLREG_RPDO_2_ACK_OFFSET;
     #endif /* CN_API_USING_SPI */
 #endif /* RPDO_CHANNELS_MAX >= 3 */

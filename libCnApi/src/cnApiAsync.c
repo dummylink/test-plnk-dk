@@ -48,6 +48,7 @@ static BYTE bReqId_l = 0;            ///< asynchronous msg counter
 static tAsyncMsg LclCpyAsyncMsgHeader_l[4]; ///< local copy of asynchronous PDI message header
 #endif
 
+static tPcpCtrlReg *     pCtrlReg_l = NULL;
 static tPcpInitParam *   pInitPcpParam_l = NULL;
 static BYTE *            pDpramBase_l = NULL;
 
@@ -105,15 +106,16 @@ calls CnApiAsync_init().
 \retval OK                  on success
 \retval ERROR               when create fails
 *******************************************************************************/
-int CnApiAsync_create(tPcpInitParam *pInitPcpParam_p, BYTE * pDpramBase_p)
+int CnApiAsync_create(tPcpCtrlReg *pCtrlReg_p, tPcpInitParam *pInitPcpParam_p,
+        BYTE * pDpramBase_p)
 {
     int iRet = OK;
 
-    if(pInitPcpParam_p != NULL && pDpramBase_p != NULL)
+    if(pCtrlReg_p != NULL && pInitPcpParam_p != NULL && pDpramBase_p != NULL)
     {
-        // make dprambase local
-        pInitPcpParam_l = pInitPcpParam_p;
-        pDpramBase_l = pDpramBase_p;
+        pCtrlReg_l = pCtrlReg_p;
+        pInitPcpParam_l = pInitPcpParam_p; // make init parameters local
+        pDpramBase_l = pDpramBase_p;       // make dprambase local
     }
     else
     {
@@ -180,21 +182,21 @@ int CnApiAsync_init(void)
     aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = &LclCpyAsyncMsgHeader_l[2];
     aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = &LclCpyAsyncMsgHeader_l[3];
 
-    aPcpPdiAsyncTxMsgBuffer_g[0].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Aoffs));
-    aPcpPdiAsyncRxMsgBuffer_g[0].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs));
-    aPcpPdiAsyncTxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs));
-    aPcpPdiAsyncRxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs));
+    aPcpPdiAsyncTxMsgBuffer_g[0].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wTxAsyncBuf0Aoffs));
+    aPcpPdiAsyncRxMsgBuffer_g[0].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wRxAsyncBuf0Aoffs));
+    aPcpPdiAsyncTxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wTxAsyncBuf1Aoffs));
+    aPcpPdiAsyncRxMsgBuffer_g[1].wPdiOffset_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wRxAsyncBuf1Aoffs));
 #else
-    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Aoffs)));
-    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)));
-    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Aoffs)));
-    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Aoffs)));
+    aPcpPdiAsyncTxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wTxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[0].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wRxAsyncBuf0Aoffs)));
+    aPcpPdiAsyncTxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wTxAsyncBuf1Aoffs)));
+    aPcpPdiAsyncRxMsgBuffer_g[1].pAdr_m = (tAsyncMsg *) (pDpramBase_l + AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wRxAsyncBuf1Aoffs)));
 #endif /* CN_API_USING_SPI */
 
-    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wTxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
-    aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wRxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncTxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wTxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[0].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wRxAsyncBuf0Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncTxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wTxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
+    aPcpPdiAsyncRxMsgBuffer_g[1].wMaxPayload_m = AmiGetWordFromLe((BYTE*)&(pCtrlReg_l->m_wRxAsyncBuf1Size)) - sizeof(tAsyncPdiBufCtrlHeader);
 
     for (wCnt = 0; wCnt < ASYNC_PDI_CHANNELS; ++wCnt)
     {

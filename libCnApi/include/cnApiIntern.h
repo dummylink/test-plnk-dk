@@ -68,21 +68,21 @@ subject to the License Agreement located at the end of this file below.
 #define PCP_CTRLREG_ASYNC_IRQ_CTRL_OFFSET       offsetof(tPcpCtrlReg, m_wAsyncIrqControl)   //0x52
 #define PCP_CTRLREG_EVENT_ACK_OFFSET            offsetof(tPcpCtrlReg, m_wEventAck)          //0x54
 #define PCP_CTRLREG_TPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wTxPdo0BufSize)     //0x56
-#define PCP_CTRLREG_TPDO0_OFST_OFFSET           offsetof(pCtrlReg_g->m_wTxPdo0BufAoffs)     //0x58
+#define PCP_CTRLREG_TPDO0_OFST_OFFSET           offsetof(tPcpCtrlReg, m_wTxPdo0BufAoffs)    //0x58
 #define PCP_CTRLREG_RPDO0_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo0BufSize)     //0x5A
-#define PCP_CTRLREG_RPDO0_OFST_OFFSET           offsetof(pCtrlReg_g->m_wRxPdo0BufAoffs)     //0x5C
+#define PCP_CTRLREG_RPDO0_OFST_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo0BufAoffs)    //0x5C
 #define PCP_CTRLREG_RPDO1_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo1BufSize)     //0x5E
-#define PCP_CTRLREG_RPDO1_OFST_OFFSET           offsetof(pCtrlReg_g->m_wRxPdo1BufAoffs)     //0x60
+#define PCP_CTRLREG_RPDO1_OFST_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo1BufAoffs)    //0x60
 #define PCP_CTRLREG_RPDO2_BUFSIZE_OFFSET        offsetof(tPcpCtrlReg, m_wRxPdo2BufSize)     //0x62
-#define PCP_CTRLREG_RPDO2_OFST_OFFSET           offsetof(pCtrlReg_g->m_wRxPdo2BufAoffs)     //0x64
+#define PCP_CTRLREG_RPDO2_OFST_OFFSET           offsetof(tPcpCtrlReg, m_wRxPdo2BufAoffs)    //0x64
 #define PCP_CTRLREG_TX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf0Size)   //0x66
-#define PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET   offsetof(pCtrlReg_g->m_wTxAsyncBuf0Aoffs)   //0x68
+#define PCP_CTRLREG_TX_ASYNC_BUF0_OFST_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf0Aoffs)  //0x68
 #define PCP_CTRLREG_RX_ASYNC_BUF0_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf0Size)   //0x6A
-#define PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET   offsetof(pCtrlReg_g->m_wRxAsyncBuf0Aoffs)   //0x6C
+#define PCP_CTRLREG_RX_ASYNC_BUF0_OFST_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf0Aoffs)  //0x6C
 #define PCP_CTRLREG_TX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf1Size)   //0x6E
-#define PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET   offsetof(pCtrlReg_g->m_wTxAsyncBuf1Aoffs)   //0x70
+#define PCP_CTRLREG_TX_ASYNC_BUF1_OFST_OFFSET   offsetof(tPcpCtrlReg, m_wTxAsyncBuf1Aoffs)  //0x70
 #define PCP_CTRLREG_RX_ASYNC_BUF1_SIZE_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf1Size)   //0x72
-#define PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET   offsetof(pCtrlReg_g->m_wRxAsyncBuf1Aoffs)   //0x74
+#define PCP_CTRLREG_RX_ASYNC_BUF1_OFST_OFFSET   offsetof(tPcpCtrlReg, m_wRxAsyncBuf1Aoffs)  //0x74
 // reserved                                                                                 //0x76
 // reserved                                                                                 //0x78
 // reserved                                                                                 //0x7A
@@ -116,7 +116,6 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* global variables */
-extern volatile tPcpCtrlReg *       pCtrlReg_g;            ///< pointer to PCP control registers, Little Endian
 
 /******************************************************************************/
 /* function declarations */
