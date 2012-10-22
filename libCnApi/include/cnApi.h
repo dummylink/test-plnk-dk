@@ -44,7 +44,22 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* type definitions */
-typedef tCnApiStatus (* tCnApiAppCbSync) ( void );
+typedef struct
+{
+    DWORD                   m_dwSec;
+    DWORD                   m_dwNanoSec;
+
+} tCnApiNetTime;
+
+typedef struct
+{
+    tCnApiNetTime           m_netTime;
+    QWORD                   m_qwRelTime;
+    WORD                    m_wTimeAfterSync;
+} tCnApiTimeStamp;
+
+
+typedef tCnApiStatus (* tCnApiAppCbSync) ( tCnApiTimeStamp * pTimeStamp_p );
 typedef tEplKernel (* tCnApiObdDefAcc) (tEplObdParam * pObdParam_p);
 
 
@@ -84,13 +99,6 @@ extern void CnApi_enterApStateReadyToOperate();
 /* functions for object access */
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
 extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p);
-
-/* time functions */
-extern DWORD CnApi_getRelativeTimeLow(void);
-extern DWORD CnApi_getRelativeTimeHigh(void);
-extern DWORD CnApi_getNetTimeSeconds(void);
-extern DWORD CnApi_getNetTimeNanoSeconds(void);
-extern WORD CnApi_getTimeAfterSync(void);
 
 /* functions for interrupt synchronization */
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved);

@@ -80,7 +80,7 @@ static tEplObdParam   ObdParam_l = {0};                 ///< OBD access handle
 static void workInputOutput(void);
 static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p,
         tCnApiEventArg * pEventArg_p, void * pUserArg_p);
-static tCnApiStatus CnApi_AppCbSync(void);
+static tCnApiStatus CnApi_AppCbSync(tCnApiTimeStamp * pTimeStamp_p);
 static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p);
 
 #ifndef USE_POLLING_MODE_SYNC
@@ -562,6 +562,11 @@ Exit:
  ********************************************************************************
  \brief application synchronization to POWERLINK cycle
 
+ \param pTimeStamp_p             Time information of the current sync interrupt.
+                                 It consists of the Nettime, RelativeTime
+                                 and additional the time elapsed after the
+                                 synchronous interrupt line went high.
+
  \return tCnApiStatus
  \retval kCnApiStatusOk          on success
 
@@ -570,9 +575,12 @@ Exit:
  CnApi_linkObject()have been updated locally.
 
  *******************************************************************************/
-static tCnApiStatus CnApi_AppCbSync(void)
+static tCnApiStatus CnApi_AppCbSync( tCnApiTimeStamp * pTimeStamp_p )
 {
     tCnApiStatus Ret = kCnApiStatusOk;
+
+    // Note: This is your place to do local synchronization. Synchronize
+    //       your local clock here by using the provided timestamp.
 
     workInputOutput();                 // update the PCB's inputs and outputs
 

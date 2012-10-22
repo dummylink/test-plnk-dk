@@ -129,6 +129,14 @@ WORD CnApi_getEventTyp(void);
 void CnApi_setEventTyp(WORD wEventType_p);
 WORD CnApi_getEventArg(void);
 void CnApi_setEventArg(WORD wEventArg_p);
+
+/* time functions */
+DWORD CnApi_getRelativeTimeLow(void);
+DWORD CnApi_getRelativeTimeHigh(void);
+DWORD CnApi_getNetTimeSeconds(void);
+DWORD CnApi_getNetTimeNanoSeconds(void);
+WORD CnApi_getTimeAfterSync(void);
+
 WORD CnApi_getAsyncIrqControl(void);
 void CnApi_setAsyncIrqControl(WORD wAsyncIrqControl_p);
 void CnApi_ackAsyncIRQEvent(WORD wAckBits_p);

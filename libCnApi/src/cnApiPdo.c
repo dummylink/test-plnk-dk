@@ -92,6 +92,7 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
                                   BYTE              bDirection_p,
                                   BYTE                 bPdoBufNum_p,
                                   BYTE                    bMapVers_p);
+static void CnApi_getCurTime(tCnApiTimeStamp *TimeStamp_p);
 static void CnApi_transmitPdo(void);
 static void CnApi_receivePdo(void);
 static inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p);
@@ -671,8 +672,6 @@ BOOL CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p)
     return fRet;
 }
 
-
-
 /**
 ********************************************************************************
 \brief  check for new PDO data and receive transmit them
@@ -684,12 +683,15 @@ executed.
 void CnApi_processPdo(void)
 {
     tCnApiStatus Ret = kCnApiStatusOk;
+    tCnApiTimeStamp TimeStamp = {{0}};
+
     CnApi_receivePdo();
 
     if(pfnAppCbSync_l != NULL)
     {
+        CnApi_getCurTime(&TimeStamp);
         /* call AppCbSync callback function */
-        Ret = pfnAppCbSync_l();
+        Ret = pfnAppCbSync_l(&TimeStamp);
         if(Ret != kCnApiStatusOk)
         {
             //TODO: Implement proper error handling here! Set action on error! (reboot?)
@@ -744,6 +746,24 @@ tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p,
                                 0);
 
     return Ret;
+}
+
+/**
+********************************************************************************
+\brief  get current time values of this cycle
+
+\param  pTimeStamp_p     the empty structure to be filled with new time
+                         values.
+
+CnApi_getCurTime() returns a structure to the current time values
+*******************************************************************************/
+static void CnApi_getCurTime(tCnApiTimeStamp *pTimeStamp_p)
+{
+    pTimeStamp_p->m_netTime.m_dwSec = CnApi_getNetTimeSeconds();
+    pTimeStamp_p->m_netTime.m_dwNanoSec = CnApi_getNetTimeNanoSeconds();
+    pTimeStamp_p->m_qwRelTime = (QWORD)(((QWORD)CnApi_getRelativeTimeHigh() << 32) |
+            ((DWORD)CnApi_getRelativeTimeLow()));
+    pTimeStamp_p->m_wTimeAfterSync = CnApi_getTimeAfterSync();
 }
 
 
