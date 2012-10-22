@@ -117,17 +117,18 @@ void CnApi_disableAsyncEventIRQ(void)
 
 /**
 ********************************************************************************
- \brief checks if asynchronous event occurred and simulates IRQ
+ \brief checks if asynchronous event occurred and calls event callback
 
- Check if an asynchronous event is pending. Needed when the events are polled
- and no interrupt is used.
+ Check if an asynchronous event is pending. When an event is pending it is
+ processed and in case of a user event forwarded to the application.
+
 *******************************************************************************/
-void CnApi_checkAsyncEvent(void)
+void CnApi_processAsyncEvent(void)
 {
     tCnApiStatus Ret = kCnApiStatusOk;
-    /* check if IRQ-bit is set */
     WORD wCtrlRegField;
 
+    /* check if IRQ-bit is set */
     wCtrlRegField = CnApi_getAsyncIrqControl();
 
     if (wCtrlRegField & (1 << ASYNC_IRQ_PEND))

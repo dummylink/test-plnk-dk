@@ -243,7 +243,7 @@ int main (void)
 #endif /* USE_POLLING_MODE_SYNC */
 
 #ifdef USE_POLLING_MODE_ASYNC
-        CnApi_checkAsyncEvent();            // check if PCP event occurred
+        CnApi_processAsyncEvent();            // check if PCP event occurred
 #endif /* USE_POLLING_MODE_ASYNC */
     }
 
@@ -613,7 +613,7 @@ static void asyncIntHandler(void* pArg_p)
 {
 	BENCHMARK_MOD_01_SET(1);
 
-    CnApi_checkAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
+	CnApi_processAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
 
 	BENCHMARK_MOD_01_RESET(1);
 }

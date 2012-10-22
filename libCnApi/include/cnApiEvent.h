@@ -119,7 +119,7 @@ typedef void (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
 
 extern void CnApi_enableAsyncEventIRQ(void);
 extern void CnApi_disableAsyncEventIRQ(void);
-extern void CnApi_checkAsyncEvent(void);
+extern void CnApi_processAsyncEvent(void);
 
 
 #endif /* CNAPIEVENT_H_ */
