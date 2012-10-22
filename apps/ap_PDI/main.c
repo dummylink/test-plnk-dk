@@ -111,7 +111,7 @@ static tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
 
 /**
 ********************************************************************************
-\brief	entry function of CN API example
+\brief    entry function of CN API example
 
 main() implements the main program function of the CN API example.
 First all initialization is done, then the program runs in a loop where the
@@ -219,7 +219,7 @@ int main (void)
     /* Start periodic main loop */
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"API example is running...\n");
 
-	/* main program loop */
+    /* main program loop */
     while (1)
     {
         /* Instead of this while loop, you can use your own (nonblocking) tasks ! */
@@ -256,29 +256,29 @@ int main (void)
 
 /**
 ********************************************************************************
-\brief	read inputs and write outputs
+\brief    read inputs and write outputs
 
 workInputOutput() reads the input ports and writes the output ports. It must
 be periodically called in the main loop.
 *******************************************************************************/
 static void workInputOutput(void)
 {
-	register BYTE iCnt;
-	DWORD dwOutPort = 0;
-	BYTE cInPort;
+    register BYTE iCnt;
+    DWORD dwOutPort = 0;
+    BYTE cInPort;
 
-	cInPort = SysComp_readInputPort(); ///> Digital IN: read push- and joystick buttons
-	digitalIn[0] = cInPort;    // 6000/01
-	digitalIn[1] = cInPort;    // 6000/02
-	digitalIn[2] = cInPort;    // 6000/03
-	digitalIn[3] = cInPort;    // 6000/04
+    cInPort = SysComp_readInputPort(); ///> Digital IN: read push- and joystick buttons
+    digitalIn[0] = cInPort;    // 6000/01
+    digitalIn[1] = cInPort;    // 6000/02
+    digitalIn[2] = cInPort;    // 6000/03
+    digitalIn[3] = cInPort;    // 6000/04
 
-	///> Digital OUT: set Leds and hex digits on Mercury-Board
+    ///> Digital OUT: set Leds and hex digits on Mercury-Board
     for (iCnt = 0; iCnt <= 2; iCnt++)
     {
         if (iCnt == 0) //first 8 bit of DigOut
         {
-        	/* configured as output -> overwrite invalid input values with RPDO mapped variables */
+            /* configured as output -> overwrite invalid input values with RPDO mapped variables */
             dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[0] << (iCnt * 8)); // [7] 6300/04 or [0]6200/01
         }
         else if (iCnt == 1) //second 8 bit of DigOut
@@ -287,7 +287,7 @@ static void workInputOutput(void)
         }
         else if (iCnt == 2)  //third 8 bit of DigOut
         {
-        	/* configured as input -> store in TPDO mapped variable */
+            /* configured as input -> store in TPDO mapped variable */
             dwOutPort = (dwOutPort & ~(0xff << (iCnt * 8))) | (digitalOut[3] << (iCnt * 8)); //Hex digits at [3]6200/04
         }
     }
@@ -589,7 +589,7 @@ static tCnApiStatus CnApi_AppCbSync( tCnApiTimeStamp * pTimeStamp_p )
 
 /**
 ********************************************************************************
-\brief	synchronous interrupt handler
+\brief    synchronous interrupt handler
 
 syncIntHandler() implements the synchronous data interrupt. The PCP asserts
 the interrupt when periodic data is ready to transfer.
@@ -627,11 +627,11 @@ static void asyncIntHandler(void* pArg_p, void* dwInt_p)
 static void asyncIntHandler(void* pArg_p)
 #endif
 {
-	BENCHMARK_MOD_01_SET(1);
+    BENCHMARK_MOD_01_SET(1);
 
-	CnApi_processAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
+    CnApi_processAsyncEvent();            // check if PCP event occurred (event will be acknowledged inside this function)
 
-	BENCHMARK_MOD_01_RESET(1);
+    BENCHMARK_MOD_01_RESET(1);
 }
 #endif /* USE_POLLING_MODE_ASYNC */
 
@@ -694,7 +694,7 @@ static void enableGlobalInterrupts(void)
 {
     SysComp_enableInterrupts();
 
-	BENCHMARK_MOD_02_RESET(2);
+    BENCHMARK_MOD_02_RESET(2);
 }
 
 /**
@@ -708,7 +708,7 @@ static void disableGlobalInterrupts(void)
 {
     SysComp_disableInterrupts();
 
-	BENCHMARK_MOD_02_SET(2);
+    BENCHMARK_MOD_02_SET(2);
 }
 #endif /* CN_API_USING_SPI */
 
