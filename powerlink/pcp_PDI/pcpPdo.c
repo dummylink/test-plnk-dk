@@ -74,7 +74,7 @@ static WORD Gi_getPdiMappedBytesSum(void);
 
 /**
 ********************************************************************************
-\brief	initialize asynchronous functions
+\brief  initialize asynchronous functions
 
 This function reads the control register information related to PDO PDI
 and stores it into variables for this module. Also initial values are assigned.
@@ -476,7 +476,7 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                                                       uiMapSubIndex);
                         if (Ret != kEplSuccessful)
                         {
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: linking to PDI failed!\n");
                             fRet = FALSE;
                             goto exit;
                         }
@@ -509,7 +509,7 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                                                       uiMapSubIndex);
                         if (Ret != kEplSuccessful)
                         {
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "linking process vars... error\n\n");
+                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: linking to PDI failed!\n");
                             fRet = FALSE;
                             goto exit;
                         }
@@ -572,6 +572,7 @@ exit:
     if (fRet != TRUE)
     {
         pPdoDescHeader->m_bEntryCnt = 0;
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: %s failed!\n", __func__);
     }
 
     return fRet;
@@ -602,46 +603,73 @@ unsigned int    uiCommParamIndex;
 tLinkPdosReqComCon  LinkPdosReqComCon;
 tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
 tEplKernel      Ret = kEplSuccessful;
+WORD                wComConIdx;
+tObdAccHstryEntry * pObdAccHstEntry = NULL;
 
     // --- configure this channel ---
 
-    // convert mapping index to related communication index
-    uiCommParamIndex = ~EPL_PDOU_OBD_IDX_MAPP_PARAM & uiMappParamIndex_p;
-
-    LinkPdosReqComCon.m_wMapIndex = uiMappParamIndex_p;
-    LinkPdosReqComCon.m_bMapObjCnt = bMappObjectCount_p;
-    if (AccessType_p == kEplObdAccWrite)
-    {
-        LinkPdosReqComCon.m_bPdoDir = RPdo;
-    }
-    else
-    {
-        LinkPdosReqComCon.m_bPdoDir = TPdo;
-    }
-
     // save OBD access handle for AP response callback function
-    Ret = EplObduSave0bdAccHdl(&ApiPdiComInstance_g.apObdParam_m[0], pParam_p);
+    Ret = EplAppDefObdAccAdoptedHstryInitSequence();
+    if (Ret != kEplSuccessful)
+    {
+        pParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+        goto Exit;
+    }
+
+    Ret = EplAppDefObdAccAdoptedHstrySaveHdl(pParam_p, &pObdAccHstEntry);
     if (Ret != kEplSuccessful)
     {
         goto Exit;
     }
 
-    DEBUG_TRACE1(DEBUG_LVL_14, "pApiPdiComInstance_g: %p\n", ApiPdiComInstance_g.apObdParam_m[0]);
-
-    /* prepare PDO mapping */
-    /* setup PDO <-> DPRAM copy table */
-    // Gi_ObdAccessSrcPdiFinished callback is assigned for transfer error case
-    PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq,
-                                (BYTE *) &LinkPdosReqComCon,
-                                Gi_ObdAccessSrcPdiFinished,
-                                NULL,
-                                NULL,
-                                0);
-    if (PdiRet != kPdiAsyncStatusSuccessful)
+    Ret = Gi_openObdAccHstryToPdiConnection(pObdAccHstEntry);
+    if (Ret != kEplSuccessful)
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Posting kPdiAsyncMsgIntLinkPdosReq failed with: %d\n", PdiRet);
-        pParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
-        Ret = kEplReject;
+        goto Exit;
+    }
+
+    if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) == TRUE)
+    {   // PDI connection established
+
+        // convert mapping index to related communication index
+        uiCommParamIndex = ~EPL_PDOU_OBD_IDX_MAPP_PARAM & uiMappParamIndex_p;
+
+        LinkPdosReqComCon.m_wMapIndex = uiMappParamIndex_p;
+        LinkPdosReqComCon.m_bMapObjCnt = bMappObjectCount_p;
+        if (AccessType_p == kEplObdAccWrite)
+        {
+            LinkPdosReqComCon.m_bPdoDir = RPdo;
+        }
+        else
+        {
+            LinkPdosReqComCon.m_bPdoDir = TPdo;
+        }
+
+        LinkPdosReqComCon.m_wComConHdl = wComConIdx;
+
+        /* prepare PDO mapping */
+        /* setup PDO <-> DPRAM copy table */
+        // Gi_ObdAccessSrcPdiFinished callback is assigned for transfer error case
+        // Note: since LinkPdosReqComCon is a local variable, the call-back function
+        //       has to be executed in a sub function call immediately.
+        //       Therefore it can not be a "direct-access" transfer!
+        PdiRet = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosReq,
+                                    (BYTE *) &LinkPdosReqComCon,
+                                    Gi_ObdAccFwdPdiTxFinishedErrCb,
+                                    NULL,
+                                    NULL,
+                                    0);
+        if (PdiRet != kPdiAsyncStatusSuccessful)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Posting kPdiAsyncMsgIntLinkPdosReq failed with: %d\n", PdiRet);
+            pParam_p->m_dwAbortCode = EPL_SDOAC_GENERAL_ERROR;
+            Ret = kEplReject;
+            goto Exit;
+        }
+    }
+    else
+    {   // no PDI connection found
+        Ret = kEplInvalidParam;
         goto Exit;
     }
 

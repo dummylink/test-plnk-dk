@@ -23,8 +23,7 @@ DETAILED_DESCRIPTION_OF_FILE
 #include "EplErrDef.h"
 #include "EplObd.h"
 
-
-
+#ifdef EPL_MODULE_API_PDI
 /******************************************************************************/
 /* defines */
 /* Powerlink defaults */
@@ -36,10 +35,26 @@ DETAILED_DESCRIPTION_OF_FILE
 /* typedefs */
 
 /**
+ * \brief enum of object access storage locations
+ */
+typedef enum eObdAccStorage {
+    kObdAccStorageInvalid,          ///< invalid location
+    kObdAccStorageDefObdAccHistory, ///< default OBD access history
+} tObdAccStorage;
+
+/**
  * \brief structure for object access forwarding to PDI (i.e. AP)
  */
+typedef struct sObdAccComCon {
+    WORD            m_wComConIdx; ///< communication connection index of lower layer
+    tObdAccStorage  m_Origin;   ///< OBD handle storage location
+} tObdAccComCon;
+
+/**
+ * \brief PDI communication connection structure
+ */
 typedef struct sApiPdiComCon {
-    tEplObdParam *          apObdParam_m[1];    ///< SDO command layer connection handle number
+    tObdAccComCon  m_ObdAccFwd;  ///< object access forwarding connection
 } tApiPdiComCon;
 
 
@@ -71,16 +86,29 @@ extern void Gi_enableSyncInt(WORD wSyncIntCycle_p);
 
 extern void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p);
 
-extern tEplKernel EplAppDefObdAccFinished(tEplObdParam ** pObdParam_p);
-extern void EplAppDefObdAccCleanupHistory(void);
-extern void EplAppDefObdAccCleanupAllPending(void);
+// OBD access history public functions
+extern tEplKernel EplAppDefObdAccAdoptedHstryInitSequence(void);
+extern tEplKernel EplAppDefObdAccAdoptedHstrySaveHdl(tEplObdParam * pObdParam_p,
+                                                     tObdAccHstryEntry **ppDefHdl_p);
+extern int EplAppDefObdAccAdoptedHstryWriteSegmAbortCb(tObdAccHstryEntry * pDefObdHdl_p);
+extern int EplAppDefObdAccAdoptedHstryWriteSegmFinishCb(tObdAccHstryEntry * pDefObdHdl_p);
+extern void EplAppDefObdAccAdoptedHstryCleanup(void);
 
-extern tPdiAsyncStatus Gi_ObdAccessSrcPdiFinished (tPdiAsyncMsgDescr * pMsgDescr_p);
-
+extern tPdiAsyncStatus Gi_ObdAccFwdPdiTxFinishedErrCb(tPdiAsyncMsgDescr * pMsgDescr_p);
+extern tEplKernel Gi_openObdAccHstryToPdiConnection(tObdAccHstryEntry * pDefObdHdl_p);
+extern tEplKernel Gi_closeObdAccHstryToPdiConnection(WORD wComConIdx_p,
+                                              DWORD dwAbortCode_p,
+                                              WORD  wReadObjRespSegmSize_p,
+                                              void* pReadObjRespData_p);
+extern tPdiAsyncStatus Gi_ObdAccFwdPdiTxFinishedErrCb(tPdiAsyncMsgDescr * pMsgDescr_p);
 extern tEplKernel Gi_checkandConfigurePdoPdi(unsigned int uiMappParamIndex_p,
                                                  BYTE bMappObjectCount_p,
                                                  tEplObdAccess AccessType_p,
                                                  tEplObdCbParam* pParam_p);
+extern BOOL Gi_getCurPdiObdAccFwdComCon(tApiPdiComCon * pApiPdiComConInst_p,
+                                        WORD * pwComConIdx_p);
+
+#endif // EPL_MODULE_API_PDI
 
 #endif /* GENERICIF_H_ */
 

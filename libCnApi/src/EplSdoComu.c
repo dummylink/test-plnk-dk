@@ -2730,7 +2730,7 @@ BYTE*           pbPayload;
             tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
             tObjAccSdoComCon PdiObjAccCon;
 
-            PdiObjAccCon.m_wSdoSeqConHdl = pSdoComCon_p->m_SdoSeqConHdl;///< SDO command layer connection handle number
+            PdiObjAccCon.m_wObdAccConNum = pSdoComCon_p->m_SdoSeqConHdl;///< SDO command layer connection handle number
             PdiObjAccCon.m_pSdoCmdFrame = (tEplAsySdoCom *) pCommandFrame;     ///< pointer to SDO command frame
             PdiObjAccCon.m_uiSizeOfFrame = uiSizeOfFrame;                 ///< size of SDO command frame
 
@@ -3072,7 +3072,7 @@ unsigned int    uiSizeOfFrame;
             tPdiAsyncStatus PdiRet = kPdiAsyncStatusSuccessful;
             tObjAccSdoComCon PdiObjAccCon;
 
-            PdiObjAccCon.m_wSdoSeqConHdl = pSdoComCon_p->m_SdoSeqConHdl;///< SDO command layer connection handle number
+            PdiObjAccCon.m_wObdAccConNum = pSdoComCon_p->m_SdoSeqConHdl;///< SDO command layer connection handle number
             PdiObjAccCon.m_pSdoCmdFrame = (tEplAsySdoCom *)pFrame;     ///< pointer to SDO command frame
             PdiObjAccCon.m_uiSizeOfFrame = uiSizeOfFrame;                 ///< size of SDO command frame
 

@@ -206,7 +206,7 @@ typedef struct sLinkPdosReqComCon {
  * \brief structure connects object access messages and SDO command layer
  */
 typedef struct sObjAccSdoComCon {
-    WORD                    m_wSdoSeqConHdl;    ///< SDO command layer connection handle number
+    WORD                    m_wObdAccConNum;    ///< connection number of OBD access
     tEplAsySdoCom *         m_pSdoCmdFrame;     ///< pointer to SDO command frame
     unsigned int            m_uiSizeOfFrame;    ///< size of SDO command frame
     void *                  m_pUserArg;         ///< general purpose argument

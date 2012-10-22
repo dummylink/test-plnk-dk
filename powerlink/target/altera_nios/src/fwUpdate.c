@@ -874,7 +874,7 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
     int                         iNumOfRegions;  ///< number of flash regions
 
     DEBUG_TRACE3 (DEBUG_LVL_15, "\n---> %s: segment offset: %d Handle:%p\n", __func__,
-                  uiSegmentOff_p, ((tDefObdAccHdl *)pHandle_p)->m_pObdParam);
+                  uiSegmentOff_p, ((tDefObdAccHstryEntry *)pHandle_p)->m_pObdParam);
 
     updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
     updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;

@@ -162,6 +162,7 @@ typedef enum
 typedef struct
 {
     tEplSdoSeqConHdl    m_SdoSeqConHdl;     // if != 0 -> entry used
+    unsigned int        m_PdiConHdl;
     tEplSdoComState     m_SdoComState;
     BYTE                m_bTransactionId;
     unsigned int        m_uiNodeId;         // NodeId of the target

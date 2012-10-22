@@ -402,10 +402,10 @@ tEplKernel PUBLIC EplSdoAsySeqSendData(tEplSdoSeqConHdl SdoSeqConHdl_p,
     }
 
     // TODO: use received handle, not this one!
-    PdiObjAccCon.m_wSdoSeqConHdl = 0xFFFF;              ///< SDO command layer connection handle number
+    PdiObjAccCon.m_wObdAccConNum = 0xFFFF;              // connection number of OBD access
     PdiObjAccCon.m_pSdoCmdFrame = (tEplAsySdoCom *) &pabData_p->m_Data.m_Asnd.m_Payload.m_SdoSequenceFrame.m_le_abSdoSeqPayload;     ///< pointer to SDO command frame
-    PdiObjAccCon.m_uiSizeOfFrame = uiDataSize_p;        ///< size of SDO command frame
-    PdiObjAccCon.m_pUserArg = pUserArg_p;               ///< forward general purpose user argument
+    PdiObjAccCon.m_uiSizeOfFrame = uiDataSize_p;        // size of SDO command frame
+    PdiObjAccCon.m_pUserArg = pUserArg_p;               // forward general purpose user argument
 
     PdiRet = CnApiAsync_postMsg(
                     kPdiAsyncMsgIntObjAccResp,
