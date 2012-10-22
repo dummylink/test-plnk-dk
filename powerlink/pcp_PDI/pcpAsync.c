@@ -21,6 +21,10 @@
 #include "pcpPdo.h"
 #include "pcp.h"
 
+#ifdef VETH_DRV_EN
+  #include "pcpAsyncVeth.h"
+#endif //VETH_DRV_EN
+
 #include "Epl.h"
 #include "kernel/EplObdk.h"
 #include "EplSdoComu.h"
@@ -174,6 +178,17 @@ int CnApiAsync_init(void)
         goto exit;
     }
 
+#ifdef VETH_DRV_EN
+    // init virtual ethernet driver messages
+    Ret = Gi_initVethMessages();
+    if (Ret != kPdiAsyncStatusSuccessful )
+    {
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
+        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initVeth() FAILED!\n");
+        goto exit;
+    }
+#endif
+
     Ret = CnApiAsync_finishMsgInit();
     if (Ret != kPdiAsyncStatusSuccessful)
     {
@@ -314,12 +329,12 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccResp, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, 0);
+                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelExternal, pNmtList, 0);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, TfrTyp, kAsyncChannelExternal, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -345,12 +360,14 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccResp, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelExternal, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
+    //TODO: This is blocking asynchronous traffic, because it waits for a response
+    //      Issue: ReqId has to be saved somehow (= another handle history)
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                       kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, 0);
+                       kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelExternal, pNmtList, 0);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 

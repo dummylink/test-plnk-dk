@@ -1323,12 +1323,35 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
     /* timeout handling */
     dwTimeoutWait_l = 0;  // reset timeout counter
-    if (ErrorHistory_l == kPdiAsyncStatusTimeout)
+
+    switch(ErrorHistory_l)
     {
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComTimeout);
+        case kPdiAsyncStatusTimeout:
+        {
+            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComTimeout);
+
+            break;
+        }
+        case kPdiAsyncStatusMtuExceeded:
+        {
+            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComMtuExceeded);
+
+            break;
+        }
+        case kPdiAsyncStatusBufFull:
+        {
+            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComTxBufferFull);
+
+            break;
+        }
+        default:
+        {
+            // do nothing for other errors!
+        }
     }
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s errorcode: 0x%04x\n",
+    // print generic error message on PCP
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "ERROR: (%s) returned: 0x%04x\n",
                                 __func__, ErrorHistory_l);
 
     /* deactivate active messages */
@@ -1528,7 +1551,7 @@ static tPdiAsyncStatus CnApiAsync_prepareTxTransfer(tPdiAsyncMsgDescr* pMsgDescr
  \param MsgType_p           type of message
  \param pfnCbMsgHdl_p       pointer to message handle call-back function
  \param pPdiBuffer_p        pointer to one-way PDI buffer
- \param pResponseMsgDescr_p optional response message; set to NULL if not used
+ \param pResponseMsgDescr_p optional response message; set to kPdiAsyncMsgInvalid if not used
  \param TransferType_p      local buffering (for large messages) or direct PDI buffer access
  \param ChanType_p          channel type (internal or external)
  \param paValidNmtList_p    list of NmtStates the massage can be processed in

@@ -22,6 +22,10 @@
 #include "pcpAsyncSm.h"
 #include "global.h"
 
+#ifdef VETH_DRV_EN
+  #include "pcpAsyncVeth.h"
+#endif //VETH_DRV_EN
+
 #include "fpgaCfg.h"
 #include "fwUpdate.h"
 
@@ -517,6 +521,14 @@ static void processPowerlink(void)
         if (Gi_getPlkInitStatus())
         {
             EplApiProcess();
+
+#ifdef VETH_DRV_EN
+            if(Gi_processVeth() == kCnApiStatusError)
+            {
+                DEBUG_TRACE1(DEBUG_LVL_ERROR,"ERROR: (%s) Unable "
+                        "to post virtual ethernet message to async buffer!\n", __func__);
+            }
+#endif
         }
 
         Gi_updateStateMachine();
@@ -641,6 +653,15 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 Gi_disableSyncInt();
             }
 
+#ifdef VETH_DRV_EN
+            if(pEventArg_p->m_NmtStateChange.m_NewNmtState > kEplNmtCsNotActive)
+            {
+                Gi_enableVeth();
+            } else {
+                Gi_disableVeth();
+            }
+#endif //VETH_DRV_EN
+
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
             {
                 case kEplNmtGsOff:
@@ -713,6 +734,10 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                     EplAppDefObdAccAdoptedHstryCleanup();
                     Gi_deleteObdAccHstryToPdiConnection();
+
+#ifdef VETH_DRV_EN
+                    Gi_resetVeth();
+#endif //VETH_DRV_EN
 
                     // reset asynchronous PCP <-> AP communication
                     iRet = CnApiAsync_reset();
@@ -845,7 +870,7 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                                                 0);
                     if (PdiRet != kPdiAsyncStatusSuccessful)
                     {
-                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Posting kPdiAsyncMsgIntLinkPdosReq failed with: %d\n", PdiRet);
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: Posting kPdiAsyncMsgIntLinkPdosReq failed with: 0x%x\n", PdiRet);
                         EplRet = kEplReject;
                         goto Exit;
                     }
@@ -1195,7 +1220,6 @@ static int Gi_init(void)
 
     // init asynchronous PCP <-> AP communication
     iRet = CnApiAsync_create();
-
     if (iRet != OK )
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);

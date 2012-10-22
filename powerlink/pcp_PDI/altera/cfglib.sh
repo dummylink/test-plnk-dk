@@ -35,6 +35,7 @@ PATTERN[4]="POWERLINK_0_PDI_PCP_PDIREV"
 PATTERN[5]="POWERLINK_0_PDI_PCP_PCPSYSID"
 PATTERN[6]="POWERLINK_0_MAC_CMP_TIMESYNCHW"
 PATTERN[7]="POWERLINK_0_PDI_PCP_ASYNCBUFCOUNT"
+PATTERN[8]="POWERLINK_0_MAC_REG_VETHENABLE"
 
 ###################################################################
 
@@ -49,7 +50,7 @@ a rebuild of the PCP software is executed. */
 
 # pattern search - loop
 cnt=0
-while [ $cnt -lt 8 ] ; do
+while [ $cnt -lt 9 ] ; do
 
 pattern=${PATTERN[$cnt]}
 
@@ -125,6 +126,13 @@ case  $cnt  in
 		echo "#define PCP_PDI_ASYNC_BUF_MAX $PCPDefineValue" >> $OUT_FILE
 	else
 		echo "#define PCP_PDI_ASYNC_BUF_MAX //INVALID" >> $OUT_FILE
+	fi
+	;;
+	8)
+	if [ "$PCPDefineValue" ]; then
+		echo "#define VETH_DRV_ENABLE $PCPDefineValue" >> $OUT_FILE
+	else
+		echo "#define VETH_DRV_ENABLE 0" >> $OUT_FILE
 	fi
 	;;
     *)echo Not a valid loop count!

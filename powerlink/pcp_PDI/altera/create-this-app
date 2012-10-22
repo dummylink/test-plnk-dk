@@ -143,6 +143,7 @@ SRCFILES="pcpMain.c \
 pcpAsync.c \
 pcpPdo.c \
 pcpAsyncSm.c \
+pcpAsyncVeth.c \
 pcpStateMachine.c \
 pcpEvent.c \
 pcpSync.c \
@@ -179,6 +180,7 @@ ${POWERLINKDIR}/EplStack/EplSdoAsndu.c \
 ${POWERLINKDIR}/EplStack/EplTimeruGeneric.c \
 ${POWERLINKDIR}/EplStack/EplErrorHandlerk.c \
 ${POWERLINKDIR}/EplStack/EplApiGeneric.c \
+${POWERLINKDIR}/EplStack/VirtualEthernetNoOs.c \
 ${POWERLINKDIR}/EplStack/amiarm.c \
 ${POWERLINKDIR}/Target/altera_nios2/no_os/gnu/generic/ShbTarget_Nios2.c \
 ${POWERLINKDIR}/SharedBuff/SharedBuff.c \

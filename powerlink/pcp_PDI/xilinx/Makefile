@@ -181,6 +181,14 @@ else
 endif
 
 ###################################
+# Virtual Ethernet
+ifeq ($(VIRT_ETH),yes)
+	SRCFILES+= ${POWERLINK_DIR}/EplStack/VirtualEthernetNoOs.c \
+	${APP_DIR}/pcpAsyncVeth.c
+endif
+
+
+###################################
 # libraries
 LIBSPATH=-L${BSP_PATH}/${PROCESSOR_NAME}/lib
 
