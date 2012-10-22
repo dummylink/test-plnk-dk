@@ -344,7 +344,8 @@ exit:
 ********************************************************************************
 \brief	initialize pdo module
 
-\param    pfnAppCbSync_p       function pointer to AppCbSync callback function
+\param    pCtrlReg_p         pointer to the control register
+\param    pfnAppCbSync_p     function pointer to AppCbSync callback function
 \param    pDpramBase_p       pointer to Dpram base address
 
 \return     int

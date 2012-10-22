@@ -5,9 +5,10 @@
 \brief      Main module of Digital I/O CN application
 
 \mainpage
-This application contains the implementation of the Digital I/O Interface on a NIOSII
-processor (AP) which uses the CN API to connect to a second NIOSII processor which
-is running the openPOWERLINK stack (PCP).
+This file contains of the application of the Digital I/O Interface which is
+running on the application processor (AP).
+It uses the CN API to connect to a second processor which is running the
+openPOWERLINK stack (PCP).
 
 The application demonstrates the usage of the CN API to implement an POWERLINK
 CN. The application uses the CN API to transfer data to/from the PCP through
@@ -584,9 +585,6 @@ static tCnApiStatus CnApi_AppCbSync(void)
 
 syncIntHandler() implements the synchronous data interrupt. The PCP asserts
 the interrupt when periodic data is ready to transfer.
-
-See the Altera NIOSII Reference manual for further details of interrupt
-handlers.
 *******************************************************************************/
 #ifndef USE_POLLING_MODE_SYNC
 #if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
@@ -613,9 +611,6 @@ static void syncIntHandler(void* pArg_p)
 
 asyncIntHandler() implements the asynchronous data interrupt. The PCP asserts
 the interrupt when an event is ready to transfer.
-
-See the Altera NIOSII Reference manual for further details of interrupt
-handlers.
 *******************************************************************************/
 #ifndef USE_POLLING_MODE_ASYNC
 #if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)

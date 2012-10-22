@@ -231,8 +231,8 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     }
 
     /* init cnApi async event module */
-    EplRet = CnApi_initAsyncEvent(pInitCnApiParam_p->m_pfnAppCbEvent);
-    if (EplRet != kEplSuccessful)
+    FncRet = CnApi_initAsyncEvent(pInitCnApiParam_p->m_pfnAppCbEvent);
+    if (FncRet != kEplSuccessful)
     {
         FncRet = kCnApiStatusError;
         goto exit;
@@ -900,7 +900,7 @@ void CnApi_setAsyncIrqControl(WORD wAsyncIrqControl_p)
  Acknowledge the asynchronous event after the event is handled by the
  application.
 
- \param pAckBits_p  pointer to 16 bit field, whereas a '1' indicates a
+ \param wAckBits_p  16 bit field, whereas a '1' indicates a
                     pending event which should be acknowledged
 *******************************************************************************/
 void CnApi_ackAsyncIRQEvent(WORD wAckBits_p)

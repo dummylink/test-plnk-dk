@@ -101,6 +101,7 @@ static tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p,
 Initially create the CnApi async module. This activates the state machine and
 calls CnApiAsync_init().
 
+\param  pCtrlReg_p          pointer to the control register
 \param  pInitPcpParam_p     pointer to pcp init structure
 \param  pDpramBase_p        pointer to Dpram base address
 
