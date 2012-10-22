@@ -53,6 +53,7 @@ typedef tEplKernel (* tCnApiObdDefAcc) (tEplObdParam * pObdParam_p);
  * \brief structure for libCnApi initialization parameters
  */
 typedef struct sCnApiInitParm {
+    WORD                    m_wNumObjects;
     BYTE *                  m_pDpram_p;
     tCnApiAppCbSync         m_pfnAppCbSync;
     tCnApiAppCbEvent        m_pfnAppCbEvent;
@@ -81,9 +82,7 @@ extern BOOL CnApi_processApStateMachine(void);
 extern void CnApi_enterApStateReadyToOperate();
 
 /* functions for object access */
-extern int CnApi_initObjects(DWORD dwMaxLinks_p);
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
-extern void CnApi_cleanupObjects(void);
 extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p);
 
 /* time functions */

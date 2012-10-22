@@ -22,6 +22,7 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiEventIntern.h"
 #include "cnApiAsync.h"
 #include "cnApiPdo.h"
+#include "cnApiObject.h"
 
 #ifdef CN_API_USING_SPI
   #include "cnApiPdiSpiIntern.h"
@@ -260,6 +261,15 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
         goto exit;
     }
 
+    /* initialize CN API object module */
+    if (CnApi_initObjects(pInitCnApiParam_p->m_wNumObjects) < 0)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"CnApi_initObjects() failed! Unable to"
+                "allocate object dictionary!\n");
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
+
 exit:
     return FncRet;
 }
@@ -274,7 +284,7 @@ API library.
 void CnApi_exit(void)
 {
     /* free memory */
-    /* TODO if necessary! */
+    CnApi_cleanupObjects();
 }
 
 /**

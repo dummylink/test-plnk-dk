@@ -146,6 +146,7 @@ int main (void)
 
 
     /* Set initial libCnApi parameters */
+    InitCnApiParam.m_wNumObjects = NUM_OBJECTS;
     InitCnApiParam.m_pDpram_p = (BYTE *)PDI_DPRAM_BASE_AP;
     InitCnApiParam.m_pfnAppCbSync = CnApi_AppCbSync;
     InitCnApiParam.m_pfnAppCbEvent = CnApi_AppCbEvent;
@@ -168,14 +169,7 @@ int main (void)
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\nInitialize CN API functions...successful!\n");
     }
 
-    /* initialize and link objects to object dictionary */
-
-    /* initialize CN API object module */
-    if (CnApi_initObjects(NUM_OBJECTS) < 0)
-    {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: CN API library initObjects failed\n");
-        return ERROR;
-    }
+    /* link objects to local object dictionary */
 
     /* connect local variables to object IDs
      * - Linked Objects have do be indicated in the XDD file !
@@ -254,7 +248,6 @@ int main (void)
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"shut down application...\n");
     CnApi_disableSyncInt();
     CnApi_disableAsyncEventIRQ();
-    CnApi_cleanupObjects();
     CnApi_exit();
 
     return 0;

@@ -45,10 +45,13 @@ typedef struct sCnApiObjId {
 
 /******************************************************************************/
 /* functions */
+int CnApi_initObjects(DWORD dwMaxLinks_p);
+void CnApi_cleanupObjects(void);
 void CnApi_resetObjectSelector(void);
 int CnApi_getNextObject(tCnApiObjId *pObjId);
 int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen,
         BYTE* p_data, BOOL sync);
+void CnApi_readObjects(WORD index, BYTE subIndex, int CN_readObjectCb);
 BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p,
         WORD *wSize_p, BYTE **pAdrs_p);
 
