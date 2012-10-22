@@ -76,7 +76,7 @@ static  tPdoCopyTbl         aTxPdoCopyTbl_l[PCP_PDI_TPDO_CHANNELS];
 static  tPdoCopyTbl         aRxPdoCopyTbl_l[PCP_PDI_RPDO_CHANNELS];
 
 // global pointer to the sync callback
-static tCnApiAppCbSync      pfnAppCbSync_g = NULL;
+static tCnApiAppCbSync      pfnAppCbSync_l = NULL;
 
 /******************************************************************************/
 /* function declarations */
@@ -360,7 +360,7 @@ int CnApi_initPdo(tPcpCtrlReg *pCtrlReg_p, tCnApiAppCbSync pfnAppCbSync_p,
 
     if(pfnAppCbSync_p != NULL)
     {
-        pfnAppCbSync_g = pfnAppCbSync_p;
+        pfnAppCbSync_l = pfnAppCbSync_p;
     } else {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "Error in %s: AppCbSync callback is not initialised\n", __func__);
         goto exit;
@@ -682,10 +682,25 @@ executed.
 *******************************************************************************/
 void CnApi_processPdo(void)
 {
+    tCnApiStatus Ret = kCnApiStatusOk;
     CnApi_receivePdo();
 
-    /* call AppCbSync callback function */
-    pfnAppCbSync_g();
+    if(pfnAppCbSync_l != NULL)
+    {
+        /* call AppCbSync callback function */
+        Ret = pfnAppCbSync_l();
+        if(Ret != kCnApiStatusOk)
+        {
+            //TODO: Implement proper error handling here! Set action on error! (reboot?)
+            DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "ERROR: (%s) Error while processing the sync"
+                    "callback! Errorcode: 0x%x\n", __func__, Ret);
+        }
+    }
+    else
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: (%s) Sync callback called without"
+                "initialization.", __func__);
+    }
 
     CnApi_transmitPdo();
 }

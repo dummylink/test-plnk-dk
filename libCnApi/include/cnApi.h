@@ -44,7 +44,7 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* type definitions */
-typedef void (* tCnApiAppCbSync) ( void );
+typedef tCnApiStatus (* tCnApiAppCbSync) ( void );
 typedef tEplKernel (* tCnApiObdDefAcc) (tEplObdParam * pObdParam_p);
 
 

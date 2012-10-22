@@ -77,8 +77,9 @@ static tEplObdParam   ObdParam_l = {0};                 ///< OBD access handle
 /******************************************************************************/
 /* private functions */
 static void workInputOutput(void);
-static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p);
-static void CnApi_AppCbSync(void);
+static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p,
+        tCnApiEventArg * pEventArg_p, void * pUserArg_p);
+static tCnApiStatus CnApi_AppCbSync(void);
 static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p);
 
 #ifndef USE_POLLING_MODE_SYNC
@@ -307,14 +308,18 @@ static void workInputOutput(void)
  \param pEventArg_p     pointer to argument of CnApi event which matches the event type
  \param pUserArg_p      pointer to user argument
 
+ \return tCnApiStatus
+ \retval kCnApiStatusOk     on success
+
  This function is the access point for all application related events which will
  happen in the POWERLINK Slave API. Every time an event occurs this function
  will be called.
 
  *******************************************************************************/
-static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p)
+static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p)
 {
-    tPdiAsyncStatus Ret;        ///< return code of pdo response message
+    tCnApiStatus Ret = kCnApiStatusOk;
+    tPdiAsyncStatus AsyncRet;        ///< return code of pdo response message
     DWORD dwPdoRespErrCode;     ///< error code for the pdo response message
 
     switch (EventType_p)
@@ -531,14 +536,16 @@ static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEven
                             dwPdoRespErrCode = 0; // 0: OK
                         }
 
-                        Ret = CnApi_sendPdoResp(
+                        AsyncRet = CnApi_sendPdoResp(
                                 pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bMsgId,
                                 pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bOrigin,
                                 AmiGetWordFromLe(&pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_wCommHdl),
                                 dwPdoRespErrCode);
-                        if(Ret != kPdiAsyncStatusSuccessful)
+                        if(AsyncRet != kPdiAsyncStatusSuccessful)
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to post Pdo response message!\n");
+                            Ret = kCnApiStatusError;
+                            goto Exit;
                         }
                     }
                     default:
@@ -552,20 +559,30 @@ static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEven
             default:
             break;
     }
+
+Exit:
+    return Ret;
 }
 
 /**
  ********************************************************************************
  \brief application synchronization to POWERLINK cycle
 
+ \return tCnApiStatus
+ \retval kCnApiStatusOk          on success
+
  This function is used to do application specific synchronization.
  It will be called every time after the PDO-mapped data which were linked with
  CnApi_linkObject()have been updated locally.
 
  *******************************************************************************/
-static void CnApi_AppCbSync(void)
+static tCnApiStatus CnApi_AppCbSync(void)
 {
+    tCnApiStatus Ret = kCnApiStatusOk;
+
     workInputOutput();                 // update the PCB's inputs and outputs
+
+    return Ret;
 }
 
 /**

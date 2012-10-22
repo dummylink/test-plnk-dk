@@ -36,7 +36,7 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* local variables */
-static void (*pfnAppCbEvent_l)(tCnApiEventType EventType_p,
+static tCnApiStatus (*pfnAppCbEvent_l)(tCnApiEventType EventType_p,
         tCnApiEventArg * pEventArg_p, void * pUserArg_p) = NULL;
 
 /******************************************************************************/
@@ -137,7 +137,9 @@ void CnApi_processAsyncEvent(void)
         Ret = CnApi_getAsyncIRQEvent();
         if(Ret != kCnApiStatusOk)
         {
-            DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "%s: Error while processing an async event!\n", __func__);
+            //TODO: Implement proper error handling here! Set action on error! (reboot?)
+            DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s: Error while processing an async "
+                    "event! Errorcode: 0x%x\n", __func__, Ret);
         }
     }
 }
@@ -161,7 +163,7 @@ tCnApiStatus CnApi_callEventCallback(tCnApiEventType EventType_p,
 
     if(pfnAppCbEvent_l != NULL)
     {
-        pfnAppCbEvent_l(EventType_p, pEventArg_p, pUserArg_p);
+        Ret = pfnAppCbEvent_l(EventType_p, pEventArg_p, pUserArg_p);
     } else {
         Ret = kCnApiStatusInvalidParameter;
     }

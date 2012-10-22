@@ -99,7 +99,7 @@ typedef union {
     tCnApiEventAsyncComm     AsyncComm_m;         ///< argument of kCnApiEventAsyncComm
 } tCnApiEventArg;
 
-typedef void (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
+typedef tCnApiStatus (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
         tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 
 /******************************************************************************/
