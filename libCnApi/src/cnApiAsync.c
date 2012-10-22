@@ -418,6 +418,8 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
         goto exit;
     }
 
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: InitPcpReq done.\n");
+
     /* assign buffer payload addresses */
     pInitPcpReq = (tInitPcpReq *) pTxMsgBuffer_p;    // Tx buffer
 
@@ -589,22 +591,23 @@ static tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p, 
     pInitPcpResp = (tInitPcpResp *) pRxMsgBuffer_p;    // Rx buffer
 
     /* handle Rx Message */
-    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: InitPcpResponse received.\n");
     if (pInitPcpResp->m_bReqId != bReqId_l)
     {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Unexpected Request ID!\n");
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: (%s) Unexpected Request ID!\n"
+                ,__func__);
         Ret = kPdiAsyncStatusRespError;
         goto exit;
     }
 
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "INFO: initPcpResp: status = %d\n", pInitPcpResp->m_bStatus);
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: InitPcpResp received.\n");
     if (pInitPcpResp->m_bStatus == kCnApiStatusOk)
     {
         goto exit;
     }
     else
     {
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "PCP returned error while doing initPcpReq!\n");
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: (%s) PCP returned an error while "
+                "doing InitPcpReq!\n",__func__);
         Ret = kPdiAsyncStatusRespError;
         goto exit;
     }
