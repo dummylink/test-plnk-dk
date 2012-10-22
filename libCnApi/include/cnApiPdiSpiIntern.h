@@ -17,12 +17,10 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiGlobal.h"
-#include "cnApiDebug.h"
-
-#include "cnApi.h"
-
-#include "cnApiPdiSpi.h"
+#include <cnApiGlobal.h>
+#include <cnApiDebug.h>
+#include <cnApi.h>
+#include <cnApiPdiSpi.h>
 
 #ifdef CN_API_USING_SPI
 

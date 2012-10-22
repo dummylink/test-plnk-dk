@@ -18,8 +18,10 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiTypAsync.h"
-#include "cnApiTypAsyncSm.h"
+#include <cnApiTypAsync.h>
+#include <cnApiTypAsyncSm.h>
+#include <malloc.h>
+#include <string.h>
 
 #include "cnApiAsyncSm.h"    // external function declarations
 #include "cnApiAsync.h"      // state machine constants
@@ -31,8 +33,7 @@ subject to the License Agreement located at the end of this file below.
 
 #include "EplAmi.h"
 
-#include <malloc.h>
-#include <string.h>
+
 
 /******************************************************************************/
 /* defines */

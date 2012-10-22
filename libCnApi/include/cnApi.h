@@ -19,20 +19,20 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiCfg.h"
-#include "cnApiGlobal.h"
-#include "cnApiDebug.h"
-#include "cnApiBenchmark.h"
+#include <cnApiGlobal.h>
+#include <cnApiDebug.h>
 
-#include "cnApiEvent.h"     ///< public defines for the event module
-#include "cnApiObd.h"
+#include <cnApiCfg.h>
+#include <cnApiBenchmark.h>
+#include <cnApiEvent.h>     ///< public defines for the event module
+#include <cnApiObd.h>
 
 
 #include "EplErrDef.h"
 #include "EplSdoAc.h"
 
 #ifdef CN_API_USING_SPI
-  #include "cnApiPdiSpi.h"
+  #include <cnApiPdiSpi.h>
 #endif
 
 

@@ -16,18 +16,14 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApi.h"
+#include <cnApi.h>
+#include <stateMachine.h>
+
 #include "cnApiIntern.h"
 #include "cnApiEventIntern.h"
 #include "cnApiAsyncSm.h"
 
-#include "stateMachine.h"
 
-#ifdef CN_API_USING_SPI
-  #include "cnApiPdiSpiIntern.h"
-#endif
-
-#include <string.h>
 
 /******************************************************************************/
 /* defines */

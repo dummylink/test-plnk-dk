@@ -14,7 +14,9 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApi.h"
+#include <cnApi.h>
+#include <string.h>
+
 #include "cnApiIntern.h"
 #include "cnApiEventIntern.h"
 #include "cnApiPdo.h"
@@ -27,9 +29,7 @@ subject to the License Agreement located at the end of this file below.
 
 #include "EplAmi.h"
 
-#include <string.h>
-#include <unistd.h>
-#include <malloc.h>
+
 
 /******************************************************************************/
 /* defines */

@@ -18,8 +18,8 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiTypEvent.h"
-#include "cnApiTypAsync.h"
+#include <cnApiTypEvent.h>
+#include <cnApiTypAsync.h>
 
 /******************************************************************************/
 /* defines */

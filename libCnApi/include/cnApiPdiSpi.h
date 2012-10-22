@@ -17,7 +17,7 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiCfg.h"
+#include <cnApiCfg.h>
 
 #ifdef CN_API_USING_SPI
 

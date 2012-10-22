@@ -15,12 +15,14 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApi.h"
+#include <cnApi.h>
+#include <string.h>
+#include <stateMachine.h>
+
 #include "cnApiIntern.h"
 #include "cnApiAsync.h"
 #include "cnApiAsyncSm.h"
 #include "cnApiPdo.h"
-#include "stateMachine.h"
 
 #include "user/EplSdoComu.h"
 #include "EplAmi.h"

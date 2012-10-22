@@ -17,10 +17,11 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiTyp.h"
+#include <cnApiTyp.h>
+#include <cnApiTypPdo.h>
 
 #include "cnApiAsyncSm.h"
-#include "cnApiTypPdo.h"
+
 
 /******************************************************************************/
 /* defines */

@@ -14,13 +14,11 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiObject.h"
-
-#include "cnApi.h"
-#include "cnApiIntern.h"
-
+#include <cnApi.h>
 #include <malloc.h>
-#include <string.h>
+
+#include "cnApiObject.h"
+#include "cnApiIntern.h"
 
 /******************************************************************************/
 /* defines */

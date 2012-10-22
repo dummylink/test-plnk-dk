@@ -16,13 +16,12 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApi.h"
+#include <cnApi.h>
+
 #include "cnApiIntern.h"
 #include "cnApiEventIntern.h"
-
 #include "cnApiAsync.h"
 #include "cnApiPdo.h"
-
 
 #ifdef CN_API_USING_SPI
   #include "cnApiPdiSpiIntern.h"

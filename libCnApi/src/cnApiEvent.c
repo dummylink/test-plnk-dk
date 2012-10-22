@@ -15,10 +15,10 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiEvent.h"
+#include <cnApiEvent.h>
+
 #include "cnApiEventIntern.h"
 #include "cnApiIntern.h"
-
 #include "cnApiAsyncSm.h"
 
 

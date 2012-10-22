@@ -18,10 +18,8 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApi.h"
-#include "cnApiTypAsync.h"
-
-#include "Epl.h"
+#include <cnApi.h>
+#include <cnApiTypAsync.h>
 
 
 /******************************************************************************/

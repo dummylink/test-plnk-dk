@@ -19,9 +19,8 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "stateMachine.h"
-
-#include "cnApiAsync.h"
+#include <cnApiAsync.h>
+#include <stateMachine.h>
 
 /******************************************************************************/
 /* defines */

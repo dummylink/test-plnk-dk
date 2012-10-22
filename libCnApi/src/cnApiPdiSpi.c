@@ -14,18 +14,13 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#ifdef __NIOS2__
-#include <unistd.h>    //for usleep()
-#elif defined(__MICROBLAZE__)
-#include "xilinx_usleep.h"
-#endif
+#include <cnApi.h>
+#include <cnApiDebug.h>
+#include <string.h>              // for memcpy() memset()
 
-#include <string.h> // for memcpy() memset()
-
-/* Cn API header files */
 #include "cnApiPdiSpiIntern.h"
-#include "cnApiDebug.h"
-#include "cnApi.h"
+
+
 
 #ifdef CN_API_USING_SPI
 

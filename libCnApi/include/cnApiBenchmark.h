@@ -18,7 +18,7 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiGlobal.h"
+#include <cnApiGlobal.h>
 
 /******************************************************************************/
 /* defines */
