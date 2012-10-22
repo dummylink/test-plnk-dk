@@ -520,6 +520,8 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
                          (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry)));
     }
 
+    // TODO: correct endianness here, if members of pLinkPdosReq are forwarded
+    //       (not only pLinkPdosReq, like it is done at the moment).
 
 exit:
     /* post event to user to provide the descriptor message for further use */
@@ -599,8 +601,8 @@ tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxM
     /* build up InitPcpReq */
     pLinkPdosResp->m_bMsgId = LinkPdosResp_l.m_bMsgId;
     pLinkPdosResp->m_bOrigin = LinkPdosResp_l.m_bOrigin;
+    AmiSetWordToLe(&pLinkPdosResp->m_wCommHdl, LinkPdosResp_l.m_wCommHdl);
     AmiSetDwordToLe(&pLinkPdosResp->m_dwErrCode, LinkPdosResp_l.m_dwErrCode);
-    //TODO: Assign m_wCommHdl
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = sizeof(tLinkPdosResp); // sent size
@@ -692,6 +694,7 @@ void CnApi_processPdo(void)
 
 \param  bMsgId_p         Id of the pdo response message
 \param  bOrigin_p        origin of the pdo response message
+\param  wObdAccConHdl_p  connection handle of PCP OBD access
 \param  dwErrorCode_p    error code
 
 \return tPdiAsyncStatus
@@ -700,7 +703,10 @@ void CnApi_processPdo(void)
 CnApi_sendPdoResp() posts a pdo response message to the asychronous state
 machine.
 *******************************************************************************/
-tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p, DWORD dwErrorCode_p)
+tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p,
+                                  BYTE bOrigin_p,
+                                  WORD wObdAccConHdl_p,
+                                  DWORD dwErrorCode_p)
 {
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
@@ -709,6 +715,7 @@ tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p, DWORD dwErrorCo
     /* return LinkPdosReq fields in LinkPdosResp message */
     LinkPdosResp_l.m_bMsgId = bMsgId_p;
     LinkPdosResp_l.m_bOrigin = bOrigin_p;
+    LinkPdosResp_l.m_wCommHdl = wObdAccConHdl_p;
 
     /* send LinkPdosResp message to PCP */
     Ret = CnApiAsync_postMsg(kPdiAsyncMsgIntLinkPdosResp,

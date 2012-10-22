@@ -534,9 +534,11 @@ static void CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEven
                             dwPdoRespErrCode = 0; // 0: OK
                         }
 
-                        Ret = CnApi_sendPdoResp(pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bMsgId,
-                                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bOrigin,
-                                                dwPdoRespErrCode);
+                        Ret = CnApi_sendPdoResp(
+                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bMsgId,
+                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bOrigin,
+                                AmiGetWordFromLe(&pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_wCommHdl),
+                                dwPdoRespErrCode);
                         if(Ret != kPdiAsyncStatusSuccessful)
                         {
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to post Pdo response message!\n");

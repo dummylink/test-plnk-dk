@@ -162,7 +162,6 @@ typedef enum
 typedef struct
 {
     tEplSdoSeqConHdl    m_SdoSeqConHdl;     // if != 0 -> entry used
-    unsigned int        m_PdiConHdl;
     tEplSdoComState     m_SdoComState;
     BYTE                m_bTransactionId;
     unsigned int        m_uiNodeId;         // NodeId of the target
@@ -182,7 +181,7 @@ typedef struct
                                             // -> called in the end of
                                             //    the SDO transfer
     void*               m_pUserArg;         // user definable argument pointer
-
+    WORD                m_wExtComConHdl;    // external communication handle
     DWORD               m_dwLastAbortCode;  // save the last abort code
 //#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
     // only for client
@@ -220,7 +219,8 @@ tEplKernel PUBLIC EplSdoComDelInstance(void);
 
 tEplKernel PUBLIC EplSdoComProcessIntern(tEplSdoComConHdl   SdoComCon_p,
                                          tEplSdoComConEvent SdoComConEvent_p,
-                                         tEplAsySdoCom*     pAsySdoCom_p);
+                                         tEplAsySdoCom*     pAsySdoCom_p,
+                                         WORD wExtComConHdl_p);
 
 #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDOC)) != 0)
 

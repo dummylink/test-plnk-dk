@@ -955,7 +955,8 @@ tEplSdoComConHdl    HdlFree;
         {   // matching command layer handle found
             Ret = EplSdoComProcessIntern(HdlCount,
                                     SdoComConEvent_p,
-                                    pAsySdoCom_p);
+                                    pAsySdoCom_p,
+                                    0);
         }
         else if ((pSdoComCon->m_SdoSeqConHdl == 0)
             &&(HdlFree == 0xFFFF))
@@ -984,7 +985,8 @@ tEplSdoComConHdl    HdlFree;
             pSdoComCon->m_SdoSeqConHdl = SdoSeqConHdl_p;
             Ret = EplSdoComProcessIntern(HdlCount,
                                     SdoComConEvent_p,
-                                    pAsySdoCom_p);
+                                    pAsySdoCom_p,
+                                    0);
         }
     }
 
@@ -1013,7 +1015,8 @@ tEplSdoComConHdl    HdlFree;
 //---------------------------------------------------------------------------
 tEplKernel PUBLIC EplSdoComProcessIntern(tEplSdoComConHdl   SdoComCon_p,
                                          tEplSdoComConEvent SdoComConEvent_p,
-                                         tEplAsySdoCom*     pAsySdoCom_p)
+                                         tEplAsySdoCom*     pAsySdoCom_p,
+                                         WORD wExtComConHdl_p)
 {
 tEplKernel          Ret;
 tEplSdoComCon*      pSdoComCon;
@@ -1033,6 +1036,9 @@ unsigned int        uiSize;
 
     // get pointer to control structure
     pSdoComCon = &SdoComInstance_g.m_SdoComCon[SdoComCon_p];
+
+    // assign external connection handle
+    pSdoComCon->m_wExtComConHdl = wExtComConHdl_p;
 
     // process state maschine
     switch(pSdoComCon->m_SdoComState)

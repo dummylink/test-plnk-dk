@@ -195,18 +195,18 @@ typedef struct sLinkPdosResp {
  */
 typedef struct sLinkPdosReqComCon {
     WORD       m_wMapIndex;
-    tEplAsySdoCom * m_pSdoCmdFrame;         ///< pointer to SDO command frame
     BYTE       m_bPdoDir;                   ///< value type: tPdoDir
     BYTE       m_bMapObjCnt;
     BYTE       m_bBufferNum;
     BYTE       m_bMapVersion;
+    WORD       m_wComConHdl;                ///< PDI connection handle
 } tLinkPdosReqComCon;
 
 /**
  * \brief structure connects object access messages and SDO command layer
  */
 typedef struct sObjAccSdoComCon {
-    WORD                    m_wObdAccConNum;    ///< connection number of OBD access
+    WORD                    m_wObdAccConNum;    ///< OBD access communication connection
     tEplAsySdoCom *         m_pSdoCmdFrame;     ///< pointer to SDO command frame
     unsigned int            m_uiSizeOfFrame;    ///< size of SDO command frame
     void *                  m_pUserArg;         ///< general purpose argument
@@ -218,7 +218,7 @@ typedef struct sObjAccSdoComCon {
 typedef struct sObjAccReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
-    WORD                    m_wHdlCom;      ///< connection handle of originator module
+    WORD                    m_wComConHdl;      ///< connection handle of originator module
     tEplAsySdoCom           m_SdoCmdFrame;
 } PACK_STRUCT tObjAccMsg;
 

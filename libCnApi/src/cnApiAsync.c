@@ -43,7 +43,7 @@ tPcpPdiAsyncMsgBufDescr aPcpPdiAsyncRxMsgBuffer_g[ASYNC_PDI_CHANNELS];
 
 /******************************************************************************/
 /* global variables */
-static BYTE				bReqId_l = 0;		///< asynchronous msg counter
+static BYTE bReqId_l = 0;            ///< asynchronous msg counter
 #ifdef CN_API_USING_SPI
 static tAsyncMsg LclCpyAsyncMsgHeader_l[4]; ///< local copy of asynchronous PDI message header
 #endif
@@ -55,24 +55,35 @@ static tAsyncMsg LclCpyAsyncMsgHeader_l[4]; ///< local copy of asynchronous PDI 
 /******************************************************************************/
 /* private functions */
 static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void);
-static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pMsgBuffer_p,
-                                                     BYTE * pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p);
-static tPdiAsyncStatus CnApiAsync_handleObjAccReq(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pRxMsgBuffer_p,
-                       BYTE * pTxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
-static tPdiAsyncStatus CnApi_doInitPcpReq(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pTxMsgBuffer_p,
-                       BYTE * pRxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                           BYTE* pTxMsgBuffer_p,
+                                           BYTE* pRxMsgBuffer_p,
+                                           DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                                BYTE * pMsgBuffer_p,
+                                                BYTE * pRespMsgBuffer_p,
+                                                DWORD dwMaxTxBufSize_p);
 
-static tPdiAsyncStatus CnApi_handleInitPcpResp(
-                       tPdiAsyncMsgDescr * pMsgDescr_p,
-                       BYTE * pRxMsgBuffer_p,
-                       BYTE * pTxMsgBuffer_p,
-                       DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                                    BYTE * pRxMsgBuffer_p,
+                                                    BYTE * pTxMsgBuffer_p,
+                                                    DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                                    BYTE * pRxMsgBuffer_p,
+                                                    BYTE * pTxMsgBuffer_p,
+                                                    DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                                BYTE * pMsgBuffer_p,
+                                                BYTE * pRespMsgBuffer_p,
+                                                DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                                BYTE * pMsgBuffer_p,
+                                                BYTE * pRespMsgBuffer_p,
+                                                DWORD dwMaxTxBufSize_p);
+static tPdiAsyncStatus CnApi_handleInitPcpResp(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                               BYTE * pRxMsgBuffer_p,
+                                               BYTE * pTxMsgBuffer_p,
+                                               DWORD dwMaxTxBufSize_p);
 
 /******************************************************************************/
 /* functions */
@@ -103,7 +114,7 @@ int CnApiAsync_create(void)
 ********************************************************************************
 \brief  reset asynchronous functions
 
-Reset the cnApi async module. This is done by disabling the module, doing
+Reset the CnApi async module. This is done by disabling the module, doing
 a reset and calling CnApiAsync_init() again.
 
 \return int
@@ -189,7 +200,7 @@ int CnApiAsync_init(void)
         }
     }
 
-    bReqId_l = 0;  // reset asynchronous sequence number
+    bReqId_l = 0;           // reset asynchronous sequence number
 
     Ret = CnApiAsync_initInternalMsgs();
     if (Ret != kPdiAsyncStatusSuccessful)
@@ -286,15 +297,13 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 //    TfrTyp = kPdiAsyncTrfTypeLclBuffering;; // use only, if message size will not exceed the PDI buffer
 #endif /* CN_API_USING_SPI */
 
-    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccResp, &aPcpPdiAsyncTxMsgBuffer_g[1],
                         kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    //TODO: This is blocking asynchronous traffic, because it waits for a response
-    //      Issue: ReqId has to be saved somehow (= another handle history)
     Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                        kPdiAsyncMsgIntObjAccResp, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
+                       kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -313,7 +322,7 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
+    Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccResp, &aPcpPdiAsyncRxMsgBuffer_g[1],
                         kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
@@ -432,9 +441,9 @@ exit:
 static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pMsgBuffer_p,
                                                      BYTE * pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
-    tObjAccMsg *            pObjAccReqDst = NULL;
+    tObjAccMsg *           pObjAccReqDst = NULL;
     tObjAccSdoComCon *     pSdoComConInArg = NULL; //input argument
-    tPdiAsyncStatus         Ret = kPdiAsyncStatusSuccessful;
+    tPdiAsyncStatus        Ret = kPdiAsyncStatusSuccessful;
     tEplSdoComCon*         pSdoComCon;
 
     DEBUG_FUNC;
@@ -472,7 +481,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     if ( pSdoComConInArg->m_uiSizeOfFrame == 0)
     {
         // no data containment - this should be an sequence layer ack frame
-        // -> dont send it since we only use command layer!
+        // -> don't send it since we only use command layer!
         goto exit;
     }
 
@@ -486,8 +495,8 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     // overwrite segment size - because this SDO command layer frame is misused as an customized acknowledge message
     AmiSetWordToLe(&pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize, pSdoComCon->m_uiTransferredByte);
 
-    pObjAccReqDst->m_bReqId =  bReqId_l;//TODO: dont use this Id, only rely on m_wHdlCom
-    AmiSetWordToLe(&pObjAccReqDst->m_wHdlCom, pSdoComConInArg->m_wObdAccConNum);
+    pObjAccReqDst->m_bReqId =  bReqId_l; // this Id is only for information purposes
+    AmiSetWordToLe(&pObjAccReqDst->m_wComConHdl, pSdoComCon->m_wExtComConHdl);
     /*----------------------------------------------------------------------------*/
 
 exit:
@@ -503,11 +512,17 @@ exit:
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-//static tPdiAsyncStatus cnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-//                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-//{
-//    //TODO: exact same functionality like cnApiAsync_doObjAccReq (only different naming)!
-//}
+static tPdiAsyncStatus CnApiAsync_doObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                              BYTE * pMsgBuffer_p,
+                                              BYTE * pRespMsgBuffer_p,
+                                              DWORD dwMaxTxBufSize_p)
+{
+    // exact same functionality like CnApiAsync_doObjAccReq (only different naming)
+    return CnApiAsync_doObjAccReq(pMsgDescr_p,
+                                  pMsgBuffer_p,
+                                  pRespMsgBuffer_p,
+                                  dwMaxTxBufSize_p);
+}
 
 
 /**
@@ -616,7 +631,6 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
     // process the message
     /*----------------------------------------------------------------------------*/
     // forward to SDO command layer
-    pObjAccReq->m_wHdlCom = AmiGetWordFromLe(&pObjAccReq->m_wHdlCom);
 
 //    printf("(ReqId: %d Hdl:%d SdoCmdSegSize: %d)\n",
 //            pObjAccReq->m_bReqId, pObjAccReq->m_wHdlCom,
@@ -629,7 +643,8 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
 
     EplRet = EplSdoComProcessIntern(0,
                                     kEplSdoComConEventRec,
-                                    &pObjAccReq->m_SdoCmdFrame);
+                                    &pObjAccReq->m_SdoCmdFrame,
+                                    AmiGetWordFromLe(&pObjAccReq->m_wComConHdl));
     if (EplRet != kEplSuccessful)
     {
         Ret = kPdiAsyncStatusInvalidOperation;
@@ -651,11 +666,17 @@ exit:
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 \return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
-//static tPdiAsyncStatus cnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE * pRxMsgBuffer_p,
-//                                                     BYTE * pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
-//{
-//    //TODO: exact same functionality like cnApiAsync_handleObjAccReq (only different naming)!
-//}
+static tPdiAsyncStatus CnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr_p,
+                                                   BYTE * pRxMsgBuffer_p,
+                                                   BYTE * pTxMsgBuffer_p,
+                                                   DWORD dwMaxTxBufSize_p)
+{
+    // exact same functionality like CnApiAsync_handleObjAccReq (only different naming)
+     return CnApiAsync_handleObjAccReq(pMsgDescr_p,
+                                        pRxMsgBuffer_p,
+                                        pTxMsgBuffer_p,
+                                        dwMaxTxBufSize_p);
+}
 
 
 /*******************************************************************************

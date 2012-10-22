@@ -101,9 +101,10 @@ extern DWORD CnApi_getSyncIntPeriod(void);
 
 /* functions for PDO transfer*/
 extern void CnApi_processPdo(void);
-extern tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p, BYTE bOrigin_p,
-        DWORD dwErrorCode_p);
-
+extern tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p,
+                                         BYTE bOrigin_p,
+                                         WORD wObdAccConHdl_p,
+                                         DWORD dwErrorCode_p);
 /* functions for async state machine */
 extern BOOL CnApi_processAsyncStateMachine(void);
 
