@@ -293,8 +293,6 @@ static tPdiAsyncStatus CnApiAsyncVeth_handleDataTransfer(tPdiAsyncMsgDescr * pMs
     tCnApiStatus       Ret = kCnApiStatusOk;
     tPdiAsyncStatus    cnApiRet = kPdiAsyncStatusSuccessful;
 
-    DEBUG_FUNC;
-
     /* check message descriptor */
     if ( pMsgDescr_p == NULL ||
          pMsgBuffer_p == NULL )
@@ -345,8 +343,6 @@ static tPdiAsyncStatus CnApiAsyncVeth_doDataTransfer(tPdiAsyncMsgDescr * pMsgDes
 {
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
-    DEBUG_FUNC;
-
     /* check message descriptor */
     if (pMsgDescr_p == NULL                  || // message descriptor
         pMsgBuffer_p == NULL                 )  // verify all buffer pointers we intend to use)
@@ -383,8 +379,6 @@ static tPdiAsyncStatus CnApiAsyncVeth_TxFinished(tPdiAsyncMsgDescr * pMsgDescr_p
 {
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
     tCnApiStatus        CnApiRet = kCnApiStatusOk;
-
-    DEBUG_FUNC;
 
     if (pMsgDescr_p == NULL)  // message descriptor invalid
     {
