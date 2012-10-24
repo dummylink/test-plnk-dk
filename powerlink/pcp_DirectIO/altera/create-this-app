@@ -89,12 +89,14 @@ ${LIBAPIDIR}/utils"
 
 ###############################################################################
 # handle --debug parameter
-# for explanation:
+
+# DEF_DEBUG_LVL = [
 # 0x00002000L DEBUG_LVL_14 (= DEBUG_LVL_DEFAULT_OBD_ACC)
 # 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
+# 0x02000000L DEBUG_LVL_26 (= EPL_DBGLVL_VETH)
 # 0x20000000L DEBUG_LVL_ASSERT
-# 0x80000000L DEBUG_LVL_ERROR
-# 0x40000000L DEBUG_LVL_ALWAYS
+# 0x40000000L DEBUG_LVL_ERROR
+# 0x80000000L DEBUG_LVL_ALWAYS ]
 
 if [ -z "$NO_OPT" ]; then
     DBG_MODE=NDEBUG	# Do not compile printf macros. This define overwrites all others printf-debug defines
