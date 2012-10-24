@@ -25,11 +25,10 @@ subject to the License Agreement located at the end of this file below.
 #include <cnApiCfg.h>
 #include <cnApiBenchmark.h>
 #include <cnApiEvent.h>     ///< public defines for the event module
-#include <cnApiObd.h>
+#include <cnApiObject.h>
+#include <cnApiSdo.h>
 
-
-#include "EplErrDef.h"
-#include "EplSdoAc.h"
+#include "cnApiAmi.h"       // TODO: Remove this (not needed in main.c)
 
 #ifdef CN_API_USING_SPI
   #include <cnApiPdiSpi.h>
@@ -60,7 +59,7 @@ typedef struct
 
 
 typedef tCnApiStatus (* tCnApiAppCbSync) ( tCnApiTimeStamp * pTimeStamp_p );
-typedef tEplKernel (* tCnApiObdDefAcc) (tEplObdParam * pObdParam_p);
+typedef tCnApiObdStatus (* tCnApiObdDefAcc) (tCnApiObdParam * pObdParam_p);
 
 
 
@@ -98,7 +97,7 @@ extern void CnApi_enterApStateReadyToOperate();
 
 /* functions for object access */
 extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
-extern tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p);
+extern tCnApiStatus CnApi_DefObdAccFinished(tCnApiObdParam * pObdParam_p);
 
 /* functions for interrupt synchronization */
 extern void CnApi_initSyncInt(DWORD dwMinCycleTime_p, DWORD dwMaxCycleTime_p, BYTE bReserved);

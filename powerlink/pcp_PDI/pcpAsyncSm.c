@@ -25,6 +25,7 @@ the Tx and Rx direction towards and from the AP is handled.
 
 *******************************************************************************/
 /* includes */
+#include "systemComponents.h"
 #include "pcpAsyncSm.h"    ///< external function declarations
 #include "stateMachine.h"
 #include "pcpEvent.h"

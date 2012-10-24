@@ -31,7 +31,7 @@ subject to the License Agreement located at the end of this file below.
   #include "cnApiPdiSpiIntern.h"     // serial interface
 #endif
 
-#include "EplAmi.h"
+#include "cnApiAmi.h"
 
 
 

@@ -21,13 +21,13 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiEventIntern.h"
 #include "cnApiPdo.h"
 #include "cnApiAsync.h"
-#include "cnApiObject.h"
+#include "cnApiObjectIntern.h"
 
 #ifdef CN_API_USING_SPI
   #include "cnApiPdiSpiIntern.h"
 #endif
 
-#include "EplAmi.h"
+#include "cnApiAmi.h"
 
 
 
@@ -59,7 +59,7 @@ typedef enum eTypes {
     kCnApiTypInt40 = 5,
     kCnApiTypInt48 = 6,
     kCnApiTypInt56 = 7,
-    kEplObdTypQWord = 8,
+    kCnApiTypQWord = 8,
 } tTypes;
 
 /******************************************************************************/
@@ -178,7 +178,7 @@ static inline void CopyVarConvertEndian(BYTE* pDest_p,
             break;
         }
 #endif
-        case kEplObdTypQWord:
+        case kCnApiTypQWord:
         {
 #ifdef CN_API_USING_SPI
             if(fDoRcv_p != FALSE)

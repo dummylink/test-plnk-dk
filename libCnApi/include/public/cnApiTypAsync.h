@@ -20,9 +20,6 @@ subject to the License Agreement located at the end of this file below.
 /* includes */
 #include "cnApiTyp.h"
 
-#include "EplInc.h"
-#include "EplFrame.h"     ///< for SDO frame layout type
-
 
 /******************************************************************************/
 /* defines */
@@ -203,11 +200,26 @@ typedef struct sLinkPdosReqComCon {
 } tLinkPdosReqComCon;
 
 /**
+ * \brief SDO command frame layout
+ */
+typedef struct
+{
+    BYTE                    m_le_bReserved;
+    BYTE                    m_le_bTransactionId;
+    BYTE                    m_le_bFlags;
+    BYTE                    m_le_bCommandId;
+    WORD                    m_le_wSegmentSize;
+    WORD                    m_le_wReserved;
+    BYTE                    m_le_abCommandData[8];  // just reserve a minimum number of bytes as a placeholder
+
+}PACK_STRUCT tCnApiAsySdoCom;
+
+/**
  * \brief structure connects object access messages and SDO command layer
  */
 typedef struct sObjAccSdoComCon {
     WORD                    m_wObdAccConNum;    ///< OBD access communication connection
-    tEplAsySdoCom *         m_pSdoCmdFrame;     ///< pointer to SDO command frame
+    tCnApiAsySdoCom *         m_pSdoCmdFrame;     ///< pointer to SDO command frame
     unsigned int            m_uiSizeOfFrame;    ///< size of SDO command frame
     void *                  m_pUserArg;         ///< general purpose argument
 } tObjAccSdoComCon;
@@ -219,7 +231,7 @@ typedef struct sObjAccReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wComConHdl;      ///< connection handle of originator module
-    tEplAsySdoCom           m_SdoCmdFrame;
+    tCnApiAsySdoCom           m_SdoCmdFrame;
 } PACK_STRUCT tObjAccMsg;
 
 /**

@@ -73,7 +73,7 @@ static BOOL     fOperational_l = FALSE;                         ///< indicates A
 
 // Object access
 static DWORD dwExampleData_l = 0xABCD0001;              ///< this is only an example object data
-static tEplObdParam   ObdParam_l = {0};                 ///< OBD access handle
+static tCnApiObdParam   ObdParam_l = {0};                 ///< OBD access handle
 
 /******************************************************************************/
 /* private functions */
@@ -81,7 +81,7 @@ static void workInputOutput(void);
 static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p,
         tCnApiEventArg * pEventArg_p, void * pUserArg_p);
 static tCnApiStatus CnApi_AppCbSync(tCnApiTimeStamp * pTimeStamp_p);
-static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p);
+static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p);
 
 #ifndef USE_POLLING_MODE_SYNC
     #if defined(__NIOS2__) && !defined(ALT_ENHANCED_INTERRUPT_API_PRESENT)
@@ -107,7 +107,7 @@ static void enableGlobalInterrupts(void);
 static void disableGlobalInterrupts(void);
 #endif
 
-static tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam * pObdParam_p);
+static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p);
 
 /**
 ********************************************************************************
@@ -523,7 +523,7 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Mapping or linking failed!\n");
 
                             /* set status */
-                            dwPdoRespErrCode = EPL_SDOAC_GENERAL_ERROR;
+                            dwPdoRespErrCode = CNAPI_SDOAC_GENERAL_ERROR;
                         }
                         else // successful
                         { /* set status */
@@ -716,35 +716,39 @@ static void disableGlobalInterrupts(void)
 /**
  ********************************************************************************
  \brief called if object index does not exits in OBD
+
  \param pObdParam_p   OBD access structure
- \return tEplKernel value
+
+ \return tCnApiObdStatus
+ \retval kCnApiObdStatusOk          on success
+ \retval kCnApiObdInvalidParam      when object instance is invalid
+ \retval kCnApiObdSubindexNotExist  when the subindex is invalid
 
  This default OBD access callback function will be invoked if an index is not
  present in the local OBD. If a subindex is not present, this function shall not
  be called. If the access to the desired object can not be handled immediately,
- kEplObdAccessAdopted has to be returned.
+ kCnApiObdAccessAdopted has to be returned.
  *******************************************************************************/
-static tEplKernel CnApi_CbDefaultObdAccess(tEplObdParam *  pObdParam_p)
+static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
 {
-tEplKernel       Ret = kEplSuccessful;
+    tCnApiObdStatus       Ret = kCnApiObdStatusOk;
 
     if (pObdParam_p == NULL)
     {
-        Ret = kEplInvalidParam;
+        Ret = kCnApiObdInvalidParam;
+        goto Exit;
     }
 
     DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,"CnApi_CbDefaultObdAccess(0x%04X/%u Ev=%X pData=%p ",
         pObdParam_p->m_uiIndex, pObdParam_p->m_uiSubIndex,
         pObdParam_p->m_ObdEvent,
         pObdParam_p->m_pData);
-    DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,"Off=%u Size=%u ObjSize=%u TransSize=%u ",
+    DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,"Off=%u Size=%u ObjSize=%u TransSize=%u)\n",
         pObdParam_p->m_SegmentOffset, pObdParam_p->m_SegmentSize,
         pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize);
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,"Acc=%X Typ=%X)\n",
-        pObdParam_p->m_Access, pObdParam_p->m_Type);
 
     // return error for all non existing objects
-    // if not known yet, this can also be done by settig m_dwAbortCode appropriately
+    // if not known yet, this can also be done by setting m_dwAbortCode appropriately
     // before the call of CnApi_DefObdAccFinished().
     switch (pObdParam_p->m_uiIndex)
     {
@@ -759,8 +763,8 @@ tEplKernel       Ret = kEplSuccessful;
 
                 default:
                 {
-                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_SUB_INDEX_NOT_EXIST;
-                    Ret = kEplObdSubindexNotExist;
+                    pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_SUB_INDEX_NOT_EXIST;
+                    Ret = kCnApiObdSubindexNotExist;
                     goto Exit;
                 }
             }
@@ -773,8 +777,8 @@ tEplKernel       Ret = kEplSuccessful;
             if(pObdParam_p->m_uiIndex < 0x2000)
             { // not an application specific object
 
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
-                Ret = kEplObdIndexNotExist;
+                pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_OBJECT_NOT_EXIST;
+                Ret = kCnApiObdIndexNotExist;
                 goto Exit;
 
                 break;
@@ -786,42 +790,23 @@ tEplKernel       Ret = kEplSuccessful;
 
     switch (pObdParam_p->m_ObdEvent)
     {
-        case kEplObdEvCheckExist:
+        case kCnApiObdEvCheckExist:
         {
-            // Do not return "kEplObdAccessAdopted" - not allowed in this case!
-
-            // optionally assign data type, access type and object size if it is already known
-            // e.g. pObdParam_p->m_Type = kEplObdTypUInt32;
+            // Do not return "kCnApiObdAccessAdopted" - not allowed in this case!
 
             goto Exit;
-        } // end case kEplObdEvCheckExist
+        } // end case kCnApiObdEvCheckExist
 
-        case kEplObdEvInitWriteLe:
-        case kEplObdEvPreRead:
-        { // do not return kEplSuccessful in this case,
-          // only error or kEplObdAccessAdopted is allowed!
-
-            // check if it is a segmented transfer (= domain object access)
-//            if ((pObdParam_p->m_Type == kEplObdTypDomain))
-//            {
-//                    // currently not supported
-//                    Ret = kEplInvalidParam;
-//                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
-//                    goto Exit;
-//            }
-
-            if (pObdParam_p->m_pfnAccessFinished == NULL)
-            {
-                pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                Ret = kEplObdAccessViolation;
-                goto Exit;
-            }
+        case kCnApiObdEvInitWriteLe:
+        case kCnApiObdEvPreRead:
+        { // do not return kCnApiObdStatusOk in this case,
+          // only error or kCnApiObdAccessAdopted is allowed!
 
             // save handle
-            CNAPI_MEMCPY(&ObdParam_l, pObdParam_p, sizeof (tEplObdParam));
+            CNAPI_MEMCPY(&ObdParam_l, pObdParam_p, sizeof (tCnApiObdParam));
 
             // TODO: before exiting this function, initiate custom object transfer HERE
-            // - if if fails, return kEplInvalidOperation
+            // - if if fails, return kCnApiInvalidOperation
             // Note: this function will not be called again before CnApi_DefObdAccFinished() has
             // been invoked i.e. more than one object access at the same time will not happen.
 
@@ -831,11 +816,11 @@ tEplKernel       Ret = kEplSuccessful;
             // e.g.: CnApi_DefObdAccFinished(ObdParam_l);
             // after appropriate values have been assigned to ObdParam_l.
             // Refer to CnApi_processObjectAccess() for an example function
-            Ret = kEplObdAccessAdopted;
+            Ret = kCnApiObdAccessAdopted;
             DEBUG_TRACE0(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO," Adopted\n");
             goto Exit;
 
-        }   // end case kEplObdEvInitWriteLe
+        }   // end case kCnApiObdEvPreRead
 
         default:
         break;
@@ -855,8 +840,9 @@ Exit:
  how to process and asynchronous object access e.g. from an SDO transfer. It needs
  to be adapted by the user.
  *******************************************************************************/
-static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
+static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p)
 {
+    tCnApiStatus CnApiRet = kCnApiStatusOk;
 
     if (pObdParam_p->m_uiIndex == 0 )
     { // nothing to do, return
@@ -864,7 +850,7 @@ static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
     }
 
 
-    if (pObdParam_p->m_ObdEvent == kEplObdEvPreRead)
+    if (pObdParam_p->m_ObdEvent == kCnApiObdEvPreRead)
     {   // return data of read access
 
         // Example how to finish a ReadByIndex access:
@@ -874,7 +860,7 @@ static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
         pObdParam_p->m_SegmentSize = sizeof(dwExampleData_l);
 
         // if an error occured (e.g. object does not exist):
-        //pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+        //pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_OBJECT_NOT_EXIST;
 
     }
     else
@@ -883,13 +869,18 @@ static void CnApi_processObjectAccess(tEplObdParam * pObdParam_p)
         // write to some variable
 
         // nothing else to do except optional error handling
-        //pObdParam_p->m_dwAbortCode = EPL_SDOAC_OBJECT_NOT_EXIST;
+        //pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_OBJECT_NOT_EXIST;
     }
 
-    CnApi_DefObdAccFinished(pObdParam_p);
+    CnApiRet = CnApi_DefObdAccFinished(pObdParam_p);
+    if(CnApiRet != kCnApiStatusOk)
+    {
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "ERROR: (%s) CnApi_DefObdAccFinished "
+                "failed with 0x%x!\n", __func__, CnApiRet);
+    }
 
     /* reset structure when object access is finished */
-    CNAPI_MEMSET(pObdParam_p, 0 , sizeof(tEplObdParam));
+    CNAPI_MEMSET(pObdParam_p, 0 , sizeof(tCnApiObdParam));
 
 Exit:
     return;

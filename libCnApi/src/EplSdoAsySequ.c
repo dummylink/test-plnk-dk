@@ -403,7 +403,7 @@ tEplKernel PUBLIC EplSdoAsySeqSendData(tEplSdoSeqConHdl SdoSeqConHdl_p,
 
     // set pointer to SDO command frame
     PdiObjAccCon.m_pSdoCmdFrame =
-    (tEplAsySdoCom *) &pabData_p->m_Data.m_Asnd.m_Payload.m_SdoSequenceFrame.m_le_abSdoSeqPayload;
+    (tCnApiAsySdoCom *) &pabData_p->m_Data.m_Asnd.m_Payload.m_SdoSequenceFrame.m_le_abSdoSeqPayload;
     PdiObjAccCon.m_uiSizeOfFrame = uiDataSize_p;        // size of SDO command frame
     // set SDO cmd layer handle
     PdiObjAccCon.m_pUserArg = pUserArg_p;               // forward general purpose user argument

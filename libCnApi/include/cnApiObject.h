@@ -1,10 +1,11 @@
 /**
 ********************************************************************************
-\file       cnApiObject.h
+\file       cnApiObd.h
 
-\brief      Header file of cnApi object module
+\brief      Header file of cnApi object dictionary module
 
-This header file contains definitions for the libCnApi object handling.
+This header file contains public defines for object dictionary access on the
+AP processor.
 
 Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 All rights reserved. All use of this software and documentation is
@@ -12,24 +13,70 @@ subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 
-#ifndef CNAPIOBJECT_H_
-#define CNAPIOBJECT_H_
+#ifndef CNAPIOBD_H_
+#define CNAPIOBD_H_
 
 /******************************************************************************/
 /* includes */
-#include <cnApiTyp.h>
-#include <cnApi.h>
+#include <cnApiGlobal.h>
 
 /******************************************************************************/
 /* defines */
 
 /******************************************************************************/
 /* typedefs */
-typedef struct sCnApiObjId {
-    WORD        m_wIndex;
-    BYTE        m_bSubIndex;
-    BYTE        m_bNumEntries;
-} PACK_STRUCT tCnApiObjId;
+
+typedef enum
+{
+    kCnApiObdStatusOk             = 0x0000,       // no error/successful run
+    kCnApiObdInvalidParam         = 0x000D,       // invalid parameter specified
+    kCnApiObdIllegalPart          = 0x0030,       // unknown OD part
+    kCnApiObdIndexNotExist        = 0x0031,       // object index does not exist in OD
+    kCnApiObdSubindexNotExist     = 0x0032,       // subindex does not exist in object index
+    kCnApiObdReadViolation        = 0x0033,       // read access to a write-only object
+    kCnApiObdWriteViolation       = 0x0034,       // write access to a read-only object
+    kCnApiObdAccessViolation      = 0x0035,       // access not allowed
+    kCnApiObdUnknownObjectType    = 0x0036,       // object type not defined/known
+    kCnApiObdVarEntryNotExist     = 0x0037,       // object does not contain VarEntry structure
+    kCnApiObdValueTooLow          = 0x0038,       // value to write to an object is too low
+    kCnApiObdValueTooHigh         = 0x0039,       // value to write to an object is too high
+    kCnApiObdValueLengthError     = 0x003A,       // value to write is too long or too short
+    kCnApiObdErrnoSet             = 0x003B,       // file I/O error occurred and errno is set
+    kCnApiObdInvalidDcf           = 0x003C,       // device configuration file (CDC) is not valid
+    kCnApiObdOutOfMemory          = 0x003D,       // out of memory
+    kCnApiObdNoConfigData         = 0x003E,       // no configuration data present (CDC is empty)
+    kCnApiObdAccessAdopted        = 0x003F,       // OD access adopted
+
+} tCnApiObdStatus;
+
+typedef enum
+{
+    kCnApiObdEvCheckExist            = 0x06,    // checking if object does exist (reading and writing)
+    kCnApiObdEvPreRead               = 0x00,    // before reading an object
+    kCnApiObdEvPostRead              = 0x01,    // after reading an object
+    kCnApiObdEvPostReadLe            = 0x08,    // after reading an object
+    kCnApiObdEvWrStringDomain        = 0x07,    // event for changing string/domain data pointer or size
+    kCnApiObdEvInitWrite             = 0x05,    // initializes writing an object (checking object size)
+    kCnApiObdEvInitWriteLe           = 0x04,    // initializes writing an object (checking object size)
+    kCnApiObdEvPreWrite              = 0x02,    // before writing an object
+    kCnApiObdEvPostWrite             = 0x03,    // after writing an object
+} tCnApiObdEvent;
+
+typedef unsigned int tCnApiObdSize; // For all objects as objects size are used an unsigned int.
+
+
+typedef struct sCnApiObdParam
+{
+    tCnApiObdEvent    m_ObdEvent;
+    unsigned int      m_uiIndex;
+    unsigned int      m_uiSubIndex;
+    DWORD             m_dwAbortCode;
+    void *            m_pData;
+    tCnApiObdSize     m_TransferSize;     // transfer size from SDO or local app
+    tCnApiObdSize     m_ObjSize;          // current object size from OD
+    tCnApiObdSize     m_SegmentSize;
+    tCnApiObdSize     m_SegmentOffset;
+} tCnApiObdParam;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -45,15 +92,6 @@ typedef struct sCnApiObjId {
 
 /******************************************************************************/
 /* functions */
-int CnApi_initObjects(DWORD dwMaxLinks_p);
-void CnApi_cleanupObjects(void);
-void CnApi_resetObjectSelector(void);
-int CnApi_getNextObject(tCnApiObjId *pObjId);
-int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen,
-        BYTE* p_data, BOOL sync);
-void CnApi_readObjects(WORD index, BYTE subIndex, int CN_readObjectCb);
-BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p,
-        WORD *wSize_p, BYTE **pAdrs_p);
 
 
 #endif /* CNAPIOBJECT_H_ */

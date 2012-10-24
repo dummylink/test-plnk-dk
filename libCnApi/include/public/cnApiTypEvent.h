@@ -78,7 +78,6 @@ typedef union {
     tPcpPdiEventGeneric      Gen_m;                 ///< argument of kPcpPdiEventGeneric
     tPcpPdiEventGenericError GenErr_m;              ///< argument of kPcpPdiEventGenericError
     tPcpStates               NewPcpState_m;         ///< argument of kPcpPdiEventPcpStateChange
-//    tEplNmtState             NewNmtState_m;         ///< argument of kPcpPdiEventNmtStateChange
     tEplKernel               PcpStackError_m;       ///< argument of kPcpPdiEventCriticalStackError
     DWORD                    wErrorHistoryCode_m;   ///< argument of kPcpPdiEventHistoryEntry
 } tPcpPdiEventArg;

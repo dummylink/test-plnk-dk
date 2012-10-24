@@ -17,8 +17,12 @@ subject to the License Agreement located at the end of this file below.
 #include <cnApi.h>
 #include <malloc.h>
 
-#include "cnApiObject.h"
 #include "cnApiIntern.h"
+#include "cnApiObjectIntern.h"
+
+#include "kernel/EplObdk.h"
+#include "EplObd.h"
+
 
 /******************************************************************************/
 /* defines */
@@ -42,6 +46,10 @@ static DWORD		dwSelectObj_l;
 /******************************************************************************/
 /* private functions */
 static void CnApi_resetLinkCounter(void);
+static tCnApiObdDefAcc pfnDefaultObdAccess_l = NULL;
+
+static tEplKernel EplCbDefaultObdAccess(tEplObdParam * pObdParam_p);
+static tEplObdParam EplObdParam_l;
 
 /******************************************************************************/
 /* functions */
@@ -52,25 +60,50 @@ static void CnApi_resetLinkCounter(void);
 
 Initialize the libCnApi internal objects. (This function calls a malloc)
 
-\param  dwMaxLinks_p        maximum number of linkable objects
+\param  dwMaxLinks_p            maximum number of linkable objects
+\param  pfnDefaultObdAccess_p   callback for the default obd access
 
 \return int
 \retval OK                  if init succeeds
 \retval ERROR               when out of memory
 *******************************************************************************/
-int CnApi_initObjects(DWORD dwMaxLinks_p)
+int CnApi_initObjects(DWORD dwMaxLinks_p, tCnApiObdDefAcc pfnDefaultObdAccess_p)
 {
+    int Ret = OK;
+    tEplKernel EplRet = kEplSuccessful;
 
-	/* allocate memory for object table */
-	if ((pObjTbl_l = CNAPI_MALLOC (sizeof(tObjTbl) * dwMaxLinks_p)) == NULL)
-	{
-		return ERROR;
-	}
+    /* when valid make default object access callback global */
+    if(pfnDefaultObdAccess_p != NULL)
+    {
+        pfnDefaultObdAccess_l = pfnDefaultObdAccess_p;
+    }
+    else
+    {
+        Ret = ERROR;
+        goto exit;
+    }
 
-	dwMaxLinkEntries_l = dwMaxLinks_p;
-	CnApi_resetLinkCounter();
+    /* assign callback for all objects which don't exist in local OBD */
+    EplRet = EplObdSetDefaultObdCallback(&EplCbDefaultObdAccess);
+    if (EplRet != kEplSuccessful)
+    {
+        Ret = ERROR;
+        goto exit;
+    }
 
-	return OK;
+
+    /* allocate memory for object table */
+    if ((pObjTbl_l = CNAPI_MALLOC (sizeof(tObjTbl) * dwMaxLinks_p)) == NULL)
+    {
+        Ret = ERROR;
+        goto exit;
+    }
+
+    dwMaxLinkEntries_l = dwMaxLinks_p;
+    CnApi_resetLinkCounter();
+
+exit:
+    return Ret;
 }
 
 /**
@@ -275,25 +308,87 @@ void CnApi_readObjects(WORD index, BYTE subIndex, int CN_readObjectCb)
 
 }
 
+static tEplKernel EplCbDefaultObdAccess(tEplObdParam * pObdParam_p)
+{
+    tEplKernel Ret = kEplSuccessful;
+    tCnApiObdStatus CnApiObdRet = kCnApiObdStatusOk;
+    tCnApiObdParam CnApiObdParam = { 0 };
+
+    switch (pObdParam_p->m_ObdEvent)
+    {
+        case kCnApiObdEvInitWriteLe:
+        case kCnApiObdEvPreRead:
+        {
+            if (pObdParam_p->m_pfnAccessFinished == NULL)
+            {
+                pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                Ret = kEplObdAccessViolation;
+                goto exit;
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    // convert epl object parameters to cnapi object parameters
+    CnApiObdParam.m_ObdEvent = pObdParam_p->m_ObdEvent;
+    CnApiObdParam.m_uiIndex = pObdParam_p->m_uiIndex;
+    CnApiObdParam.m_uiSubIndex = pObdParam_p->m_uiSubIndex;
+    CnApiObdParam.m_dwAbortCode = pObdParam_p->m_dwAbortCode;
+    CnApiObdParam.m_pData = pObdParam_p->m_pData;
+    CnApiObdParam.m_TransferSize = pObdParam_p->m_TransferSize;
+    CnApiObdParam.m_ObjSize = pObdParam_p->m_ObjSize;
+    CnApiObdParam.m_SegmentSize = pObdParam_p->m_SegmentSize;
+    CnApiObdParam.m_SegmentOffset = pObdParam_p->m_SegmentOffset;
+
+
+    // save pObdParam_p for epl finished callback
+    CNAPI_MEMCPY(&EplObdParam_l, pObdParam_p, sizeof(tEplObdParam));
+
+    // call user callback
+    if(pfnDefaultObdAccess_l != NULL)
+    {
+        CnApiObdRet = pfnDefaultObdAccess_l(&CnApiObdParam);
+
+        // convert cnapi return value to epl return value
+        Ret = (tEplKernel)CnApiObdRet;
+    }
+    else
+    {
+        Ret = kEplInvalidOperation;
+        goto exit;
+    }
+exit:
+    return Ret;
+}
+
 /**
  ********************************************************************************
  \brief signals an OBD default access as finished
- \param pObdParam_p
- \return tEplKernel value
+ \param pObdParam_p            the object access handle
+
+ \return tCnApiStatus
+ \retval kCnApiStatusOk                 on success
+ \retval kCnApiStatusInvalidParameter   when pObdParam_p is invalid
+ \retval kCnApiStatusError              when object access finished forwarding
+                                        failed!
 
  This function has to be called after an OBD access has been finished to
  inform the caller about this event.
  *******************************************************************************/
-tEplKernel CnApi_DefObdAccFinished(tEplObdParam * pObdParam_p)
+tCnApiStatus CnApi_DefObdAccFinished(tCnApiObdParam * pObdParam_p)
 {
-tEplKernel EplRet = kEplSuccessful;
+    tCnApiStatus CnApiRet = kCnApiStatusOk;
+    tEplKernel EplRet = kEplSuccessful;
 
     DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "INFO: %s(%p) called\n", __func__, pObdParam_p);
 
-    if (pObdParam_p->m_uiIndex == 0                      ||
-        pObdParam_p->m_pfnAccessFinished == NULL  )
+    if (pObdParam_p->m_uiIndex == 0 )
     {
-        EplRet = kEplInvalidParam;
+        CnApiRet = kCnApiStatusInvalidParameter;
         goto Exit;
     }
 
@@ -302,18 +397,29 @@ tEplKernel EplRet = kEplSuccessful;
          (pObdParam_p->m_SegmentOffset != 0)                    )  )
     {
         //segmented read access not allowed!
-        pObdParam_p->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
+        pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_UNSUPPORTED_ACCESS;
     }
+
+    // convert cnapi object parameters to epl object parameters
+    EplObdParam_l.m_ObdEvent = pObdParam_p->m_ObdEvent;
+    EplObdParam_l.m_uiIndex = pObdParam_p->m_uiIndex;
+    EplObdParam_l.m_uiSubIndex = pObdParam_p->m_uiSubIndex;
+    EplObdParam_l.m_dwAbortCode = pObdParam_p->m_dwAbortCode;
+    EplObdParam_l.m_pData = pObdParam_p->m_pData;
+    EplObdParam_l.m_TransferSize = pObdParam_p->m_TransferSize;
+    EplObdParam_l.m_ObjSize = pObdParam_p->m_ObjSize;
+    EplObdParam_l.m_SegmentSize = pObdParam_p->m_SegmentSize;
+    EplObdParam_l.m_SegmentOffset = pObdParam_p->m_SegmentOffset;
 
     // call callback function which was assigned by caller
-    EplRet = pObdParam_p->m_pfnAccessFinished(pObdParam_p);
+    EplRet = EplObdParam_l.m_pfnAccessFinished(&EplObdParam_l);
+    if (EplRet != kEplSuccessful)
+    {   // convert error from epl to cnapi return
+        CnApiRet = kCnApiStatusError;
+    }
 
 Exit:
-    if (EplRet != kEplSuccessful)
-    {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: %s failed!\n", __func__);
-    }
-    return EplRet;
+    return CnApiRet;
 
 }
 

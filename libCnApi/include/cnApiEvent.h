@@ -94,8 +94,6 @@ typedef union {
     tApStates                NewApState_m;        ///< argument of kCnApiEventApStateChange
     tPcpPdiEventGeneric      PcpEventGen_m;       ///< argument of kCnApiEventPcp
     tCnApiEventError         CnApiError_m;        ///< argument of kCnApiEventError
-//    tEplSdoComFinished       Sdo_m;               ///< argument of kCnApiEventSdo
-//    tEplObdCbParam           ObdCbParam_m;        ///< argument of kCnApiEventObdAccess
     tCnApiEventAsyncComm     AsyncComm_m;         ///< argument of kCnApiEventAsyncComm
 } tCnApiEventArg;
 

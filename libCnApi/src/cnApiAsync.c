@@ -23,9 +23,9 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiAsync.h"
 #include "cnApiAsyncSm.h"
 #include "cnApiPdo.h"
+#include "cnApiAmi.h"
 
 #include "user/EplSdoComu.h"
-#include "EplAmi.h"
 
 #ifdef CN_API_USING_SPI
   #include "cnApiPdiSpiIntern.h"
@@ -670,7 +670,7 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
 
     EplRet = EplSdoComProcessIntern(0,
                                     kEplSdoComConEventRec,
-                                    &pObjAccReq->m_SdoCmdFrame,
+                                    (tEplAsySdoCom *)&pObjAccReq->m_SdoCmdFrame,    // convert to epl structure
                                     AmiGetWordFromLe(&pObjAccReq->m_wComConHdl));
     if (EplRet != kEplSuccessful)
     {

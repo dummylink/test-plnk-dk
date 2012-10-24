@@ -70,9 +70,7 @@
 
 ****************************************************************************/
 
-//#include "global.h"
-//#include "EplAmi.h"
-#include "EplInc.h"
+#include "cnApiAmi.h"
 
 #if (!defined(EPL_AMI_INLINED)) || defined(INLINE_ENABLED)
 

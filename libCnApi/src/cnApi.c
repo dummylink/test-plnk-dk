@@ -22,14 +22,13 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiEventIntern.h"
 #include "cnApiAsync.h"
 #include "cnApiPdo.h"
-#include "cnApiObject.h"
+#include "cnApiObjectIntern.h"
 
 #ifdef CN_API_USING_SPI
   #include "cnApiPdiSpiIntern.h"
 #endif
 
-#include "EplAmi.h"
-#include "kernel/EplObdk.h"
+#include "cnApiAmi.h"
 
 /******************************************************************************/
 /* defines */
@@ -161,7 +160,6 @@ called by the application in order to use the API.
 tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInitPcpParam_p)
 {
     tCnApiStatus    FncRet = kCnApiStatusOk;
-    tEplKernel      EplRet = kEplSuccessful;
     BOOL            fPcpPresent = FALSE;
     int             iStatus;
 #ifdef CN_API_USING_SPI
@@ -222,17 +220,9 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
         goto exit;
     }
 
-    /* assign callback for all objects which don't exist in local OBD */
-    EplRet = EplObdSetDefaultObdCallback(pInitCnApiParam_p->m_pfnDefaultObdAccess_p);
-    if (EplRet != kEplSuccessful)
-    {
-        FncRet = kCnApiStatusError;
-        goto exit;
-    }
-
     /* init cnApi async event module */
     FncRet = CnApi_initAsyncEvent(pInitCnApiParam_p->m_pfnAppCbEvent);
-    if (FncRet != kEplSuccessful)
+    if (FncRet != kCnApiStatusOk)
     {
         FncRet = kCnApiStatusError;
         goto exit;
@@ -262,7 +252,9 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
     }
 
     /* initialize CN API object module */
-    if (CnApi_initObjects(pInitCnApiParam_p->m_wNumObjects) < 0)
+    iStatus = CnApi_initObjects(pInitCnApiParam_p->m_wNumObjects,
+            pInitCnApiParam_p->m_pfnDefaultObdAccess_p);
+    if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"CnApi_initObjects() failed! Unable to"
                 "allocate object dictionary!\n");

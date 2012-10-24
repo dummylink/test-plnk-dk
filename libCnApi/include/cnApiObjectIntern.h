@@ -1,45 +1,36 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved. All use of this software and documentation is
-* subject to the License Agreement located at the end of this file below.
-*/
-
 /**
 ********************************************************************************
+\file       cnApiObjectIntern.h
 
-\file       pcpAsyncSm.h
+\brief      Library internal header file of cnApi object module
 
-\brief      header file for pcpAsyncSm (state machine) module
+This header file contains definitions for the libCnApi object handling which
+are private inside the library.
 
-\author     hoggerm
-
-\date       26.08.2011
-
-\since      26.08.2011
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 
-#ifndef PCPASYNCSM_H_
-#define PCPASYNCSM_H_
+#ifndef CNAPIOBJECTINTERN_H_
+#define CNAPIOBJECTINTERN_H_
 
 /******************************************************************************/
 /* includes */
-#include "cnApiTyp.h"
-#include "pcpAsync.h"
-#include "cnApiTypAsyncSm.h"
-
-#include "EplInc.h"
+#include <cnApiTyp.h>
+#include <cnApi.h>
 
 /******************************************************************************/
 /* defines */
-#define USLEEP(x)                   EPL_USLEEP(x)
-#define MALLOC(siz)                 EPL_MALLOC(siz)
-#define FREE(ptr)                   EPL_FREE(ptr)
-#define MEMSET(ptr, bVal, bCnt)     EPL_MEMSET(ptr, bVal, bCnt)
-#define MEMCPY(dst,src,siz)         EPL_MEMCPY(dst,src,siz)
 
 /******************************************************************************/
 /* typedefs */
+typedef struct sCnApiObjId {
+    WORD        m_wIndex;
+    BYTE        m_bSubIndex;
+    BYTE        m_bNumEntries;
+} PACK_STRUCT tCnApiObjId;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -49,37 +40,24 @@
 
 /******************************************************************************/
 /* function declarations */
-tPdiAsyncStatus CnApiAsync_postMsg(
-                tPdiAsyncMsgType MsgType_p,
-                BYTE * pUserHandle_p,
-                tPdiAsyncCbTransferFinished pfnCbOrigMsg_p,
-                tPdiAsyncCbTransferFinished pfnCbRespMsg_p,
-                BYTE * pUserBuffer_p,
-                DWORD dwUserBufSize_p);
-
-tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
-                                const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p, tPdiAsyncMsgType RespMsgType_p,
-                                tPdiAsyncTransferType TransferType_p, tAsyncChannel ChanType_p,
-                                const tPcpStates * paValidNmtList_p, WORD wTimeout_p);
-
-void CnApi_resetAsyncStateMachine(void);
-tPdiAsyncStatus CnApiAsync_finishMsgInit(void);
-void CnApi_activateAsyncStateMachine(void);
-void CnApiAsync_resetMsgLogCounter(void);
-void CnApi_enableAsyncSmProcessing(void);
-void CnApi_disableAsyncSmProcessing(void);
-BOOL CnApi_processAsyncStateMachine(void);
 
 /******************************************************************************/
 /* private functions */
 
 /******************************************************************************/
 /* functions */
+int CnApi_initObjects(DWORD dwMaxLinks_p, tCnApiObdDefAcc pfnDefaultObdAccess_p);
+void CnApi_cleanupObjects(void);
+void CnApi_resetObjectSelector(void);
+int CnApi_getNextObject(tCnApiObjId *pObjId);
+int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen,
+        BYTE* p_data, BOOL sync);
+void CnApi_readObjects(WORD index, BYTE subIndex, int CN_readObjectCb);
+BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p,
+        WORD *wSize_p, BYTE **pAdrs_p);
 
 
-
-
-#endif /* PCPASYNCSM_H_ */
+#endif /* CNAPIOBJECTINTERN_H_ */
 
 /*******************************************************************************
 *

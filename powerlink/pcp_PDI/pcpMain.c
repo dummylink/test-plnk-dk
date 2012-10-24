@@ -1422,8 +1422,8 @@ static tEplKernel Gi_forwardObdAccHstryEntryToPdi(tObdAccHstryEntry * pDefObdHdl
     {   // PDI connection established
 
         PdiObjAccCon.m_wObdAccConNum = wComConIdx; // forward OBD access connection number to PDI
-        // assign SDO command frame
-        PdiObjAccCon.m_pSdoCmdFrame = pDefObdHdl_p->m_ObdParam.m_pRemoteAddress->m_le_pSdoCmdFrame;
+        // assign SDO command frame and convert from epl to cnapi structure
+        PdiObjAccCon.m_pSdoCmdFrame = (tCnApiAsySdoCom *)pDefObdHdl_p->m_ObdParam.m_pRemoteAddress->m_le_pSdoCmdFrame;
         PdiObjAccCon.m_uiSizeOfFrame = offsetof(tEplAsySdoCom , m_le_abCommandData) +
         AmiGetWordFromLe(&pDefObdHdl_p->m_ObdParam.m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize);
 
