@@ -226,8 +226,8 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 
 #if VETH_DRV_ENABLE != FALSE
     /* init virtual ethernet driver */
-    if (CnApi_initVeth(pInitCnApiParm_p->m_pfnVethRx,
-            pInitCnApiParm_p->m_pfnVethTxFinished) == ERROR )
+    if (CnApi_initVeth(pInitCnApiParam_p->m_pfnVethRx,
+            pInitCnApiParam_p->m_pfnVethTxFinished) == ERROR )
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: CN API library init "
                 "VirtualEthernet driver failed\n");
