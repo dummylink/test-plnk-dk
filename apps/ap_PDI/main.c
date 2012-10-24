@@ -170,8 +170,8 @@ int main (void)
     InitCnApiParam.m_pfnDisableGlobalIntH = disableGlobalInterrupts;
 #endif
 #if VETH_DRV_ENABLE != FALSE
-    InitCnApiParm.m_pfnVethRx = CnApi_AppCbVethRx;
-    InitCnApiParm.m_pfnVethTxFinished = CnApi_AppCbVethTxFinished;
+    InitCnApiParam.m_pfnVethRx = CnApi_AppCbVethRx;
+    InitCnApiParam.m_pfnVethTxFinished = CnApi_AppCbVethTxFinished;
 #endif
 
     status = CnApi_init(&InitCnApiParam, &InitPcpParam);   // initialize and start the CN API
