@@ -11,7 +11,7 @@ CN_API_FLAGS= 	# empty
 
 ###############################################################################
 # include project configuration
-$PWD=`pwd`
+PWD=`pwd`
 
 . ../../project.config
 POWERLINKDIR=$PWD/../powerlink/generic/${POWERLINKFLDR}
