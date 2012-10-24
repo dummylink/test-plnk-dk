@@ -24,6 +24,10 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiPdo.h"
 #include "cnApiObjectIntern.h"
 
+#if VETH_DRV_ENABLE != FALSE
+  #include "cnApiAsyncVethIntern.h"
+#endif
+
 #ifdef CN_API_USING_SPI
   #include "cnApiPdiSpiIntern.h"
 #endif
@@ -219,6 +223,19 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
         FncRet = kCnApiStatusError;
         goto exit;
     }
+
+#if VETH_DRV_ENABLE != FALSE
+    /* init virtual ethernet driver */
+    if (CnApi_initVeth(pInitCnApiParm_p->m_pfnVethRx,
+            pInitCnApiParm_p->m_pfnVethTxFinished) == ERROR )
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: CN API library init "
+                "VirtualEthernet driver failed\n");
+        FncRet = kCnApiStatusError;
+        goto exit;
+    }
+
+#endif //VETH_DRV_ENABLE
 
     /* init cnApi async event module */
     FncRet = CnApi_initAsyncEvent(pInitCnApiParam_p->m_pfnAppCbEvent);

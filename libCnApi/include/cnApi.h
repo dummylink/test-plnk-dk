@@ -35,6 +35,10 @@ subject to the License Agreement located at the end of this file below.
   #include <cnApiPdiSpi.h>
 #endif
 
+#if VETH_DRV_ENABLE != FALSE
+#include "cnApiAsyncVeth.h"
+#endif
+
 
 /******************************************************************************/
 /* defines */
@@ -86,6 +90,11 @@ typedef struct sCnApiInitParm {
     void *                  m_pfnEnableGlobalIntH;
     void *                  m_pfnDisableGlobalIntH;
 #endif //CN_API_USING_SPI
+
+#if VETH_DRV_ENABLE != FALSE
+    tPdiAsyncVethRxCb       m_pfnVethRx;
+    tPdiAsyncVethTxFinCb    m_pfnVethTxFinished;
+#endif //VETH_DRV_ENABLE != FALSE
 } tCnApiInitParam;
 
 /******************************************************************************/
@@ -121,6 +130,14 @@ extern BOOL CnApi_processAsyncStateMachine(void);
 
 /* functions for the LED module */
 extern tCnApiStatus CnApi_setLed(tCnApiLedType bLed_p, BOOL bOn_p);
+
+/* functions for the Veth module */
+#if VETH_DRV_ENABLE != FALSE
+extern tCnApiStatus CnApi_sendVeth(BYTE *pData_p, WORD wDataSize);
+  #ifdef CNAPI_VETH_SEND_TEST
+  extern tCnApiStatus CnApi_SendTestVEth(void);
+  #endif //CNAPI_VETH_SEND_TEST
+#endif //VETH_DRV_ENABLE != FALSE
 
 
 #endif /* CNAPI_H_ */

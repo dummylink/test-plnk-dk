@@ -619,6 +619,13 @@ subject to the License Agreement located at the end of this file below.
 #define DEBUG_LVL_CNAPI_EVENT_INFO_TRACE3     DEBUG_LVL_17_TRACE3
 #define DEBUG_LVL_CNAPI_EVENT_INFO_TRACE4     DEBUG_LVL_17_TRACE4
 
+#define DEBUG_LVL_CNAPI_VETH_INFO            DEBUG_LVL_18
+#define DEBUG_LVL_CNAPI_VETH_INFO_TRACE0     DEBUG_LVL_18_TRACE0
+#define DEBUG_LVL_CNAPI_VETH_INFO_TRACE1     DEBUG_LVL_18_TRACE1
+#define DEBUG_LVL_CNAPI_VETH_INFO_TRACE2     DEBUG_LVL_18_TRACE2
+#define DEBUG_LVL_CNAPI_VETH_INFO_TRACE3     DEBUG_LVL_18_TRACE3
+#define DEBUG_LVL_CNAPI_VETH_INFO_TRACE4     DEBUG_LVL_18_TRACE4
+
 #define DEBUG_FUNC      DEBUG_TRACE1(DEBUG_LVL_09, "%s:\n", __func__)
 
 /******************************************************************************/

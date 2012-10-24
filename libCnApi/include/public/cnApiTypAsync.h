@@ -113,6 +113,8 @@ typedef enum ePdiAsyncStatus{
     kPdiAsyncStatusInvalidMessage       = 0x0014,   ///< unexpected message received
     kPdiAsyncStatusFreeInstance         = 0x0015,   ///< free instance found
     kPdiAsyncStatusUnhandledTransfer    = 0x0016,   ///< no handle assigned to process buffer
+    kPdiAsyncStatusFreeError            = 0x0017,   ///< unable to free the buffer
+    kPdiAsyncStatusMtuExceeded          = 0x0018,   ///< maximum MTU exceeded
 } tPdiAsyncStatus; ///< module wide return and status codes
 
 /**
@@ -120,7 +122,7 @@ typedef enum ePdiAsyncStatus{
  */
 typedef enum eAsyncChannel {
     kAsyncChannelInternal = 0x01,
-    kAsyncChannelSdo = 0x02
+    kAsyncChannelExternal = 0x02
 } tAsyncChannel;
 
 /**

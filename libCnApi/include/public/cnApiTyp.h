@@ -84,7 +84,9 @@ typedef enum eCnApiStatus{
     kCnApiStatusObjectNotExist,         ///< object does not exist
     kCnApiStatusAllocationFailed,       ///< memory allocation failed
     kCnApiStatusObjectLinkFailed,       ///< linking object to memory failed
-    kCnApiStatusCommandNotAccepted      ///< command isn't accepted
+    kCnApiStatusCommandNotAccepted,     ///< command isn't accepted
+    kCnApiStatusNoMsg,                  ///< no message avaiable to transfer
+    kCnApiStatusBusy                    ///< api us currently busy
 } tCnApiStatus;
 
 

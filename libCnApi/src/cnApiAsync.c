@@ -25,6 +25,10 @@ subject to the License Agreement located at the end of this file below.
 #include "cnApiPdo.h"
 #include "cnApiAmi.h"
 
+#if VETH_DRV_ENABLE != FALSE
+#include "cnApiAsyncVethIntern.h"
+#endif
+
 #include "user/EplSdoComu.h"
 
 #ifdef CN_API_USING_SPI
@@ -232,6 +236,14 @@ int CnApiAsync_init(void)
         goto exit;
     }
 
+#if VETH_DRV_ENABLE != FALSE
+    Ret = CnApi_initVethMessages();
+    if (Ret != kPdiAsyncStatusSuccessful)
+    {
+        goto exit;
+    }
+#endif
+
     Ret = CnApiAsync_finishMsgInit();
     if (Ret != kPdiAsyncStatusSuccessful)
     {
@@ -322,12 +334,12 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 #endif /* CN_API_USING_SPI */
 
     Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_doObjAccResp, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelExternal, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
-                       kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelExternal, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
@@ -347,12 +359,12 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccResp, Dir, CnApiAsync_handleObjAccResp, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelExternal, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
     Ret = CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_handleObjAccReq, &aPcpPdiAsyncRxMsgBuffer_g[1],
-                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelSdo, pNmtList, wTout);
+                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelExternal, pNmtList, wTout);
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 

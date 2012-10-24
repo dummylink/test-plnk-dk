@@ -1395,7 +1395,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     /* timeout handling */
     dwTimeoutWait_l = 0;  // reset timeout counter
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "%s errorcode: 0x%04x\n",
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "ERROR: (%s) returned: 0x%04x\n",
                                 __func__, ErrorHistory_l);
 
     /* deactivate active messages */

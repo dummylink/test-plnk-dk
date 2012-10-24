@@ -83,6 +83,12 @@ ifeq ($(INCLUDE_SPI_DRV),yes)
 endif
 
 ###################################
+# Virtual Ethernet
+ifeq ($(VIRT_ETH),yes)
+	SRCFILES+= 	${CN_API_DIR}/cnApiAsyncVeth.c
+endif
+
+###################################
 # objects
 OBJ = $(addprefix $(OBJDIR)/,$(notdir $(patsubst %.c, %.o, $(SRCFILES))))
 OBJD = $(addprefix $(OBJDIR)/,$(notdir $(patsubst %.c, %.d, $(SRCFILES))))

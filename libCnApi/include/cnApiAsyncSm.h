@@ -42,13 +42,6 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* global functions */
 tPdiAsyncStatus CnApiAsync_finishMsgInit(void);
-tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
-                                           const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p, tPdiAsyncMsgType RespMsgType_p,
-                                           tPdiAsyncTransferType TransferType_p, tAsyncChannel ChanType_p,
-                                           const tPcpStates * paValidNmtList_p, WORD wTimeout_p);
-
-void CnApiAsync_resetMsgLogCounter(void);
-
 tPdiAsyncStatus CnApiAsync_postMsg(
                         tPdiAsyncMsgType MsgType_p,
                         BYTE * pUserHandle_p,
@@ -56,7 +49,11 @@ tPdiAsyncStatus CnApiAsync_postMsg(
                         tPdiAsyncCbTransferFinished pfnCbRespMsg_p,
                         BYTE * pUserBuffer_p,
                         DWORD dwUserBufSize_p);
-
+tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p,
+        const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p, const tPcpPdiAsyncMsgBufDescr * pPdiBuffer_p,
+        tPdiAsyncMsgType RespMsgType_p, tPdiAsyncTransferType TransferType_p,
+        tAsyncChannel ChanType_p, const tPcpStates * paValidNmtList_p, WORD wTimeout_p);
+void CnApiAsync_resetMsgLogCounter(void);
 void CnApi_activateAsyncStateMachine(void);
 void CnApi_resetAsyncStateMachine(void);
 BOOL CnApi_processAsyncStateMachine(void);

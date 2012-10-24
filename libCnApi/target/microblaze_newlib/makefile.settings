@@ -27,11 +27,17 @@ BUS_INTERFACE=axi
 
 ##################################
 # Include SPI driver: [yes, no]
+# Note: Disables SPI driver object file creation (reduces code size)
 INCLUDE_SPI_DRV=yes
 
 ##################################
 # Processor name: [pcp, ap]
 PROCESSOR_NAME=ap
+
+##################################
+# Enable VirtualEthernet Interface: [yes, no]
+# Note: Disables Veth object file creation (reduces code size)
+VIRT_ETH=yes
 
 ##################################
 # Processor features: (more information in the "Embedded Systems Tools Reference Manual")
@@ -56,6 +62,8 @@ DBG_MODE=_DEBUG
 # 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
 # 0x00008000L DEBUG_LVL_16 (= DEBUG_LVL_CNAPI_PDO)
 # 0x00010000L DEBUG_LVL_17 (= DEBUG_LVL_CNAPI_EVENT)
+# 0x00020000L DEBUG_LVL_18 (= DEBUG_LVL_CNAPI_VETH)
+# 0x02000000L DEBUG_LVL_26 (= EPL_DBGLVL_VETH)
 # 0x20000000L DEBUG_LVL_ASSERT
 # 0x40000000L DEBUG_LVL_ERROR
 # 0x80000000L DEBUG_LVL_ALWAYS ]
