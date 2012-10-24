@@ -192,6 +192,11 @@
 			<locationURI>PLK_LOC/EplStack/EplTimeruGeneric.c</locationURI>
 		</link>
 		<link>
+			<name>openPOWERLINK_CNDKPatched/VirtualEthernetNoOs.c</name>
+			<type>1</type>
+			<locationURI>PLK_LOC/EplStack/VirtualEthernetNoOs.c</locationURI>
+		</link>
+		<link>
 			<name>openPOWERLINK_CNDKPatched/Include</name>
 			<type>2</type>
 			<locationURI>PLK_LOC/Include</locationURI>
