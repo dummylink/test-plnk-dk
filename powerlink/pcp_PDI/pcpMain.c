@@ -1353,7 +1353,7 @@ tEplKernel Gi_closeObdAccHstryToPdiConnection(
             }
             else
             {   // all abort codes are 0
-                if(pObdAccHstEntry->m_ObdParam.m_Access == kEplObdEvPreRead)
+                if(pObdAccHstEntry->m_ObdParam.m_ObdEvent == kEplObdEvPreRead)
                 {
                     // assign data information needed by object read response
                     pObdAccHstEntry->m_ObdParam.m_SegmentSize = wReadObjRespSegmSize_p;

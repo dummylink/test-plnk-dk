@@ -476,7 +476,6 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
 
     if (pMsgDescr_p == NULL                  || // message descriptor
         pMsgDescr_p->pUserHdl_m == NULL      || // input argument
-        //pMsgDescr_p->pRespMsgDescr_m == NULL || // response message assignment
         pMsgBuffer_p == NULL                 ) // verify all buffer pointers we intend to use)
     {
         Ret = kPdiAsyncStatusInvalidInstanceParam;
