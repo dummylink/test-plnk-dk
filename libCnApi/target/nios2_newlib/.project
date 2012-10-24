@@ -118,6 +118,11 @@
 			<location>CNDK_LOCATION/libCnApi/src/cnApiAsyncSm.c</location>
 		</link>
 		<link>
+			<name>cnApiAsyncVeth.c</name>
+			<type>1</type>
+			<location>CNDK_LOCATION/libCnApi/src/cnApiAsyncVeth.c</location>
+		</link>        
+		<link>
 			<name>cnApiEvent.c</name>
 			<type>1</type>
 			<location>CNDK_LOCATION/libCnApi/src/cnApiEvent.c</location>
