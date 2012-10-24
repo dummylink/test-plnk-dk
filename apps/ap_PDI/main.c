@@ -111,6 +111,11 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p);
 tCnApiStatus CnApi_CbPdoDescListings(tCnApiPdoDesc * pPdoDesc_p,
         tCnApiSdoAbortCode * tPdoRespAbortCode_p);
 
+#if VETH_DRV_ENABLE != FALSE
+  static tCnApiStatus CnApi_AppCbVethRx(BYTE *pData_p, WORD wDataSize);
+  static tCnApiStatus CnApi_AppCbVethTxFinished(tCnApiVethTxStatus eVethTxStatus_p);
+#endif
+
 /**
 ********************************************************************************
 \brief    entry function of CN API example
@@ -164,6 +169,10 @@ int main (void)
     InitCnApiParam.m_pfnEnableGlobalIntH = enableGlobalInterrupts;
     InitCnApiParam.m_pfnDisableGlobalIntH = disableGlobalInterrupts;
 #endif
+#if VETH_DRV_ENABLE != FALSE
+    InitCnApiParm.m_pfnVethRx = CnApi_AppCbVethRx;
+    InitCnApiParm.m_pfnVethTxFinished = CnApi_AppCbVethTxFinished;
+#endif
 
     status = CnApi_init(&InitCnApiParam, &InitPcpParam);   // initialize and start the CN API
     if (status > 0)
@@ -204,7 +213,7 @@ int main (void)
         return ERROR;
     }
 
-    CnApi_initSyncInt(3000, 100000, 0);
+    CnApi_initSyncInt(400, 100000, 0);
     CnApi_disableSyncInt();    //< interrupt will be enabled when CN is operational
 #endif /* USE_POLLING_MODE_SYNC */
 
@@ -250,6 +259,18 @@ int main (void)
 #ifdef USE_POLLING_MODE_ASYNC
         CnApi_processAsyncEvent();            // check if PCP event occurred
 #endif /* USE_POLLING_MODE_ASYNC */
+
+#ifdef CNAPI_VETH_SEND_TEST
+        status = CnApi_SendTestVEth();
+        if(status == kCnApiStatusMsgBufFull)
+        {
+            // message buffer full (do nothing!)
+        }
+        else if (status != kCnApiStatusOk)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: CnApi_sendVeth failed with 0x%02X\n", status);
+        }
+#endif
     }
 
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"shut down application...\n");
@@ -436,19 +457,33 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                                     case kPcpGenErrInitFailed:
                                     case kPcpGenErrSyncCycleCalcError:
                                     {
-                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: PCP Init failed!\n");
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) PCP "
+                                                "initialization failed!\n", __func__);
+                                        break;
+                                    }
+                                    case kPcpGenErrAsyncComMtuExceeded:
+                                    {
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) Max "
+                                                "asynchronous MTU exceeded!\n",__func__);
+                                        break;
+                                    }
+                                    case kPcpGenErrAsyncComTxBufferFull:
+                                    {
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) Asynchronous "
+                                                "Tx buffer full!\n",__func__);
                                         break;
                                     }
                                     case kPcpGenErrAsyncComTimeout:
                                     case kPcpGenErrAsyncIntChanComError:
                                     {
-                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"Asynchronous communication error at PCP!\n");
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) Asynchronous "
+                                                "communication failed at PCP!\n",__func__);
                                         break;
                                     }
                                     case kPcpGenErrPhy0LinkLoss:
                                     case kPcpGenErrPhy1LinkLoss:
                                     {
-                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"Phy link lost!\n");
+                                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"INFO: Phy link lost!\n");
                                         // This might not be an issue as long as you have two phys.
                                         // Only the connection to MN might be critical.
                                         // If this link is lost -> PCP state change to PreOP1
@@ -664,6 +699,53 @@ static void disableGlobalInterrupts(void)
     BENCHMARK_MOD_02_SET(2);
 }
 #endif /* CN_API_USING_SPI */
+
+#if VETH_DRV_ENABLE != FALSE
+/**
+********************************************************************************
+\brief  Virtual Ethernet callback for a received frame
+
+\param pData_p          pointer to the data structure
+\param wDataSize        size of the received buffer
+
+\return tCnApiStatus
+\retval kCnApiStatusOk                    on success
+\retval other                             on other error
+
+returns the received frame for further processing
+*******************************************************************************/
+static tCnApiStatus CnApi_AppCbVethRx(BYTE *pData_p, WORD wDataSize)
+{
+    tCnApiStatus iRet = kCnApiStatusOk;
+
+    DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Successfully received a "
+            "virtual ethernet frame!\n", __func__);
+
+    return iRet;
+}
+
+/**
+********************************************************************************
+\brief  Virtual Ethernet callback for transmit finished
+
+\param eVethTxStatus_p                    status of transfer (success or timeout)
+
+\return tCnApiStatus
+\retval kCnApiStatusOk                    on success
+\retval other                             on other error
+
+Signals if a Tx frame is posted in the stack internal buffer on PCP
+*******************************************************************************/
+static tCnApiStatus CnApi_AppCbVethTxFinished(tCnApiVethTxStatus eVethTxStatus_p)
+{
+    tCnApiStatus iRet = kCnApiStatusOk;
+
+    DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Transfer finished callback"
+            " called!\n", __func__);
+
+    return iRet;
+}
+#endif
 
 
 /**
