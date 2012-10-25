@@ -72,10 +72,6 @@
 
 #include "cnApiAmi.h"
 
-
-#if (!defined(EPL_AMI_INLINED)) || defined(INLINE_ENABLED)
-
-
 //---------------------------------------------------------------------------
 //  Typdefinitionen
 //---------------------------------------------------------------------------
@@ -112,21 +108,21 @@ typedef union
 #define AMI_LOWORD(val)                     (WORD) (val      )
 #define AMI_HIWORD(val)                     (WORD) (val >> 16)
 
-#define AMI_READ_BYTE(val,ptr)              (val) =                          *(BYTE FAR*) (ptr)
-#define AMI_READ_WORD(val,ptr)              (val) =                (WORD)  (*((BYTE FAR*) (ptr) + 1));\
-                                            (val) = ((val) << 8) | (WORD)  (*((BYTE FAR*) (ptr) + 0));
-#define AMI_READ_DWORD(val,ptr)             (val) =                (DWORD) (*((BYTE FAR*) (ptr) + 3));\
-                                            (val) = ((val) << 8) | (DWORD) (*((BYTE FAR*) (ptr) + 2));\
-                                            (val) = ((val) << 8) | (DWORD) (*((BYTE FAR*) (ptr) + 1));\
-                                            (val) = ((val) << 8) | (DWORD) (*((BYTE FAR*) (ptr) + 0));
+#define AMI_READ_BYTE(val,ptr)              (val) =                          *(BYTE *) (ptr)
+#define AMI_READ_WORD(val,ptr)              (val) =                (WORD)  (*((BYTE *) (ptr) + 1));\
+                                            (val) = ((val) << 8) | (WORD)  (*((BYTE *) (ptr) + 0));
+#define AMI_READ_DWORD(val,ptr)             (val) =                (DWORD) (*((BYTE *) (ptr) + 3));\
+                                            (val) = ((val) << 8) | (DWORD) (*((BYTE *) (ptr) + 2));\
+                                            (val) = ((val) << 8) | (DWORD) (*((BYTE *) (ptr) + 1));\
+                                            (val) = ((val) << 8) | (DWORD) (*((BYTE *) (ptr) + 0));
 
-#define AMI_WRITE_BYTE(ptr,val)               *(BYTE FAR*) (ptr)       =                        (val)
-#define AMI_WRITE_WORD(ptr,val)             (*((BYTE FAR*) (ptr) + 0)) =             AMI_LOBYTE (val);\
-                                            (*((BYTE FAR*) (ptr) + 1)) =             AMI_HIBYTE (val);
-#define AMI_WRITE_DWORD(ptr,val)            (*((BYTE FAR*) (ptr) + 0)) = AMI_LOBYTE (AMI_LOWORD (val));\
-                                            (*((BYTE FAR*) (ptr) + 1)) = AMI_HIBYTE (AMI_LOWORD (val));\
-                                            (*((BYTE FAR*) (ptr) + 2)) = AMI_LOBYTE (AMI_HIWORD (val));\
-                                            (*((BYTE FAR*) (ptr) + 3)) = AMI_HIBYTE (AMI_HIWORD (val));
+#define AMI_WRITE_BYTE(ptr,val)               *(BYTE *) (ptr)       =                        (val)
+#define AMI_WRITE_WORD(ptr,val)             (*((BYTE *) (ptr) + 0)) =             AMI_LOBYTE (val);\
+                                            (*((BYTE *) (ptr) + 1)) =             AMI_HIBYTE (val);
+#define AMI_WRITE_DWORD(ptr,val)            (*((BYTE *) (ptr) + 0)) = AMI_LOBYTE (AMI_LOWORD (val));\
+                                            (*((BYTE *) (ptr) + 1)) = AMI_HIBYTE (AMI_LOWORD (val));\
+                                            (*((BYTE *) (ptr) + 2)) = AMI_LOBYTE (AMI_HIWORD (val));\
+                                            (*((BYTE *) (ptr) + 3)) = AMI_HIBYTE (AMI_HIWORD (val));
 
 
 //=========================================================================//
@@ -153,10 +149,10 @@ typedef union
 
 //------------< write BYTE in big endian >--------------------------
 /*
-void  PUBLIC  AmiSetByteToBe (void FAR* pAddr_p, BYTE bByteVal_p)
+void    AmiSetByteToBe (void * pAddr_p, BYTE bByteVal_p)
 {
 
-   *(BYTE FAR*)pAddr_p = bByteVal_p;
+   *(BYTE *)pAddr_p = bByteVal_p;
 
 }
 */
@@ -165,22 +161,22 @@ void  PUBLIC  AmiSetByteToBe (void FAR* pAddr_p, BYTE bByteVal_p)
 
 //------------< write WORD in big endian >--------------------------
 
-INLINE_FUNCTION void  PUBLIC  AmiSetWordToBe (void FAR* pAddr_p, WORD wWordVal_p)
+void    AmiSetWordToBe (void * pAddr_p, WORD wWordVal_p)
 {
-    (*((BYTE FAR*) (pAddr_p) + 0)) = AMI_HIBYTE (wWordVal_p);
-    (*((BYTE FAR*) (pAddr_p) + 1)) = AMI_LOBYTE (wWordVal_p);
+    (*((BYTE *) (pAddr_p) + 0)) = AMI_HIBYTE (wWordVal_p);
+    (*((BYTE *) (pAddr_p) + 1)) = AMI_LOBYTE (wWordVal_p);
 }
 
 
 
 //------------< write DWORD in big endian >-------------------------
 
-INLINE_FUNCTION void  PUBLIC  AmiSetDwordToBe (void FAR* pAddr_p, DWORD dwDwordVal_p)
+void    AmiSetDwordToBe (void * pAddr_p, DWORD dwDwordVal_p)
 {
-    (*((BYTE FAR*) (pAddr_p) + 0)) = AMI_HIBYTE (AMI_HIWORD (dwDwordVal_p));
-    (*((BYTE FAR*) (pAddr_p) + 1)) = AMI_LOBYTE (AMI_HIWORD (dwDwordVal_p));
-    (*((BYTE FAR*) (pAddr_p) + 2)) = AMI_HIBYTE (AMI_LOWORD (dwDwordVal_p));
-    (*((BYTE FAR*) (pAddr_p) + 3)) = AMI_LOBYTE (AMI_LOWORD (dwDwordVal_p));
+    (*((BYTE *) (pAddr_p) + 0)) = AMI_HIBYTE (AMI_HIWORD (dwDwordVal_p));
+    (*((BYTE *) (pAddr_p) + 1)) = AMI_LOBYTE (AMI_HIWORD (dwDwordVal_p));
+    (*((BYTE *) (pAddr_p) + 2)) = AMI_HIBYTE (AMI_LOWORD (dwDwordVal_p));
+    (*((BYTE *) (pAddr_p) + 3)) = AMI_LOBYTE (AMI_LOWORD (dwDwordVal_p));
 }
 
 
@@ -204,7 +200,7 @@ INLINE_FUNCTION void  PUBLIC  AmiSetDwordToBe (void FAR* pAddr_p, DWORD dwDwordV
 
 //------------< write BYTE in little endian >--------------------------
 /*
-void  PUBLIC  AmiSetByteToLe (void FAR* pAddr_p, BYTE bByteVal_p)
+void    AmiSetByteToLe (void * pAddr_p, BYTE bByteVal_p)
 {
 
 // Diese Funktion dient zum Schreiben eines Bytes auf der angegebenen
@@ -221,16 +217,9 @@ void  PUBLIC  AmiSetByteToLe (void FAR* pAddr_p, BYTE bByteVal_p)
 
 //------------< write WORD in little endian >--------------------------
 
-INLINE_FUNCTION void  PUBLIC  AmiSetWordToLe (void FAR* pAddr_p, WORD wWordVal_p)
+void    AmiSetWordToLe (void * pAddr_p, WORD wWordVal_p)
 {
-
-// Diese Funktion dient zum Schreiben eines Words auf der angegebenen
-// absoluten Adresse. Die Funktionen der Gruppe <AmiSetxxx> werden verwendet,
-// um Daten zum Austausch mit anderen Systemen im Intel-Format abzulegen.
-
-
    AMI_WRITE_WORD (pAddr_p, wWordVal_p);
-
 }
 
 
@@ -238,56 +227,20 @@ INLINE_FUNCTION void  PUBLIC  AmiSetWordToLe (void FAR* pAddr_p, WORD wWordVal_p
 
 //------------< write DWORD in little endian >-------------------------
 
-INLINE_FUNCTION void  PUBLIC  AmiSetDwordToLe (void FAR* pAddr_p, DWORD dwDwordVal_p)
+void    AmiSetDwordToLe (void * pAddr_p, DWORD dwDwordVal_p)
 {
-
-// Diese Funktion dient zum Schreiben eines Dwords auf der angegebenen
-// absoluten Adresse. Die Funktionen der Gruppe <AmiSetxxx> werden verwendet,
-// um Daten zum Austausch mit anderen Systemen im Intel-Format abzulegen.
-
-
    AMI_WRITE_DWORD (pAddr_p, dwDwordVal_p);
-
 }
-
-
-
-
-//---------------------------------------------------------------------------
-//
-// Function:    AmiGetXXXFromBe()
-//
-// Description: reads the specified value from the absolute address in
-//              big endian
-//
-// Parameters:  pAddr_p                 = absolute address
-//
-// Returns:     XXX                     = value
-//
-// State:
-//
-//---------------------------------------------------------------------------
-
-//------------< read BYTE in big endian >---------------------------
-/*
-BYTE  PUBLIC  AmiGetByteFromBe (void FAR* pAddr_p)
-{
-
-   return ( *(BYTE FAR*)pAddr_p );
-
-}
-*/
-
 
 
 //------------< read WORD in big endian >---------------------------
 
-INLINE_FUNCTION WORD  PUBLIC  AmiGetWordFromBe (void FAR* pAddr_p)
+ WORD    AmiGetWordFromBe (void * pAddr_p)
 {
 WORD wValue;
 
-    (wValue) =                   (WORD)  (*((BYTE FAR*) (pAddr_p) + 0));
-    (wValue) = ((wValue) << 8) | (WORD)  (*((BYTE FAR*) (pAddr_p) + 1));
+    (wValue) =                   (WORD)  (*((BYTE *) (pAddr_p) + 0));
+    (wValue) = ((wValue) << 8) | (WORD)  (*((BYTE *) (pAddr_p) + 1));
 
     return ( wValue );
 }
@@ -297,38 +250,22 @@ WORD wValue;
 
 //------------< read DWORD in big endian >--------------------------
 
-INLINE_FUNCTION DWORD  PUBLIC  AmiGetDwordFromBe (void FAR* pAddr_p)
+ DWORD    AmiGetDwordFromBe (void * pAddr_p)
 {
 DWORD dwValue;
 
-    (dwValue) =                    (DWORD) (*((BYTE FAR*) (pAddr_p) + 0));\
-    (dwValue) = ((dwValue) << 8) | (DWORD) (*((BYTE FAR*) (pAddr_p) + 1));\
-    (dwValue) = ((dwValue) << 8) | (DWORD) (*((BYTE FAR*) (pAddr_p) + 2));\
-    (dwValue) = ((dwValue) << 8) | (DWORD) (*((BYTE FAR*) (pAddr_p) + 3));
+    (dwValue) =                    (DWORD) (*((BYTE *) (pAddr_p) + 0));\
+    (dwValue) = ((dwValue) << 8) | (DWORD) (*((BYTE *) (pAddr_p) + 1));\
+    (dwValue) = ((dwValue) << 8) | (DWORD) (*((BYTE *) (pAddr_p) + 2));\
+    (dwValue) = ((dwValue) << 8) | (DWORD) (*((BYTE *) (pAddr_p) + 3));
 
     return ( dwValue );
 
 }
 
-
-//---------------------------------------------------------------------------
-//
-// Function:    AmiGetXXXFromLe()
-//
-// Description: reads the specified value from the absolute address in
-//              little endian
-//
-// Parameters:  pAddr_p                 = absolute address
-//
-// Returns:     XXX                     = value
-//
-// State:
-//
-//---------------------------------------------------------------------------
-
 //------------< read BYTE in little endian >---------------------------
 /*
-BYTE  PUBLIC  AmiGetByteFromLe (void FAR* pAddr_p)
+BYTE    AmiGetByteFromLe (void * pAddr_p)
 {
 
 // Diese Funktion dient zum Lesen eines Bytes von der angegebenen absoluten
@@ -350,7 +287,7 @@ BYTE bValue;
 
 //------------< read WORD in little endian >---------------------------
 
-INLINE_FUNCTION WORD  PUBLIC  AmiGetWordFromLe (void FAR* pAddr_p)
+ WORD    AmiGetWordFromLe (void * pAddr_p)
 {
 
 // Diese Funktion dient zum Lesen eines Words von der angegebenen absoluten
@@ -372,7 +309,7 @@ WORD wValue;
 
 //------------< read DWORD in little endian >--------------------------
 
-INLINE_FUNCTION DWORD  PUBLIC  AmiGetDwordFromLe (void FAR* pAddr_p)
+ DWORD    AmiGetDwordFromLe (void * pAddr_p)
 {
 
 // Diese Funktion dient zum Lesen eines Dwords von der angegebenen absoluten
@@ -399,21 +336,21 @@ DWORD dwValue;
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              dwDwordVal_p    = value to set
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetDword24ToBe (void FAR* pAddr_p, DWORD dwDwordVal_p)
+void  AmiSetDword24ToBe (void * pAddr_p, DWORD dwDwordVal_p)
 {
 tSplittDword dwValue;
 
     dwValue.m_dwValue = dwDwordVal_p;
 
-    ((BYTE FAR*) pAddr_p)[0] = dwValue.m_abValue[0];
-    ((BYTE FAR*) pAddr_p)[1] = dwValue.m_abValue[1];
-    ((BYTE FAR*) pAddr_p)[2] = dwValue.m_abValue[2];
+    ((BYTE *) pAddr_p)[0] = dwValue.m_abValue[0];
+    ((BYTE *) pAddr_p)[1] = dwValue.m_abValue[1];
+    ((BYTE *) pAddr_p)[2] = dwValue.m_abValue[2];
 
 }
 
@@ -427,18 +364,18 @@ tSplittDword dwValue;
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              dwDwordVal_p    = value to set
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetDword24ToLe (void FAR* pAddr_p, DWORD dwDwordVal_p)
+void  AmiSetDword24ToLe (void * pAddr_p, DWORD dwDwordVal_p)
 {
 
-    ((BYTE FAR*) pAddr_p)[0] = ((BYTE FAR*) &dwDwordVal_p)[0];
-    ((BYTE FAR*) pAddr_p)[1] = ((BYTE FAR*) &dwDwordVal_p)[1];
-    ((BYTE FAR*) pAddr_p)[2] = ((BYTE FAR*) &dwDwordVal_p)[2];
+    ((BYTE *) pAddr_p)[0] = ((BYTE *) &dwDwordVal_p)[0];
+    ((BYTE *) pAddr_p)[1] = ((BYTE *) &dwDwordVal_p)[1];
+    ((BYTE *) pAddr_p)[2] = ((BYTE *) &dwDwordVal_p)[2];
 
 }
 
@@ -457,7 +394,7 @@ INLINE_FUNCTION void PUBLIC AmiSetDword24ToLe (void FAR* pAddr_p, DWORD dwDwordV
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION DWORD PUBLIC AmiGetDword24FromBe (void FAR* pAddr_p)
+ DWORD  AmiGetDword24FromBe (void * pAddr_p)
 {
 
 tdwStruct      dwStruct;
@@ -484,7 +421,7 @@ tdwStruct      dwStruct;
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION DWORD PUBLIC AmiGetDword24FromLe (void FAR* pAddr_p)
+ DWORD  AmiGetDword24FromLe (void * pAddr_p)
 {
 
 tdwStruct      dwStruct;
@@ -507,23 +444,23 @@ tdwStruct      dwStruct;
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword64ToBe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword64ToBe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 
-    ((BYTE FAR*) pAddr_p)[0] = ((BYTE FAR*) &qwQwordVal_p)[7];
-    ((BYTE FAR*) pAddr_p)[1] = ((BYTE FAR*) &qwQwordVal_p)[6];
-    ((BYTE FAR*) pAddr_p)[2] = ((BYTE FAR*) &qwQwordVal_p)[5];
-    ((BYTE FAR*) pAddr_p)[3] = ((BYTE FAR*) &qwQwordVal_p)[4];
-    ((BYTE FAR*) pAddr_p)[4] = ((BYTE FAR*) &qwQwordVal_p)[3];
-    ((BYTE FAR*) pAddr_p)[5] = ((BYTE FAR*) &qwQwordVal_p)[2];
-    ((BYTE FAR*) pAddr_p)[6] = ((BYTE FAR*) &qwQwordVal_p)[1];
-    ((BYTE FAR*) pAddr_p)[7] = ((BYTE FAR*) &qwQwordVal_p)[0];
+    ((BYTE *) pAddr_p)[0] = ((BYTE *) &qwQwordVal_p)[7];
+    ((BYTE *) pAddr_p)[1] = ((BYTE *) &qwQwordVal_p)[6];
+    ((BYTE *) pAddr_p)[2] = ((BYTE *) &qwQwordVal_p)[5];
+    ((BYTE *) pAddr_p)[3] = ((BYTE *) &qwQwordVal_p)[4];
+    ((BYTE *) pAddr_p)[4] = ((BYTE *) &qwQwordVal_p)[3];
+    ((BYTE *) pAddr_p)[5] = ((BYTE *) &qwQwordVal_p)[2];
+    ((BYTE *) pAddr_p)[6] = ((BYTE *) &qwQwordVal_p)[1];
+    ((BYTE *) pAddr_p)[7] = ((BYTE *) &qwQwordVal_p)[0];
 
 }
 
@@ -537,13 +474,13 @@ INLINE_FUNCTION void PUBLIC AmiSetQword64ToBe (void FAR* pAddr_p, QWORD qwQwordV
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword64ToLe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword64ToLe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 tSplittQword    qwValue;
 
@@ -569,25 +506,25 @@ tSplittQword    qwValue;
 //
 // Parameters:  pAddr_p         = pointer to source buffer
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword64FromBe (void FAR* pAddr_p)
+QWORD  AmiGetQword64FromBe (void * pAddr_p)
 {
 
 tqwStruct      qwStruct;
 
-    ((BYTE FAR*) &qwStruct.m_qwQword)[0] = ((BYTE FAR*) pAddr_p)[7];
-    ((BYTE FAR*) &qwStruct.m_qwQword)[1] = ((BYTE FAR*) pAddr_p)[6];
-    ((BYTE FAR*) &qwStruct.m_qwQword)[2] = ((BYTE FAR*) pAddr_p)[5];
-    ((BYTE FAR*) &qwStruct.m_qwQword)[3] = ((BYTE FAR*) pAddr_p)[4];
-    ((BYTE FAR*) &qwStruct.m_qwQword)[4] = ((BYTE FAR*) pAddr_p)[3];
-    ((BYTE FAR*) &qwStruct.m_qwQword)[5] = ((BYTE FAR*) pAddr_p)[2];
-    ((BYTE FAR*) &qwStruct.m_qwQword)[6] = ((BYTE FAR*) pAddr_p)[1];
-    ((BYTE FAR*) &qwStruct.m_qwQword)[7] = ((BYTE FAR*) pAddr_p)[0];
+    ((BYTE *) &qwStruct.m_qwQword)[0] = ((BYTE *) pAddr_p)[7];
+    ((BYTE *) &qwStruct.m_qwQword)[1] = ((BYTE *) pAddr_p)[6];
+    ((BYTE *) &qwStruct.m_qwQword)[2] = ((BYTE *) pAddr_p)[5];
+    ((BYTE *) &qwStruct.m_qwQword)[3] = ((BYTE *) pAddr_p)[4];
+    ((BYTE *) &qwStruct.m_qwQword)[4] = ((BYTE *) pAddr_p)[3];
+    ((BYTE *) &qwStruct.m_qwQword)[5] = ((BYTE *) pAddr_p)[2];
+    ((BYTE *) &qwStruct.m_qwQword)[6] = ((BYTE *) pAddr_p)[1];
+    ((BYTE *) &qwStruct.m_qwQword)[7] = ((BYTE *) pAddr_p)[0];
 
     return ( qwStruct.m_qwQword );
 
@@ -602,13 +539,13 @@ tqwStruct      qwStruct;
 //
 // Parameters:  pAddr_p         = pointer to source buffer
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword64FromLe (void FAR* pAddr_p)
+QWORD  AmiGetQword64FromLe (void * pAddr_p)
 {
 tSplittQword    qwValue;
 
@@ -634,20 +571,20 @@ tSplittQword    qwValue;
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword40ToBe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword40ToBe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 
-    ((BYTE FAR*) pAddr_p)[0] = ((BYTE FAR*) &qwQwordVal_p)[4];
-    ((BYTE FAR*) pAddr_p)[1] = ((BYTE FAR*) &qwQwordVal_p)[3];
-    ((BYTE FAR*) pAddr_p)[2] = ((BYTE FAR*) &qwQwordVal_p)[2];
-    ((BYTE FAR*) pAddr_p)[3] = ((BYTE FAR*) &qwQwordVal_p)[1];
-    ((BYTE FAR*) pAddr_p)[4] = ((BYTE FAR*) &qwQwordVal_p)[0];
+    ((BYTE *) pAddr_p)[0] = ((BYTE *) &qwQwordVal_p)[4];
+    ((BYTE *) pAddr_p)[1] = ((BYTE *) &qwQwordVal_p)[3];
+    ((BYTE *) pAddr_p)[2] = ((BYTE *) &qwQwordVal_p)[2];
+    ((BYTE *) pAddr_p)[3] = ((BYTE *) &qwQwordVal_p)[1];
+    ((BYTE *) pAddr_p)[4] = ((BYTE *) &qwQwordVal_p)[0];
 
 }
 
@@ -661,13 +598,13 @@ INLINE_FUNCTION void PUBLIC AmiSetQword40ToBe (void FAR* pAddr_p, QWORD qwQwordV
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword40ToLe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword40ToLe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 tSplittQword qwValue;
 
@@ -696,7 +633,7 @@ tSplittQword qwValue;
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword40FromBe (void FAR* pAddr_p)
+QWORD  AmiGetQword40FromBe (void * pAddr_p)
 {
 
 tqwStruct      qwStruct;
@@ -723,7 +660,7 @@ tqwStruct      qwStruct;
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword40FromLe (void FAR* pAddr_p)
+QWORD  AmiGetQword40FromLe (void * pAddr_p)
 {
 
 QWORD      qwValue;
@@ -745,21 +682,21 @@ QWORD      qwValue;
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword48ToBe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword48ToBe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 
-    ((BYTE FAR*) pAddr_p)[0] = ((BYTE FAR*) &qwQwordVal_p)[5];
-    ((BYTE FAR*) pAddr_p)[1] = ((BYTE FAR*) &qwQwordVal_p)[4];
-    ((BYTE FAR*) pAddr_p)[2] = ((BYTE FAR*) &qwQwordVal_p)[3];
-    ((BYTE FAR*) pAddr_p)[3] = ((BYTE FAR*) &qwQwordVal_p)[2];
-    ((BYTE FAR*) pAddr_p)[4] = ((BYTE FAR*) &qwQwordVal_p)[1];
-    ((BYTE FAR*) pAddr_p)[5] = ((BYTE FAR*) &qwQwordVal_p)[0];
+    ((BYTE *) pAddr_p)[0] = ((BYTE *) &qwQwordVal_p)[5];
+    ((BYTE *) pAddr_p)[1] = ((BYTE *) &qwQwordVal_p)[4];
+    ((BYTE *) pAddr_p)[2] = ((BYTE *) &qwQwordVal_p)[3];
+    ((BYTE *) pAddr_p)[3] = ((BYTE *) &qwQwordVal_p)[2];
+    ((BYTE *) pAddr_p)[4] = ((BYTE *) &qwQwordVal_p)[1];
+    ((BYTE *) pAddr_p)[5] = ((BYTE *) &qwQwordVal_p)[0];
 
 }
 
@@ -773,13 +710,13 @@ INLINE_FUNCTION void PUBLIC AmiSetQword48ToBe (void FAR* pAddr_p, QWORD qwQwordV
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword48ToLe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword48ToLe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 tSplittQword qwValue;
 
@@ -809,7 +746,7 @@ tSplittQword qwValue;
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword48FromBe (void FAR* pAddr_p)
+QWORD  AmiGetQword48FromBe (void * pAddr_p)
 {
 
 tqwStruct      qwStruct;
@@ -836,7 +773,7 @@ tqwStruct      qwStruct;
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword48FromLe (void FAR* pAddr_p)
+QWORD  AmiGetQword48FromLe (void * pAddr_p)
 {
 
 QWORD      qwValue;
@@ -858,22 +795,22 @@ QWORD      qwValue;
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword56ToBe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword56ToBe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 
-    ((BYTE FAR*) pAddr_p)[0] = ((BYTE FAR*) &qwQwordVal_p)[6];
-    ((BYTE FAR*) pAddr_p)[1] = ((BYTE FAR*) &qwQwordVal_p)[5];
-    ((BYTE FAR*) pAddr_p)[2] = ((BYTE FAR*) &qwQwordVal_p)[4];
-    ((BYTE FAR*) pAddr_p)[3] = ((BYTE FAR*) &qwQwordVal_p)[3];
-    ((BYTE FAR*) pAddr_p)[4] = ((BYTE FAR*) &qwQwordVal_p)[2];
-    ((BYTE FAR*) pAddr_p)[5] = ((BYTE FAR*) &qwQwordVal_p)[1];
-    ((BYTE FAR*) pAddr_p)[6] = ((BYTE FAR*) &qwQwordVal_p)[0];
+    ((BYTE *) pAddr_p)[0] = ((BYTE *) &qwQwordVal_p)[6];
+    ((BYTE *) pAddr_p)[1] = ((BYTE *) &qwQwordVal_p)[5];
+    ((BYTE *) pAddr_p)[2] = ((BYTE *) &qwQwordVal_p)[4];
+    ((BYTE *) pAddr_p)[3] = ((BYTE *) &qwQwordVal_p)[3];
+    ((BYTE *) pAddr_p)[4] = ((BYTE *) &qwQwordVal_p)[2];
+    ((BYTE *) pAddr_p)[5] = ((BYTE *) &qwQwordVal_p)[1];
+    ((BYTE *) pAddr_p)[6] = ((BYTE *) &qwQwordVal_p)[0];
 
 }
 
@@ -887,13 +824,13 @@ INLINE_FUNCTION void PUBLIC AmiSetQword56ToBe (void FAR* pAddr_p, QWORD qwQwordV
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              qwQwordVal_p    = quadruple word value
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetQword56ToLe (void FAR* pAddr_p, QWORD qwQwordVal_p)
+void  AmiSetQword56ToLe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 tSplittQword qwValue;
 
@@ -924,7 +861,7 @@ tSplittQword qwValue;
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword56FromBe (void FAR* pAddr_p)
+QWORD  AmiGetQword56FromBe (void * pAddr_p)
 {
 
 tqwStruct      qwStruct;
@@ -951,7 +888,7 @@ tqwStruct      qwStruct;
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION QWORD PUBLIC AmiGetQword56FromLe (void FAR* pAddr_p)
+QWORD  AmiGetQword56FromLe (void * pAddr_p)
 {
 
 QWORD      qwValue;
@@ -973,17 +910,17 @@ QWORD      qwValue;
 // Parameters:  pAddr_p         = pointer to destination buffer
 //              pTimeOfDay_p    = pointer to struct TIME_OF_DAY
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiSetTimeOfDay (void FAR* pAddr_p, tTimeOfDay FAR* pTimeOfDay_p)
+void  AmiSetTimeOfDay (void * pAddr_p, tTimeOfDay * pTimeOfDay_p)
 {
 
-    AmiSetDwordToLe (((BYTE FAR*) pAddr_p),     pTimeOfDay_p->m_dwMs & 0x0FFFFFFF);
-    AmiSetWordToLe  (((BYTE FAR*) pAddr_p) + 4, pTimeOfDay_p->m_wDays);
+    AmiSetDwordToLe (((BYTE *) pAddr_p),     pTimeOfDay_p->m_dwMs & 0x0FFFFFFF);
+    AmiSetWordToLe  (((BYTE *) pAddr_p) + 4, pTimeOfDay_p->m_wDays);
 
 }
 
@@ -997,23 +934,19 @@ INLINE_FUNCTION void PUBLIC AmiSetTimeOfDay (void FAR* pAddr_p, tTimeOfDay FAR* 
 // Parameters:  pAddr_p         = pointer to source buffer
 //              pTimeOfDay_p    = pointer to struct TIME_OF_DAY
 //
-// Return:      void
+// Return:     void
 //
 // State:       not tested
 //
 //---------------------------------------------------------------------------
 
-INLINE_FUNCTION void PUBLIC AmiGetTimeOfDay (void FAR* pAddr_p, tTimeOfDay FAR* pTimeOfDay_p)
+void  AmiGetTimeOfDay (void * pAddr_p, tTimeOfDay * pTimeOfDay_p)
 {
 
-    pTimeOfDay_p->m_dwMs  = AmiGetDwordFromLe (((BYTE FAR*) pAddr_p)) & 0x0FFFFFFF;
-    pTimeOfDay_p->m_wDays = AmiGetWordFromLe  (((BYTE FAR*) pAddr_p) + 4);
+    pTimeOfDay_p->m_dwMs  = AmiGetDwordFromLe (((BYTE *) pAddr_p)) & 0x0FFFFFFF;
+    pTimeOfDay_p->m_wDays = AmiGetWordFromLe  (((BYTE *) pAddr_p) + 4);
 
 }
-
-
-#endif
-
 
 // EOF
 

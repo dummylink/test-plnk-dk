@@ -113,8 +113,99 @@ subject to the License Agreement located at the end of this file below.
     #define NULL ((void *) 0)
 #endif
 
+#ifndef _TIME_OF_DAY_DEFINED_
+
+    typedef struct
+    {
+        unsigned long  int  m_dwMs;
+        unsigned short int  m_wDays;
+
+    } tTimeOfDay;
+
+#define _TIME_OF_DAY_DEFINED_
+
+/* Define Trace */
+#ifndef NDEBUG
+    #include <stdio.h>              // prototype printf() (for TRACE)
+    #define TRACE  printf
+#endif
+
+#endif
+
 #else
     #error "Please define the datatypes for your target here!"
+#endif
+
+/******************************************************************************/
+/* Define Trace */
+#ifndef NDEBUG
+
+    #ifndef TRACE
+        #define TRACE
+    #endif
+
+    #ifndef TRACE0
+        #define TRACE0(p0)                      TRACE(p0)
+    #endif
+
+    #ifndef TRACE1
+        #define TRACE1(p0, p1)                  TRACE(p0, p1)
+    #endif
+
+    #ifndef TRACE2
+        #define TRACE2(p0, p1, p2)              TRACE(p0, p1, p2)
+    #endif
+
+    #ifndef TRACE3
+        #define TRACE3(p0, p1, p2, p3)          TRACE(p0, p1, p2, p3)
+    #endif
+
+    #ifndef TRACE4
+        #define TRACE4(p0, p1, p2, p3, p4)      TRACE(p0, p1, p2, p3, p4)
+    #endif
+
+    #ifndef TRACE5
+        #define TRACE5(p0, p1, p2, p3, p4, p5)  TRACE(p0, p1, p2, p3, p4, p5)
+    #endif
+
+    #ifndef TRACE6
+        #define TRACE6(p0, p1, p2, p3, p4, p5, p6)  TRACE(p0, p1, p2, p3, p4, p5, p6)
+    #endif
+
+#else
+
+    #ifndef TRACE
+        #define TRACE
+    #endif
+
+    #ifndef TRACE0
+        #define TRACE0(p0)
+    #endif
+
+    #ifndef TRACE1
+        #define TRACE1(p0, p1)
+    #endif
+
+    #ifndef TRACE2
+        #define TRACE2(p0, p1, p2)
+    #endif
+
+    #ifndef TRACE3
+        #define TRACE3(p0, p1, p2, p3)
+    #endif
+
+    #ifndef TRACE4
+        #define TRACE4(p0, p1, p2, p3, p4)
+    #endif
+
+    #ifndef TRACE5
+        #define TRACE5(p0, p1, p2, p3, p4, p5)
+    #endif
+
+    #ifndef TRACE6
+        #define TRACE6(p0, p1, p2, p3, p4, p5, p6)
+    #endif
+
 #endif
 
 /******************************************************************************/

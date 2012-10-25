@@ -43,11 +43,11 @@ subject to the License Agreement located at the end of this file below.
 //
 // To save code space the function AmiSetByte is replaced by
 // an macro.
-// void   PUBLIC  AmiSetByte  (void FAR* pAddr_p, BYTE bByteVal_p);
+// void AmiSetByte  (void * pAddr_p, BYTE bByteVal_p);
 //---------------------------------------------------------------------------
 
-#define AmiSetByteToBe(pAddr_p, bByteVal_p)  {*(BYTE FAR*)(pAddr_p) = (bByteVal_p);}
-#define AmiSetByteToLe(pAddr_p, bByteVal_p)  {*(BYTE FAR*)(pAddr_p) = (bByteVal_p);}
+#define AmiSetByteToBe(pAddr_p, bByteVal_p)  {*(BYTE *)(pAddr_p) = (bByteVal_p);}
+#define AmiSetByteToLe(pAddr_p, bByteVal_p)  {*(BYTE *)(pAddr_p) = (bByteVal_p);}
 
 void AmiSetWordToBe  (void* pAddr_p, WORD wWordVal_p);
 void AmiSetDwordToBe (void* pAddr_p, DWORD dwDwordVal_p);
@@ -61,11 +61,11 @@ void AmiSetDwordToLe (void* pAddr_p, DWORD dwDwordVal_p);
 //
 // To save code space the function AmiGetByte is replaced by
 // an macro.
-// BYTE   PUBLIC  AmiGetByte  (void FAR* pAddr_p);
+// BYTE AmiGetByte  (void * pAddr_p);
 //---------------------------------------------------------------------------
 
-#define AmiGetByteFromBe(pAddr_p)  (*(BYTE FAR*)(pAddr_p))
-#define AmiGetByteFromLe(pAddr_p)  (*(BYTE FAR*)(pAddr_p))
+#define AmiGetByteFromBe(pAddr_p)  (*(BYTE *)(pAddr_p))
+#define AmiGetByteFromLe(pAddr_p)  (*(BYTE *)(pAddr_p))
 
 WORD AmiGetWordFromBe  (void * pAddr_p);
 DWORD AmiGetDwordFromBe (void * pAddr_p);
