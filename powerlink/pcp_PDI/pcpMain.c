@@ -1330,6 +1330,9 @@ tEplKernel Gi_closeObdAccHstryToPdiConnection(
     tEplKernel Ret = kEplSuccessful;
     tObdAccHstryEntry * pObdAccHstEntry = NULL;
 
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() ComConIdx: %d\n",
+                 __func__, ApiPdiComInstance_g.m_ObdAccFwd.m_wComConIdx);
+
     Ret = EplAppDefObdAccAdoptedHstryGetEntry(wComConIdx_p,
                                               &pObdAccHstEntry);
     if (Ret == kEplObdVarEntryNotExist)
@@ -1361,13 +1364,13 @@ tEplKernel Gi_closeObdAccHstryToPdiConnection(
             }
         }
 
+        Gi_deleteObdAccHstryToPdiConnection();
+
         Ret = EplAppDefObdAccAdoptedHstryEntryFinished(pObdAccHstEntry);
         if (Ret != kEplSuccessful)
         {
             goto exit;
         }
-
-        Gi_deleteObdAccHstryToPdiConnection();
     }
 
 exit:
@@ -2126,9 +2129,30 @@ Exit:
 
 /**
 ********************************************************************************
+\brief  check if it is a segmented transfer
+
+\param  ObdType_p   OBD access parameter
+
+\retval TRUE        segmented transfer
+\retval FALSE       expedited transfer
+*******************************************************************************/
+BOOL EplAppDefObdAccCeckTranferIsSegmented(tEplObdParam * pObdParam_p)
+{
+    if (pObdParam_p->m_TransferSize > 8) //TODO: debug: check if this works for the whole segmented transfer.
+    {   // transfer size exceeds 64 bits (max size of fixed data type)
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+/**
+********************************************************************************
 \brief  check if access to objects which do not have a fixed size is allowed
 
-\param  ObdType_p           object type of non-fixed size
+\param  pObdParam_p         OBD access parameter with non-fixed size
 
 \retval kEplSuccessful      object access is allowed
 \retval kEplObdOutOfMemory  object access is not allowed
@@ -2138,44 +2162,37 @@ static tEplKernel EplAppDefObdAccPreValidateObjTypeNoFixedSize(tEplObdParam * pO
 {
     tEplKernel       Ret = kEplSuccessful;
 
-    switch (pObdParam_p->m_Type)
-    {
-        case kEplObdTypVString:
-        case kEplObdTypOString:
-        case kEplObdTypDomain:
-        {
-            // if it is an initial segment, check if this object is already accessed
-            if (pObdParam_p->m_SegmentOffset == 0)
-            {   // inital segment
+   if(EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p) == TRUE)
+   {
+       // if it is an initial segment, check if this object is already accessed
+       if (pObdParam_p->m_SegmentOffset == 0)
+       {   // inital segment
 
-                Ret = EplAppDefObdAccAdoptedHstryInitSequence();
-                if (Ret != kEplSuccessful)
-                {
-                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
-                    goto Exit;
-                }
-            }
-            else
-            {
-                // block non-initial segments if initial segment processing
-                // has not started yet (or processing was aborted)
-                if (!EplAppDefObdAccAdoptedHstryCeckSequenceStarted())
-                {
-                    Ret = kEplObdOutOfMemory;
-                    pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
-                    goto Exit;
-                }
-            }
-            break;
-        }
-
-        default:
-        {   // fixed data size object, access is allowed in any case
-            // but this function checks only variable size objects
-            Ret = kEplInvalidParam;
-            break;
-        }
-    }
+           Ret = EplAppDefObdAccAdoptedHstryInitSequence();
+           if (Ret != kEplSuccessful)
+           {
+               pObdParam_p->m_dwAbortCode = EPL_SDOAC_OUT_OF_MEMORY;
+               goto Exit;
+           }
+       }
+       else
+       {
+           // block non-initial segments if initial segment processing
+           // has not started yet (or processing was aborted)
+           if (!EplAppDefObdAccAdoptedHstryCeckSequenceStarted())
+           {
+               Ret = kEplObdOutOfMemory;
+               pObdParam_p->m_dwAbortCode = EPL_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+               goto Exit;
+           }
+       }
+   }
+   else
+   {   // fixed data size object, access is allowed
+       // but this function checks only variable size objects
+       Ret = kEplInvalidParam;
+       goto Exit;
+   }
 
 Exit:
     return Ret;
@@ -2278,23 +2295,15 @@ tEplKernel EplAppDefObdAccAdoptedHstrySaveHdl(
             // save only write data from origin since there is no 'read data' yet
             if (pObdParam_p->m_ObdEvent == kEplObdEvInitWriteLe)
             {
-                switch (pObdParam_p->m_Type)
+                if(EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p) == TRUE)
                 {
-                    case kEplObdTypVString:
-                    case kEplObdTypOString:
-                    case kEplObdTypDomain:
-                    {
-                        // save also object data
-                        EPL_MEMCPY(&pObdDefAccHdl->m_aObdData, pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
-                        pObdDefAccHdl->m_ObdParam.m_pData = &pObdDefAccHdl->m_aObdData;
-                        break;
-                    }
-
-                    default:
-                    {
-                        pObdDefAccHdl->m_ObdParam.m_pData = NULL;
-                        break;
-                    }
+                    // save also object data
+                    EPL_MEMCPY(&pObdDefAccHdl->m_aObdData, pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
+                    pObdDefAccHdl->m_ObdParam.m_pData = &pObdDefAccHdl->m_aObdData;
+                }
+                else
+                {
+                    pObdDefAccHdl->m_ObdParam.m_pData = NULL;
                 }
             }
 
