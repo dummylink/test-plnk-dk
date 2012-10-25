@@ -194,19 +194,19 @@
          type = "boolean";
       }
    }
-   element sysid.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2424";
-         type = "long";
-      }
-   }
    element lcd.control_slave
    {
       datum baseAddress
       {
          value = "2192";
+         type = "long";
+      }
+   }
+   element sysid.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2424";
          type = "long";
       }
    }
@@ -436,27 +436,6 @@
          type = "long";
       }
    }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2160";
-         type = "long";
-      }
-   }
-   element tc_i_mem_pcp.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "33554432";
-         type = "long";
-      }
-   }
    element outport_ap.s1
    {
       datum baseAddress
@@ -465,32 +444,24 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
+   element sdram_0.s1
    {
       datum baseAddress
       {
-         value = "2336";
+         value = "268435456";
          type = "long";
       }
    }
-   element sync_irq_from_pcp.s1
+   element remote_update_cycloneiii_0.s1
    {
-      datum _tags
+      datum _lockedAddress
       {
-         value = "";
-         type = "String";
+         value = "1";
+         type = "boolean";
       }
       datum baseAddress
       {
-         value = "2176";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2400";
+         value = "2048";
          type = "long";
       }
    }
@@ -507,11 +478,32 @@
          type = "long";
       }
    }
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2400";
+         type = "long";
+      }
+   }
    element benchmark_ap_pio.s1
    {
       datum baseAddress
       {
          value = "2112";
+         type = "long";
+      }
+   }
+   element tc_i_mem_pcp.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "33554432";
          type = "long";
       }
    }
@@ -528,22 +520,6 @@
          type = "long";
       }
    }
-   element async_irq_from_pcp.s1
-   {
-      datum baseAddress
-      {
-         value = "2208";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum baseAddress
-      {
-         value = "268435456";
-         type = "long";
-      }
-   }
    element system_timer_ap.s1
    {
       datum baseAddress
@@ -552,16 +528,40 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
+   element async_irq_from_pcp.s1
    {
-      datum _lockedAddress
+      datum baseAddress
       {
-         value = "1";
-         type = "boolean";
+         value = "2208";
+         type = "long";
+      }
+   }
+   element sync_irq_from_pcp.s1
+   {
+      datum _tags
+      {
+         value = "";
+         type = "String";
       }
       datum baseAddress
       {
-         value = "2048";
+         value = "2176";
+         type = "long";
+      }
+   }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2160";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2336";
          type = "long";
       }
    }
@@ -740,8 +740,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="23769903278" />
- <parameter name="timeStamp" value="1351068034540" />
+ <parameter name="systemHash" value="23769903279" />
+ <parameter name="timeStamp" value="1351153529961" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1807,7 +1807,6 @@
    start="altpll_0.c1"
    end="powerlink_0.clkMaster" />
  <connection kind="clock" version="10.1" start="altpll_0.c3" end="ap_cpu.clk" />
- <connection kind="clock" version="10.1" start="altpll_0.c3" end="sdram_0.clk" />
  <connection kind="clock" version="10.1" start="altpll_0.c3" end="jtag_uart_1.clk" />
  <connection
    kind="clock"
@@ -1927,4 +1926,5 @@
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0978" />
  </connection>
+ <connection kind="clock" version="10.1" start="altpll_0.c4" end="sdram_0.clk" />
 </system>
