@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file       cnApiTypPdo.h
+\file       cnApiTypPdoMap.h
 
 \brief      Global header file for PCP PDI (CN) and libCnApi (PDO module)
 

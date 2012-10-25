@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file       cnApiObd.h
+\file       cnApiObject.h
 
 \brief      Header file of cnApi object dictionary module
 

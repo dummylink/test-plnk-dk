@@ -1,11 +1,11 @@
 /**
 ********************************************************************************
-\file       cnApiSdoAc.h
+\file       cnApiSdo.h
 
-\brief      header for the SDO abort codes
+\brief      header for the SDO module
 
-This header declares the SDO timeouts which can be set by the user in the
-Object callback.
+This header declares all SDO related defines in the libCnApi. It consists of the
+SDO abort codes and other stuff.
 
 Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 All rights reserved. All use of this software and documentation is
@@ -13,8 +13,8 @@ subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 
-#ifndef CNAPISDOAC_H_
-#define CNAPISDOAC_H_
+#ifndef CNAPISDO_H_
+#define CNAPISDO_H_
 
 /******************************************************************************/
 /* includes */
@@ -75,7 +75,7 @@ typedef enum eCnApiSdoAbortCode
 /******************************************************************************/
 /* functions */
 
-#endif /*  CNAPISDOAC_H_ */
+#endif /*  CNAPISDO_H_ */
 
 /*******************************************************************************
 *
