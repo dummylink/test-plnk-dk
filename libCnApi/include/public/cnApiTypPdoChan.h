@@ -1,42 +1,52 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved. All use of this software and documentation is
-* subject to the License Agreement located at the end of this file below.
-*/
-
 /**
 ********************************************************************************
+\file       cnApiTypPdo.h
 
-\file       pcpPdo.h
+\brief      Global header file for PCP PDI (CN) and libCnApi (PDO module)
 
-\brief      header file for pcpPdo module
+This header provides data structures for the PCP and AP processors PDO module.
+It defines message formats and common types.
 
-\author     hoggerm
-
-\date       29.04.2011
-
-\since      29.04.2011
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 
-#ifndef PCPPDO_H_
-#define PCPPDO_H_
+#ifndef CNAPITYPPDOCHAN_H_
+#define CNAPITYPPDOCHAN_H_
 
 /******************************************************************************/
 /* includes */
+#include "cnApiTyp.h"
 
 /******************************************************************************/
 /* defines */
-#define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
-#define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
-#define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
-#define EPL_PDOU_OBD_IDX_TX_MAPP_PARAM  0x1A00
-#define EPL_PDOU_OBD_IDX_MAPP_PARAM     0x0200
-#define EPL_PDOU_OBD_IDX_MASK           0xFF00
-#define EPL_PDOU_PDO_ID_MASK            0x00FF
 
 /******************************************************************************/
 /* typedefs */
+
+typedef struct sTPdoBuffer { ///< used to group buffer structure infos from control register
+    BYTE    *pAdrs_m;
+    WORD    wSize_m;
+    BYTE    *pAck_m;
+    WORD    wMappedBytes_m;  ///< only used at PCP
+#ifdef CN_API_USING_SPI
+    DWORD   dwSpiBufOffs_m;
+    WORD    wSpiAckOffs_m;
+#endif /* CN_API_USING_SPI */
+} tTPdoBuffer;
+
+typedef struct sRPdoBuffer { ///< used to group buffer structure infos from control register
+    BYTE    *pAdrs_m;
+    WORD    wSize_m;
+    BYTE    *pAck_m;
+    WORD    wMappedBytes_m;  ///< only used at PCP
+#ifdef CN_API_USING_SPI
+    DWORD   dwSpiBufOffs_m;
+    WORD    wSpiAckOffs_m;
+#endif /* CN_API_USING_SPI */
+} tRPdoBuffer;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -46,15 +56,6 @@
 
 /******************************************************************************/
 /* function declarations */
-int Gi_initPdo(void);
-void Gi_preparePdiPdoReadAccess(BYTE bTpdoNum);
-void Gi_signalPdiPdoWriteAccess(BYTE bRpdoNum);
-
-BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
-                     BYTE bDirection_p,
-                     WORD *pCurrentDescrOffset_p,
-                     tLinkPdosReq *pLinkPdoReq_p,
-                     WORD wMaxStoreSpace);
 
 /******************************************************************************/
 /* private functions */
@@ -63,7 +64,9 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
 /* functions */
 
 
-#endif /* PCPPDO_H_ */
+
+
+#endif /* CNAPITYPPDOCHAN_H_ */
 
 /*******************************************************************************
 *

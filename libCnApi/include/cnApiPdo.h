@@ -18,7 +18,8 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* includes */
 #include <cnApiTyp.h>
-#include <cnApiTypPdo.h>
+#include <cnApiTypPdoChan.h>
+#include <cnApiTypPdoMap.h>
 
 #include "cnApiAsyncSm.h"
 
@@ -47,9 +48,10 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* functions */
 
-int CnApi_initPdo(tPcpCtrlReg *pCtrlReg_p, tCnApiAppCbSync pfnAppCbSync_p,
-        BYTE * pDpramBase_p);
-BOOL CnApi_readPdoDesc(tPdoDescHeader *pPdoDescHeader_p);
+int CnApi_initPdo(tPcpCtrlReg *pCtrlReg_p,
+        tCnApiAppCbSync pfnAppCbSync_p,
+        BYTE * pDpramBase_p,
+        tCnApiCbPdoDesc pfnPdoDescriptor_p);
 
 tPdiAsyncStatus CnApi_doLinkPdosResp(
                        tPdiAsyncMsgDescr * pMsgDescr_p,

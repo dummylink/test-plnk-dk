@@ -108,6 +108,8 @@ static void disableGlobalInterrupts(void);
 #endif
 
 static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p);
+tCnApiStatus CnApi_CbPdoDescListings(tCnApiPdoDesc * pPdoDesc_p,
+        tCnApiSdoAbortCode * tPdoRespAbortCode_p);
 
 /**
 ********************************************************************************
@@ -152,6 +154,10 @@ int main (void)
     InitCnApiParam.m_pfnAppCbSync = CnApi_AppCbSync;
     InitCnApiParam.m_pfnAppCbEvent = CnApi_AppCbEvent;
     InitCnApiParam.m_pfnDefaultObdAccess_p = CnApi_CbDefaultObdAccess;
+    InitCnApiParam.m_pfnPdoDescriptor = NULL; /* Note: Define CnApi_CbPdoDescListings as
+                                                       a callback if you want to access
+                                                       the PDO descriptor message in the
+                                                       application! */
 #ifdef CN_API_USING_SPI
     InitCnApiParam.m_SpiMasterTxH_p = CnApi_CbSpiMasterTx;
     InitCnApiParam.m_SpiMasterRxH_p = CnApi_CbSpiMasterRx;
@@ -313,8 +319,6 @@ static void workInputOutput(void)
 static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg * pEventArg_p, void * pUserArg_p)
 {
     tCnApiStatus Ret = kCnApiStatusOk;
-    tPdiAsyncStatus AsyncRet;        ///< return code of pdo response message
-    DWORD dwPdoRespErrCode;     ///< error code for the pdo response message
 
     switch (EventType_p)
     {
@@ -498,63 +502,12 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
 
                 break;
             }
-            case kCnApiEventAsyncComm:
-            {
-                switch (pEventArg_p->AsyncComm_m.Typ_m)
-                {
-                    case kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq:
-                    {
-                        /* User has access to LinkPdosReq message here and can do something
-                         * useful with it, e.g. setup own copy tables
-                         * The user is also responsible for sending a LinkPdosResp message
-                         * indicating success or failure of mapping and linking
-                         * (refer to default example below).
-                         */
-
-                        if(pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m != 0)
-                        {
-                            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Warning: %d objects are mapped but not linked!\n",
-                                    pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m);
-                        }
-
-                        /* prepare LinkPdosResp message status*/
-                        if (pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m == FALSE)
-                        { // mapping invalid or linking failed
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Mapping or linking failed!\n");
-
-                            /* set status */
-                            dwPdoRespErrCode = CNAPI_SDOAC_GENERAL_ERROR;
-                        }
-                        else // successful
-                        { /* set status */
-                            dwPdoRespErrCode = 0; // 0: OK
-                        }
-
-                        AsyncRet = CnApi_sendPdoResp(
-                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bMsgId,
-                                pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_bOrigin,
-                                AmiGetWordFromLe(&pEventArg_p->AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m->m_wCommHdl),
-                                dwPdoRespErrCode);
-                        if(AsyncRet != kPdiAsyncStatusSuccessful)
-                        {
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to post Pdo response message!\n");
-                            Ret = kCnApiStatusError;
-                            goto Exit;
-                        }
-                    }
-                    default:
-                        break;
-
-                }
-                break;
-            }
             case kCnApiEventSdo:
             case kCnApiEventObdAccess:
             default:
             break;
     }
 
-Exit:
     return Ret;
 }
 
@@ -763,7 +716,7 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
 
                 default:
                 {
-                    pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_SUB_INDEX_NOT_EXIST;
+                    pObdParam_p->m_dwAbortCode = kCnApiSdoacSubIndexNotExist;
                     Ret = kCnApiObdSubindexNotExist;
                     goto Exit;
                 }
@@ -777,7 +730,7 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
             if(pObdParam_p->m_uiIndex < 0x2000)
             { // not an application specific object
 
-                pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_OBJECT_NOT_EXIST;
+                pObdParam_p->m_dwAbortCode = kCnApiSdoacObjectNotExist;
                 Ret = kCnApiObdIndexNotExist;
                 goto Exit;
 
@@ -884,6 +837,53 @@ static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p)
 
 Exit:
     return;
+}
+
+/**
+ ********************************************************************************
+ \brief Provides access to the PDO descriptors during bootup
+ \param pPdoDesc_p            pointer to the PDO descriptor
+ \param tPdoRespAbortCode_p   the SDO abort code in case of a mapping error
+
+ \return tCnApiStatus
+ \retval kCnApiStatusOk       on success
+ \retval other error
+
+ This function gives access to the PDO descriptor structure. It enables to
+ program your own mapping behavior and the use of a custom object dictionary.
+ *******************************************************************************/
+tCnApiStatus CnApi_CbPdoDescListings(tCnApiPdoDesc * pPdoDesc_p,
+        tCnApiSdoAbortCode * tPdoRespAbortCode_p)
+{
+    tCnApiStatus Ret = kCnApiStatusOk;
+    WORD wCnt;
+    tPdoDescEntry * pDescEntry;
+
+    BYTE bEntryCnt = pPdoDesc_p->m_PdoDescHeader.m_bEntryCnt;
+
+
+    DEBUG_TRACE4(DEBUG_LVL_CNAPI_PDO_INFO, "EntryCnt: %d, Dir: 0x%x, MapVer: %d BuffNum: %d\n",bEntryCnt,
+            pPdoDesc_p->m_PdoDescHeader.m_bPdoDir,
+            pPdoDesc_p->m_PdoDescHeader.m_bMapVersion,
+            pPdoDesc_p->m_PdoDescHeader.m_bBufferNum);
+
+    pDescEntry = &pPdoDesc_p->m_PdoDescData;
+
+    for (wCnt=0; wCnt < bEntryCnt; wCnt++)
+    {
+        DEBUG_TRACE4(DEBUG_LVL_CNAPI_PDO_INFO, "Index: 0x%x, SubIndex: 0x%x, Size: %d Offset: 0x%x\n",
+                AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wPdoIndex)),
+                pDescEntry->m_bPdoSubIndex,
+                AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wSize)),
+                AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wOffset)));
+
+        pDescEntry = (tPdoDescEntry *)((BYTE*)pDescEntry + sizeof(tPdoDescEntry));
+    }
+
+    //set abort code
+    *tPdoRespAbortCode_p = kCnApiSdoacNoAbort;
+
+    return Ret;
 }
 
 /*******************************************************************************

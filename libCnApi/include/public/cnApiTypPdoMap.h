@@ -13,51 +13,19 @@ subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 
-#ifndef CNAPITYPPDO_H_
-#define CNAPITYPPDO_H_
+#ifndef CNAPITYPPDOMAP_H_
+#define CNAPITYPPDOMAP_H_
 
 /******************************************************************************/
 /* includes */
-#include "cnApiTyp.h"
+#include <cnApiGlobal.h>
 
 /******************************************************************************/
 /* defines */
 
-#define EPL_PDOU_OBD_IDX_RX_COMM_PARAM  0x1400
-#define EPL_PDOU_OBD_IDX_RX_MAPP_PARAM  0x1600
-#define EPL_PDOU_OBD_IDX_TX_COMM_PARAM  0x1800
-#define EPL_PDOU_OBD_IDX_TX_MAPP_PARAM  0x1A00
-#define EPL_PDOU_OBD_IDX_MAPP_PARAM     0x0200
-#define EPL_PDOU_OBD_IDX_MASK           0xFF00
-#define EPL_PDOU_PDO_ID_MASK            0x00FF
-
 /******************************************************************************/
 /* typedefs */
 
-typedef struct sTPdoBuffer { ///< used to group buffer structure infos from control register
-    BYTE    *pAdrs_m;
-    WORD    wSize_m;
-    BYTE    *pAck_m;
-    WORD    wMappedBytes_m;  ///< only used at PCP
-#ifdef CN_API_USING_SPI
-    DWORD   dwSpiBufOffs_m;
-    WORD    wSpiAckOffs_m;
-#endif /* CN_API_USING_SPI */
-} tTPdoBuffer;
-
-typedef struct sRPdoBuffer { ///< used to group buffer structure infos from control register
-    BYTE    *pAdrs_m;
-    WORD    wSize_m;
-    BYTE    *pAck_m;
-    WORD    wMappedBytes_m;  ///< only used at PCP
-#ifdef CN_API_USING_SPI
-    DWORD   dwSpiBufOffs_m;
-    WORD    wSpiAckOffs_m;
-#endif /* CN_API_USING_SPI */
-} tRPdoBuffer;
-
-
-/******************************************************************************/
 /* definitions for PDO transfer functions */
 
 typedef enum ePdoDir {
@@ -98,7 +66,7 @@ typedef struct sPdoDesc {
 
 
 
-#endif /* CNAPITYPPDO_H_ */
+#endif /* CNAPITYPPDOMAP_H_ */
 
 /*******************************************************************************
 *

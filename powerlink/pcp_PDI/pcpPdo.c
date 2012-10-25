@@ -12,7 +12,8 @@
 
 /******************************************************************************/
 /* includes */
-#include "cnApiTypPdo.h"
+#include "cnApiTypPdoChan.h"
+#include "cnApiTypPdoMap.h"
 #include "cnApiTypAsync.h"
 
 #include "pcp.h"

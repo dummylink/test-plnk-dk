@@ -64,10 +64,11 @@ typedef enum eTypes {
 
 /******************************************************************************/
 /* external variable declarations */
-tLinkPdosResp LinkPdosResp_l;           ///< Link Pdos Response message
 
 /******************************************************************************/
 /* global variables */
+static tLinkPdosResp LinkPdosResp_l;           ///< Link Pdos Response message
+
 static tTPdoBuffer aTPdosPdi_l[PCP_PDI_TPDO_CHANNELS];
 static tRPdoBuffer aRPdosPdi_l[PCP_PDI_RPDO_CHANNELS];
 
@@ -77,6 +78,8 @@ static  tPdoCopyTbl         aRxPdoCopyTbl_l[PCP_PDI_RPDO_CHANNELS];
 
 // global pointer to the sync callback
 static tCnApiAppCbSync      pfnAppCbSync_l = NULL;
+
+static tCnApiCbPdoDesc        pfnPdoDescriptor_l = NULL;
 
 /******************************************************************************/
 /* function declarations */
@@ -92,10 +95,15 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
                                   BYTE              bDirection_p,
                                   BYTE                 bPdoBufNum_p,
                                   BYTE                    bMapVers_p);
+static tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p,
+                                         BYTE bOrigin_p,
+                                         WORD wObdAccConHdl_p,
+                                         DWORD dwErrorCode_p);
 static void CnApi_getCurTime(tCnApiTimeStamp *TimeStamp_p);
 static void CnApi_transmitPdo(void);
 static void CnApi_receivePdo(void);
 static inline void CnApi_ackPdoBuffer(BYTE* pAckReg_p);
+static tCnApiStatus CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p);
 
 /**
 ********************************************************************************
@@ -348,6 +356,7 @@ exit:
 \param    pCtrlReg_p         pointer to the control register
 \param    pfnAppCbSync_p     function pointer to AppCbSync callback function
 \param    pDpramBase_p       pointer to Dpram base address
+\param    pfnPdoDescriptor_p function pointer to the pdo descriptor callback
 
 \return     int
 \retval     OK                 on success
@@ -355,8 +364,10 @@ exit:
 
 CnApi_initPdo() is used to initialize the PDO module.
 *******************************************************************************/
-int CnApi_initPdo(tPcpCtrlReg *pCtrlReg_p, tCnApiAppCbSync pfnAppCbSync_p,
-        BYTE * pDpramBase_p)
+int CnApi_initPdo(tPcpCtrlReg *pCtrlReg_p,
+        tCnApiAppCbSync pfnAppCbSync_p,
+        BYTE * pDpramBase_p,
+        tCnApiCbPdoDesc pfnPdoDescriptor_p)
 {
     register WORD wCnt;
 
@@ -367,6 +378,9 @@ int CnApi_initPdo(tPcpCtrlReg *pCtrlReg_p, tCnApiAppCbSync pfnAppCbSync_p,
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "Error in %s: AppCbSync callback is not initialised\n", __func__);
         goto exit;
     }
+
+    // ingnore if pdo descritptor callback is null and make it local
+    pfnPdoDescriptor_l = pfnPdoDescriptor_p;
 
     /* group TPDO PDI channels address, size and acknowledge settings */
 #if (PCP_PDI_TPDO_CHANNELS >= 1)
@@ -474,8 +488,9 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     WORD                wNumDescr;
     tPdoDescHeader *    pPdoDescHeader;         //< ptr to descriptor
     tLinkPdosReq *      pLinkPdosReq = NULL;    //< ptr to message (Rx)
-    tCnApiEvent         CnApiEvent;             //< forwarded to application
-    BOOL fRet = TRUE;                           //< temporary return value
+    tCnApiStatus        fRet = kCnApiStatusOk;
+    WORD                wCommHdl = 0;
+    tCnApiSdoAbortCode  PdoRespAbortCode = kCnApiSdoacNoAbort;
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
@@ -502,6 +517,8 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     /* handle Rx Message */
     /* get numbers of descriptors in this message */
     wNumDescr = pLinkPdosReq->m_bDescrCnt;
+    wCommHdl = AmiGetWordFromLe(&pLinkPdosReq->m_wCommHdl);
+
 
     /* get pointer to  first descriptor */
     pPdoDescHeader = (tPdoDescHeader*) ((BYTE*) pLinkPdosReq + sizeof(tLinkPdosReq));
@@ -512,11 +529,23 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     /* read all descriptors and setup the corresponding copy tables */
     for (iCnt = 0; iCnt < wNumDescr; ++iCnt)
     {
-        fRet = CnApi_readPdoDesc(pPdoDescHeader);
-        if (fRet != TRUE)
+        if(pfnPdoDescriptor_l != NULL)
+        {   // provide the PDO descriptor via the callback to the user
+            fRet = pfnPdoDescriptor_l((tCnApiPdoDesc *)pPdoDescHeader, &PdoRespAbortCode);
+            if (fRet != kCnApiStatusOk)
+            {
+                Ret = kPdiAsyncStatusInvalidOperation;
+                goto exit;
+            }
+        }
+        else
         {
-            Ret = kPdiAsyncStatusInvalidOperation;
-            goto exit;
+            fRet = CnApi_readPdoDesc(pPdoDescHeader);
+            if (fRet != kCnApiStatusOk)
+            {
+                Ret = kPdiAsyncStatusInvalidOperation;
+                goto exit;
+            }
         }
 
         /* get pointer to next descriptor */
@@ -524,26 +553,27 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
                          (pPdoDescHeader->m_bEntryCnt * sizeof(tPdoDescEntry)));
     }
 
-    // TODO: correct endianness here, if members of pLinkPdosReq are forwarded
-    //       (not only pLinkPdosReq, like it is done at the moment).
+    if(wCntMappedNotLinkedObj_l != 0 && pfnPdoDescriptor_l == NULL)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "Warning: %d objects are mapped but not linked!\n",
+                wCntMappedNotLinkedObj_l);
+    }
 
 exit:
-    /* post event to user to provide the descriptor message for further use */
-    CnApiEvent.Typ_m = kCnApiEventAsyncComm;
-    CnApiEvent.Arg_m.AsyncComm_m.Typ_m = kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq;
-    CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.pMsg_m = pLinkPdosReq;
-    CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.wObjNotLinked_m = wCntMappedNotLinkedObj_l;
-
-    if (Ret == kPdiAsyncStatusSuccessful)
+    if (Ret != kPdiAsyncStatusSuccessful)
     {
-        CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m = TRUE;
-    }
-    else // error
-    {
-        CnApiEvent.Arg_m.AsyncComm_m.Arg_m.LinkPdosReq_m.fSuccess_m = FALSE;
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Mapping or linking failed!\n");
+        PdoRespAbortCode = kCnApiSdoacGeneralError;
     }
 
-    Ret = CnApi_callEventCallback(CnApiEvent.Typ_m, &CnApiEvent.Arg_m, NULL);
+    Ret = CnApi_sendPdoResp(pLinkPdosReq->m_bMsgId,
+            pLinkPdosReq->m_bOrigin,
+            wCommHdl,
+            PdoRespAbortCode);
+    if(Ret != kPdiAsyncStatusSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to post Pdo response message!\n");
+    }
 
     return Ret;
 }
@@ -646,32 +676,6 @@ tPdiAsyncStatus CnApi_pfnCbLinkPdosRespFinished (struct sPdiAsyncMsgDescr * pMsg
     return kPdiAsyncStatusSuccessful;
 }
 
-
-/**
-********************************************************************************
-\brief	read PDO descriptor
-
-\param  pPdoDescHeader_p    pointer to Pdo descriptor
-
-\return BOOL
-\retval FALSE               if error occurred
-\retval TRUE                on success
-
-CnApi_readPdoDesc() checks if the mapping changed. If it changed the
-PDO descriptor is read and the copy table is updated.
-*******************************************************************************/
-BOOL CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p)
-{
-    BOOL fRet = TRUE;
-
-    fRet = CnApi_configurePdoChannel(pPdoDescHeader_p,
-                        pPdoDescHeader_p->m_bEntryCnt,
-                        pPdoDescHeader_p->m_bPdoDir,
-                        pPdoDescHeader_p->m_bBufferNum,
-                        pPdoDescHeader_p->m_bMapVersion);
-    return fRet;
-}
-
 /**
 ********************************************************************************
 \brief  check for new PDO data and receive transmit them
@@ -710,6 +714,37 @@ void CnApi_processPdo(void)
 
 /**
 ********************************************************************************
+\brief  read PDO descriptor
+
+\param  pPdoDescHeader_p    pointer to Pdo descriptor
+
+\return BOOL
+\retval FALSE               if error occurred
+\retval TRUE                on success
+
+CnApi_readPdoDesc() checks if the mapping changed. If it changed the
+PDO descriptor is read and the copy table is updated.
+*******************************************************************************/
+static tCnApiStatus CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p)
+{
+    tCnApiStatus fRet = kCnApiStatusOk;
+    BOOL         Ret;
+
+    Ret = CnApi_configurePdoChannel(pPdoDescHeader_p,
+                        pPdoDescHeader_p->m_bEntryCnt,
+                        pPdoDescHeader_p->m_bPdoDir,
+                        pPdoDescHeader_p->m_bBufferNum,
+                        pPdoDescHeader_p->m_bMapVersion);
+    if(Ret == FALSE)
+    {
+        fRet = kCnApiStatusInvalidParameter;
+    }
+
+    return fRet;
+}
+
+/**
+********************************************************************************
 \brief  Send a PDO response message to the pcp
 
 \param  bMsgId_p         Id of the pdo response message
@@ -723,7 +758,7 @@ void CnApi_processPdo(void)
 CnApi_sendPdoResp() posts a pdo response message to the asychronous state
 machine.
 *******************************************************************************/
-tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p,
+static tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p,
                                   BYTE bOrigin_p,
                                   WORD wObdAccConHdl_p,
                                   DWORD dwErrorCode_p)

@@ -27,8 +27,9 @@ subject to the License Agreement located at the end of this file below.
 #include <cnApiEvent.h>     ///< public defines for the event module
 #include <cnApiObject.h>
 #include <cnApiSdo.h>
+#include <cnApiTypPdoMap.h>
 
-#include "cnApiAmi.h"       // TODO: Remove this (not needed in main.c)
+#include <cnApiAmi.h>
 
 #ifdef CN_API_USING_SPI
   #include <cnApiPdiSpi.h>
@@ -57,10 +58,16 @@ typedef struct
     WORD                    m_wTimeAfterSync;
 } tCnApiTimeStamp;
 
+typedef struct uCnApiPdoDesc{
+    tPdoDescHeader   m_PdoDescHeader;
+    tPdoDescEntry    m_PdoDescData;
+} tCnApiPdoDesc;
+
 
 typedef tCnApiStatus (* tCnApiAppCbSync) ( tCnApiTimeStamp * pTimeStamp_p );
 typedef tCnApiObdStatus (* tCnApiObdDefAcc) (tCnApiObdParam * pObdParam_p);
-
+typedef tCnApiStatus (* tCnApiCbPdoDesc) (tCnApiPdoDesc * pPdoDesc_p,
+        tCnApiSdoAbortCode * tPdoRespAbortCode_p);
 
 
 /**
@@ -72,6 +79,7 @@ typedef struct sCnApiInitParm {
     tCnApiAppCbSync         m_pfnAppCbSync;
     tCnApiAppCbEvent        m_pfnAppCbEvent;
     tCnApiObdDefAcc         m_pfnDefaultObdAccess_p;
+    tCnApiCbPdoDesc           m_pfnPdoDescriptor;
 #ifdef CN_API_USING_SPI
     tSpiMasterTxHandler     m_SpiMasterTxH_p;
     tSpiMasterRxHandler     m_SpiMasterRxH_p;
@@ -108,10 +116,6 @@ extern DWORD CnApi_getSyncIntPeriod(void);
 
 /* functions for PDO transfer*/
 extern void CnApi_processPdo(void);
-extern tPdiAsyncStatus CnApi_sendPdoResp(BYTE bMsgId_p,
-                                         BYTE bOrigin_p,
-                                         WORD wObdAccConHdl_p,
-                                         DWORD dwErrorCode_p);
 /* functions for async state machine */
 extern BOOL CnApi_processAsyncStateMachine(void);
 

@@ -321,7 +321,7 @@ static tEplKernel EplCbDefaultObdAccess(tEplObdParam * pObdParam_p)
         {
             if (pObdParam_p->m_pfnAccessFinished == NULL)
             {
-                pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_DATA_NOT_TRANSF_OR_STORED;
+                pObdParam_p->m_dwAbortCode = kCnApiSdoacDataNotTransfOrStored;
                 Ret = kEplObdAccessViolation;
                 goto exit;
             }
@@ -397,7 +397,7 @@ tCnApiStatus CnApi_DefObdAccFinished(tCnApiObdParam * pObdParam_p)
          (pObdParam_p->m_SegmentOffset != 0)                    )  )
     {
         //segmented read access not allowed!
-        pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_UNSUPPORTED_ACCESS;
+        pObdParam_p->m_dwAbortCode = kCnApiSdoacUnsupportedAccess;
     }
 
     // convert cnapi object parameters to epl object parameters

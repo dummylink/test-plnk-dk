@@ -23,35 +23,39 @@ subject to the License Agreement located at the end of this file below.
 /* defines */
 
 // SDO abort codes
-#define    CNAPI_SDOAC_TIME_OUT                            0x05040000L
-#define    CNAPI_SDOAC_UNKNOWN_COMMAND_SPECIFIER           0x05040001L
-#define    CNAPI_SDOAC_INVALID_BLOCK_SIZE                  0x05040002L
-#define    CNAPI_SDOAC_INVALID_SEQUENCE_NUMBER             0x05040003L
-#define    CNAPI_SDOAC_OUT_OF_MEMORY                       0x05040005L
-#define    CNAPI_SDOAC_UNSUPPORTED_ACCESS                  0x06010000L
-#define    CNAPI_SDOAC_READ_TO_WRITE_ONLY_OBJ              0x06010001L
-#define    CNAPI_SDOAC_WRITE_TO_READ_ONLY_OBJ              0x06010002L
-#define    CNAPI_SDOAC_OBJECT_NOT_EXIST                    0x06020000L
-#define    CNAPI_SDOAC_OBJECT_NOT_MAPPABLE                 0x06040041L
-#define    CNAPI_SDOAC_PDO_LENGTH_EXCEEDED                 0x06040042L
-#define    CNAPI_SDOAC_GEN_PARAM_INCOMPATIBILITY           0x06040043L
-#define    CNAPI_SDOAC_INVALID_HEARTBEAT_DEC               0x06040044L
-#define    CNAPI_SDOAC_GEN_INTERNAL_INCOMPATIBILITY        0x06040047L
-#define    CNAPI_SDOAC_ACCESS_FAILED_DUE_HW_ERROR          0x06060000L
-#define    CNAPI_SDOAC_DATA_TYPE_LENGTH_NOT_MATCH          0x06070010L
-#define    CNAPI_SDOAC_DATA_TYPE_LENGTH_TOO_HIGH           0x06070012L
-#define    CNAPI_SDOAC_DATA_TYPE_LENGTH_TOO_LOW            0x06070013L
-#define    CNAPI_SDOAC_SUB_INDEX_NOT_EXIST                 0x06090011L
-#define    CNAPI_SDOAC_VALUE_RANGE_EXCEEDED                0x06090030L
-#define    CNAPI_SDOAC_VALUE_RANGE_TOO_HIGH                0x06090031L
-#define    CNAPI_SDOAC_VALUE_RANGE_TOO_LOW                 0x06090032L
-#define    CNAPI_SDOAC_MAX_VALUE_LESS_MIN_VALUE            0x06090036L
-#define    CNAPI_SDOAC_GENERAL_ERROR                       0x08000000L
-#define    CNAPI_SDOAC_DATA_NOT_TRANSF_OR_STORED           0x08000020L
-#define    CNAPI_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL   0x08000021L
-#define    CNAPI_SDOAC_DATA_NOT_TRANSF_DUE_DEVICE_STATE    0x08000022L
-#define    CNAPI_SDOAC_OBJECT_DICTIONARY_NOT_EXIST         0x08000023L
-#define    CNAPI_SDOAC_CONFIG_DATA_EMPTY                   0x08000024L
+typedef enum eCnApiSdoAbortCode
+{
+    kCnApiSdoacNoAbort = 0x0,
+    kCnApiSdoacTimeOut = 0x05040000L,
+    kCnApiSdoacUnknownCommandSpecifier = 0x05040001L,
+    kCnApiSdoacInvalidBLockSize = 0x05040002L,
+    kCnApiSdoacInvalidSequenceNumber = 0x05040003L,
+    kCnApiSdoacOutOfMemory = 0x05040005L,
+    kCnApiSdoacUnsupportedAccess = 0x06010000L,
+    kCnApiSdoacReadToWriteOnlyObj = 0x06010001L,
+    kCnApiSdoacWriteToReadOnlyObj = 0x06010002L,
+    kCnApiSdoacObjectNotExist = 0x06020000L,
+    kCnApiSdoacObjectNotMappable = 0x06040041L,
+    kCnApiSdoacPdoLengthExceeded = 0x06040042L,
+    kCnApiSdoacGenParamIncompatibility = 0x06040043L,
+    kCnApiSdoacInvalidHeadtbeatDec = 0x06040044L,
+    kCnApiSdoacGenInternalIncompatibility = 0x06040047L,
+    kCnApiSdoacAccessFailedDueHwError = 0x06060000L,
+    kCnApiSdoacDataTypeLengthNotMatch = 0x06070010L,
+    kCnApiSdoacDataTypeLengthTooHigh = 0x06070012L,
+    kCnApiSdoacDataTypeLengthTooLow = 0x06070013L,
+    kCnApiSdoacSubIndexNotExist = 0x06090011L,
+    kCnApiSdoacValueRangeExceeded = 0x06090030L,
+    kCnApiSdoacValueRangeTooHigh = 0x06090031L,
+    kCnApiSdoacValueRangeTooLow = 0x06090032L,
+    kCnApiSdoacMaxValueLessMinValue = 0x06090036L,
+    kCnApiSdoacGeneralError = 0x08000000L,
+    kCnApiSdoacDataNotTransfOrStored = 0x08000020L,
+    kCnApiSdoacDataNotTransfDueLocalControl = 0x08000021L,
+    kCnApiSdoacDataNotTransfDueDeviceState = 0x08000022L,
+    kCnApiSdoacObjectDictionaryNotExist = 0x08000023L,
+    kCnApiSdoacConfigDataEmpty = 0x08000024L,
+} tCnApiSdoAbortCode;
 
 /******************************************************************************/
 /* typedefs */

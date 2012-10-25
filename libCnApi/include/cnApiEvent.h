@@ -19,7 +19,6 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* includes */
 #include <cnApiTypEvent.h>
-#include <cnApiTypAsync.h>
 
 /******************************************************************************/
 /* defines */
@@ -45,7 +44,6 @@ typedef enum eCnApiEventType {
 //    kCnApiEventHistoryEntry,    ///< local CnApi error history entry
     kCnApiEventSdo,               ///< not used
     kCnApiEventObdAccess,         ///< not used
-    kCnApiEventAsyncComm,         ///< asynchronous communication AP <-> PCP event
 } tCnApiEventType;
 
 /* definitions for AP state machine, transitions and states */
@@ -60,31 +58,10 @@ typedef enum eApStates{
     kNumApState
 } tApStates;
 
-typedef enum eCnApiEventTypeAsyncComm{
-    kCnApiEventTypeAsyncCommExtChanFinished,     ///< asynchronous communication with PCP has finished and external channel is now available again
-    kCnApiEventTypeAsyncCommExtChanMsgPresent,   ///< message from PCP is present in external channel
-    kCnApiEventTypeAsyncCommExtChanBusy,         ///< access to external channel has been denied because it is in use
-    kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq  ///< Link Pdos Message received
-} tCnApiEventTypeAsyncComm;
-
 typedef struct sCnApiEventError{
     tCnApiEventErrorType ErrTyp_m;
     tCnApiEventErrorArg  ErrArg_m; //TODO: delete
 } tCnApiEventError;
-
-typedef union {
-    struct sLinkPdoReqRxHdl
-    {
-        tLinkPdosReq * pMsg_m;              ///< pointer to local LinkPdosReq message
-        WORD wObjNotLinked_m;               ///< count of mapped but not linked objects
-        BOOL fSuccess_m;                    ///< flag indicating error while receiving LinkPdosReq message
-    } LinkPdosReq_m;                        ///< argument of kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq
-} tCnApiEventArgAsyncComm;
-
-typedef struct sCnApiEventAsyncComm {
-    tCnApiEventTypeAsyncComm Typ_m;
-    tCnApiEventArgAsyncComm  Arg_m;
-} tCnApiEventAsyncComm;
 
 /**
  * \brief union of valid CnApi event arguments
@@ -94,7 +71,6 @@ typedef union {
     tApStates                NewApState_m;        ///< argument of kCnApiEventApStateChange
     tPcpPdiEventGeneric      PcpEventGen_m;       ///< argument of kCnApiEventPcp
     tCnApiEventError         CnApiError_m;        ///< argument of kCnApiEventError
-    tCnApiEventAsyncComm     AsyncComm_m;         ///< argument of kCnApiEventAsyncComm
 } tCnApiEventArg;
 
 typedef tCnApiStatus (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,
