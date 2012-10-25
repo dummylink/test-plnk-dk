@@ -18,7 +18,6 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* includes */
-#include "EplErrDef.h"      // for tEplKernel
 #include "cnApiGlobal.h"
 #include "cnApiTyp.h"
 
@@ -64,7 +63,6 @@ typedef enum ePcpPdiEventType {
     kPcpPdiEventGeneric,            ///< general PCP event
     kPcpPdiEventGenericError,       ///< general PCP error
     kPcpPdiEventPcpStateChange,     ///< PCP state machine change
-//    kPcpPdiEventNmtStateChange,   ///< PCP forwarded openPowerlink NMT state changes
     kPcpPdiEventCriticalStackError, ///< PCP forwarded openPowerlink Stack Error
     kPcpPdiEventStackWarning,       ///< PCP forwarded openPowerlink Stack Warning
     kPcpPdiEventHistoryEntry,       ///< PCP forwarded Powerlink error history entry
@@ -74,17 +72,17 @@ typedef enum ePcpPdiEventType {
  * \brief union of valid PcpPdi event arguments
  */
 typedef union {
-    DWORD                    wVal_m;                ///< general value with max size of this union
-    tPcpPdiEventGeneric      Gen_m;                 ///< argument of kPcpPdiEventGeneric
-    tPcpPdiEventGenericError GenErr_m;              ///< argument of kPcpPdiEventGenericError
-    tPcpStates               NewPcpState_m;         ///< argument of kPcpPdiEventPcpStateChange
-    tEplKernel               PcpStackError_m;       ///< argument of kPcpPdiEventCriticalStackError
-    DWORD                    wErrorHistoryCode_m;   ///< argument of kPcpPdiEventHistoryEntry
+    DWORD                    m_wVal;                ///< general value with max size of this union
+    tPcpPdiEventGeneric      m_Gen;                 ///< argument of kPcpPdiEventGeneric
+    tPcpPdiEventGenericError m_GenErr;              ///< argument of kPcpPdiEventGenericError
+    tPcpStates               m_NewPcpState;         ///< argument of kPcpPdiEventPcpStateChange
+    DWORD                    m_dwPcpStackError;       ///< argument of kPcpPdiEventCriticalStackError
+    DWORD                    m_dwErrorHistoryCode;   ///< argument of kPcpPdiEventHistoryEntry
 } tPcpPdiEventArg;
 
 typedef struct {
-    tPcpPdiEventType Typ_m;
-    tPcpPdiEventArg  Arg_m;
+    tPcpPdiEventType m_Typ;
+    tPcpPdiEventArg  m_Arg;
 } tPcpPdiEvent;
 
 /******************************************************************************/

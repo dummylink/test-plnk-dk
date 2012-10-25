@@ -190,10 +190,10 @@ static tCnApiStatus CnApi_getAsyncIRQEvent(void)
         /* PHY 0 link failed -> forward event */
         //TODO: create event queue -> for now: direct call
 
-        Event.Typ_m = kPcpPdiEventGenericError;
-        Event.Arg_m.GenErr_m = kPcpGenErrPhy0LinkLoss;
+        Event.m_Typ = kPcpPdiEventGenericError;
+        Event.m_Arg.m_GenErr = kPcpGenErrPhy0LinkLoss;
 
-        Ret = CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
+        Ret = CnApi_processPcpEvent(Event.m_Typ, Event.m_Arg);
     }
 
     if (wCtrlRegField & (1 << EVT_PHY1_LINK))
@@ -201,10 +201,10 @@ static tCnApiStatus CnApi_getAsyncIRQEvent(void)
         /* PHY 1 link failed -> forward event */
         //TODO: create event queue -> for now: direct call
 
-        Event.Typ_m = kPcpPdiEventGenericError;
-        Event.Arg_m.GenErr_m = kPcpGenErrPhy1LinkLoss;
+        Event.m_Typ = kPcpPdiEventGenericError;
+        Event.m_Arg.m_GenErr = kPcpGenErrPhy1LinkLoss;
 
-        Ret = CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
+        Ret = CnApi_processPcpEvent(Event.m_Typ, Event.m_Arg);
     }
 
     if (wCtrlRegField & (1 << EVT_GENERIC))
@@ -212,10 +212,10 @@ static tCnApiStatus CnApi_getAsyncIRQEvent(void)
         /* generic event -> forward event */
         //TODO: create event queue -> for now: direct call
 
-        Event.Typ_m = CnApi_getEventTyp();
-        Event.Arg_m.wVal_m = CnApi_getEventArg();
+        Event.m_Typ = CnApi_getEventTyp();
+        Event.m_Arg.m_wVal = CnApi_getEventArg();
 
-        Ret = CnApi_processPcpEvent(Event.Typ_m, Event.Arg_m);
+        Ret = CnApi_processPcpEvent(Event.m_Typ, Event.m_Arg);
     }
 
     /* if no event -> don't care and exit */
@@ -242,18 +242,18 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
     tCnApiEvent  CnApiEvent;            ///< forwarded to application
     BOOL fInformApplication = FALSE;
 
-    Event.Typ_m = wEventType_p;
-    Event.Arg_m = wEventArg_p;
+    Event.m_Typ = wEventType_p;
+    Event.m_Arg = wEventArg_p;
 
     switch (wEventType_p)
     {
         case kPcpPdiEventGeneric:
         {
-            CnApiEvent.Typ_m = kCnApiEventPcp;
-            CnApiEvent.Arg_m.PcpEventGen_m = Event.Arg_m.Gen_m;
+            CnApiEvent.m_Typ = kCnApiEventPcp;
+            CnApiEvent.m_Arg.m_PcpEventGen = Event.m_Arg.m_Gen;
             fInformApplication = TRUE;
 
-            switch (wEventArg_p.GenErr_m)
+            switch (wEventArg_p.m_GenErr)
             {
                 case kPcpGenEventResetCommunication:
                 {
@@ -286,13 +286,13 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
         }
         case kPcpPdiEventGenericError:
         {
-            CnApiEvent.Typ_m = kCnApiEventError;
-            CnApiEvent.Arg_m.CnApiError_m.ErrTyp_m = kCnApiEventErrorFromPcp;
-            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Typ_m = Event.Typ_m;
-            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Arg_m = Event.Arg_m;
+            CnApiEvent.m_Typ = kCnApiEventError;
+            CnApiEvent.m_Arg.m_CnApiError.m_ErrTyp = kCnApiEventErrorFromPcp;
+            CnApiEvent.m_Arg.m_CnApiError.m_ErrArg.m_PcpError.m_Typ = Event.m_Typ;
+            CnApiEvent.m_Arg.m_CnApiError.m_ErrArg.m_PcpError.m_Arg = Event.m_Arg;
             fInformApplication = TRUE;
 
-            switch (wEventArg_p.GenErr_m)
+            switch (wEventArg_p.m_GenErr)
             {
                 case kPcpGenErrInitFailed:
                 case kPcpGenErrSyncCycleCalcError:
@@ -313,7 +313,7 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
         case kPcpPdiEventPcpStateChange:
         {
             /* get PCP state */
-            Event.Arg_m.NewPcpState_m = CnApi_getPcpState();
+            Event.m_Arg.m_NewPcpState = CnApi_getPcpState();
 
             /* update AP state machine */
             //CnApi_processApStateMachine();
@@ -325,10 +325,10 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
         case kPcpPdiEventStackWarning:
         case kPcpPdiEventHistoryEntry:
         {
-            CnApiEvent.Typ_m = kCnApiEventError;
-            CnApiEvent.Arg_m.CnApiError_m.ErrTyp_m = kCnApiEventErrorFromPcp;
-            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Typ_m = Event.Typ_m;
-            CnApiEvent.Arg_m.CnApiError_m.ErrArg_m.PcpError_m.Arg_m = Event.Arg_m;
+            CnApiEvent.m_Typ = kCnApiEventError;
+            CnApiEvent.m_Arg.m_CnApiError.m_ErrTyp = kCnApiEventErrorFromPcp;
+            CnApiEvent.m_Arg.m_CnApiError.m_ErrArg.m_PcpError.m_Typ = Event.m_Typ;
+            CnApiEvent.m_Arg.m_CnApiError.m_ErrArg.m_PcpError.m_Arg = Event.m_Arg;
             fInformApplication = TRUE;
 
             break;
@@ -339,8 +339,8 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
 
     if (fInformApplication == TRUE )
     {    /* inform application */
-        Ret = CnApi_callEventCallback(CnApiEvent.Typ_m,
-                &CnApiEvent.Arg_m, NULL);
+        Ret = CnApi_callEventCallback(CnApiEvent.m_Typ,
+                &CnApiEvent.m_Arg, NULL);
     }
 
     return Ret;

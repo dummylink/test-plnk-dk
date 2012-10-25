@@ -271,7 +271,7 @@ static void stateChange(BYTE current, BYTE target)
 	        strCnApiStateNames_l[targetIdx]);
 
 	/* inform application */
-	CnApiEventArg.NewApState_m = (tApStates) target;
+	CnApiEventArg.m_NewApState = (tApStates) target;
 
 	Ret = CnApi_callEventCallback(kCnApiEventApStateChange, &CnApiEventArg, NULL);
     if(Ret != kCnApiStatusOk)

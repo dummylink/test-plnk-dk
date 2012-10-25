@@ -75,16 +75,16 @@ typedef tCnApiStatus (* tCnApiCbPdoDesc) (tCnApiPdoDesc * pPdoDesc_p,
  */
 typedef struct sCnApiInitParm {
     WORD                    m_wNumObjects;
-    BYTE *                  m_pDpram_p;
+    BYTE *                  m_pDpram;
     tCnApiAppCbSync         m_pfnAppCbSync;
     tCnApiAppCbEvent        m_pfnAppCbEvent;
-    tCnApiObdDefAcc         m_pfnDefaultObdAccess_p;
-    tCnApiCbPdoDesc           m_pfnPdoDescriptor;
+    tCnApiObdDefAcc         m_pfnDefaultObdAccess;
+    tCnApiCbPdoDesc         m_pfnPdoDescriptor;
 #ifdef CN_API_USING_SPI
-    tSpiMasterTxHandler     m_SpiMasterTxH_p;
-    tSpiMasterRxHandler     m_SpiMasterRxH_p;
-    void *                  m_pfnEnableGlobalIntH_p;
-    void *                  m_pfnDisableGlobalIntH_p;
+    tSpiMasterTxHandler     m_SpiMasterTxH;
+    tSpiMasterRxHandler     m_SpiMasterRxH;
+    void *                  m_pfnEnableGlobalIntH;
+    void *                  m_pfnDisableGlobalIntH;
 #endif //CN_API_USING_SPI
 } tCnApiInitParam;
 

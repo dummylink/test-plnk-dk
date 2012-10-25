@@ -32,21 +32,21 @@ typedef enum eCnApiEventErrorType{
 } tCnApiEventErrorType;
 
 typedef union {
-tPcpPdiEvent PcpError_m;
-//tCnApiRetCode cnApiError_m; //TODO: define general Ret Code
+    tPcpPdiEvent m_PcpError;
+    /* insert libCnApi error if needed */
 } tCnApiEventErrorArg;
 
-typedef enum eCnApiEventType {
-    kCnApiEventUserDef,           ///< user defined event
-    kCnApiEventPcp,               ///< generic event from PCP (all events except errors)
-    kCnApiEventApStateChange,     ///< AP state machine changed
-    kCnApiEventError,             ///< general CnApi error
-//    kCnApiEventHistoryEntry,    ///< local CnApi error history entry
-    kCnApiEventSdo,               ///< not used
-    kCnApiEventObdAccess,         ///< not used
-} tCnApiEventType;
+/**
+ * \brief Error argument for both PCP and libCnApi
+ */
+typedef struct sCnApiEventError{
+    tCnApiEventErrorType m_ErrTyp;
+    tCnApiEventErrorArg  m_ErrArg;
+} tCnApiEventError;
 
-/* definitions for AP state machine, transitions and states */
+/**
+ * \brief definitions for AP state machine, transitions and states
+ */
 typedef enum eApStates{
     kApStateBooted = 0,
     kApStateReadyToInit,
@@ -58,19 +58,26 @@ typedef enum eApStates{
     kNumApState
 } tApStates;
 
-typedef struct sCnApiEventError{
-    tCnApiEventErrorType ErrTyp_m;
-    tCnApiEventErrorArg  ErrArg_m; //TODO: delete
-} tCnApiEventError;
+/**
+ * \brief enum of valid CnApi event types
+ */
+typedef enum eCnApiEventType {
+    kCnApiEventUserDef,           ///< user defined event
+    kCnApiEventPcp,               ///< generic event from PCP (all events except errors)
+    kCnApiEventApStateChange,     ///< AP state machine changed
+    kCnApiEventError,             ///< general CnApi error
+    kCnApiEventSdo,               ///< not used
+    kCnApiEventObdAccess,         ///< not used
+} tCnApiEventType;
 
 /**
  * \brief union of valid CnApi event arguments
  */
 typedef union {
-    void *                   pUserArg_m;          ///< argument of kCnApiEventUserDef
-    tApStates                NewApState_m;        ///< argument of kCnApiEventApStateChange
-    tPcpPdiEventGeneric      PcpEventGen_m;       ///< argument of kCnApiEventPcp
-    tCnApiEventError         CnApiError_m;        ///< argument of kCnApiEventError
+    void *                   m_pUserArg;          ///< argument of kCnApiEventUserDef
+    tPcpPdiEventGeneric      m_PcpEventGen;       ///< argument of kCnApiEventPcp
+    tApStates                m_NewApState;        ///< argument of kCnApiEventApStateChange
+    tCnApiEventError         m_CnApiError;        ///< argument of kCnApiEventError
 } tCnApiEventArg;
 
 typedef tCnApiStatus (* tCnApiAppCbEvent) (tCnApiEventType EventType_p,

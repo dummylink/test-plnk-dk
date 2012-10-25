@@ -150,19 +150,19 @@ int main (void)
 
     /* Set initial libCnApi parameters */
     InitCnApiParam.m_wNumObjects = NUM_OBJECTS;
-    InitCnApiParam.m_pDpram_p = (BYTE *)PDI_DPRAM_BASE_AP;
+    InitCnApiParam.m_pDpram = (BYTE *)PDI_DPRAM_BASE_AP;
     InitCnApiParam.m_pfnAppCbSync = CnApi_AppCbSync;
     InitCnApiParam.m_pfnAppCbEvent = CnApi_AppCbEvent;
-    InitCnApiParam.m_pfnDefaultObdAccess_p = CnApi_CbDefaultObdAccess;
+    InitCnApiParam.m_pfnDefaultObdAccess = CnApi_CbDefaultObdAccess;
     InitCnApiParam.m_pfnPdoDescriptor = NULL; /* Note: Define CnApi_CbPdoDescListings as
                                                        a callback if you want to access
                                                        the PDO descriptor message in the
                                                        application! */
 #ifdef CN_API_USING_SPI
-    InitCnApiParam.m_SpiMasterTxH_p = CnApi_CbSpiMasterTx;
-    InitCnApiParam.m_SpiMasterRxH_p = CnApi_CbSpiMasterRx;
-    InitCnApiParam.m_pfnEnableGlobalIntH_p = enableGlobalInterrupts;
-    InitCnApiParam.m_pfnDisableGlobalIntH_p = disableGlobalInterrupts;
+    InitCnApiParam.m_SpiMasterTxH = CnApi_CbSpiMasterTx;
+    InitCnApiParam.m_SpiMasterRxH = CnApi_CbSpiMasterRx;
+    InitCnApiParam.m_pfnEnableGlobalIntH = enableGlobalInterrupts;
+    InitCnApiParam.m_pfnDisableGlobalIntH = disableGlobalInterrupts;
 #endif
 
     status = CnApi_init(&InitCnApiParam, &InitPcpParam);   // initialize and start the CN API
@@ -335,7 +335,7 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                 // in PCP's OPERATIONAL state, but it disables the IRQs in any case.
 #endif /* USE_POLLING_MODE_SYNC */
 
-                switch (pEventArg_p->NewApState_m)
+                switch (pEventArg_p->m_NewApState)
                 {
 
                     case kApStateBooted:
@@ -375,7 +375,7 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
             }
             case kCnApiEventPcp:
             {
-                switch (pEventArg_p->PcpEventGen_m)
+                switch (pEventArg_p->m_PcpEventGen)
                 {
                     case kPcpGenEventSyncCycleCalcSuccessful:
                     {
@@ -423,15 +423,15 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
             }
             case kCnApiEventError:
             {
-                switch (pEventArg_p->CnApiError_m.ErrTyp_m)
+                switch (pEventArg_p->m_CnApiError.m_ErrTyp)
                 {
                     case kCnApiEventErrorFromPcp:
                     {
-                        switch (pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Typ_m)
+                        switch (pEventArg_p->m_CnApiError.m_ErrArg.m_PcpError.m_Typ)
                         {
                             case kPcpPdiEventGenericError:
                             {
-                                switch (pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.GenErr_m)
+                                switch (pEventArg_p->m_CnApiError.m_ErrArg.m_PcpError.m_Arg.m_GenErr)
                                 {
                                     case kPcpGenErrInitFailed:
                                     case kPcpGenErrSyncCycleCalcError:
@@ -475,8 +475,8 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                             case kPcpPdiEventStackWarning:
                             {
                                 // PCP will stop processing or restart
-                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"PCP software error: %#04x\n",
-                                pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.PcpStackError_m);
+                                DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"PCP software error: %#04lx\n",
+                                pEventArg_p->m_CnApiError.m_ErrArg.m_PcpError.m_Arg.m_dwPcpStackError);
                                 break;
                             }
 
@@ -484,7 +484,7 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                             {
                                 // PCP will change state, stop processing or restart
                                 DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"Error history entry code: %#04lx\n",
-                                pEventArg_p->CnApiError_m.ErrArg_m.PcpError_m.Arg_m.wErrorHistoryCode_m);
+                                pEventArg_p->m_CnApiError.m_ErrArg.m_PcpError.m_Arg.m_dwErrorHistoryCode);
                                 break;
                             }
 
@@ -758,7 +758,7 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
             // save handle
             CNAPI_MEMCPY(&ObdParam_l, pObdParam_p, sizeof (tCnApiObdParam));
 
-            // TODO: before exiting this function, initiate custom object transfer HERE
+            // NOTE: before exiting this function, initiate custom object transfer HERE
             // - if if fails, return kCnApiInvalidOperation
             // Note: this function will not be called again before CnApi_DefObdAccFinished() has
             // been invoked i.e. more than one object access at the same time will not happen.
@@ -787,7 +787,8 @@ Exit:
 /**
  ********************************************************************************
  \brief handle an asynchronous object access
- \param pObdParam_p
+ \param pObdParam_p           Obd object handle from default object access
+                              callback
 
  This function needs to be called periodically. The implementation is an example
  how to process and asynchronous object access e.g. from an SDO transfer. It needs

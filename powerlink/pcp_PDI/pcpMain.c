@@ -84,7 +84,6 @@ tEplTimerHdl    EplTimerHdl;
 // this function prototype here. If you want to use more than one Epl
 // instances then the function name of each object dictionary has to differ.
 tEplKernel PUBLIC  EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
-extern void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
 
 /******************************************************************************/
 /* forward declarations */

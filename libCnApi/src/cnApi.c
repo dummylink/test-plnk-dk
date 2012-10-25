@@ -172,13 +172,13 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 #ifdef CN_API_USING_SPI
     pCtrlReg_l = &PcpCntrlRegMirror_l;         //< if SPI is used, take local var instead of parameter
 #else
-    pCtrlReg_l = (tPcpCtrlReg *)pInitCnApiParam_p->m_pDpram_p;    //< if no SPI is used, take parameter to dpram
+    pCtrlReg_l = (tPcpCtrlReg *)pInitCnApiParam_p->m_pDpram;    //< if no SPI is used, take parameter to dpram
 #endif // CN_API_USING_SPI
 
 #ifdef CN_API_USING_SPI
     /* initialize user-callback functions for SPI */
-    iRet = CnApi_initSpiMaster(pInitCnApiParm_p->m_SpiMasterTxH_p, pInitCnApiParm_p->m_SpiMasterRxH_p,
-            pInitCnApiParm_p->m_pfnEnableGlobalIntH_p, pInitCnApiParm_p->m_pfnDisableGlobalIntH_p);
+    iRet = CnApi_initSpiMaster(pInitCnApiParm_p->m_SpiMasterTxH, pInitCnApiParm_p->m_SpiMasterRxH,
+            pInitCnApiParm_p->m_pfnEnableGlobalIntH, pInitCnApiParm_p->m_pfnDisableGlobalIntH);
     if( iRet != OK )
     {
         FncRet = kCnApiStatusError;
@@ -233,7 +233,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 
     /* initialize asynchronous transfer functions */
     iStatus = CnApiAsync_create(pCtrlReg_l, pInitPcpParam_p,
-            pInitCnApiParam_p->m_pDpram_p);
+            pInitCnApiParam_p->m_pDpram);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "CnApiAsync_create() failed!\n");
@@ -243,7 +243,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 
     /* initialize PDO transfer functions */
     iStatus = CnApi_initPdo(pCtrlReg_l, pInitCnApiParam_p->m_pfnAppCbSync,
-            pInitCnApiParam_p->m_pDpram_p,
+            pInitCnApiParam_p->m_pDpram,
             pInitCnApiParam_p->m_pfnPdoDescriptor);
     if (iStatus != OK)
     {
@@ -254,7 +254,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 
     /* initialize CN API object module */
     iStatus = CnApi_initObjects(pInitCnApiParam_p->m_wNumObjects,
-            pInitCnApiParam_p->m_pfnDefaultObdAccess_p);
+            pInitCnApiParam_p->m_pfnDefaultObdAccess);
     if (iStatus != OK)
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"CnApi_initObjects() failed! Unable to"

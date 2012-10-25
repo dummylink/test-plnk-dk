@@ -33,8 +33,8 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* typedefs */
 typedef struct {
-    tCnApiEventType Typ_m;
-    tCnApiEventArg  Arg_m;
+    tCnApiEventType m_Typ;
+    tCnApiEventArg  m_Arg;
 } tCnApiEvent;
 
 /******************************************************************************/
