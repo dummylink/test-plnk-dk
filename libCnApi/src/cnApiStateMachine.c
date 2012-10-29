@@ -151,7 +151,7 @@ FUNC_DOACT(kApStateInit)
 FUNC_EVT(kApStatePreOp, kApStateReadyToOperate, 1)
 {
 	/* check for event which triggers state change */
-	if (fEnterReadyToOperate == TRUE)
+	if (fEnterReadyToOperate != FALSE)
 	{
 	    fEnterReadyToOperate = FALSE;
 		return TRUE;

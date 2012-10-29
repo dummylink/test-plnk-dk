@@ -275,11 +275,11 @@ FUNC_DOACT(kPdiAsyncStateWait)
     BYTE         bElement = INVALID_ELEMENT;            // function argument for getArrayNumOfMsgDescr()
 
     /* check if waiting for Rx message is required -> transit to  ASYNC_RX_PENDING*/
-    if (fRxTriggered == TRUE)
+    if (fRxTriggered != FALSE)
     {
         goto exit; // trigger ASYNC_RX_PENDING
     }
-    if(fTxTriggered == TRUE)
+    if(fTxTriggered != FALSE)
     {
         ErrorHistory_l = CnApiAsync_prepareTxTransfer(&aPdiAsyncTxMsgs[bActivTxMsg_l]);
         if(ErrorHistory_l != kPdiAsyncStatusSuccessful)
@@ -292,8 +292,8 @@ FUNC_DOACT(kPdiAsyncStateWait)
     }
 
     /* check if there is an interrupted message present */
-    if ((checkInterruptedMsgPending() == TRUE) &&
-        (fCheckedIfInternalMessageDue == TRUE)             )
+    if ((checkInterruptedMsgPending() != FALSE) &&
+        (fCheckedIfInternalMessageDue != FALSE)             )
     {
         if (CnApiAsync_restoreMsgContext())
         {
@@ -1161,7 +1161,7 @@ exit:
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPdiAsyncRxStateBusy)
 {
-// do this if you add code here!: if (fError == TRUE)
+// do this if you add code here!: if (fError != FALSE)
 //    {
 //        goto exit;
 //    }
@@ -1236,7 +1236,7 @@ exit:
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPdiAsyncRxStatePending)
 {
-    if (fError == TRUE)
+    if (fError != FALSE)
     {
         goto exit;
     }
@@ -1972,7 +1972,7 @@ static tPdiAsyncPendingTransferContext* getLatestContext()
 
     for (uiArrayNum = 0; uiArrayNum < uiArraySize; uiArrayNum++, pCurArrayElmt++)
     {
-        if (pCurArrayElmt->fLatest_m == TRUE)
+        if (pCurArrayElmt->fLatest_m != FALSE)
         {
             /* member value matches */
             return pCurArrayElmt;
@@ -2018,7 +2018,7 @@ static tPdiAsyncPendingTransferContext* findMsgContextTransferState(tAsyncState 
 
     for (uiArrayNum = 0; uiArrayNum < uiArraySize; uiArrayNum++, pCurArrayElmt++)
     {
-        if ((pCurArrayElmt->fMsgPending_m == TRUE)     &&
+        if ((pCurArrayElmt->fMsgPending_m != FALSE)     &&
             (pCurArrayElmt->bState_m == AsyncSmState_p)  )
         {
             /* member value matches */
@@ -2119,7 +2119,7 @@ BOOL CnApiAsync_restoreMsgContext(void)
 {
     tPdiAsyncPendingTransferContext* pMsgContext = NULL;
 
-    if (PdiAsyncStateMachine_l.m_fResetInProgress == TRUE)
+    if (PdiAsyncStateMachine_l.m_fResetInProgress != FALSE)
     {
         // state change not allowed
         return FALSE;

@@ -337,7 +337,7 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
         break;
     }
 
-    if (fInformApplication == TRUE )
+    if (fInformApplication != FALSE )
     {    /* inform application */
         Ret = CnApi_callEventCallback(CnApiEvent.m_Typ,
                 &CnApiEvent.m_Arg, NULL);

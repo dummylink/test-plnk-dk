@@ -140,7 +140,7 @@ FUNC_ENTRYACT(kPcpStateBooted)
     Gi_controlLED(kCnApiLedInit, FALSE);    ///< reset all LEDs at bootup
 
     ///< if this is not the first boot: shutdown POWERLINK first
-    if(fPLisInitalized_l == TRUE)
+    if(fPLisInitalized_l != FALSE)
     {   //call shutdown powerlink callback
         fpShutdownPlk_l();
     }

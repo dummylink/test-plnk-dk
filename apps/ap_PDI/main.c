@@ -240,7 +240,7 @@ int main (void)
 
 #ifdef USE_POLLING_MODE_SYNC
         /*--- TASK 2: START ---*/
-        if (fOperational_l == TRUE)
+        if (fOperational_l != FALSE)
         {
             CnApi_checkPdo();
         }

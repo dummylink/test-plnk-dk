@@ -87,7 +87,7 @@ tEplKernel PUBLIC  EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
 
 /******************************************************************************/
 /* forward declarations */
-#if EPL_DLL_SOCTIME_FORWARD == TRUE
+#if EPL_DLL_SOCTIME_FORWARD != FALSE
     tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p) INT_RAM_MAIN_01_APP_CB_SYNC;
 #else
     tEplKernel PUBLIC AppCbSync(void);
@@ -529,7 +529,7 @@ static void processPowerlink(void)
             DEBUG_TRACE1(DEBUG_LVL_CNAPI_EVENT_INFO,"%s: Posted event from fifo into PDI!\n", __func__);
         }
 
-        if (fShutdown_l == TRUE)
+        if (fShutdown_l != FALSE)
             break;
     }
 
@@ -1030,7 +1030,7 @@ inputs and runs the control loop.
 \retval    kEplSuccessful   no error
 \retval    otherwise        post error event to API layer
 *******************************************************************************/
-#if EPL_DLL_SOCTIME_FORWARD == TRUE
+#if EPL_DLL_SOCTIME_FORWARD != FALSE
     tEplKernel PUBLIC AppCbSync(tEplSocTimeStamp SocTimeStamp_p)
 #else
     tEplKernel PUBLIC AppCbSync(void)
@@ -1046,7 +1046,7 @@ inputs and runs the control loop.
         if (++iCycleCnt == wSyncIntCycle_g)
         {
             iCycleCnt = 0;  ///< reset cycle counter
-#if EPL_DLL_SOCTIME_FORWARD == TRUE
+#if EPL_DLL_SOCTIME_FORWARD != FALSE
             #ifdef TIMESYNC_HW
                 /* Sync interrupt is generated in HW */
                 if(SocTimeStamp_p.m_fSocRelTimeValid != FALSE)
@@ -1420,7 +1420,7 @@ static tEplKernel Gi_forwardObdAccHstryEntryToPdi(tObdAccHstryEntry * pDefObdHdl
         goto Exit;
     }
 
-    if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) == TRUE)
+    if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) != FALSE)
     {   // PDI connection established
 
         PdiObjAccCon.m_wObdAccConNum = wComConIdx; // forward OBD access connection number to PDI
@@ -1493,7 +1493,7 @@ WORD                wComConIdx;
     if ((pMsgDescr_p->MsgStatus_m == kPdiAsyncMsgStatusError) &&
         (pMsgDescr_p->Error_m != kPdiAsyncStatusSuccessful)     )
     {
-        if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) == TRUE)
+        if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) != FALSE)
         {
             EplRet = Gi_closeObdAccHstryToPdiConnection(wComConIdx,
                                                         EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL,
@@ -2162,7 +2162,7 @@ static tEplKernel EplAppDefObdAccPreValidateObjTypeNoFixedSize(tEplObdParam * pO
 {
     tEplKernel       Ret = kEplSuccessful;
 
-   if(EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p) == TRUE)
+   if(EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p) != FALSE)
    {
        // if it is an initial segment, check if this object is already accessed
        if (pObdParam_p->m_SegmentOffset == 0)
@@ -2295,7 +2295,7 @@ tEplKernel EplAppDefObdAccAdoptedHstrySaveHdl(
             // save only write data from origin since there is no 'read data' yet
             if (pObdParam_p->m_ObdEvent == kEplObdEvInitWriteLe)
             {
-                if(EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p) == TRUE)
+                if(EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p) != FALSE)
                 {
                     // save also object data
                     EPL_MEMCPY(&pObdDefAccHdl->m_aObdData, pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
