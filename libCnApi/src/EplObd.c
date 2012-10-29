@@ -533,7 +533,7 @@ tEplObdEntryPtr pObdEntry;
 
     //  part always has to be unequal to NULL
     pObdEntry = EPL_MCO_GLB_VAR (m_ObdInitParam.m_pGenericPart);
-    ASSERTMSG (pObdEntry != NULL, "EplObdAccessOdPart(): no  OD part is defined!\n");
+//    ASSERTMSG (pObdEntry != NULL, "EplObdAccessOdPart(): no  OD part is defined!\n");
 
     // if ObdPart_p is not valid fPartFound keeps FALSE and function returns kEplObdIllegalPart
     fPartFount = FALSE;
@@ -643,7 +643,7 @@ tEplObdParam  MEM       ObdParam;
     // check for all API function if instance is valid
     EPL_MCO_CHECK_INSTANCE_STATE ();
 
-    ASSERT (pVarParam_p != NULL);   // is not allowed to be NULL
+//    ASSERT (pVarParam_p != NULL);   // is not allowed to be NULL
 
     ObdParam.m_uiIndex = pVarParam_p->m_uiIndex;
     ObdParam.m_uiSubIndex = pVarParam_p->m_uiSubindex;
@@ -1623,7 +1623,7 @@ tEplObdCallback MEM  fpCallback;
     // check for all API function if instance is valid
     EPL_MCO_CHECK_INSTANCE_STATE ();
 
-    ASSERT (pCbParam_p != NULL);
+//    ASSERT (pCbParam_p != NULL);
 
     Ret = kEplSuccessful;
 
@@ -2752,7 +2752,7 @@ static CONST void* EplObdGetObjectDefaultPtr (tEplObdSubEntryPtr pSubIndexEntry_
 CONST void*     pDefault;
 tEplObdType     Type;
 
-    ASSERTMSG (pSubIndexEntry_p != NULL, "EplObdGetObjectDefaultPtr(): pointer to SubEntry not valid!\n");
+//    ASSERTMSG (pSubIndexEntry_p != NULL, "EplObdGetObjectDefaultPtr(): pointer to SubEntry not valid!\n");
 
     // get address to default data from default pointer
     pDefault = pSubIndexEntry_p->m_pDefault;
@@ -2807,7 +2807,7 @@ static tEplKernel EplObdGetVarEntry (
 
 tEplKernel Ret = kEplObdVarEntryNotExist;
 
-    ASSERT (ppVarEntry_p != NULL);   // is not allowed to be NULL
+//    ASSERT (ppVarEntry_p != NULL);   // is not allowed to be NULL
     //ASSERT (pSubindexEntry_p != NULL);
     if (pSubindexEntry_p == NULL)
     {
@@ -3026,7 +3026,7 @@ unsigned int  nLoop;
 
 #endif
 
-    ASSERTMSG (ppObdEntry_p != NULL, "EplObdGetIndexIntern(): pointer to index entry is NULL!\n");
+//    ASSERTMSG (ppObdEntry_p != NULL, "EplObdGetIndexIntern(): pointer to index entry is NULL!\n");
 
     Ret = kEplObdIndexNotExist;
 
@@ -3180,16 +3180,16 @@ tEplObdSubEntryPtr pSubEntry;
 unsigned int       nSubIndexCount;
 tEplKernel         Ret;
 
-    ASSERTMSG (pObdEntry_p != NULL, "EplObdGetSubindexIntern(): pointer to index is NULL!\n");
-    ASSERTMSG (ppObdSubEntry_p != NULL, "EplObdGetSubindexIntern(): pointer to subindex is NULL!\n");
+//    ASSERTMSG (pObdEntry_p != NULL, "EplObdGetSubindexIntern(): pointer to index is NULL!\n");
+//    ASSERTMSG (ppObdSubEntry_p != NULL, "EplObdGetSubindexIntern(): pointer to subindex is NULL!\n");
 
     Ret = kEplObdSubindexNotExist;
 
     // get start address of subindex table and count of subindices
     pSubEntry     = pObdEntry_p->m_pSubIndex;
     nSubIndexCount =  pObdEntry_p->m_uiCount;
-    ASSERTMSG ((pSubEntry != NULL) && (nSubIndexCount > 0),
-        "ObdGetSubindexIntern(): invalid subindex table within index table!\n");   // should never be NULL
+//    ASSERTMSG ((pSubEntry != NULL) && (nSubIndexCount > 0),
+//        "ObdGetSubindexIntern(): invalid subindex table within index table!\n");   // should never be NULL
 
     // search subindex in subindex table
     while (nSubIndexCount > 0)
@@ -3298,7 +3298,7 @@ tEplKernel                  Ret;
 tEplObdCbStoreParam MEM     CbStore;
 tEplObdVarEntry MEM*        pVarEntry = 0;
 
-    ASSERT (pObdEnty_p != NULL);
+//    ASSERT (pObdEnty_p != NULL);
 
     Ret = kEplSuccessful;
 
@@ -3351,7 +3351,7 @@ tEplObdVarEntry MEM*        pVarEntry = 0;
             // get address to subindex table and count of subindices
             pSubIndex     = pObdEnty_p->m_pSubIndex;
             nSubIndexCount = pObdEnty_p->m_uiCount;
-            ASSERT ((pSubIndex != NULL) && (nSubIndexCount > 0));    // should never be NULL
+//            ASSERT ((pSubIndex != NULL) && (nSubIndexCount > 0));    // should never be NULL
 
             // walk through subindex table till all subinices were restored
             while (nSubIndexCount != 0)

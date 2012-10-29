@@ -72,7 +72,6 @@
 #ifndef _EPLSDOCOMU_H_
 #define _EPLSDOCOMU_H_
 
-#include "global.h"
 #include "EplSdo.h"
 #include "EplObd.h"
 #include "EplSdoAc.h"

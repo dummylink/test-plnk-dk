@@ -67,7 +67,7 @@
   2006/06/26 k.t.:   start of the implementation
 
 ****************************************************************************/
-#include "global.h"
+#include "cnApiGlobal.h"
 #include "cnApiDebug.h"
 #include "EplErrDef.h"
 #include "user/EplSdoComu.h"
@@ -807,7 +807,7 @@ tEplKernel PUBLIC EplSdoComReceiveCb (tEplSdoSeqConHdl    SdoSeqConHdl_p,
 {
 tEplKernel       Ret;
 
-    UNUSED_PARAMETER(uiDataSize_p);
+//    UNUSED_PARAMETER(uiDataSize_p);
 
     // search connection internally
     Ret = EplSdoComSearchConIntern(SdoSeqConHdl_p,

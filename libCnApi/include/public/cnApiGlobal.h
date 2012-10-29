@@ -136,6 +136,39 @@ subject to the License Agreement located at the end of this file below.
     #error "Please define the datatypes for your target here!"
 #endif
 
+
+/******************************************************************************/
+/* Define constants */
+#define ROM_INIT                // variables will be initialized directly in ROM (means no copy from RAM in startup)
+#define ROM                     // code or variables mapped to ROM (i.e. flash)
+                                // usage: CONST BYTE ROM foo = 0x00;
+#define HWACC                   // hardware access through external memory (i.e. CAN)
+
+// These types can be adjusted by users to match application requirements. The goal is to
+// minimize code memory and maximize speed.
+#define GENERIC                 // generic pointer to point to application data
+                                // Variables with this attribute can be located in external
+                                // or internal data memory.
+#define MEM                     // Memory attribute to optimize speed and code of pointer access.
+
+#ifndef NEAR
+    #define NEAR                // variables mapped to internal data storage location
+#endif
+
+#ifndef FAR
+    #define FAR                 // variables mapped to external data storage location
+#endif
+
+#ifndef CONST
+    #define CONST const         // variables mapped to ROM (i.e. flash)
+#endif
+
+#define LARGE
+
+#define REENTRANT
+#define PUBLIC
+
+
 /******************************************************************************/
 /* Define Trace */
 #ifndef NDEBUG
