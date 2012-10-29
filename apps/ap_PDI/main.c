@@ -787,25 +787,25 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
     // before the call of CnApi_DefObdAccFinished().
     switch (pObdParam_p->m_uiIndex)
     {
-        case 0x6500:
-        {   // example: checking an existing object
-            switch (pObdParam_p->m_uiSubIndex)
-            {
-                case 0x01:
-                {
-                    break;
-                }
-
-                default:
-                {
-                    pObdParam_p->m_dwAbortCode = kCnApiSdoacSubIndexNotExist;
-                    Ret = kCnApiObdSubindexNotExist;
-                    goto Exit;
-                }
-            }
-
-            break;
-        }
+//        case 0x6500:
+//        {   // example: checking an existing object
+//            switch (pObdParam_p->m_uiSubIndex)
+//            {
+//                case 0x01:
+//                {
+//                    break;
+//                }
+//
+//                default:
+//                {
+//                    pObdParam_p->m_dwAbortCode = kCnApiSdoacSubIndexNotExist;
+//                    Ret = kCnApiObdSubindexNotExist;
+//                    goto Exit;
+//                }
+//            }
+//
+//            break;
+//        }
 
         default:
         {
