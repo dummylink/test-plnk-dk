@@ -346,7 +346,7 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
             case kCnApiEventUserDef:
             case kCnApiEventApStateChange:
             {
-                //DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", pEventArg_p->NewApState_m);
+                //DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"New AP State: %d\n", pEventArg_p->m_NewApState);
 
                 fOperational_l = FALSE;
 

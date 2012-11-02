@@ -364,8 +364,6 @@ static tPdiAsyncStatus CnApiAsync_initInternalMsgs(void)
 
     if (Ret != kPdiAsyncStatusSuccessful)  goto exit;
 
-    //TODO: This is blocking asynchronous traffic, because it waits for a response
-    //      Issue: ReqId has to be saved somehow (= another handle history)
     CnApiAsync_initMsg(kPdiAsyncMsgIntObjAccReq, Dir, CnApiAsync_doObjAccReq, &aPcpPdiAsyncTxMsgBuffer_g[1],
                        kPdiAsyncMsgInvalid, kPdiAsyncTrfTypeLclBuffering, kAsyncChannelExternal, pNmtList, 0);
 
