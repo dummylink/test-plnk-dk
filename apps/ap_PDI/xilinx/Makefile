@@ -210,7 +210,7 @@ ${FLASH_IMAGE_NAME_DUAL}.mcs : ${EXECUTABLE}.mem $(BITSTREAM).bit
 	@echo Invoking: promgen
 	promgen $(PROMGEN_FLAGS) -o ${FLASH_IMAGE_NAME}.mcs $(PROMGEN_TYPE) $(BITSTREAM).bit $(PROMGEN_PREFIX)
 	@echo Invoking: pcublaze.pl
-	$(PERL) $(BOOTLOADER_PATH)/src/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
+	$(PERL) $(SCRIPT_DIR)/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
 	@echo Finished generating: $@
 	@echo ' '
 
