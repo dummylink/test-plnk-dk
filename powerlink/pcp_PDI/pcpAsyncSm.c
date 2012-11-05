@@ -1439,6 +1439,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         /* reset message status */
         aPdiAsyncRxMsgs[bActivRxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive;
+        aPdiAsyncRxMsgs[bActivRxMsg_l].dwPendTranfSize_m = 0;
         aPdiAsyncRxMsgs[bActivRxMsg_l].Error_m = kPdiAsyncStatusSuccessful;
 
         if (aPdiAsyncRxMsgs[bActivRxMsg_l].MsgHdl_m.pLclBuf_m == pLclAsyncRxMsgBuffer_l)
