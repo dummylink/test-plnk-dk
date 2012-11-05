@@ -629,7 +629,7 @@ tObdAccHstryEntry * pObdAccHstEntry = NULL;
         goto Exit;
     }
 
-    if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) == TRUE)
+    if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) != FALSE)
     {   // PDI connection established
 
         // convert mapping index to related communication index

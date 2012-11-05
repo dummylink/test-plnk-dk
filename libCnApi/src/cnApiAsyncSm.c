@@ -2086,7 +2086,7 @@ static tPdiAsyncPendingTransferContext* findMsgContextTransferState(tAsyncState 
 
     for (uiArrayNum = 0; uiArrayNum < uiArraySize; uiArrayNum++, pCurArrayElmt++)
     {
-        if ((pCurArrayElmt->fMsgPending_m == TRUE)     &&
+        if ((pCurArrayElmt->fMsgPending_m != FALSE)    &&
             (pCurArrayElmt->bState_m == AsyncSmState_p)  )
         {
             /* member value matches */
@@ -2211,8 +2211,8 @@ BOOL CnApiAsync_tryRestoreMsgContextRoundRobin(void)
     }
 
     // restore previous context if it exist -> round robin scheduling (for 2 elements)
-    if ((pMsgContextLatest->pNextCtxt_m != NULL)               &&
-        (pMsgContextLatest->pNextCtxt_m->fMsgPending_m == TRUE)   )
+    if ((pMsgContextLatest->pNextCtxt_m != NULL)                &&
+        (pMsgContextLatest->pNextCtxt_m->fMsgPending_m != FALSE)   )
     {
         pMsgContext = pMsgContextLatest->pNextCtxt_m;
     }
