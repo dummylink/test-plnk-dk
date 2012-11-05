@@ -27,11 +27,10 @@
 							</tool>
 							<tool id="xilinx.gnu.mb.c.toolchain.compiler.1673480845" name="MicroBlaze gcc compiler" superClass="xilinx.gnu.mb.c.toolchain.compiler">
 								<option id="xilinx.gnu.compiler.dircategory.includes.301531839" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ap_PDI/libCnApi/include/public}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ap_PDI}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ap_PDI/libCnApi/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ap_PDI/libCnApi/include/openPOWERLINK}&quot;"/>
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_intplb-ap-plb/ap/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ap_PDI/libCnApi/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ap_PDI/libCnApi/int}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ap_PDI/target/xilinx_microblaze/include}&quot;"/>
 								</option>
 								<option id="xilinx.gnu.compiler.option.optimization.level.1438028258" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.mbversion.27378811" name="MicroBlaze Version" superClass="xilinx.gnu.mb.compiler.inferred.mbversion" value="8.20.a" valueType="string"/>

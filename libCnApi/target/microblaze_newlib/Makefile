@@ -36,16 +36,14 @@ LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 
 ##################################
 # Include directory
-INCLUDES=-I${APP_DIR}\
--I${BSP_PATH}/${PROCESSOR_NAME}/include \
+INCLUDES=-I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${OBJDICT_DIR} \
--I${BSP_PATH}/${PROCESSOR_NAME}/include \
--I${CN_API_DIR}/include \
--I${CN_API_DIR}/include/public \
--I${CN_API_DIR}/include/openPOWERLINK \
--I${CN_API_DIR}/include/openPOWERLINK/kernel \
--I${CN_API_DIR}/include/openPOWERLINK/user \
--I${CN_API_DIR}/utils \
+-I${CN_API_DIR}/inc \
+-I${CN_API_DIR}/int \
+-I${CN_API_DIR}/int/openPOWERLINK \
+-I${CN_API_DIR}/int/openPOWERLINK/kernel \
+-I${CN_API_DIR}/int/openPOWERLINK/user \
+-I${CNDK_DIR}/common/inc \
 -I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic
 
 ##################################
@@ -62,7 +60,7 @@ ${CN_API_DIR}/src/cnApiStateMachine.c \
 ${CN_API_DIR}/src/EplObd.c \
 ${CN_API_DIR}/src/EplSdoAsySequ.c \
 ${CN_API_DIR}/src/EplSdoComu.c \
-${CN_API_DIR}/utils/stateMachine.c 
+${CNDK_DIR}/common/src/stateMachine.c 
 
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
 

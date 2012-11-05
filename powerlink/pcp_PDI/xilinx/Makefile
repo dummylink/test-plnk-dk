@@ -68,8 +68,7 @@ INCLUDES=-I${APP_DIR}\
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${CNDK_TARGET_DIR}/include \
--I${CN_API_DIR}/include/public \
--I${CN_API_DIR}/utils
+-I${CNDK_DIR}/common/inc
 
 ##################################
 # Source files
@@ -112,7 +111,7 @@ ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_irq.c \
 ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c \
 ${POWERLINK_DIR}/SharedBuff/SharedBuff.c \
 ${POWERLINK_DIR}/SharedBuff/ShbIpc-NoOS.c \
-${CN_API_DIR}/utils/stateMachine.c \
+${CNDK_DIR}/common/src/stateMachine.c \
 ${CNDK_TARGET_DIR}/src/fpgaCfg.c \
 ${CNDK_TARGET_DIR}/src/fwUpdate.c \
 ${CNDK_TARGET_DIR}/src/boot.c \
@@ -224,7 +223,7 @@ header:
 all: buildapp
 
 .PHONY: buildapp
-buildapp: checkiprev builddir ${CN_API_DIR}/include/cnApiCfg.h ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck  ${EXECUTABLE}.mem
+buildapp: checkiprev builddir ${CN_API_DIR}/inc/cnApiCfg.h ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck  ${EXECUTABLE}.mem
 
 .PHONY: checkiprev
 checkiprev:
@@ -270,9 +269,9 @@ ${EXECUTABLE}.elfcheck: ${EXECUTABLE}.elf
 	@echo ' '
 
 #Copy cnApiCfg.h to libCnApi
-${CN_API_DIR}/include/cnApiCfg.h: ${BSP_PATH}/${PROCESSOR_NAME}/include/cnApiCfg.h
+${CN_API_DIR}/inc/cnApiCfg.h: ${BSP_PATH}/${PROCESSOR_NAME}/include/cnApiCfg.h
 	@echo Copy: cnApiCfg.h to library path:
-	${CP} ${BSP_PATH}/${PROCESSOR_NAME}/include/cnApiCfg.h ${CN_API_DIR}/include/cnApiCfg.h
+	${CP} ${BSP_PATH}/${PROCESSOR_NAME}/include/cnApiCfg.h ${CN_API_DIR}/inc/cnApiCfg.h
 	@echo Finished copying
 	@echo ' '
 

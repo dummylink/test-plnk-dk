@@ -32,7 +32,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/pcp_PDI}</value>
+					<value>${workspace_loc:/pcp_PDI/build_xilinx}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
@@ -82,19 +82,24 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>libCnApi/include</name>
+			<name>common</name>
 			<type>2</type>
-			<locationURI>LIBCNAPI_LOC/include</locationURI>
+			<locationURI>CNDK_LOC/common</locationURI>
+		</link>
+		<link>
+			<name>libCnApi/inc</name>
+			<type>2</type>
+			<locationURI>LIBCNAPI_LOC/inc</locationURI>
+		</link>
+		<link>
+			<name>libCnApi/int</name>
+			<type>2</type>
+			<locationURI>LIBCNAPI_LOC/int</locationURI>
 		</link>
 		<link>
 			<name>libCnApi/src</name>
 			<type>2</type>
 			<locationURI>LIBCNAPI_LOC/src</locationURI>
-		</link>
-		<link>
-			<name>libCnApi/utils</name>
-			<type>2</type>
-			<locationURI>LIBCNAPI_LOC/utils</locationURI>
 		</link>
 		<link>
 			<name>objDicts/PDI</name>

@@ -17,6 +17,7 @@ PWD=`pwd`
 POWERLINKDIR=$PWD/../powerlink/generic/${POWERLINKFLDR}
 BSP_DIR=$PWD/bsp
 APPDIR=$PWD
+CNDK_DIR=$APPDIR/../../
 
 ###############################################################################
 INPUT_VARS=$@
@@ -73,11 +74,8 @@ done
 # Include directories
 INCLUDES="\
 ${PWD} \
-${LIBAPIDIR}/include \
-${LIBAPIDIR}/include/public \
-${LIBAPIDIR}/include/openPOWERLINK \
-${LIBAPIDIR}/utils \
-${POWERLINKDIR}/Include \
+${LIBAPIDIR}/inc \
+${CNDK_DIR}/common/inc \
 ${APPDIR}/target/altera_nios/include"
 
 ###############################################################################

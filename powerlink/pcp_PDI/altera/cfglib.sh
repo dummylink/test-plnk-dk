@@ -6,7 +6,7 @@
 
 # User definitions
 IN_FILE=./bsp/system.h
-OUT_FILE=../../libCnApi/include/cnApiCfg.h
+OUT_FILE=../../libCnApi/inc/cnApiCfg.h
 
 #Error definitions
 E_NOSUCHFILE=85

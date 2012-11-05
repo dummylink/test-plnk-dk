@@ -87,9 +87,14 @@
 			<locationURI>EDRV_LOC/openmac/include</locationURI>
 		</link>
 		<link>
-			<name>libCnApi/utils</name>
+			<name>common</name>
 			<type>2</type>
-			<locationURI>LIBCNAPI_LOC/utils</locationURI>
+			<locationURI>CNDK_LOC/common</locationURI>
+		</link>
+		<link>
+			<name>objDicts/PDI</name>
+			<type>2</type>
+			<locationURI>CNDK_LOC/objDicts/PDI</locationURI>
 		</link>
 		<link>
 			<name>openPOWERLINK_CNDKPatched/EplApiGeneric.c</name>
@@ -247,19 +252,9 @@
 			<locationURI>EDRV_LOC/openmac/source/omethlibint.c</locationURI>
 		</link>
 		<link>
-			<name>libCnApi/include/public</name>
-			<type>2</type>
-			<locationURI>LIBCNAPI_LOC/include/public</locationURI>
-		</link>
-		<link>
 			<name>openPOWERLINK_CNDKPatched/ObjDicts/Generic</name>
 			<type>2</type>
 			<locationURI>PLK_LOC/ObjDicts/Generic</locationURI>
-		</link>
-		<link>
-			<name>objDicts/PDI</name>
-			<type>2</type>
-			<locationURI>CNDK_LOC/objDicts/PDI</locationURI>
 		</link>
 		<link>
 			<name>openPOWERLINK_CNDKPatched/SharedBuff/SharedBuff.c</name>
@@ -320,10 +315,6 @@
 		<variable>
 			<name>EDRV_LOC</name>
 			<value>$%7BCNDK_LOC%7D/powerlink/generic/POWERLINK_IP_Edrv</value>
-		</variable>
-		<variable>
-			<name>LIBCNAPI_LOC</name>
-			<value>$%7BCNDK_LOC%7D/libCnApi</value>
 		</variable>
 		<variable>
 			<name>PLK_LOC</name>

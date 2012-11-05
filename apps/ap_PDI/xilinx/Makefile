@@ -61,12 +61,8 @@ BITSTREAM= download
 INCLUDES=-I${APP_DIR}\
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
--I${LIBCNAPI_DIR}/include \
--I${LIBCNAPI_DIR}/include/public \
--I${LIBCNAPI_DIR}/include/openPOWERLINK \
--I${LIBCNAPI_DIR}/include/openPOWERLINK/kernel \
--I${LIBCNAPI_DIR}/include/openPOWERLINK/user \
--I${LIBCNAPI_DIR}/utils \
+-I${LIBCNAPI_DIR}/inc \
+-I${CNDK_DIR}/common/inc \
 -I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
 -I${APP_DIR}/target/xilinx_microblaze/include 
 

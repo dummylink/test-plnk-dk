@@ -16,6 +16,7 @@ PWD=`pwd`
 . ../../project.config  						# include PATH settings
 PCP_DIR=$PWD/..                                  
 BSP_DIR=$PWD/bsp
+CNDK_DIR=$PCP_DIR/../
 
 # replace this path to the object dictionary you wish to include
 OBJDICTDIR=$PWD/../../objDicts/PDI
@@ -83,8 +84,7 @@ ${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
 ${OBJDICTDIR} \
-${LIBAPIDIR}/include/public \
-${LIBAPIDIR}/utils"
+${CNDK_DIR}/common/inc"
 
 ###############################################################################
 # Custom libraries
@@ -159,7 +159,7 @@ ${PCP_TARGET_DIR}/altera_nios/src/boot.c \
 ${PCP_TARGET_DIR}/altera_nios/src/systemComponents.c \
 ${PCP_GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
-${LIBAPIDIR}/utils/stateMachine.c \
+${CNDK_DIR}/common/src/stateMachine.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTgtTimeStamp_OpenMac.c \

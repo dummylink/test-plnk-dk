@@ -4,7 +4,7 @@
 
 # List of include directories for -I compiler option (-I added when used).
 # Includes the BSP.
-ALT_INCLUDE_DIRS := ../../include ../../include/public ../../utils 
+ALT_INCLUDE_DIRS := ../../inc ../../int ../../../common/inc
 
 # Define path to the root of the BSP.
 BSP_ROOT_DIR := ../../../apps/ap_PDI/bsp
@@ -106,7 +106,7 @@ C_SRCS += ../../src/cnApiObjects.c
 C_SRCS += ../../src/cnApiPdiSpi.c
 C_SRCS += ../../src/cnApiPdo.c
 C_SRCS += ../../src/cnApiStateMachine.c
-C_SRCS += ../../utils/stateMachine.c
+C_SRCS += ../../../common/src/stateMachine.c
 # use amibe.c for Big Endian and amiarm.c for Little Endian architecture
 C_SRCS += ../../src/amiarm.c
 C_SRCS += ../../src/EplSdoComu.c
@@ -139,7 +139,7 @@ LIB_ASFLAGS_USER :=
 LIB_ARCHIVER_FLAGS := -src
 
 # List of library specific include directories
-LIB_INCLUDE_DIRS := ../../include/openPOWERLINK 
+LIB_INCLUDE_DIRS := ../../int/openPOWERLINK
 
 # Pre- and post- processor settings.
 BUILD_PRE_PROCESS :=

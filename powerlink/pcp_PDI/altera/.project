@@ -270,7 +270,7 @@
 		<link>
 			<name>stateMachine.c</name>
 			<type>1</type>
-			<location>CNDK_LOCATION/libCnApi/utils/stateMachine.c</location>
+			<location>CNDK_LOCATION/common/src/stateMachine.c</location>
 		</link>
 		<link>
 			<name>systemComponents.c</name>
