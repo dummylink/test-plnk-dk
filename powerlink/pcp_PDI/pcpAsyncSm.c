@@ -108,7 +108,7 @@ static BOOL checkInterruptedMsgPending();
 static tPdiAsyncPendingTransferContext* findMsgContextTransferState(tAsyncState);
 
 static BOOL CnApiAsync_saveMsgContext(void);
-static BOOL CnApiAsync_restoreMsgContext(void);
+static BOOL CnApiAsync_tryRestoreMsgContextRoundRobin(void);
 static tPdiAsyncStatus CnApiAsync_prepareTxTransfer(tPdiAsyncMsgDescr* pMsgDescr_p);
 
 /******************************************************************************/
@@ -274,11 +274,13 @@ FUNC_DOACT(kPdiAsyncStateWait)
     register BYTE bCnt = 0;                             // loop counter
     BYTE         bElement = INVALID_ELEMENT;            // function argument for getArrayNumOfMsgDescr()
 
-    /* check if waiting for Rx message is required -> transit to  ASYNC_RX_PENDING*/
+    /* check if waiting for response (Rx) is required -> directly transit to ASYNC_RX_PENDING */
     if (fRxTriggered != FALSE)
     {
         goto exit; // trigger ASYNC_RX_PENDING
     }
+
+    /* check if response (Tx) is required -> directly transit to ASYNC_TX_BUSY */
     if(fTxTriggered != FALSE)
     {
         ErrorHistory_l = CnApiAsync_prepareTxTransfer(&aPdiAsyncTxMsgs[bActivTxMsg_l]);
@@ -295,7 +297,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
     if ((checkInterruptedMsgPending() != FALSE) &&
         (fCheckedIfInternalMessageDue != FALSE)             )
     {
-        if (CnApiAsync_restoreMsgContext())
+        if (CnApiAsync_tryRestoreMsgContextRoundRobin())
         {
             goto exit;
         }
@@ -363,7 +365,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
      * if there is no Rx or Tx message to be processed yet */
     if ((bActivTxMsg_l == INVALID_ELEMENT)               &&
         (bCurPdiChannelNum == INVALID_ELEMENT)           &&
-        (checkInterruptedMsgPending() == FALSE)            )
+        (findMsgContextTransferState(kPdiAsyncTxStatePending) == NULL))
     {
         for (bCnt = 0; bCnt < MAX_PDI_ASYNC_TX_MESSAGES; ++bCnt)
         {
@@ -457,11 +459,11 @@ FUNC_EVT(kPdiAsyncStateWait, kPdiAsyncStateStopped, 1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
 {
-    volatile tAsyncMsg *     pUtilTxPdiBuf = NULL;   ///< Tx Pdi Buffer utilized by message
-    tPdiAsyncMsgDescr * pMsgDescr = NULL;   ///< pointer to current message descriptor
-    WORD          wCopyLength   = 0;        ///< length of data to be copied (for local buffered transfer)
-    DWORD         dwMaxBufPayload = 0;      ///< maximum payload for message storage
-    BYTE *        pCurLclMsgFrgmt = 0;      ///< pointer to currently handled local message fragment
+    volatile tAsyncMsg *     pUtilTxPdiBuf = NULL;   // Tx Pdi Buffer utilized by message
+    tPdiAsyncMsgDescr * pMsgDescr = NULL;   // pointer to current message descriptor
+    WORD          wCopyLength   = 0;        // length of data to be copied (for local buffered transfer)
+    DWORD         dwMaxBufPayload = 0;      // maximum payload for message storage
+    BYTE *        pCurLclMsgFrgmt = 0;      // pointer to currently handled local message fragment
 
     if (bActivTxMsg_l == INVALID_ELEMENT)
     {
@@ -616,7 +618,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStatePending)
 /*----------------------------------------------------------------------------*/
 FUNC_DOACT(kPdiAsyncTxStatePending)
 {
-    BYTE         bElement = INVALID_ELEMENT;            ///< function argument for getArrayNumOfMsgDescr()
+    BYTE         bElement = INVALID_ELEMENT;            // function argument for getArrayNumOfMsgDescr()
 
     /* first, process internal messages */
     if (aPdiAsyncTxMsgs[bActivTxMsg_l].Param_m.ChanType_m != kAsyncChannelInternal)
@@ -658,6 +660,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
             dwTimeoutWait_l = 0; // reset to initial value
 
             aPdiAsyncTxMsgs[bActivTxMsg_l].dwPendTranfSize_m = 0; // finished
+            aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted;
             fMsgTransferFinished = TRUE;
 
             /* call user call back, if assigned */
@@ -811,14 +814,14 @@ FUNC_EVT(kPdiAsyncTxStatePending, kPdiAsyncStateStopped, 1)
 /*============================================================================*/
 FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
 {
-    tAsyncMsg *   pUtilRxPdiBuf = NULL;     ///< Tx Pdi Buffer utilized by message
-    tPdiAsyncMsgDescr * pMsgDescr = NULL;   ///< pointer to current message descriptor
-    WORD          wCopyLength   = 0;        ///< length of data to be copied (for local buffered transfer)
-    DWORD         dwMaxBufPayload = 0;      ///< maximum payload for message storage
-    BYTE *        pCurLclMsgFrgmt = NULL;   ///< pointer to currently handled local message fragment
-    BYTE *        pRespChan = NULL;         ///< pointer to Tx response message payload
-    BYTE *        pRxChan = NULL;           ///< pointer to Rx message payload
-    BYTE          bElement = INVALID_ELEMENT;///< function argument for getArrayNumOfMsgDescr()
+    tAsyncMsg *   pUtilRxPdiBuf = NULL;     // Tx Pdi Buffer utilized by message
+    tPdiAsyncMsgDescr * pMsgDescr = NULL;   // pointer to current message descriptor
+    WORD          wCopyLength   = 0;        // length of data to be copied (for local buffered transfer)
+    DWORD         dwMaxBufPayload = 0;      // maximum payload for message storage
+    BYTE *        pCurLclMsgFrgmt = NULL;   // pointer to currently handled local message fragment
+    BYTE *        pRespChan = NULL;         // pointer to Tx response message payload
+    BYTE *        pRxChan = NULL;           // pointer to Rx message payload
+    BYTE          bElement = INVALID_ELEMENT;// function argument for getArrayNumOfMsgDescr()
     DWORD         dwStreamLength;
     WORD          wFragmentLength;
 
@@ -1548,22 +1551,26 @@ static tPdiAsyncStatus CnApiAsync_prepareTxTransfer(tPdiAsyncMsgDescr* pMsgDescr
 /**
  ********************************************************************************
  \brief initializes an asynchronous PDI message descriptor
+
  \param MsgType_p           type of message
+ \param Direction_p         direction of the message (send or receive)
  \param pfnCbMsgHdl_p       pointer to message handle call-back function
  \param pPdiBuffer_p        pointer to one-way PDI buffer
- \param pResponseMsgDescr_p optional response message; set to kPdiAsyncMsgInvalid if not used
+ \param RespMsgType_p       optional response message; set to NULL if not used
  \param TransferType_p      local buffering (for large messages) or direct PDI buffer access
  \param ChanType_p          channel type (internal or external)
  \param paValidNmtList_p    list of NmtStates the massage can be processed in
  \param wTimeout_p         AP <-> PCP timeout communication value for this message
                             (0 means wait forever)
 
- \return    tPdiAsyncStatus value
+ \return tPdiAsyncStatus
+ \retval kPdiAsyncStatusSuccessful              on success
+ \retval kPdiAsyncStatusInvalidInstanceParam    invalid init parameters
 
-This function initializes the message descriptor for a certain asynchronous
-PDI message. If a response message descriptor will be assigned, the state machine
-will wait for the response immediately after the Tx transfer has been finished or
-trigger a Tx transfer if an Rx message has been processed, depending on this message type.
+ This function initializes the message descriptor for a certain asynchronous
+ PDI message. If a response message descriptor will be assigned, the state machine
+ will wait for the response immediately after the Tx transfer has been finished or
+ trigger a Tx transfer if an Rx message has been processed, depending on this message type.
 
  *******************************************************************************/
 tPdiAsyncStatus CnApiAsync_initMsg(tPdiAsyncMsgType MsgType_p, tPcpPdiAsyncDir Direction_p, const tPdiAsyncBufHdlCb  pfnCbMsgHdl_p,
@@ -1680,18 +1687,20 @@ exit:
 /**
  ********************************************************************************
  \brief assigns response message descriptors to originating message descriptors
- \return    tPdiAsyncStatus value
+ \return    tPdiAsyncStatus
+ \retval    kPdiAsyncStatusSuccessful          on success
+ \retval    kPdiAsyncStatusFreeInstance        if message descriptor is not found
 
  This function has to be executed after the last call of cnApiAsync_initMsg().
  *******************************************************************************/
 tPdiAsyncStatus CnApiAsync_finishMsgInit(void)
 {
     tPdiAsyncMsgDescr * pOrigMsgDescr = NULL;
-    tPdiAsyncMsgDescr * paSameDirMsgs = NULL; ///< pointer to descriptor array with same message direction
+    tPdiAsyncMsgDescr * paSameDirMsgs = NULL; // pointer to descriptor array with same message direction
     tPcpPdiAsyncDir     OrigDirection = 0;
     BYTE bElement = INVALID_ELEMENT;
     BYTE bMsgType = kPdiAsyncMsgInvalid;
-    BYTE bCnt = 0;                            ///< loop counter
+    BYTE bCnt = 0;                            // loop counter
     tPdiAsyncStatus Ret = kPdiAsyncStatusSuccessful;
 
 
@@ -1772,8 +1781,9 @@ exit:
  \param dwUserBufSize_p optional size of user provided buffer only used if
                         message has transfer type 'kPdiAsyncTrfTypeUserBuffering'
 
- \retval    kPdiAsyncStatusSuccessful  if message sending has been triggered
- \retval    kPdiAsyncStatusNoResource  if message does not exist or no memory available
+ \return    tPdiAsyncStatus
+ \retval    kPdiAsyncStatusSuccessful       if message sending has been triggered
+ \retval    kPdiAsyncStatusNoResource       if message does not exist or no memory available
 
  This function activates the message descriptor of a certain message.
  The PdiAsync state machine will recognize the activation and handle the
@@ -1975,6 +1985,7 @@ static void resetMsgContext()
     {
         pCurArrayElmt->fMsgPending_m = FALSE;
         pCurArrayElmt->fLatest_m = FALSE;
+        pCurArrayElmt->pNextCtxt_m = NULL;
     }
 }
 
@@ -2041,7 +2052,7 @@ static tPdiAsyncPendingTransferContext* findMsgContextTransferState(tAsyncState 
 
     for (uiArrayNum = 0; uiArrayNum < uiArraySize; uiArrayNum++, pCurArrayElmt++)
     {
-        if ((pCurArrayElmt->fMsgPending_m != FALSE)     &&
+        if ((pCurArrayElmt->fMsgPending_m == TRUE)     &&
             (pCurArrayElmt->bState_m == AsyncSmState_p)  )
         {
             /* member value matches */
@@ -2055,11 +2066,14 @@ static tPdiAsyncPendingTransferContext* findMsgContextTransferState(tAsyncState 
 /**
  ********************************************************************************
  \brief saves the context of the current message
- \return TRUE if successful, FALSE if there is already a message pending
+
+ \return BOOL
+ \retval TRUE       if successful
+ \retval FALSE      if there is already a message pending
 
  This function saves all global variables temporarily, so current message transfer
  can be interrupted by another message transfer. The message context can be
- restored again with CnApiAsync_restoreMsgContext(). In addition, all global
+ restored again with CnApiAsync_tryRestoreMsgContextRoundRobin(). In addition, all global
  variables are restored to their default values.
  *******************************************************************************/
 BOOL CnApiAsync_saveMsgContext(void)
@@ -2073,6 +2087,8 @@ BOOL CnApiAsync_saveMsgContext(void)
         // not free buffer found
         return FALSE;
     }
+
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Save ASM Context to: %p\n", pMsgContext);
 
     pMsgContext->bState_m                 = PdiAsyncStateMachine_l.m_bCurrentState;
     pMsgContext->fError_m                 = fError;
@@ -2130,17 +2146,22 @@ BOOL CnApiAsync_saveMsgContext(void)
 
 /**
  ********************************************************************************
- \brief restores the context of a pending message
- \return TRUE if successful, FALSE if no pending message present
+ \brief restores the context of a pending message with round robin scheduling
+
+ \return BOOL
+ \retval TRUE       if successful
+ \retval FALSE      if no pending message present
 
  This function restores all global variables with the values they had before
  CnApiAsync_saveMsgContext() was executed, so a pending message transfer is
  able to continue after interruption. The context which was saved last will
- be restored (LIFO-buffer).
+ be restored (LIFO-buffer) unless there is a second saved message. In this case
+ this predecessor will be restored (round robin scheduling).
  *******************************************************************************/
-BOOL CnApiAsync_restoreMsgContext(void)
+BOOL CnApiAsync_tryRestoreMsgContextRoundRobin(void)
 {
     tPdiAsyncPendingTransferContext* pMsgContext = NULL;
+    tPdiAsyncPendingTransferContext* pMsgContextLatest = NULL;
 
     if (PdiAsyncStateMachine_l.m_fResetInProgress != FALSE)
     {
@@ -2148,12 +2169,25 @@ BOOL CnApiAsync_restoreMsgContext(void)
         return FALSE;
     }
 
-    pMsgContext = getLatestContext();
-    if (pMsgContext == NULL)
+    pMsgContextLatest = getLatestContext();
+    if (pMsgContextLatest == NULL)
     {
         // no message pending
         return FALSE;
     }
+
+    // restore previous context if it exist -> round robin scheduling (for 2 elements)
+    if ((pMsgContextLatest->pNextCtxt_m != NULL)               &&
+        (pMsgContextLatest->pNextCtxt_m->fMsgPending_m == TRUE)   )
+    {
+        pMsgContext = pMsgContextLatest->pNextCtxt_m;
+    }
+    else
+    {
+        pMsgContext = pMsgContextLatest;
+    }
+
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Restore ASM Context from: %p\n", pMsgContext);
 
     PdiAsyncStateMachine_l.m_bCurrentState = pMsgContext->bState_m; //TODO: is this state machine manipulation working (for DO-Action)?
     fError                                 = pMsgContext->fError_m;
@@ -2175,15 +2209,10 @@ BOOL CnApiAsync_restoreMsgContext(void)
     pLclAsyncRxMsgBuffer_l                 = pMsgContext->pLclAsyncRxMsgBuffer_m;
     dwTimeoutWait_l                        = pMsgContext->dwTimeoutWait_m;
 
-    // update status and latest message
+    // update status
     pMsgContext->fMsgPending_m = FALSE;
     pMsgContext->fLatest_m = FALSE;
-
-    if (pMsgContext->pNextCtxt_m != NULL)
-    {
-        pMsgContext->pNextCtxt_m->fLatest_m = TRUE;
-        pMsgContext->pNextCtxt_m = NULL;
-    }
+    pMsgContext->pNextCtxt_m = NULL;
 
     return TRUE;
 }
@@ -2268,25 +2297,25 @@ void CnApi_resetAsyncStateMachine(void)
 {
     DEBUG_FUNC;
 
-    fError = FALSE;                 ///< transition event
-    fTimeout = FALSE;               ///< transition event
-    fReset = FALSE;                 ///< transition event
-    fRxTriggered = FALSE;           ///< transition event -> explicitly wait for special message
-    fTxTriggered = FALSE;           ///< transition event
-    fFrgmtAvailable = FALSE;        ///< transition event
-    fFrgmtStored = FALSE;           ///< transition event
-    fFrgmtDelivered = FALSE;        ///< transition event
-    fMsgTransferFinished = FALSE;   ///< transition event
-    fMsgTransferIncomplete = FALSE; ///< transition event
-    fFragmentedTransfer = FALSE;    ///< indicates stream segmentation
+    fError = FALSE;                 // transition event
+    fTimeout = FALSE;               // transition event
+    fReset = FALSE;                 // transition event
+    fRxTriggered = FALSE;           // transition event -> explicitly wait for special message
+    fTxTriggered = FALSE;           // transition event
+    fFrgmtAvailable = FALSE;        // transition event
+    fFrgmtStored = FALSE;           // transition event
+    fFrgmtDelivered = FALSE;        // transition event
+    fMsgTransferFinished = FALSE;   // transition event
+    fMsgTransferIncomplete = FALSE; // transition event
+    fFragmentedTransfer = FALSE;    // indicates stream segmentation
 
     ErrorHistory_l = kPdiAsyncStatusSuccessful;
 
-    bActivTxMsg_l = INVALID_ELEMENT; ///< indicates inactive message
-    bActivRxMsg_l = INVALID_ELEMENT; ///< indicates inactive message
-    pLclAsyncTxMsgBuffer_l = NULL;   ///< pointer to local Tx message buffer
-    pLclAsyncRxMsgBuffer_l = NULL;   ///< pointer to local Rx message buffer
-    dwTimeoutWait_l = 0;              ///< timeout counter
+    bActivTxMsg_l = INVALID_ELEMENT; // indicates inactive message
+    bActivRxMsg_l = INVALID_ELEMENT; // indicates inactive message
+    pLclAsyncTxMsgBuffer_l = NULL;   // pointer to local Tx message buffer
+    pLclAsyncRxMsgBuffer_l = NULL;   // pointer to local Rx message buffer
+    dwTimeoutWait_l = 0;             // timeout counter
 
     resetMsgContext();
 
@@ -2298,8 +2327,12 @@ void CnApi_resetAsyncStateMachine(void)
 }
 
 /**
-********************************************************************************
-\brief  update state machine
+ ********************************************************************************
+ \brief  update state machine
+
+ \return BOOL
+ \retval TRUE       if successful
+ \retval FALSE      if no message needs to be processed
 *******************************************************************************/
 BOOL CnApi_processAsyncStateMachine(void)
 {
@@ -2314,6 +2347,10 @@ BOOL CnApi_processAsyncStateMachine(void)
 /**
 ********************************************************************************
 \brief  check if state machine is running
+
+ \return BOOL
+ \retval TRUE       state machine is running
+ \retval FALSE      state mchine is final
 *******************************************************************************/
 BOOL CnApi_checkAsyncStateMachineRunning(void)
 {

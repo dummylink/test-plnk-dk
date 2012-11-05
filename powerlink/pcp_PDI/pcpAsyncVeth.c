@@ -27,7 +27,7 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* defines */
-#define VETH_ASYNC_TIMEOUT      10  ///< async timeout until retransmission
+#define VETH_ASYNC_TIMEOUT  10          ///< async timeout until retransmission
 
 /******************************************************************************/
 /* typedefs */

@@ -1,15 +1,24 @@
+/*******************************************************************************
+* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
+*/
+
 /**
 ********************************************************************************
+
 \file       cnApiAsyncVeth.c
 
 \brief      Module for Virtual Ethernet frame handling
 
+\author     mairt
+
+\date       31.05.2012
+
+\since      31.05.2012
+
 This module posts Virtual Ethernet frames from the application to the asynchronous
 state machine and receives frames from there.
-
-Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-All rights reserved. All use of this software and documentation is
-subject to the License Agreement located at the end of this file below.
 
 *******************************************************************************/
 
@@ -25,8 +34,7 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* defines */
-
-#define VETH_ASYNC_TIMEOUT  10  ///< async timeout until retransmission
+#define VETH_ASYNC_TIMEOUT  10          ///< async timeout until retransmission
 
 /******************************************************************************/
 /* typedefs */
@@ -110,9 +118,7 @@ Register the receive and optional transmit finished callback.
 \param  pfnCbVethRx_p           callback for receive frames
 \param  pfnCbVethTxFin_p        transmit finished callback
 
-\return tCnApiStatus
-\retval kCnApiStatusOk           on successful init
-\retval kCnApiStatusError        when receive callback is null
+\return tCnApiStatus            kCnApiStatusOk
 *******************************************************************************/
 tCnApiStatus CnApi_initVeth(tPdiAsyncVethRxCb  pfnCbVethRx_p,
         tPdiAsyncVethTxFinCb pfnCbVethTxFin_p)
@@ -124,7 +130,7 @@ tCnApiStatus CnApi_initVeth(tPdiAsyncVethRxCb  pfnCbVethRx_p,
     {
         pfnCbVethRx_l = pfnCbVethRx_p;
     } else {
-        iRet = kCnApiStatusError;
+        iRet = ERROR;
         goto Exit;
     }
 
@@ -147,9 +153,7 @@ Exit:
 Register Veth async receive and transmit messages. (Needs to be done before the
 call of finishedInternalMessages function)
 
-\return tCnApiStatus
-\retval kCnApiStatusOk          on success
-\retval kCnApiStatusError       on general error
+\return tCnApiStatus            kCnApiStatusOk
 *******************************************************************************/
 tCnApiStatus CnApi_initVethMessages(void)
 {
@@ -180,6 +184,7 @@ tCnApiStatus CnApi_initVethMessages(void)
     if (Ret != kPdiAsyncStatusSuccessful)
     {
         iRet = kCnApiStatusError;
+        goto Exit;
     }
 
 Exit:
@@ -196,7 +201,10 @@ Exit:
 Receive handler for Veth frames. Transfers the newly arrived message to the
 application.
 
-\return tCnApiStatus
+\param  pData_p          data to be transfered
+\param  wDataSize        size of the package
+
+\return CnApiRet                tCnApiStatus
 \retval kCnApiStatusOk          everything ok
 \retval kCnApiStatusMsgBufFull  no free buffer available
 *******************************************************************************/
@@ -224,10 +232,9 @@ application.
 \param  pData_p          data to be transfered
 \param  wDataSize        size of the package
 
-\return tCnApiStatus
+\return CnApiRet                tCnApiStatus
 \retval kCnApiStatusOk          everything ok
 \retval kCnApiStatusMsgBufFull  no free buffer available
-\retval kCnApiStatusError       on general error
 *******************************************************************************/
 tCnApiStatus CnApi_sendVeth(BYTE *pData_p, WORD wDataSize)
 {
@@ -282,10 +289,7 @@ application.
 \param  pRespMsgBuffer_p    pointer to Tx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 
-\return tPdiAsyncStatus
-\retval kPdiAsyncStatusSuccessful            on success
-\retval kPdiAsyncStatusInvalidInstanceParam  when input parameters are invalid
-\retval kPdiAsyncStatusUnhandledTransfer     on a failed reception
+\return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
 static tPdiAsyncStatus CnApiAsyncVeth_handleDataTransfer(tPdiAsyncMsgDescr * pMsgDescr_p,
         BYTE* pMsgBuffer_p, BYTE* pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p)
@@ -314,7 +318,7 @@ static tPdiAsyncStatus CnApiAsyncVeth_handleDataTransfer(tPdiAsyncMsgDescr * pMs
     {
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "ERROR: (%s) Receive callback "
                 "returned: 0x%02X\n", __func__ , Ret);
-        cnApiRet = kPdiAsyncStatusUnhandledTransfer;
+        cnApiRet = kPdiAsyncStatusSendError;
         goto Exit;
     }
 
@@ -326,17 +330,14 @@ Exit:
 ********************************************************************************
 \brief  handle an Veth TX message
 
-Transmit handler for Virtual Ethernet frames. Copies the transit message into
-the PDI buffer.
+Transmit handler for Veth frames. Copies the transit message into the PDI buffer
 
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pMsgBuffer_p        pointer to Rx message buffer (payload)
 \param  pRespMsgBuffer_p    pointer to Tx message buffer (payload)
 \param  dwMaxTxBufSize_p    maximum Tx message storage space
 
-\return tPdiAsyncStatus
-\retval kPdiAsyncStatusSuccessful            on success
-\retval kPdiAsyncStatusInvalidInstanceParam  when input parameters are invalid
+\return Ret                 tPdiAsyncStatus value
 *******************************************************************************/
 static tPdiAsyncStatus CnApiAsyncVeth_doDataTransfer(tPdiAsyncMsgDescr * pMsgDescr_p,
         BYTE * pMsgBuffer_p, BYTE * pRespMsgBuffer_p, DWORD dwMaxTxBufSize_p        )
@@ -364,16 +365,11 @@ Exit:
 /**
  ********************************************************************************
  \brief call back function, invoked after message transfer has finished
+ \param  pMsgDescr_p         pointer to asynchronous message descriptor
+ \return Ret                 tPdiAsyncStatus value
 
  This function is called after the Virtual Ethernet transfer is finished. It
  frees the receive buffer after the async state machine is finished.
-
- \param  pMsgDescr_p         pointer to asynchronous message descriptor
-
- \return tPdiAsyncStatus
- \retval kPdiAsyncStatusSuccessful              on success
- \retval kPdiAsyncStatusInvalidOperation        on error
- \retval kPdiAsyncStatusInvalidInstanceParam    if message descriptor is null
  *******************************************************************************/
 static tPdiAsyncStatus CnApiAsyncVeth_TxFinished(tPdiAsyncMsgDescr * pMsgDescr_p)
 {
@@ -436,41 +432,3 @@ Exit:
 
 
 #endif //VETH_DRV_EN
-
-/*******************************************************************************
-*
-* License Agreement
-*
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms,
-* with or without modification,
-* are permitted provided that the following conditions are met:
-*
-*   * Redistributions of source code must retain the above copyright notice,
-*     this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above copyright notice,
-*     this list of conditions and the following disclaimer
-*     in the documentation and/or other materials provided with the
-*     distribution.
-*   * Neither the name of the B&R nor the names of its contributors
-*     may be used to endorse or promote products derived from this software
-*     without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-* A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-*******************************************************************************/
-/* END-OF-FILE */
-
-

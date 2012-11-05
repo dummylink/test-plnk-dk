@@ -109,7 +109,7 @@ static BOOL checkInterruptedMsgPending();
 static tPdiAsyncPendingTransferContext* findMsgContextTransferState(tAsyncState);
 
 static BOOL CnApiAsync_saveMsgContext(void);
-static BOOL CnApiAsync_restoreMsgContext(void);
+static BOOL CnApiAsync_tryRestoreMsgContextRoundRobin(void);
 static tPdiAsyncStatus CnApiAsync_prepareTxTransfer(tPdiAsyncMsgDescr* pMsgDescr_p);
 
 /******************************************************************************/
@@ -275,11 +275,13 @@ FUNC_DOACT(kPdiAsyncStateWait)
     register BYTE bCnt = 0;                             // loop counter
     BYTE         bElement = INVALID_ELEMENT;            // function argument for getArrayNumOfMsgDescr()
 
-    /* check if waiting for Rx message is required -> transit to  ASYNC_RX_PENDING*/
+    /* check if waiting for response (Rx) is required -> directly transit to ASYNC_RX_PENDING */
     if (fRxTriggered != FALSE)
     {
         goto exit; // trigger ASYNC_RX_PENDING
     }
+
+    /* check if response (Tx) is required -> directly transit to ASYNC_TX_BUSY */
     if(fTxTriggered != FALSE)
     {
         ErrorHistory_l = CnApiAsync_prepareTxTransfer(&aPdiAsyncTxMsgs[bActivTxMsg_l]);
@@ -296,7 +298,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
     if ((checkInterruptedMsgPending() != FALSE) &&
         (fCheckedIfInternalMessageDue != FALSE)             )
     {
-        if (CnApiAsync_restoreMsgContext())
+        if (CnApiAsync_tryRestoreMsgContextRoundRobin())
         {
             goto exit;
         }
@@ -350,7 +352,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
         (findMsgContextTransferState(kPdiAsyncRxStatePending) == NULL)      )
     {
         // check if external Rx message is available */
-        for (bCnt = 0; bCnt < PCP_PDI_ASYNC_BUF_MAX; ++bCnt)
+        for (bCnt = 0; bCnt < ASYNC_PDI_CHANNELS; ++bCnt)
         {
 #ifdef CN_API_USING_SPI
                 /* read PDI buffer header to local copy */
@@ -371,7 +373,7 @@ FUNC_DOACT(kPdiAsyncStateWait)
      * if there is no Rx or Tx message to be processed yet */
     if ((bActivTxMsg_l == INVALID_ELEMENT)               &&
         (bCurPdiChannelNum == INVALID_ELEMENT)           &&
-        (checkInterruptedMsgPending() == FALSE)            )
+        (findMsgContextTransferState(kPdiAsyncTxStatePending) == NULL))
     {
         for (bCnt = 0; bCnt < MAX_PDI_ASYNC_TX_MESSAGES; ++bCnt)
         {
@@ -694,6 +696,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
             dwTimeoutWait_l = 0; // reset to initial value
 
             aPdiAsyncTxMsgs[bActivTxMsg_l].dwPendTranfSize_m = 0; // finished
+            aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusTransferCompleted;
             fMsgTransferFinished = TRUE;
 
             /* call user call back, if assigned */
@@ -2016,6 +2019,7 @@ static void resetMsgContext()
     {
         pCurArrayElmt->fMsgPending_m = FALSE;
         pCurArrayElmt->fLatest_m = FALSE;
+        pCurArrayElmt->pNextCtxt_m = NULL;
     }
 }
 
@@ -2103,7 +2107,7 @@ static tPdiAsyncPendingTransferContext* findMsgContextTransferState(tAsyncState 
 
  This function saves all global variables temporarily, so current message transfer
  can be interrupted by another message transfer. The message context can be
- restored again with CnApiAsync_restoreMsgContext(). In addition, all global
+ restored again with CnApiAsync_tryRestoreMsgContextRoundRobin(). In addition, all global
  variables are restored to their default values.
  *******************************************************************************/
 BOOL CnApiAsync_saveMsgContext(void)
@@ -2117,6 +2121,8 @@ BOOL CnApiAsync_saveMsgContext(void)
         // not free buffer found
         return FALSE;
     }
+
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Save ASM Context to: %p\n", pMsgContext);
 
     pMsgContext->bState_m                 = PdiAsyncStateMachine_l.m_bCurrentState;
     pMsgContext->fError_m                 = fError;
@@ -2174,7 +2180,7 @@ BOOL CnApiAsync_saveMsgContext(void)
 
 /**
  ********************************************************************************
- \brief restores the context of a pending message
+ \brief restores the context of a pending message with round robin scheduling
 
  \return BOOL
  \retval TRUE       if successful
@@ -2183,11 +2189,13 @@ BOOL CnApiAsync_saveMsgContext(void)
  This function restores all global variables with the values they had before
  CnApiAsync_saveMsgContext() was executed, so a pending message transfer is
  able to continue after interruption. The context which was saved last will
- be restored (LIFO-buffer).
+ be restored (LIFO-buffer) unless there is a second saved message. In this case
+ this predecessor will be restored (round robin scheduling).
  *******************************************************************************/
-BOOL CnApiAsync_restoreMsgContext(void)
+BOOL CnApiAsync_tryRestoreMsgContextRoundRobin(void)
 {
     tPdiAsyncPendingTransferContext* pMsgContext = NULL;
+    tPdiAsyncPendingTransferContext* pMsgContextLatest = NULL;
 
     if (PdiAsyncStateMachine_l.m_fResetInProgress != FALSE)
     {
@@ -2195,12 +2203,25 @@ BOOL CnApiAsync_restoreMsgContext(void)
         return FALSE;
     }
 
-    pMsgContext = getLatestContext();
-    if (pMsgContext == NULL)
+    pMsgContextLatest = getLatestContext();
+    if (pMsgContextLatest == NULL)
     {
         // no message pending
         return FALSE;
     }
+
+    // restore previous context if it exist -> round robin scheduling (for 2 elements)
+    if ((pMsgContextLatest->pNextCtxt_m != NULL)               &&
+        (pMsgContextLatest->pNextCtxt_m->fMsgPending_m == TRUE)   )
+    {
+        pMsgContext = pMsgContextLatest->pNextCtxt_m;
+    }
+    else
+    {
+        pMsgContext = pMsgContextLatest;
+    }
+
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Restore ASM Context from: %p\n", pMsgContext);
 
     PdiAsyncStateMachine_l.m_bCurrentState = pMsgContext->bState_m; //TODO: is this state machine manipulation working (for DO-Action)?
     fError                                 = pMsgContext->fError_m;
@@ -2222,15 +2243,10 @@ BOOL CnApiAsync_restoreMsgContext(void)
     pLclAsyncRxMsgBuffer_l                 = pMsgContext->pLclAsyncRxMsgBuffer_m;
     dwTimeoutWait_l                        = pMsgContext->dwTimeoutWait_m;
 
-    // update status and latest message
+    // update status
     pMsgContext->fMsgPending_m = FALSE;
     pMsgContext->fLatest_m = FALSE;
-
-    if (pMsgContext->pNextCtxt_m != NULL)
-    {
-        pMsgContext->pNextCtxt_m->fLatest_m = TRUE;
-        pMsgContext->pNextCtxt_m = NULL;
-    }
+    pMsgContext->pNextCtxt_m = NULL;
 
     return TRUE;
 }
