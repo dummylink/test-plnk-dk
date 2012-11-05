@@ -369,25 +369,9 @@ static tPdiAsyncStatus CnApiAsyncVeth_TxFinished (tPdiAsyncMsgDescr * pMsgDescr_
         goto Exit;
     }
 
-    // error handling
-    if ((pMsgDescr_p->MsgStatus_m == kPdiAsyncMsgStatusError) &&
-        (pMsgDescr_p->Error_m == kPdiAsyncStatusTimeout)     )
+    if ((pMsgDescr_p->MsgStatus_m == kPdiAsyncMsgStatusTransferCompleted) &&
+        (pMsgDescr_p->Error_m == kPdiAsyncStatusSuccessful)     )
     {
-        DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Transmit to PDI timed out!\n", __func__);
-        // timeout happened (retransmit frame!)
-        Ret = kPdiAsyncStatusSuccessful;
-        VethTransmitState_l = kVethCheckForFrame;
-
-        goto Exit;
-    }
-    else if ((pMsgDescr_p->MsgStatus_m == kPdiAsyncMsgStatusError) &&
-        (pMsgDescr_p->Error_m != kPdiAsyncStatusSuccessful)     )
-    {
-        // other error happened (report back!)
-        Ret = kPdiAsyncStatusInvalidOperation;
-
-        goto Exit;
-    } else {
         DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Transmit to PDI finished!\n", __func__);
 
         /* free Veth buffer */
@@ -401,6 +385,23 @@ static tPdiAsyncStatus CnApiAsyncVeth_TxFinished (tPdiAsyncMsgDescr * pMsgDescr_
             Ret = kPdiAsyncStatusFreeError;
             goto Exit;
         }
+    }
+    else if ((pMsgDescr_p->MsgStatus_m == kPdiAsyncMsgStatusError) &&
+        (pMsgDescr_p->Error_m == kPdiAsyncStatusTimeout)     )
+    {
+        DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Transmit to PDI timed out!\n", __func__);
+        // timeout happened (retransmit frame!)
+        Ret = kPdiAsyncStatusSuccessful;
+        VethTransmitState_l = kVethCheckForFrame;
+
+        goto Exit;
+    }
+    else
+    {
+        // other error happened (report back!)
+        Ret = kPdiAsyncStatusInvalidOperation;
+
+        goto Exit;
     }
 
 
