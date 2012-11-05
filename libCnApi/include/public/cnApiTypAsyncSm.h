@@ -29,6 +29,8 @@ subject to the License Agreement located at the end of this file below.
 
 #define PCP_ASYNCSM_TIMEOUT_FACTOR 1000
 
+#define MAX_INTERRUPTED_MSGS 2
+
 /******************************************************************************/
 /* typedefs */
 
@@ -45,6 +47,8 @@ typedef enum eAsyncTxState {
 
 typedef struct sPdiAsyncPendingTransferContext {
     BOOL fMsgPending_m;            ///< flag indicates a pending message
+    BOOL fLatest_m;                ///< flag shows that this is the last stored context
+    struct sPdiAsyncPendingTransferContext* pNextCtxt_m; ///< next context to be processed
     BYTE bState_m;                 ///< state of state machine
     BOOL fError_m;                 ///< transition event
     BOOL fTimeout_m;               ///< transition event
