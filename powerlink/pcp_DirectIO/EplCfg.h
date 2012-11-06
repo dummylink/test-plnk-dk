@@ -299,6 +299,9 @@
 #define CONFIG_ISOCHR_TX_MAX_PAYLOAD   36
 #define CONFIG_ISOCHR_RX_MAX_PAYLOAD   1490
 
+// define manufacture device name
+#define EPL_MANUFACT_DEVICE_NAME    CONFIG_IDENT_DEVICE_NAME
+
 #endif //_EPLCFG_H_
 
 
