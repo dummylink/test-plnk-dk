@@ -965,7 +965,8 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
     DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,
                  "AppCbEvent(kEplApiEventUserDef): (EventArg %p)\n", pObdParam);
 
-    // if we don't find the segmented obd handle the  In this case we immediately return.
+    // If the segmented OBD handle can not be found in the history, it was already deleted.
+    // Immediately return in this case.
     if (pObdAccHistorySegm->m_Status == kEplObdDefAccHdlEmpty)
     {   // segment was already finished or aborted
         // therefore we silently ignore it and exit
@@ -989,18 +990,11 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
         pObdParam->m_ObjSize, pObdParam->m_TransferSize,
         pObdParam->m_Access, pObdParam->m_Type); */
 
-    // TODO: all indices are allowed - but different treatment necessary
-    if(pObdParam->m_uiIndex != 0x1F50)
-    {   // should not get any other indices
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s() invalid object index!\n", __func__);
-        return kEplInvalidParam;
-    }
-
     /*------------------------------------------------------------------------*/
     // check if a segment of this object is currently being processed
     EplRet = EplAppDefObdAccAdoptedHstryGetStatusEntry(pObdParam->m_uiIndex,
                                             pObdParam->m_uiSubIndex,
-                                            kEplObdDefAccHdlInUse,
+                                            kEplObdDefAccHdlProcessing,
                                             FALSE,  // search first
                                             &pTempHdl);
     if (EplRet == kEplSuccessful)
@@ -1039,7 +1033,7 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
                 if (pTempHdl == pObdAccHistorySegm)
                 {   // this is the oldest handle so we do the write
                     EplRet = EplAppDefObdAccAdoptedHstryWriteSegm(pObdAccHistorySegm,
-                                     EplAppDefObdAccAdoptedHstryWriteSegmFinishCb,
+                                     EplAppDefObdAccAdoptedHstryEntryFinished,
                                      EplAppDefObdAccAdoptedHstryWriteSegmAbortCb);
                 }
                 else
@@ -1048,14 +1042,6 @@ static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
                     // and wait until this function is called with the oldest
                     EplRet = kEplSuccessful;
                 }
-                break;
-
-            case kEplObdDefAccHdlProcessingFinished:
-                // go on with acknowledging finished segments
-                DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,
-                        "%s() Handle Processing finished: %d\n", __func__,
-                        pObdAccHistorySegm->m_wComConIdx);
-                EplRet = kEplSuccessful;
                 break;
 
             case kEplObdDefAccHdlError:
@@ -2571,88 +2557,12 @@ int EplAppDefObdAccAdoptedHstryWriteSegmAbortCb(tObdAccHstryEntry * pDefObdHdl_p
     // Disable flow control
     EplSdoAsySeqAppFlowControl(0, FALSE);
 
-    // Abort all not empty handles of segmented transfer
-    EplAppDefObdAccAdoptedHstryCleanup();
-
     DEBUG_TRACE1 (DEBUG_LVL_15, "<--- Abort callback Handle:%d!\n\n",
             pDefObdHdl_p->m_wComConIdx);
 
-    return iRet;
-}
+    // Abort all not empty handles of segmented transfer
+    EplAppDefObdAccAdoptedHstryCleanup();
 
-/**
-********************************************************************************
-\brief segment finished callback function
-
-EplAppDefObdAccAdoptedHstryWriteSegmFinishCb() will be called if a segmented write
-transfer is finished.
-
-\param pDefObdHdl_p     OBD access history element which should be finished
-
-\return OK or ERROR if something went wrong
-*******************************************************************************/
-int EplAppDefObdAccAdoptedHstryWriteSegmFinishCb(tObdAccHstryEntry * pDefObdHdl_p)
-{
-    int                 iRet = OK;
-    tObdAccHstryEntry * pFoundHdl;
-    tEplKernel          EplRet = kEplSuccessful;
-    WORD                wIndex;
-    WORD                wSubIndex;
-
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() OBD ACC Hdl processed: %d\n",
-                  __func__, pDefObdHdl_p->m_wComConIdx);
-
-    pDefObdHdl_p->m_Status = kEplObdDefAccHdlProcessingFinished;
-
-    wIndex = pDefObdHdl_p->m_ObdParam.m_uiIndex;
-    wSubIndex = pDefObdHdl_p->m_ObdParam.m_uiSubIndex;
-
-    // signal "OBD access finished" to originator
-
-    // this triggers an Ack of the last received SDO sequence in case of remote access
-    EplRet = EplAppDefObdAccAdoptedHstryEntryFinished(pDefObdHdl_p);
-    if (EplRet != kEplSuccessful)
-    {
-        DEBUG_TRACE1 (DEBUG_LVL_ERROR, "%s() EplAppDefObdAccAdoptedHstryEntryFinished failed!\n",
-                      __func__);
-        goto Exit;
-    }
-
-    // check if segmented write history is empty enough to disable flow control
-    if (bDefObdAccHistoryEmptyCnt_g >=
-        OBD_DEFAULT_ACC_HISTORY_SIZE - OBD_DEFAULT_ACC_HISTORY_ACK_FINISHED_THLD)
-    {
-        // do ordinary SDO sequence processing / reset flow control manipulation
-        EplSdoAsySeqAppFlowControl(0, FALSE);
-    }
-
-    EplRet = EplAppDefObdAccAdoptedHstryGetStatusEntry(wIndex, wSubIndex,
-            kEplObdDefAccHdlWaitProcessingQueue, TRUE, &pFoundHdl);
-    if (EplRet == kEplSuccessful)
-    {
-        // handle found
-        DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() RePost Event: Hdl:%d\n",
-                __func__, pFoundHdl->m_wComConIdx);
-        EplRet = EplApiPostUserEvent((void*) pFoundHdl);
-        if (EplRet != kEplSuccessful)
-        {
-            DEBUG_TRACE1 (DEBUG_LVL_ERROR, "%s() Post user event failed!\n",
-                                  __func__);
-            goto Exit;
-        }
-    }
-    else
-    {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() Nothing to post!\n", __func__);
-        EplRet = kEplSuccessful; // nothing to post, thats fine
-    }
-
-Exit:
-    DEBUG_TRACE0 (DEBUG_LVL_15, "<--- Segment finished callback!\n\n");
-    if (EplRet != kEplSuccessful)
-    {
-        iRet = ERROR;
-    }
     return iRet;
 }
 
@@ -2678,12 +2588,13 @@ static tEplKernel EplAppDefObdAccAdoptedHstryWriteSegm(
     tEplKernel Ret = kEplSuccessful;
     int iRet = OK;
 
-    if (pDefObdAccHdl_p == NULL)
+    if ((pDefObdAccHdl_p == NULL)                                       ||
+        (pDefObdAccHdl_p->m_ObdParam.m_ObdEvent != kEplObdEvInitWriteLe)  )
     {
         return kEplApiInvalidParam;
     }
 
-    pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlInUse;
+    pDefObdAccHdl_p->m_Status = kEplObdDefAccHdlProcessing;
 
     switch (pDefObdAccHdl_p->m_ObdParam.m_uiIndex)
     {
@@ -2717,8 +2628,70 @@ static tEplKernel EplAppDefObdAccAdoptedHstryWriteSegm(
             break;
 
         default:
-            // TODO: forward to PDI (in backround loop)
+            Ret = Gi_forwardObdAccHstryEntryToPdi(pDefObdAccHdl_p);
             break;
+    }
+
+    return Ret;
+}
+
+
+/**
+ ********************************************************************************
+ \brief triggers processing the next segment of an specific OBD access
+
+ This function will trigger processing the next segment of an specific OBD access
+ if it is an segmented (non-expedited) transfer. The index and subindex of
+ pObdParam_p as well as the transfer size will be considered.
+
+ \param pObdParam_p  pointer to OBD access handle ()
+
+ \return tEplKernel value
+ *******************************************************************************/
+static tEplKernel EplAppDefObdAccAdoptedHstrySetupNextIfSegmented(tEplObdParam * pObdParam_p)
+{
+    tEplKernel Ret = kEplSuccessful;
+    tObdAccHstryEntry * pFoundHdl;
+
+    if(!EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p))
+    {
+        return Ret;
+    }
+
+    DEBUG_TRACE0(DEBUG_LVL_15, "<--- Segment finished!\n\n");
+
+    // check if segmented write history is empty enough to disable flow control
+    if (bDefObdAccHistoryEmptyCnt_g >=
+        OBD_DEFAULT_ACC_HISTORY_SIZE - OBD_DEFAULT_ACC_HISTORY_ACK_FINISHED_THLD)
+    {
+        // do ordinary SDO sequence processing / reset flow control manipulation
+        EplSdoAsySeqAppFlowControl(0, FALSE);
+    }
+
+    Ret = EplAppDefObdAccAdoptedHstryGetStatusEntry(
+            pObdParam_p->m_uiIndex,
+            pObdParam_p->m_uiSubIndex,
+            kEplObdDefAccHdlWaitProcessingQueue,
+            TRUE,
+            &pFoundHdl);
+
+    if (Ret == kEplSuccessful)
+    {
+        // handle found
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() RePost Event: Hdl:%d\n",
+                __func__, pFoundHdl->m_wComConIdx);
+        Ret = EplApiPostUserEvent((void*) pFoundHdl);
+        if (Ret != kEplSuccessful)
+        {
+            DEBUG_TRACE1 (DEBUG_LVL_ERROR, "%s() Post user event failed!\n",
+                                  __func__);
+            return Ret;
+        }
+    }
+    else
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() Nothing to post!\n", __func__);
+        Ret = kEplSuccessful; // nothing to post, thats fine
     }
 
     return Ret;
@@ -2741,6 +2714,7 @@ static tEplKernel EplAppDefObdAccAdoptedHstryEntryFinished(tObdAccHstryEntry * p
 {
 tEplKernel EplRet = kEplSuccessful;
 tEplObdParam * pObdParam = &pObdAccHstEntry_p->m_ObdParam;
+tEplObdParam SavedObdParam;
 
     DEBUG_TRACE2(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "INFO: %s(%d) called\n",
             __func__, pObdAccHstEntry_p->m_wComConIdx);
@@ -2762,8 +2736,17 @@ tEplObdParam * pObdParam = &pObdAccHstEntry_p->m_ObdParam;
         pObdParam->m_dwAbortCode = EPL_SDOAC_UNSUPPORTED_ACCESS;
     }
 
+    // save OBD indices for segmented transfer
+    EPL_MEMCPY(&SavedObdParam, &pObdAccHstEntry_p->m_ObdParam, sizeof(SavedObdParam));
+
     // call callback function which was assigned by originator
     EplRet = pObdParam->m_pfnAccessFinished(pObdParam);
+
+    if ((EplRet == kEplSuccessful)        &&
+        (SavedObdParam.m_dwAbortCode != 0)  )
+    {
+        EplRet = EplAppDefObdAccAdoptedHstrySetupNextIfSegmented(&SavedObdParam);
+    }
 
     EplAppDefObdAccAdoptedHstryDeleteEntry(pObdAccHstEntry_p);
 
