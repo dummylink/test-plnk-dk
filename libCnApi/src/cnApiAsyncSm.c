@@ -1501,14 +1501,14 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
         FREE(pLclAsyncTxMsgBuffer_l);
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> Invalid FreeTxBuffer..\n");
         pLclAsyncTxMsgBuffer_l = NULL;
     }
 
     if (pLclAsyncRxMsgBuffer_l != NULL)
     {
         FREE(pLclAsyncRxMsgBuffer_l);
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> Invalid FreeRxBuffer..\n");
         pLclAsyncRxMsgBuffer_l = NULL;
     }
 

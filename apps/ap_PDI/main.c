@@ -481,17 +481,22 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                                                 "asynchronous MTU exceeded!\n",__func__);
                                         break;
                                     }
-                                    case kPcpGenErrAsyncComTxBufferFull:
+                                    case kPcpGenErrAsyncComRxFailed:
                                     {
                                         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) Asynchronous "
-                                                "Tx buffer full!\n",__func__);
+                                                "Rx failed on PCP!\n",__func__);
                                         break;
                                     }
                                     case kPcpGenErrAsyncComTimeout:
+                                    {
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) Asynchr. "
+                                                "communication time out on PCP!\n",__func__);
+                                        break;
+                                    }
                                     case kPcpGenErrAsyncIntChanComError:
                                     {
-                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) Asynchronous "
-                                                "communication failed at PCP!\n",__func__);
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) Asynchr. "
+                                                "internal channel communication failed on PCP!\n",__func__);
                                         break;
                                     }
                                     case kPcpGenErrPhy0LinkLoss:

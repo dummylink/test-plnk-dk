@@ -1341,12 +1341,6 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
             break;
         }
-        case kPdiAsyncStatusBufFull:
-        {
-            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComTxBufferFull);
-
-            break;
-        }
         default:
         {
             // do nothing for other errors!
@@ -1413,6 +1407,8 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Rx message type: %d\n",
                      aPdiAsyncRxMsgs[bActivRxMsg_l].MsgType_m);
 
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncComRxFailed);
+
         if (aPdiAsyncRxMsgs[bActivRxMsg_l].Param_m.ChanType_m == kAsyncChannelInternal)
         {
             if (ErrorHistory_l != kPdiAsyncStatusTimeout)
@@ -1467,14 +1463,14 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
     if (pLclAsyncTxMsgBuffer_l != NULL)
     {
         FREE(pLclAsyncTxMsgBuffer_l);
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeTxBuffer..\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> Invalid FreeTxBuffer..\n");
         pLclAsyncTxMsgBuffer_l = NULL;
     }
 
     if (pLclAsyncRxMsgBuffer_l != NULL)
     {
         FREE(pLclAsyncRxMsgBuffer_l);
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> FreeRxBuffer..\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR -> Invalid FreeRxBuffer..\n");
         pLclAsyncRxMsgBuffer_l = NULL;
     }
 

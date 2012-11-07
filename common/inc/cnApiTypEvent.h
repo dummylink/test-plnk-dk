@@ -52,7 +52,7 @@ typedef enum ePcpPdiEventGenericError {
     kPcpGenErrSyncCycleCalcError,         ///< synchronization interrupt cycle time calculation error
     kPcpGenErrAsyncComTimeout,      ///< asynchronous communication timed out
     kPcpGenErrAsyncComMtuExceeded,  ///< asynchronous MTU exceeded
-    kPcpGenErrAsyncComTxBufferFull, ///< asynchronous TX buffer full
+    kPcpGenErrAsyncComRxFailed,     ///< asynchronous RX at PCP failed
     kPcpGenErrAsyncIntChanComError, ///< asynchronous communication failed
     kPcpGenErrPhy0LinkLoss,         ///< PHY 0 lost its link
     kPcpGenErrPhy1LinkLoss,         ///< PHY 0 lost its link
