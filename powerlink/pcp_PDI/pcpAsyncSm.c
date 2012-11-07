@@ -630,7 +630,7 @@ FUNC_DOACT(kPdiAsyncTxStatePending)
             { /* context save was successful */
 
                 /* check if internal messages have to be processed -> goto ASYNC_WAIT state */
-                fMsgTransferInterrupted = TRUE; // not really finished, only causes transition to ASYNC_WAIT
+                fMsgTransferInterrupted = TRUE; // causes transition to ASYNC_WAIT
                 //TODO: Change MsgStatus to interrupted
                 goto exit;
             }
@@ -1343,7 +1343,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         }
         default:
         {
-            // do nothing for other errors!
+            break;
         }
     }
 
@@ -1504,8 +1504,8 @@ static void stateChange(BYTE current, BYTE target)
 
     currentIdx = current + 2;
     targetIdx = target + 2;
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ASYNC_INFO, "\nASYNC STATE: %s->%s\n", strAsyncStateNames_l[currentIdx], strAsyncStateNames_l[targetIdx]);
 
-    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ASYNC_INFO, "\nASYCN STATE: %s->%s\n", strAsyncStateNames_l[currentIdx], strAsyncStateNames_l[targetIdx]);
 }
 
 /**
@@ -2186,7 +2186,7 @@ BOOL CnApiAsync_tryRestoreMsgContextRoundRobin(void)
 
     DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Restore ASM Context from: %p\n", pMsgContext);
 
-    PdiAsyncStateMachine_l.m_bCurrentState = pMsgContext->bState_m; //TODO: is this state machine manipulation working (for DO-Action)?
+    PdiAsyncStateMachine_l.m_bCurrentState = pMsgContext->bState_m;
     fError                                 = pMsgContext->fError_m;
     fTimeout                               = pMsgContext->fTimeout_m;
     fReset                                 = pMsgContext->fReset_m;

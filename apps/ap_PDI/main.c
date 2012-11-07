@@ -76,7 +76,7 @@ static BOOL     fOperational_l = FALSE;                         ///< indicates A
 
 // Object access
 static DWORD dwExampleData_l = 0xABCD0001;              ///< this is only an example object data
-static tCnApiObdParam   ObdParam_l = {0};                 ///< OBD access handle
+static tCnApiObdParam   ObdParam_l = {0};               ///< OBD access handle
 
 /******************************************************************************/
 /* private functions */
@@ -211,18 +211,18 @@ int main (void)
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
 
 #ifdef USE_POLLING_MODE_SYNC
-    CnApi_initSyncInt(0, 0, 0); ///< tell PCP that we want polling mode
+    CnApi_initSyncInt(0, 0, 0); // tell PCP that we want polling mode
     CnApi_disableSyncInt();
 #else
     /* initialize PCP interrupt handler*/
-    if(SysComp_initSyncInterrupt(syncIntHandler) != OK)    //< local AP IRQ is enabled here
+    if(SysComp_initSyncInterrupt(syncIntHandler) != OK)    // local AP IRQ is enabled here
     {
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR,"ERROR: Unable to init the synchronous interrupt!\n");
         return ERROR;
     }
 
     CnApi_initSyncInt(400, 100000, 0);
-    CnApi_disableSyncInt();    //< interrupt will be enabled when CN is operational
+    CnApi_disableSyncInt();    // interrupt will be enabled when CN is operational
 #endif /* USE_POLLING_MODE_SYNC */
 
 #ifdef USE_POLLING_MODE_ASYNC

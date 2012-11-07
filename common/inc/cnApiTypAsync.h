@@ -56,25 +56,25 @@ typedef enum ePdiAsyncTransferType{
  * \brief structure for asynchronous message types
  */
 typedef enum ePdiAsyncMsgType {
-    kPdiAsyncMsgInvalid         = 0x00,
-    kPdiAsyncMsgIntInitPcpReq   = 0x01, ///< internal AP <-> PCP communication messages
-    kPdiAsyncMsgIntInitPcpResp,
-    kPdiAsyncMsgIntCreateObjLinksReq,
-    kPdiAsyncMsgIntCreateObjLinksResp,
-    kPdiAsyncMsgIntLinkPdosReq,
-    kPdiAsyncMsgIntLinkPdosResp,
-    kPdiAsyncMsgIntObjAccReq,
-    kPdiAsyncMsgIntObjAccResp,
-    kPdiAsyncMsgExtTxSdoWriteByIndex,     ///< external messages from network
-    kPdiAsyncMsgExtRxSdoWriteByIndex,
-    kPdiAsyncMsgExtTxSdoReadByIndex,
-    kPdiAsyncMsgExtRxSdoReadByIndex,
-    kPdiAsyncMsgExtTxFirmwareStream,
-    kPdiAsyncMsgExtRxFirmwareStream,
-    kPdiAsyncMsgExtTxDataTransfer,
-    kPdiAsyncMsgExtRxDataTransfer,
-    kPdiAsyncMsgExtTxIPPacket,
-    kPdiAsyncMsgExtRxIPPacket,
+    kPdiAsyncMsgInvalid                 = 0x00,
+    kPdiAsyncMsgIntInitPcpReq           = 0x01, ///< internal AP <-> PCP communication messages
+    kPdiAsyncMsgIntInitPcpResp          = 0x02,
+    kPdiAsyncMsgIntCreateObjLinksReq    = 0x03,
+    kPdiAsyncMsgIntCreateObjLinksResp   = 0x04,
+    kPdiAsyncMsgIntLinkPdosReq          = 0x05,
+    kPdiAsyncMsgIntLinkPdosResp         = 0x06,
+    kPdiAsyncMsgIntObjAccReq            = 0x07,
+    kPdiAsyncMsgIntObjAccResp           = 0x08,
+    kPdiAsyncMsgExtTxSdoWriteByIndex    = 0x09, ///< external messages from network
+    kPdiAsyncMsgExtRxSdoWriteByIndex    = 0x0A,
+    kPdiAsyncMsgExtTxSdoReadByIndex     = 0x0B,
+    kPdiAsyncMsgExtRxSdoReadByIndex     = 0x0C,
+    kPdiAsyncMsgExtTxFirmwareStream     = 0x0D,
+    kPdiAsyncMsgExtRxFirmwareStream     = 0x0E,
+    kPdiAsyncMsgExtTxDataTransfer       = 0x0F,
+    kPdiAsyncMsgExtRxDataTransfer       = 0x10,
+    kPdiAsyncMsgExtTxIPPacket           = 0x11,
+    kPdiAsyncMsgExtRxIPPacket           = 0x12,
 } tPdiAsyncMsgType;
 
 typedef enum ePdiAsyncMsgStatus {
@@ -226,7 +226,7 @@ typedef struct
  */
 typedef struct sObjAccSdoComCon {
     WORD                    m_wObdAccConNum;    ///< OBD access communication connection
-    tCnApiAsySdoCom *         m_pSdoCmdFrame;     ///< pointer to SDO command frame
+    tCnApiAsySdoCom *       m_pSdoCmdFrame;     ///< pointer to SDO command frame
     unsigned int            m_uiSizeOfFrame;    ///< size of SDO command frame
     void *                  m_pUserArg;         ///< general purpose argument
 } tObjAccSdoComCon;
@@ -238,7 +238,7 @@ typedef struct sObjAccReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     WORD                    m_wComConHdl;      ///< connection handle of originator module
-    tCnApiAsySdoCom           m_SdoCmdFrame;
+    tCnApiAsySdoCom         m_SdoCmdFrame;
 } PACK_STRUCT tObjAccMsg;
 
 /**
@@ -253,13 +253,13 @@ typedef struct sAsyncIntHeader {
  * \brief Structure definition for asynchronous transfer buffer header
  */
 typedef struct sAsyncMsgHeader {
-    volatile BYTE                    m_bSync;
-    volatile BYTE                    m_bChannel;
-    volatile BYTE                    m_bMsgType;
+    volatile BYTE           m_bSync;
+    volatile BYTE           m_bChannel;
+    volatile BYTE           m_bMsgType;
     volatile BYTE                    m_bPad;
-    volatile WORD                    m_wFrgmtLen;
-    volatile WORD                    wReserved;
-    volatile DWORD                   m_dwStreamLen;
+    volatile WORD           m_wFrgmtLen;
+    volatile WORD           wReserved;
+    volatile DWORD          m_dwStreamLen;
 } PACK_STRUCT tAsyncPdiBufCtrlHeader;
 
 typedef struct sAsyncMsg {
@@ -271,7 +271,7 @@ typedef struct sPdiAsyncParam {
     tAsyncChannel   ChanType_m;                 ///< type of channel the message belongs to
     tPcpStates      aNmtList_m[kNumPcpStates];  ///< valid NmtStates for this message
     //not used: tPdiAsMsgPrio   Prio_m;         ///< message priority
-    WORD           wTimeout_m;                  ///< timeout value of message delivery or reception (if set to 0, wait forever)
+    WORD            wTimeout_m;                 ///< timeout value of message delivery or reception (if set to 0, wait forever)
 } tPdiAsyncMsgParam;
 
 /**
