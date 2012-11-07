@@ -124,12 +124,12 @@ subject to the License Agreement located at the end of this file below.
 
 #define _TIME_OF_DAY_DEFINED_
 
+#endif  //_TIME_OF_DAY_DEFINED_
+
 /* Define Trace */
 #ifndef NDEBUG
     #include <stdio.h>              // prototype printf() (for TRACE)
     #define TRACE  printf
-#endif
-
 #endif
 
 #else
