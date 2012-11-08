@@ -43,14 +43,15 @@ typedef enum ePcpRelativeTimeState
 
 /******************************************************************************/
 /* external variable declarations */
-WORD wSyncIntCycle_g = 0;
+
 
 /******************************************************************************/
 /* global variables */
+static WORD wSyncIntCycle_l = 0;             ///< the number of sync interrupt cycles of the AP
 static tPcpRelativeTimeState PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;   ///< state variable of the RelativeTime state machine
-static DWORD dwRelativeTimeLow_g = 0;        ///< local relative time counter low dword
-static DWORD dwRelativeTimeHigh_g = 0;       ///< local relative time counter high dword
-static DWORD dwCycleTime_g = 0;              ///< local copy of the AP cycle time
+static DWORD dwRelativeTimeLow_l = 0;        ///< local relative time counter low dword
+static DWORD dwRelativeTimeHigh_l = 0;       ///< local relative time counter high dword
+static DWORD dwCycleTime_l = 0;              ///< local copy of the AP cycle time
 
 
 /******************************************************************************/
@@ -80,8 +81,8 @@ void Gi_initSync(void)
 void Gi_resetTimeValues(void)
 {
     PcpRelativeTimeState_l = kPcpRelativeTimeStateWaitFirstValidRelativeTime;
-    dwRelativeTimeLow_g = 0;
-    dwRelativeTimeHigh_g = 0;
+    dwRelativeTimeLow_l = 0;
+    dwRelativeTimeHigh_l = 0;
 
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, 0x00);
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, 0x00);
@@ -93,11 +94,20 @@ void Gi_resetTimeValues(void)
 /**
 ********************************************************************************
 \brief    writes the current relativetime into the pdi
+
+\param  dwRelativeTimeLow_p         The low dword of the relative time
+\param  dwRelativeTimeHigh_p        The high dword of the relative time
+\param  fTimeValid_p                True if the provided relative time is valid
+\param  fCnIsOperational_p          True if the CN is in operational state
+
+\return tCnApiStatus
+\retval kCnApiStatusOk              on success
+\retval kCnApiStatusError           when statemachine is in an invalid state
 *******************************************************************************/
-tEplKernel Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHigh_p,
+tCnApiStatus Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHigh_p,
         BOOL fTimeValid_p, BOOL fCnIsOperational_p)
 {
-    tEplKernel  EplRet = kEplSuccessful;
+    tCnApiStatus  CnApiRet = kCnApiStatusOk;
 
     switch(PcpRelativeTimeState_l)
     {
@@ -107,54 +117,54 @@ tEplKernel Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHig
             {
                 if(fTimeValid_p != FALSE)
                 {
-                    dwRelativeTimeLow_g = dwRelativeTimeLow_p;          ///< read the value once and activate relative time
-                    dwRelativeTimeHigh_g = dwRelativeTimeHigh_p;          ///< read the value once and activate relative time
+                    dwRelativeTimeLow_l = dwRelativeTimeLow_p;          ///< read the value once and activate relative time
+                    dwRelativeTimeHigh_l = dwRelativeTimeHigh_p;          ///< read the value once and activate relative time
 
-                    dwRelativeTimeLow_g += dwCycleTime_g;               ///< increment it once to be up to date
-                    if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+                    dwRelativeTimeLow_l += dwCycleTime_l;               ///< increment it once to be up to date
+                    if(dwRelativeTimeLow_l < dwCycleTime_l)             ///< look for an overflow
                     {
-                        dwRelativeTimeHigh_g++;
+                        dwRelativeTimeHigh_l++;
                     }
 
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_g);
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_g);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_l);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_l);
                     PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 } else {
                     /* CN is operational but RelativeTime is still not Valid! (We now start counting without an offset) */
-                    dwRelativeTimeLow_g += dwCycleTime_g;
-                    if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+                    dwRelativeTimeLow_l += dwCycleTime_l;
+                    if(dwRelativeTimeLow_l < dwCycleTime_l)             ///< look for an overflow
                     {
-                        dwRelativeTimeHigh_g++;
+                        dwRelativeTimeHigh_l++;
                     }
 
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_g);
-                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_g);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_l);
+                    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_l);
                     PcpRelativeTimeState_l = kPcpRelativeTimeStateActiv;
                 }
             } else {
                 /* increment local RelativeTime and wait for an arriving time val from the soc */
-                dwRelativeTimeLow_g += dwCycleTime_g;
-                if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+                dwRelativeTimeLow_l += dwCycleTime_l;
+                if(dwRelativeTimeLow_l < dwCycleTime_l)             ///< look for an overflow
                 {
-                    dwRelativeTimeHigh_g++;
+                    dwRelativeTimeHigh_l++;
                 }
             }
            break;
         }
         case kPcpRelativeTimeStateActiv:
         {
-            dwRelativeTimeLow_g += dwCycleTime_g;               ///< increment it once to be up to date
-            if(dwRelativeTimeLow_g < dwCycleTime_g)             ///< look for an overflow
+            dwRelativeTimeLow_l += dwCycleTime_l;               ///< increment it once to be up to date
+            if(dwRelativeTimeLow_l < dwCycleTime_l)             ///< look for an overflow
             {
-                dwRelativeTimeHigh_g++;
+                dwRelativeTimeHigh_l++;
             }
-            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_g);
-            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_g);
+            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeLow, dwRelativeTimeLow_l);
+            AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwRelativeTimeHigh, dwRelativeTimeHigh_l);
            break;
         }
         case kPcpRelativeTimeStateInvalid:
         {
-            EplRet = kEplInvalidParam;
+            CnApiRet = kCnApiStatusError;
             goto Exit;
            break;
         }
@@ -163,12 +173,15 @@ tEplKernel Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHig
     }
 
 Exit:
-    return EplRet;
+    return CnApiRet;
 }
 
 /**
 ********************************************************************************
 \brief    writes the current nettime into the pdi
+
+\param  dwNetTimeSeconds_p      the nettime seconds
+\param  dwNetTimeNanoSeconds_p  the nettime nanoseconds
 *******************************************************************************/
 inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p)
 {
@@ -180,14 +193,14 @@ inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p
 ********************************************************************************
 \brief    enable the synchronous PDI interrupt
 *******************************************************************************/
-void Gi_enableSyncInt(WORD wSyncIntCycle_p)
+void Gi_enableSyncInt(void)
 {
 
 #ifdef TIMESYNC_HW
     // enable IRQ and set mode to "IR generation by HW"
 	AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, ((1 << SYNC_IRQ_ENABLE) | (1 << SYNC_IRQ_MODE)));
     /* in addition also enable the hw interrupt in the EPL time sync module*/
-    EplTimerSynckCompareTogPdiIntEnable(wSyncIntCycle_p);
+    EplTimerSynckCompareTogPdiIntEnable(wSyncIntCycle_l);
 #else
     // enable IRQ and set mode to "IR generation by SW"
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, ((1 << SYNC_IRQ_ENABLE) & ~(1 << SYNC_IRQ_MODE)));
@@ -237,6 +250,10 @@ void Gi_generateSyncInt(void)
 /**
 ********************************************************************************
 \brief  read control register sync mode flags
+
+\return BOOL
+\retval TRUE        if sync interrupt is required
+\retval FALSE       when not required
 *******************************************************************************/
 BOOL Gi_checkSyncIrqRequired(void)
 {
@@ -269,7 +286,7 @@ void Gi_calcSyncIntPeriod(void)
     if (EplRet != kEplSuccessful)
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
+        wSyncIntCycle_l = 0;
         return;
     }
 
@@ -277,7 +294,7 @@ void Gi_calcSyncIntPeriod(void)
         (dwMaxCycleTime == 0)   )
     {
         /* no need to trigger IR signal - polling mode is applied */
-        wSyncIntCycle_g = 0;
+        wSyncIntCycle_l = 0;
         return;
     }
 
@@ -292,7 +309,7 @@ void Gi_calcSyncIntPeriod(void)
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to high for AP!\n");
 
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
+        wSyncIntCycle_l = 0;
         return;
     }
     if (iSyncPeriod < dwMinCycleTime)
@@ -300,16 +317,28 @@ void Gi_calcSyncIntPeriod(void)
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: Cycle time set by network to low for AP!\n");
 
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrSyncCycleCalcError);
-        wSyncIntCycle_g = 0;
+        wSyncIntCycle_l = 0;
         return;
     }
 
-    wSyncIntCycle_g = iNumCycles;
+    wSyncIntCycle_l = iNumCycles;
     AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwSyncIntCycTime, iSyncPeriod);   ///< inform AP: write result in control register
-    dwCycleTime_g = iSyncPeriod;    ///< remember the time localy to speed up further calculation
+    dwCycleTime_l = iSyncPeriod;    ///< remember the time localy to speed up further calculation
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventSyncCycleCalcSuccessful);
 
     return;
+}
+
+/**
+********************************************************************************
+\brief    get sync interrupt period
+
+\return WORD
+\retval The sync interrupt cycle
+*******************************************************************************/
+WORD Gi_getSyncIntCycle(void)
+{
+    return wSyncIntCycle_l;
 }
 
 

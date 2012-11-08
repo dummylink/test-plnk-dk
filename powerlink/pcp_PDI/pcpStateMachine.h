@@ -36,6 +36,7 @@ typedef tEplKernel (* tInitPowerlink) ( tPcpInitParam *pInitParam_p );
 typedef int (* tStartPowerlink) ( void );
 typedef void (* tShutdownPowerlink) ( void );
 typedef void (* tRdyToOpPowerlink) ( void );
+typedef void (* tOperationalPowerlink) ( void );
 typedef void (* tPreOpPowerlink) ( void );
 
 typedef enum ePowerlinkEvent {
@@ -51,11 +52,12 @@ typedef enum ePowerlinkEvent {
  * init structure for the PCP state machine module
  */
 typedef struct sInitStateMachine {
-    tInitPowerlink     m_fpInitPlk;
-    tStartPowerlink    m_fpStartPlk;
-    tShutdownPowerlink m_fpShutdownPlk;
-    tRdyToOpPowerlink  m_fpRdyToOpPlk;
-    tPreOpPowerlink    m_fpPreOpPlk;
+    tInitPowerlink        m_fpInitPlk;
+    tStartPowerlink       m_fpStartPlk;
+    tShutdownPowerlink    m_fpShutdownPlk;
+    tRdyToOpPowerlink     m_fpRdyToOpPlk;
+    tOperationalPowerlink m_fpOperationalPlk;
+    tPreOpPowerlink       m_fpPreOpPlk;
 } tInitStateMachine;
 
 

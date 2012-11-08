@@ -41,11 +41,12 @@ static tTransition 			aPcpTransitions_l[MAX_TRANSITIONS_PER_STATE * kNumPcpState
 static BOOL					fEvent = FALSE;
 static tPowerlinkEvent		powerlinkEvent;
 
-static tInitPowerlink       fpInitPlk_l = NULL;
-static tStartPowerlink      fpStartPlk_l = NULL;
-static tShutdownPowerlink   fpShutdownPlk_l = NULL;
-static tRdyToOpPowerlink    fpRdyToOpPlk_l = NULL;
-static tPreOpPowerlink      fpPreOpPlk_l = NULL;
+static tInitPowerlink          fpInitPlk_l = NULL;
+static tStartPowerlink         fpStartPlk_l = NULL;
+static tShutdownPowerlink      fpShutdownPlk_l = NULL;
+static tRdyToOpPowerlink       fpRdyToOpPlk_l = NULL;
+static tOperationalPowerlink   fpOperationPlk_l = NULL;
+static tPreOpPowerlink         fpPreOpPlk_l = NULL;
 
 static BOOL                 fPLisInitalized_l; ///< Powerlink initialization after boot-up flag
 
@@ -349,10 +350,9 @@ FUNC_ENTRYACT(kPcpStateOperational)
 	storePcpState(kPcpStateOperational);
 	Gi_pcpEventPost(kPcpPdiEventPcpStateChange, kPcpStateOperational);
 
-    /* enable the synchronization interrupt */
-    if(wSyncIntCycle_g != 0)   // true if Sync IR is required by AP
-    {
-        Gi_enableSyncInt(wSyncIntCycle_g);    // enable IR trigger possibility
+    if(fpOperationPlk_l != NULL)
+    {   // call enter operational callback
+        fpOperationPlk_l();
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -362,7 +362,7 @@ FUNC_DOACT(kPcpStateOperational)
     {
         // fall back to PreOp state
         if(fpPreOpPlk_l != NULL)
-        {   // call enter pre operationl callback
+        {   // call enter pre operational callback
             fpPreOpPlk_l();
         }
     }
@@ -444,6 +444,7 @@ BOOL Gi_initStateMachine( tInitStateMachine *InitParams_p)
         fpStartPlk_l = InitParams_p->m_fpStartPlk;
         fpShutdownPlk_l = InitParams_p->m_fpShutdownPlk;
         fpRdyToOpPlk_l = InitParams_p->m_fpRdyToOpPlk;
+        fpOperationPlk_l = InitParams_p->m_fpOperationalPlk;
         fpPreOpPlk_l = InitParams_p->m_fpPreOpPlk;
     }
     else

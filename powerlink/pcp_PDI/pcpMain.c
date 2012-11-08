@@ -155,6 +155,7 @@ static int startPowerlink(void);
 static void switchoffPowerlink(void);
 static void enterPreOpPowerlink(void);
 static void enterReadyToOperatePowerlink(void);
+static void enterOperationalPowerlink(void);
 
 
 
@@ -359,6 +360,10 @@ static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p)
     UINT32                      uiApplicationSwDate = 0;
     UINT32                      uiApplicationSwTime = 0;
 
+#ifdef CONFIG_USE_SDC_OBJECTS
+    WORD wSyncIntCycle;
+#endif  //CONFIG_USE_SDC_OBJECTS
+
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef NODE_SWITCH_BASE
     if(pInitParam_p->m_bNodeId == 0x00)
@@ -464,10 +469,12 @@ static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p)
     // link object variables used by CN to object dictionary (if needed)
 #ifdef CONFIG_USE_SDC_OBJECTS
     // SDC object "SDC_IOPrescaler"
-    // remark: wSyncIntCycle_g will be calculated right after EnableReadyToOperate command from MN
-    ObdSize = sizeof(wSyncIntCycle_g);
+    // remark: wSyncIntCycle will be calculated right after EnableReadyToOperate command from MN
+    wSyncIntCycle = Gi_getSyncIntCycle();
+
+    ObdSize = sizeof(wSyncIntCycle);
     uiVarEntries = 1;
-    EplRet = EplApiLinkObject(0x5020, &wSyncIntCycle_g, &uiVarEntries, &ObdSize, 0x02);
+    EplRet = EplApiLinkObject(0x5020, &wSyncIntCycle, &uiVarEntries, &ObdSize, 0x02);
     if (EplRet != kEplSuccessful)
     {
         goto Exit;
@@ -607,6 +614,19 @@ static void enterReadyToOperatePowerlink(void)
         DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: Post enter ReadyToOperate "
                 "to stack failed!\n");
         //TODO react on error (shutdown?)
+    }
+}
+
+/**
+********************************************************************************
+\brief    POWERLINK enter operational
+*******************************************************************************/
+static void enterOperationalPowerlink(void)
+{
+    /* enable the synchronization interrupt */
+    if(Gi_getSyncIntCycle() != 0)   // true if Sync IR is required by AP
+    {
+        Gi_enableSyncInt();    // enable IR trigger possibility
     }
 }
 
@@ -1061,15 +1081,15 @@ inputs and runs the control loop.
     tEplKernel PUBLIC AppCbSync(void)
 #endif
 {
-    tEplKernel  EplRet = kEplSuccessful;
+    tEplKernel      EplRet = kEplSuccessful;
+    tCnApiStatus    CnApiRet = kCnApiStatusOk;
     static  unsigned int iCycleCnt = 0;
+    WORD wSyncIntCycle = Gi_getSyncIntCycle();
 
     /* check if interrupts are enabled */
-    if ((wSyncIntCycle_g != 0))
+    if ((wSyncIntCycle != 0) &&
+         ++iCycleCnt == wSyncIntCycle   )
     {
-        /* NMT_READY_TO_OPERATE is already processed */
-        if (++iCycleCnt == wSyncIntCycle_g)
-        {
             iCycleCnt = 0;  ///< reset cycle counter
 #if EPL_DLL_SOCTIME_FORWARD != FALSE
             #ifdef TIMESYNC_HW
@@ -1077,8 +1097,12 @@ inputs and runs the control loop.
                 if(SocTimeStamp_p.m_fSocRelTimeValid != FALSE)
                     Gi_setNetTime(SocTimeStamp_p.m_netTime.m_dwSec,SocTimeStamp_p.m_netTime.m_dwNanoSec);
 
-                EplRet = Gi_setRelativeTime((DWORD)SocTimeStamp_p.m_qwRelTime, (DWORD)(SocTimeStamp_p.m_qwRelTime>>32),
+                CnApiRet = Gi_setRelativeTime((DWORD)SocTimeStamp_p.m_qwRelTime, (DWORD)(SocTimeStamp_p.m_qwRelTime>>32),
                         SocTimeStamp_p.m_fSocRelTimeValid, fOperational);
+                if(CnApiRet != kCnApiStatusOk)
+                {   //convert CnApi return value
+                    EplRet = kEplInvalidOperation;
+                }
 
             #else
                 /* Sync interrupt is generated in SW */
@@ -1087,13 +1111,16 @@ inputs and runs the control loop.
 #else
             #ifdef TIMESYNC_HW
                 /* Sync interrupt is generated in HW */
-                EplRet = Gi_setRelativeTime(0, 0, FALSE, fOperational);
+                CnApiRet = Gi_setRelativeTime(0, 0, FALSE, fOperational);
+                if(CnApiRet != kCnApiStatusOk)
+                {   //convert CnApi return value
+                    EplRet = kEplInvalidOperation;
+                }
             #else
                 /* Sync interrupt is generated in SW */
                 Gi_generateSyncInt();
             #endif  //TIMESYNC_HW
 #endif  //EPL_DLL_SOCTIME_FORWARD
-        }
     }
 
     return EplRet;
@@ -1208,6 +1235,7 @@ static int Gi_init(void)
     StateMachineInit.m_fpStartPlk = startPowerlink;
     StateMachineInit.m_fpShutdownPlk = switchoffPowerlink;
     StateMachineInit.m_fpRdyToOpPlk = enterReadyToOperatePowerlink;
+    StateMachineInit.m_fpOperationalPlk = enterOperationalPowerlink;
     StateMachineInit.m_fpPreOpPlk = enterPreOpPowerlink;
 
     // start PCP API state machine and move to PCP_BOOTED state

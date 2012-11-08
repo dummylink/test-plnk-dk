@@ -63,9 +63,6 @@ typedef struct sApiPdiComCon {
 extern volatile tPcpCtrlReg *     pCtrlReg_g;       ///< ptr. to PCP control register
 extern tPcpInitParam  initParam_g;        ///< Powerlink initialization parameter
 
-
-extern WORD            wSyncIntCycle_g;           ///< IR synchronization factor (multiple cycle time)
-
 // Api PDI communication instance
 extern tApiPdiComCon ApiPdiComInstance_g;
 
@@ -77,8 +74,6 @@ extern void storePcpState(BYTE bState_p);
 
 extern int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
 extern BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p);
-
-extern void Gi_enableSyncInt(WORD wSyncIntCycle_p);
 
 extern void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p);
 

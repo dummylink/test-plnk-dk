@@ -45,15 +45,17 @@
 /******************************************************************************/
 /* function declarations */
 void Gi_initSync(void);
-tEplKernel Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHigh_p,
+tCnApiStatus Gi_setRelativeTime(DWORD dwRelativeTimeLow_p, DWORD dwRelativeTimeHigh_p,
         BOOL fTimeValid_p, BOOL fCnIsOperational_p);
 inline void Gi_setNetTime(DWORD dwNetTimeSeconds_p, DWORD dwNetTimeNanoSeconds_p);
 void Gi_resetTimeValues(void);
 
-
+void Gi_enableSyncInt(void);
 void Gi_disableSyncInt(void);
 void Gi_calcSyncIntPeriod(void);
 BOOL Gi_checkSyncIrqRequired(void);
+
+WORD Gi_getSyncIntCycle(void);
 
 
 #endif /* PCPSYNC_H_ */
