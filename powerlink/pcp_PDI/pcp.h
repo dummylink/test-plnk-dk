@@ -26,10 +26,7 @@ DETAILED_DESCRIPTION_OF_FILE
 #ifdef EPL_MODULE_API_PDI
 /******************************************************************************/
 /* defines */
-/* Powerlink defaults */
-#define DEFAULT_CYCLE_LEN   1000    ///< [us]
-#define IP_ADDR     0xc0a86401      ///< 192.168.100.1 - last byte will be nodeId
-#define SUBNET_MASK 0xFFFFFF00      ///< 255.255.255.0
+
 
 /******************************************************************************/
 /* typedefs */

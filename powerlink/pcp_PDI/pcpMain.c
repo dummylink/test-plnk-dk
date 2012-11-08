@@ -47,6 +47,13 @@
 //---------------------------------------------------------------------------
 // defines
 //---------------------------------------------------------------------------
+/* Powerlink defaults */
+#define DEFAULT_CYCLE_LEN   1000    ///< [us]
+#define IP_ADDR     0xc0a86401      ///< 192.168.100.1 - last byte will be nodeId
+#define SUBNET_MASK 0xFFFFFF00      ///< 255.255.255.0
+
+
+
 #define OBD_DEFAULT_ACC_HISTORY_ACK_FINISHED_THLD 3           ///< count of history entries, where 0BD accesses will still be acknowledged
 #define OBD_DEFAULT_ACC_HISTORY_SIZE              20          ///< maximum possible history elements
 #define OBD_DEFAULT_ACC_INVALID                   0xFFFFUL
