@@ -53,6 +53,8 @@ subject to the License Agreement located at the end of this file below.
 #define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
 #define IP_ADDR     0xc0a86401                                  ///< 192.168.100.1 // don't care the last byte!
 #define SUBNET_MASK 0xFFFFFF00                                  ///< netmask 255.255.255.0
+#define DEFAULT_GATEWAY 0xc0a864fe                              ///< default gateway: 192.168.100.254
+#define ASYNC_MTU     300                                         ///< maximum transmission unit of CN (max async data)
 
 /*----------------------------------------------------------------------------*/
 
@@ -66,6 +68,7 @@ static BYTE     abMacAddr_l[] = { MAC_ADDR };                   ///< The MAC add
 static BYTE     strDevName[] = DEMO_DEVICE_NAME;
 static BYTE     strHwVersion[] = "1.00";                        ///< Version of the used hardware
 static BYTE     strSwVersion[] = "EPL V2 V1.8.1 CNDK";          ///< The version of this software
+static BYTE     strHostname[] = "openPOWERLINK CN";             ///< The hostname of the CN
 
 static BYTE     digitalIn[NUM_INPUT_OBJS];                      ///< The values of the digital input pins of the board will be stored here
 static BYTE     digitalOut[NUM_OUTPUT_OBJS];                    ///< The values of the digital output pins of the board will be stored here
@@ -143,6 +146,10 @@ int main (void)
     /* Set initial POWERLINK parameters for the PCP */
     InitPcpParam.m_bNodeId = DEFAULT_NODEID;       // in case you dont want to use Node Id switches, use a different value then 0x00
     CNAPI_MEMCPY(InitPcpParam.m_abMac, abMacAddr_l, sizeof(InitPcpParam.m_abMac));
+    InitPcpParam.m_dwIpAddress = IP_ADDR;
+    InitPcpParam.m_dwSubNetMask = SUBNET_MASK;
+    InitPcpParam.m_dwDefaultGateway = DEFAULT_GATEWAY;
+    InitPcpParam.m_wMtu = ASYNC_MTU;
     InitPcpParam.m_dwDeviceType = -1;
     InitPcpParam.m_dwVendorId = DEMO_VENDOR_ID;
     InitPcpParam.m_dwProductCode = DEMO_PRODUCT_CODE;
@@ -151,6 +158,7 @@ int main (void)
     CNAPI_MEMCPY(InitPcpParam.m_strDevName, strDevName, sizeof(InitPcpParam.m_strDevName));
     CNAPI_MEMCPY(InitPcpParam.m_strHwVersion, strHwVersion, sizeof(InitPcpParam.m_strHwVersion));
     CNAPI_MEMCPY(InitPcpParam.m_strSwVersion, strSwVersion, sizeof(InitPcpParam.m_strSwVersion));
+    CNAPI_MEMCPY(InitPcpParam.m_strHostname, strHostname, sizeof(InitPcpParam.m_strHostname));
 
 
     /* Set initial libCnApi parameters */
@@ -434,6 +442,12 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                     {
                         // only for testing purposes
                         break;
+                    }
+                    case kPcpGenEventDefaultGatewayUpdate:
+                    {
+                        // the default gateway has changed (read it!)
+                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO,"INFO: Default gateway is 0x%lx.\n",
+                                CnApi_getDefaultGateway());
                     }
 
                     default:

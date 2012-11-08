@@ -41,6 +41,7 @@ typedef enum ePcpPdiEventGeneric {
     kPcpGenEventResetCommunicationDone,          ///< asynchronous communication reset has finished at PCP side
     kPcpGenEventNmtEnableReadyToOperate,         ///< PCP received NMT_ReadyToOperate command
     kPcpGenEventUserTimer,                       ///< timer event triggered by PCP
+    kPcpGenEventDefaultGatewayUpdate,            ///< On this event the default gateway is up to date
 } tPcpPdiEventGeneric;
 
 /**

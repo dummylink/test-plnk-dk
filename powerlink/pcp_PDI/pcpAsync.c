@@ -440,7 +440,10 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
 
 
 	pInitParam_l->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
+	pInitParam_l->m_dwIpAddress = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwIpAddress));
+	pInitParam_l->m_dwSubNetMask = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSubNetMask));
 	pInitParam_l->m_bNodeId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwNodeId));
+	pInitParam_l->m_wMtu = AmiGetWordFromLe((BYTE*)&(pInitPcpReq->m_wMtu));
 	pInitParam_l->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));
 	pInitParam_l->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
 	pInitParam_l->m_dwVendorId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwVendorId));
@@ -451,6 +454,8 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
 	            sizeof(pInitPcpReq->m_strHwVersion));
 	EPL_MEMCPY (pInitParam_l->m_strSwVersion, pInitPcpReq->m_strSwVersion,
 	            sizeof(pInitPcpReq->m_strSwVersion));
+    EPL_MEMCPY (pInitParam_l->m_strHostname, (BYTE *)pInitPcpReq->m_strHostname,
+                sizeof(pInitPcpReq->m_strHostname));
 
 	/* setup response */
 	pInitPcpResp->m_bReqId = pInitPcpReq->m_bReqId;

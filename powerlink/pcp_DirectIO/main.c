@@ -1599,10 +1599,10 @@ int openPowerlink(BYTE bNodeId_p)
         EplApiProcess();
         updateFirmwarePeriodic();               // periodically call firmware update state machine
 #ifdef VETH_DRV_EN
-        EplRet = VEthCheckAndForwardRxFrame(&pbRxBuffer, &bRxBufferSize);
+        EplRet = VEthApiCheckAndForwardRxFrame(&pbRxBuffer, &bRxBufferSize);
         if(EplRet == kEplSuccessful)
         {
-            EplRet = VEthReleaseRxFrame();
+            EplRet = VEthApiReleaseRxFrame();
             if(EplRet != kEplSuccessful)
             {
                 PRINTF("Error while freeing the Veth Rx buffer\n");
@@ -1872,7 +1872,7 @@ tEplKernel PUBLIC AppCbSync(void)
     }
 
 #if defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
-    EplRet = VEthSendTest();    ///< send test ARP frame to the network
+    EplRet = VEthApiSendTest();    ///< send test ARP frame to the network
     switch(EplRet)
     {
         case kEplInvalidParam:

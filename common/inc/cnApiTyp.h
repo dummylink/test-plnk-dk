@@ -125,8 +125,11 @@ typedef struct sObjTbl {
  */
 typedef struct sPcpInitParm {
     BYTE            m_abMac[6];
-    BYTE            m_bPad;
     BYTE            m_bNodeId;
+    WORD            m_wMtu;
+    DWORD           m_dwIpAddress;
+    DWORD           m_dwSubNetMask;
+    DWORD           m_dwDefaultGateway;
     DWORD           m_dwRevision;
     DWORD           m_dwSerialNum;
     DWORD           m_dwVendorId;
@@ -135,6 +138,7 @@ typedef struct sPcpInitParm {
     BYTE            m_strDevName[CN_API_INIT_PARAM_STRNG_SIZE];
     BYTE            m_strHwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
     BYTE            m_strSwVersion[CN_API_INIT_PARAM_STRNG_SIZE];
+    BYTE            m_strHostname[CN_API_INIT_PARAM_STRNG_SIZE];
 } tPcpInitParam;
 
 /**
@@ -161,7 +165,7 @@ typedef struct sPcpControlReg {
     volatile DWORD      Reserved5;
     volatile WORD       m_wEventType;          ///< type of event (e.g. state change, error, ...)
     volatile WORD       m_wEventArg;           ///< event argument, if applicable (e.g. error code, state, ...)
-    volatile DWORD      Reserved6;
+    volatile DWORD      m_dwDefaultGateway;    ///< The default gateway of the CN (valid on CMD ready to operate)
     volatile DWORD      Reserved7;
     volatile DWORD      Reserved8;
     volatile DWORD      m_dwRelativeTimeLow;   ///< low dword of SoC relative time

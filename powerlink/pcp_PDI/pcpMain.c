@@ -49,8 +49,6 @@
 //---------------------------------------------------------------------------
 /* Powerlink defaults */
 #define DEFAULT_CYCLE_LEN   1000    ///< [us]
-#define IP_ADDR     0xc0a86401      ///< 192.168.100.1 - last byte will be nodeId
-#define SUBNET_MASK 0xFFFFFF00      ///< 255.255.255.0
 
 
 
@@ -362,7 +360,6 @@ reached! It initializes the openPOWERLINK stack.
 *******************************************************************************/
 static tEplKernel initPowerlink(void)
 {
-    DWORD                       ip = IP_ADDR;      // ip address
     static tEplApiInitParam     EplApiInitParam;   // epl init parameter
     tEplKernel                  EplRet;
     UINT32                      uiApplicationSwDate = 0;
@@ -371,6 +368,9 @@ static tEplKernel initPowerlink(void)
 #ifdef CONFIG_USE_SDC_OBJECTS
     WORD wSyncIntCycle;
 #endif  //CONFIG_USE_SDC_OBJECTS
+
+    /* Update default gateway */
+    InitParam_l.m_dwDefaultGateway = AmiGetDwordFromLe((BYTE *)&pCtrlReg_g->m_dwDefaultGateway);
 
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef NODE_SWITCH_BASE
@@ -408,15 +408,15 @@ static tEplKernel initPowerlink(void)
 
     /* setup the POWERLINK stack */
     /* calc the IP address with the nodeid */
-    ip &= 0xFFFFFF00;                          ///< dump the last byte
-    ip |= InitParam_l.m_bNodeId;              ///< and mask it with the node id
+    InitParam_l.m_dwIpAddress &= 0xFFFFFF00;                          ///< dump the last byte
+    InitParam_l.m_dwIpAddress |= InitParam_l.m_bNodeId;              ///< and mask it with the node id
 
     /* set EPL init parameters */
     EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
     EPL_MEMCPY(EplApiInitParam.m_abMacAddress, InitParam_l.m_abMac,
                sizeof(EplApiInitParam.m_abMacAddress));
     EplApiInitParam.m_uiNodeId = InitParam_l.m_bNodeId;
-    EplApiInitParam.m_dwIpAddress = ip;
+    EplApiInitParam.m_dwIpAddress = InitParam_l.m_dwIpAddress;
     EplApiInitParam.m_uiIsochrTxMaxPayload = CONFIG_ISOCHR_TX_MAX_PAYLOAD;
     EplApiInitParam.m_uiIsochrRxMaxPayload = CONFIG_ISOCHR_RX_MAX_PAYLOAD;
     EplApiInitParam.m_dwPresMaxLatency = 2000; // ns
@@ -427,7 +427,7 @@ static tEplKernel initPowerlink(void)
     EplApiInitParam.m_uiPreqActPayloadLimit = 36;
     EplApiInitParam.m_uiPresActPayloadLimit = 36;
     EplApiInitParam.m_uiMultiplCycleCnt = 0;
-    EplApiInitParam.m_uiAsyncMtu = 300;
+    EplApiInitParam.m_uiAsyncMtu = InitParam_l.m_wMtu;
     EplApiInitParam.m_uiPrescaler = 2;
     EplApiInitParam.m_dwLossOfFrameTolerance = 5000000;
     EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
@@ -441,8 +441,8 @@ static tEplKernel initPowerlink(void)
     //EplApiInitParam.m_dwVerifyConfigurationTime;
     EplApiInitParam.m_dwApplicationSwDate = uiApplicationSwDate;
     EplApiInitParam.m_dwApplicationSwTime = uiApplicationSwTime;
-    EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
-    EplApiInitParam.m_dwDefaultGateway = 0;
+    EplApiInitParam.m_dwSubnetMask = InitParam_l.m_dwSubNetMask;
+    EplApiInitParam.m_dwDefaultGateway = InitParam_l.m_dwDefaultGateway;
     EplApiInitParam.m_pszDevName = InitParam_l.m_strDevName;
     EplApiInitParam.m_pszHwVersion = InitParam_l.m_strHwVersion;
     EplApiInitParam.m_pszSwVersion = InitParam_l.m_strSwVersion;
@@ -454,6 +454,8 @@ static tEplKernel initPowerlink(void)
     EplApiInitParam.m_pfnDefaultObdCallback = EplAppCbDefaultObdAccess; // called if objects do not exist in local OBD
     EplApiInitParam.m_pfnRebootCb = rebootCN;
     EplApiInitParam.m_pfnPdouCbConfigPdi = Gi_checkandConfigurePdoPdi;
+    EPL_MEMCPY(EplApiInitParam.m_sHostname, InitParam_l.m_strHostname,
+               sizeof(EplApiInitParam.m_sHostname));
 
     EplApiInitParam.m_dwSyncResLatency = EPL_C_DLL_T_IFG;
 
@@ -882,6 +884,9 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
 
                     /* setup the synchronization interrupt time period */
                     Gi_calcSyncIntPeriod();   // calculate multiple of cycles
+#ifdef VETH_DRV_EN
+                    Gi_updateDefaultGateway();
+#endif //VETH_DRV_EN
 
                     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNmtEnableReadyToOperate);
 

@@ -280,6 +280,9 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
         goto exit;
     }
 
+    // set the default gateway
+    CnApi_setDefaultGateway(pInitPcpParam_p->m_dwDefaultGateway);
+
 exit:
     return FncRet;
 }
@@ -792,8 +795,50 @@ Exit:
     return FncRet;
 }
 
+/**
+********************************************************************************
+\brief  get the default gateway
+
+This function returns the default gateway. Take care that this value can change
+after the event ApCmdReadyToOperate.
+
+\return DWORD
+\retval dwDefaultGateway          the default gateway of the node
+*******************************************************************************/
+DWORD CnApi_getDefaultGateway(void)
+{
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_read(PCP_CTRLREG_DEFAULT_GATEWAY_OFFSET,
+                   sizeof(pCtrlReg_l->m_dwDefaultGateway),
+                   (BYTE*) &pCtrlReg_l->m_dwDefaultGateway);
+#endif /* CN_API_USING_SPI */
+
+    return AmiGetDwordFromLe((BYTE*)&pCtrlReg_l->m_dwDefaultGateway);
+}
+
 /******************************************************************************/
 /* get/set functions library internal */
+
+/**
+********************************************************************************
+\brief  set the default gateway
+
+This function returns the default gateway. Take care that this value can change
+after the event ApCmdReadyToOperate.
+
+\param dwDefaultGateway_p            the default gateway to set
+*******************************************************************************/
+void CnApi_setDefaultGateway(DWORD dwDefaultGateway_p)
+{
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_l->m_dwDefaultGateway, dwDefaultGateway_p);
+
+#ifdef CN_API_USING_SPI
+    CnApi_Spi_write(PCP_CTRLREG_DEFAULT_GATEWAY_OFFSET,
+                   sizeof(pCtrlReg_l->m_dwDefaultGateway),
+                   (BYTE*) &pCtrlReg_l->m_dwDefaultGateway);
+#endif /* CN_API_USING_SPI */
+}
+
 
 /**
 ********************************************************************************

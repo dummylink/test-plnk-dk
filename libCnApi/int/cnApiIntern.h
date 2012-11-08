@@ -55,7 +55,7 @@ subject to the License Agreement located at the end of this file below.
 // reserved                                                                                 //0x2C
 #define PCP_CTRLREG_EVENT_TYPE_OFFSET           offsetof(tPcpCtrlReg, m_wEventType)         //0x30
 #define PCP_CTRLREG_EVENT_ARG_OFFSET            offsetof(tPcpCtrlReg, m_wEventArg)          //0x32
-// reserved
+#define PCP_CTRLREG_DEFAULT_GATEWAY_OFFSET      offsetof(tPcpCtrlReg, m_dwDefaultGateway)   //0x34
 // reserved
 // reserved
 #define PCP_CTRLREG_RELATIVE_TIME_LOW_OFFSET    offsetof(tPcpCtrlReg, m_dwRelativeTimeLow)  //0x40
@@ -124,6 +124,8 @@ DWORD CnApi_getPcpMagic(void);
 BOOL CnApi_verifyPcpSystemId(void);
 BOOL CnApi_verifyPcpPdiRevision(void);
 void CnApi_setApCommand(BYTE bCmd_p);
+
+void CnApi_setDefaultGateway(DWORD dwDefaultGateway_p);
 
 WORD CnApi_getEventTyp(void);
 void CnApi_setEventTyp(WORD wEventType_p);

@@ -106,6 +106,9 @@ extern tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam
 extern void CnApi_exit(void);
 extern WORD CnApi_getNodeId(void);
 
+/* ip parameters of the CN */
+extern DWORD CnApi_getDefaultGateway(void);
+
 /* functions for AP state machine */
 extern void CnApi_activateApStateMachine(void);
 extern void CnApi_resetApStateMachine(void);

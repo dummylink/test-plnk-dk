@@ -662,6 +662,14 @@
             <SubObject subIndex="03" name="Threshold_U32" objectType="7" dataType="0007" accessType="rw" PDOmapping="no" defaultValue="15"/>
           </Object>
           <Object index="1C14" name="DLL_CNLossOfSocTolerance_U32" objectType="7" dataType="0007" accessType="rw" defaultValue="5000000"/>
+          <Object index="1E40" name="NWL_IpAddrTable_0h_REC" objectType="9">
+            <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="const" PDOmapping="no" defaultValue="5"/>
+            <SubObject subIndex="01" name="IfIndex_U16" objectType="7" dataType="0006" accessType="ro" PDOmapping="no" defaultValue="1"/>
+            <SubObject subIndex="02" name="Addr_IPAD" objectType="7" dataType="0007" accessType="ro" PDOmapping="no" defaultValue="0xC0A86401"/>
+            <SubObject subIndex="03" name="NetMask_IPAD" objectType="7" dataType="0007" accessType="ro" PDOmapping="no" defaultValue="0xFFFFFF00"/>
+            <SubObject subIndex="04" name="ReasmMaxSize_U16" objectType="7" dataType="0006" accessType="ro" PDOmapping="no" defaultValue="50000"/>
+            <SubObject subIndex="05" name="DefaultGateway_IPAD" objectType="7" dataType="0007" accessType="rw" PDOmapping="no" defaultValue="0xC0A864FE"/>
+          </Object>
           <Object index="1F81" name="NMT_NodeAssignment_AU32" objectType="8" dataType="0007">
             <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="rw" PDOmapping="no" defaultValue="254"/>
             <SubObject subIndex="01" name="NodeAssignment" objectType="7" dataType="0007" accessType="rw" PDOmapping="no" defaultValue="0"/>
@@ -1184,7 +1192,7 @@
             <SubObject subIndex="01" name="NodeID_U8" objectType="7" dataType="0005" accessType="ro" PDOmapping="no"/>
             <SubObject subIndex="02" name="NodeIDByHW_BOOL" objectType="7" dataType="0001" accessType="ro" PDOmapping="no" defaultValue="true"/>
           </Object>
-          <Object index="1F98" name="NMT_CycleTiming_REC" objectType="9" dataType="042C">
+          <Object index="1F98" name="NMT_CycleTiming_REC" objectType="9">
             <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" accessType="const" PDOmapping="no" defaultValue="14"/>
             <SubObject subIndex="01" name="IsochrTxMaxPayload_U16" objectType="7" dataType="0006" accessType="const" PDOmapping="no" defaultValue="50"/>
             <SubObject subIndex="02" name="IsochrRxMaxPayload_U16" objectType="7" dataType="0006" accessType="const" PDOmapping="no" defaultValue="1490"/>
@@ -1201,6 +1209,7 @@
             <SubObject subIndex="0E" name="SyncMNDelaySecond_U32" objectType="7" dataType="0007" accessType="ro" PDOmapping="no" defaultValue="0"/>
           </Object>
           <Object index="1F99" name="NMT_CNBasicEthernetTimeout_U32" objectType="7" dataType="0007" accessType="rw" PDOmapping="no" defaultValue="5000000"/>
+          <Object index="1F9A" name="NMT_HostName_VS" objectType="7" dataType="0009" accessType="rw" PDOmapping="no" defaultValue="openPOWERLINK CN"/>
           <Object index="1F9E" name="NMT_ResetCmd_U8" objectType="7" dataType="0005" accessType="rw" PDOmapping="no" defaultValue="255"/>
 
           <!-- Manufacturer Specific Profile Area (0x2000 - 0x5FFF): may freely be used by the device manufacturer -->
@@ -1263,7 +1272,7 @@
           NMTCycleTimeMin="400"
           NMTCycleTimeMax="4294967295"
           NMTErrorEntries="2"
-          NWLIPSupport="false"
+          NWLIPSupport="true"
           PHYExtEPLPorts="2"
           PHYHubIntegrated="true"
           SDOServer="true"

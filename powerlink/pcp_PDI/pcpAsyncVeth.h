@@ -45,6 +45,7 @@ tCnApiStatus Gi_initVethMessages(void);
 void Gi_enableVeth(void);
 void Gi_disableVeth(void);
 void Gi_resetVeth(void);
+void Gi_updateDefaultGateway(void);
 
 tCnApiStatus Gi_processVeth(void);
 

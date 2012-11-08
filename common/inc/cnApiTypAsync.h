@@ -144,9 +144,15 @@ typedef struct sInitPcpReq {
     BYTE                    m_bReqId;
     BYTE                    m_bPad;
     BYTE                    m_abMac[6];
+    WORD                    m_wMtu;
+    WORD                    m_wPad;
+    DWORD                   m_dwIpAddress;
+    DWORD                   m_dwSubNetMask;
+    DWORD                   m_dwDefaultGateway;
     BYTE                    m_strDevName[INIT_PCP_REQ_STRNG_SIZE];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
     BYTE                    m_strHwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
     BYTE                    m_strSwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)
+    BYTE                    m_strHostname[INIT_PCP_REQ_STRNG_SIZE]; // NMT_HostName_VS  (0x1F9A/0 PCP local OD)
     DWORD                   m_dwRevision;       // NMT_IdentityObject_REC.RevisionNo_U32
     DWORD                   m_dwSerialNum;      // NMT_IdentityObject_REC.SerialNo_U32
     DWORD                   m_dwVendorId;       // NMT_IdentityObject_REC.VendorId_U32

@@ -440,8 +440,10 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     /* build up InitPcpReq */
     CNAPI_MEMSET(pInitPcpReq, 0x00, sizeof(pInitPcpReq));
     CNAPI_MEMCPY (pInitPcpReq->m_abMac, &pInitPcpParam_l->m_abMac, sizeof(pInitPcpParam_l->m_abMac));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwIpAddress, (DWORD)pInitPcpParam_l->m_dwIpAddress);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSubNetMask, pInitPcpParam_l->m_dwSubNetMask);
+    AmiSetWordToLe((BYTE*)&pInitPcpReq->m_wMtu, pInitPcpParam_l->m_wMtu);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParam_l->m_dwDeviceType);
-
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParam_l->m_bNodeId);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitPcpParam_l->m_dwRevision);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParam_l->m_dwSerialNum);
@@ -450,6 +452,7 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     CNAPI_MEMCPY(pInitPcpReq->m_strDevName, &pInitPcpParam_l->m_strDevName, sizeof(pInitPcpReq->m_strDevName));
     CNAPI_MEMCPY(pInitPcpReq->m_strHwVersion, &pInitPcpParam_l->m_strHwVersion, sizeof(pInitPcpReq->m_strHwVersion));
     CNAPI_MEMCPY(pInitPcpReq->m_strSwVersion, &pInitPcpParam_l->m_strSwVersion, sizeof(pInitPcpReq->m_strSwVersion));
+    CNAPI_MEMCPY((BYTE *)pInitPcpReq->m_strHostname, &pInitPcpParam_l->m_strHostname, sizeof(pInitPcpReq->m_strHostname));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
 

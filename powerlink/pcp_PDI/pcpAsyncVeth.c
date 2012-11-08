@@ -22,6 +22,8 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* includes */
 #include "pcpAsyncSm.h"
+#include "pcp.h"
+#include "pcpEvent.h"
 
 #include "VirtualEthernetApi.h"
 
@@ -144,6 +146,23 @@ void Gi_resetVeth(void)
 
 /**
 ********************************************************************************
+\brief  Forward the standard gateway to the PDI
+
+Read the standard gateway from the Veth stack module and write it into the PDI.
+*******************************************************************************/
+void Gi_updateDefaultGateway(void)
+{
+    DWORD dwDefaultGateway = 0;
+
+    dwDefaultGateway = VEthApiGetDefaultGateway();
+
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwDefaultGateway, dwDefaultGateway);
+
+    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventDefaultGatewayUpdate);
+}
+
+/**
+********************************************************************************
 \brief  process the Veth frames waiting
 
 Check for new messages inside the stack and post them to the PDI
@@ -168,7 +187,7 @@ tCnApiStatus Gi_processVeth(void)
     {
         case kVethCheckForFrame:
         {
-            EplRet = VEthCheckAndForwardRxFrame(&pbRxBuffer, &bRxBufferSize);
+            EplRet = VEthApiCheckAndForwardRxFrame(&pbRxBuffer, &bRxBufferSize);
             if(EplRet == kEplSuccessful)
             {
                 // Frame received! (remember it for later posting)
@@ -272,7 +291,7 @@ static tPdiAsyncStatus CnApiAsyncVeth_handleDataTransfer(tPdiAsyncMsgDescr * pMs
     if(fVethEnabled_l != FALSE)
     {
         /* transmit this newly arrived message and pass to stack */
-        Ret = VEthXmit(pMsgBuffer_p, pMsgDescr_p->dwMsgSize_m);
+        Ret = VEthApiXmit(pMsgBuffer_p, pMsgDescr_p->dwMsgSize_m);
         switch(Ret)
         {
             case kEplSuccessful:
@@ -375,7 +394,7 @@ static tPdiAsyncStatus CnApiAsyncVeth_TxFinished (tPdiAsyncMsgDescr * pMsgDescr_
         DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Transmit to PDI finished!\n", __func__);
 
         /* free Veth buffer */
-        EplRet = VEthReleaseRxFrame();
+        EplRet = VEthApiReleaseRxFrame();
         if(EplRet == kEplSuccessful)
         {
             // Transfer finished (send next!)
