@@ -194,19 +194,19 @@
          type = "boolean";
       }
    }
-   element lcd.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2192";
-         type = "long";
-      }
-   }
    element sysid.control_slave
    {
       datum baseAddress
       {
          value = "2424";
+         type = "long";
+      }
+   }
+   element lcd.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2192";
          type = "long";
       }
    }
@@ -436,19 +436,19 @@
          type = "long";
       }
    }
+   element benchmark_ap_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2112";
+         type = "long";
+      }
+   }
    element outport_ap.s1
    {
       datum baseAddress
       {
          value = "2144";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum baseAddress
-      {
-         value = "268435456";
          type = "long";
       }
    }
@@ -465,32 +465,11 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
+   element async_irq_from_pcp.s1
    {
       datum baseAddress
       {
-         value = "2400";
-         type = "long";
-      }
-   }
-   element benchmark_ap_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2112";
+         value = "2208";
          type = "long";
       }
    }
@@ -507,16 +486,24 @@
          type = "long";
       }
    }
-   element system_timer.s1
+   element clock_crossing_0.s1
    {
       datum _lockedAddress
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "2304";
+         value = "0";
+         type = "long";
+      }
+   }
+   element benchmark_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2336";
          type = "long";
       }
    }
@@ -525,14 +512,6 @@
       datum baseAddress
       {
          value = "2048";
-         type = "long";
-      }
-   }
-   element async_irq_from_pcp.s1
-   {
-      datum baseAddress
-      {
-         value = "2208";
          type = "long";
       }
    }
@@ -549,6 +528,27 @@
          type = "long";
       }
    }
+   element sdram_0.s1
+   {
+      datum baseAddress
+      {
+         value = "268435456";
+         type = "long";
+      }
+   }
+   element system_timer.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2304";
+         type = "long";
+      }
+   }
    element inport_ap.s1
    {
       datum baseAddress
@@ -557,11 +557,11 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
+   element node_switch_pio.s1
    {
       datum baseAddress
       {
-         value = "2336";
+         value = "2400";
          type = "long";
       }
    }
@@ -740,8 +740,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="23769903279" />
- <parameter name="timeStamp" value="1351153529961" />
+ <parameter name="systemHash" value="23996227222" />
+ <parameter name="timeStamp" value="1352376934750" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -1329,7 +1329,7 @@
   <parameter name="macTxBurstSize" value="4" />
   <parameter name="macRxBurstSize" value="4" />
   <parameter name="enDmaObserver" value="false" />
-  <parameter name="macVethEnable" value="false" />
+  <parameter name="macVethEnable" value="true" />
   <parameter name="macVethRxBuffer" value="4" />
   <parameter name="AUTO_AP_CLK_CLOCK_RATE" value="-1" />
   <parameter name="AUTO_CLKMASTER_CLOCK_RATE" value="100000000" />

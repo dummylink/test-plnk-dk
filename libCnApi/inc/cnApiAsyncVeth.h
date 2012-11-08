@@ -27,7 +27,7 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* defines */
 #if VETH_DRV_ENABLE != FALSE
-  #define CNAPI_VETH_SEND_TEST      ///< enable virtual ethernet test environment
+  //#define CNAPI_VETH_SEND_TEST      ///< enable virtual ethernet test environment
   //#define CNAPI_VETH_ENABLE_STATS   ///< enable virtual ethernet statistics
 #endif
 
