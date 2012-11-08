@@ -177,7 +177,7 @@ FUNC_ENTRYACT(kPcpStateInit)
     DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "init POWERLINK stack...\n");
     if(fPLisInitalized_l == FALSE) // POWERLINK is not initialized yet
     {
-        iStatus = fpInitPlk_l(&initParam_g);
+        iStatus = fpInitPlk_l();
         if (iStatus == kEplSuccessful)
         {
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "...ok!\n\n");

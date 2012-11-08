@@ -55,7 +55,7 @@
 // module global vars
 //---------------------------------------------------------------------------
 volatile tPcpCtrlReg *         pCtrlReg_g;    ///< ptr. to PCP control register
-tPcpInitParam       initParam_g = {{0}};        ///< Powerlink initialization parameter
+tPcpInitParam       InitParam_l = {{0}};        ///< Powerlink initialization parameter
 BOOL               fIsUserImage_g;            ///< if set user image is booted
 UINT32             uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 BOOL               fOperational = FALSE;
@@ -150,7 +150,7 @@ static void rebootCN(void);
 static WORD getPcpState(void);
 
 static void processPowerlink(void);
-static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p);
+static tEplKernel initPowerlink(void);
 static int startPowerlink(void);
 static void switchoffPowerlink(void);
 static void enterPreOpPowerlink(void);
@@ -347,12 +347,13 @@ void rebootCN(void)
 ********************************************************************************
 \brief    initialize openPOWERLINK stack
 
-\param    pInitParm_p           init structure from the AP
+This function is called by the PCP state machine when the init state is
+reached! It initializes the openPOWERLINK stack.
 
 \return   tEplKernel
 \retval   kEplSuccessful        on success
 *******************************************************************************/
-static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p)
+static tEplKernel initPowerlink(void)
 {
     DWORD                       ip = IP_ADDR;      // ip address
     static tEplApiInitParam     EplApiInitParam;   // epl init parameter
@@ -366,9 +367,9 @@ static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p)
 
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef NODE_SWITCH_BASE
-    if(pInitParam_p->m_bNodeId == 0x00)
+    if(InitParam_l.m_bNodeId == 0x00)
     {   /* read port configuration input pins and overwrite parameter */
-        pInitParam_p->m_bNodeId = SysComp_getNodeId();
+        InitParam_l.m_bNodeId = SysComp_getNodeId();
     }
 #else
     if(pInitParm_p->m_bNodeId == 0x00)
@@ -401,13 +402,13 @@ static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p)
     /* setup the POWERLINK stack */
     /* calc the IP address with the nodeid */
     ip &= 0xFFFFFF00;                          ///< dump the last byte
-    ip |= pInitParam_p->m_bNodeId;              ///< and mask it with the node id
+    ip |= InitParam_l.m_bNodeId;              ///< and mask it with the node id
 
     /* set EPL init parameters */
     EplApiInitParam.m_uiSizeOfStruct = sizeof (EplApiInitParam);
-    EPL_MEMCPY(EplApiInitParam.m_abMacAddress, pInitParam_p->m_abMac,
+    EPL_MEMCPY(EplApiInitParam.m_abMacAddress, InitParam_l.m_abMac,
                sizeof(EplApiInitParam.m_abMacAddress));
-    EplApiInitParam.m_uiNodeId = pInitParam_p->m_bNodeId;
+    EplApiInitParam.m_uiNodeId = InitParam_l.m_bNodeId;
     EplApiInitParam.m_dwIpAddress = ip;
     EplApiInitParam.m_uiIsochrTxMaxPayload = CONFIG_ISOCHR_TX_MAX_PAYLOAD;
     EplApiInitParam.m_uiIsochrRxMaxPayload = CONFIG_ISOCHR_RX_MAX_PAYLOAD;
@@ -424,20 +425,20 @@ static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p)
     EplApiInitParam.m_dwLossOfFrameTolerance = 5000000;
     EplApiInitParam.m_dwAsyncSlotTimeout = 3000000;
     EplApiInitParam.m_dwWaitSocPreq = 0;
-    EplApiInitParam.m_dwDeviceType = pInitParam_p->m_dwDeviceType;
-    EplApiInitParam.m_dwVendorId = pInitParam_p->m_dwVendorId;
-    EplApiInitParam.m_dwProductCode = pInitParam_p->m_dwProductCode;
-    EplApiInitParam.m_dwRevisionNumber = pInitParam_p->m_dwRevision;
-    EplApiInitParam.m_dwSerialNumber = pInitParam_p->m_dwSerialNum;
+    EplApiInitParam.m_dwDeviceType = InitParam_l.m_dwDeviceType;
+    EplApiInitParam.m_dwVendorId = InitParam_l.m_dwVendorId;
+    EplApiInitParam.m_dwProductCode = InitParam_l.m_dwProductCode;
+    EplApiInitParam.m_dwRevisionNumber = InitParam_l.m_dwRevision;
+    EplApiInitParam.m_dwSerialNumber = InitParam_l.m_dwSerialNum;
     //EplApiInitParam.m_dwVerifyConfigurationDate;
     //EplApiInitParam.m_dwVerifyConfigurationTime;
     EplApiInitParam.m_dwApplicationSwDate = uiApplicationSwDate;
     EplApiInitParam.m_dwApplicationSwTime = uiApplicationSwTime;
     EplApiInitParam.m_dwSubnetMask = SUBNET_MASK;
     EplApiInitParam.m_dwDefaultGateway = 0;
-    EplApiInitParam.m_pszDevName = pInitParam_p->m_strDevName;
-    EplApiInitParam.m_pszHwVersion = pInitParam_p->m_strHwVersion;
-    EplApiInitParam.m_pszSwVersion = pInitParam_p->m_strSwVersion;
+    EplApiInitParam.m_pszDevName = InitParam_l.m_strDevName;
+    EplApiInitParam.m_pszHwVersion = InitParam_l.m_strHwVersion;
+    EplApiInitParam.m_pszSwVersion = InitParam_l.m_strSwVersion;
     EplApiInitParam.m_pfnCbEvent = AppCbEvent;
     EplApiInitParam.m_pfnCbSync  = AppCbSync;
     EplApiInitParam.m_pfnCbTpdoPreCopy = Gi_preparePdiPdoReadAccess;    // PDI buffer treatment
@@ -456,7 +457,7 @@ static tEplKernel initPowerlink(tPcpInitParam *pInitParam_p)
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
 
     /* initialize firmware update */
-    initFirmwareUpdate(pInitParam_p->m_dwProductCode, pInitParam_p->m_dwRevision);
+    initFirmwareUpdate(InitParam_l.m_dwProductCode, InitParam_l.m_dwRevision);
 
     /* initialize POWERLINK stack */
     DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "init POWERLINK stack API...\n");
@@ -1247,7 +1248,7 @@ static int Gi_init(void)
     }
 
     // init asynchronous PCP <-> AP communication
-    iRet = CnApiAsync_create();
+    iRet = CnApiAsync_create(&InitParam_l);
     if (iRet != OK )
     {
         Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);

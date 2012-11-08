@@ -61,7 +61,6 @@ typedef struct sApiPdiComCon {
 /******************************************************************************/
 /* global variables */
 extern volatile tPcpCtrlReg *     pCtrlReg_g;       ///< ptr. to PCP control register
-extern tPcpInitParam  initParam_g;        ///< Powerlink initialization parameter
 
 // Api PDI communication instance
 extern tApiPdiComCon ApiPdiComInstance_g;
