@@ -112,7 +112,7 @@ static tEplKernel  EplAppCbDefaultObdAccess(tEplObdCbParam MEM* pObdParam_p);
 static void EplAppCbDefaultObdAssignDatatype(tEplObdParam * pObdParam_p);
 static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam * pObdParam_p);
 static tEplKernel EplAppCbDefaultObdPreRead(tEplObdParam * pObdParam_p);
-static tEplKernel EplAppDefObdAccPreValidateObjTypeNoFixedSize(tEplObdParam * pObdParam_p);
+static tEplKernel EplAppDefObdAccCheckTranferSegmentedCanBeStored(tEplObdParam * pObdParam_p);
 static tEplKernel EplAppDefObdAccCheckOrigin(tEplObdParam * pObdParam_p);
 static tEplKernel EplAppDefObdAccCheckObject(tEplObdParam * pObdParam_p);
 
@@ -1481,7 +1481,7 @@ static tEplKernel Gi_forwardObdAccHstryEntryToPdi(tObdAccHstryEntry * pDefObdHdl
         AmiGetWordFromLe(&pDefObdHdl_p->m_ObdParam.m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_wSegmentSize);
 
         // Note: since PdiObjAccCon is a local variable, the call-back function
-        //       has to be executed in a sub function call  call immediately.
+        //       has to be executed in a sub function call immediately.
         //       Therefore it can not be a "direct-access" transfer!
         PdiRet = CnApiAsync_postMsg(
                         kPdiAsyncMsgIntObjAccReq,
@@ -1745,7 +1745,7 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam * pObdParam_p)
 
     // all object which reach here and are not blocked in advance
     // will be forwarded to PDI
-    Ret = EplAppDefObdAccPreValidateObjTypeNoFixedSize(pObdParam_p);
+    Ret = EplAppDefObdAccCheckTranferSegmentedCanBeStored(pObdParam_p);
     if (Ret == kEplInvalidParam)
     {   // expedited object access - directly forward to PDI
 
@@ -2189,8 +2189,9 @@ Exit:
 *******************************************************************************/
 BOOL EplAppDefObdAccCeckTranferIsSegmented(tEplObdParam * pObdParam_p)
 {
-    if (pObdParam_p->m_TransferSize > 8) //TODO: debug: check if this works for the whole segmented transfer.
-    {   // transfer size exceeds 64 bits (max size of fixed data type)
+    if ((pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_bFlags & 0x30) == 0x10)
+    {   // SDO frame indicates segmented transfer
+        // TODO: this is a not a nice solution -> rework of SDO Cmd layer necessary
         return TRUE;
     }
     else
@@ -2201,15 +2202,15 @@ BOOL EplAppDefObdAccCeckTranferIsSegmented(tEplObdParam * pObdParam_p)
 
 /**
 ********************************************************************************
-\brief  check if access to objects which do not have a fixed size is allowed
+\brief  check if segmented access can be stored
 
-\param  pObdParam_p         OBD access parameter with non-fixed size
+\param  pObdParam_p         OBD access parameter with segmentation
 
-\retval kEplSuccessful      object access is allowed
-\retval kEplObdOutOfMemory  object access is not allowed
-\retval kEplInvalidParam    object has a fixed size
+\retval kEplSuccessful      object access can be stored
+\retval kEplObdOutOfMemory  object access can not be stored
+\retval kEplInvalidParam    object access has no segmentation
 *******************************************************************************/
-static tEplKernel EplAppDefObdAccPreValidateObjTypeNoFixedSize(tEplObdParam * pObdParam_p)
+static tEplKernel EplAppDefObdAccCheckTranferSegmentedCanBeStored(tEplObdParam * pObdParam_p)
 {
     tEplKernel       Ret = kEplSuccessful;
 
@@ -2351,6 +2352,13 @@ tEplKernel EplAppDefObdAccAdoptedHstrySaveHdl(
                     // save also object data
                     EPL_MEMCPY(&pObdDefAccHdl->m_aObdData, pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
                     pObdDefAccHdl->m_ObdParam.m_pData = &pObdDefAccHdl->m_aObdData;
+
+                    //TODO: this can only handle local object accesses.
+                    //      Currently the SDO command layer is forwarded to the PDI, but this data is not saved at the moment and
+                    //      it gets invalid after "event-posting" - other than with immediately posting to PDI.
+                    //      If a segmented access should be forwarded to PDI, the SDO command frame can not be stored at the same time
+                    //      with the object data (=double storing) => Dont use command layer for PDI data transfer if segmented access
+                    //                                                should be forwarded!
                 }
                 else
                 {
