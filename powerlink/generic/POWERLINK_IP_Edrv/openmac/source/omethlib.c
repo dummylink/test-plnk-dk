@@ -2024,7 +2024,7 @@ ometh_packet_typ    *omethResponseSet
         if(len > pDesc->len) pDesc->len = len;
 
         // overtake buffer to descriptor
-        pDesc->pData    = (unsigned long)&pPacket->data | chgIndexHighBit[newChgIndex];
+        pDesc->pData    = (unsigned long)&pPacket->data; // | chgIndexHighBit[newChgIndex];
     }
     else    // x-filter
     {

@@ -64,3 +64,9 @@ Revision History
                         [FEATURE] add macro for placing functions in fast memory
                         [TASK] add PCP SYS ID and IP core revision number
                         [FIX] EDRVCYC_NEG_SHIFT_US can be set in EplCfg.h
+
+??.??.????  V0.2.7      [FIX] Inconsistent PDI memory when DPR larger than 2 kB
+                        [FIX] X: BRAM size has to be power of 2
+                        [FIX] address offset calculator in pdi.vhd uses EXT() function
+                        [FIX] Memory leak in omethlib
+                        [FIX] timesync hang when using windows MN
