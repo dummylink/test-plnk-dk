@@ -91,7 +91,7 @@
 #include "EplTgtTimeStamp_openMac.h"
 
 //comment the following lines to disable feature
-#define EDRV_DEBUG        //debugging information forwarded to stdout
+//#define EDRV_DEBUG        //debugging information forwarded to stdout
 //#define EDRV_2NDTXQUEUE    //use additional TX queue for MN
 
 //---------------------------------------------------------------------------
@@ -452,7 +452,8 @@ BYTE            abFilterMask[31],
     }
 
 #if EDRV_VETH_OPENMAC != FALSE
-    EdrvInstance_l.m_hHookVeth = omethHookCreate(EdrvInstance_l.m_hOpenMac, EdrvRxHookVeth, EDRV_VETH_RX_PENDING); //last argument max. pending
+    EdrvInstance_l.m_hHookVeth = omethHookCreate(EdrvInstance_l.m_hOpenMac,
+            EdrvRxHookVeth, EDRV_VETH_RX_PENDING); //last argument max. pending
     if (EdrvInstance_l.m_hHookVeth == 0)
     {
         Ret = kEplNoResource;
@@ -463,13 +464,17 @@ BYTE            abFilterMask[31],
     for (i = 0; i < EDRV_MAX_FILTERS; i++)
     {
 #if EDRV_VETH_OPENMAC == FALSE
-        EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHook, (void*) i, abFilterMask, abFilterValue);
+        EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHook,
+                (void*) i, abFilterMask, abFilterValue);
 #else
-        if(i == EPL_DLLK_FILTER_VETH_OPENMAC_UNICAST || i == EPL_DLLK_FILTER_VETH_OPENMAC_BROADCAST)
+        if(i == EPL_DLLK_FILTER_VETH_OPENMAC_UNICAST ||
+           i == EPL_DLLK_FILTER_VETH_OPENMAC_BROADCAST)
         {
-            EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHookVeth, (void*) i, abFilterMask, abFilterValue);
+            EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHookVeth,
+                    (void*) i, abFilterMask, abFilterValue);
         } else {
-            EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHook, (void*) i, abFilterMask, abFilterValue);
+            EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHook,
+                    (void*) i, abFilterMask, abFilterValue);
         }
 #endif //EDRV_VETH_OPENMAC == FALSE
         if (EdrvInstance_l.m_ahFilter[i] == 0)
@@ -1482,13 +1487,10 @@ tEplTgtTimeStamp    TimeStamp;
 static int EdrvRxHookVeth(void *arg, ometh_packet_typ  *pPacket, OMETH_BUF_FREE_FCT  *pFct)
 {
 tEdrvRxBuffer           rxBuffer;
-unsigned int            uiIndex;
 tEplTgtTimeStamp        TimeStamp;
 int                     iRet = -1;
 tEdrvReleaseRxBuffer    RetReleaseRxBuffer;
 
-
-    BENCHMARK_MOD_01_SET(6);
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
     rxBuffer.m_pbBuffer = (BYTE *) &pPacket->data;
     rxBuffer.m_uiRxMsgLen = pPacket->length;
@@ -1503,28 +1505,13 @@ tEdrvReleaseRxBuffer    RetReleaseRxBuffer;
     microblaze_flush_dcache_range((DWORD)pPacket, pPacket->length);
 #endif
 
-    RetReleaseRxBuffer = EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer); //pass frame to Powerlink Stack
+    RetReleaseRxBuffer = EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer);
     if (RetReleaseRxBuffer == kEdrvReleaseRxBufferLater)
     {
         iRet = 0; //packet has to be released later, openMAC may not use this buffer!
     } else {
         iRet = -1; //packet has to be moved back to openMAC
     }
-
-    uiIndex = (unsigned int) arg;
-
-    if (EdrvInstance_l.m_apTxBuffer[uiIndex] != NULL)
-    {   // filter with auto-response frame triggered
-        BENCHMARK_MOD_01_SET(5);
-        // call Tx handler function from DLL
-        if (EdrvInstance_l.m_apTxBuffer[uiIndex]->m_pfnTxHandler != NULL)
-        {
-            EdrvInstance_l.m_apTxBuffer[uiIndex]->m_pfnTxHandler(EdrvInstance_l.m_apTxBuffer[uiIndex]);
-        }
-        BENCHMARK_MOD_01_RESET(5);
-    }
-
-    BENCHMARK_MOD_01_RESET(6);
 
     return iRet;
 }
