@@ -517,7 +517,7 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     /* handle Rx Message */
     /* get numbers of descriptors in this message */
     wNumDescr = pLinkPdosReq->m_bDescrCnt;
-    wCommHdl = AmiGetWordFromLe(&pLinkPdosReq->m_wCommHdl);
+    wCommHdl = AmiGetWordFromLe((BYTE *)&pLinkPdosReq->m_wCommHdl);
 
 
     /* get pointer to  first descriptor */
@@ -635,8 +635,8 @@ tPdiAsyncStatus CnApi_doLinkPdosResp(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pTxM
     /* build up InitPcpReq */
     pLinkPdosResp->m_bMsgId = LinkPdosResp_l.m_bMsgId;
     pLinkPdosResp->m_bOrigin = LinkPdosResp_l.m_bOrigin;
-    AmiSetWordToLe(&pLinkPdosResp->m_wCommHdl, LinkPdosResp_l.m_wCommHdl);
-    AmiSetDwordToLe(&pLinkPdosResp->m_dwErrCode, LinkPdosResp_l.m_dwErrCode);
+    AmiSetWordToLe((BYTE *)&pLinkPdosResp->m_wCommHdl, LinkPdosResp_l.m_wCommHdl);
+    AmiSetDwordToLe((BYTE *)&pLinkPdosResp->m_dwErrCode, LinkPdosResp_l.m_dwErrCode);
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = sizeof(tLinkPdosResp); // sent size

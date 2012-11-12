@@ -439,8 +439,8 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     /* handle Tx Message */
     /* build up InitPcpReq */
     CNAPI_MEMSET(pInitPcpReq, 0x00, sizeof(pInitPcpReq));
-    CNAPI_MEMCPY (pInitPcpReq->m_abMac, &pInitPcpParam_l->m_abMac, sizeof(pInitPcpParam_l->m_abMac));
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwIpAddress, (DWORD)pInitPcpParam_l->m_dwIpAddress);
+    CNAPI_MEMCPY ((BYTE *)pInitPcpReq->m_abMac, &pInitPcpParam_l->m_abMac, sizeof(pInitPcpParam_l->m_abMac));
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwIpAddress, pInitPcpParam_l->m_dwIpAddress);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSubNetMask, pInitPcpParam_l->m_dwSubNetMask);
     AmiSetWordToLe((BYTE*)&pInitPcpReq->m_wMtu, pInitPcpParam_l->m_wMtu);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParam_l->m_dwDeviceType);
@@ -449,9 +449,9 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParam_l->m_dwSerialNum);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParam_l->m_dwVendorId);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwProductCode, pInitPcpParam_l->m_dwProductCode);
-    CNAPI_MEMCPY(pInitPcpReq->m_strDevName, &pInitPcpParam_l->m_strDevName, sizeof(pInitPcpReq->m_strDevName));
-    CNAPI_MEMCPY(pInitPcpReq->m_strHwVersion, &pInitPcpParam_l->m_strHwVersion, sizeof(pInitPcpReq->m_strHwVersion));
-    CNAPI_MEMCPY(pInitPcpReq->m_strSwVersion, &pInitPcpParam_l->m_strSwVersion, sizeof(pInitPcpReq->m_strSwVersion));
+    CNAPI_MEMCPY((BYTE *)pInitPcpReq->m_strDevName, &pInitPcpParam_l->m_strDevName, sizeof(pInitPcpReq->m_strDevName));
+    CNAPI_MEMCPY((BYTE *)pInitPcpReq->m_strHwVersion, &pInitPcpParam_l->m_strHwVersion, sizeof(pInitPcpReq->m_strHwVersion));
+    CNAPI_MEMCPY((BYTE *)pInitPcpReq->m_strSwVersion, &pInitPcpParam_l->m_strSwVersion, sizeof(pInitPcpReq->m_strSwVersion));
     CNAPI_MEMCPY((BYTE *)pInitPcpReq->m_strHostname, &pInitPcpParam_l->m_strHostname, sizeof(pInitPcpReq->m_strHostname));
 
     pInitPcpReq->m_bReqId = ++bReqId_l;
@@ -533,7 +533,7 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
     CNAPI_MEMCPY(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
 
     // overwrite segment size - because this SDO command layer frame is misused as an customized acknowledge message
-    AmiSetWordToLe(&pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize, pSdoComCon->m_uiTransferredByte);
+    AmiSetWordToLe((BYTE *)&pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize, pSdoComCon->m_uiTransferredByte);
 
     pObjAccReqDst->m_bReqId =  bReqId_l; // this Id is only for information purposes
     AmiSetWordToLe(&pObjAccReqDst->m_wComConHdl, pSdoComCon->m_wExtComConHdl);

@@ -435,7 +435,7 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
 
      /* handle Rx Message */
 	/* store data from InitPcpReq */
-    EPL_MEMCPY(pInitParam_l->m_abMac, pInitPcpReq->m_abMac,
+    EPL_MEMCPY(pInitParam_l->m_abMac, (BYTE *)pInitPcpReq->m_abMac,
                sizeof(pInitPcpReq->m_abMac)             );
 
 
@@ -448,11 +448,11 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
 	pInitParam_l->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
 	pInitParam_l->m_dwVendorId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwVendorId));
 	pInitParam_l->m_dwProductCode = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwProductCode));
-	EPL_MEMCPY (pInitParam_l->m_strDevName, pInitPcpReq->m_strDevName,
+	EPL_MEMCPY (pInitParam_l->m_strDevName, (BYTE *)pInitPcpReq->m_strDevName,
 	            sizeof(pInitPcpReq->m_strDevName));
-	EPL_MEMCPY (pInitParam_l->m_strHwVersion, pInitPcpReq->m_strHwVersion,
+	EPL_MEMCPY (pInitParam_l->m_strHwVersion, (BYTE *)pInitPcpReq->m_strHwVersion,
 	            sizeof(pInitPcpReq->m_strHwVersion));
-	EPL_MEMCPY (pInitParam_l->m_strSwVersion, pInitPcpReq->m_strSwVersion,
+	EPL_MEMCPY (pInitParam_l->m_strSwVersion, (BYTE *)pInitPcpReq->m_strSwVersion,
 	            sizeof(pInitPcpReq->m_strSwVersion));
     EPL_MEMCPY (pInitParam_l->m_strHostname, (BYTE *)pInitPcpReq->m_strHostname,
                 sizeof(pInitPcpReq->m_strHostname));
@@ -504,15 +504,15 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr
 
     if ((pObjAccReq->m_SdoCmdFrame.m_le_bFlags & 0x40) != 0)
     {   // SDO abort received
-        dwAbortCode = AmiGetDwordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
+        dwAbortCode = AmiGetDwordFromLe((BYTE*)&pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
     }
 
     // forward to originator and close connection
     EplRet = Gi_closeObdAccHstryToPdiConnection(
                         AmiGetWordFromLe(&pObjAccReq->m_wComConHdl),
                         dwAbortCode,
-                        AmiGetWordFromLe(&pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize),
-                        &pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
+                        AmiGetWordFromLe((BYTE*)&pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize),
+                        (void *)&pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
     if (EplRet == kEplObdVarEntryNotExist)
     {
         // history entry could not be found,
@@ -605,7 +605,7 @@ static tPdiAsyncStatus CnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDes
     }
 
     // get (SDO) error code
-    dwAbortCode = AmiGetDwordFromLe(&pLinkPdosResp->m_dwErrCode);
+    dwAbortCode = AmiGetDwordFromLe((BYTE *)&pLinkPdosResp->m_dwErrCode);
 
     if (dwAbortCode != 0)
     {   // mapping is invalid or linking at AP failed
@@ -630,7 +630,7 @@ static tPdiAsyncStatus CnApiAsync_handleLinkPdosResp(tPdiAsyncMsgDescr * pMsgDes
     if(pLinkPdosResp->m_bOrigin == kAsyncLnkPdoMsgOrigObdAccess)
     {  // forward to originator and close connection
 
-        EplRet = Gi_closeObdAccHstryToPdiConnection(AmiGetWordFromLe(&pLinkPdosResp->m_wCommHdl),
+        EplRet = Gi_closeObdAccHstryToPdiConnection(AmiGetWordFromLe((BYTE *)&pLinkPdosResp->m_wCommHdl),
                                                     dwAbortCode,
                                                     0,
                                                     NULL);
@@ -727,7 +727,7 @@ static tPdiAsyncStatus CnApiAsync_doLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p,
         }
 
         pLinkPdosReq->m_bOrigin = kAsyncLnkPdoMsgOrigObdAccess;
-        AmiSetWordToLe(&pLinkPdosReq->m_wCommHdl, pLinkPdosReqComCon->m_wComConHdl);
+        AmiSetWordToLe((BYTE *)&pLinkPdosReq->m_wCommHdl, pLinkPdosReqComCon->m_wComConHdl);
     }
     else
     {   // NmtEnableReadyToOperate command was the origin

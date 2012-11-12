@@ -141,24 +141,23 @@ typedef enum ePcpPdiAsyncDir {
  * \brief structure for InitPcpReq command
  */
 typedef struct sInitPcpReq {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-    BYTE                    m_abMac[6];
-    WORD                    m_wMtu;
-    WORD                    m_wPad;
-    DWORD                   m_dwIpAddress;
-    DWORD                   m_dwSubNetMask;
-    DWORD                   m_dwDefaultGateway;
-    BYTE                    m_strDevName[INIT_PCP_REQ_STRNG_SIZE];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
-    BYTE                    m_strHwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
-    BYTE                    m_strSwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)
-    BYTE                    m_strHostname[INIT_PCP_REQ_STRNG_SIZE]; // NMT_HostName_VS  (0x1F9A/0 PCP local OD)
-    DWORD                   m_dwRevision;       // NMT_IdentityObject_REC.RevisionNo_U32
-    DWORD                   m_dwSerialNum;      // NMT_IdentityObject_REC.SerialNo_U32
-    DWORD                   m_dwVendorId;       // NMT_IdentityObject_REC.VendorId_U32
-    DWORD                   m_dwProductCode;    // NMT_IdentityObject_REC.ProductCode_U32
-    DWORD                   m_dwDeviceType;     // NMT_DeviceType_U32
-    DWORD                   m_dwNodeId;
+    volatile BYTE                    m_bReqId;
+    volatile BYTE                    m_bPad;
+    volatile BYTE                    m_abMac[6];
+    volatile WORD                    m_wMtu;
+    volatile WORD                    m_wPad;
+    volatile DWORD                   m_dwIpAddress;
+    volatile DWORD                   m_dwSubNetMask;
+    volatile BYTE                    m_strDevName[INIT_PCP_REQ_STRNG_SIZE];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
+    volatile BYTE                    m_strHwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
+    volatile BYTE                    m_strSwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)
+    volatile BYTE                    m_strHostname[INIT_PCP_REQ_STRNG_SIZE]; // NMT_HostName_VS  (0x1F9A/0 PCP local OD)
+    volatile DWORD                   m_dwRevision;       // NMT_IdentityObject_REC.RevisionNo_U32
+    volatile DWORD                   m_dwSerialNum;      // NMT_IdentityObject_REC.SerialNo_U32
+    volatile DWORD                   m_dwVendorId;       // NMT_IdentityObject_REC.VendorId_U32
+    volatile DWORD                   m_dwProductCode;    // NMT_IdentityObject_REC.ProductCode_U32
+    volatile DWORD                   m_dwDeviceType;     // NMT_DeviceType_U32
+    volatile DWORD                   m_dwNodeId;
 
 } PACK_STRUCT tInitPcpReq;
 
@@ -166,21 +165,21 @@ typedef struct sInitPcpReq {
  * \brief structure for InitPcpResp command
  */
 typedef struct sInitPcpResp {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad1;
-    BYTE                    m_bStatus;
-    BYTE                    m_bPad2;
+    volatile BYTE                    m_bReqId;
+    volatile BYTE                    m_bPad1;
+    volatile BYTE                    m_bStatus;
+    volatile BYTE                    m_bPad2;
 } PACK_STRUCT tInitPcpResp;
 
 /**
  * \brief structure for LinkPdosReq command
  */
 typedef struct sLinkPdosReq {
-    BYTE                    m_bMsgId;
-    BYTE                    m_bOrigin;      ///< message originator, type: tLnkPdoMsgOrig
-    WORD                    m_wCommHdl;     ///< connection handle of originator module
-    BYTE                    m_bDescrCnt;
-    BYTE                    m_Pad1;
+    volatile BYTE                    m_bMsgId;
+    volatile BYTE                    m_bOrigin;      ///< message originator, type: tLnkPdoMsgOrig
+    volatile WORD                    m_wCommHdl;     ///< connection handle of originator module
+    volatile BYTE                    m_bDescrCnt;
+    volatile BYTE                    m_Pad1;
 //  WORD                    m_Pad2;
 } PACK_STRUCT tLinkPdosReq;
 
@@ -188,10 +187,10 @@ typedef struct sLinkPdosReq {
  * \brief structure for CreateObjResp command
  */
 typedef struct sLinkPdosResp {
-    BYTE                    m_bMsgId;
-    BYTE                    m_bOrigin;      ///< message originator, type: tLnkPdoMsgOrig
-    WORD                    m_wCommHdl;     ///< connection handle of originator module
-    DWORD                   m_dwErrCode;    ///< 0 = OK, else SDO abort code
+    volatile BYTE                    m_bMsgId;
+    volatile BYTE                    m_bOrigin;      ///< message originator, type: tLnkPdoMsgOrig
+    volatile WORD                    m_wCommHdl;     ///< connection handle of originator module
+    volatile DWORD                   m_dwErrCode;    ///< 0 = OK, else SDO abort code
 } PACK_STRUCT tLinkPdosResp;
 
 
@@ -212,13 +211,13 @@ typedef struct sLinkPdosReqComCon {
  */
 typedef struct
 {
-    BYTE                    m_le_bReserved;
-    BYTE                    m_le_bTransactionId;
-    BYTE                    m_le_bFlags;
-    BYTE                    m_le_bCommandId;
-    WORD                    m_le_wSegmentSize;
-    WORD                    m_le_wReserved;
-    BYTE                    m_le_abCommandData[8];  // just reserve a minimum number of bytes as a placeholder
+    volatile BYTE                    m_le_bReserved;
+    volatile BYTE                    m_le_bTransactionId;
+    volatile BYTE                    m_le_bFlags;
+    volatile BYTE                    m_le_bCommandId;
+    volatile WORD                    m_le_wSegmentSize;
+    volatile WORD                    m_le_wReserved;
+    volatile BYTE                    m_le_abCommandData[8];  // just reserve a minimum number of bytes as a placeholder
 
 }PACK_STRUCT tCnApiAsySdoCom;
 
