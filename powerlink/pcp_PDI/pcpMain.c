@@ -532,7 +532,7 @@ static void processPowerlink(void)
 
     while (Gi_stateMachineIsRunning())
     {
-        /* process Powerlink and it API */
+        /* process Powerlink and its API */
         CnApi_processAsyncStateMachine(); //TODO: Process in User-Callback Event!
 
         if (Gi_getPlkInitStatus())
