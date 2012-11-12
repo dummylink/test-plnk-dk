@@ -1,18 +1,18 @@
 /**
 ********************************************************************************
-\file		doc.txt
+\file       doc.txt
 
-\brief		Main doxygen documentation file of CN API library
+\brief      Main doxygen documentation file of CN API library
 
-\author		Josef Baumgartner
+Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+All rights reserved. All use of this software and documentation is
+subject to the License Agreement located at the end of this file below.
 
-\date		17.05.2010
-
-(C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG, B&R STRASSE 1
 *******************************************************************************
 
 \mainpage
-The CN API is an API designed to interface an application processor (AP) to a POWERLINK communication Processor (PCP).
+The CN API is an API designed to interface an application processor (AP) to a POWERLINK
+communication Processor (PCP).
 
 \section reqs Requirements
 - C standard library functions: malloc(), free(), .....
@@ -22,11 +22,15 @@ The CN API is prepared to be compiled for miscellaneous processor targets. The f
 - nios2_newlib: Altera NIOS II processor using new newlib C library
 - microblaze_newlib: Xilinx Microblaze processor using mb-gcc with standard C library
 
+\section porting Porting
+If the library should be ported to an other platform some parameters need to be adjusted by using the 
+cnApiGlobal.h header in the folder common/inc. All platform specific parameters are given in this header.
+If the benchmark module is also needed also the platform dependent parts in this file need to be ported.
+All other platform dependet parts are located in the application outside the library in folder apps/ap_PDI/target.
+
 \section objdict AP object dictionary
 The AP has to create an object dictionary where all objects which are controlled by the AP are listed.
-TODO: explain object dictionary implementation for AP (not POWERLINK object dictionary!!)
-
 
 \section problems Problems
-
+Currently there are no known problems inside the libCnApi.
 *******************************************************************************/
