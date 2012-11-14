@@ -181,6 +181,8 @@ ${POWERLINKDIR}/EplStack/EplPdokCal.c \
 ${POWERLINKDIR}/EplStack/EplPdou.c \
 ${POWERLINKDIR}/EplStack/EplPdouCal.c \
 ${POWERLINKDIR}/EplStack/EplObd.c \
+${POWERLINKDIR}/EplStack/EplObduDefAcc.c \
+${POWERLINKDIR}/EplStack/EplObduDefAccHstry.c \
 ${POWERLINKDIR}/EplStack/EplSdoComu.c \
 ${POWERLINKDIR}/EplStack/EplSdoAsySequ.c \
 ${POWERLINKDIR}/EplStack/EplSdoAsndu.c \

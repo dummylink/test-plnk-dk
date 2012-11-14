@@ -93,6 +93,8 @@ ${POWERLINK_DIR}/EplStack/EplPdokCal.c \
 ${POWERLINK_DIR}/EplStack/EplPdou.c \
 ${POWERLINK_DIR}/EplStack/EplPdouCal.c \
 ${POWERLINK_DIR}/EplStack/EplObd.c \
+${POWERLINK_DIR}/EplStack/EplObduDefAcc.c \
+${POWERLINK_DIR}/EplStack/EplObduDefAccHstry.c \
 ${POWERLINK_DIR}/EplStack/EplSdoComu.c \
 ${POWERLINK_DIR}/EplStack/EplSdoAsySequ.c \
 ${POWERLINK_DIR}/EplStack/EplSdoAsndu.c \

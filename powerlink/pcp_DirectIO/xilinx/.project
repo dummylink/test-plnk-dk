@@ -153,6 +153,16 @@
 			<locationURI>PLK_LOC/EplStack/EplObd.c</locationURI>
 		</link>
 		<link>
+			<name>openPOWERLINK_CNDKPatched/EplObduDefAcc.c</name>
+			<type>1</type>
+			<locationURI>PLK_LOC/EplStack/EplObduDefAcc.c</locationURI>
+		</link>
+		<link>
+			<name>openPOWERLINK_CNDKPatched/EplObduDefAccHstry.c</name>
+			<type>1</type>
+			<locationURI>PLK_LOC/EplStack/EplObduDefAccHstry.c</locationURI>
+		</link>
+		<link>
 			<name>openPOWERLINK_CNDKPatched/EplPdok.c</name>
 			<type>1</type>
 			<locationURI>PLK_LOC/EplStack/EplPdok.c</locationURI>
