@@ -44,8 +44,8 @@
 #include "EplAmi.h"
 #include "EplObd.h"
 #include "EplTimeru.h"
-#include <EplObdDefAcc.h>
-#include <EplObdDefAccHstry.h>
+#include <EplObduDefAcc.h>
+#include <EplObduDefAccHstry.h>
 #include <pcpPdi.h>
 
 //---------------------------------------------------------------------------

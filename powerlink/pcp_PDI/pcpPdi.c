@@ -21,7 +21,7 @@ serial low level (hardware) data interface.
 /* includes */
 #include <pcpPdi.h>
 #include <pcpEvent.h>
-#include <EplObdDefAccHstry.h>
+#include <EplObduDefAccHstry.h>
 #include <pcpSync.h>
 #include <pcpPdo.h>
 #include <pcpAsyncSm.h>

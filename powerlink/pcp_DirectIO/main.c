@@ -26,8 +26,8 @@
 #include "EplAmi.h"
 #include "EplObd.h"
 #include "user/EplSdoAsySequ.h"
-#include <EplObdDefAcc.h>
-#include <EplObdDefAccHstry.h>
+#include <EplObduDefAcc.h>
+#include <EplObduDefAccHstry.h>
 
 #ifdef __NIOS2__
 #include <unistd.h>
