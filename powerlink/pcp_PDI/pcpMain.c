@@ -28,6 +28,7 @@
 
 #include "fpgaCfg.h"
 #include "fwUpdate.h"
+#include "fwBoot.h"
 
 #include "systemComponents.h"
 
@@ -58,7 +59,6 @@
 //---------------------------------------------------------------------------
 tPcpInitParam      InitParam_l = {{0}};       ///< Powerlink initialization parameter
 BOOL               fIsUserImage_g;            ///< if set user image is booted
-UINT32             uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 BOOL               fOperational = FALSE;
 static BOOL        fShutdown_l = FALSE;       ///< Powerlink shutdown flag
 
@@ -85,12 +85,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                              void GENERIC*pUserArg_p);
 static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p);
 
-#ifdef CONFIG_IIB_IS_PRESENT
-static tFwRet getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
-                                  UINT32 *pUiApplicationSwTime_p);
-static tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersion_p,
-                       UINT32 *pUiApSwVersion_p);
-#endif // CONFIG_IIB_IS_PRESENT
 static void rebootCN(void);
 
 static void processPowerlink(void);
@@ -136,107 +130,11 @@ char * getNmtState (tEplNmtState state)
 *******************************************************************************/
 int main (void)
 {
-    tFwRet FwRetVal = kFwRetSuccessful;
     tInitStateMachine StateMachineInit = {0};
 
     SysComp_initPeripheral();
 
-    switch (FpgaCfg_handleReconfig())
-    {
-        case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
-        {
-            // user image reconfiguration failed
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Factory image loaded.\n");
-            fIsUserImage_g = FALSE;
-
-            FwRetVal = checkFwImage(CONFIG_FACTORY_IMAGE_FLASH_ADRS,
-                                    CONFIG_FACTORY_IIB_FLASH_ADRS,
-                                    CONFIG_USER_IIB_VERSION);
-            if(FwRetVal != kFwRetSuccessful)
-            {
-                // factory image was loaded, but has invalid IIB
-                // checkFwImage() prints error, don't do anything
-                // else here for now
-                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of factory image failed with 0x%x\n", FwRetVal);
-            }
-            break;
-        }
-
-        case kFpgaCfgUserImageLoadedWatchdogDisabled:
-        {
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
-
-#ifdef CONFIG_IIB_IS_PRESENT
-            FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
-                                    CONFIG_USER_IIB_FLASH_ADRS,
-                                    CONFIG_USER_IIB_VERSION);
-            if(FwRetVal != kFwRetSuccessful)
-            {
-                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
-
-                CNAPI_USLEEP(5000000); // wait 5 seconds
-
-                // user image was loaded, but has invalid IIB
-                // -> reset to factory image
-                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
-            }
-#endif // CONFIG_IIB_IS_PRESENT
-
-            fIsUserImage_g = TRUE;
-            break;
-        }
-
-        case kFpgaCfgUserImageLoadedWatchdogEnabled:
-        {
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
-
-#ifdef CONFIG_IIB_IS_PRESENT
-            FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
-                                    CONFIG_USER_IIB_FLASH_ADRS,
-                                    CONFIG_USER_IIB_VERSION);
-            if(FwRetVal != kFwRetSuccessful)
-            {
-                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
-
-                CNAPI_USLEEP(5000000); // wait 5 seconds
-
-                // user image was loaded, but has invalid IIB
-                // -> reset to factory image
-                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
-            }
-#endif // CONFIG_IIB_IS_PRESENT
-
-            // watchdog timer has to be reset periodically
-            //FpgaCfg_resetWatchdogTimer(); // do this periodically!
-            fIsUserImage_g = TRUE;
-            break;
-        }
-
-        case kFgpaCfgWrongSystemID:
-        {
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
-            CNAPI_USLEEP(5000000); // wait 5 seconds
-
-            // reset to factory image
-            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
-
-            goto exit; // fatal error
-            break;
-        }
-
-        default:
-        {
-#ifdef CONFIG_USER_IMAGE_IN_FLASH
-            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
-            CNAPI_USLEEP(5000000); // wait 5 seconds
-
-            // reset to factory image
-            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
-            goto exit; // this is fatal error only, if image was loaded from flash
-#endif
-            break;
-        }
-    }
+    fIsUserImage_g = FpgaCfg_processReconfigStatusIsUserImage(FpgaCfg_handleReconfig());
 
     DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "\n\nGeneric POWERLINK CN interface - this is PCP starting in main()\n\n");
 
@@ -302,8 +200,7 @@ static tEplKernel initPowerlink(void)
 {
     static tEplApiInitParam     EplApiInitParam;   // epl init parameter
     tEplKernel                  EplRet;
-    UINT32                      uiApplicationSwDate = 0;
-    UINT32                      uiApplicationSwTime = 0;
+    tfwBootInfo fwBootIibInfo = {0};
 
 #ifdef CONFIG_USE_SDC_OBJECTS
     WORD wSyncIntCycle;
@@ -328,23 +225,8 @@ static tEplKernel initPowerlink(void)
     }
 #endif /* SET_NODE_ID_BY_HW */
 
-#ifdef CONFIG_IIB_IS_PRESENT
-    tFwRet                      FwRetVal = kFwRetSuccessful;
 
-    /* Read application software date and time */
-    FwRetVal = getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
-    if (FwRetVal != kFwRetSuccessful)
-    {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageApplicationSwDateTime() failed with 0x%x\n", FwRetVal);
-    }
-
-    /* Read FPGA configuration version of current used image */
-    FwRetVal = getImageSwVersions(&uiFpgaConfigVersion_g, NULL, NULL);
-    if (FwRetVal != kFwRetSuccessful)
-    {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageSwVersions() failed with 0x%x\n", FwRetVal);
-    }
-#endif // CONFIG_IIB_IS_PRESENT
+    fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo);
 
     /* setup the POWERLINK stack */
     /* calc the IP address with the nodeid */
@@ -379,8 +261,8 @@ static tEplKernel initPowerlink(void)
     EplApiInitParam.m_dwSerialNumber = InitParam_l.m_dwSerialNum;
     //EplApiInitParam.m_dwVerifyConfigurationDate;
     //EplApiInitParam.m_dwVerifyConfigurationTime;
-    EplApiInitParam.m_dwApplicationSwDate = uiApplicationSwDate;
-    EplApiInitParam.m_dwApplicationSwTime = uiApplicationSwTime;
+    EplApiInitParam.m_dwApplicationSwDate = fwBootIibInfo.uiApplicationSwDate;
+    EplApiInitParam.m_dwApplicationSwTime = fwBootIibInfo.uiApplicationSwTime;
     EplApiInitParam.m_dwSubnetMask = InitParam_l.m_dwSubNetMask;
     EplApiInitParam.m_dwDefaultGateway = InitParam_l.m_dwDefaultGateway;
     EplApiInitParam.m_pszDevName = InitParam_l.m_strDevName;
@@ -871,112 +753,11 @@ EplAppHandleUserEvent() handles all user events.
 *******************************************************************************/
 static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p)
 {
-    tEplKernel      EplRet = kEplSuccessful;
-    tEplObdParam *  pObdParam;
-    tObdAccHstryEntry * pObdAccHistorySegm;     // handle of this segment
-    tObdAccHstryEntry * pTempHdl;               // handle for temporary storage
+    tObdAccHstryEntry * pObdAccHistorySegm;
 
-    // assign user argument
     pObdAccHistorySegm = (tObdAccHstryEntry *) pEventArg_p->m_pUserArg;
-    pObdParam = &pObdAccHistorySegm->m_ObdParam;
 
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,
-                 "AppCbEvent(kEplApiEventUserDef): (EventArg %p)\n", pObdParam);
-
-    // If the segmented OBD handle can not be found in the history, it was already deleted.
-    // Immediately return in this case.
-    if (pObdAccHistorySegm->m_Status == kEplObdDefAccHdlEmpty)
-    {   // segment was already finished or aborted
-        // therefore we silently ignore it and exit
-        DEBUG_TRACE2(DEBUG_LVL_ERROR,
-                     "%s() ERROR: Out-dated handle received %p!\n",
-                     __func__, pObdParam);
-        return kEplSuccessful;
-    }
-
-    DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "(0x%04X/%u Ev=%X Size=%u\n",
-         pObdParam->m_uiIndex, pObdParam->m_uiSubIndex,
-         pObdParam->m_ObdEvent,
-         pObdParam->m_SegmentSize);
-
-    /*printf("(0x%04X/%u Ev=%X pData=%p Off=%u Size=%u\n"
-           " ObjSize=%u TransSize=%u Acc=%X Typ=%X)\n",
-        pObdParam->m_uiIndex, pObdParam->m_uiSubIndex,
-        pObdParam->m_ObdEvent,
-        pObdParam->m_pData,
-        pObdParam->m_SegmentOffset, pObdParam->m_SegmentSize,
-        pObdParam->m_ObjSize, pObdParam->m_TransferSize,
-        pObdParam->m_Access, pObdParam->m_Type); */
-
-    /*------------------------------------------------------------------------*/
-    // check if a segment of this object is currently being processed
-    EplRet = EplAppDefObdAccAdoptedHstryGetStatusEntry(pObdParam->m_uiIndex,
-                                            pObdParam->m_uiSubIndex,
-                                            kEplObdDefAccHdlProcessing,
-                                            FALSE,  // search first
-                                            &pTempHdl);
-    if (EplRet == kEplSuccessful)
-    {   // write operation for this object is already processing
-        DEBUG_TRACE3(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO,
-                     "%s() Write for object %d(%d) already in progress -> exit\n",
-                     __func__, pObdParam->m_uiIndex, pObdParam->m_uiSubIndex);
-        // change handle status -> queue segment
-        pObdAccHistorySegm->m_Status = kEplObdDefAccHdlWaitProcessingQueue;
-    }
-    else
-    {
-        switch (pObdAccHistorySegm->m_Status)
-        {
-            case kEplObdDefAccHdlWaitProcessingInit:
-            case kEplObdDefAccHdlWaitProcessingQueue:
-                // segment has not been processed yet -> do a initialize writing
-
-                // change handle status
-                pObdAccHistorySegm->m_Status = kEplObdDefAccHdlWaitProcessingQueue;
-
-                /* search for oldest handle where m_pfnAccessFinished call is
-                 * still due. As we know that we find at least our own handle,
-                 * we don't have to take care of the return value! (Assuming
-                 * there is no software error :) */
-                EplAppDefObdAccAdoptedHstryGetStatusEntry(pObdParam->m_uiIndex,
-                        pObdParam->m_uiSubIndex,
-                        kEplObdDefAccHdlWaitProcessingQueue,
-                        TRUE,           // find oldest
-                        &pTempHdl);
-
-                DEBUG_TRACE4(DEBUG_LVL_CNAPI_DEFAULT_OBD_ACC_INFO, "%s() Check for oldest handle. EventHdl:%p Oldest:%p (Seq:%d)\n",
-                             __func__, pObdParam, &pObdAccHistorySegm->m_ObdParam,
-                             pObdAccHistorySegm->m_wSeqCnt);
-
-                if (pTempHdl == pObdAccHistorySegm)
-                {   // this is the oldest handle so we do the write
-                    EplRet = EplAppDefObdAccAdoptedHstryWriteSegm(pObdAccHistorySegm,
-                                     EplAppDefObdAccAdoptedHstryEntryFinished,
-                                     EplAppDefObdAccAdoptedHstryWriteSegmAbortCb);
-                }
-                else
-                {
-                    // it is not the oldest handle so do nothing
-                    // and wait until this function is called with the oldest
-                    EplRet = kEplSuccessful;
-                }
-                break;
-
-            case kEplObdDefAccHdlError:
-            default:
-                // all other not handled cases are not allowed -> error
-                DEBUG_TRACE2(DEBUG_LVL_ERROR, "%s() ERROR: Invalid handle status %d!\n",
-                        __func__, pObdAccHistorySegm->m_Status);
-                // do ordinary SDO sequence processing / reset flow control manipulation
-                EplSdoAsySeqAppFlowControl(0, FALSE);
-                // Abort all not empty handles of segmented transfer
-                EplAppDefObdAccAdoptedHstryCleanup();
-                EplRet = kEplSuccessful;
-                break;
-        } // switch (pObdAccHistorySegm->m_Status)
-    } /* else -- handle already in progress */
-
-    return EplRet;
+    return EplAppDefObdAccAdoptedHstryProcessWrite(pObdAccHistorySegm);
 }
 
 /**
@@ -1042,56 +823,6 @@ inputs and runs the control loop.
 
     return EplRet;
 }
-
-/**
-********************************************************************************
-\brief     get application software date/time of current image
-
-This function reads the application software date and time of the currently
-used firmware image.
-
-\param  pUiApplicationSwDate_p      pointer to store application software date
-\param  pUiApplicationSwTime_p      pointer to store application software time
-
-\return OK, or ERROR if data couldn't be read
-*******************************************************************************/
-#ifdef CONFIG_IIB_IS_PRESENT
-static tFwRet getImageApplicationSwDateTime(UINT32 *pUiApplicationSwDate_p,
-                                  UINT32 *pUiApplicationSwTime_p)
-{
-    UINT32      uiIibAdrs;
-
-    uiIibAdrs = fIsUserImage_g ? CONFIG_USER_IIB_FLASH_ADRS
-                               : CONFIG_FACTORY_IIB_FLASH_ADRS;
-    return getApplicationSwDateTime(uiIibAdrs, pUiApplicationSwDate_p,
-                                    pUiApplicationSwTime_p);
-}
-
-/**
-********************************************************************************
-\brief     get application software date/time of current image
-
-This function read the software versions of the currently used firmware image.
-The version is store at the specific pointer if it is not NULL.
-
-\param pUiFpgaConfigVersion_p   pointer to store FPGA configuration version
-\param pUiPcpSwVersion_p        pointer to store the PCP software version
-\param pUiApSwVersion_p         pointer to store the AP software version
-
-\return OK, or ERROR if data couldn't be read
-*******************************************************************************/
-static tFwRet getImageSwVersions(UINT32 *pUiFpgaConfigVersion_p, UINT32 *pUiPcpSwVersion_p,
-                       UINT32 *pUiApSwVersion_p)
-{
-    UINT32      uiIibAdrs;
-
-    uiIibAdrs = fIsUserImage_g ? CONFIG_USER_IIB_FLASH_ADRS
-                               : CONFIG_FACTORY_IIB_FLASH_ADRS;
-
-    return getSwVersions(uiIibAdrs, pUiFpgaConfigVersion_p, pUiPcpSwVersion_p,
-                         pUiApSwVersion_p);
-}
-#endif // CONFIG_IIB_IS_PRESENT
 
 /* EOF */
 /*********************************************************************************/
