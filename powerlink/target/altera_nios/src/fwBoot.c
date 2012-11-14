@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file       boot.c
+\file       fwBoot.c
 
 \brief      firmware boot functions
 
@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "system.h"
 #include "firmware.h"
 #include "fwUpdate.h"
+#include "fwBoot.h"
 
 #include <sys/alt_flash.h>
 #include <alt_types.h>
@@ -59,8 +60,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /* function declarations */
 UINT32 crc32(UINT32 uiCrc_p, const void *pBuf_p, unsigned int uiSize_p);
+static tFwRet getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
+                             UINT32 *pUiApplicationSwTime_p);
+static tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
+                  UINT32 *pUiPcpSwVersion_p, UINT32 *pUiApSwVersion_p);
 
-
+/******************************************************************************/
+/* private functions */
 /**
 ********************************************************************************
 \brief  read image information block from flash
@@ -71,7 +77,7 @@ getIib() reads an image information block (IIB) from flash.
 \param  pIib_p          pointer to store IIB
 \param  pUiCrc_p        pointer to store calculated IIB checksum (platform byte order)
 
-\return OK or ERROR if flash could not be read
+\return tFwRet
 *******************************************************************************/
 static tFwRet getIib(UINT32 uiIibAdrs, tIib *pIib_p, UINT32 *pUiCrc_p)
 {
@@ -128,7 +134,6 @@ exit:
     return Ret;
 }
 
-
 /**
 ********************************************************************************
 \brief  check CRC of block in flash
@@ -139,7 +144,7 @@ checkFlashCrc() checks the CRC of a data block in flash.
 \param  uiSize_p                size of data block
 \param  uiCrc_p                 CRC32 checksum of block
 
-\return Returns OK if checksum could successfully verified or ERROR otherwise.
+\return tFwRet  kFwRetSuccessful if checksum could successfully verified
 *******************************************************************************/
 static tFwRet checkFlashCrc(UINT32 uiFlashAdrs_p, UINT32 uiSize_p, UINT32 uiCrc_p)
 {
@@ -195,6 +200,132 @@ exit:
 
 /**
 ********************************************************************************
+\brief  get application software date and time
+
+getApplicationSwDateTime() reads the application software date and time from
+the IIB and stores it at the specified locations.
+
+\param  uiIibAdrs_p             flash address of IIB
+\param  pUiApplicationSwDate_p  pointer to store application software date
+\param  pUiApplicationSwTime_p  pointer to store application software time
+
+\return tFwRet
+*******************************************************************************/
+static tFwRet getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
+                             UINT32 *pUiApplicationSwTime_p)
+{
+    UINT32              uiCrc;
+    tIib                iib;
+    tFwRet Ret = kFwRetSuccessful;
+
+    /* read IIB from flash */
+    Ret = getIib(uiIibAdrs_p, &iib, &uiCrc);
+    if (Ret != kFwRetSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
+        return Ret;
+    }
+
+    /* check IIB magic */
+    if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
+    {
+        return kFwRetInvalidIibMagic;
+    }
+
+    /* check IIB crc */
+    if (uiCrc != iib.m_iibCrc)
+    {
+        return kFwRetInvalidIibCrc;
+    }
+
+    /* store application software date and time */
+    if (pUiApplicationSwDate_p != NULL)
+    {
+        *pUiApplicationSwDate_p = iib.m_applicationSwDate;
+    }
+    if (pUiApplicationSwTime_p != NULL)
+    {
+        *pUiApplicationSwTime_p = iib.m_applicationSwTime;
+    }
+
+    return kFwRetSuccessful;
+}
+
+/**
+********************************************************************************
+\brief  get software versions
+
+This function reads the software version stored in the IIB. It stores the
+version at the specified pointer if it is not NULL. The AP software version
+is only stored if the IIB version is 2 otherwise a 0 is returned.
+
+\param  uiIibAdrs_p             flash address of IIB
+\param  pUiFpgaConfigVersion_p  pointer to store FPGA configuration version
+\param  pUiPcpSwVersion_p       pointer to store PCP software version
+\param  pUiapSwVersion_p        pointer to store AP software version
+
+\return tFwRet
+*******************************************************************************/
+static tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
+                  UINT32 *pUiPcpSwVersion_p, UINT32 *pUiApSwVersion_p)
+{
+    UINT32              uiCrc;
+    tIib                iib;
+    tFwRet Ret = kFwRetSuccessful;
+
+    /* read IIB from flash */
+    Ret = getIib(uiIibAdrs_p, &iib, &uiCrc);
+    if (Ret != kFwRetSuccessful)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
+        return Ret;
+    }
+
+    /* check IIB magic */
+    if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
+    {
+        return kFwRetInvalidIibMagic;
+    }
+
+    /* check IIB crc */
+    if (uiCrc != iib.m_iibCrc)
+    {
+        return kFwRetInvalidIibCrc;
+    }
+
+    /* store application software date and time */
+    if (pUiFpgaConfigVersion_p != NULL)
+    {
+        *pUiFpgaConfigVersion_p = iib.m_fpgaConfigVersion;
+    }
+
+    if (pUiPcpSwVersion_p != NULL)
+    {
+        *pUiPcpSwVersion_p = iib.m_pcpSwVersion;
+    }
+
+    if ((iib.m_magic & 0xff) == 2)
+    {
+
+        if (pUiApSwVersion_p != NULL)
+        {
+
+            *pUiApSwVersion_p = iib.m_apSwVersion;
+        }
+        else
+        {
+            *pUiApSwVersion_p = 0;
+        }
+    }
+
+    return kFwRetSuccessful;
+}
+
+/******************************************************************************/
+/* public functions */
+
+/**
+********************************************************************************
 \brief  check firmware image
 
 checkfwImage() checks if a valid firmware image is located in the flash memory.
@@ -206,7 +337,7 @@ will be saved if pUiApplicationSwDate_p/pUiApplicationSwTime_p is not NULL.
 \param  uiIibAdrs_p             flash address of IIB
 \param  uiIibVersion_p          version of IIB
 
-\return OK, or ERROR if no valid IIB was found
+\return tFwRet
 *******************************************************************************/
 tFwRet checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p)
 {
@@ -267,7 +398,7 @@ tFwRet checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_
                  iib.m_pcpSwAdrs, iib.m_pcpSwSize, iib.m_pcpSwCrc);
     if (checkFlashCrc (iib.m_pcpSwAdrs,
                        iib.m_pcpSwSize,
-                       iib.m_pcpSwCrc) == ERROR)
+                       iib.m_pcpSwCrc) != kFwRetSuccessful)
     {
         DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid PCP software!\n");
         return kFwRetInvalidIibPcpSwCrc;
@@ -279,7 +410,7 @@ tFwRet checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_
         /* check CRC of AP software */
         if (checkFlashCrc (iib.m_apSwAdrs,
                            iib.m_apSwSize,
-                           iib.m_apSwCrc) == ERROR)
+                           iib.m_apSwCrc) != kFwRetSuccessful)
         {
             DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid AP software!\n");
             return kFwRetInvalidIibApCrc;
@@ -291,119 +422,51 @@ tFwRet checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_
 
 /**
 ********************************************************************************
-\brief  get application software date and time
+\brief     get information from firmware image information block
 
-getApplicationSwDateTime() reads the application software date and time from
-the IIB and stores it at the specified locations.
+This function reads various fields of a specified firmware image
+information block (IIB).
 
-\param  uiIibAdrs_p             flash address of IIB
-\param  pUiApplicationSwDate_p  pointer to store application software date
-\param  pUiApplicationSwTime_p  pointer to store application software time
+\param fIsUserImage_p TRUE: user IIB will be read
+                      FALSE: factory IIB will be read
+\param pInfo_p [IN]  ptr to struct of pointers where IIB information can be
+                     stored. If struct pointer is NULL, nothing will be stored
+                     at this location.
+               [OUT] IIB information
 
-\return OK, or ERROR if no valid IIB was found
+\retval TRUE   successful
+\retval FALSE  not successful or no IIB available
 *******************************************************************************/
-tFwRet getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
-                             UINT32 *pUiApplicationSwTime_p)
+BOOL fwBoot_tryGetIibInfo(BOOL fIsUserImage_p, tfwBootInfo * pInfo_p)
 {
-    UINT32              uiCrc;
-    tIib                iib;
+#ifdef CONFIG_IIB_IS_PRESENT
     tFwRet Ret = kFwRetSuccessful;
+    UINT32      uiIibAdrs;
 
-    /* read IIB from flash */
-    Ret = getIib(uiIibAdrs_p, &iib, &uiCrc);
+    uiIibAdrs = fIsUserImage_p ? CONFIG_USER_IIB_FLASH_ADRS
+                               : CONFIG_FACTORY_IIB_FLASH_ADRS;
+
+    Ret = getApplicationSwDateTime(uiIibAdrs,
+                         &pInfo_p->uiApplicationSwDate,
+                         &pInfo_p->uiApplicationSwTime);
     if (Ret != kFwRetSuccessful)
     {
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
-        return Ret;
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getApplicationSwDateTime() failed with 0x%x\n", Ret);
+        return FALSE;
     }
 
-    /* check IIB magic */
-    if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
-    {
-        return kFwRetInvalidIibMagic;
-    }
-
-    /* check IIB crc */
-    if (uiCrc != iib.m_iibCrc)
-    {
-        return kFwRetInvalidIibCrc;
-    }
-
-    /* store application software date and time */
-    *pUiApplicationSwDate_p = iib.m_applicationSwDate;
-    *pUiApplicationSwTime_p = iib.m_applicationSwTime;
-
-    return kFwRetSuccessful;
-}
-
-/**
-********************************************************************************
-\brief  get software versions
-
-This function reads the software version stored in the IIB. It stores the
-version at the specified pointer if it is not NULL. The AP software version
-is only stored if the IIB version is 2 otherwise a 0 is returned.
-
-\param  uiIibAdrs_p             flash address of IIB
-\param  pUiFpgaConfigVersion_p  pointer to store FPGA configuration version
-\param  pUiPcpSwVersion_p       pointer to store PCP software version
-\param  pUiapSwVersion_p        pointer to store AP software version
-
-\return OK, or ERROR if no valid IIB was found
-*******************************************************************************/
-tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
-                  UINT32 *pUiPcpSwVersion_p, UINT32 *pUiApSwVersion_p)
-{
-    UINT32              uiCrc;
-    tIib                iib;
-    tFwRet Ret = kFwRetSuccessful;
-
-    /* read IIB from flash */
-    Ret = getIib(uiIibAdrs_p, &iib, &uiCrc);
+    Ret = getSwVersions(uiIibAdrs,
+                         &pInfo_p->uiFpgaConfigVersion,
+                         &pInfo_p->uiPcpSwVersion,
+                         &pInfo_p->uiApSwVersion);
     if (Ret != kFwRetSuccessful)
     {
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "Invalid IIB\n");
-        return Ret;
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getSwVersions() failed with 0x%x\n", Ret);
+        return FALSE;
     }
 
-    /* check IIB magic */
-    if ((iib.m_magic & 0xFFFFFF00) != IIB_MAGIC)
-    {
-        return kFwRetInvalidIibMagic;
-    }
-
-    /* check IIB crc */
-    if (uiCrc != iib.m_iibCrc)
-    {
-        return kFwRetInvalidIibCrc;
-    }
-
-    /* store application software date and time */
-    if (pUiFpgaConfigVersion_p != NULL)
-    {
-        *pUiFpgaConfigVersion_p = iib.m_fpgaConfigVersion;
-    }
-
-    if (pUiPcpSwVersion_p != NULL)
-    {
-        *pUiPcpSwVersion_p = iib.m_pcpSwVersion;
-    }
-
-    if ((iib.m_magic & 0xff) == 2)
-    {
-
-        if (pUiApSwVersion_p != NULL)
-        {
-
-            *pUiApSwVersion_p = iib.m_apSwVersion;
-        }
-        else
-        {
-            *pUiApSwVersion_p = 0;
-        }
-    }
-
-    return kFwRetSuccessful;
+    return TRUE;
+#endif // CONFIG_IIB_IS_PRESENT
+    return FALSE;  //not possible because IIB doesn't exist
 }
-
 /* END-OF-FILE */

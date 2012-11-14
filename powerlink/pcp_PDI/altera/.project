@@ -243,9 +243,9 @@
 			<location>CNDK_LOCATION/powerlink/generic/openPOWERLINK_CNDKPatched/EplStack/amiarm.c</location>
 		</link>
 		<link>
-			<name>boot.c</name>
+			<name>fwBoot.c</name>
 			<type>1</type>
-			<location>CNDK_LOCATION/powerlink/target/altera_nios/src/boot.c</location>
+			<location>CNDK_LOCATION/powerlink/target/altera_nios/src/fwBoot.c</location>
 		</link>
 		<link>
 			<name>crc32.c</name>

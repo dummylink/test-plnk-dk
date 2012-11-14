@@ -108,7 +108,7 @@ ${POWERLINK_DIR}/SharedBuff/SharedBuff.c \
 ${POWERLINK_DIR}/SharedBuff/ShbIpc-NoOS.c \
 ${CNDK_TARGET_DIR}/src/fpgaCfg.c \
 ${CNDK_TARGET_DIR}/src/fwUpdate.c \
-${CNDK_TARGET_DIR}/src/boot.c \
+${CNDK_TARGET_DIR}/src/fwBoot.c \
 ${CNDK_TARGET_DIR}/src/systemComponents.c
 
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))

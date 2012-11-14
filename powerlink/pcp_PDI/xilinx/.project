@@ -292,9 +292,9 @@
 			<locationURI>PLK_LOC/SharedBuff/ShbTarget.h</locationURI>
 		</link>
 		<link>
-			<name>target/src/boot.c</name>
+			<name>target/src/fwBoot.c</name>
 			<type>1</type>
-			<locationURI>TARGET_LOC/src/boot.c</locationURI>
+			<locationURI>TARGET_LOC/src/fwBoot.c</locationURI>
 		</link>
 		<link>
 			<name>target/src/fpgaCfg.c</name>
