@@ -79,6 +79,7 @@ ${APP_DIR}/pcpPdo.c \
 ${APP_DIR}/pcpAsyncSm.c \
 ${APP_DIR}/pcpSync.c \
 ${APP_DIR}/pcpAsync.c \
+${APP_DIR}/pcpPdi.c \
 ${OBJDICT_DIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \
