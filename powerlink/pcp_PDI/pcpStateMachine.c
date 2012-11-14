@@ -17,6 +17,7 @@ POWERLINK CN generic interface.
 #include "pcpEvent.h"
 #include "pcpAsync.h"
 #include "pcp.h"
+#include <pcpPdi.h>
 
 #include "pcpStateMachine.h"
 #include "stateMachine.h"

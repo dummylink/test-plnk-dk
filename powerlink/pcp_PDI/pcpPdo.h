@@ -24,6 +24,7 @@
 
 /******************************************************************************/
 /* includes */
+#include <EplObd.h>
 
 /******************************************************************************/
 /* defines */
@@ -55,12 +56,10 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                      WORD *pCurrentDescrOffset_p,
                      tLinkPdosReq *pLinkPdoReq_p,
                      WORD wMaxStoreSpace);
-
-/******************************************************************************/
-/* private functions */
-
-/******************************************************************************/
-/* functions */
+tEplKernel Gi_checkandConfigurePdoPdi(unsigned int uiMappParamIndex_p,
+                                                 BYTE bMappObjectCount_p,
+                                                 tEplObdAccess AccessType_p,
+                                                 tEplObdCbParam* pParam_p);
 
 
 #endif /* PCPPDO_H_ */

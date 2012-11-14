@@ -862,7 +862,10 @@ can immediately return.
 \param pfnSegFinishCb_p        pointer to segment-finish callback function
 \param pHandle_p               pointer to handle for callback functions
 
-\return		return                  ERROR if something went wrong, OK otherwise
+\return tEplSdoComConState
+\retval kEplSdoComTransferFinished
+\retval kEplSdoComTransferRxAborted
+\retval kEplSdoComTransferRunning
 *******************************************************************************/
 tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p,
         void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p)
@@ -967,6 +970,10 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
 
 updateFirmwarePeriodic() must be periodically be called to execute the firmware
 update state machine.
+
+\retval kEplSdoComTransferFinished
+\retval kEplSdoComTransferRxAborted
+\retval kEplSdoComTransferRunning
 *******************************************************************************/
 tEplSdoComConState updateFirmwarePeriodic(void)
 {

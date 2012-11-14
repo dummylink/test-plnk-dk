@@ -59,41 +59,8 @@ typedef struct sApiPdiComCon {
 /* global variables */
 extern volatile tPcpCtrlReg *     pCtrlReg_g;       ///< ptr. to PCP control register
 
-// Api PDI communication instance
-extern tApiPdiComCon ApiPdiComInstance_g;
-
 /******************************************************************************/
 /* function declarations */
-extern BYTE getCommandFromAp(void);
-extern void storePcpState(BYTE bState_p);
-
-
-extern int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
-extern BOOL Gi_checkIfObjLinked(WORD wIndex_p, WORD wSubIndex_p);
-
-extern void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p);
-
-// OBD access history public functions
-extern tEplKernel EplAppDefObdAccAdoptedHstryInitSequence(void);
-extern tEplKernel EplAppDefObdAccAdoptedHstrySaveHdl(tEplObdParam * pObdParam_p,
-                                                     tObdAccHstryEntry **ppDefHdl_p);
-extern int EplAppDefObdAccAdoptedHstryWriteSegmAbortCb(tObdAccHstryEntry * pDefObdHdl_p);
-extern int EplAppDefObdAccAdoptedHstryWriteSegmFinishCb(tObdAccHstryEntry * pDefObdHdl_p);
-extern void EplAppDefObdAccAdoptedHstryCleanup(void);
-
-extern tPdiAsyncStatus Gi_ObdAccFwdPdiTxFinishedErrCb(tPdiAsyncMsgDescr * pMsgDescr_p);
-extern tEplKernel Gi_openObdAccHstryToPdiConnection(tObdAccHstryEntry * pDefObdHdl_p);
-extern tEplKernel Gi_closeObdAccHstryToPdiConnection(WORD wComConIdx_p,
-                                              DWORD dwAbortCode_p,
-                                              WORD  wReadObjRespSegmSize_p,
-                                              void* pReadObjRespData_p);
-extern tPdiAsyncStatus Gi_ObdAccFwdPdiTxFinishedErrCb(tPdiAsyncMsgDescr * pMsgDescr_p);
-extern tEplKernel Gi_checkandConfigurePdoPdi(unsigned int uiMappParamIndex_p,
-                                                 BYTE bMappObjectCount_p,
-                                                 tEplObdAccess AccessType_p,
-                                                 tEplObdCbParam* pParam_p);
-extern BOOL Gi_getCurPdiObdAccFwdComCon(tApiPdiComCon * pApiPdiComConInst_p,
-                                        WORD * pwComConIdx_p);
 
 #endif // EPL_MODULE_API_PDI
 

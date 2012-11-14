@@ -17,8 +17,10 @@
 #include "cnApiTypAsync.h"
 
 #include "pcp.h"
+#include "pcpPdi.h"
 #include "pcpPdo.h"
 #include "pcpAsyncSm.h"
+
 
 #ifdef __NIOS2__
 #include <string.h>
@@ -33,6 +35,7 @@
 #include "user/EplObdu.h"
 #include "Epl.h"
 #include "EplPdou.h"
+#include "EplObdDefAccHstry.h"
 
 /******************************************************************************/
 /* defines */
@@ -629,7 +632,7 @@ tObdAccHstryEntry * pObdAccHstEntry = NULL;
         goto Exit;
     }
 
-    if(Gi_getCurPdiObdAccFwdComCon(&ApiPdiComInstance_g, &wComConIdx) != FALSE)
+    if(Gi_getCurPdiObdAccFwdComCon(&wComConIdx) != FALSE)
     {   // PDI connection established
 
         // convert mapping index to related communication index

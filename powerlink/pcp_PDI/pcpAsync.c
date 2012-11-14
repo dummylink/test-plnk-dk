@@ -20,6 +20,7 @@
 #include "pcpEvent.h"
 #include "pcpPdo.h"
 #include "pcp.h"
+#include "pcpPdi.h"
 
 #ifdef VETH_DRV_EN
   #include "pcpAsyncVeth.h"
@@ -28,6 +29,7 @@
 #include "Epl.h"
 #include "kernel/EplObdk.h"
 #include "EplSdoComu.h"
+#include "EplObdDefAccHstry.h"
 
 #include <string.h>
 
