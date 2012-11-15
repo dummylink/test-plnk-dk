@@ -84,9 +84,7 @@ ${PCP_COMMON_DIR}/inc \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/SharedBuff \
 ${POWERLINKDIR}/ObjDicts \
-${OBJDICTDIR} \
-${LIBAPIDIR}/include/public \
-${LIBAPIDIR}/utils"
+${OBJDICTDIR}"
 
 ###############################################################################
 # handle --debug parameter

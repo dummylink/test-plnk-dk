@@ -66,8 +66,6 @@ INCLUDES=-I${APP_DIR}\
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${CNDK_TARGET_DIR}/include \
--I${CN_API_DIR}/include \
--I${CNDK_DIR}/common/inc
 
 ##################################
 # Source files
