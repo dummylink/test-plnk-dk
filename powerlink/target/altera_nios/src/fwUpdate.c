@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* includes */
 #include "EplInc.h"
 
-//#include "cnApiGlobal.h"
 //#include "cnApiDebug.h"
 #include "system.h"
 #include <sys/alt_flash.h>
@@ -138,9 +137,9 @@ to the global variable fwHeader_g for further reference.
 \param  deviceId_p              The device Id to check for
 \param  hwRev_p                 The hardware revision to check for
 
-\return ERROR if no valid firmware header is found, OK otherwise
+\return FALSE if no valid firmware header is found, TRUE otherwise
 *******************************************************************************/
-static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
+static int tryGetFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
 {
     UINT32      uiCrc;
 
@@ -152,7 +151,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
         /* wrong CRC */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Header CRC is %08x, should be %08x\n",
                      uiCrc, (UINT32)AmiGetDwordFromBe(&pHeader_p->m_headerCrc));
-        return ERROR;
+        return FALSE;
     }
 
     /* check header version and magic */
@@ -163,7 +162,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid Magic/Version is %04x %04x\n",
                      AmiGetWordFromBe(&pHeader_p->m_magic),
                      AmiGetWordFromBe(&pHeader_p->m_version));
-        return ERROR;
+        return FALSE;
     }
 
     /* check device ID and hardware revision */
@@ -175,7 +174,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
                      (UINT32)AmiGetDwordFromBe(&pHeader_p->m_deviceId),
                      (UINT32)AmiGetDwordFromBe(&pHeader_p->m_hwRevision),
                      deviceId_p, hwRev_p);
-        return ERROR;
+        return FALSE;
     }
 
     /* save header */
@@ -206,7 +205,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     DEBUG_TRACE1(DEBUG_LVL_15, "AP SW Size:            %d\n", fwHeader_g.m_apSwSize);
     DEBUG_TRACE1(DEBUG_LVL_15, "Application SW Date:   %d\n", fwHeader_g.m_applicationSwDate);
     DEBUG_TRACE1(DEBUG_LVL_15, "Application SW Time:   %d\n", fwHeader_g.m_applicationSwTime);
-    return OK;
+    return TRUE;
 }
 
 /**
@@ -833,16 +832,13 @@ initFirmwareUpdate() initializes all things needed for a firmware update.
 
 \param	deviceId_p              device ID of this device
 \param  hwRev_p                 hardware revision of this device
-
-\return OK, always
 *******************************************************************************/
-int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
+void initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
 {
     updateInfo_g.m_uiDeviceId = deviceId_p;
     updateInfo_g.m_uiHwRev = hwRev_p;
     updateInfo_g.m_uiUserImageOffset = CONFIG_USER_IMAGE_FLASH_ADRS;
     updateInfo_g.m_uiUpdateState = eUpdateStateNone;
-    return OK;
 }
 
 /**
@@ -890,9 +886,9 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
         updateInfo_g.m_uiProgOffset = 0;
 
         /* get firmware header and check if we receive a valid one */
-        if (getFwHeader((tFwHeader *)pData_p,
+        if (tryGetFwHeader((tFwHeader *)pData_p,
                         updateInfo_g.m_uiDeviceId,
-                        updateInfo_g.m_uiHwRev) == ERROR)
+                        updateInfo_g.m_uiHwRev) != TRUE)
         {
             DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s: Invalid firmware header!\n", __func__);
 

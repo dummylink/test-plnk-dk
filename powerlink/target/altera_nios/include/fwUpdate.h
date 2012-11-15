@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiGlobal.h"
+#include <global.h>
 #include "firmware.h"
 #include "EplSdo.h"
 
@@ -60,15 +60,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p);
-tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
-        char * pData_p, void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p);
+void initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p);
+tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p,
+                                  UINT32 uiSegmentSize_p,
+                                  char * pData_p,
+                                  void *pfnAbortCb_p,
+                                  void * pfnSegFinishCb_p,
+                                  void * pHandle_p);
 tEplSdoComConState updateFirmwarePeriodic(void);
-tFwRet checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p);
-tFwRet getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
-                             UINT32 *pUiApplicationSwTime_p);
-tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
-                  UINT32 *pUiPcpSwVersion_p, UINT32 *pUiApSwVersion_p);
 
 #ifdef __cplusplus
 }

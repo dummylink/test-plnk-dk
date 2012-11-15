@@ -60,10 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /* function declarations */
 UINT32 crc32(UINT32 uiCrc_p, const void *pBuf_p, unsigned int uiSize_p);
-static tFwRet getApplicationSwDateTime(UINT32 uiIibAdrs_p, UINT32 *pUiApplicationSwDate_p,
-                             UINT32 *pUiApplicationSwTime_p);
-static tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
-                  UINT32 *pUiPcpSwVersion_p, UINT32 *pUiApSwVersion_p);
 
 /******************************************************************************/
 /* private functions */
@@ -198,6 +194,7 @@ exit:
     return Ret;
 }
 
+#ifdef CONFIG_IIB_IS_PRESENT
 /**
 ********************************************************************************
 \brief  get application software date and time
@@ -320,6 +317,7 @@ static tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
 
     return kFwRetSuccessful;
 }
+#endif // CONFIG_IIB_IS_PRESENT
 
 /******************************************************************************/
 /* public functions */

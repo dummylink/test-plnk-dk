@@ -22,7 +22,6 @@
 #define FPGACFG_H_
 /******************************************************************************/
 /* includes */
-
 #include "Debug.h"
 
 /******************************************************************************/
@@ -49,10 +48,11 @@ typedef enum eFpgaCfgRetVal {
 
 /******************************************************************************/
 /* function declarations */
-extern void FpgaCfg_reloadFromFlash(DWORD dwResetAdr_p);
-extern void FpgaCfg_resetWatchdogTimer(void);
-extern tFpgaCfgRetVal FpgaCfg_handleReconfig(void);
-extern void FpgaCfg_resetProcessor(void);
+void FpgaCfg_reloadFromFlash(DWORD dwResetAdr_p);
+void FpgaCfg_resetWatchdogTimer(void);
+tFpgaCfgRetVal FpgaCfg_handleReconfig(void);
+BOOL FpgaCfg_processReconfigStatusIsUserImage(tFpgaCfgRetVal ReConfStatus_p);
+void FpgaCfg_resetProcessor(void);
 
 /*******************************************************************************
 *

@@ -22,24 +22,29 @@
 /* includes */
 #include "fpgaCfg.h"
 #include "EplInc.h"
-#include "cnApiGlobal.h"
 #include "fwUpdate.h"
-#include "altera_avalon_pio_regs.h"
-#include "nios2.h"
+#include "fwSettings.h"
+#include "fwBoot.h"
 #include <string.h>                      //for memcpy()
 #include "system.h"
+#include "altera_avalon_pio_regs.h"
+#include "nios2.h"
+#include <unistd.h>
 #include <sys/alt_flash.h>
 #include <sys/alt_flash_dev.h>
-
 #ifdef SYSID_BASE
-#include "altera_avalon_sysid.h"
-#include "altera_avalon_sysid_regs.h"
+    #include "altera_avalon_sysid.h"
+    #include "altera_avalon_sysid_regs.h"
 #else
-#warning: No SOPC module "SYSTEM-ID" present! Checking if SW fits to HW can not be performed!
+    #warning: No SOPC module "SYSTEM-ID" present! Checking if SW fits to HW can not be performed!
 #endif /* SYSID_BASE */
-
+#include "systemComponents.h"
+#ifdef LCD_BASE // LCD module present
+    #include <Cmp_Lcd.h>
+#endif // LCD_BASE
 /******************************************************************************/
 /* defines */
+#define USLEEP(x) usleep(x)
 
 /******************************************************************************/
 /* typedefs */
@@ -90,7 +95,7 @@ void FpgaCfg_reloadFromFlash(DWORD dwResetAdr_p)
 {
     if(dwResetAdr_p == CONFIG_FACTORY_IMAGE_FLASH_ADRS)
     {
-        // If reset to factoy image is required, this workaround is
+        // If reset to factory image is required, this workaround is
         // needed to fall back into factory mode image again.
         // Otherwise the remote update core state will tell
         // that is has the user image even is loaded from
@@ -374,7 +379,7 @@ DWORD FpgaCfg_getPast1ReconfigTriggerCondition(void)
 ********************************************************************************
 \brief handles the FPGA reconfiguration of the factory and application image
 
-\return tFpgaCfgRetVal
+\return tFpgaCfgRetVal status of FPGA reconfiguration
 
 This function handles the necessary steps right after Fpga reconfiguration.
 Thus is should be invoked at the beginning of SW execution.
@@ -504,7 +509,7 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
             }
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image check: OK! Reset to User Image...\n");
 
-            //usleep(1000*10000); //activate this line for debugging
+            //USLEEP(1000*10000); //activate this line for debugging
 
             /* trigger reconfiguration of user image */
             FpgaCfg_reloadFromFlash(CONFIG_USER_IMAGE_FLASH_ADRS);
@@ -535,6 +540,120 @@ exit:
     return Ret;
 }
 
+/**
+********************************************************************************
+\brief evaluates the FPGA reconfiguration according to its status
+
+\param ReConfStatus_p  tFpgaCfgRetVal
+\retval TRUE    User image is loaded
+\retval FALSE   Factory image is loaded
+*******************************************************************************/
+BOOL FpgaCfg_processReconfigStatusIsUserImage(tFpgaCfgRetVal ReConfStatus_p)
+{
+    BOOL fIsUserImage = FALSE;
+    tFwRet FwRetVal = kFwRetSuccessful;
+
+    switch (ReConfStatus_p)
+    {
+        case kFgpaCfgFactoryImageLoadedNoUserImagePresent:
+        {
+            // user image reconfiguration failed
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Factory image loaded.\n");
+            fIsUserImage = FALSE;
+
+            FwRetVal = checkFwImage(CONFIG_FACTORY_IMAGE_FLASH_ADRS,
+                                    CONFIG_FACTORY_IIB_FLASH_ADRS,
+                                    CONFIG_USER_IIB_VERSION);
+            if(FwRetVal != kFwRetSuccessful)
+            {
+                // factory image was loaded, but has invalid IIB
+                // checkFwImage() prints error, don't do anything
+                // else here for now
+                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of factory image failed with 0x%x\n", FwRetVal);
+            }
+            break;
+        }
+
+        case kFpgaCfgUserImageLoadedWatchdogDisabled:
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+
+#ifdef CONFIG_IIB_IS_PRESENT
+            FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                                    CONFIG_USER_IIB_FLASH_ADRS,
+                                    CONFIG_USER_IIB_VERSION);
+            if(FwRetVal != kFwRetSuccessful)
+            {
+                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
+
+                USLEEP(5000000); // wait 5 seconds
+
+                // user image was loaded, but has invalid IIB
+                // -> reset to factory image
+                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            }
+#endif // CONFIG_IIB_IS_PRESENT
+
+            fIsUserImage = TRUE;
+#ifdef LCD_BASE
+            SysComp_LcdClear();
+            SysComp_LcdSetText("USER");
+#endif
+            break;
+        }
+
+        case kFpgaCfgUserImageLoadedWatchdogEnabled:
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "User image loaded.\n");
+
+#ifdef CONFIG_IIB_IS_PRESENT
+            FwRetVal = checkFwImage(CONFIG_USER_IMAGE_FLASH_ADRS,
+                                    CONFIG_USER_IIB_FLASH_ADRS,
+                                    CONFIG_USER_IIB_VERSION);
+            if(FwRetVal != kFwRetSuccessful)
+            {
+                DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: checkFwImage() of user image failed with 0x%x\n", FwRetVal);
+
+                USLEEP(5000000); // wait 5 seconds
+
+                // user image was loaded, but has invalid IIB
+                // -> reset to factory image
+                FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            }
+#endif // CONFIG_IIB_IS_PRESENT
+
+            // watchdog timer has to be reset periodically
+            //FpgaCfg_resetWatchdogTimer(); // do this periodically!
+            fIsUserImage = TRUE;
+            break;
+        }
+
+        case kFgpaCfgWrongSystemID:
+        {
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
+            USLEEP(5000000); // wait 5 seconds
+
+            // reset to factory image
+            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            break;
+        }
+
+        default:
+        {
+#ifdef CONFIG_USER_IMAGE_IN_FLASH
+            DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
+            USLEEP(5000000); // wait 5 seconds
+
+            // reset to factory image
+            FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
+            goto exit; // this is fatal error only, if image was loaded from flash
+#endif
+            break;
+        }
+    }
+
+    return fIsUserImage;
+}
 /*******************************************************************************
 *
 * License Agreement

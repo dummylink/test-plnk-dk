@@ -23,16 +23,6 @@
 /******************************************************************************/
 /* defines */
 
-// target specific (from global.h)
-#ifndef UINT8
-#define UINT8  BYTE
-#endif
-#ifndef UINT16
-#define UINT16 WORD
-#endif
-#ifndef UINT32
-#define UINT32 DWORD
-#endif
 /******************************************************************************/
 /* typedefs */
 typedef struct sfwBootInfo
