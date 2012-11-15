@@ -23,7 +23,7 @@ local object dictionary.
 #include <EplObduDefAccHstry.h>
 #include <EplSdo.h>
 #ifdef EPL_MODULE_API_PDI
-    #include <pcpPdi.h>
+    #include <pcpObjects.h>
 #endif // EPL_MODULE_API_PDI
 
 /******************************************************************************/

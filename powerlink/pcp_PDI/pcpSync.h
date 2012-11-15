@@ -52,6 +52,7 @@ void Gi_resetTimeValues(void);
 
 void Gi_enableSyncInt(void);
 void Gi_disableSyncInt(void);
+void pcpSync_enableInterruptIfConfigured(void);
 void Gi_calcSyncIntPeriod(void);
 BOOL Gi_checkSyncIrqRequired(void);
 

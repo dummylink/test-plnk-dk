@@ -233,6 +233,20 @@ inline UCHAR Gi_pcpEventFifoProcess(volatile tPcpCtrlReg*  pCtrlReg_g)
     return kPcpEventFifoBusy;
 }
 
+/**
+********************************************************************************
+\brief    post pending events to PDI
+*******************************************************************************/
+void pcpPdi_processEvents(void)
+{
+    /* Check if previous event has been confirmed by AP */
+    /* If not, try to post it */
+    if(Gi_pcpEventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_EVENT_INFO,"%s: Posted event from fifo into PDI!\n", __func__);
+    }
+}
+
 /*******************************************************************************
 *
 * License Agreement

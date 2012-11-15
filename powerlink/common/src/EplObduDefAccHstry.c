@@ -23,7 +23,7 @@ local object dictionary and process them later on.
 #include <EplSdo.h>
 #include <user/EplSdoAsySequ.h>
 #ifdef EPL_MODULE_API_PDI
-    #include <pcpPdi.h>
+    #include <pcpObjects.h>
 #endif // EPL_MODULE_API_PDI
 #include <fwUpdate.h>
 #include <Epl.h>

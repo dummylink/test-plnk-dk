@@ -17,10 +17,9 @@
 #include "cnApiTypAsync.h"
 
 #include "pcp.h"
-#include "pcpPdi.h"
 #include "pcpPdo.h"
 #include "pcpAsyncSm.h"
-
+#include "pcpObjects.h"
 
 #ifdef __NIOS2__
 #include <string.h>

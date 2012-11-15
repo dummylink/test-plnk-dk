@@ -1,30 +1,23 @@
 /*******************************************************************************
-* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved. All use of this software and documentation is
-* subject to the License Agreement located at the end of this file below.
+* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1                           
+* All rights reserved. All use of this software and documentation is          
+* subject to the License Agreement located at the end of this file below.     
 */
 
 /**
 ********************************************************************************
 
-\file       pcpPdi.c
+\file       pcpObjects.c
 
-\brief      Powerlink Communication Processor Data Interface module
+\brief      module handles object forwarding to PDI
 
-\date       13.11.2012
-
-This module extends the openPOWERLINK API with a Process Data Interface (PDI).
-The PDI can be accessed by an Application Processor (AP) using a parallel or
-serial low level (hardware) data interface.
+\date       15.11.2012
 
 *******************************************************************************/
 /* includes */
-#include <pcpPdi.h>
-#include <pcpEvent.h>
-#include <EplObduDefAccHstry.h>
-#include <pcpSync.h>
-#include <pcpPdo.h>
-#include <pcpAsyncSm.h>
+#include <pcpObjects.h>
+#include <EplSdo.h>
+//#include <pcpPdo.h>
 
 /******************************************************************************/
 /* defines */
@@ -37,8 +30,7 @@ serial low level (hardware) data interface.
 
 /******************************************************************************/
 /* global variables */
-volatile tPcpCtrlReg *         pCtrlReg_g;    ///< ptr. to PCP control register
-static tApiPdiComCon ApiPdiComInstance_g;            ///< PDI OBD access connection
+static tApiPdiComCon ApiPdiComInstance_g;        ///< PDI OBD access connection
 tObjTbl     *pPcpLinkedObjs_g = NULL;  ///< table of linked objects at pcp side according to AP message
 DWORD       dwApObjLinkEntries_g = 0;  ///< number of linked objects at pcp side
 
@@ -72,193 +64,8 @@ static BOOL Gi_getCurPdiObdAccFwdComConIntern(tApiPdiComCon * pApiPdiComConInst_
     return FALSE;
 }
 
-/**
-********************************************************************************
-\brief    enable PDI synchronization interrupt signal if it is activated by AP
-*******************************************************************************/
-static void pcpPdi_enableSyncIntIfConfigured(void)
-{
-    /* enable the synchronization interrupt */
-    if(Gi_getSyncIntCycle() != 0)   // true if Sync IR is required by AP
-    {
-        Gi_enableSyncInt();    // enable IR trigger possibility
-    }
-}
-
 /******************************************************************************/
 /* functions */
-
-/**
-********************************************************************************
-\brief  create table of objects to be linked at PCP side according to AP message
-
-\param dwMaxLinks_p     Number of objects to be linked.
-
-\return OK or ERROR
-*******************************************************************************/
-int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
-{
-    if (pPcpLinkedObjs_g != NULL) // table has already been created
-    {
-        EPL_FREE(pPcpLinkedObjs_g);
-    }
-    /* allocate memory for object table */
-    pPcpLinkedObjs_g = EPL_MALLOC (sizeof(tObjTbl) * dwMaxLinks_p);
-    if (pPcpLinkedObjs_g == NULL)
-    {
-        return ERROR;
-    }
-    dwApObjLinkEntries_g = 0; // reset entry counter
-
-    return OK;
-}
-
-/**
-********************************************************************************
-\brief    basic initializations
-\param pStateMachineInit_p  [IN] callback functions for PCP state machine
-\param pInitParam_p         [IN] pointer to initialization parameter
-                                 which will be set later in the pcpAsync module
-*******************************************************************************/
-int Gi_init(tInitStateMachine * pStateMachineInit_p, tPcpInitParam * pInitParam_p)
-{
-    int         iRet= OK;
-    UINT32      uiApplicationSwDate = 0;
-    UINT32      uiApplicationSwTime = 0;
-
-#ifdef CONFIG_IIB_IS_PRESENT
-    tFwRet      FwRetVal = kFwRetSuccessful;
-
-    FwRetVal = getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
-    if (FwRetVal != kFwRetSuccessful)
-    {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageApplicationSwDateTime() failed with 0x%x\n", FwRetVal);
-    }
-#endif // CONFIG_IIB_IS_PRESENT
-
-    /* Setup PCP Control Register in DPRAM */
-    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;     // set address of control register - equals DPRAM base address
-
-    // Note:
-    // pCtrlReg_g members m_dwMagic, m_wPcpPdiRev and m_wPcpSysId are set by the Powerlink IP-core.
-    // The FPGA internal memory initialization sets the following values:
-    // pCtrlReg_g->m_wState: 0x00EE
-    // pCtrlReg_g->m_wCommand: 0xFFFF
-    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
-    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, 0x00);                // invalid event TODO: structure
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, 0x00);                 // invalid event argument TODO: structure
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, kPcpStateInvalid);        // set invalid PCP state
-
-    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Wait for AP reset cmd..\n");
-
-    /* wait for reset command from AP */
-    while (getCommandFromAp() != kApCmdReset)
-        ;
-
-    // init event fifo queue
-    Gi_pcpEventFifoInit();
-
-    // init time sync module
-    Gi_initSync();
-
-    pStateMachineInit_p->m_fpOperationalPlk = pcpPdi_enableSyncIntIfConfigured;
-
-    // start PCP API state machine and move to PCP_BOOTED state
-    if(Gi_initStateMachine(pStateMachineInit_p) == FALSE)
-    {
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
-        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initStateMachine() FAILED!\n");
-        goto exit;
-    }
-
-    // init asynchronous PCP <-> AP communication
-    iRet = CnApiAsync_create(pInitParam_p);
-    if (iRet != OK )
-    {
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
-        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_create() FAILED!\n");
-        goto exit;
-    }
-
-    // init cyclic object processing
-    iRet = Gi_initPdo();
-    if (iRet != OK )
-    {
-        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
-        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
-        goto exit;
-    }
-
-exit:
-    return iRet;
-}
-
-/**
-********************************************************************************
-\brief  cleanup and exit generic interface
-*******************************************************************************/
-void Gi_shutdown(void)
-{
-    /* free object link table */
-    EPL_FREE(pPcpLinkedObjs_g);
-
-    //TODO: free other things
-}
-
-/**
-********************************************************************************
-\brief    control LED outputs of POWERLINK IP core
-*******************************************************************************/
-void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p)
-{
-    WORD        wRegisterBitNum;
-    WORD        wLedControl;
-
-    switch (bType_p)
-        {
-        case kCnApiLedTypeStatus:
-            wRegisterBitNum = LED_STATUS;
-            break;
-        case kCnApiLedTypeError:
-            wRegisterBitNum = LED_ERROR;
-            break;
-        case kCnApiLedInit:
-            /* This case if for initing the LEDs */
-            /* enable forcing for all LEDs */
-            AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedConfig, 0xffff);
-            if (bOn_p)  //activate LED output
-            {
-                AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedControl, 0xffff);  // switch on all LEDs
-            }
-            else       // deactive LED output
-            {
-                AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedControl, 0x0000); // switch off all LEDs
-
-                /* disable forcing all LEDs except status and error LED (default register value) */
-                AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedConfig, 0x0003);
-            }
-            goto exit;
-        default:
-            goto exit;
-        }
-
-    wLedControl = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wLedControl));
-
-    if (bOn_p)  //activate LED output
-    {
-        wLedControl |= (1 << wRegisterBitNum);
-    }
-    else        // deactive LED output
-    {
-        wLedControl &= ~(1 << wRegisterBitNum);
-    }
-
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wLedControl, wLedControl);
-
-exit:
-    return;
-}
 
 /**
 ********************************************************************************
@@ -510,58 +317,38 @@ BOOL Gi_getCurPdiObdAccFwdComCon(WORD * pwComConIdx_p)
 
 /**
 ********************************************************************************
-\brief    get command from AP
+\brief  create table of cyclic objects to be linked at PCP side according to
+        AP message
 
-getCommandFromAp() gets the command from the application processor(AP).
+\param dwMaxLinks_p     Number of objects to be linked.
 
-\return        command from AP
+\return OK or ERROR
 *******************************************************************************/
-BYTE getCommandFromAp(void)
+int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p)
 {
-    return AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wCommand));
-}
-
-/**
-********************************************************************************
-\brief    store the state the PCP is in
-*******************************************************************************/
-void storePcpState(BYTE bState_p)
-{
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, bState_p);
-}
-
-/**
-********************************************************************************
-\brief    get the state of the PCP state machine
-*******************************************************************************/
-WORD getPcpState(void)
-{
-    return AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wState));
-}
-
-/**
-********************************************************************************
-\brief  inform AP about current Node ID setting
-\param  wNodeId     current Node ID of PCP
-*******************************************************************************/
-void pcpPdi_setNodeIdInfo(WORD wNodeId)
-{
-    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wNodeId, wNodeId);
-    Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventNodeIdConfigured);
-}
-
-/**
-********************************************************************************
-\brief    post pending events to PDI
-*******************************************************************************/
-void pcpPdi_processEvents(void)
-{
-    /* Check if previous event has been confirmed by AP */
-    /* If not, try to post it */
-    if(Gi_pcpEventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
+    if (pPcpLinkedObjs_g != NULL) // table has already been created
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_EVENT_INFO,"%s: Posted event from fifo into PDI!\n", __func__);
+        EPL_FREE(pPcpLinkedObjs_g);
     }
+    /* allocate memory for object table */
+    pPcpLinkedObjs_g = EPL_MALLOC (sizeof(tObjTbl) * dwMaxLinks_p);
+    if (pPcpLinkedObjs_g == NULL)
+    {
+        return ERROR;
+    }
+    dwApObjLinkEntries_g = 0; // reset entry counter
+
+    return OK;
+}
+
+/**
+********************************************************************************
+\brief  delete table of linked cyclic objects
+*******************************************************************************/
+void Gi_deletePcpObjLinksTbl(void)
+{
+    /* free object link table */
+    EPL_FREE(pPcpLinkedObjs_g);
 }
 
 /*******************************************************************************

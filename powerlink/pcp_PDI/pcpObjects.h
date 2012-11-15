@@ -7,26 +7,49 @@
 /**
 ********************************************************************************
 
-\file       pcpPdi.h
+\file       pcpObjects.h
 
-\brief      Powerlink Communication Processor Data Interface module header file
+\brief      module handles object forwarding to PDI
 
-\date       13.11.2012
+\date       15.11.2012
 
 *******************************************************************************/
-#ifndef _PCPPDI_H_
-#define _PCPPDI_H_
+#ifndef _PCPOBJECTS_H_
+#define _PCPOBJECTS_H_
 /******************************************************************************/
 /* includes */
-#include <pcp.h>
-#include <pcpStateMachine.h>
-#include <EplSdo.h>
+#include <global.h>
+#include <EplObduDefAccHstry.h>
+#include <pcpAsyncSm.h>
 
 /******************************************************************************/
 /* defines */
 
 /******************************************************************************/
 /* typedefs */
+
+/**
+ * \brief enum of object access storage locations
+ */
+typedef enum eObdAccStorage {
+    kObdAccStorageInvalid,          ///< invalid location
+    kObdAccStorageDefObdAccHistory, ///< default OBD access history
+} tObdAccStorage;
+
+/**
+ * \brief structure for object access forwarding to PDI (i.e. AP)
+ */
+typedef struct sObdAccComCon {
+    WORD            m_wComConIdx; ///< communication connection index of lower layer
+    tObdAccStorage  m_Origin;   ///< OBD handle storage location
+} tObdAccComCon;
+
+/**
+ * \brief PDI communication connection structure
+ */
+typedef struct sApiPdiComCon {
+    tObdAccComCon  m_ObdAccFwd;  ///< object access forwarding connection
+} tApiPdiComCon;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -36,10 +59,6 @@
 
 /******************************************************************************/
 /* function declarations */
-int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
-int Gi_init(tInitStateMachine * pStateMachineInit_p, tPcpInitParam * pInitParam_p);
-void Gi_shutdown(void);
-void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p);
 tEplKernel Gi_openObdAccHstryToPdiConnection(tObdAccHstryEntry * pDefObdHdl_p);
 tEplKernel Gi_forwardObdAccHstryEntryToPdi(tObdAccHstryEntry * pDefObdHdl_p);
 void Gi_deleteObdAccHstryToPdiConnection(void);
@@ -50,14 +69,10 @@ tEplKernel Gi_closeObdAccHstryToPdiConnection(
                                                 void* pReadObjRespData_p);
 tPdiAsyncStatus Gi_ObdAccFwdPdiTxFinishedErrCb(tPdiAsyncMsgDescr * pMsgDescr_p);
 BOOL Gi_getCurPdiObdAccFwdComCon(WORD * pwComConIdx_p);
-BYTE getCommandFromAp(void);
-void storePcpState(BYTE bState_p);
-WORD getPcpState(void);
-void pcpPdi_setNodeIdInfo(WORD wNodeId);
-void pcpPdi_processEvents(void);
+int Gi_createPcpObjLinksTbl(DWORD dwMaxLinks_p);
+void Gi_deletePcpObjLinksTbl(void);
 
-
-#endif /* _PCPPDI_H_ */
+#endif /* _PCPOBJECTS_H_ */
 
 /*******************************************************************************
 *

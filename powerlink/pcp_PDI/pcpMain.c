@@ -20,7 +20,9 @@
 #include "pcpSync.h"
 #include "pcpPdo.h"
 #include "pcpAsyncSm.h"
-#include "global.h"
+#include <pcpObjects.h>
+#include <pcpCtrlReg.h>
+
 
 #ifdef VETH_DRV_EN
   #include "pcpAsyncVeth.h"
@@ -46,7 +48,7 @@
 #include "EplTimeru.h"
 #include <EplObduDefAcc.h>
 #include <EplObduDefAccHstry.h>
-#include <pcpPdi.h>
+
 
 //---------------------------------------------------------------------------
 // defines
@@ -93,6 +95,9 @@ static int startPowerlink(void);
 static void switchoffPowerlink(void);
 static void enterPreOpPowerlink(void);
 static void enterReadyToOperatePowerlink(void);
+static void enterOperationalPowerlink(void);
+static int Gi_init(tInitStateMachine * pStateMachineInit_p, tPcpInitParam * pInitParam_p);
+static void Gi_shutdown(void);
 
 /**
 ********************************************************************************
@@ -147,6 +152,7 @@ int main (void)
     StateMachineInit.m_fpShutdownPlk = switchoffPowerlink;
     StateMachineInit.m_fpRdyToOpPlk = enterReadyToOperatePowerlink;
     StateMachineInit.m_fpPreOpPlk = enterPreOpPowerlink;
+    StateMachineInit.m_fpOperationalPlk = enterOperationalPowerlink;
     if (Gi_init(&StateMachineInit, &InitParam_l) != OK)
     {
         goto exit;
@@ -438,6 +444,15 @@ static void enterReadyToOperatePowerlink(void)
                 "to stack failed!\n");
         //TODO react on error (shutdown?)
     }
+}
+
+/**
+********************************************************************************
+\brief    POWERLINK enter operational
+*******************************************************************************/
+static void enterOperationalPowerlink(void)
+{
+    pcpSync_enableInterruptIfConfigured();
 }
 
 /**
@@ -822,6 +837,95 @@ inputs and runs the control loop.
     }
 
     return EplRet;
+}
+
+/**
+********************************************************************************
+\brief    basic initializations
+\param pStateMachineInit_p  [IN] callback functions for PCP state machine
+\param pInitParam_p         [IN] pointer to initialization parameter
+                                 which will be set later in the pcpAsync module
+*******************************************************************************/
+int Gi_init(tInitStateMachine * pStateMachineInit_p, tPcpInitParam * pInitParam_p)
+{
+    int         iRet= OK;
+    UINT32      uiApplicationSwDate = 0;
+    UINT32      uiApplicationSwTime = 0;
+
+#ifdef CONFIG_IIB_IS_PRESENT
+    tFwRet      FwRetVal = kFwRetSuccessful;
+
+    FwRetVal = getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
+    if (FwRetVal != kFwRetSuccessful)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageApplicationSwDateTime() failed with 0x%x\n", FwRetVal);
+    }
+#endif // CONFIG_IIB_IS_PRESENT
+
+    /* Setup PCP Control Register in DPRAM */
+    pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;     // set address of control register - equals DPRAM base address
+
+    // Note:
+    // pCtrlReg_g members m_dwMagic, m_wPcpPdiRev and m_wPcpSysId are set by the Powerlink IP-core.
+    // The FPGA internal memory initialization sets the following values:
+    // pCtrlReg_g->m_wState: 0x00EE
+    // pCtrlReg_g->m_wCommand: 0xFFFF
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, 0x00);                // invalid event TODO: structure
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, 0x00);                 // invalid event argument TODO: structure
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, kPcpStateInvalid);        // set invalid PCP state
+
+    DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Wait for AP reset cmd..\n");
+
+    /* wait for reset command from AP */
+    while (getCommandFromAp() != kApCmdReset)
+        ;
+
+    // init event fifo queue
+    Gi_pcpEventFifoInit();
+
+    // init time sync module
+    Gi_initSync();
+
+    // start PCP API state machine and move to PCP_BOOTED state
+    if(Gi_initStateMachine(pStateMachineInit_p) == FALSE)
+    {
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
+        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initStateMachine() FAILED!\n");
+        goto exit;
+    }
+
+    // init asynchronous PCP <-> AP communication
+    iRet = CnApiAsync_create(pInitParam_p);
+    if (iRet != OK )
+    {
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
+        DEBUG_TRACE0(DEBUG_LVL_09, "CnApiAsync_create() FAILED!\n");
+        goto exit;
+    }
+
+    // init cyclic object processing
+    iRet = Gi_initPdo();
+    if (iRet != OK )
+    {
+        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrInitFailed);
+        DEBUG_TRACE0(DEBUG_LVL_09, "Gi_initPdo() FAILED!\n");
+        goto exit;
+    }
+
+exit:
+    return iRet;
+}
+
+/**
+********************************************************************************
+\brief  cleanup and exit generic interface
+*******************************************************************************/
+void Gi_shutdown(void)
+{
+    //TODO: free other things
+    Gi_deletePcpObjLinksTbl();
 }
 
 /* EOF */

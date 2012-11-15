@@ -78,10 +78,11 @@ SRCFILES=${APP_DIR}/pcpMain.c \
 ${APP_DIR}/pcpEvent.c \
 ${APP_DIR}/pcpStateMachine.c \
 ${APP_DIR}/pcpPdo.c \
+${APP_DIR}/pcpObjects.c \
 ${APP_DIR}/pcpAsyncSm.c \
 ${APP_DIR}/pcpSync.c \
 ${APP_DIR}/pcpAsync.c \
-${APP_DIR}/pcpPdi.c \
+${APP_DIR}/pcpCtrlReg.c \
 ${OBJDICT_DIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \

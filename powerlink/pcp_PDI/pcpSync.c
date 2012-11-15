@@ -209,6 +209,20 @@ void Gi_enableSyncInt(void)
     return;
 }
 
+
+/**
+********************************************************************************
+\brief    enable PDI synchronization interrupt signal if it is activated by AP
+*******************************************************************************/
+void pcpSync_enableInterruptIfConfigured(void)
+{
+    /* enable the synchronization interrupt */
+    if(Gi_getSyncIntCycle() != 0)   // true if Sync IR is required by AP
+    {
+        Gi_enableSyncInt();    // enable IR trigger possibility
+    }
+}
+
 /**
 ********************************************************************************
 \brief    disable the PCP -> AP synchronization interrupt

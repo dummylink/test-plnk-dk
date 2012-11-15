@@ -20,7 +20,7 @@
 #include "pcpEvent.h"
 #include "pcpPdo.h"
 #include "pcp.h"
-#include "pcpPdi.h"
+#include <pcpObjects.h>
 
 #ifdef VETH_DRV_EN
   #include "pcpAsyncVeth.h"

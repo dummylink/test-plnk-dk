@@ -1,55 +1,32 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved. All use of this software and documentation is          
-* subject to the License Agreement located at the end of this file below.     
+/*******************************************************************************
+* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* All rights reserved. All use of this software and documentation is
+* subject to the License Agreement located at the end of this file below.
 */
 
 /**
 ********************************************************************************
 
-\file       pcpEvent.h
+\file       pcpCtrlReg.h
 
-\brief      header file for pcpEvent module
+\brief      Powerlink Communication Processor low level interface module
+            header file
 
-\author     hoggerm
-
-\date       26.08.2011
-
-\since      26.08.2011
+\date       13.11.2012
 
 *******************************************************************************/
-
-#ifndef PCPEVENT_H_
-#define PCPEVENT_H_
-
+#ifndef _PCPCTRLREG_H_
+#define _PCPCTRLREG_H_
+/******************************************************************************/
 /* includes */
-#include "cnApiTyp.h"
-
-#include "cnApiTypEvent.h"
+#include <pcp.h>
+#include <pcpStateMachine.h>
 
 /******************************************************************************/
 /* defines */
-#define FIFO_SIZE   16
 
 /******************************************************************************/
 /* typedefs */
-enum eFifoDelete {
-    kPcpEventFifoEmpty = 0,
-    kPcpEventFifoFull,
-    kPcpEventFifoInserted
-};
-
-enum eFifoInsert {
-    kPcpEventFifoPosted = 0,
-    kPcpEventFifoBusy
-};
-
-typedef struct sFifoBuffer {
-    WORD       wEventType_m;          ///< type of event (e.g. state change, error, ...)
-    WORD       wEventArg_m;           ///< event argument, if applicable (e.g. error code, state, ...)
-    WORD       wEventAck_m;           ///< acknowledge for events and asynchronous IR signal
-} tFifoBuffer;
-
 
 /******************************************************************************/
 /* external variable declarations */
@@ -59,22 +36,20 @@ typedef struct sFifoBuffer {
 
 /******************************************************************************/
 /* function declarations */
-void Gi_pcpEventFifoInit(void);
-void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
-inline UCHAR Gi_pcpEventFifoProcess(volatile tPcpCtrlReg*  pCtrlReg_g);
-void pcpPdi_processEvents(void);
-
-/******************************************************************************/
-/* functions */
+void Gi_controlLED(tCnApiLedType bType_p, BOOL bOn_p);
+BYTE getCommandFromAp(void);
+void storePcpState(BYTE bState_p);
+WORD getPcpState(void);
+void pcpPdi_setNodeIdInfo(WORD wNodeId);
 
 
-#endif /* PCPEVENT_H_ */
+#endif /* _PCPCTRLREG_H_ */
 
 /*******************************************************************************
 *
 * License Agreement
 *
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1  
+* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1  
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms,
