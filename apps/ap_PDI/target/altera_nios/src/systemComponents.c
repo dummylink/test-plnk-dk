@@ -39,7 +39,6 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* global variables */
-static alt_irq_context iInterruptContext_g = 0;
 static BYTE bAsyncIntEnable = FALSE;
 static BYTE bSyncIntEnable = FALSE;
 
