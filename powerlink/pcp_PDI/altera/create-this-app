@@ -79,6 +79,7 @@ INCLUDES="\
 ${PWD} \
 ${EDRV_DIR}/openmac/include \
 ${PCP_TARGET_DIR}/altera_nios/include \
+${PCP_COMMON_DIR}/inc \
 ${POWERLINKDIR}/Include \
 ${POWERLINKDIR}/Include/user \
 ${POWERLINKDIR}/SharedBuff \
@@ -158,6 +159,8 @@ ${PCP_TARGET_DIR}/altera_nios/src/fpgaCfg.c \
 ${PCP_TARGET_DIR}/altera_nios/src/fwUpdate.c \
 ${PCP_TARGET_DIR}/altera_nios/src/fwBoot.c \
 ${PCP_TARGET_DIR}/altera_nios/src/systemComponents.c \
+${PCP_COMMON_DIR}/src/EplObduDefAcc.c \
+${PCP_COMMON_DIR}/src/EplObduDefAccHstry.c \
 ${PCP_GENERIC_DIR}/utils/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${CNDK_DIR}/common/src/stateMachine.c \
@@ -181,8 +184,6 @@ ${POWERLINKDIR}/EplStack/EplPdokCal.c \
 ${POWERLINKDIR}/EplStack/EplPdou.c \
 ${POWERLINKDIR}/EplStack/EplPdouCal.c \
 ${POWERLINKDIR}/EplStack/EplObd.c \
-${POWERLINKDIR}/EplStack/EplObduDefAcc.c \
-${POWERLINKDIR}/EplStack/EplObduDefAccHstry.c \
 ${POWERLINKDIR}/EplStack/EplSdoComu.c \
 ${POWERLINKDIR}/EplStack/EplSdoAsySequ.c \
 ${POWERLINKDIR}/EplStack/EplSdoAsndu.c \

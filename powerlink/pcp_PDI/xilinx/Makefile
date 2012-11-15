@@ -21,6 +21,7 @@ POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
 APP_DIR=${CNDK_DIR}/powerlink/pcp_PDI
 OBJDICT_DIR=${CNDK_DIR}/objDicts/PDI
 EDRV_DIR=${CNDK_DIR}/powerlink/generic/POWERLINK_IP_Edrv
+PCP_COMMON_DIR=${CNDK_DIR}/powerlink/common
 CNDK_TARGET_DIR=${CNDK_DIR}/powerlink/target/xilinx_microblaze
 CN_API_DIR=${CNDK_DIR}/libCnApi
 TOOLS_PATH=${CNDK_DIR}/tools/xilinx
@@ -67,6 +68,7 @@ INCLUDES=-I${APP_DIR}\
 -I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
 -I${OBJDICT_DIR} \
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
+-I${PCP_COMMON_DIR}/inc \
 -I${CNDK_TARGET_DIR}/include \
 -I${CNDK_DIR}/common/inc
 
@@ -101,8 +103,6 @@ ${POWERLINK_DIR}/EplStack/EplPdokCal.c \
 ${POWERLINK_DIR}/EplStack/EplPdou.c \
 ${POWERLINK_DIR}/EplStack/EplPdouCal.c \
 ${POWERLINK_DIR}/EplStack/EplObd.c \
-${POWERLINK_DIR}/EplStack/EplObduDefAcc.c \
-${POWERLINK_DIR}/EplStack/EplObduDefAccHstry.c \
 ${POWERLINK_DIR}/EplStack/EplSdoComu.c \
 ${POWERLINK_DIR}/EplStack/EplSdoAsySequ.c \
 ${POWERLINK_DIR}/EplStack/EplSdoAsndu.c \
@@ -115,6 +115,8 @@ ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c \
 ${POWERLINK_DIR}/SharedBuff/SharedBuff.c \
 ${POWERLINK_DIR}/SharedBuff/ShbIpc-NoOS.c \
 ${CNDK_DIR}/common/src/stateMachine.c \
+${PCP_COMMON_DIR}/src/EplObduDefAcc.c \
+${PCP_COMMON_DIR}/src/EplObduDefAccHstry.c \
 ${CNDK_TARGET_DIR}/src/fpgaCfg.c \
 ${CNDK_TARGET_DIR}/src/fwUpdate.c \
 ${CNDK_TARGET_DIR}/src/fwBoot.c \

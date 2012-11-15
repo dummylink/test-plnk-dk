@@ -153,16 +153,6 @@
 			<locationURI>PLK_LOC/EplStack/EplObd.c</locationURI>
 		</link>
 		<link>
-			<name>openPOWERLINK_CNDKPatched/EplObduDefAcc.c</name>
-			<type>1</type>
-			<locationURI>PLK_LOC/EplStack/EplObduDefAcc.c</locationURI>
-		</link>
-		<link>
-			<name>openPOWERLINK_CNDKPatched/EplObduDefAccHstry.c</name>
-			<type>1</type>
-			<locationURI>PLK_LOC/EplStack/EplObduDefAccHstry.c</locationURI>
-		</link>
-		<link>
 			<name>openPOWERLINK_CNDKPatched/EplPdok.c</name>
 			<type>1</type>
 			<locationURI>PLK_LOC/EplStack/EplPdok.c</locationURI>
@@ -286,6 +276,16 @@
 			<name>openPOWERLINK_CNDKPatched/SharedBuff/ShbTarget.h</name>
 			<type>1</type>
 			<locationURI>PLK_LOC/SharedBuff/ShbTarget.h</locationURI>
+		</link>
+		<link>
+			<name>common/src/EplObduDefAcc.c</name>
+			<type>1</type>
+			<locationURI>CNDK_LOC/powerlink/common/src/EplObduDefAcc.c</locationURI>
+		</link>
+		<link>
+			<name>common/src/EplObduDefAccHstry.c</name>
+			<type>1</type>
+			<locationURI>CNDK_LOC/powerlink/common/src/EplObduDefAccHstry.c</locationURI>
 		</link>
 		<link>
 			<name>target/src/fwBoot.c</name>

@@ -153,16 +153,6 @@
 			<location>CNDK_LOCATION/powerlink/generic/openPOWERLINK_CNDKPatched/EplStack/EplObd.c</location>
 		</link>
 		<link>
-			<name>openPOWERLINK_CNDKPatched/EplObduDefAcc.c</name>
-			<type>1</type>
-			<location>CNDK_LOCATION/powerlink/generic/openPOWERLINK_CNDKPatched/EplStack/EplObduDefAcc.c</location>
-		</link>
-		<link>
-			<name>openPOWERLINK_CNDKPatched/EplObduDefAccHstry.c</name>
-			<type>1</type>
-			<location>CNDK_LOCATION/powerlink/generic/openPOWERLINK_CNDKPatched/EplStack/EplObduDefAccHstry.c</location>
-		</link>
-		<link>
 			<name>openPOWERLINK_CNDKPatched/EplPdok.c</name>
 			<type>1</type>
 			<location>CNDK_LOCATION/powerlink/generic/openPOWERLINK_CNDKPatched/EplStack/EplPdok.c</location>
@@ -241,6 +231,16 @@
 			<name>openPOWERLINK_CNDKPatched/amiarm.c</name>
 			<type>1</type>
 			<location>CNDK_LOCATION/powerlink/generic/openPOWERLINK_CNDKPatched/EplStack/amiarm.c</location>
+		</link>
+		<link>
+			<name>EplObduDefAcc.c</name>
+			<type>1</type>
+			<location>CNDK_LOCATION/powerlink/common/src/EplObduDefAcc.c</location>
+		</link>
+		<link>
+			<name>EplObduDefAccHstry.c</name>
+			<type>1</type>
+			<location>CNDK_LOCATION/powerlink/common/src/EplObduDefAccHstry.c</location>
 		</link>
 		<link>
 			<name>fwBoot.c</name>
