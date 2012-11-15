@@ -20,6 +20,8 @@ subject to the License Agreement located at the end of this file below.
 /* includes */
 #include <cnApiGlobal.h>
 
+#include "cnApiSdo.h"
+
 /******************************************************************************/
 /* defines */
 
@@ -67,15 +69,15 @@ typedef unsigned int tCnApiObdSize; // For all objects as objects size are used 
 
 typedef struct sCnApiObdParam
 {
-    tCnApiObdEvent    m_ObdEvent;
-    unsigned int      m_uiIndex;
-    unsigned int      m_uiSubIndex;
-    DWORD             m_dwAbortCode;
-    void *            m_pData;
-    tCnApiObdSize     m_TransferSize;     // transfer size from SDO or local app
-    tCnApiObdSize     m_ObjSize;          // current object size from OD
-    tCnApiObdSize     m_SegmentSize;
-    tCnApiObdSize     m_SegmentOffset;
+    tCnApiObdEvent      m_ObdEvent;
+    unsigned int        m_uiIndex;
+    unsigned int        m_uiSubIndex;
+    tCnApiSdoAbortCode  m_AbortCode;
+    void *              m_pData;
+    tCnApiObdSize       m_TransferSize;     // transfer size from SDO or local app
+    tCnApiObdSize       m_ObjSize;          // current object size from OD
+    tCnApiObdSize       m_SegmentSize;
+    tCnApiObdSize       m_SegmentOffset;
 } tCnApiObdParam;
 
 /******************************************************************************/

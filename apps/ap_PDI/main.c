@@ -797,7 +797,7 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
         pObdParam_p->m_ObjSize, pObdParam_p->m_TransferSize);
 
     // return error for all non existing objects
-    // if not known yet, this can also be done by setting m_dwAbortCode appropriately
+    // if not known yet, this can also be done by setting m_AbortCode appropriately
     // before the call of CnApi_DefObdAccFinished().
     switch (pObdParam_p->m_uiIndex)
     {
@@ -812,7 +812,7 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
 //
 //                default:
 //                {
-//                    pObdParam_p->m_dwAbortCode = kCnApiSdoacSubIndexNotExist;
+//                    pObdParam_p->m_AbortCode = kCnApiSdoacSubIndexNotExist;
 //                    Ret = kCnApiObdSubindexNotExist;
 //                    goto Exit;
 //                }
@@ -826,7 +826,7 @@ static tCnApiObdStatus CnApi_CbDefaultObdAccess(tCnApiObdParam *  pObdParam_p)
             if(pObdParam_p->m_uiIndex < 0x2000)
             { // not an application specific object
 
-                pObdParam_p->m_dwAbortCode = kCnApiSdoacObjectNotExist;
+                pObdParam_p->m_AbortCode = kCnApiSdoacObjectNotExist;
                 Ret = kCnApiObdIndexNotExist;
                 goto Exit;
 
@@ -910,7 +910,7 @@ static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p)
         pObdParam_p->m_SegmentSize = sizeof(dwExampleData_l);
 
         // if an error occured (e.g. object does not exist):
-        //pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_OBJECT_NOT_EXIST;
+        //pObdParam_p->m_AbortCode = kCnApiSdoacObjectNotExist;
 
     }
     else
@@ -919,7 +919,7 @@ static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p)
         // write to some variable
 
         // nothing else to do except optional error handling
-        //pObdParam_p->m_dwAbortCode = CNAPI_SDOAC_OBJECT_NOT_EXIST;
+        //pObdParam_p->m_AbortCode = kCnApiSdoacObjectNotExist;
     }
 
     CnApiRet = CnApi_DefObdAccFinished(pObdParam_p);

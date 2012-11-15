@@ -337,7 +337,7 @@ static tEplKernel EplCbDefaultObdAccess(tEplObdParam * pObdParam_p)
     CnApiObdParam.m_ObdEvent = pObdParam_p->m_ObdEvent;
     CnApiObdParam.m_uiIndex = pObdParam_p->m_uiIndex;
     CnApiObdParam.m_uiSubIndex = pObdParam_p->m_uiSubIndex;
-    CnApiObdParam.m_dwAbortCode = pObdParam_p->m_dwAbortCode;
+    CnApiObdParam.m_AbortCode = (tCnApiSdoAbortCode)pObdParam_p->m_dwAbortCode;
     CnApiObdParam.m_pData = pObdParam_p->m_pData;
     CnApiObdParam.m_TransferSize = pObdParam_p->m_TransferSize;
     CnApiObdParam.m_ObjSize = pObdParam_p->m_ObjSize;
@@ -397,14 +397,14 @@ tCnApiStatus CnApi_DefObdAccFinished(tCnApiObdParam * pObdParam_p)
          (pObdParam_p->m_SegmentOffset != 0)                    )  )
     {
         //segmented read access not allowed!
-        pObdParam_p->m_dwAbortCode = kCnApiSdoacUnsupportedAccess;
+        pObdParam_p->m_AbortCode = kCnApiSdoacUnsupportedAccess;
     }
 
     // convert cnapi object parameters to epl object parameters
     EplObdParam_l.m_ObdEvent = pObdParam_p->m_ObdEvent;
     EplObdParam_l.m_uiIndex = pObdParam_p->m_uiIndex;
     EplObdParam_l.m_uiSubIndex = pObdParam_p->m_uiSubIndex;
-    EplObdParam_l.m_dwAbortCode = pObdParam_p->m_dwAbortCode;
+    EplObdParam_l.m_dwAbortCode = (DWORD)pObdParam_p->m_AbortCode;
     EplObdParam_l.m_pData = pObdParam_p->m_pData;
     EplObdParam_l.m_TransferSize = pObdParam_p->m_TransferSize;
     EplObdParam_l.m_ObjSize = pObdParam_p->m_ObjSize;
