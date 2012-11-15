@@ -116,7 +116,8 @@ extern BOOL CnApi_processApStateMachine(void);
 extern void CnApi_enterApStateReadyToOperate();
 
 /* functions for object access */
-extern int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p);
+extern tCnApiStatus CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p,
+        WORD wSize_p, BYTE * pAdrs_p);
 extern tCnApiStatus CnApi_DefObdAccFinished(tCnApiObdParam * pObdParam_p);
 
 /* functions for interrupt synchronization */

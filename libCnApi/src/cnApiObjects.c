@@ -135,39 +135,44 @@ The data type of linked local variable must match with data type of POWERLINK ob
 Number of linked objects must match NUM_OBJECTS !!!
 Application Example:   CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
 
-\param		wIndex_p			index of object in the object dictionary
-\param		bSubIndex_p			subindex of object in the object dictionary
-\param		wSize_p				data size of linked object
-\param		pAdrs_p				pointer to object data
+\param      wIndex_p            index of object in the object dictionary
+\param      bSubIndex_p         subindex of object in the object dictionary
+\param      wSize_p             data size of linked object
+\param      pAdrs_p             pointer to object data
 
 
-\return		int
-\retval     OK                  when link is successful
-\retval     ERROR               in case of an error
+\return     tCnApiStatus
+\retval     kCnApiStatusOk                    on success
+\retval     kCnApiStatusObjectLinkFailed      when the linking of the object has
+                                              failed
 
 *******************************************************************************/
-int CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p)
+tCnApiStatus CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p)
 {
-	tObjTbl		*pTbl;
+    tCnApiStatus Ret = kCnApiStatusOk;
+    tObjTbl		*pTbl;
 
-	pTbl = pObjTbl_l + dwNumVarLinks_l;
+    pTbl = pObjTbl_l + dwNumVarLinks_l;
 
-	if (dwNumVarLinks_l < dwMaxLinkEntries_l)
-	{
-		pTbl->m_wIndex = wIndex_p;
-		pTbl->m_bSubIndex = bSubIndex_p;
-		pTbl->m_wSize = wSize_p;
-		pTbl->m_pData = pAdrs_p;
-		dwNumVarLinks_l ++;
-		return OK;
-	}
-	else
-	{
-	    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\nERROR:"
+    if (dwNumVarLinks_l < dwMaxLinkEntries_l)
+    {
+        pTbl->m_wIndex = wIndex_p;
+        pTbl->m_bSubIndex = bSubIndex_p;
+        pTbl->m_wSize = wSize_p;
+        pTbl->m_pData = pAdrs_p;
+        dwNumVarLinks_l ++;
+        goto Exit;
+    }
+    else
+    {
+        DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\nERROR:"
         " Too many Object-Links! Failed at %lu th usage of %s()!\n"
 	    "Please adapt NUM_OBJECTS!\n\n", dwNumVarLinks_l + 1, __func__);
-		return ERROR;
-	}
+        Ret = kCnApiStatusObjectLinkFailed;
+    }
+
+Exit:
+    return Ret;
 }
 
 /**
