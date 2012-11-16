@@ -431,8 +431,6 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
         goto exit;
     }
 
-    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: InitPcpReq done.\n");
-
     /* assign buffer payload addresses */
     pInitPcpReq = (tInitPcpReq *) pTxMsgBuffer_p;    // Tx buffer
 
@@ -458,6 +456,8 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
 
     /* update size values of message descriptors */
     pMsgDescr_p->dwMsgSize_m = sizeof(tInitPcpReq); // sent size
+
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "INFO: InitPcpReq posted.\n");
 
 exit:
     return Ret;

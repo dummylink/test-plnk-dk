@@ -33,8 +33,9 @@ subject to the License Agreement located at the end of this file below.
  * \brief constants for SYN flags
  */
 typedef enum eSynFlag {
-    kMsgBufWriteOnly = 0x01,
-    kMsgBufReadOnly = 0x80
+    kMsgBufWriteOnlyFirstSegment    = 0x00, ///< first segment expected from reader - set by receiver
+    kMsgBufWriteOnly                = 0x01, ///< any segment expected from reader - set by receiver
+    kMsgBufReadOnly                 = 0x80, ///< only read access allowed - set by sender
 } tSynFlag;
 
 /**
@@ -100,6 +101,7 @@ typedef enum ePdiAsyncStatus{
     kPdiAsyncStatusBufFull              = 0x0006,
     kPdiAsyncStatusBufEmpty             = 0x0007,
     kPdiAsyncStatusDataTooLong          = 0x0008,
+    kPdiAsyncStatusOutOfSync            = 0x0009,   ///< sender and receiver are not synchronized
     kPdiAsyncStatusIllegalInstance      = 0x000A,   ///< called Instance does not exist
     kPdiAsyncStatusInvalidInstanceParam = 0x000B,
     kPdiAsyncStatusNoFreeInstance       = 0x000C,   ///< AddInstance was called but no free instance is available
@@ -256,7 +258,7 @@ typedef struct sAsyncMsgHeader {
     volatile BYTE           m_bSync;
     volatile BYTE           m_bChannel;
     volatile BYTE           m_bMsgType;
-    volatile BYTE                    m_bPad;
+    volatile BYTE           m_bPad;
     volatile WORD           m_wFrgmtLen;
     volatile WORD           wReserved;
     volatile DWORD          m_dwStreamLen;

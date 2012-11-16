@@ -96,9 +96,9 @@ static BYTE                     bLinkLogCounter_l = 0;    ///< counter of curren
 /* function declarations */
 static BOOL checkEvent(BOOL * pfEvent_p);
 static inline void setBuffToReadOnly(volatile tAsyncMsg * pPdiBuffer_p);
-static inline void confirmFragmentReception(tAsyncMsg * pPdiBuffer_p);
-static inline BOOL checkMsgDelivery(tAsyncMsg * pPdiBuffer_p);
-static inline BOOL checkMsgPresence(tAsyncMsg * pPdiBuffer_p);
+static inline void confirmFragmentReception(volatile tAsyncMsg * pPdiBuffer_p, BOOL fIsLastFrgmt_p);
+static inline BOOL checkMsgDelivery(volatile tAsyncMsg * pPdiBuffer_p);
+static inline BOOL checkMsgPresence(volatile tAsyncMsg * pPdiBuffer_p);
 static tPdiAsyncStatus getArrayNumOfMsgDescr(tPdiAsyncMsgType MsgType_p,
                                              tPdiAsyncMsgDescr * paMsgDescr_p,
                                              BYTE * pbArgElement_p            );
@@ -134,6 +134,46 @@ static BOOL checkEvent(BOOL * pfEvent_p)
 
 /**
  ********************************************************************************
+ \brief Check the synchronization bit of an asynchronous PDI Tx buffer.
+        If only the first segment is expected by the reader, TRUE will be returned.
+ \param pPdiBuffer_p    pointer to Tx PDI Buffer with structure tAsyncMsg
+ \return BOOL
+ *******************************************************************************/
+static inline BOOL checkFirstSegmentExpectedByReader(volatile tAsyncMsg * pPdiBuffer_p)
+{
+    //Note: PCP sets 'kMsgBufWriteOnlyFirstSegment' on initialization and reset
+    if (pPdiBuffer_p->m_header.m_bSync == kMsgBufWriteOnlyFirstSegment)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+/**
+ ********************************************************************************
+ \brief Check the synchronization bit of an asynchronous PDI Tx buffer.
+        If other than the first segment is expected by the reader, TRUE will be returned.
+ \param pPdiBuffer_p    pointer to Tx PDI Buffer with structure tAsyncMsg
+ \return BOOL
+ *******************************************************************************/
+static inline BOOL checkFollowUpSegmentExpectedByReader(volatile tAsyncMsg * pPdiBuffer_p)
+{
+    //Note: PCP zeros out header upon initialization and reset
+    if (pPdiBuffer_p->m_header.m_bSync == kMsgBufWriteOnly)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+/**
+ ********************************************************************************
  \brief set the synchronization bit for an asynchronous PDI Tx (lock the buffer)
  \param pPdiBuffer_p pointer to Pdi Buffer with structure tAsyncMsg
  *******************************************************************************/
@@ -146,10 +186,18 @@ static inline void setBuffToReadOnly(volatile tAsyncMsg * pPdiBuffer_p)
  ********************************************************************************
  \brief set the synchronization bit for an asynchronous PDI Rx buffer (unlock the buffer)
  \param pPdiBuffer_p pointer to Pdi Buffer with structure tAsyncMsg
+ \param fIsLastFrgmt_p whole transfer finished
  *******************************************************************************/
-static inline void confirmFragmentReception(tAsyncMsg * pPdiBuffer_p)
+static inline void confirmFragmentReception(volatile tAsyncMsg * pPdiBuffer_p, BOOL fIsLastFrgmt_p)
 {
-    pPdiBuffer_p->m_header.m_bSync = kMsgBufWriteOnly;
+    if (fIsLastFrgmt_p)
+    {
+        pPdiBuffer_p->m_header.m_bSync = kMsgBufWriteOnlyFirstSegment;
+    }
+    else
+    {
+        pPdiBuffer_p->m_header.m_bSync = kMsgBufWriteOnly;
+    }
 }
 
 /**
@@ -158,9 +206,10 @@ static inline void confirmFragmentReception(tAsyncMsg * pPdiBuffer_p)
         If it has been freed, TRUE will be returned
  \param pPdiBuffer_p    pointer to Tx PDI Buffer with structure tAsyncMsg
  *******************************************************************************/
-static inline BOOL checkMsgDelivery(tAsyncMsg * pPdiBuffer_p)
+static inline BOOL checkMsgDelivery(volatile tAsyncMsg * pPdiBuffer_p)
 {
-    if (pPdiBuffer_p->m_header.m_bSync == kMsgBufWriteOnly)
+    if ((pPdiBuffer_p->m_header.m_bSync == kMsgBufWriteOnly)            ||
+        (pPdiBuffer_p->m_header.m_bSync == kMsgBufWriteOnlyFirstSegment)  )
     {
         return TRUE; // message has been delivered
     }
@@ -176,7 +225,7 @@ static inline BOOL checkMsgDelivery(tAsyncMsg * pPdiBuffer_p)
         If a Rx message is available, TRUE will be returned
  \param pPdiBuffer_p    pointer to Rx PDI Buffer with structure tAsyncMsg
  *******************************************************************************/
-static inline BOOL checkMsgPresence(tAsyncMsg * pPdiBuffer_p)
+static inline BOOL checkMsgPresence(volatile tAsyncMsg * pPdiBuffer_p)
 {
     if (pPdiBuffer_p->m_header.m_bSync == kMsgBufReadOnly)
     {
@@ -419,6 +468,18 @@ FUNC_DOACT(kPdiAsyncStateWait)
     if (bActivTxMsg_l != INVALID_ELEMENT)
     {   // message activated
 
+#ifdef CN_API_USING_SPI
+    /* update sync flag of PCP PDI buffer header */
+    CnApi_Spi_read(aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bSync),
+                    (BYTE*) &aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bSync);
+#endif /* CN_API_USING_SPI */
+        if(!checkFirstSegmentExpectedByReader(aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->pAdr_m))
+        {
+            /* receiver not ready for new transfer */
+            goto exit;
+        }
+
         ErrorHistory_l = CnApiAsync_prepareTxTransfer(&aPdiAsyncTxMsgs[bActivTxMsg_l]);
         if(ErrorHistory_l != kPdiAsyncStatusSuccessful)
         {
@@ -481,6 +542,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
     }
 
     pMsgDescr = &aPdiAsyncTxMsgs[bActivTxMsg_l];
+    pUtilTxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m; //assign Pdi Tx buffer which this message wants to use
 
     /* 1st fragment -> initialize message descriptor values */
     if (pMsgDescr->dwPendTranfSize_m == 0)
@@ -498,9 +560,25 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             /* set pending payload length */
             pMsgDescr->dwPendTranfSize_m = pMsgDescr->dwMsgSize_m;
         }
-    }
 
-    pUtilTxPdiBuf = pMsgDescr->pPdiBuffer_m->pAdr_m; //assign Pdi Tx buffer which this message wants to use
+        //Note: checkFirstSegmentExpectedByReader is already done in ASYNC_WAIT state
+    }
+    else // following segments
+    {
+#ifdef CN_API_USING_SPI
+    /* update sync flag of PCP PDI buffer header */
+    CnApi_Spi_read(aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
+                    sizeof(((tAsyncPdiBufCtrlHeader *) 0)->m_bSync),
+                    (BYTE*) &aPdiAsyncTxMsgs[bActivTxMsg_l].pPdiBuffer_m->pAdr_m->m_header.m_bSync);
+#endif /* CN_API_USING_SPI */
+        if(!checkFollowUpSegmentExpectedByReader(pUtilTxPdiBuf))
+        {
+            /* reject transfer */
+            ErrorHistory_l = kPdiAsyncStatusOutOfSync;
+            fError = TRUE;
+            goto exit;
+        }
+    }
 
     //TODO: check if this message is allowed in the current NmtState
 
@@ -592,7 +670,6 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
         }
     }
 
-    // Note: Buffer is assumed to be available since this state was entered. No sync check necessary.
     /* setup PDI buffer control header */
     pUtilTxPdiBuf->m_header.m_bChannel =  pMsgDescr->Param_m.ChanType_m;
     pUtilTxPdiBuf->m_header.m_bMsgType = pMsgDescr->MsgType_m;
@@ -1231,7 +1308,7 @@ FUNC_EVT(kPdiAsyncRxStateBusy, kPdiAsyncStateWait, 1)
 {
     if (checkEvent(&fMsgTransferFinished))
     {
-        confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+        confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m, TRUE);
 #ifdef CN_API_USING_SPI
     /* update sync flag of PCP PDI buffer header */
     CnApi_Spi_write(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
@@ -1255,7 +1332,7 @@ FUNC_EVT(kPdiAsyncRxStateBusy, kPdiAsyncRxStatePending, 1)
 {
     if (checkEvent(&fMsgTransferIncomplete))
     {
-        confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+        confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m, FALSE);
 #ifdef CN_API_USING_SPI
     /* update sync flag of PCP PDI buffer header */
     CnApi_Spi_write(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
@@ -1423,6 +1500,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
 
         /* reset message status */
         aPdiAsyncTxMsgs[bActivTxMsg_l].MsgStatus_m = kPdiAsyncMsgStatusNotActive;
+        aPdiAsyncTxMsgs[bActivTxMsg_l].dwPendTranfSize_m = 0;
         aPdiAsyncTxMsgs[bActivTxMsg_l].Error_m = kPdiAsyncStatusSuccessful;
 
         if (aPdiAsyncTxMsgs[bActivTxMsg_l].MsgHdl_m.pLclBuf_m == pLclAsyncTxMsgBuffer_l)
@@ -1449,7 +1527,7 @@ FUNC_ENTRYACT(kPdiAsyncStateStopped)
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ASYNC_INFO, "Rx message type: %d\n",
                      aPdiAsyncRxMsgs[bActivRxMsg_l].MsgType_m);
 
-        confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m);
+        confirmFragmentReception(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->pAdr_m, TRUE);
 #ifdef CN_API_USING_SPI
     /* update sync flag of PCP PDI buffer header */
     CnApi_Spi_write(aPdiAsyncRxMsgs[bActivRxMsg_l].pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNC_SYNC_OFFSET,
