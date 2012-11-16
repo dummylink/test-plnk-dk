@@ -25,7 +25,7 @@ subject to the License Agreement located at the end of this file below.
 #define MAX_PDI_ASYNC_TX_MESSAGES 10    ///< max: 0xFF
 #define MAX_PDI_ASYNC_RX_MESSAGES  9    ///< max: 0xFF
 
-#define MAX_ASYNC_STREAM_LENGTH   10240 ///< max local buffer size (maximum = max value(DWORD))
+#define MAX_ASYNC_STREAM_LENGTH   1600  ///< max local buffer size (maximum = max value(DWORD))
 
 #define PCP_ASYNCSM_TIMEOUT_FACTOR 1000
 
