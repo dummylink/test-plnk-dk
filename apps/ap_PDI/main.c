@@ -76,6 +76,7 @@ static BOOL     fOperational_l = FALSE;                         ///< indicates A
 
 // Object access
 static DWORD dwExampleData_l = 0xABCD0001;              ///< this is only an example object data
+static BYTE  abTestDomain_l[256];                       ///< example Domain test object
 static tCnApiObdParam   ObdParam_l = {0};               ///< OBD access handle
 
 /******************************************************************************/
@@ -209,6 +210,10 @@ int main (void)
     CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
     CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
     CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
+
+    // prepare SDO domain object read test
+    abTestDomain_l[0] = 0xaa;                        // tag start of domain test object
+    abTestDomain_l[sizeof(abTestDomain_l)-1] = 0xee; // tag end of domain test object
 
 #ifdef USE_POLLING_MODE_SYNC
     CnApi_initSyncInt(0, 0, 0); // tell PCP that we want polling mode
@@ -906,13 +911,21 @@ static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p)
 
 
     if (pObdParam_p->m_ObdEvent == kCnApiObdEvPreRead)
-    {   // return data of read access
+    {   // Example how to finish a ReadByIndex access:
 
-        // Example how to finish a ReadByIndex access:
-        dwExampleData_l++;
-        pObdParam_p->m_pData = &dwExampleData_l;
-        pObdParam_p->m_ObjSize = sizeof(dwExampleData_l);
-        pObdParam_p->m_SegmentSize = sizeof(dwExampleData_l);
+        if (pObdParam_p->m_uiIndex == 0x2001 && pObdParam_p->m_uiSubIndex == 0x01)
+        {
+            pObdParam_p->m_pData = &abTestDomain_l;
+            pObdParam_p->m_ObjSize = sizeof(abTestDomain_l);
+            pObdParam_p->m_SegmentSize = sizeof(abTestDomain_l);
+        }
+        else
+        {
+            dwExampleData_l++;
+            pObdParam_p->m_pData = &dwExampleData_l;
+            pObdParam_p->m_ObjSize = sizeof(dwExampleData_l);
+            pObdParam_p->m_SegmentSize = sizeof(dwExampleData_l);
+        }
 
         // if an error occured (e.g. object does not exist):
         //pObdParam_p->m_AbortCode = kCnApiSdoacObjectNotExist;
@@ -922,9 +935,15 @@ static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p)
     { // write access
 
         // write to some variable
+        if (pObdParam_p->m_uiIndex == 0x2001 && pObdParam_p->m_uiSubIndex == 0x01)
+        {
+            if (pObdParam_p->m_SegmentSize > sizeof(abTestDomain_l))
+            {
+                pObdParam_p->m_AbortCode = kCnApiSdoacDataTypeLengthTooHigh;
+            }
 
-        // nothing else to do except optional error handling
-        //pObdParam_p->m_AbortCode = kCnApiSdoacObjectNotExist;
+            CNAPI_MEMCPY(&abTestDomain_l, pObdParam_p->m_pData, pObdParam_p->m_SegmentSize);
+        }
     }
 
     CnApiRet = CnApi_DefObdAccFinished(pObdParam_p);
@@ -934,7 +953,7 @@ static void CnApi_processObjectAccess(tCnApiObdParam * pObdParam_p)
                 "failed with 0x%x!\n", __func__, CnApiRet);
     }
 
-    /* reset structure when object access is finished */
+    /* reset OBD access handle after object access has finished */
     CNAPI_MEMSET(pObdParam_p, 0 , sizeof(tCnApiObdParam));
 
 Exit:
