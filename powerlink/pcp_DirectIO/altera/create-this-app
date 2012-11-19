@@ -143,7 +143,7 @@ ${PCP_TARGET_DIR}/altera_nios/src/fwBoot.c \
 ${PCP_TARGET_DIR}/altera_nios/src/systemComponents.c \
 ${PCP_COMMON_DIR}/src/EplObduDefAcc.c \
 ${PCP_COMMON_DIR}/src/EplObduDefAccHstry.c \
-${PCP_GENERIC_DIR}/utils/crc32.c \
+${PCP_COMMON_DIR}/src/crc32.c \
 ${OBJDICTDIR}/Objdict.c \
 ${EDRV_DIR}/openmac/source/EdrvOpenMac.c \
 ${EDRV_DIR}/openmac/source/EplTimerSynck_OpenMac.c \

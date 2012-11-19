@@ -250,7 +250,7 @@
 		<link>
 			<name>crc32.c</name>
 			<type>1</type>
-			<location>CNDK_LOCATION/powerlink/generic/utils/crc32.c</location>
+			<location>CNDK_LOCATION/powerlink/common/src/crc32.c</location>
 		</link>
 		<link>
 			<name>fpgaCfg.c</name>
