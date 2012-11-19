@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /******************************************************************************/
 /* includes */
-#include "cnApiGlobal.h"
+#include "global.h"
 #include "firmware.h"
 #include "EplSdo.h"
 
@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p);
+void initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p);
 tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
         char * pData_p, void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p);
 tEplSdoComConState updateFirmwarePeriodic(void);

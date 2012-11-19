@@ -13,15 +13,15 @@ CNDK_DIR=../..
 
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx9_directIO-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx9_directIO-axi
-BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-plb
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-axi
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-plb
+BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_directIO-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_directIO-axi
 
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx9_directIO-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx9_directIO-axi
-HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-plb
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-axi
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-plb
+HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_directIO-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_directIO-axi
 
@@ -32,7 +32,7 @@ BOARD_NAME=lx150t
 ##################################
 # Bus interface: [plb, axi]
 # Note: This sets correct endian and linker script
-BUS_INTERFACE=plb
+BUS_INTERFACE=axi
 
 ##################################
 # Processor name: [pcp, ap]

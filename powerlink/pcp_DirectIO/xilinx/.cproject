@@ -22,7 +22,7 @@
 							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.mb" id="xilinx.mb.target.gnu.base.2051568357" isAbstract="false" name="Debug Platform" superClass="xilinx.mb.target.gnu.base"/>
 							<builder buildPath="${workspace_loc:/pcp_PDI/build_xilinx}" id="xilinx.gnu.mb.toolchain.builder.1041339058" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="GNU make" superClass="xilinx.gnu.mb.toolchain.builder"/>
 							<tool id="xilinx.gnu.mb.c.toolchain.assembler.1301756112" name="MicroBlaze gcc assembler" superClass="xilinx.gnu.mb.c.toolchain.assembler">
-								<option id="xilinx.gnu.mb.assembler.usele.546805550" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.assembler.usele" value="false" valueType="boolean"/>
+								<option id="xilinx.gnu.mb.assembler.usele.546805550" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.assembler.usele" value="true" valueType="boolean"/>
 								<inputType id="xilinx.gnu.assembler.input.718469362" superClass="xilinx.gnu.assembler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.mb.c.toolchain.compiler.1673480845" name="MicroBlaze gcc compiler" superClass="xilinx.gnu.mb.c.toolchain.compiler">
@@ -35,29 +35,29 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/openPOWERLINK_CNDKPatched/Include/kernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/openPOWERLINK_CNDKPatched/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/POWERLINK_IP_Edrv/include}&quot;"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-axi/pcp/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/pcp_DirectIO/common_pcp/inc}&quot;"/>
 								</option>
 								<option id="xilinx.gnu.compiler.option.optimization.level.1438028258" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="xilinx.gnu.mb.compiler.inferred.mbversion.27378811" name="MicroBlaze Version" superClass="xilinx.gnu.mb.compiler.inferred.mbversion" value="8.20.a" valueType="string"/>
-								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.228811020" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/include"/>
-								</option>
-								<option id="xilinx.gnu.mb.compiler.inferred.usele.74554588" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="false" valueType="boolean"/>
+								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.228811020" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath"/>
+								<option id="xilinx.gnu.mb.compiler.inferred.usele.74554588" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 								<inputType id="xilinx.gnu.compiler.input.1625903823" name="C source files" superClass="xilinx.gnu.compiler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.mb.cxx.toolchain.compiler.1700838143" name="MicroBlaze g++ compiler" superClass="xilinx.gnu.mb.cxx.toolchain.compiler">
 								<option id="xilinx.gnu.mb.compiler.inferred.mbversion.1973256619" name="MicroBlaze Version" superClass="xilinx.gnu.mb.compiler.inferred.mbversion" value="8.20.a" valueType="string"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1902275680" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/include"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-axi/pcp/include"/>
 								</option>
-								<option id="xilinx.gnu.mb.compiler.inferred.usele.1805517878" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="false" valueType="boolean"/>
+								<option id="xilinx.gnu.mb.compiler.inferred.usele.1805517878" name="Produce little endian code (-mlittle-endian)" superClass="xilinx.gnu.mb.compiler.inferred.usele" value="true" valueType="boolean"/>
 							</tool>
 							<tool id="xilinx.gnu.mb.toolchain.archiver.1445426723" name="MicroBlaze archiver" superClass="xilinx.gnu.mb.toolchain.archiver"/>
 							<tool id="xilinx.gnu.mb.c.toolchain.linker.1185029247" name="MicroBlaze gcc linker" superClass="xilinx.gnu.mb.c.toolchain.linker">
 								<option id="xilinx.gnu.mb.linker.inferred.mbversion.512813988" name="MicroBlaze Version" superClass="xilinx.gnu.mb.linker.inferred.mbversion" value="8.20.a" valueType="string"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.796503331" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/lib"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-axi/pcp/lib"/>
 								</option>
-								<option id="xilinx.gnu.mb.linker.inferred.usele.924752246" name="Produce little endian artifacts (-mlittle-endian)" superClass="xilinx.gnu.mb.linker.inferred.usele" value="false" valueType="boolean"/>
+								<option id="xilinx.gnu.mb.linker.inferred.usele.924752246" name="Produce little endian artifacts (-mlittle-endian)" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.c.linker.option.lscript.261785348" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../lscript.ld" valueType="string"/>
 								<inputType id="xilinx.gnu.linker.input.1122145974" superClass="xilinx.gnu.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -68,9 +68,9 @@
 							<tool id="xilinx.gnu.mb.cxx.toolchain.linker.766294257" name="MicroBlaze g++ linker" superClass="xilinx.gnu.mb.cxx.toolchain.linker">
 								<option id="xilinx.gnu.mb.linker.inferred.mbversion.1632900049" name="MicroBlaze Version" superClass="xilinx.gnu.mb.linker.inferred.mbversion" value="8.20.a" valueType="string"/>
 								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1686612104" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
-									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-plb/pcp/lib"/>
+									<listOptionValue builtIn="false" value="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/standalone_bsp_lx150t_directIO-axi/pcp/lib"/>
 								</option>
-								<option id="xilinx.gnu.mb.linker.inferred.usele.786657527" name="Produce little endian artifacts (-mlittle-endian)" superClass="xilinx.gnu.mb.linker.inferred.usele" value="false" valueType="boolean"/>
+								<option id="xilinx.gnu.mb.linker.inferred.usele.786657527" name="Produce little endian artifacts (-mlittle-endian)" superClass="xilinx.gnu.mb.linker.inferred.usele" value="true" valueType="boolean"/>
 								<option id="xilinx.gnu.c.linker.option.lscript.872225419" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../lscript.ld" valueType="string"/>
 							</tool>
 						</toolChain>

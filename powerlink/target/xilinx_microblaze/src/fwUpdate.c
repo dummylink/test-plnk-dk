@@ -128,7 +128,7 @@ UINT32 crc32(UINT32 uiCrc_p, const void *pBuf_p, unsigned int uiSize_p);
 
 /**
 ********************************************************************************
-\brief	get firmware header
+\brief  get firmware header
 
 getFwHeader() reads the firmware header checks if it is valid and copies it
 to the global variable fwHeader_g for further reference.
@@ -138,9 +138,9 @@ to the global variable fwHeader_g for further reference.
 \param  deviceId_p              The device Id to check for
 \param  hwRev_p                 The hardware revision to check for
 
-\return ERROR if no valid firmware header is found, OK otherwise
+\return FALSE if no valid firmware header is found, TRUE otherwise
 *******************************************************************************/
-static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
+static int tryGetFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
 {
     UINT32      uiCrc;
 
@@ -152,7 +152,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
         /* wrong CRC */
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Header CRC is %08x, should be %08x\n",
                      uiCrc, (UINT32)AmiGetDwordFromBe(&pHeader_p->m_headerCrc));
-        return ERROR;
+        return FALSE;
     }
 
     /* check header version and magic */
@@ -163,7 +163,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
         DEBUG_TRACE2(DEBUG_LVL_ERROR, "Invalid Magic/Version is %04x %04x\n",
                      AmiGetWordFromBe(&pHeader_p->m_magic),
                      AmiGetWordFromBe(&pHeader_p->m_version));
-        return ERROR;
+        return FALSE;
     }
 
     /* check device ID and hardware revision */
@@ -175,7 +175,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
                      (UINT32)AmiGetDwordFromBe(&pHeader_p->m_deviceId),
                      (UINT32)AmiGetDwordFromBe(&pHeader_p->m_hwRevision),
                      deviceId_p, hwRev_p);
-        return ERROR;
+        return FALSE;
     }
 
     /* save header */
@@ -206,7 +206,7 @@ static int getFwHeader(tFwHeader *pHeader_p, UINT32 deviceId_p, UINT32 hwRev_p)
     DEBUG_TRACE1(DEBUG_LVL_15, "AP SW Size:            %d\n", fwHeader_g.m_apSwSize);
     DEBUG_TRACE1(DEBUG_LVL_15, "Application SW Date:   %d\n", fwHeader_g.m_applicationSwDate);
     DEBUG_TRACE1(DEBUG_LVL_15, "Application SW Time:   %d\n", fwHeader_g.m_applicationSwTime);
-    return OK;
+    return TRUE;
 }
 
 /**
@@ -827,27 +827,24 @@ static tEplSdoComConState updateStateAp(void)
 
 /**
 ********************************************************************************
-\brief	initilize firmware update function
+\brief  initilize firmware update function
 
 initFirmwareUpdate() initializes all things needed for a firmware update.
 
-\param	deviceId_p              device ID of this device
+\param  deviceId_p              device ID of this device
 \param  hwRev_p                 hardware revision of this device
-
-\return OK, always
 *******************************************************************************/
-int initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
+void initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
 {
     updateInfo_g.m_uiDeviceId = deviceId_p;
     updateInfo_g.m_uiHwRev = hwRev_p;
     updateInfo_g.m_uiUserImageOffset = CONFIG_USER_IMAGE_FLASH_ADRS;
     updateInfo_g.m_uiUpdateState = eUpdateStateNone;
-    return OK;
 }
 
 /**
 ********************************************************************************
-\brief	update the firmware
+\brief  update the firmware
 
 updateFirmware() updates the firmware of the device. It will be called by the
 SDO object handler for object 0x1F50. If the first segment is received the
@@ -855,14 +852,17 @@ firmware header is examined and the firmware programming is set up. The
 real programming will be done in updateFirmwarePeriodic() so that this function
 can immediately return.
 
-\param uiSegmentOff_p	       offset of the current segment
+\param uiSegmentOff_p          offset of the current segment
 \param uiSegmentSize_p         size of current segment
 \param pData_p                 pointer to segment data
 \param pfnAbortCb_p            pointer to abort callback function
 \param pfnSegFinishCb_p        pointer to segment-finish callback function
 \param pHandle_p               pointer to handle for callback functions
 
-\return		return                  ERROR if something went wrong, OK otherwise
+\return tEplSdoComConState
+\retval kEplSdoComTransferFinished
+\retval kEplSdoComTransferRxAborted
+\retval kEplSdoComTransferRunning
 *******************************************************************************/
 tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p, char * pData_p,
         void *pfnAbortCb_p, void * pfnSegFinishCb_p, void * pHandle_p)
@@ -874,7 +874,7 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
 //    int                         iNumOfRegions;  ///< number of flash regions
 
     DEBUG_TRACE3 (DEBUG_LVL_15, "\n---> %s: segment offset: %d Handle:%p\n", __func__,
-                  uiSegmentOff_p, ((tDefObdAccHdl *)pHandle_p)->m_pObdParam);
+                  uiSegmentOff_p, ((tDefObdAccHstryEntry *)pHandle_p)->m_pObdParam);
 
     updateInfo_g.m_pfnAbortCb = pfnAbortCb_p;
     updateInfo_g.m_pfnSegFinishCb = pfnSegFinishCb_p;
@@ -887,9 +887,9 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
         updateInfo_g.m_uiProgOffset = 0;
 
         /* get firmware header and check if we receive a valid one */
-        if (getFwHeader((tFwHeader *)pData_p,
+        if (tryGetFwHeader((tFwHeader *)pData_p,
                         updateInfo_g.m_uiDeviceId,
-                        updateInfo_g.m_uiHwRev) == ERROR)
+                        updateInfo_g.m_uiHwRev) != TRUE)
         {
             DEBUG_TRACE1(DEBUG_LVL_ERROR, "%s: Invalid firmware header!\n", __func__);
 
@@ -908,7 +908,7 @@ tEplSdoComConState updateFirmware(UINT32 uiSegmentOff_p, UINT32 uiSegmentSize_p,
 //            updateInfo_g.m_pfnAbortCb(updateInfo_g.m_pHandle);
 //            return kEplSdoComTransferRxAborted;
 //        }
-//        /* get some flash information */
+        /* get some flash information */
 //        if ((iRet = alt_get_flash_info(updateInfo_g.m_flashFd,
 //                                       &aFlashRegions,
 //                                       &iNumOfRegions)) != 0)

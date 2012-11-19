@@ -3,7 +3,7 @@
 	<name>pcp_DirectIO</name>
 	<comment></comment>
 	<projects>
-		<project>standalone_bsp_lx150t_directIO-plb</project>
+		<project>standalone_bsp_lx150t_directIO-axi</project>
 		<project>standalone_bsp_lx150t_directio-plb</project>
 	</projects>
 	<buildSpec>
@@ -193,14 +193,14 @@
 			<locationURI>PLK_LOC/EplStack/EplTimeruGeneric.c</locationURI>
 		</link>
 		<link>
-			<name>openPOWERLINK_CNDKPatched/VirtualEthernetNoOs.c</name>
-			<type>1</type>
-			<locationURI>PLK_LOC/EplStack/VirtualEthernetNoOs.c</locationURI>
-		</link>        
-		<link>
 			<name>openPOWERLINK_CNDKPatched/Include</name>
 			<type>2</type>
 			<locationURI>PLK_LOC/Include</locationURI>
+		</link>
+		<link>
+			<name>openPOWERLINK_CNDKPatched/VirtualEthernetNoOs.c</name>
+			<type>1</type>
+			<locationURI>PLK_LOC/EplStack/VirtualEthernetNoOs.c</locationURI>
 		</link>
 		<link>
 			<name>openPOWERLINK_CNDKPatched/amiarm.c</name>
@@ -248,6 +248,21 @@
 			<locationURI>EDRV_LOC/openmac/source/omethlibint.c</locationURI>
 		</link>
 		<link>
+			<name>common_pcp/src/EplObduDefAcc.c</name>
+			<type>1</type>
+			<locationURI>CNDK_LOC/powerlink/common/src/EplObduDefAcc.c</locationURI>
+		</link>
+		<link>
+			<name>common_pcp/src/EplObduDefAccHstry.c</name>
+			<type>1</type>
+			<locationURI>CNDK_LOC/powerlink/common/src/EplObduDefAccHstry.c</locationURI>
+		</link>
+		<link>
+			<name>common_pcp/inc</name>
+			<type>2</type>
+			<locationURI>CNDK_LOC/powerlink/common/inc</locationURI>
+		</link>
+		<link>
 			<name>openPOWERLINK_CNDKPatched/ObjDicts/Generic</name>
 			<type>2</type>
 			<locationURI>PLK_LOC/ObjDicts/Generic</locationURI>
@@ -278,24 +293,14 @@
 			<locationURI>PLK_LOC/SharedBuff/ShbTarget.h</locationURI>
 		</link>
 		<link>
-			<name>common/src/EplObduDefAcc.c</name>
+			<name>target/src/fpgaCfg.c</name>
 			<type>1</type>
-			<locationURI>CNDK_LOC/powerlink/common/src/EplObduDefAcc.c</locationURI>
-		</link>
-		<link>
-			<name>common/src/EplObduDefAccHstry.c</name>
-			<type>1</type>
-			<locationURI>CNDK_LOC/powerlink/common/src/EplObduDefAccHstry.c</locationURI>
+			<locationURI>TARGET_LOC/src/fpgaCfg.c</locationURI>
 		</link>
 		<link>
 			<name>target/src/fwBoot.c</name>
 			<type>1</type>
 			<locationURI>TARGET_LOC/src/fwBoot.c</locationURI>
-		</link>
-		<link>
-			<name>target/src/fpgaCfg.c</name>
-			<type>1</type>
-			<locationURI>TARGET_LOC/src/fpgaCfg.c</locationURI>
 		</link>
 		<link>
 			<name>target/src/fwUpdate.c</name>

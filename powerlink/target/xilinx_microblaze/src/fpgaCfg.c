@@ -22,7 +22,7 @@
 /* includes */
 #include "fpgaCfg.h"
 #include "EplInc.h"
-#include "cnApiGlobal.h"
+#include "global.h"
 #include "fwUpdate.h"
 //#include "altera_avalon_pio_regs.h"	//TODO
 #include <string.h>                      //for memcpy()
@@ -529,6 +529,22 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
 //
 //exit:
     return Ret;
+}
+
+/**
+********************************************************************************
+\brief evaluates the FPGA reconfiguration according to its status
+
+\param ReConfStatus_p  tFpgaCfgRetVal
+\retval TRUE    User image is loaded
+\retval FALSE   Factory image is loaded
+*******************************************************************************/
+BOOL FpgaCfg_processReconfigStatusIsUserImage(tFpgaCfgRetVal ReConfStatus_p)
+{
+    BOOL fIsUserImage = FALSE;
+//    tFwRet FwRetVal = kFwRetSuccessful;
+
+    return fIsUserImage;
 }
 
 /*******************************************************************************

@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* includes */
 #include "EplInc.h"
 //#include "system.h"
+#include "fwBoot.h"
 #include "firmware.h"
 #include "fwUpdate.h"
 
@@ -409,6 +410,63 @@ tFwRet getSwVersions(UINT32 uiIibAdrs_p, UINT32 *pUiFpgaConfigVersion_p,
 //    }
 
     return kFwRetSuccessful;
+}
+
+/**
+********************************************************************************
+\brief     get information from firmware image information block
+
+This function reads various fields of a specified firmware image
+information block (IIB).
+
+\param fIsUserImage_p TRUE: user IIB will be read
+                      FALSE: factory IIB will be read
+\param pInfo_p [IN]  ptr to struct of pointers where IIB information can be
+                     stored. If struct pointer is NULL, nothing will be stored
+                     at this location.
+               [OUT] IIB information
+
+\retval TRUE   successful
+\retval FALSE  not successful or no IIB available
+*******************************************************************************/
+BOOL fwBoot_tryGetIibInfo(BOOL fIsUserImage_p, tfwBootInfo * pInfo_p)
+{
+/* #ifdef CONFIG_IIB_IS_PRESENT
+    tFwRet Ret = kFwRetSuccessful;
+    UINT32      uiIibAdrs;
+
+    uiIibAdrs = fIsUserImage_p ? CONFIG_USER_IIB_FLASH_ADRS
+                               : CONFIG_FACTORY_IIB_FLASH_ADRS;
+
+    Ret = getApplicationSwDateTime(uiIibAdrs,
+                         &pInfo_p->uiApplicationSwDate,
+                         &pInfo_p->uiApplicationSwTime);
+    if (Ret != kFwRetSuccessful)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getApplicationSwDateTime() failed with 0x%x\n", Ret);
+        return FALSE;
+    }
+
+    Ret = getSwVersions(uiIibAdrs,
+                         &pInfo_p->uiFpgaConfigVersion,
+                         &pInfo_p->uiPcpSwVersion,
+                         &pInfo_p->uiApSwVersion);
+    if (Ret != kFwRetSuccessful)
+    {
+        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getSwVersions() failed with 0x%x\n", Ret);
+        return FALSE;
+    }
+
+    return TRUE;
+#endif // CONFIG_IIB_IS_PRESENT */
+
+    pInfo_p->uiApSwVersion = 0x0;
+    pInfo_p->uiApplicationSwDate = 0x0;
+    pInfo_p->uiApplicationSwTime = 0x0;
+    pInfo_p->uiFpgaConfigVersion = 0x0;
+    pInfo_p->uiPcpSwVersion = 0x0;
+
+    return FALSE;  //not possible because IIB doesn't exist
 }
 
 /* END-OF-FILE */

@@ -1,5 +1,5 @@
-/******************************************************************************
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+/*******************************************************************************
+* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
 * All rights reserved. All use of this software and documentation is
 * subject to the License Agreement located at the end of this file below.
 */
@@ -7,39 +7,34 @@
 /**
 ********************************************************************************
 
-\file       fpgaCfg.h
+\file       fwBoot.h
 
-\brief      Header file for Altera FPGA configuration module
+\brief      firmware boot module header file
 
-\author     hoggerm
-
-\date       17.05.2011
-
-\since      17.05.2011
+\date       14.11.2012
 
 *******************************************************************************/
-#ifndef FPGACFG_H_
-#define FPGACFG_H_
+#ifndef _FWBOOT_H_
+#define _FWBOOT_H_
 /******************************************************************************/
 /* includes */
-
-#include "Debug.h"
+#include <global.h>
+#include "firmware.h"
 
 /******************************************************************************/
 /* defines */
-#define RESET_TIMER 1 //register bit offset
-#define REMOTE_UPDATE_CORE_BASE  REMOTE_UPDATE_CYCLONEIII_0_BASE //from system.h
-#define CONFIG_FACTORY_IMAGE_FLASH_ADRS 0x00 // fixed for this remote update core!
 
 /******************************************************************************/
 /* typedefs */
-typedef enum eFpgaCfgRetVal {
-  kFgpaCfgFactoryImageLoadedNoUserImagePresent,
-  kFpgaCfgUserImageLoadedWatchdogDisabled,
-  kFpgaCfgUserImageLoadedWatchdogEnabled,
-  kFgpaCfgWrongSystemID, ///< stop booting -> SW does not fit to HW
-  kFpgaCfgInvalidRetVal,
-} tFpgaCfgRetVal;
+typedef struct sfwBootInfo
+{
+    UINT32 uiApplicationSwDate;
+    UINT32 uiApplicationSwTime;
+    UINT32 uiFpgaConfigVersion;
+    UINT32 uiPcpSwVersion;
+    UINT32 uiApSwVersion;
+
+} tfwBootInfo;
 
 /******************************************************************************/
 /* external variable declarations */
@@ -49,23 +44,23 @@ typedef enum eFpgaCfgRetVal {
 
 /******************************************************************************/
 /* function declarations */
-extern void FpgaCfg_reloadFromFlash(DWORD dwResetAdr_p);
-extern void FpgaCfg_resetWatchdogTimer(void);
-extern tFpgaCfgRetVal FpgaCfg_handleReconfig(void);
-extern void FpgaCfg_resetProcessor(void);
-extern BOOL FpgaCfg_processReconfigStatusIsUserImage(tFpgaCfgRetVal ReConfStatus_p);
+tFwRet checkFwImage(UINT32 uiImgAdrs_p, UINT32 uiIibAdrs_p, UINT16 uiIibVersion_p);
+BOOL fwBoot_tryGetIibInfo(BOOL fIsUserImage_p, tfwBootInfo * pInfo_p);
+
+
+#endif /* _FWBOOT_H_ */
 
 /*******************************************************************************
 *
 * License Agreement
 *
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
+* Copyright © 2012 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1  
 * All rights reserved.
-*
+* 
 * Redistribution and use in source and binary forms,
 * with or without modification,
 * are permitted provided that the following conditions are met:
-*
+* 
 *   * Redistributions of source code must retain the above copyright notice,
 *     this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above copyright notice,
@@ -75,7 +70,7 @@ extern BOOL FpgaCfg_processReconfigStatusIsUserImage(tFpgaCfgRetVal ReConfStatus
 *   * Neither the name of the B&R nor the names of its contributors
 *     may be used to endorse or promote products derived from this software
 *     without specific prior written permission.
-*
+* 
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -89,7 +84,5 @@ extern BOOL FpgaCfg_processReconfigStatusIsUserImage(tFpgaCfgRetVal ReConfStatus
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-#endif /* FPGACFG_H_ */
-
 /* END-OF-FILE */
 
