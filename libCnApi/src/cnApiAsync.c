@@ -118,7 +118,7 @@ int CnApiAsync_create(tPcpCtrlReg *pCtrlReg_p, tPcpInitParam *pInitPcpParam_p,
 {
     int iRet = OK;
 
-    if(pCtrlReg_p != NULL && pInitPcpParam_p != NULL && pDpramBase_p != NULL)
+    if(pCtrlReg_p != NULL && pInitPcpParam_p != NULL)
     {
         pCtrlReg_l = pCtrlReg_p;
         pInitPcpParam_l = pInitPcpParam_p; // make init parameters local
