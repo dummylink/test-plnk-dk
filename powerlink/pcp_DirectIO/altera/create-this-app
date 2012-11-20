@@ -239,7 +239,7 @@ fi
 # where time critical functions will be stored and
 # verify POWERLINK IP-core version
 ALT_TCIMEM_SIZE="0"
-EXPECTED_POWERLINK_IP_REV=\"0.2.6\"
+EXPECTED_POWERLINK_IP_REV=\"0.2.8\"
 
 IN_FILE=./bsp/system.h
 if [ ! -f "$IN_FILE" ]
