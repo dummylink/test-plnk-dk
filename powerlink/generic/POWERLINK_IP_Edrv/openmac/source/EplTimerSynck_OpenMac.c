@@ -115,7 +115,7 @@
 #if defined(__NIOS2__)
 
 //POWERLINK IP-Core in "pcp_0" subsystem
-#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#if defined(PCP_0_QSYS_POWERLINK_0_MAC_REG_BASE)
 #include "EdrvOpenMac_qsys.h"
 
 //POWERLINK IP-Core in SOPC
@@ -1134,7 +1134,8 @@ static void EplTimerSynckDrvCalcCompareTogPdiValue (void)
                 EplTimerSynckInstance_l.m_dwConfiguredTimeDiff +    // minus one cycle
                 EplTimerSynckInstance_l.m_dwAdvanceShift);      // plus sync shift
         wCycleCnt = 0;
-    } else if (wCycleCnt > EplTimerSynckInstance_l.m_wSyncIntCycle)
+    }
+    else if (wCycleCnt > EplTimerSynckInstance_l.m_wSyncIntCycle)
     {
          wCycleCnt = 0;
     }

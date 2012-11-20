@@ -108,7 +108,7 @@
 #if defined(__NIOS2__)
 
 //POWERLINK IP-Core in "pcp_0" subsystem
-#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#if defined(PCP_0_QSYS_POWERLINK_0_MAC_REG_BASE)
 #include "EdrvOpenMac_qsys.h"
 
 //POWERLINK IP-Core in SOPC
@@ -1450,7 +1450,7 @@ tEplTgtTimeStamp    TimeStamp;
     microblaze_invalidate_dcache_range((DWORD)pPacket, pPacket->length);
 #endif
 
-    EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer);  //pass frame to Powerlink Stack
+    EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer); //pass frame to Powerlink Stack
 #if EDRV_MAX_AUTO_RESPONSES > 0
     uiIndex = (unsigned int) arg;
 
@@ -1504,9 +1504,9 @@ tEdrvReleaseRxBuffer    RetReleaseRxBuffer;
 #if XPAR_MICROBLAZE_USE_DCACHE
     /*
      * before handing over the received packet to the stack
-     * flush the packet's memory range
+     * invalidate the packet's memory range
      */
-    microblaze_flush_dcache_range((DWORD)pPacket, pPacket->length);
+    microblaze_invalidate_dcache_range((DWORD)pPacket, pPacket->length);
 #endif
 
     RetReleaseRxBuffer = EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer);
