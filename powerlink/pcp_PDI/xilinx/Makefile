@@ -12,10 +12,6 @@ VERSION = 0.2
 include makefile.settings
 
 ##################################
-# IP-Core version
-EXPECTED_POWERLINK_IP_REV= 0.2.6
-
-##################################
 # Directory structure
 POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
 APP_DIR=${CNDK_DIR}/powerlink/pcp_PDI
@@ -229,12 +225,7 @@ header:
 all: buildapp
 
 .PHONY: buildapp
-buildapp: checkiprev builddir ${CN_API_DIR}/inc/cnApiCfg.h ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck  ${EXECUTABLE}.mem
-
-.PHONY: checkiprev
-checkiprev:
-	@$(PERL) $(SCRIPT_DIR)/check_ip_rev.pl --xparameters $(BSP_PATH)/$(PROCESSOR_NAME)/include/xparameters.h \
-	--iprev $(EXPECTED_POWERLINK_IP_REV)
+buildapp: builddir ${CN_API_DIR}/inc/cnApiCfg.h ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck  ${EXECUTABLE}.mem
 
 .PHONY: builddir
 builddir:
