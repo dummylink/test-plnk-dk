@@ -10,8 +10,9 @@ Reference Designs
 Directory Structure
 --------------------
 apps                Example user applications (AP)
+common              Consists of source code used by both processors (PCP and AP)
 fpga                FPGA projects
-fpga/xilinx/IP-core POWERLINK IP-Cores for PLB and AXI bus
+fpga/xilinx/ipcore  POWERLINK IP-Cores for PLB and AXI bus
 libCnApi            openPOWERLINK CN API SW library (= "PCP driver") provided for the AP
 objDicts            Example object dictionary files for openPOWERLINK (PCP) and
                     corresponding XDD file for Automation Studio import
@@ -38,13 +39,13 @@ Reference Boards
           communication interface between them. One part of this DPRAM is used for channeling PDOs.
           One TPDO, and 3 RPDOs are supported.
 
-        - SPI Interface
-          * XPS Project:    fpga/xilinx/Avnet_s6plkeb/s6plkeb_ap_pcp_SPI-plb
+        - 16bit parallel Interface
+          * XPS Project:    fpga/xilinx/Avnet_s6plkeb/s6plkeb_pcp_16bitprll-axi
           * AP software:    apps/ap_PDI
           * PCP software:   powerlink/pcp_PDI
 
-          Same design as obove, but uses and external SPI interface for DPRAM access. The AP has an SPI master,
-          the PCP is a SPI slave. Both processors are connected inside the FPGA by using SPI.
+          Same design as obove, but uses the external 16bit parallel interface for DPRAM access.
+          The AP has an external memory controler (emc) master in order to read/write to the DPRAM.
 
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          Single Processor - PCP standalone
@@ -80,8 +81,8 @@ Reference Boards
           * AP software:    apps/ap_PDI
           * PCP software:   powerlink/pcp_PDI
 
-          Same design as obove, but uses and external SPI interface for DPRAM access. The AP has an SPI master,
-          the PCP is a SPI slave. Both processors are connected inside the FPGA by using SPI.
+          Same design as obove, but uses an external SPI interface for DPRAM access. The AP has an SPI master,
+          the PCP is a SPI slave. Due to a lack of PINs both processors are connected inside the FPGA.
 
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          Single Processor - PCP standalone

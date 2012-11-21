@@ -54,7 +54,7 @@ designed to be connected to devices through digital I/Os.
   The corresponding XDD for this node can be found in the subdirectory
   ObjDicts\Direct_IO.
 
- 
+
 5.Configuration
 ----------------
 Miscellaneous parameters of the openPOWERLINK stack and the PCP application
@@ -69,26 +69,31 @@ A detailed description is available in the "User_Guide_Xilinx.pdf" document.
 For Windows:
 
 1. Open Xilinx Platform Studio (XPS) set the path to the powerlink IP-Core.
-    Edit -> Preferences -> Application -> Global Peripheral Repository Search Path (e.g: C:\openPOWERLINK_CNDK\fpga\xilinx\IP-Core)
-     
-2. Open a aesign from the FPGA directory (e.g: C:\openPOWERLINK_CNDK\fpga\xilinx\) and compile it. (Generate Bitstream)
+    Edit -> Preferences -> Application -> Global Peripheral Repository Search Path
+    (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\fpga\xilinx\ipcore)
+
+2. Open a design from the FPGA directory (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\fpga\xilinx\)
+   and compile it. (Generate Bitstream)
 
 3. Export the design to the SDK_Export directory (Export Hardware Design to SDK) without launching SDK.
-    
-4. Open the Xilinx Software Development Kit (SDK) with workspace on the CNDK root directory. (e.g: C:\openPOWERLINK_CNDK\)
 
-5. Create a "Hardware Platform" (e.g: hw_platform_lx150t_directIO) and a "Board Support Package" (e.g: standalone_bsp_lx150t_directIO) 
-   for your compiled FPGA design and your processor.
+4. Open the Xilinx Software Development Kit (SDK) with workspace on the CNDK root directory.
+   (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources)
 
-6. Import the pcp_DirectIO project into the SDK by using Import -> C/C++ -> Existing Code as Makefile Project.
-   Give a Project name, existing code location (e.g: C:\openPOWERLINK_CNDK\powerlink\pcp_DirectIO), select C for your language 
-   and use the "Xilinx Microblaze GNU Toolchain".
+5. Create a "Hardware Platform" (e.g: hw_platform_lx150t_directIO) and a "Board Support Package"
+   (e.g: standalone_bsp_lx150t_directIO) for your compiled FPGA design and your processor.
+
+6. Import the pcp_DirectIO project into the SDK by using Import -> General -> Existing Project into Workspace.
+   Set the root directory to search for to the CNDK root directory
+   (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources) and select the found
+   project pcp_DirectIO for import.
 
 7. Adapt the file makefile.settings according to your needs.
 
-8. Change the Referenced BSP to point to your previously created "Board Support Package" (e.g: standalone_bsp_lx150t_directIO).
+8. Change the Referenced BSP to point to your previously created "Board Support Package"
+   (e.g: standalone_bsp_lx150t_directIO).
 
-9. Your pcp_PDI.elf should be compiled and linked by the SDK.
+9. Your pcp_DirectIO.elf should be compiled and linked by the SDK.
 
 10. Download the bitstream with Xilinx Tools -> Program FPGA and download the .elf file with Run As -> Run on Hardware.
 
@@ -96,6 +101,3 @@ For Windows:
 
 12. Enjoy the terminal outputs and the running POWERLINK network.
 
-For Linux:
-
-Should be very similar to the windows way.

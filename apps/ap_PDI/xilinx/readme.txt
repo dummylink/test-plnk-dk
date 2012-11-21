@@ -13,7 +13,7 @@ Contents
 
 - POWERLINK SW for AP (Application Processor).
 
-Performance 
+Performance
 -----------------
 
 - The following 8 objects - each has the size 1 Byte - can be mapped:
@@ -52,36 +52,29 @@ How to run the demo
 A detailed description is available in the "User_Guide_Xilinx.pdf" document.
 
 For Windows:
-    
-4. Open the Xilinx Software Development Kit (SDK) with workspace on the CNDK root directory. (e.g: C:\openPOWERLINK_CNDK\)
-   Do all steps explained in the powerlink/pcp_PDI/readme.txt file.
 
-5. Create a "Board Support Package" (e.g: standalone_bsp_lx150t_intplb_ap) for your AP processor 
+1. Open the Xilinx Software Development Kit (SDK) with workspace on the CNDK root directory.
+   (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\) Do all steps explained in the
+   powerlink/pcp_PDI/readme.txt file.
+
+2. Create a "Board Support Package" (e.g: standalone_bsp_lx150t_intplb_ap-plb) for your AP processor
    by using the previously created hardware platform.
 
-6. Import the ap_PDI project into the SDK by using Import -> C/C++ -> Existing Code as Makefile Project.
-   Give a Project name, existing code location (e.g: C:\openPOWERLINK_CNDK\apps\ap_PDI), select C for your language 
-   and use the "Xilinx Microblaze GNU Toolchain".
+3. Import the ap_PDI project into the SDK by using Import -> General -> Existing Project into Workspace.
+   Set the root directory to search for to the CNDK root directory
+   (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources) and select the found
+   project ap_PDI for import.
 
-7. Adapt the file makefile.settings according to your needs.
+4. Adapt the file makefile.settings according to your needs.
 
-8. Change the Referenced BSP to point to your previously created "Board Support Package" (e.g: standalone_bsp_lx150t_intplb_ap).
+5. Change the Referenced BSP to point to your previously created "Board Support Package"
+   (e.g: standalone_bsp_lx150t_intplb_ap-plb).
 
-9. Import the libCnApi project into the SDK by using Import -> C/C++ -> Existing Code as Makefile Project.
-   Give a Project name, existing code location (e.g: C:\openPOWERLINK_CNDK\libCnApi), select C for your language 
-   and use the "Xilinx Microblaze GNU Toolchain".
-   
-10. Compile the libCnApi library by using the corresponding makefile. (Creates libCnApi.a)
-
-11. Your ap_PDI.elf can be compiled in the ap_PDI project.
+8. Your ap_PDI.elf can be compiled in the ap_PDI project. (It also builds the API library called "libCnApi")
     Download the .elf file. (Run As -> Run on Hardware)
 
-12. The printed output of the processor can be viewed by using a terminal program (tera term) or by using the built in SDK program.
+9. The printed output of the processor can be viewed by using a terminal program (tera term)
+   or by using the built in SDK program.
 
-13. Enjoy the terminal outputs and the running POWERLINK network.
-
-For Linux:
-
-Should be very similar to the windows way.
-
+10. Enjoy the terminal outputs and the running POWERLINK network.
 
