@@ -138,11 +138,12 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam * pObdParam_p)
     // Note: Non-adopted object access should not reach here
 
     Ret = EplAppDefObdAccCheckTranferSegmentedCanBeStored(pObdParam_p);
-#ifdef EPL_MODULE_API_PDI
-    // all object which reach here and are not blocked in advance
-    // will be forwarded to PDI
+
     if (Ret == kEplInvalidParam)
     {   // expedited object access - directly forward to PDI
+#ifdef EPL_MODULE_API_PDI
+        // all object which reach here and are not blocked in advance
+        // will be forwarded to PDI
 
         Ret = EplAppDefObdAccAdoptedHstryInitSequence();
         if (Ret != kEplSuccessful)
@@ -162,10 +163,9 @@ static tEplKernel EplAppCbDefaultObdInitWriteLe(tEplObdParam * pObdParam_p)
         {
             goto Exit;
         }
-
-    }
 #endif // EPL_MODULE_API_PDI
-    if (Ret == kEplSuccessful)
+    }
+    else if (Ret == kEplSuccessful)
     {   // segmented object access - needs to be buffered
 
         Ret = EplAppDefObdAccAdoptedHstrySaveHdl(pObdParam_p, &pDefObdHdl);
