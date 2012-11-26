@@ -35,6 +35,7 @@ local object dictionary and process them later on.
 #define OBD_DEFAULT_ACC_HISTORY_SIZE              20          ///< maximum possible history elements
 /******************************************************************************/
 /* typedefs */
+typedef void (*tpfnAbort) (void*);
 
 /******************************************************************************/
 /* external variable declarations */
@@ -505,7 +506,12 @@ tEplKernel EplAppDefObdAccAdoptedHstryWriteSegm(
 
         default:
 #ifdef EPL_MODULE_API_PDI
-            Ret = Gi_forwardObdAccHstryEntryToPdi(pDefObdAccHdl_p);
+            // abort transfer because segmented access forwarding is not supported
+            ((tpfnAbort) pfnSegmentAbortCb_p)(pDefObdAccHdl_p);
+
+            //TODO: uncomment the following line and delete the obove line
+            //      to enable forwarding of segmented write transfer.
+            //Ret = Gi_forwardObdAccHstryEntryToPdi(pDefObdAccHdl_p);
 #else
             Ret = kEplObdIndexNotExist;
 #endif // EPL_MODULE_API_PDI
