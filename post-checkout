@@ -64,11 +64,6 @@ then
     echo "HOOK ERROR: (post-checkout) Unable to copy files for $AP_PDI_DIR! Exiting..."
     exit 1
 fi
-# do libCnApi changes
-if [ $PLATFORM == "xilinx" ]
-then
-    cp -rf $LIBCNAPI_DIR/target/microblaze_newlib/.??* $LIBCNAPI_DIR/
-fi
 
 
 # finished!
