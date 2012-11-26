@@ -1,0 +1,73 @@
+// BMM LOC annotation file.
+//
+// Release 13.2 - Data2MEM O.61xd, build 2.2 May 20, 2011
+// Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Processor 'pcp', ID 100, memory map.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+ADDRESS_MAP pcp MICROBLAZE 100
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Processor 'pcp' address space 'boot_lmb_bram_combined' 0x00000000:0x00000FFF (4 KBytes).
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+
+    ADDRESS_SPACE boot_lmb_bram_combined RAMB16 [0x00000000:0x00000FFF]
+        BUS_BLOCK
+            boot_lmb_bram/boot_lmb_bram/ramb16bwer_0 [31:16] INPUT = boot_lmb_bram_combined_0.mem PLACED = X4Y66;
+            boot_lmb_bram/boot_lmb_bram/ramb16bwer_1 [15:0] INPUT = boot_lmb_bram_combined_1.mem PLACED = X4Y64;
+        END_BUS_BLOCK;
+    END_ADDRESS_SPACE;
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Processor 'pcp' address space 'pcp_lmb_bram_combined' 0x00002000:0x00003FFF (8 KBytes).
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+
+    ADDRESS_SPACE pcp_lmb_bram_combined RAMB16 [0x00002000:0x00003FFF]
+        BUS_BLOCK
+            pcp_lmb_bram/pcp_lmb_bram/ramb16bwer_0 [31:24] INPUT = pcp_lmb_bram_combined_0.mem PLACED = X4Y68;
+            pcp_lmb_bram/pcp_lmb_bram/ramb16bwer_1 [23:16] INPUT = pcp_lmb_bram_combined_1.mem PLACED = X5Y68;
+            pcp_lmb_bram/pcp_lmb_bram/ramb16bwer_2 [15:8] INPUT = pcp_lmb_bram_combined_2.mem PLACED = X5Y66;
+            pcp_lmb_bram/pcp_lmb_bram/ramb16bwer_3 [7:0] INPUT = pcp_lmb_bram_combined_3.mem PLACED = X3Y64;
+        END_BUS_BLOCK;
+    END_ADDRESS_SPACE;
+
+END_ADDRESS_MAP;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Processor 'ap', ID 101, memory map.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+ADDRESS_MAP ap MICROBLAZE 101
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Processor 'ap' address space 'ap_ram_combined' 0x00000000:0x00001FFF (8 KBytes).
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+
+    ADDRESS_SPACE ap_ram_combined RAMB16 [0x00000000:0x00001FFF]
+        BUS_BLOCK
+            ap_ram/ap_ram/ramb16bwer_0 [31:24] INPUT = ap_ram_combined_0.mem PLACED = X1Y64;
+            ap_ram/ap_ram/ramb16bwer_1 [23:16] INPUT = ap_ram_combined_1.mem PLACED = X0Y68;
+            ap_ram/ap_ram/ramb16bwer_2 [15:8] INPUT = ap_ram_combined_2.mem PLACED = X1Y68;
+            ap_ram/ap_ram/ramb16bwer_3 [7:0] INPUT = ap_ram_combined_3.mem PLACED = X1Y66;
+        END_BUS_BLOCK;
+    END_ADDRESS_SPACE;
+
+END_ADDRESS_MAP;
+
