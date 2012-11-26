@@ -87,7 +87,7 @@ change_platform_files()
     else
         #cleanup for altera
         echo "Cleanup '.' directory..."
-        rm -rf $1/release.sh
+        rm -rf $1/tools/xilinx $1/release.sh
         rm -rf $1/xil_*.txt
         mv $1/alt_readme.txt $1/readme.txt
         mv $1/alt_revision.txt $1/revision.txt
