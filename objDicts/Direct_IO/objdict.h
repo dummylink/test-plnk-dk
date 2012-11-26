@@ -164,6 +164,12 @@ EPL_OBD_BEGIN ()
 
     EPL_OBD_END_PART ()
 
+    EPL_OBD_BEGIN_PART_MANUFACTURER()
+
+    // add manufacturer device part objects here!
+
+    EPL_OBD_END_PART ()
+
     EPL_OBD_BEGIN_PART_DEVICE ()
 
         // DigitalInput_00h_AU8
