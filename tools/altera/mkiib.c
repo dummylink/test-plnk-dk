@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <arpa/inet.h>  // used for byte ordering conversion functions
 
-#include "cnApiGlobal.h"
+#include "global.h"
 #include "firmware.h"
 #include "mkiib.h"
 

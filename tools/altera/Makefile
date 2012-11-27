@@ -38,16 +38,16 @@
 
 CC=gcc
 
-INCLUDES=-I ../../powerlink/generic/target/altera_nios/include -I ../../libCnApi/include
+INCLUDES=-I ../../powerlink/target/altera_nios/include -I ./inc
 
 #CFLAGS=-O0 -g -Wall $(INCLUDES)
 CFLAGS=-O2 -Wall $(INCLUDES)
 
 # mkfirmware
-MKFIRMWARE_OBJS=mkfirmware.o ../../powerlink/generic/utils/crc32.o
+MKFIRMWARE_OBJS=mkfirmware.o ../../powerlink/common/src/crc32.o
 
 # mkiib
-MKIIB_OBJS=mkiib.o ../../powerlink/generic/utils/crc32.o
+MKIIB_OBJS=mkiib.o ../../powerlink/common/src/crc32.o
 
 all:	mkfirmware mkiib
 
