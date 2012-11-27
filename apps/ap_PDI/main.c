@@ -76,7 +76,7 @@ static BOOL     fOperational_l = FALSE;                         ///< indicates A
 
 // Object access
 static DWORD dwExampleData_l = 0xABCD0001;              ///< this is only an example object data
-static BYTE  abTestDomain_l[256];                       ///< example Domain test object
+static BYTE  abTestDomain_l[256];                       ///< example domain test object (max read size)
 static tCnApiObdParam   ObdParam_l = {0};               ///< OBD access handle
 
 /******************************************************************************/

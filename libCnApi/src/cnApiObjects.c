@@ -26,6 +26,8 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* defines */
+// restriction to support only expedited transfers (SDO ReadByIndex)
+#define SDO_SEGMENT_TX_LIMIT    256  ///< maximum SDO segment size
 
 /******************************************************************************/
 /* typedefs */
@@ -403,6 +405,14 @@ tCnApiStatus CnApi_DefObdAccFinished(tCnApiObdParam * pObdParam_p)
     {
         //segmented read access not allowed!
         pObdParam_p->m_AbortCode = kCnApiSdoacUnsupportedAccess;
+    }
+
+    // only expedited reads are supported - check segment limit
+    if ((pObdParam_p->m_ObdEvent == kEplObdEvPreRead)      &&
+        (pObdParam_p->m_SegmentSize > SDO_SEGMENT_TX_LIMIT)   )
+    {
+        pObdParam_p->m_AbortCode = kCnApiSdoacDataTypeLengthTooHigh;
+        CnApiRet = kCnApiStatusDataTooLong;
     }
 
     // convert cnapi object parameters to epl object parameters
