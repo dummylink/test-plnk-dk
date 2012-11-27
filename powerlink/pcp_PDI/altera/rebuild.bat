@@ -3,6 +3,8 @@ REM : SDK Shell Batch File for POWERLINK CNDK Build Targets
 REM : --------------------------------------------------------
 REM :  - Invokes bash, recompiles the BSP and application
 REM : 
+REM : For a new user defined board you only need to add your
+REM : Quartus project directory to ":USER_DEFINED_BOARD"
 
 cls
 echo ====================================================
@@ -21,8 +23,8 @@ echo  -----------------------------------------------
 echo    INK Board (TERASIC DE2-115)
 echo      3: SPI
 echo      4: 16 Bit parallel
-echo    Example Board
-echo      5: 16 Bit parallel
+echo    USER Defined - modify rebuild.bat
+echo      5: user defined interface
 echo .
 echo ==================================================
 
@@ -32,7 +34,7 @@ if /I "%choice%" == "1" ( goto INK_PCP_AP_avalon )
 if /I "%choice%" == "2" ( goto INK_PCP_AP_SPI )
 if /I "%choice%" == "3" ( goto INK_PCP_SPI )
 if /I "%choice%" == "4" ( goto INK_PCP_16bitparallel )
-if /I "%choice%" == "5" ( goto EXMPL_PCP_16bitparallel )
+if /I "%choice%" == "5" ( goto USER_DEFINED_BOARD )
 if /I "%choice%" == "6" ( goto DEFAULT )
 if /I "%choice%" == "7" ( goto DEFAULT )
 if /I "%choice%" == "8" ( goto DEFAULT )
@@ -73,8 +75,8 @@ goto start
 :INK_PCP_16bitparallel
 set SOPC_DIR=..\..\fpga\altera\TERASIC_DE2-115\ink_pcp_16bitprll
 goto start
-:EXMPL_PCP_16bitparallel
-set SOPC_DIR=..\..\fpga\altera\CustomBoardExamples\EP4CE6_pcp_16bitprll
+:USER_DEFINED_BOARD
+set SOPC_DIR=..\..\relative path to you own Quartus project
 goto start
 :ECU_PCP_SPI
 set SOPC_DIR=..\..\fpga\altera\SYSTEC_ECUcore-EP3C\systec_pcp_SPI
