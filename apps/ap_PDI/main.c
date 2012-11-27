@@ -1002,7 +1002,7 @@ tCnApiStatus CnApi_CbPdoDescListings(tCnApiPdoDesc * pPdoDesc_p,
     }
 
     //set abort code
-    *tPdoRespAbortCode_p = kCnApiSdoacNoAbort;
+    *tPdoRespAbortCode_p = kCnApiSdoacSuccessful;
 
     return Ret;
 }

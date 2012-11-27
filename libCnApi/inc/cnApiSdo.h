@@ -25,7 +25,7 @@ subject to the License Agreement located at the end of this file below.
 // SDO abort codes
 typedef enum eCnApiSdoAbortCode
 {
-    kCnApiSdoacNoAbort = 0x0,
+    kCnApiSdoacSuccessful = 0x0,
     kCnApiSdoacTimeOut = 0x05040000L,
     kCnApiSdoacUnknownCommandSpecifier = 0x05040001L,
     kCnApiSdoacInvalidBLockSize = 0x05040002L,

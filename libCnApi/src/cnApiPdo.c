@@ -490,7 +490,7 @@ tPdiAsyncStatus CnApi_handleLinkPdosReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* p
     tLinkPdosReq *      pLinkPdosReq = NULL;    //< ptr to message (Rx)
     tCnApiStatus        fRet = kCnApiStatusOk;
     WORD                wCommHdl = 0;
-    tCnApiSdoAbortCode  PdoRespAbortCode = kCnApiSdoacNoAbort;
+    tCnApiSdoAbortCode  PdoRespAbortCode = kCnApiSdoacSuccessful;
     tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
     DEBUG_FUNC;
