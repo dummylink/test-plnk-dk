@@ -94,13 +94,6 @@ static tEplKernel EplAppDefObdAccAdoptedHstrySetupNextIfSegmented(tEplObdParam *
     tEplKernel Ret = kEplSuccessful;
     tObdAccHstryEntry * pFoundHdl;
 
-    if(!EplAppDefObdAccCeckTranferIsSegmented(pObdParam_p))
-    {
-        return Ret;
-    }
-
-    DEBUG_TRACE0(DEBUG_LVL_14, "<--- Segment finished!\n\n");
-
     // check if segmented write history is empty enough to disable flow control
     if (bDefObdAccHistoryEmptyCnt_g >=
         OBD_DEFAULT_ACC_HISTORY_SIZE - OBD_DEFAULT_ACC_HISTORY_ACK_FINISHED_THLD)
@@ -118,6 +111,11 @@ static tEplKernel EplAppDefObdAccAdoptedHstrySetupNextIfSegmented(tEplObdParam *
 
     if (Ret == kEplSuccessful)
     {
+        // it is assumed that kEplObdDefAccHdlWaitProcessingQueue signals
+        // segmented transfer - otherwise the status would be
+        // kEplObdDefAccHdlWaitProcessingInit for expedited SDO transfers
+        DEBUG_TRACE0(DEBUG_LVL_14, "<--- Segment finished!\n\n");
+
         // handle found
         DEBUG_TRACE2(DEBUG_LVL_14, "%s() RePost Event: Hdl:%d\n",
                 __func__, pFoundHdl->m_wComConIdx);
@@ -567,7 +565,7 @@ tEplObdParam SavedObdParam;
     Ret = pObdParam->m_pfnAccessFinished(pObdParam);
 
     if ((Ret == kEplSuccessful)        &&
-        (SavedObdParam.m_dwAbortCode != 0)  )
+        (SavedObdParam.m_dwAbortCode == 0)  )
     {
         Ret = EplAppDefObdAccAdoptedHstrySetupNextIfSegmented(&SavedObdParam);
     }
