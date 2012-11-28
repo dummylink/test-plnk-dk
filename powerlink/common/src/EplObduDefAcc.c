@@ -701,9 +701,10 @@ Exit:
 *******************************************************************************/
 BOOL EplAppDefObdAccCeckTranferIsSegmented(tEplObdParam * pObdParam_p)
 {
-    if ((pObdParam_p->m_pRemoteAddress->m_le_pSdoCmdFrame->m_le_bFlags & 0x30) == 0x10)
-    {   // SDO frame indicates segmented transfer
-        // TODO: this is a not a nice solution -> rework of SDO Cmd layer necessary
+
+    if ((pObdParam_p->m_SegmentSize < pObdParam_p->m_TransferSize) ||
+        (pObdParam_p->m_SegmentOffset != 0)                          )
+    { // it is a segmented transfer
         return TRUE;
     }
     else
