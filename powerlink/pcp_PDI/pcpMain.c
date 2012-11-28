@@ -231,7 +231,6 @@ static tEplKernel initPowerlink(void)
     }
 #endif /* SET_NODE_ID_BY_HW */
 
-
     fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo);
 
     /* setup the POWERLINK stack */
@@ -849,16 +848,12 @@ inputs and runs the control loop.
 int Gi_init(tInitStateMachine * pStateMachineInit_p, tPcpInitParam * pInitParam_p)
 {
     int         iRet= OK;
-    UINT32      uiApplicationSwDate = 0;
-    UINT32      uiApplicationSwTime = 0;
+    tfwBootInfo fwBootIibInfo = {0};
 
 #ifdef CONFIG_IIB_IS_PRESENT
-    tFwRet      FwRetVal = kFwRetSuccessful;
-
-    FwRetVal = getImageApplicationSwDateTime(&uiApplicationSwDate, &uiApplicationSwTime);
-    if (FwRetVal != kFwRetSuccessful)
+    if (fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo))
     {
-        DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: getImageApplicationSwDateTime() failed with 0x%x\n", FwRetVal);
+        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: IIB read failed!");
     }
 #endif // CONFIG_IIB_IS_PRESENT
 
@@ -870,8 +865,8 @@ int Gi_init(tInitStateMachine * pStateMachineInit_p, tPcpInitParam * pInitParam_
     // The FPGA internal memory initialization sets the following values:
     // pCtrlReg_g->m_wState: 0x00EE
     // pCtrlReg_g->m_wCommand: 0xFFFF
-    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, uiApplicationSwDate);
-    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, uiApplicationSwTime);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppDate, fwBootIibInfo.uiApplicationSwDate);
+    AmiSetDwordToLe((BYTE*)&pCtrlReg_g->m_dwAppTime, fwBootIibInfo.uiApplicationSwTime);
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, 0x00);                // invalid event TODO: structure
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, 0x00);                 // invalid event argument TODO: structure
     AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wState, kPcpStateInvalid);        // set invalid PCP state

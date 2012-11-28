@@ -641,12 +641,12 @@ BOOL FpgaCfg_processReconfigStatusIsUserImage(tFpgaCfgRetVal ReConfStatus_p)
         default:
         {
 #ifdef CONFIG_USER_IMAGE_IN_FLASH
+            // this is fatal error only, if image was loaded from flash
             DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "Fatal error after booting! Reset to Factory Image!\n");
             USLEEP(5000000); // wait 5 seconds
 
             // reset to factory image
             FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS);
-            goto exit; // this is fatal error only, if image was loaded from flash
 #endif
             break;
         }
