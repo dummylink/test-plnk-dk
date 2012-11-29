@@ -413,6 +413,13 @@ tFpgaCfgRetVal FpgaCfg_handleReconfig(void)
                      SYSID_TIMESTAMP,
                      SYSID_ID);
 
+        // It might be tempting to erase the User Image IIB here
+        // so you the user image will never be loaded again, but
+        // due to a workaround, this error will also occur if
+        // User Image is updated with an User Image.
+        // -> Ensure that correct user image is downloaded,
+        // otherwise the system hangs in a boot-loop.
+
         Ret = kFgpaCfgWrongSystemID;
         goto exit;
     }
