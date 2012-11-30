@@ -70,38 +70,6 @@ SYSTEM niosII_openMac
             Is_Clock_Source = "0";
             display_name = "clk25";
          }
-         CLOCK altpll_0_c3
-         {
-            frequency = "50000000";
-            source = "";
-            Is_Clock_Source = "1";
-            display_name = "c3 from altpll_0";
-            pipeline = "0";
-            clock_module_connection_point_for_c2h = "altpll_0.c3";
-         }
-         CLOCK clkAp
-         {
-            frequency = "50000000";
-            source = "altpll_0_c3";
-            Is_Clock_Source = "0";
-            display_name = "clkAp";
-         }
-         CLOCK altpll_0_c4
-         {
-            frequency = "50000000";
-            source = "";
-            Is_Clock_Source = "1";
-            display_name = "c4 from altpll_0";
-            pipeline = "0";
-            clock_module_connection_point_for_c2h = "altpll_0.c4";
-         }
-         CLOCK clkAp_SDRAM
-         {
-            frequency = "50000000";
-            source = "altpll_0_c4";
-            Is_Clock_Source = "0";
-            display_name = "clkAp_SDRAM";
-         }
       }
       clock_freq = "50000000";
       clock_freq = "50000000";
@@ -902,12 +870,12 @@ SYSTEM niosII_openMac
          mpu_min_data_region_size_log2 = "12";
          mpu_min_inst_region_size_log2 = "12";
          mpu_use_limit = "0";
-         hardware_divide_present = "1";
-         gui_hardware_divide_setting = "1";
-         hardware_multiply_present = "1";
-         hardware_multiply_impl = "embedded_mul";
-         shift_rot_impl = "fast_le_shift";
-         gui_hardware_multiply_setting = "embedded_mul_fast_le_shift";
+         hardware_divide_present = "0";
+         gui_hardware_divide_setting = "0";
+         hardware_multiply_present = "0";
+         hardware_multiply_impl = "no_mul";
+         shift_rot_impl = "small_le_shift";
+         gui_hardware_multiply_setting = "no_mul_small_le_shift";
          reset_slave = "tc_i_mem_pcp/s2";
          break_slave = "pcp_cpu/jtag_debug_module";
          exc_slave = "tc_i_mem_pcp/s2";
@@ -1062,7 +1030,7 @@ SYSTEM niosII_openMac
          PLI_Files = "";
          Precompiled_Simulation_Library_Files = "";
          Simulation_HDL_Files = "";
-         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/pcp_cpu_test_bench.vhd, __PROJECT_DIRECTORY__/pcp_cpu_mult_cell.vhd, __PROJECT_DIRECTORY__/pcp_cpu_oci_test_bench.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_tck.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_sysclk.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_wrapper.vhd, __PROJECT_DIRECTORY__/pcp_cpu.vhd";
+         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/pcp_cpu_test_bench.vhd, __PROJECT_DIRECTORY__/pcp_cpu_oci_test_bench.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_tck.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_sysclk.vhd, __PROJECT_DIRECTORY__/pcp_cpu_jtag_debug_module_wrapper.vhd, __PROJECT_DIRECTORY__/pcp_cpu.vhd";
          Synthesis_Only_Files = "";
       }
       MASTER tightly_coupled_instruction_master_1
@@ -2768,7 +2736,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>5048A869</b> (timestamp: Thu Sep 6, 2012 @3:43 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>50B88A82</b> (timestamp: Fri Nov 30, 2012 @11:29 AM)";
             MESSAGES 
             {
             }
@@ -2777,7 +2745,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1346938985u";
+         timestamp = "1354271362u";
          regenerate_values = "0";
          MAKE 
          {
@@ -2786,7 +2754,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=0 --timestamp=1346938985";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=0 --timestamp=1354271362";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -2924,20 +2892,6 @@ SYSTEM niosII_openMac
             direction = "output";
             Is_Enabled = "1";
          }
-         PORT c3
-         {
-            type = "out_clk";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
-         PORT c4
-         {
-            type = "out_clk";
-            width = "1";
-            direction = "output";
-            Is_Enabled = "1";
-         }
          PORT phasedone
          {
             type = "export";
@@ -2946,6 +2900,20 @@ SYSTEM niosII_openMac
             Is_Enabled = "1";
          }
          PORT locked
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT c3
+         {
+            type = "export";
+            width = "1";
+            direction = "output";
+            Is_Enabled = "1";
+         }
+         PORT c4
          {
             type = "export";
             width = "1";
@@ -3689,7 +3657,7 @@ SYSTEM niosII_openMac
             PORT m_address
             {
                type = "address";
-               width = "30";
+               width = "32";
                direction = "output";
                Is_Enabled = "1";
             }
@@ -3726,7 +3694,7 @@ SYSTEM niosII_openMac
             Do_Stream_Writes = "0";
             Max_Address_Width = "32";
             Data_Width = "16";
-            Address_Width = "30";
+            Address_Width = "32";
             Maximum_Burst_Size = "1";
             Register_Incoming_Signals = "0";
             Register_Outgoing_Signals = "0";
@@ -4262,7 +4230,7 @@ SYSTEM niosII_openMac
       class = "no_legacy_module";
       class_version = "7.08101";
       gtf_class_name = "powerlink";
-      gtf_class_version = "0.2.6";
+      gtf_class_version = "0.2.8";
       SYSTEM_BUILDER_INFO 
       {
          Do_Not_Generate = "1";
@@ -4279,7 +4247,7 @@ SYSTEM niosII_openMac
       }
       HDL_INFO 
       {
-         Simulation_HDL_Files = "C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/powerlink.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_par.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_dpr_Altera.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_tripleVBufLogic.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_apIrqGen.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_controlStatusReg.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_event.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_led.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_simpleReg.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openFILTER.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openHUB.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_Ethernet.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_cmp.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_phyAct.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_DPR_Altera.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_DMAFifo_Altera.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_DMAmaster.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_DMAmaster/dma_handler.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_DMAmaster/master_handler.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_PHYMI.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/openMAC_rmii2mii.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/portio.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/portio_cnt.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/spi.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/spi_sreg.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/pdi_spi.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/lib/addr_decoder.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/lib/edgedet.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/lib/req_ack.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/lib/sync.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/lib/slow2fastSync.vhd,C:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/ipcore/powerlink/src/lib/memMap.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
+         Simulation_HDL_Files = "C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/powerlink.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_par.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_dpr_Altera.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_tripleVBufLogic.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_apIrqGen.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_controlStatusReg.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_event.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_led.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_simpleReg.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openFILTER.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openHUB.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_Ethernet.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_cmp.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_phyAct.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_DPR_Altera.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_DMAFifo_Altera.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_DMAmaster.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_DMAmaster/dma_handler.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_DMAmaster/master_handler.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_PHYMI.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/openMAC_rmii2mii.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/portio.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/portio_cnt.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/spi.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/spi_sreg.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/pdi_spi.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/lib/addr_decoder.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/lib/edgedet.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/lib/req_ack.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/lib/sync.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/lib/slow2fastSync.vhd,C:/mairt/workspace/openPOWERLINK_CNDK_mairt_altera/fpga/altera/ipcore/powerlink/src/lib/memMap.vhd,__PROJECT_DIRECTORY__/powerlink_0.vhd";
       }
       WIZARD_SCRIPT_ARGUMENTS 
       {
@@ -4306,8 +4274,10 @@ SYSTEM niosII_openMac
          PDITPDOS = "1";
          PHYCNT = "2";
          PKTLOC = "1";
-         PLKCOREREV = "\"0.2.6\"";
+         PLKCOREREV = "\"0.2.8\"";
          TIMESYNCHW = "TRUE";
+         VETHENABLE = "TRUE";
+         VETHRXBUFFERS = "4";
       }
    }
    MODULE sram_0
@@ -4886,7 +4856,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "QUARTUS_PROJECT_DIR/tc_i_mem_pcp.hex 1346939082 ";
+         contents_info = "";
       }
       SIMULATION 
       {

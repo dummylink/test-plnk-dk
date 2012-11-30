@@ -9,10 +9,8 @@
 ##  (under "Compilation Report" - "TimeQuest Timing Analyzer" - "Clocks")
 set ext_clk		EXT_CLK
 set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-#set clk100		inst|the_altpll_0|sd1|pll7|clk[1]
 set clkPcp		inst|the_altpll_0|sd1|pll7|clk[1]
 set clk25		inst|the_altpll_0|sd1|pll7|clk[2]
-set clkAp		inst|the_altpll_0|sd1|pll7|clk[3]
 
 set p0TxClk		PHY0_TXCLK
 set p0RxClk		PHY0_RXCLK
@@ -50,7 +48,7 @@ create_generated_clock -source $clk50 -name CLK50_virt
 create_generated_clock -source $clkSRAM -name CLKSRAM_virt
 
 # cut reset input
-set_false_path -from [get_ports RESET_n] -to [get_registers *]
+#set_false_path -from [get_ports RESET_n] -to [get_registers *]
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------
@@ -97,7 +95,7 @@ set_output_delay -clock CLKSRAM_virt -max $sram_out_max [get_ports SRAM_CE_n]
 set_output_delay -clock CLKSRAM_virt -min $sram_out_min [get_ports SRAM_CE_n]
 
 ## relax timing...
-## Note: Nios II is running with 90 MHz, but Tri-State-bridge reads with 45 MHz.
+## Note: Nios II is running with 100 MHz, but Tri-State-bridge reads with 50 MHz.
 ### from FPGA to SRAM
 set_multicycle_path -from [get_clocks $clkSRAM] -to [get_clocks CLKSRAM_virt] -setup -start 2
 set_multicycle_path -from [get_clocks $clkSRAM] -to [get_clocks CLKSRAM_virt] -hold -start 1
@@ -169,7 +167,6 @@ set_false_path -from [get_ports PHY1_LINK] -to [get_registers *]
 # Set clock groups (cut paths)
 set_clock_groups -asynchronous 	-group $clk50 \
 											-group [format "%s %s" $clkPcp CLKSRAM_virt] \
-											-group $clkAp \
 											-group $clk25 \
 											-group [format "%s %s" phy0_rxclk phy0_vrxclk] \
 											-group [format "%s %s" phy0_txclk phy0_vtxclk] \
@@ -192,6 +189,9 @@ set_false_path -from [get_ports EPCS_DATA0] -to [get_registers *]
 #############################################################
 # add here your slow IOs...
 #############################################################
+
+set_false_path -from [get_ports NODE_SWITCH[*]] -to [get_registers *]
+set_false_path -from [get_registers *] -to [get_ports LEDG[*]]
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------
@@ -266,5 +266,5 @@ set_output_delay -clock CLK50_virt -max $pdi_max_out [get_ports {PDI_DATA[*]}]
 set_output_delay -clock CLK50_virt -min $pdi_min_out [get_ports {PDI_DATA[*]}]
 
 ## cut paths (as long as we don't use them...]
-set_false_path -from [get_registers *] -to [get_ports {PDI_GPIO[*]]}]
+#set_false_path -from [get_registers *] -to [get_ports {PDI_GPIO[*]]}]
 # ----------------------------------------------------------------------------------

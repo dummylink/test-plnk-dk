@@ -8585,7 +8585,7 @@ entity powerlink_0_MAC_DMA_arbitrator is
               -- inputs:
                  signal clk : IN STD_LOGIC;
                  signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
-                 signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_burstcount : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_granted_sram_0_s0 : IN STD_LOGIC;
@@ -8596,7 +8596,7 @@ entity powerlink_0_MAC_DMA_arbitrator is
                  signal reset_n : IN STD_LOGIC;
 
               -- outputs:
-                 signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_waitrequest : OUT STD_LOGIC
               );
 end entity powerlink_0_MAC_DMA_arbitrator;
@@ -8604,9 +8604,9 @@ end entity powerlink_0_MAC_DMA_arbitrator;
 
 architecture europa of powerlink_0_MAC_DMA_arbitrator is
                 signal active_and_waiting_last_time :  STD_LOGIC;
-                signal internal_powerlink_0_MAC_DMA_address_to_slave :  STD_LOGIC_VECTOR (29 DOWNTO 0);
+                signal internal_powerlink_0_MAC_DMA_address_to_slave :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal internal_powerlink_0_MAC_DMA_waitrequest :  STD_LOGIC;
-                signal powerlink_0_MAC_DMA_address_last_time :  STD_LOGIC_VECTOR (29 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_address_last_time :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal powerlink_0_MAC_DMA_burstcount_last_time :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_byteenable_last_time :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_DMA_run :  STD_LOGIC;
@@ -8621,7 +8621,7 @@ begin
   --cascaded wait assignment, which is an e_assign
   powerlink_0_MAC_DMA_run <= r_2;
   --optimize select-logic by passing only those address bits which matter.
-  internal_powerlink_0_MAC_DMA_address_to_slave <= Std_Logic_Vector'(std_logic_vector'("000010010") & powerlink_0_MAC_DMA_address(20 DOWNTO 0));
+  internal_powerlink_0_MAC_DMA_address_to_slave <= Std_Logic_Vector'(std_logic_vector'("00000010010") & powerlink_0_MAC_DMA_address(20 DOWNTO 0));
   --actual waitrequest port, which is an e_assign
   internal_powerlink_0_MAC_DMA_waitrequest <= NOT powerlink_0_MAC_DMA_run;
   --vhdl renameroo for output signals
@@ -8633,7 +8633,7 @@ begin
     process (clk, reset_n)
     begin
       if reset_n = '0' then
-        powerlink_0_MAC_DMA_address_last_time <= std_logic_vector'("000000000000000000000000000000");
+        powerlink_0_MAC_DMA_address_last_time <= std_logic_vector'("00000000000000000000000000000000");
       elsif clk'event and clk = '1' then
         powerlink_0_MAC_DMA_address_last_time <= powerlink_0_MAC_DMA_address;
       end if;
@@ -10070,7 +10070,7 @@ entity tri_state_bridge_0_avalon_slave_arbitrator is
                  signal pcp_cpu_instruction_master_latency_counter : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal pcp_cpu_instruction_master_read : IN STD_LOGIC;
                  signal pcp_cpu_instruction_master_read_data_valid_clock_crossing_0_s1_shift_register : IN STD_LOGIC;
-                 signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                 signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_burstcount : IN STD_LOGIC;
                  signal powerlink_0_MAC_DMA_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                  signal powerlink_0_MAC_DMA_write : IN STD_LOGIC;
@@ -10399,7 +10399,7 @@ begin
 
   --local readdatavalid pcp_cpu_instruction_master_read_data_valid_sram_0_s0, which is an e_mux
   pcp_cpu_instruction_master_read_data_valid_sram_0_s0 <= pcp_cpu_instruction_master_read_data_valid_sram_0_s0_shift_register(1);
-  internal_powerlink_0_MAC_DMA_requests_sram_0_s0 <= ((to_std_logic(((Std_Logic_Vector'(powerlink_0_MAC_DMA_address_to_slave(29 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("000010010000000000000000000000")))) AND (powerlink_0_MAC_DMA_write))) AND powerlink_0_MAC_DMA_write;
+  internal_powerlink_0_MAC_DMA_requests_sram_0_s0 <= ((to_std_logic(((Std_Logic_Vector'(powerlink_0_MAC_DMA_address_to_slave(31 DOWNTO 21) & std_logic_vector'("000000000000000000000")) = std_logic_vector'("00000010010000000000000000000000")))) AND (powerlink_0_MAC_DMA_write))) AND powerlink_0_MAC_DMA_write;
   internal_powerlink_0_MAC_DMA_qualified_request_sram_0_s0 <= internal_powerlink_0_MAC_DMA_requests_sram_0_s0 AND NOT ((((((tri_state_bridge_0_avalon_slave_read_pending) AND powerlink_0_MAC_DMA_write)) OR pcp_cpu_data_master_arbiterlock) OR pcp_cpu_instruction_master_arbiterlock));
   --allow new arb cycle for tri_state_bridge_0/avalon_slave, which is an e_assign
   tri_state_bridge_0_avalon_slave_allow_new_arb_cycle <= (NOT pcp_cpu_data_master_arbiterlock AND NOT pcp_cpu_instruction_master_arbiterlock) AND NOT powerlink_0_MAC_DMA_arbiterlock;
@@ -10526,7 +10526,7 @@ begin
   end process;
 
   --p1_addr_to_the_sram_0 mux, which is an e_mux
-  p1_addr_to_the_sram_0 <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), (std_logic_vector'("00") & ((Std_Logic_Vector'(A_SRL(pcp_cpu_data_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_data_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0')))))), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_instruction_master_granted_sram_0_s0)) = '1'), (std_logic_vector'("00") & ((Std_Logic_Vector'(A_SRL(pcp_cpu_instruction_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_instruction_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0')))))), powerlink_0_MAC_DMA_address_to_slave)), 21);
+  p1_addr_to_the_sram_0 <= A_EXT (A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_data_master_granted_sram_0_s0)) = '1'), (std_logic_vector'("0000") & ((Std_Logic_Vector'(A_SRL(pcp_cpu_data_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_data_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0')))))), A_WE_StdLogicVector((std_logic'((internal_pcp_cpu_instruction_master_granted_sram_0_s0)) = '1'), (std_logic_vector'("0000") & ((Std_Logic_Vector'(A_SRL(pcp_cpu_instruction_master_address_to_slave,std_logic_vector'("00000000000000000000000000000010")) & A_ToStdLogicVector(pcp_cpu_instruction_master_dbs_address(1)) & A_ToStdLogicVector(std_logic'('0')))))), powerlink_0_MAC_DMA_address_to_slave)), 21);
   --d1_tri_state_bridge_0_avalon_slave_end_xfer register, which is an e_register
   process (clk, reset_n)
   begin
@@ -10918,13 +10918,13 @@ entity niosII_openMac is
               -- 1) global signals:
                  signal clk25 : OUT STD_LOGIC;
                  signal clk50 : OUT STD_LOGIC;
-                 signal clkAp : OUT STD_LOGIC;
-                 signal clkAp_SDRAM : OUT STD_LOGIC;
                  signal clk_0 : IN STD_LOGIC;
                  signal clkpcp : OUT STD_LOGIC;
                  signal reset_n : IN STD_LOGIC;
 
               -- the_altpll_0
+                 signal c3_from_the_altpll_0 : OUT STD_LOGIC;
+                 signal c4_from_the_altpll_0 : OUT STD_LOGIC;
                  signal locked_from_the_altpll_0 : OUT STD_LOGIC;
                  signal phasedone_from_the_altpll_0 : OUT STD_LOGIC;
 
@@ -11941,7 +11941,7 @@ component powerlink_0_MAC_DMA_arbitrator is
                  -- inputs:
                     signal clk : IN STD_LOGIC;
                     signal d1_tri_state_bridge_0_avalon_slave_end_xfer : IN STD_LOGIC;
-                    signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_address : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_burstcount : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_granted_sram_0_s0 : IN STD_LOGIC;
@@ -11952,7 +11952,7 @@ component powerlink_0_MAC_DMA_arbitrator is
                     signal reset_n : IN STD_LOGIC;
 
                  -- outputs:
-                    signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_address_to_slave : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_waitrequest : OUT STD_LOGIC
                  );
 end component powerlink_0_MAC_DMA_arbitrator;
@@ -12016,7 +12016,7 @@ component powerlink_0 is
                     signal led_phyAct : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal led_phyLink : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal led_status : OUT STD_LOGIC;
-                    signal m_address : OUT STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal m_address : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal m_burstcount : OUT STD_LOGIC_VECTOR (0 DOWNTO 0);
                     signal m_byteenable : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal m_write : OUT STD_LOGIC;
@@ -12277,7 +12277,7 @@ component tri_state_bridge_0_avalon_slave_arbitrator is
                     signal pcp_cpu_instruction_master_latency_counter : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal pcp_cpu_instruction_master_read : IN STD_LOGIC;
                     signal pcp_cpu_instruction_master_read_data_valid_clock_crossing_0_s1_shift_register : IN STD_LOGIC;
-                    signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (29 DOWNTO 0);
+                    signal powerlink_0_MAC_DMA_address_to_slave : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_burstcount : IN STD_LOGIC;
                     signal powerlink_0_MAC_DMA_byteenable : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
                     signal powerlink_0_MAC_DMA_write : IN STD_LOGIC;
@@ -12491,6 +12491,8 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal internal_ap_asyncIrq_from_the_powerlink_0 :  STD_LOGIC;
                 signal internal_ap_syncIrq_from_the_powerlink_0 :  STD_LOGIC;
                 signal internal_be_n_to_the_sram_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal internal_c3_from_the_altpll_0 :  STD_LOGIC;
+                signal internal_c4_from_the_altpll_0 :  STD_LOGIC;
                 signal internal_ce_n_to_the_sram_0 :  STD_LOGIC;
                 signal internal_clk25 :  STD_LOGIC;
                 signal internal_clk50 :  STD_LOGIC;
@@ -12603,8 +12605,6 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal out_clk_altpll_0_c0 :  STD_LOGIC;
                 signal out_clk_altpll_0_c1 :  STD_LOGIC;
                 signal out_clk_altpll_0_c2 :  STD_LOGIC;
-                signal out_clk_altpll_0_c3 :  STD_LOGIC;
-                signal out_clk_altpll_0_c4 :  STD_LOGIC;
                 signal pcp_cpu_data_master_address :  STD_LOGIC_VECTOR (25 DOWNTO 0);
                 signal pcp_cpu_data_master_address_to_slave :  STD_LOGIC_VECTOR (25 DOWNTO 0);
                 signal pcp_cpu_data_master_byteenable :  STD_LOGIC_VECTOR (3 DOWNTO 0);
@@ -12712,8 +12712,8 @@ end component niosII_openMac_reset_clk25_domain_synch_module;
                 signal powerlink_0_MAC_CMP_waitrequest_from_sa :  STD_LOGIC;
                 signal powerlink_0_MAC_CMP_write :  STD_LOGIC;
                 signal powerlink_0_MAC_CMP_writedata :  STD_LOGIC_VECTOR (31 DOWNTO 0);
-                signal powerlink_0_MAC_DMA_address :  STD_LOGIC_VECTOR (29 DOWNTO 0);
-                signal powerlink_0_MAC_DMA_address_to_slave :  STD_LOGIC_VECTOR (29 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_address :  STD_LOGIC_VECTOR (31 DOWNTO 0);
+                signal powerlink_0_MAC_DMA_address_to_slave :  STD_LOGIC_VECTOR (31 DOWNTO 0);
                 signal powerlink_0_MAC_DMA_burstcount :  STD_LOGIC;
                 signal powerlink_0_MAC_DMA_byteenable :  STD_LOGIC_VECTOR (1 DOWNTO 0);
                 signal powerlink_0_MAC_DMA_granted_sram_0_s0 :  STD_LOGIC;
@@ -12823,18 +12823,14 @@ begin
   internal_clkpcp <= out_clk_altpll_0_c1;
   --clk25 out_clk assignment, which is an e_assign
   internal_clk25 <= out_clk_altpll_0_c2;
-  --clkAp out_clk assignment, which is an e_assign
-  clkAp <= out_clk_altpll_0_c3;
-  --clkAp_SDRAM out_clk assignment, which is an e_assign
-  clkAp_SDRAM <= out_clk_altpll_0_c4;
   --the_altpll_0, which is an e_ptf_instance
   the_altpll_0 : altpll_0
     port map(
       c0 => out_clk_altpll_0_c0,
       c1 => out_clk_altpll_0_c1,
       c2 => out_clk_altpll_0_c2,
-      c3 => out_clk_altpll_0_c3,
-      c4 => out_clk_altpll_0_c4,
+      c3 => internal_c3_from_the_altpll_0,
+      c4 => internal_c4_from_the_altpll_0,
       locked => internal_locked_from_the_altpll_0,
       phasedone => internal_phasedone_from_the_altpll_0,
       readdata => altpll_0_pll_slave_readdata,
@@ -14100,6 +14096,10 @@ begin
   --vhdl renameroo for output signals
   be_n_to_the_sram_0 <= internal_be_n_to_the_sram_0;
   --vhdl renameroo for output signals
+  c3_from_the_altpll_0 <= internal_c3_from_the_altpll_0;
+  --vhdl renameroo for output signals
+  c4_from_the_altpll_0 <= internal_c4_from_the_altpll_0;
+  --vhdl renameroo for output signals
   ce_n_to_the_sram_0 <= internal_ce_n_to_the_sram_0;
   --vhdl renameroo for output signals
   clk25 <= internal_clk25;
@@ -14187,13 +14187,13 @@ component niosII_openMac is
                  -- 1) global signals:
                     signal clk25 : OUT STD_LOGIC;
                     signal clk50 : OUT STD_LOGIC;
-                    signal clkAp : OUT STD_LOGIC;
-                    signal clkAp_SDRAM : OUT STD_LOGIC;
                     signal clk_0 : IN STD_LOGIC;
                     signal clkpcp : OUT STD_LOGIC;
                     signal reset_n : IN STD_LOGIC;
 
                  -- the_altpll_0
+                    signal c3_from_the_altpll_0 : OUT STD_LOGIC;
+                    signal c4_from_the_altpll_0 : OUT STD_LOGIC;
                     signal locked_from_the_altpll_0 : OUT STD_LOGIC;
                     signal phasedone_from_the_altpll_0 : OUT STD_LOGIC;
 
@@ -14261,12 +14261,12 @@ end component niosII_openMac;
                 signal ap_asyncIrq_from_the_powerlink_0 :  STD_LOGIC;
                 signal ap_syncIrq_from_the_powerlink_0 :  STD_LOGIC;
                 signal be_n_to_the_sram_0 :  STD_LOGIC_VECTOR (1 DOWNTO 0);
+                signal c3_from_the_altpll_0 :  STD_LOGIC;
+                signal c4_from_the_altpll_0 :  STD_LOGIC;
                 signal ce_n_to_the_sram_0 :  STD_LOGIC;
                 signal clk :  STD_LOGIC;
                 signal clk25 :  STD_LOGIC;
                 signal clk50 :  STD_LOGIC;
-                signal clkAp :  STD_LOGIC;
-                signal clkAp_SDRAM :  STD_LOGIC;
                 signal clk_0 :  STD_LOGIC;
                 signal clkpcp :  STD_LOGIC;
                 signal clock_crossing_0_s1_endofpacket_from_sa :  STD_LOGIC;
@@ -14340,11 +14340,11 @@ begin
       ap_asyncIrq_from_the_powerlink_0 => ap_asyncIrq_from_the_powerlink_0,
       ap_syncIrq_from_the_powerlink_0 => ap_syncIrq_from_the_powerlink_0,
       be_n_to_the_sram_0 => be_n_to_the_sram_0,
+      c3_from_the_altpll_0 => c3_from_the_altpll_0,
+      c4_from_the_altpll_0 => c4_from_the_altpll_0,
       ce_n_to_the_sram_0 => ce_n_to_the_sram_0,
       clk25 => clk25,
       clk50 => clk50,
-      clkAp => clkAp,
-      clkAp_SDRAM => clkAp_SDRAM,
       clkpcp => clkpcp,
       dclk_from_the_epcs_flash_controller_0 => dclk_from_the_epcs_flash_controller_0,
       led_error_from_the_powerlink_0 => led_error_from_the_powerlink_0,

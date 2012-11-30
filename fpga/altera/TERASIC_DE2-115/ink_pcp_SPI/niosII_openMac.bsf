@@ -153,23 +153,23 @@
 (port
 (pt 480 64)
 (output)
-(text "clkAp_SDRAM " (rect 0 0 73 16)(font "Arial" (font_size 8)))
-(text "clkAp_SDRAM " (rect 380 57 453 73)(font "Arial" (font_size 8)))
+(text "clkpcp " (rect 0 0 31 16)(font "Arial" (font_size 8)))
+(text "clkpcp " (rect 422 57 453 73)(font "Arial" (font_size 8)))
 (line (pt 464 64)(pt 480 64)(line_width 1))
-)
-(port
-(pt 480 80)
-(output)
-(text "clkAp " (rect 0 0 27 16)(font "Arial" (font_size 8)))
-(text "clkAp " (rect 426 73 453 89)(font "Arial" (font_size 8)))
-(line (pt 464 80)(pt 480 80)(line_width 1))
 )
 (port
 (pt 480 96)
 (output)
-(text "clkpcp " (rect 0 0 31 16)(font "Arial" (font_size 8)))
-(text "clkpcp " (rect 422 89 453 105)(font "Arial" (font_size 8)))
+(text "c3_from_the_altpll_0 " (rect 0 0 100 16)(font "Arial" (font_size 8)))
+(text "c3_from_the_altpll_0 " (rect 353 89 453 105)(font "Arial" (font_size 8)))
 (line (pt 464 96)(pt 480 96)(line_width 1))
+)
+(port
+(pt 480 112)
+(output)
+(text "c4_from_the_altpll_0 " (rect 0 0 100 16)(font "Arial" (font_size 8)))
+(text "c4_from_the_altpll_0 " (rect 353 105 453 121)(font "Arial" (font_size 8)))
+(line (pt 464 112)(pt 480 112)(line_width 1))
 )
 (port
 (pt 480 128)
@@ -403,7 +403,7 @@
 (line (pt 464 736)(pt 480 736)(line_width 1))
 )
 (drawing
-(line (pt 16 112)(pt 463 112)(color 0 0 0)(dotted)(line_width 1))
+(line (pt 16 80)(pt 463 80)(color 0 0 0)(dotted)(line_width 1))
 (line (pt 16 160)(pt 463 160)(color 0 0 0)(dotted)(line_width 1))
 (line (pt 16 192)(pt 463 192)(color 0 0 0)(dotted)(line_width 1))
 (line (pt 16 256)(pt 463 256)(color 0 0 0)(dotted)(line_width 1))

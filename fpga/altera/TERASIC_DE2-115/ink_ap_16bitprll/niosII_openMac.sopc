@@ -123,19 +123,19 @@
          type = "boolean";
       }
    }
-   element sysid.control_slave
-   {
-      datum baseAddress
-      {
-         value = "2472";
-         type = "long";
-      }
-   }
    element lcd.control_slave
    {
       datum baseAddress
       {
          value = "2416";
+         type = "long";
+      }
+   }
+   element sysid.control_slave
+   {
+      datum baseAddress
+      {
+         value = "2472";
          type = "long";
       }
    }
@@ -300,6 +300,14 @@
          type = "boolean";
       }
    }
+   element benchmark_ap_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2336";
+         type = "long";
+      }
+   }
    element remote_update_cycloneiii_0.s1
    {
       datum _lockedAddress
@@ -313,14 +321,6 @@
          type = "long";
       }
    }
-   element inport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2384";
-         type = "long";
-      }
-   }
    element system_timer_ap.s1
    {
       datum baseAddress
@@ -329,19 +329,19 @@
          type = "long";
       }
    }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2368";
-         type = "long";
-      }
-   }
    element onchip_memory2_0.s1
    {
       datum baseAddress
       {
          value = "8192";
+         type = "long";
+      }
+   }
+   element outport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2368";
          type = "long";
       }
    }
@@ -358,19 +358,19 @@
          type = "long";
       }
    }
+   element inport_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2384";
+         type = "long";
+      }
+   }
    element async_irq_from_pcp.s1
    {
       datum baseAddress
       {
          value = "2448";
-         type = "long";
-      }
-   }
-   element benchmark_ap_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2336";
          type = "long";
       }
    }
@@ -490,7 +490,7 @@
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="13185571850" />
- <parameter name="timeStamp" value="1351153432594" />
+ <parameter name="timeStamp" value="1354031603870" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />

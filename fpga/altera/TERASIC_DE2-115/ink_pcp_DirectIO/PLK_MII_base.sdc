@@ -8,11 +8,9 @@
 ## define the clocks in your design (depends on your PLL settings!)
 ##  (under "Compilation Report" - "TimeQuest Timing Analyzer" - "Clocks")
 set ext_clk			EXT_CLK
-set clk50 			inst|the_altpll_0|sd1|pll7|clk[0]
+set clk50			inst|the_altpll_0|sd1|pll7|clk[0]
 set clkPcp			inst|the_altpll_0|sd1|pll7|clk[1]
 set clk25			inst|the_altpll_0|sd1|pll7|clk[2]
-set clkAp			inst|the_altpll_0|sd1|pll7|clk[3]
-set clkAp_SDRAM	inst|the_altpll_0|sd1|pll7|clk[4]
 
 set p0TxClk		PHY0_TXCLK
 set p0RxClk		PHY0_RXCLK
@@ -127,8 +125,8 @@ create_clock -period 25MHz -name phy0_txclk [get_ports $p0TxClk]
 create_clock -period 25MHz -name phy0_vrxclk
 create_clock -period 25MHz -name phy0_vtxclk
 ## input
-set_input_delay -clock phy0_vrxclk -max $phy_in_max [get_ports {PHY0_RXDV PHY0_RXD[*]}]
-set_input_delay -clock phy0_vrxclk -min $phy_in_min [get_ports {PHY0_RXDV PHY0_RXD[*]}]
+set_input_delay -clock phy0_vrxclk -max $phy_in_max [get_ports {PHY0_RXDV PHY0_RXER PHY0_RXD[*]}]
+set_input_delay -clock phy0_vrxclk -min $phy_in_min [get_ports {PHY0_RXDV PHY0_RXER PHY0_RXD[*]}]
 ## output
 set_output_delay -clock phy0_vtxclk -max $phy_out_max [get_ports {PHY0_TXEN PHY0_TXD[*]}]
 set_output_delay -clock phy0_vtxclk -min $phy_out_min [get_ports {PHY0_TXEN PHY0_TXD[*]}]
@@ -139,7 +137,6 @@ set_false_path -from [get_registers *] -to [get_ports PHY0_MDC]
 set_false_path -from [get_registers *] -to [get_ports PHY0_MDIO]
 set_false_path -from [get_ports PHY0_MDIO] -to [get_registers *]
 set_false_path -from [get_ports PHY0_LINK] -to [get_registers *]
-set_false_path -from [get_ports PHY0_RXER] -to [get_registers *]
 
 ##PHY1
 ## real clock
@@ -149,8 +146,8 @@ create_clock -period 25MHz -name phy1_txclk [get_ports $p1TxClk]
 create_clock -period 25MHz -name phy1_vrxclk
 create_clock -period 25MHz -name phy1_vtxclk
 ## input
-set_input_delay -clock phy1_vrxclk -max $phy_in_max [get_ports {PHY1_RXDV PHY1_RXD[*]}]
-set_input_delay -clock phy1_vrxclk -min $phy_in_min [get_ports {PHY1_RXDV PHY1_RXD[*]}]
+set_input_delay -clock phy1_vrxclk -max $phy_in_max [get_ports {PHY1_RXDV PHY1_RXER PHY1_RXD[*]}]
+set_input_delay -clock phy1_vrxclk -min $phy_in_min [get_ports {PHY1_RXDV PHY1_RXER PHY1_RXD[*]}]
 ## output
 set_output_delay -clock phy1_vtxclk -max $phy_out_max [get_ports {PHY1_TXEN PHY1_TXD[*]}]
 set_output_delay -clock phy1_vtxclk -min $phy_out_min [get_ports {PHY1_TXEN PHY1_TXD[*]}]
@@ -161,7 +158,6 @@ set_false_path -from [get_registers *] -to [get_ports PHY1_MDC]
 set_false_path -from [get_registers *] -to [get_ports PHY1_MDIO]
 set_false_path -from [get_ports PHY1_MDIO] -to [get_registers *]
 set_false_path -from [get_ports PHY1_LINK] -to [get_registers *]
-set_false_path -from [get_ports PHY1_RXER] -to [get_registers *]
 
 # ----------------------------------------------------------------------------------
 
@@ -174,8 +170,7 @@ set_clock_groups -asynchronous 	-group $clk50 \
 											-group [format "%s %s" phy0_txclk phy0_vtxclk] \
 											-group [format "%s %s" phy1_rxclk phy1_vrxclk] \
 											-group [format "%s %s" phy1_txclk phy1_vtxclk] \
-											-group $ext_clk \
-											
+											-group $ext_clk
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------

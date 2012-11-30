@@ -170,7 +170,7 @@ SYSTEM niosII_openMac
                type = "readdatavalid";
                width = "1";
                direction = "input";
-               Is_Enabled = "0";
+               Is_Enabled = "1";
             }
             PORT i_waitrequest
             {
@@ -696,9 +696,9 @@ SYSTEM niosII_openMac
          gui_num_tightly_coupled_data_masters = "0";
          gui_include_tightly_coupled_data_masters = "0";
          gui_omit_avalon_data_master = "0";
-         cache_has_icache = "0";
-         cache_icache_size = "0";
-         cache_icache_line_size = "0";
+         cache_has_icache = "1";
+         cache_icache_size = "4096";
+         cache_icache_line_size = "32";
          cache_icache_ram_block_type = "AUTO";
          cache_icache_bursts = "0";
          num_tightly_coupled_instruction_masters = "0";
@@ -736,7 +736,7 @@ SYSTEM niosII_openMac
          hbreak_test = "0";
          allow_full_address_range = "0";
          extra_exc_info = "0";
-         branch_prediction_type = "Dynamic";
+         branch_prediction_type = "Static";
          bht_ptr_sz = "8";
          bht_index_pc_only = "0";
          gui_branch_prediction_type = "Automatic";
@@ -768,10 +768,10 @@ SYSTEM niosII_openMac
          mpu_use_limit = "0";
          hardware_divide_present = "0";
          gui_hardware_divide_setting = "0";
-         hardware_multiply_present = "0";
-         hardware_multiply_impl = "no_mul";
-         shift_rot_impl = "small_le_shift";
-         gui_hardware_multiply_setting = "no_mul_small_le_shift";
+         hardware_multiply_present = "1";
+         hardware_multiply_impl = "embedded_mul";
+         shift_rot_impl = "fast_le_shift";
+         gui_hardware_multiply_setting = "embedded_mul_fast_le_shift";
          reset_slave = "epcs_flash_controller_0/epcs_control_port";
          break_slave = "ap_cpu/jtag_debug_module";
          exc_slave = "onchip_memory2_0/s1";
@@ -779,8 +779,8 @@ SYSTEM niosII_openMac
          break_offset = "0x00000020";
          exc_offset = "0x00000020";
          cpu_reset = "0";
-         CPU_Implementation = "tiny";
-         cpu_selection = "e";
+         CPU_Implementation = "small";
+         cpu_selection = "s";
          device_family_id = "CYCLONEIVE";
          address_stall_present = "1";
          dsp_block_supports_shift = "0";
@@ -850,22 +850,22 @@ SYSTEM niosII_openMac
             }
             CONSTANT nasys_has_icache
             {
-               value = "0";
+               value = "1";
                comment = "True if instruction cache present";
             }
             CONSTANT nasys_icache_size
             {
-               value = "0";
+               value = "4096";
                comment = "Size in bytes of instruction cache";
             }
             CONSTANT nasys_icache_line_size
             {
-               value = "0";
+               value = "32";
                comment = "Size in bytes of each icache line";
             }
             CONSTANT nasys_icache_line_size_log2
             {
-               value = "-Infinity";
+               value = "5";
                comment = "Log2 size in bytes of each icache line";
             }
             CONSTANT nasys_has_dcache
@@ -889,7 +889,7 @@ SYSTEM niosII_openMac
                comment = "Log2 size in bytes of each dcache line";
             }
          }
-         license_status = "none_required";
+         license_status = "encrypted";
          mainmem_slave = "onchip_memory2_0/s1";
          datamem_slave = "onchip_memory2_0/s1";
          maincomm_slave = "lcd/control_slave";
@@ -910,8 +910,8 @@ SYSTEM niosII_openMac
          Top_Level_Ports_Are_Enumerated = "1";
          View 
          {
-            Settings_Summary = "Nios II/e
-            
+            Settings_Summary = "Nios II/s
+            <br>&nbsp;&nbsp;4-Kbyte Instruction Cache
             
             <br>&nbsp;&nbsp;JTAG Debug Module
             ";
@@ -926,7 +926,7 @@ SYSTEM niosII_openMac
          PLI_Files = "";
          Precompiled_Simulation_Library_Files = "";
          Simulation_HDL_Files = "";
-         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/ap_cpu_test_bench.vhd, __PROJECT_DIRECTORY__/ap_cpu_oci_test_bench.vhd, __PROJECT_DIRECTORY__/ap_cpu_jtag_debug_module_tck.vhd, __PROJECT_DIRECTORY__/ap_cpu_jtag_debug_module_sysclk.vhd, __PROJECT_DIRECTORY__/ap_cpu_jtag_debug_module_wrapper.vhd, __PROJECT_DIRECTORY__/ap_cpu.vhd";
+         Synthesis_HDL_Files = "__PROJECT_DIRECTORY__/ap_cpu_test_bench.vhd, __PROJECT_DIRECTORY__/ap_cpu_mult_cell.vhd, __PROJECT_DIRECTORY__/ap_cpu_oci_test_bench.vhd, __PROJECT_DIRECTORY__/ap_cpu_jtag_debug_module_tck.vhd, __PROJECT_DIRECTORY__/ap_cpu_jtag_debug_module_sysclk.vhd, __PROJECT_DIRECTORY__/ap_cpu_jtag_debug_module_wrapper.vhd, __PROJECT_DIRECTORY__/ap_cpu.vhd";
          Synthesis_Only_Files = "";
       }
       MASTER tightly_coupled_instruction_master_0
@@ -1166,223 +1166,343 @@ SYSTEM niosII_openMac
             SIGNAL aaa
             {
                format = "Logic";
-               name = "d_irq";
+               name = "i_readdata";
                radix = "hexadecimal";
             }
             SIGNAL aab
             {
                format = "Logic";
-               name = "d_waitrequest";
+               name = "i_readdatavalid";
                radix = "hexadecimal";
             }
             SIGNAL aac
             {
                format = "Logic";
-               name = "d_address";
+               name = "i_waitrequest";
                radix = "hexadecimal";
             }
             SIGNAL aad
             {
                format = "Logic";
-               name = "d_byteenable";
+               name = "i_address";
                radix = "hexadecimal";
             }
             SIGNAL aae
             {
                format = "Logic";
-               name = "d_read";
+               name = "i_read";
                radix = "hexadecimal";
             }
             SIGNAL aaf
             {
                format = "Logic";
-               name = "d_readdata";
+               name = "clk";
                radix = "hexadecimal";
             }
             SIGNAL aag
             {
                format = "Logic";
-               name = "d_write";
+               name = "reset_n";
                radix = "hexadecimal";
             }
             SIGNAL aah
             {
                format = "Logic";
-               name = "d_writedata";
+               name = "d_readdata";
                radix = "hexadecimal";
             }
             SIGNAL aai
             {
                format = "Logic";
-               name = "i_waitrequest";
+               name = "d_waitrequest";
                radix = "hexadecimal";
             }
             SIGNAL aaj
             {
                format = "Logic";
-               name = "i_address";
+               name = "d_irq";
                radix = "hexadecimal";
             }
             SIGNAL aak
             {
                format = "Logic";
-               name = "i_read";
+               name = "d_address";
                radix = "hexadecimal";
             }
             SIGNAL aal
             {
                format = "Logic";
-               name = "i_readdata";
+               name = "d_byteenable";
                radix = "hexadecimal";
             }
             SIGNAL aam
             {
-               format = "Divider";
-               name = "common";
-               radix = "";
+               format = "Logic";
+               name = "d_read";
+               radix = "hexadecimal";
             }
             SIGNAL aan
             {
                format = "Logic";
-               name = "clk";
+               name = "d_write";
                radix = "hexadecimal";
             }
             SIGNAL aao
             {
                format = "Logic";
-               name = "reset_n";
+               name = "d_writedata";
                radix = "hexadecimal";
             }
             SIGNAL aap
             {
-               format = "Logic";
-               name = "F_pcb_nxt";
-               radix = "hexadecimal";
+               format = "Divider";
+               name = "base pipeline";
+               radix = "";
             }
             SIGNAL aaq
             {
                format = "Logic";
-               name = "F_pcb";
+               name = "clk";
                radix = "hexadecimal";
             }
             SIGNAL aar
             {
                format = "Logic";
-               name = "F_vinst";
-               radix = "ascii";
+               name = "reset_n";
+               radix = "hexadecimal";
             }
             SIGNAL aas
             {
                format = "Logic";
-               name = "D_vinst";
-               radix = "ascii";
+               name = "M_stall";
+               radix = "hexadecimal";
             }
             SIGNAL aat
             {
                format = "Logic";
-               name = "R_vinst";
-               radix = "ascii";
+               name = "F_pcb_nxt";
+               radix = "hexadecimal";
             }
             SIGNAL aau
             {
                format = "Logic";
-               name = "E_vinst";
-               radix = "ascii";
+               name = "F_pcb";
+               radix = "hexadecimal";
             }
             SIGNAL aav
             {
                format = "Logic";
-               name = "W_vinst";
-               radix = "ascii";
+               name = "D_pcb";
+               radix = "hexadecimal";
             }
             SIGNAL aaw
             {
                format = "Logic";
-               name = "F_valid";
+               name = "E_pcb";
                radix = "hexadecimal";
             }
             SIGNAL aax
             {
                format = "Logic";
-               name = "D_valid";
+               name = "M_pcb";
                radix = "hexadecimal";
             }
             SIGNAL aay
             {
                format = "Logic";
-               name = "R_valid";
+               name = "W_pcb";
                radix = "hexadecimal";
             }
             SIGNAL aaz
             {
                format = "Logic";
-               name = "E_valid";
-               radix = "hexadecimal";
+               name = "F_vinst";
+               radix = "ascii";
             }
             SIGNAL aba
             {
                format = "Logic";
-               name = "W_valid";
-               radix = "hexadecimal";
+               name = "D_vinst";
+               radix = "ascii";
             }
             SIGNAL abb
             {
                format = "Logic";
-               name = "D_wr_dst_reg";
-               radix = "hexadecimal";
+               name = "E_vinst";
+               radix = "ascii";
             }
             SIGNAL abc
             {
                format = "Logic";
-               name = "D_dst_regnum";
-               radix = "hexadecimal";
+               name = "M_vinst";
+               radix = "ascii";
             }
             SIGNAL abd
             {
                format = "Logic";
-               name = "W_wr_data";
-               radix = "hexadecimal";
+               name = "W_vinst";
+               radix = "ascii";
             }
             SIGNAL abe
             {
                format = "Logic";
-               name = "F_iw";
+               name = "F_inst_ram_hit";
                radix = "hexadecimal";
             }
             SIGNAL abf
             {
                format = "Logic";
-               name = "D_iw";
+               name = "F_iw_valid";
                radix = "hexadecimal";
             }
             SIGNAL abg
             {
-               format = "Divider";
-               name = "breaks";
-               radix = "";
+               format = "Logic";
+               name = "F_issue";
+               radix = "hexadecimal";
             }
             SIGNAL abh
             {
                format = "Logic";
-               name = "hbreak_req";
+               name = "F_kill";
                radix = "hexadecimal";
             }
             SIGNAL abi
             {
                format = "Logic";
-               name = "oci_hbreak_req";
+               name = "D_kill";
                radix = "hexadecimal";
             }
             SIGNAL abj
             {
                format = "Logic";
-               name = "hbreak_enabled";
+               name = "D_refetch";
                radix = "hexadecimal";
             }
             SIGNAL abk
             {
                format = "Logic";
-               name = "wait_for_one_post_bret_inst";
+               name = "D_issue";
+               radix = "hexadecimal";
+            }
+            SIGNAL abl
+            {
+               format = "Logic";
+               name = "D_valid";
+               radix = "hexadecimal";
+            }
+            SIGNAL abm
+            {
+               format = "Logic";
+               name = "E_valid";
+               radix = "hexadecimal";
+            }
+            SIGNAL abn
+            {
+               format = "Logic";
+               name = "M_valid";
+               radix = "hexadecimal";
+            }
+            SIGNAL abo
+            {
+               format = "Logic";
+               name = "W_valid";
+               radix = "hexadecimal";
+            }
+            SIGNAL abp
+            {
+               format = "Logic";
+               name = "W_wr_dst_reg";
+               radix = "hexadecimal";
+            }
+            SIGNAL abq
+            {
+               format = "Logic";
+               name = "W_dst_regnum";
+               radix = "hexadecimal";
+            }
+            SIGNAL abr
+            {
+               format = "Logic";
+               name = "W_wr_data";
+               radix = "hexadecimal";
+            }
+            SIGNAL abs
+            {
+               format = "Logic";
+               name = "F_en";
+               radix = "hexadecimal";
+            }
+            SIGNAL abt
+            {
+               format = "Logic";
+               name = "D_en";
+               radix = "hexadecimal";
+            }
+            SIGNAL abu
+            {
+               format = "Logic";
+               name = "E_en";
+               radix = "hexadecimal";
+            }
+            SIGNAL abv
+            {
+               format = "Logic";
+               name = "M_en";
+               radix = "hexadecimal";
+            }
+            SIGNAL abw
+            {
+               format = "Logic";
+               name = "F_iw";
+               radix = "hexadecimal";
+            }
+            SIGNAL abx
+            {
+               format = "Logic";
+               name = "D_iw";
+               radix = "hexadecimal";
+            }
+            SIGNAL aby
+            {
+               format = "Logic";
+               name = "E_iw";
+               radix = "hexadecimal";
+            }
+            SIGNAL abz
+            {
+               format = "Logic";
+               name = "E_valid_prior_to_hbreak";
+               radix = "hexadecimal";
+            }
+            SIGNAL aca
+            {
+               format = "Logic";
+               name = "M_pipe_flush_nxt";
+               radix = "hexadecimal";
+            }
+            SIGNAL acb
+            {
+               format = "Logic";
+               name = "M_pipe_flush_baddr_nxt";
+               radix = "hexadecimal";
+            }
+            SIGNAL acc
+            {
+               format = "Logic";
+               name = "M_status_reg_pie";
+               radix = "hexadecimal";
+            }
+            SIGNAL acd
+            {
+               format = "Logic";
+               name = "M_ienable_reg";
+               radix = "hexadecimal";
+            }
+            SIGNAL ace
+            {
+               format = "Logic";
+               name = "intr_req";
                radix = "hexadecimal";
             }
          }
@@ -1944,7 +2064,7 @@ SYSTEM niosII_openMac
          Is_Enabled = "1";
          Default_Module_Name = "sdram";
          Top_Level_Ports_Are_Enumerated = "1";
-         Clock_Source = "clk50";
+         Clock_Source = "clkAp_SDRAM";
          Has_Clock = "1";
          Disable_Simulation_Port_Wiring = "0";
          View 
@@ -2458,7 +2578,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>500D2CAD</b> (timestamp: Mon Jul 23, 2012 @12:51 AM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>50B7091B</b> (timestamp: Thu Nov 29, 2012 @8:04 AM)";
             MESSAGES 
             {
             }
@@ -2467,7 +2587,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1343040685u";
+         timestamp = "1354172699u";
          regenerate_values = "0";
          MAKE 
          {
@@ -2476,7 +2596,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x000009a8 --id=0 --timestamp=1343040685";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x000009a8 --id=0 --timestamp=1354172699";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }

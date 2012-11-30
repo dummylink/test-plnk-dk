@@ -1111,23 +1111,23 @@ applicable agreement for further details.
 	(port
 		(pt 480 64)
 		(output)
-		(text "clkAp_SDRAM " (rect 0 0 86 14)(font "Arial" (font_size 8)))
-		(text "clkAp_SDRAM " (rect 380 57 466 71)(font "Arial" (font_size 8)))
+		(text "clkpcp " (rect 0 0 40 14)(font "Arial" (font_size 8)))
+		(text "clkpcp " (rect 422 57 462 71)(font "Arial" (font_size 8)))
 		(line (pt 464 64)(pt 480 64))
-	)
-	(port
-		(pt 480 80)
-		(output)
-		(text "clkAp " (rect 0 0 35 14)(font "Arial" (font_size 8)))
-		(text "clkAp " (rect 426 73 461 87)(font "Arial" (font_size 8)))
-		(line (pt 464 80)(pt 480 80))
 	)
 	(port
 		(pt 480 96)
 		(output)
-		(text "clkpcp " (rect 0 0 40 14)(font "Arial" (font_size 8)))
-		(text "clkpcp " (rect 422 89 462 103)(font "Arial" (font_size 8)))
+		(text "c3_from_the_altpll_0 " (rect 0 0 121 14)(font "Arial" (font_size 8)))
+		(text "c3_from_the_altpll_0 " (rect 353 89 474 103)(font "Arial" (font_size 8)))
 		(line (pt 464 96)(pt 480 96))
+	)
+	(port
+		(pt 480 112)
+		(output)
+		(text "c4_from_the_altpll_0 " (rect 0 0 121 14)(font "Arial" (font_size 8)))
+		(text "c4_from_the_altpll_0 " (rect 353 105 474 119)(font "Arial" (font_size 8)))
+		(line (pt 464 112)(pt 480 112))
 	)
 	(port
 		(pt 480 128)
@@ -1361,7 +1361,7 @@ applicable agreement for further details.
 		(line (pt 464 720)(pt 480 720)(line_width 3))
 	)
 	(drawing
-		(line (pt 16 112)(pt 463 112)(color 0 0 0)(dotted))
+		(line (pt 16 80)(pt 463 80)(color 0 0 0)(dotted))
 		(line (pt 16 160)(pt 463 160)(color 0 0 0)(dotted))
 		(line (pt 16 192)(pt 463 192)(color 0 0 0)(dotted))
 		(line (pt 16 256)(pt 463 256)(color 0 0 0)(dotted))

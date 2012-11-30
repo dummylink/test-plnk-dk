@@ -7,12 +7,10 @@
 # clock definitions
 ## define the clocks in your design (depends on your PLL settings!)
 ##  (under "Compilation Report" - "TimeQuest Timing Analyzer" - "Clocks")
-set ext_clk		EXT_CLK
-set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-set clkPcp		inst|the_altpll_0|sd1|pll7|clk[1]
-set clk25		inst|the_altpll_0|sd1|pll7|clk[2]
-set clkAp		inst|the_altpll_0|sd1|pll7|clk[3]
-
+set ext_clk			EXT_CLK
+set clk50			inst|the_altpll_0|sd1|pll7|clk[0]
+set clkPcp			inst|the_altpll_0|sd1|pll7|clk[1]
+set clk25			inst|the_altpll_0|sd1|pll7|clk[2]
 
 set p0TxClk		PHY0_TXCLK
 set p0RxClk		PHY0_RXCLK
@@ -160,13 +158,13 @@ set_false_path -from [get_registers *] -to [get_ports PHY1_MDC]
 set_false_path -from [get_registers *] -to [get_ports PHY1_MDIO]
 set_false_path -from [get_ports PHY1_MDIO] -to [get_registers *]
 set_false_path -from [get_ports PHY1_LINK] -to [get_registers *]
+
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------
 # Set clock groups (cut paths)
 set_clock_groups -asynchronous 	-group $clk50 \
 											-group [format "%s %s" $clkPcp CLKSRAM_virt] \
-											-group $clkAp \
 											-group $clk25 \
 											-group [format "%s %s" phy0_rxclk phy0_vrxclk] \
 											-group [format "%s %s" phy0_txclk phy0_vtxclk] \
