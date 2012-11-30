@@ -249,7 +249,13 @@
 // =========================================================================
 
 // kernel to user queue size
+#ifdef __MICROBLAZE__
+// no firware update support on Xilinx yet
 #define EPL_EVENT_SIZE_SHB_KERNEL_TO_USER    4096
+#else
+// large buffer size needed for SDO segmented flow control with max. MTU
+#define EPL_EVENT_SIZE_SHB_KERNEL_TO_USER    32768
+#endif
 
 // =========================================================================
 // Process Data Object User Space (Pdou) specific defines
