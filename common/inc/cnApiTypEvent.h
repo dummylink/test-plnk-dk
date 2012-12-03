@@ -34,41 +34,42 @@ subject to the License Agreement located at the end of this file below.
 
 /* PCP forwarded events */
 typedef enum ePcpPdiEventGeneric {
-    kPcpGenEventSyncCycleCalcSuccessful,         ///< synchronization interrupt cycle time calculation was successful
-    kPcpGenEventNodeIdConfigured,                ///< Powerlink Node Id has been configured
-    kPcpGenEventResetNodeRequest,                ///< PCP requests AP to do a complete node reboot (e.g. after finished firmware transfer)
-    kPcpGenEventResetCommunication,              ///< PCP requests AP to reset its asynchronous communication
-    kPcpGenEventResetCommunicationDone,          ///< asynchronous communication reset has finished at PCP side
-    kPcpGenEventNmtEnableReadyToOperate,         ///< PCP received NMT_ReadyToOperate command
-    kPcpGenEventUserTimer,                       ///< timer event triggered by PCP
-    kPcpGenEventDefaultGatewayUpdate,            ///< On this event the default gateway is up to date
+    kPcpGenEventSyncCycleCalcSuccessful   = 0x00,    ///< synchronization interrupt cycle time calculation was successful
+    kPcpGenEventNodeIdConfigured          = 0x01,    ///< POWERLINK Node Id has been configured
+    kPcpGenEventResetNodeRequest          = 0x02,    ///< PCP requests AP to do a complete node reboot (e.g. after finished firmware transfer)
+    kPcpGenEventResetCommunication        = 0x03,    ///< PCP requests AP to reset its asynchronous communication
+    kPcpGenEventResetCommunicationDone    = 0x04,    ///< asynchronous communication reset has finished at PCP side
+    kPcpGenEventNmtEnableReadyToOperate   = 0x05,    ///< PCP received NMT_ReadyToOperate command
+    kPcpGenEventUserTimer                 = 0x06,    ///< timer event triggered by PCP
+    kPcpGenEventDefaultGatewayUpdate      = 0x07,    ///< On this event the default gateway is up to date
 } tPcpPdiEventGeneric;
 
 /**
  * \brief enumeration with valid PcpPdi events
  */
 typedef enum ePcpPdiEventGenericError {
-    kPcpGenErrInitFailed,                 ///< initialization error of PCP
-    kPcpGenErrSyncCycleCalcError,         ///< synchronization interrupt cycle time calculation error
-    kPcpGenErrAsyncComTimeout,      ///< asynchronous communication timed out
-    kPcpGenErrAsyncComMtuExceeded,  ///< asynchronous MTU exceeded
-    kPcpGenErrAsyncComRxFailed,     ///< asynchronous RX at PCP failed
-    kPcpGenErrAsyncIntChanComError, ///< asynchronous communication failed
-    kPcpGenErrPhy0LinkLoss,         ///< PHY 0 lost its link
-    kPcpGenErrPhy1LinkLoss,         ///< PHY 0 lost its link
-    kPcpGenErrEventBuffOverflow,    ///< PCP event buffer overflow -> AP handles events to slow!
+    kPcpGenErrInitFailed            = 0x00,    ///< initialization error of PCP
+    kPcpGenErrSyncCycleCalcError    = 0x01,    ///< synchronization interrupt cycle time calculation error
+    kPcpGenErrAsyncComTimeout       = 0x02,    ///< asynchronous communication timed out
+    kPcpGenErrAsyncComMtuExceeded   = 0x03,    ///< asynchronous MTU exceeded
+    kPcpGenErrAsyncComRxFailed      = 0x04,    ///< asynchronous RX at PCP failed
+    kPcpGenErrAsyncIntChanComError  = 0x05,    ///< asynchronous communication failed
+    kPcpGenErrPhy0LinkLoss          = 0x06,    ///< PHY 0 lost its link
+    kPcpGenErrPhy1LinkLoss          = 0x07,    ///< PHY 0 lost its link
+    kPcpGenErrEventBuffOverflow     = 0x08,    ///< PCP event buffer overflow -> AP handles events to slow!
 } tPcpPdiEventGenericError;
 
 /**
  * \brief enum of valid PcpPdi event types
  */
 typedef enum ePcpPdiEventType {
-    kPcpPdiEventGeneric,            ///< general PCP event
-    kPcpPdiEventGenericError,       ///< general PCP error
-    kPcpPdiEventPcpStateChange,     ///< PCP state machine change
-    kPcpPdiEventCriticalStackError, ///< PCP forwarded openPowerlink Stack Error
-    kPcpPdiEventStackWarning,       ///< PCP forwarded openPowerlink Stack Warning
-    kPcpPdiEventHistoryEntry,       ///< PCP forwarded Powerlink error history entry
+    kPcpPdiNoEvent                  = 0x00,       ///< no event set
+    kPcpPdiEventGeneric             = 0x01,       ///< general PCP event
+    kPcpPdiEventGenericError        = 0x02,       ///< general PCP error
+    kPcpPdiEventPcpStateChange      = 0x03,       ///< PCP state machine change
+    kPcpPdiEventCriticalStackError  = 0x04,       ///< PCP forwarded POWERLINK Stack Error
+    kPcpPdiEventStackWarning        = 0x05,       ///< PCP forwarded POWERLINK Stack Warning
+    kPcpPdiEventHistoryEntry        = 0x06,       ///< PCP forwarded POWERLINK history entry
 } tPcpPdiEventType;
 
 /**

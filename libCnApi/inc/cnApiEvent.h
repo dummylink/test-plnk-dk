@@ -27,8 +27,8 @@ subject to the License Agreement located at the end of this file below.
 /* typedefs */
 
 typedef enum eCnApiEventErrorType{
-    kCnApiEventErrorFromPcp,  ///< error source is PCP PDI
-    kCnApiEventErrorLcl,      ///< error source is local function
+    kCnApiEventErrorFromPcp     = 0x00,    ///< error source is PCP PDI
+    kCnApiEventErrorLcl         = 0x01,    ///< error source is local function
 } tCnApiEventErrorType;
 
 typedef union {
@@ -48,26 +48,26 @@ typedef struct sCnApiEventError{
  * \brief definitions for AP state machine, transitions and states
  */
 typedef enum eApStates{
-    kApStateBooted = 0,
-    kApStateReadyToInit,
-    kApStateInit,
-    kApStatePreOp,
-    kApStateReadyToOperate,
-    kApStateOperational,
-    kApStateError,
-    kNumApState
+    kApStateBooted           = 0x00,
+    kApStateReadyToInit      = 0x01,
+    kApStateInit             = 0x02,
+    kApStatePreOp            = 0x03,
+    kApStateReadyToOperate   = 0x04,
+    kApStateOperational      = 0x05,
+    kApStateError            = 0x06,
+    kNumApState              = 0x07
 } tApStates;
 
 /**
  * \brief enum of valid CnApi event types
  */
 typedef enum eCnApiEventType {
-    kCnApiEventUserDef,           ///< user defined event
-    kCnApiEventPcp,               ///< generic event from PCP (all events except errors)
-    kCnApiEventApStateChange,     ///< AP state machine changed
-    kCnApiEventError,             ///< general CnApi error
-    kCnApiEventSdo,               ///< not used
-    kCnApiEventObdAccess,         ///< not used
+    kCnApiEventUserDef          = 0x00,    ///< user defined event
+    kCnApiEventPcp              = 0x01,    ///< generic event from PCP (all events except errors)
+    kCnApiEventApStateChange    = 0x02,    ///< AP state machine changed
+    kCnApiEventError            = 0x03,    ///< general CnApi error
+    kCnApiEventSdo              = 0x04,    ///< not used
+    kCnApiEventObdAccess        = 0x05,    ///< not used
 } tCnApiEventType;
 
 /**
