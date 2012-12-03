@@ -295,37 +295,11 @@
          type = "long";
       }
    }
-   element node_switch_pio.s1
+   element benchmark_pio.s1
    {
       datum baseAddress
       {
-         value = "2400";
-         type = "long";
-      }
-   }
-   element clock_crossing_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "2048";
+         value = "2336";
          type = "long";
       }
    }
@@ -355,11 +329,37 @@
          type = "long";
       }
    }
-   element benchmark_pio.s1
+   element clock_crossing_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "0";
+         type = "long";
+      }
+   }
+   element node_switch_pio.s1
    {
       datum baseAddress
       {
-         value = "2336";
+         value = "2400";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
          type = "long";
       }
    }
@@ -458,8 +458,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="19124877498" />
- <parameter name="timeStamp" value="1354271362327" />
+ <parameter name="systemHash" value="20045220004" />
+ <parameter name="timeStamp" value="1354554358887" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -514,7 +514,7 @@
   <parameter name="setting_activateModelChecker" value="false" />
   <parameter name="setting_HDLSimCachesCleared" value="true" />
   <parameter name="setting_HBreakTest" value="false" />
-  <parameter name="resetSlave" value="tc_i_mem_pcp.s2" />
+  <parameter name="resetSlave">epcs_flash_controller_0.epcs_control_port</parameter>
   <parameter name="resetOffset" value="0" />
   <parameter name="muldiv_multiplierType" value="NoneSmall" />
   <parameter name="muldiv_divider" value="false" />
@@ -543,7 +543,7 @@
   <parameter name="icache_numTCIM" value="_1" />
   <parameter name="icache_burstType" value="None" />
   <parameter name="exceptionSlave" value="tc_i_mem_pcp.s2" />
-  <parameter name="exceptionOffset" value="32" />
+  <parameter name="exceptionOffset" value="0" />
   <parameter name="deviceFeaturesSystemInfo">M512_MEMORY 0 M4K_MEMORY 0 M9K_MEMORY 1 M20K_MEMORY 0 M144K_MEMORY 0 MRAM_MEMORY 0 MLAB_MEMORY 0 ESB 0 EPCS 1 DSP 0 EMUL 1 HARDCOPY 0 LVDS_IO 1 ADDRESS_STALL 1 TRANSCEIVER_3G_BLOCK 0 TRANSCEIVER_6G_BLOCK 0 DSP_SHIFTER_BLOCK 0</parameter>
   <parameter name="deviceFamilyName" value="Cyclone IV E" />
   <parameter name="debug_triggerArming" value="true" />
