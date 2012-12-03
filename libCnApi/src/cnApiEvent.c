@@ -278,7 +278,6 @@ static tCnApiStatus CnApi_processPcpEvent(tPcpPdiEventType wEventType_p, tPcpPdi
                 case kPcpGenEventSyncCycleCalcSuccessful:
                 case kPcpGenEventNodeIdConfigured:
                 case kPcpGenEventResetNodeRequest:
-                case kPcpGenEventUserTimer:
                 default:
                 break;
             }

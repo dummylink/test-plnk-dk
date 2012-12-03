@@ -443,11 +443,6 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                         break;
                     }
 
-                    case kPcpGenEventUserTimer:
-                    {
-                        // only for testing purposes
-                        break;
-                    }
                     case kPcpGenEventDefaultGatewayUpdate:
                     {
                         // the default gateway has changed (read it!)
