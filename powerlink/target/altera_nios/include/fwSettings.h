@@ -35,14 +35,14 @@ parameters are set (overwritten) by the application processor.
 // =========================================================================
 // defines for flash update function
 // =========================================================================
-// IIB is stored in flash
-//#define CONFIG_IIB_IS_PRESENT                               // mandatory for FW-update
+// flash address of user image
+#define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000   // mandatory for FW-update
 // flash address of factory IIB
 #define CONFIG_FACTORY_IIB_FLASH_ADRS          0x00400000   // mandatory for FW-update
 // flash address of user IIB
 #define CONFIG_USER_IIB_FLASH_ADRS             0x00410000   // mandatory for FW-update
-// flash address of user image
-#define CONFIG_USER_IMAGE_FLASH_ADRS           0x00200000   // mandatory for FW-update
+// IIB is stored in flash
+//#define CONFIG_IIB_IS_PRESENT                               // mandatory for FW-update
 // used IIB version
 // 1 = only PCP system
 // 2 = AP software also present
