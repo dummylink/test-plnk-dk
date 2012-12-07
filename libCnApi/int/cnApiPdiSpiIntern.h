@@ -86,19 +86,19 @@ subject to the License Agreement located at the end of this file below.
 /* typedefs */
 typedef struct _tPdiSpiInstance
 {
-    //Tx Handler of the SPI Master Component
-    tSpiMasterTxHandler     m_SpiMasterTxHandler;
-    //Rx Handler of the SPI Master Component
-    tSpiMasterRxHandler     m_SpiMasterRxHandler;
+    tSpiMasterTxHandler     m_pfnSpiMasterTxHandler;    ///< Tx Handler of the SPI Master Component
+    tSpiMasterRxHandler     m_pfnSpiMasterRxHandler;    ///< Rx Handler of the SPI Master Component
 
-    //Local copy of the Address Register of the PDI SPI Slave
-    WORD                    m_addrReg;
+    tSpiMasterEnGloInt      m_pfnEnableGlobalIntH;    ///< function pointer to global interrupt enable callback
+    tSpiMasterDisGloInt     m_pfnDisableGlobalIntH;    ///< function pointer to global interrupt disable callback
 
-    //Tx Buffer
-    BYTE                    m_txBuffer[PDISPI_MAX_TX];
+    WORD                    m_addrReg;    ///< Local copy of the Address Register of the PDI SPI Slave
+
+
+    BYTE                    m_txBuffer[PDISPI_MAX_TX];    ///< Tx Buffer
     int                     m_toBeTx;
-    //Rx Buffer
-    BYTE                    m_rxBuffer[PDISPI_MAX_RX];
+
+    BYTE                    m_rxBuffer[PDISPI_MAX_RX];    ///< Rx Buffer
     int                     m_toBeRx;
 } tPdiSpiInstance;
 
@@ -118,10 +118,10 @@ typedef struct _tPdiSpiInstance
 /* functions */
 int CnApi_initSpiMaster
 (
-    tSpiMasterTxHandler     SpiMasterTxH_p,
-    tSpiMasterRxHandler     SpiMasterRxH_p,
-    void                    *pfnEnableGlobalIntH_p,
-    void                    *pfnDisableGlobalIntH_p
+    tSpiMasterTxHandler     pfnSpiMasterTxH_p,
+    tSpiMasterRxHandler     pfnSpiMasterRxH_p,
+    tSpiMasterEnGloInt      pfnEnableGlobalIntH_p,
+    tSpiMasterDisGloInt     pfnDisableGlobalIntH_p
 );
 
 int CnApi_Spi_writeByte

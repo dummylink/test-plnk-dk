@@ -181,7 +181,7 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
 
 #ifdef CN_API_USING_SPI
     /* initialize user-callback functions for SPI */
-    iRet = CnApi_initSpiMaster(pInitCnApiParam_p->m_SpiMasterTxH, pInitCnApiParam_p->m_SpiMasterRxH,
+    iRet = CnApi_initSpiMaster(pInitCnApiParam_p->m_pfnSpiMasterTxH, pInitCnApiParam_p->m_pfnSpiMasterRxH,
             pInitCnApiParam_p->m_pfnEnableGlobalIntH, pInitCnApiParam_p->m_pfnDisableGlobalIntH);
     if( iRet != OK )
     {

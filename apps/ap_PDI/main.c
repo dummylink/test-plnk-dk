@@ -173,8 +173,8 @@ int main (void)
                                                        the PDO descriptor message in the
                                                        application! */
 #ifdef CN_API_USING_SPI
-    InitCnApiParam.m_SpiMasterTxH = CnApi_CbSpiMasterTx;
-    InitCnApiParam.m_SpiMasterRxH = CnApi_CbSpiMasterRx;
+    InitCnApiParam.m_pfnSpiMasterTxH = CnApi_CbSpiMasterTx;
+    InitCnApiParam.m_pfnSpiMasterRxH = CnApi_CbSpiMasterRx;
     InitCnApiParam.m_pfnEnableGlobalIntH = enableGlobalInterrupts;
     InitCnApiParam.m_pfnDisableGlobalIntH = disableGlobalInterrupts;
 #endif

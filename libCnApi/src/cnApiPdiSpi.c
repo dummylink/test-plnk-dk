@@ -42,8 +42,6 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* global variables */
-void (*pfnEnableGlobalIntH_g)(void) = NULL; ///< function pointer to global interrupt enable callback
-void (*pfnDisableGlobalIntH_g)(void) = NULL; ///< function pointer to global interrupt disable callback
 
 /******************************************************************************/
 /* function declarations */
@@ -108,8 +106,8 @@ this library to register the SPI Master Tx/Rx handler.
 Furthermore the function sets the Address Register of the PDI SPI Slave
 to a known state.
 
-\param  SpiMasterTxH_p             SPI Master Tx Handler callback
-\param  SpiMasterRxH_p             SPI Master Rx Handler callback
+\param  pfnSpiMasterTxH_p          SPI Master Tx Handler callback
+\param  pfnSpiMasterRxH_p          SPI Master Rx Handler callback
 \param  pfnEnableGlobalIntH_p      SPI Master critical section enable
 \param  pfnDisableGlobalIntH_p     SPI Master critical section disable
 
@@ -119,10 +117,10 @@ to a known state.
 *******************************************************************************/
 int CnApi_initSpiMaster
 (
-    tSpiMasterTxHandler     SpiMasterTxH_p,
-    tSpiMasterRxHandler     SpiMasterRxH_p,
-    void                    *pfnEnableGlobalIntH_p,
-    void                    *pfnDisableGlobalIntH_p
+    tSpiMasterTxHandler     pfnSpiMasterTxH_p,
+    tSpiMasterRxHandler     pfnSpiMasterRxH_p,
+    tSpiMasterEnGloInt      pfnEnableGlobalIntH_p,
+    tSpiMasterDisGloInt     pfnDisableGlobalIntH_p
 )
 {
     int     iRet = PDISPI_OK;
@@ -133,7 +131,7 @@ int CnApi_initSpiMaster
     WORD    wSpiErrors = 0;
     BOOL    fPcpSpiPresent = FALSE;
 
-    if( (SpiMasterTxH_p == 0) || (SpiMasterRxH_p == 0) ||
+    if( (pfnSpiMasterTxH_p == 0) || (pfnSpiMasterRxH_p == 0) ||
         (pfnEnableGlobalIntH_p == NULL) || (pfnDisableGlobalIntH_p == NULL))
     {
         iRet = PDISPI_ERROR;
@@ -141,13 +139,13 @@ int CnApi_initSpiMaster
         goto exit;
     }
 
-    pfnEnableGlobalIntH_g = pfnEnableGlobalIntH_p;
-    pfnDisableGlobalIntH_g = pfnDisableGlobalIntH_p;
-
     memset(&PdiSpiInstance_l, 0, sizeof(PdiSpiInstance_l));
 
-    PdiSpiInstance_l.m_SpiMasterTxHandler = SpiMasterTxH_p;
-    PdiSpiInstance_l.m_SpiMasterRxHandler = SpiMasterRxH_p;
+    PdiSpiInstance_l.m_pfnEnableGlobalIntH = pfnEnableGlobalIntH_p;
+    PdiSpiInstance_l.m_pfnDisableGlobalIntH = pfnDisableGlobalIntH_p;
+
+    PdiSpiInstance_l.m_pfnSpiMasterTxHandler = pfnSpiMasterTxH_p;
+    PdiSpiInstance_l.m_pfnSpiMasterRxHandler = pfnSpiMasterRxH_p;
 
 #ifdef DEBUG_VERIFY_SPI_HW_CONNECTION
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nVerifying HW layer of SPI connection.\n");
@@ -322,7 +320,7 @@ int CnApi_Spi_writeByte
     int             iRet = PDISPI_OK;
     BYTE            ubTxData;
 
-    (void)pfnDisableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnDisableGlobalIntH();
 
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK);
@@ -354,7 +352,7 @@ int CnApi_Spi_writeByte
 
     PdiSpiInstance_l.m_addrReg++;
 
-    (void)pfnEnableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnEnableGlobalIntH();
 
 exit:
     return iRet;
@@ -383,7 +381,7 @@ int CnApi_Spi_readByte
     int             iRet = PDISPI_OK;
     BYTE            ubTxData;
 
-    (void)pfnDisableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnDisableGlobalIntH();
 
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK);
@@ -427,7 +425,7 @@ int CnApi_Spi_readByte
 
     PdiSpiInstance_l.m_addrReg++;
 
-    (void)pfnEnableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnEnableGlobalIntH();
 
 exit:
     return iRet;
@@ -778,7 +776,7 @@ static int writeSq
     WORD            uwTxSize = 0;
 
     ///< as SPI is not interrupt safe disable global interrupts
-    (void)pfnDisableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnDisableGlobalIntH();
 
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
@@ -834,7 +832,7 @@ static int writeSq
     while( uwSize_p );
 
     ///< enable the interrupts again
-    (void)pfnEnableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnEnableGlobalIntH();
 
 exit:
     return iRet;
@@ -867,7 +865,7 @@ static int readSq
     WORD            uwRxSize = 0;
 
     ///< as SPI is not interrupt safe disable global interrupts
-    (void)pfnDisableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnDisableGlobalIntH();
 
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
@@ -928,7 +926,7 @@ static int readSq
     }
     while( uwSize_p );
 
-    (void)pfnEnableGlobalIntH_g();
+    PdiSpiInstance_l.m_pfnEnableGlobalIntH();
 
 exit:
     return iRet;
@@ -1073,13 +1071,13 @@ static int sendTxBuffer
     }
 
     //call Tx handler
-    if( PdiSpiInstance_l.m_SpiMasterTxHandler == 0 )
+    if( PdiSpiInstance_l.m_pfnSpiMasterTxHandler == 0 )
     {
         iRet = PDISPI_ERROR;
         goto exit;
     }
 
-    iRet = PdiSpiInstance_l.m_SpiMasterTxHandler(
+    iRet = PdiSpiInstance_l.m_pfnSpiMasterTxHandler(
                 PdiSpiInstance_l.m_txBuffer,
                 PdiSpiInstance_l.m_toBeTx);
 
@@ -1121,13 +1119,13 @@ static int recRxBuffer
     }
 
     //call Rx handler
-    if( PdiSpiInstance_l.m_SpiMasterRxHandler == 0 )
+    if( PdiSpiInstance_l.m_pfnSpiMasterRxHandler == 0 )
     {
         iRet = PDISPI_ERROR;
         goto exit;
     }
 
-    iRet = PdiSpiInstance_l.m_SpiMasterRxHandler(
+    iRet = PdiSpiInstance_l.m_pfnSpiMasterRxHandler(
                 PdiSpiInstance_l.m_rxBuffer,
                 PdiSpiInstance_l.m_toBeRx);
 

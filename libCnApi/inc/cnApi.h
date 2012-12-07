@@ -85,10 +85,10 @@ typedef struct sCnApiInitParm {
     tCnApiObdDefAcc         m_pfnDefaultObdAccess;
     tCnApiCbPdoDesc         m_pfnPdoDescriptor;
 #ifdef CN_API_USING_SPI
-    tSpiMasterTxHandler     m_SpiMasterTxH;
-    tSpiMasterRxHandler     m_SpiMasterRxH;
-    void *                  m_pfnEnableGlobalIntH;
-    void *                  m_pfnDisableGlobalIntH;
+    tSpiMasterTxHandler     m_pfnSpiMasterTxH;
+    tSpiMasterRxHandler     m_pfnSpiMasterRxH;
+    tSpiMasterEnGloInt      m_pfnEnableGlobalIntH;
+    tSpiMasterDisGloInt     m_pfnDisableGlobalIntH;
 #endif //CN_API_USING_SPI
 
 #if VETH_DRV_ENABLE != FALSE

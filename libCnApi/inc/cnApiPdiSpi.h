@@ -30,6 +30,9 @@ subject to the License Agreement located at the end of this file below.
 typedef int (*tSpiMasterTxHandler) (BYTE *pTxBuf_p, int iBytes_p);
 typedef int (*tSpiMasterRxHandler) (BYTE *pRxBuf_p, int iBytes_p);
 
+typedef void (*tSpiMasterEnGloInt) (void);
+typedef void (*tSpiMasterDisGloInt) (void);
+
 /******************************************************************************/
 /* external variable declarations */
 
