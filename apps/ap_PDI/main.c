@@ -264,7 +264,7 @@ int main (void)
         /*--- TASK 2: START ---*/
         if (fOperational_l != FALSE)
         {
-            CnApi_checkPdo();
+            CnApi_processPdo();
         }
         /*--- TASK 2: END   ---*/
 #endif /* USE_POLLING_MODE_SYNC */
