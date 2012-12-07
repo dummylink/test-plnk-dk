@@ -34,9 +34,9 @@ create-firmware.sh	- main shell script to create a firmware file from FPGA
 
 mkiib               - creates a image information block header
 progimage.sh        - shell script to programm a firmware image into flash memory
-                      using JTAG the interface. If creates the image information
-                      block using mkiib and programs FPGA configuration, PCP
-                      software AP software and IIB into flash memory.
+                      using the JTAG interface. It creates the image information
+                      block using mkiib and programs the FPGA configuration, PCP
+                      software, AP software and IIB into flash memory.
 
 4. Building
 -----------
