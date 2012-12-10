@@ -36,8 +36,11 @@ subject to the License Agreement located at the end of this file below.
 /* USER OPTIONS */
 
 /* If node Id switches are connected to the PCP, this value must be 0x00! */
-#define DEFAULT_NODEID      0x00    ///< default node ID to use, should be NOT 0xF0 (=MN)
-
+#define DEFAULT_NODEID      0x00    ///< default node ID to use, should not be 0xF0 (=MN)
+                                        /* Note:
+                                          If 0x00 is passed as the Node ID to the PCP
+                                          the value of the connected node switches is used!
+                                         */
 //#define USE_POLLING_MODE_SYNC ///< comment this out to enable the sync event interrupt
 #define USE_POLLING_MODE_ASYNC ///< comment this out to enable the async event interrupt
 
