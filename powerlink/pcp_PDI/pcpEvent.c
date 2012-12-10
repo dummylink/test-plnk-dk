@@ -35,23 +35,43 @@ Gi_pcpEventFifoProcess().
 
 /******************************************************************************/
 /* defines */
+#define FIFO_SIZE   16
+#define FIFO_EMPTY  0
 
 /******************************************************************************/
 /* typedefs */
+typedef enum ePcpEventFifoStatus {
+    kPcpEventFifoEmpty     = 0x00,
+    kPcpEventFifoFull      = 0x01,
+    kPcpEventFifoInserted  = 0x02,
+} tPcpEventFifoStatus;
+
+typedef enum eFifoInsert {
+    kPcpEventFifoPosted    = 0x00,
+    kPcpEventFifoBusy      = 0x01,
+} tPcpEventFifoInsert;
+
+typedef struct sFifoBuffer {
+    WORD       wEventType_m;          ///< type of event (e.g. state change, error, ...)
+    WORD       wEventArg_m;           ///< event argument, if applicable (e.g. error code, state, ...)
+    WORD       wEventAck_m;           ///< acknowledge for events and asynchronous IR signal
+} tFifoBuffer;
 
 /******************************************************************************/
 /* external variable declarations */
 
 /******************************************************************************/
 /* global variables */
-tFifoBuffer a_Fifo_g[FIFO_SIZE];  ///FIFO buffer
-UCHAR ucReadPos_g, ucWritePos_g;  ///read and write pos
-UCHAR ucElementCount_g;
+static tFifoBuffer aFifo_l[FIFO_SIZE];  ///< FIFO buffer
+static BYTE bReadPos_l = 0;            ///< event FIFO read position
+static BYTE bWritePos_l = 0;           ///< event FIFO write position
+static BYTE bElementCount_l = 0;
 
 /******************************************************************************/
 /* function declarations */
-static inline void pcp_EventFifoFlush(void);
-static UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p);
+static tPcpEventFifoStatus pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p);
+static tPcpEventFifoInsert pcp_EventFifoProcess(void);
+static void pcp_EventFifoFlush(void);
 
 /******************************************************************************/
 /* private functions */
@@ -62,22 +82,27 @@ static UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p);
  \param wEventType_p    event type (e.g. state change, error, ...)
  \param wArg_p          event argument (e.g. NmtState, error code ...)
 
- This function inserts a new event into the fifo and returns FIFO_FULL or
- FIFO_EMPTY if the state of the fifo is like that. If it is possible to proccess
- an event FIFO_PROCESS is returned
+ \return tPcpEventFifoStatus
+ \retval kPcpEventFifoInserted   element posted to the FIFO
+ \retval kPcpEventFifoFull       Event FIFO is full
+
+ This function inserts a new event into the FIFO and returns kPcpEventFifoFull or
+ FIFO_EMPTY if the state of the FIFO is like that. If it is possible to post an
+ event kPcpEventFifoInserted is returned.
  *******************************************************************************/
-static UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p)
+static tPcpEventFifoStatus pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p)
 {
+
     ///element to process in fifo?
-    if((ucWritePos_g != ucReadPos_g) || ucElementCount_g == 0)
+    if((bWritePos_l != bReadPos_l) || bElementCount_l == FIFO_EMPTY)
     {
-        a_Fifo_g[ucWritePos_g].wEventType_m = wEventType_p;
-        a_Fifo_g[ucWritePos_g].wEventArg_m = wArg_p;
+        aFifo_l[bWritePos_l].wEventType_m = wEventType_p;
+        aFifo_l[bWritePos_l].wEventArg_m = wArg_p;
 
         ///modify write pointer
-        ucWritePos_g = (ucWritePos_g + 1) % FIFO_SIZE;
+        bWritePos_l = (bWritePos_l + 1) % FIFO_SIZE;
 
-        ucElementCount_g++;
+        bElementCount_l++;
 
         return kPcpEventFifoInserted;
     } else
@@ -86,13 +111,53 @@ static UCHAR pcp_EventFifoInsert(WORD wEventType_p, WORD wArg_p)
 
 /**
  ********************************************************************************
+ \brief If the event memory is empty and FIFO is not, write new event into memory!
+
+Call this function in the continuous loop in order to process pending events.
+
+ \return tPcpEventFifoInsert
+ \retval kPcpEventFifoPosted        Posted element to FIFO
+ \retval kPcpEventFifoBusy          FIFO currently busy
+ *******************************************************************************/
+static tPcpEventFifoInsert pcp_EventFifoProcess(void)
+{
+    tPcpEventFifoInsert Ret = kPcpEventFifoBusy;
+
+    WORD wEventAck = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck));
+
+
+    ///check event FIFO bit
+    if (((wEventAck & (1 << EVT_GENERIC)) == 0) && (bReadPos_l != bWritePos_l))
+    {
+        ///Post event from fifo into memory
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, aFifo_l[bReadPos_l].wEventType_m);
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, aFifo_l[bReadPos_l].wEventArg_m);
+
+        /* set GE bit to signal event to AP; If desired by AP,
+         *  an IR signal will be asserted in addition */
+        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, (1 << EVT_GENERIC));
+
+        ///modify read pointer
+        bReadPos_l = (bReadPos_l + 1) % FIFO_SIZE;
+
+        bElementCount_l--;
+
+        //printf("%d %d %d\n",element_count,write_pos, read_pos);
+        Ret = kPcpEventFifoPosted;
+    }
+
+    return Ret;
+}
+
+/**
+ ********************************************************************************
  \brief erases all elements inside the fifo
  *******************************************************************************/
-static inline void pcp_EventFifoFlush(void)
+static void pcp_EventFifoFlush(void)
 {
-    ucReadPos_g = 0;
-    ucWritePos_g = 0;
-    ucElementCount_g = 0;
+    bReadPos_l = 0;
+    bWritePos_l = 0;
+    bElementCount_l = 0;
 }
 
 /******************************************************************************/
@@ -122,7 +187,7 @@ void Gi_pcpEventFifoInit(void)
 void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
 {
     WORD wEventAck;
-    UCHAR ucRet;
+    tPcpEventFifoStatus ucRet;
 
     wEventAck = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck));
 
@@ -200,48 +265,14 @@ void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p)
 }
 
 /**
- ********************************************************************************
- \brief If the event memory is empty and fifo is not, write new event into memory!
- \param the control register
- *******************************************************************************/
-inline UCHAR Gi_pcpEventFifoProcess(volatile tPcpCtrlReg*  pCtrlReg_g)
-{
-
-    WORD wEventAck = AmiGetWordFromLe((BYTE*)&(pCtrlReg_g->m_wEventAck));
-
-
-    ///check event FIFO bit
-    if (((wEventAck & (1 << EVT_GENERIC)) == 0) && (ucReadPos_g != ucWritePos_g))
-    {
-        ///Post event from fifo into memory
-        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventType, a_Fifo_g[ucReadPos_g].wEventType_m);
-        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventArg, a_Fifo_g[ucReadPos_g].wEventArg_m);
-
-        /* set GE bit to signal event to AP; If desired by AP,
-         *  an IR signal will be asserted in addition */
-        AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wEventAck, (1 << EVT_GENERIC));
-
-        ///modify read pointer
-        ucReadPos_g = (ucReadPos_g + 1) % FIFO_SIZE;
-
-        ucElementCount_g--;
-
-        //printf("%d %d %d\n",element_count,write_pos, read_pos);
-        return kPcpEventFifoPosted;
-    }
-
-    return kPcpEventFifoBusy;
-}
-
-/**
 ********************************************************************************
 \brief    post pending events to PDI
 *******************************************************************************/
-void pcpPdi_processEvents(void)
+void Gi_processEvents(void)
 {
     /* Check if previous event has been confirmed by AP */
     /* If not, try to post it */
-    if(Gi_pcpEventFifoProcess(pCtrlReg_g) == kPcpEventFifoPosted)
+    if(pcp_EventFifoProcess() == kPcpEventFifoPosted)
     {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_EVENT_INFO,"%s: Posted event from fifo into PDI!\n", __func__);
     }

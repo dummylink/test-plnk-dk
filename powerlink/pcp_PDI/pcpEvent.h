@@ -29,27 +29,9 @@
 
 /******************************************************************************/
 /* defines */
-#define FIFO_SIZE   16
 
 /******************************************************************************/
 /* typedefs */
-enum eFifoDelete {
-    kPcpEventFifoEmpty = 0,
-    kPcpEventFifoFull,
-    kPcpEventFifoInserted
-};
-
-enum eFifoInsert {
-    kPcpEventFifoPosted = 0,
-    kPcpEventFifoBusy
-};
-
-typedef struct sFifoBuffer {
-    WORD       wEventType_m;          ///< type of event (e.g. state change, error, ...)
-    WORD       wEventArg_m;           ///< event argument, if applicable (e.g. error code, state, ...)
-    WORD       wEventAck_m;           ///< acknowledge for events and asynchronous IR signal
-} tFifoBuffer;
-
 
 /******************************************************************************/
 /* external variable declarations */
@@ -61,8 +43,7 @@ typedef struct sFifoBuffer {
 /* function declarations */
 void Gi_pcpEventFifoInit(void);
 void Gi_pcpEventPost(WORD wEventType_p, WORD wArg_p);
-inline UCHAR Gi_pcpEventFifoProcess(volatile tPcpCtrlReg*  pCtrlReg_g);
-void pcpPdi_processEvents(void);
+void Gi_processEvents(void);
 
 /******************************************************************************/
 /* functions */

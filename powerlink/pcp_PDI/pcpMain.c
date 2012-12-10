@@ -374,7 +374,7 @@ static void processPowerlink(void)
 
         Gi_updateStateMachine();
         updateFirmwarePeriodic();               // periodically call firmware update state machine
-        pcpPdi_processEvents();
+        Gi_processEvents();
 
         if (fShutdown_l != FALSE)
             break;
