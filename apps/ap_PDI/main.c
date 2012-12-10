@@ -51,10 +51,17 @@ subject to the License Agreement located at the end of this file below.
 #define DEMO_SERIAL_NUMBER  0x00000000
 #define DEMO_DEVICE_NAME "POWERLINK CN DEMO"
 #define MAC_ADDR    0x00, 0x12, 0x34, 0x56, 0x78, 0x9A          ///< the MAC address to use for the CN
-#define IP_ADDR     0xc0a86401                                  ///< 192.168.100.1 // don't care the last byte!
+#define IP_ADDR     0xc0a86401                                  ///< IP-Address of the CN
+                                                                /* Note:
+                                                                   In case of a CN which is used as NMT_BasicEthernet only
+                                                                   the user can define any IP-Address here. In case of a CN
+                                                                   which is used in a POWERLINK network always use an IP-Address
+                                                                   with 192.168.100.x!
+                                                                   The PCP is replacing the last byte of the address
+                                                                   with the final node ID of the CN. */
 #define SUBNET_MASK 0xFFFFFF00                                  ///< netmask 255.255.255.0
 #define DEFAULT_GATEWAY 0xc0a864fe                              ///< default gateway: 192.168.100.254
-#define ASYNC_MTU     300                                         ///< maximum transmission unit of CN (max async data)
+#define ASYNC_MTU     300                                       ///< maximum transmission unit of CN (max async data)
 
 /*----------------------------------------------------------------------------*/
 
