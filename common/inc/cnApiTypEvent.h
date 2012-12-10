@@ -54,7 +54,7 @@ typedef enum ePcpPdiEventGenericError {
     kPcpGenErrAsyncComRxFailed      = 0x04,    ///< asynchronous RX at PCP failed
     kPcpGenErrAsyncIntChanComError  = 0x05,    ///< asynchronous communication failed
     kPcpGenErrPhy0LinkLoss          = 0x06,    ///< PHY 0 lost its link
-    kPcpGenErrPhy1LinkLoss          = 0x07,    ///< PHY 0 lost its link
+    kPcpGenErrPhy1LinkLoss          = 0x07,    ///< PHY 1 lost its link
     kPcpGenErrEventBuffOverflow     = 0x08,    ///< PCP event buffer overflow -> AP handles events to slow!
 } tPcpPdiEventGenericError;
 
