@@ -29,23 +29,6 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* typedefs */
 
-/**
- * \brief constants for SYN flags
- */
-typedef enum eSynFlag {
-    kMsgBufWriteOnlyFirstSegment    = 0x00, ///< first segment expected from reader - set by receiver
-    kMsgBufWriteOnly                = 0x01, ///< any segment expected from reader - set by receiver
-    kMsgBufReadOnly                 = 0x80, ///< only read access allowed - set by sender
-} tSynFlag;
-
-/**
- * \brief constants for LinkPdosReq message originator
- */
-typedef enum eLnkPdoMsgOrig {
-    kAsyncLnkPdoMsgOrigObdAccess = 0x01,
-    kAsyncLnkPdoMsgOrigNmtCmd    = 0x08
-} tLnkPdoMsgOrig;
-
 typedef enum ePdiAsyncTransferType{
     kPdiAsyncTrfTypeDirectAccess = 0x01, ///< direct access to Pdi buffer (Pdi buffer size is sufficient)
     kPdiAsyncTrfTypeLclBuffering,        ///< segmented access to Pdi buffer (Pdi buffer size is to small)
@@ -131,10 +114,18 @@ typedef enum eAsyncChannel {
  * \brief constants for asynchronous transfer direction
  */
 typedef enum ePcpPdiAsyncDir {
-    kCnApiDirReceive,
-    kCnApiDirTransmit,
-    kCnApiDirNone,
+    kCnApiDirReceive     = 0x00,
+    kCnApiDirTransmit    = 0x01,
+    kCnApiDirNone        = 0x02,
 } tPcpPdiAsyncDir;
+
+/**
+ * \brief constants for LinkPdosReq message originator
+ */
+typedef enum eLnkPdoMsgOrig {
+    kAsyncLnkPdoMsgOrigObdAccess = 0x01,
+    kAsyncLnkPdoMsgOrigNmtCmd    = 0x08
+} tLnkPdoMsgOrig;
 
 /******************************************************************************/
 /* structs */
@@ -144,7 +135,7 @@ typedef enum ePcpPdiAsyncDir {
  */
 typedef struct sInitPcpReq {
     volatile BYTE                    m_bReqId;
-    volatile BYTE                    m_bPad;
+    volatile BYTE                    m_bNodeId;
     volatile BYTE                    m_abMac[6];
     volatile WORD                    m_wMtu;
     volatile WORD                    m_wPad;
@@ -159,8 +150,6 @@ typedef struct sInitPcpReq {
     volatile DWORD                   m_dwVendorId;       // NMT_IdentityObject_REC.VendorId_U32
     volatile DWORD                   m_dwProductCode;    // NMT_IdentityObject_REC.ProductCode_U32
     volatile DWORD                   m_dwDeviceType;     // NMT_DeviceType_U32
-    volatile DWORD                   m_dwNodeId;
-
 } PACK_STRUCT tInitPcpReq;
 
 /**
@@ -181,8 +170,8 @@ typedef struct sLinkPdosReq {
     volatile BYTE                    m_bOrigin;      ///< message originator, type: tLnkPdoMsgOrig
     volatile WORD                    m_wCommHdl;     ///< connection handle of originator module
     volatile BYTE                    m_bDescrCnt;
-    volatile BYTE                    m_Pad1;
-//  WORD                    m_Pad2;
+    volatile BYTE                    m_bPad1;
+    volatile WORD                    m_wPad2;
 } PACK_STRUCT tLinkPdosReq;
 
 /**
@@ -195,24 +184,10 @@ typedef struct sLinkPdosResp {
     volatile DWORD                   m_dwErrCode;    ///< 0 = OK, else SDO abort code
 } PACK_STRUCT tLinkPdosResp;
 
-
-/**
- * \brief structure connects LinkPdosReq message and OBD mapping handle
- */
-typedef struct sLinkPdosReqComCon {
-    WORD       m_wMapIndex;
-    BYTE       m_bPdoDir;                   ///< value type: tPdoDir
-    BYTE       m_bMapObjCnt;
-    BYTE       m_bBufferNum;
-    BYTE       m_bMapVersion;
-    WORD       m_wComConHdl;                ///< PDI connection handle
-} tLinkPdosReqComCon;
-
 /**
  * \brief SDO command frame layout
  */
-typedef struct
-{
+typedef struct sCnApiAsySdoCom {
     volatile BYTE                    m_le_bReserved;
     volatile BYTE                    m_le_bTransactionId;
     volatile BYTE                    m_le_bFlags;
@@ -220,7 +195,6 @@ typedef struct
     volatile WORD                    m_le_wSegmentSize;
     volatile WORD                    m_le_wReserved;
     volatile BYTE                    m_le_abCommandData[8];  // just reserve a minimum number of bytes as a placeholder
-
 }PACK_STRUCT tCnApiAsySdoCom;
 
 /**
@@ -237,19 +211,11 @@ typedef struct sObjAccSdoComCon {
  * \brief structure for ObjAccReq command
  */
 typedef struct sObjAccReq {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-    WORD                    m_wComConHdl;      ///< connection handle of originator module
-    tCnApiAsySdoCom         m_SdoCmdFrame;
+    volatile BYTE               m_bReqId;
+    volatile BYTE               m_bPad;
+    volatile WORD               m_wComConHdl;      ///< connection handle of originator module
+    volatile tCnApiAsySdoCom    m_SdoCmdFrame;
 } PACK_STRUCT tObjAccMsg;
-
-/**
- * \brief structure for internal channel header
- */
-typedef struct sAsyncIntHeader {
-    BYTE                    m_bReqId;
-    BYTE                    m_bPad;
-} PACK_STRUCT tAsyncIntHeader;
 
 /**
  * \brief Structure definition for asynchronous transfer buffer header
@@ -272,7 +238,6 @@ typedef struct sAsyncMsg {
 typedef struct sPdiAsyncParam {
     tAsyncChannel   ChanType_m;                 ///< type of channel the message belongs to
     tPcpStates      aNmtList_m[kNumPcpStates];  ///< valid NmtStates for this message
-    //not used: tPdiAsMsgPrio   Prio_m;         ///< message priority
     WORD            wTimeout_m;                 ///< timeout value of message delivery or reception (if set to 0, wait forever)
 } tPdiAsyncMsgParam;
 

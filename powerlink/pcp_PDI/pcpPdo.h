@@ -39,6 +39,18 @@
 /******************************************************************************/
 /* typedefs */
 
+/**
+ * \brief structure connects LinkPdosReq message and OBD mapping handle
+ */
+typedef struct sLinkPdosReqComCon {
+    WORD       m_wMapIndex;
+    BYTE       m_bPdoDir;                   ///< value type: tPdoDir
+    BYTE       m_bMapObjCnt;
+    BYTE       m_bBufferNum;
+    BYTE       m_bMapVersion;
+    WORD       m_wComConHdl;                ///< PDI connection handle
+} tLinkPdosReqComCon;
+
 /******************************************************************************/
 /* external variable declarations */
 

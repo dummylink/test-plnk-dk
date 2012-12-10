@@ -34,6 +34,15 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* typedefs */
 
+/**
+ * \brief constants for SYN flags
+ */
+typedef enum eSynFlag {
+    kMsgBufWriteOnlyFirstSegment    = 0x00, ///< first segment expected from reader - set by receiver
+    kMsgBufWriteOnly                = 0x01, ///< any segment expected from reader - set by receiver
+    kMsgBufReadOnly                 = 0x80, ///< only read access allowed - set by sender
+} tSynFlag;
+
 /* definitions for the state machine */
 typedef enum eAsyncTxState {
     kPdiAsyncStateWait = 0,                ///< asynchronous tx or rx service is ready to use

@@ -442,7 +442,7 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSubNetMask, pInitPcpParam_l->m_dwSubNetMask);
     AmiSetWordToLe((BYTE*)&pInitPcpReq->m_wMtu, pInitPcpParam_l->m_wMtu);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParam_l->m_dwDeviceType);
-    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwNodeId, (DWORD)pInitPcpParam_l->m_bNodeId);
+    AmiSetByteToLe((BYTE*)&pInitPcpReq->m_bNodeId, (DWORD)pInitPcpParam_l->m_bNodeId);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwRevision, pInitPcpParam_l->m_dwRevision);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSerialNum, pInitPcpParam_l->m_dwSerialNum);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwVendorId, pInitPcpParam_l->m_dwVendorId);
@@ -530,13 +530,13 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p, B
 
     /* setup message */
     /*----------------------------------------------------------------------------*/
-    CNAPI_MEMCPY(&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
+    CNAPI_MEMCPY((BYTE*)&pObjAccReqDst->m_SdoCmdFrame, pSdoComConInArg->m_pSdoCmdFrame, pSdoComConInArg->m_uiSizeOfFrame);
 
     // overwrite segment size - because this SDO command layer frame is misused as an customized acknowledge message
     AmiSetWordToLe((BYTE *)&pObjAccReqDst->m_SdoCmdFrame.m_le_wSegmentSize, pSdoComCon->m_uiTransferredByte);
 
     pObjAccReqDst->m_bReqId =  bReqId_l; // this Id is only for information purposes
-    AmiSetWordToLe(&pObjAccReqDst->m_wComConHdl, pSdoComCon->m_wExtComConHdl);
+    AmiSetWordToLe((BYTE*)&pObjAccReqDst->m_wComConHdl, pSdoComCon->m_wExtComConHdl);
     /*----------------------------------------------------------------------------*/
 
 exit:
@@ -685,7 +685,7 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_
     EplRet = EplSdoComProcessIntern(0,
                                     kEplSdoComConEventRec,
                                     (tEplAsySdoCom *)&pObjAccReq->m_SdoCmdFrame,    // convert to epl structure
-                                    AmiGetWordFromLe(&pObjAccReq->m_wComConHdl));
+                                    AmiGetWordFromLe((BYTE*)&pObjAccReq->m_wComConHdl));
     if (EplRet != kEplSuccessful)
     {
         Ret = kPdiAsyncStatusInvalidOperation;

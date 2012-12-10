@@ -444,7 +444,7 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
 	pInitParam_l->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
 	pInitParam_l->m_dwIpAddress = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwIpAddress));
 	pInitParam_l->m_dwSubNetMask = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSubNetMask));
-	pInitParam_l->m_bNodeId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwNodeId));
+	pInitParam_l->m_bNodeId = AmiGetByteFromLe((BYTE*)&(pInitPcpReq->m_bNodeId));
 	pInitParam_l->m_wMtu = AmiGetWordFromLe((BYTE*)&(pInitPcpReq->m_wMtu));
 	pInitParam_l->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));
 	pInitParam_l->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
@@ -511,7 +511,7 @@ static tPdiAsyncStatus CnApiAsync_handleObjAccResp(tPdiAsyncMsgDescr * pMsgDescr
 
     // forward to originator and close connection
     EplRet = Gi_closeObdAccHstryToPdiConnection(
-                        AmiGetWordFromLe(&pObjAccReq->m_wComConHdl),
+                        AmiGetWordFromLe((BYTE*)&pObjAccReq->m_wComConHdl),
                         dwAbortCode,
                         AmiGetWordFromLe((BYTE*)&pObjAccReq->m_SdoCmdFrame.m_le_wSegmentSize),
                         (void *)&pObjAccReq->m_SdoCmdFrame.m_le_abCommandData[0]);
@@ -822,12 +822,12 @@ static tPdiAsyncStatus CnApiAsync_doObjAccReq(tPdiAsyncMsgDescr * pMsgDescr_p,
 
     /* setup message */
     /*----------------------------------------------------------------------------*/
-    EPL_MEMCPY(&pObjAccReqDst->m_SdoCmdFrame,
+    EPL_MEMCPY((BYTE*)&pObjAccReqDst->m_SdoCmdFrame,
                pSdoComConInArg->m_pSdoCmdFrame,
                pSdoComConInArg->m_uiSizeOfFrame);
 
     pObjAccReqDst->m_bReqId =  bReqId_l;    // this id is only for information
-    AmiSetWordToLe(&pObjAccReqDst->m_wComConHdl, pSdoComConInArg->m_wObdAccConNum);
+    AmiSetWordToLe((BYTE*)&pObjAccReqDst->m_wComConHdl, pSdoComConInArg->m_wObdAccConNum);
     /*----------------------------------------------------------------------------*/
 
 exit:
