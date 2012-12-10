@@ -440,6 +440,7 @@ static tPdiAsyncStatus CnApi_doInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE*
     CNAPI_MEMCPY ((BYTE *)pInitPcpReq->m_abMac, &pInitPcpParam_l->m_abMac, sizeof(pInitPcpParam_l->m_abMac));
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwIpAddress, pInitPcpParam_l->m_dwIpAddress);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwSubNetMask, pInitPcpParam_l->m_dwSubNetMask);
+    AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDefaultGateway, pInitPcpParam_l->m_dwDefaultGateway);
     AmiSetWordToLe((BYTE*)&pInitPcpReq->m_wMtu, pInitPcpParam_l->m_wMtu);
     AmiSetDwordToLe((BYTE*)&pInitPcpReq->m_dwDeviceType, pInitPcpParam_l->m_dwDeviceType);
     AmiSetByteToLe((BYTE*)&pInitPcpReq->m_bNodeId, (DWORD)pInitPcpParam_l->m_bNodeId);

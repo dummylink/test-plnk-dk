@@ -280,9 +280,6 @@ tCnApiStatus CnApi_init(tCnApiInitParam *pInitCnApiParam_p, tPcpInitParam *pInit
         goto exit;
     }
 
-    // set the default gateway
-    CnApi_setDefaultGateway(pInitPcpParam_p->m_dwDefaultGateway);
-
 exit:
     return FncRet;
 }

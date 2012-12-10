@@ -141,6 +141,7 @@ typedef struct sInitPcpReq {
     volatile WORD                    m_wPad;
     volatile DWORD                   m_dwIpAddress;
     volatile DWORD                   m_dwSubNetMask;
+    volatile DWORD                   m_dwDefaultGateway;
     volatile BYTE                    m_strDevName[INIT_PCP_REQ_STRNG_SIZE];   // NMT_ManufactDevName_VS (0x1008/0 PCP local OD)
     volatile BYTE                    m_strHwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactHwVers_VS  (0x1009/0 PCP local OD)
     volatile BYTE                    m_strSwVersion[INIT_PCP_REQ_STRNG_SIZE]; // NMT_ManufactSwVers_VS  (0x100A/0 PCP local OD)

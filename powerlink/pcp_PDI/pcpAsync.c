@@ -444,6 +444,7 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
 	pInitParam_l->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
 	pInitParam_l->m_dwIpAddress = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwIpAddress));
 	pInitParam_l->m_dwSubNetMask = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSubNetMask));
+	pInitParam_l->m_dwDefaultGateway = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDefaultGateway));
 	pInitParam_l->m_bNodeId = AmiGetByteFromLe((BYTE*)&(pInitPcpReq->m_bNodeId));
 	pInitParam_l->m_wMtu = AmiGetWordFromLe((BYTE*)&(pInitPcpReq->m_wMtu));
 	pInitParam_l->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));

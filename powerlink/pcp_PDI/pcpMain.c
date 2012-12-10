@@ -212,9 +212,6 @@ static tEplKernel initPowerlink(void)
     WORD wSyncIntCycle;
 #endif  //CONFIG_USE_SDC_OBJECTS
 
-    /* Update default gateway */
-    InitParam_l.m_dwDefaultGateway = AmiGetDwordFromLe((BYTE *)&pCtrlReg_g->m_dwDefaultGateway);
-
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
 #ifdef NODE_SWITCH_BASE
     if(InitParam_l.m_bNodeId == 0x00)
