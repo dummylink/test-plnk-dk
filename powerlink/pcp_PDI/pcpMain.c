@@ -59,10 +59,10 @@
 //---------------------------------------------------------------------------
 // module global vars
 //---------------------------------------------------------------------------
-tPcpInitParam      InitParam_l = {{0}};       ///< Powerlink initialization parameter
-BOOL               fIsUserImage_g;            ///< if set user image is booted
-BOOL               fOperational = FALSE;
-static BOOL        fShutdown_l = FALSE;       ///< Powerlink shutdown flag
+static tPcpInitParam    InitParam_l = {{0}};       ///< POWERLINK initialization parameter
+static BOOL             fIsUserImage_g;            ///< if set user image is booted
+static BOOL             fOperational = FALSE;      ///< POWERLINK is operational
+static BOOL             fShutdown_l = FALSE;       ///< POWERLINK shutdown flag
 
 /******************************************************************************/
 
