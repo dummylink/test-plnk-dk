@@ -119,7 +119,7 @@
 // EPL_MODULE_INTEGRATION defines all modules which are included in
 // EPL application. Please add or delete modules for your application.
 
-#ifdef VETH_DRV_EN  //TODO
+#ifdef VETH_DRV_EN
 #define EPL_MODULE_INTEGRATION  (0 \
                                 | EPL_MODULE_OBDK \
                                 | EPL_MODULE_PDOU \
