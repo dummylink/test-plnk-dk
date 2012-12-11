@@ -127,7 +127,7 @@ UINT32 crc32(UINT32 uiCrc_p, const void *pBuf_p, unsigned int uiSize_p);
 
 /**
 ********************************************************************************
-\brief	get firmware header
+\brief    get firmware header
 
 getFwHeader() reads the firmware header checks if it is valid and copies it
 to the global variable fwHeader_g for further reference.
@@ -826,11 +826,11 @@ static tEplSdoComConState updateStateAp(void)
 
 /**
 ********************************************************************************
-\brief	initilize firmware update function
+\brief    initilize firmware update function
 
 initFirmwareUpdate() initializes all things needed for a firmware update.
 
-\param	deviceId_p              device ID of this device
+\param    deviceId_p              device ID of this device
 \param  hwRev_p                 hardware revision of this device
 *******************************************************************************/
 void initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
@@ -843,7 +843,7 @@ void initFirmwareUpdate(UINT32 deviceId_p, UINT32 hwRev_p)
 
 /**
 ********************************************************************************
-\brief	update the firmware
+\brief    update the firmware
 
 updateFirmware() updates the firmware of the device. It will be called by the
 SDO object handler for object 0x1F50. If the first segment is received the
@@ -851,7 +851,7 @@ firmware header is examined and the firmware programming is set up. The
 real programming will be done in updateFirmwarePeriodic() so that this function
 can immediately return.
 
-\param uiSegmentOff_p	       offset of the current segment
+\param uiSegmentOff_p           offset of the current segment
 \param uiSegmentSize_p         size of current segment
 \param pData_p                 pointer to segment data
 \param pfnAbortCb_p            pointer to abort callback function

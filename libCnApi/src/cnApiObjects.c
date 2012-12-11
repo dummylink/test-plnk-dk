@@ -37,10 +37,10 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* global variables */
-static tObjTbl		*pObjTbl_l;
-static DWORD		dwNumVarLinks_l; ///< Number local link assignments
-static DWORD		dwMaxLinkEntries_l;
-static DWORD		dwSelectObj_l;
+static tObjTbl      *pObjTbl_l;
+static DWORD        dwNumVarLinks_l; ///< Number local link assignments
+static DWORD        dwMaxLinkEntries_l;
+static DWORD        dwSelectObj_l;
 
 /******************************************************************************/
 /* function declarations */
@@ -58,7 +58,7 @@ static tEplObdParam EplObdParam_l;
 
 /**
 ********************************************************************************
-\brief	initialize objects module
+\brief    initialize objects module
 
 Initialize the libCnApi internal objects. (This function calls a malloc)
 
@@ -110,7 +110,7 @@ exit:
 
 /**
 ********************************************************************************
-\brief	cleanup objects module
+\brief    cleanup objects module
 *******************************************************************************/
 void CnApi_cleanupObjects(void)
 {
@@ -128,7 +128,7 @@ static void CnApi_resetLinkCounter(void)
 
 /**
 ********************************************************************************
-\brief	add object
+\brief    add object
 
 CnApi_linkObject() indirectly connects local variables to object numbers by writing
 the linking information into a table. The table is subsequently read by the PCP
@@ -152,7 +152,7 @@ Application Example:   CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
 tCnApiStatus CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYTE * pAdrs_p)
 {
     tCnApiStatus Ret = kCnApiStatusOk;
-    tObjTbl		*pTbl;
+    tObjTbl        *pTbl;
 
     pTbl = pObjTbl_l + dwNumVarLinks_l;
 
@@ -169,7 +169,7 @@ tCnApiStatus CnApi_linkObject(WORD wIndex_p, BYTE bSubIndex_p, WORD wSize_p, BYT
     {
         DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR, "\nERROR:"
         " Too many Object-Links! Failed at %lu th usage of %s()!\n"
-	    "Please adapt NUM_OBJECTS!\n\n", dwNumVarLinks_l + 1, __func__);
+        "Please adapt NUM_OBJECTS!\n\n", dwNumVarLinks_l + 1, __func__);
         Ret = kCnApiStatusObjectLinkFailed;
     }
 
@@ -179,7 +179,7 @@ Exit:
 
 /**
 ********************************************************************************
-\brief	setup actually mapped objects
+\brief    setup actually mapped objects
 \param wIndex_p     requested index
 \param bSubIndex_p  requested subindex
 \param wSize_p      OUT: size of object
@@ -196,38 +196,38 @@ So only currently mapped objects at PCP side will be considered in the copy tabl
 *******************************************************************************/
 BOOL CnApi_getObjectParam(WORD wIndex_p, BYTE bSubIndex_p, WORD *wSize_p, BYTE **pAdrs_p)
 {
-	tObjTbl		*pTbl;
-	int			i;
+    tObjTbl        *pTbl;
+    int            i;
 
-	for (i = 0; i < dwNumVarLinks_l; i++)
-	{
-		pTbl = pObjTbl_l + i;
-		if ((pTbl->m_wIndex == wIndex_p) &&
-			(pTbl->m_bSubIndex == bSubIndex_p))
-		{
-		    /* indices match found so return data and size of this object */
-			*pAdrs_p = pTbl->m_pData;
-			*wSize_p = pTbl->m_wSize;
-			return TRUE;
-		}
-	}
+    for (i = 0; i < dwNumVarLinks_l; i++)
+    {
+        pTbl = pObjTbl_l + i;
+        if ((pTbl->m_wIndex == wIndex_p) &&
+            (pTbl->m_bSubIndex == bSubIndex_p))
+        {
+            /* indices match found so return data and size of this object */
+            *pAdrs_p = pTbl->m_pData;
+            *wSize_p = pTbl->m_wSize;
+            return TRUE;
+        }
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 /**
 ********************************************************************************
-\brief	reset the object selector
+\brief    reset the object selector
 *******************************************************************************/
 void CnApi_resetObjectSelector(void)
 {
-	dwSelectObj_l = 0;
+    dwSelectObj_l = 0;
 }
 
 
 /**
 ********************************************************************************
-\brief	increment oject structure to next object, if it exists
+\brief    increment oject structure to next object, if it exists
 
 \param  pObjId         the id of the object
 
@@ -235,26 +235,26 @@ void CnApi_resetObjectSelector(void)
 *******************************************************************************/
 int CnApi_getNextObject(tCnApiObjId *pObjId)
 {
-	tObjTbl		*pCurrentObj;
+    tObjTbl        *pCurrentObj;
 
-	if (dwSelectObj_l >= dwNumVarLinks_l)
-		return 0;
+    if (dwSelectObj_l >= dwNumVarLinks_l)
+        return 0;
 
-	pCurrentObj = pObjTbl_l + dwSelectObj_l;
+    pCurrentObj = pObjTbl_l + dwSelectObj_l;
 
-	pObjId->m_wIndex = pCurrentObj->m_wIndex;
-	pObjId->m_bSubIndex = pCurrentObj->m_bSubIndex;
-	pObjId->m_bNumEntries = 1; //TODO: for now fixed to one (no arrays).
+    pObjId->m_wIndex = pCurrentObj->m_wIndex;
+    pObjId->m_bSubIndex = pCurrentObj->m_bSubIndex;
+    pObjId->m_bNumEntries = 1; //TODO: for now fixed to one (no arrays).
 
-	dwSelectObj_l++;
+    dwSelectObj_l++;
 
-	return 1;
+    return 1;
 }
 
 
 /**
 ********************************************************************************
-\brief	write an object
+\brief    write an object
 
 CnApi_writeObjects() writes a object in the openPOWERLINK stack. The object must
 exist in the object dictionary and must already be created by
@@ -266,44 +266,44 @@ The synchronization flag is used to determine if the write data should be
 queued or immediately written to the PCP. If \p sync is TRUE all queued
 write data will be written to the PCP.
 
-\param		index				index of object in the object dictionary
-\param		subIndex			sub-index of object in the object dictionary
-\param		dataLen				length of object data
-\param		p_data				pointer to object data
-\param		sync				synchronization flag. If FALSE, write request
-								will be queued. If TRUE, write request will be
-								transfered to the PCP.
+\param        index                index of object in the object dictionary
+\param        subIndex            sub-index of object in the object dictionary
+\param        dataLen                length of object data
+\param        p_data                pointer to object data
+\param        sync                synchronization flag. If FALSE, write request
+                                will be queued. If TRUE, write request will be
+                                transfered to the PCP.
 
-\return		int
+\return        int
 *******************************************************************************/
 int CnApi_writeObjects(WORD index, BYTE subIndex, WORD dataLen,
-		               BYTE* p_data, BOOL sync)
+                       BYTE* p_data, BOOL sync)
 {
 
-	/* Add the object to the write queue */
+    /* Add the object to the write queue */
 
-	/* if synchronize flag was set we write the object queue to the DPRAM
-	 * and notify the PCP.
-	 */
+    /* if synchronize flag was set we write the object queue to the DPRAM
+     * and notify the PCP.
+     */
 
 
-	return 0;
+    return 0;
 }
 
 /**
 ********************************************************************************
-\brief	read an object
+\brief    read an object
 
 CnApi_readObjects() reads an object in the openPOWERLINK stack. The object must
 exist in the object directory and must already be created by
 CnApi_createObjectLinks().
 
-\param		index				index of object in the object dictionary
-\param		subIndex			sub-index of object in the object dictionary
-\param		CN_readObjectCb		pointer to readObject callback function
+\param        index                index of object in the object dictionary
+\param        subIndex            sub-index of object in the object dictionary
+\param        CN_readObjectCb        pointer to readObject callback function
 
-\return		return
-\retval		return_value		return_value_description
+\return        return
+\retval        return_value        return_value_description
 *******************************************************************************/
 void CnApi_readObjects(WORD index, BYTE subIndex, int CN_readObjectCb)
 {

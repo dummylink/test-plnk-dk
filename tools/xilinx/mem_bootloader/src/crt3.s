@@ -53,12 +53,12 @@
         .ent _start
         .type _start, @function    
 _start:
-	la	r13, r0, _SDA_BASE_             /* Set the Small Data Anchors and the stack pointer */
-	la	r2, r0, _SDA2_BASE_
-	la	r1, r0, _stack-16               /* 16 bytes (4 words are needed by crtinit for args and link reg */
+    la    r13, r0, _SDA_BASE_             /* Set the Small Data Anchors and the stack pointer */
+    la    r2, r0, _SDA2_BASE_
+    la    r1, r0, _stack-16               /* 16 bytes (4 words are needed by crtinit for args and link reg */
 
-	brlid	r15, _crtinit               /* Initialize BSS and run program */
-	nop
+    brlid    r15, _crtinit               /* Initialize BSS and run program */
+    nop
 
     brlid   r15, exit                   /* Call exit with the return value of main */
     addik   r5, r3, 0
@@ -77,4 +77,4 @@ _start:
         .type _exit, @function
 _exit:
     bri     0
-	.end _exit
+    .end _exit

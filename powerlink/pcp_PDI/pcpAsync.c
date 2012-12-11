@@ -1,12 +1,12 @@
 /**
 ********************************************************************************
-\file		GenericIfAsync.c
+\file        GenericIfAsync.c
 
-\brief		Asynchronous functions of generic interface
+\brief        Asynchronous functions of generic interface
 
-\author		Josef Baumgartner
+\author        Josef Baumgartner
 
-\date		26.04.2010
+\date        26.04.2010
 
 *******************************************************************************/
 
@@ -387,7 +387,7 @@ exit:
 
 /**
 ********************************************************************************
-\brief	handle an initPcpReq and set up response
+\brief    handle an initPcpReq and set up response
 \param  pMsgDescr_p         pointer to asynchronous message descriptor
 \param  pRxMsgBuffer_p      pointer to Rx message buffer (payload)
 \param  pTxMsgBuffer_p      pointer to Tx message buffer (payload)
@@ -397,11 +397,11 @@ exit:
 static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr_p, BYTE* pRxMsgBuffer_p,
                                              BYTE* pTxMsgBuffer_p, DWORD dwMaxTxBufSize_p)
 {
-	tInitPcpReq *       pInitPcpReq = NULL;        ///< pointer to request message (Rx)
-	tInitPcpResp *      pInitPcpResp = NULL;       ///< pointer to response message (Tx)
-	tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
+    tInitPcpReq *       pInitPcpReq = NULL;        ///< pointer to request message (Rx)
+    tInitPcpResp *      pInitPcpResp = NULL;       ///< pointer to response message (Tx)
+    tPdiAsyncStatus     Ret = kPdiAsyncStatusSuccessful;
 
-	DEBUG_FUNC;
+    DEBUG_FUNC;
 
     /* check message descriptor */
     if (pMsgDescr_p == NULL)
@@ -436,33 +436,33 @@ static tPdiAsyncStatus CnApiAsync_handleInitPcpReq(tPdiAsyncMsgDescr * pMsgDescr
     pInitPcpResp = (tInitPcpResp *) pTxMsgBuffer_p;    // Tx buffer
 
      /* handle Rx Message */
-	/* store data from InitPcpReq */
+    /* store data from InitPcpReq */
     EPL_MEMCPY(pInitParam_l->m_abMac, (BYTE *)pInitPcpReq->m_abMac,
                sizeof(pInitPcpReq->m_abMac)             );
 
 
-	pInitParam_l->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
-	pInitParam_l->m_dwIpAddress = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwIpAddress));
-	pInitParam_l->m_dwSubNetMask = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSubNetMask));
-	pInitParam_l->m_dwDefaultGateway = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDefaultGateway));
-	pInitParam_l->m_bNodeId = AmiGetByteFromLe((BYTE*)&(pInitPcpReq->m_bNodeId));
-	pInitParam_l->m_wMtu = AmiGetWordFromLe((BYTE*)&(pInitPcpReq->m_wMtu));
-	pInitParam_l->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));
-	pInitParam_l->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
-	pInitParam_l->m_dwVendorId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwVendorId));
-	pInitParam_l->m_dwProductCode = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwProductCode));
-	EPL_MEMCPY (pInitParam_l->m_strDevName, (BYTE *)pInitPcpReq->m_strDevName,
-	            sizeof(pInitPcpReq->m_strDevName));
-	EPL_MEMCPY (pInitParam_l->m_strHwVersion, (BYTE *)pInitPcpReq->m_strHwVersion,
-	            sizeof(pInitPcpReq->m_strHwVersion));
-	EPL_MEMCPY (pInitParam_l->m_strSwVersion, (BYTE *)pInitPcpReq->m_strSwVersion,
-	            sizeof(pInitPcpReq->m_strSwVersion));
+    pInitParam_l->m_dwDeviceType = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDeviceType));
+    pInitParam_l->m_dwIpAddress = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwIpAddress));
+    pInitParam_l->m_dwSubNetMask = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSubNetMask));
+    pInitParam_l->m_dwDefaultGateway = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwDefaultGateway));
+    pInitParam_l->m_bNodeId = AmiGetByteFromLe((BYTE*)&(pInitPcpReq->m_bNodeId));
+    pInitParam_l->m_wMtu = AmiGetWordFromLe((BYTE*)&(pInitPcpReq->m_wMtu));
+    pInitParam_l->m_dwRevision = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwRevision));
+    pInitParam_l->m_dwSerialNum = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwSerialNum));
+    pInitParam_l->m_dwVendorId = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwVendorId));
+    pInitParam_l->m_dwProductCode = AmiGetDwordFromLe((BYTE*)&(pInitPcpReq->m_dwProductCode));
+    EPL_MEMCPY (pInitParam_l->m_strDevName, (BYTE *)pInitPcpReq->m_strDevName,
+                sizeof(pInitPcpReq->m_strDevName));
+    EPL_MEMCPY (pInitParam_l->m_strHwVersion, (BYTE *)pInitPcpReq->m_strHwVersion,
+                sizeof(pInitPcpReq->m_strHwVersion));
+    EPL_MEMCPY (pInitParam_l->m_strSwVersion, (BYTE *)pInitPcpReq->m_strSwVersion,
+                sizeof(pInitPcpReq->m_strSwVersion));
     EPL_MEMCPY (pInitParam_l->m_strHostname, (BYTE *)pInitPcpReq->m_strHostname,
                 sizeof(pInitPcpReq->m_strHostname));
 
-	/* setup response */
-	pInitPcpResp->m_bReqId = pInitPcpReq->m_bReqId;
-	pInitPcpResp->m_bStatus = kCnApiStatusOk;
+    /* setup response */
+    pInitPcpResp->m_bReqId = pInitPcpReq->m_bReqId;
+    pInitPcpResp->m_bStatus = kCnApiStatusOk;
 
     /* update size values of message descriptors */
     pMsgDescr_p->pRespMsgDescr_m->dwMsgSize_m = sizeof(tInitPcpResp); // sent size

@@ -266,7 +266,7 @@
 // OBD specific defines
 // =========================================================================
 
-#define EPL_OBD_USE_KERNEL				TRUE
+#define EPL_OBD_USE_KERNEL                TRUE
 
 // switch this define to TRUE if Epl should compare object range automatically
 //#define EPL_OBD_CHECK_OBJECT_RANGE          FALSE

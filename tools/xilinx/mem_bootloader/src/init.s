@@ -22,11 +22,11 @@
 # 
 #######################################
 
-	.globl __init
-	.ent __init
-	.section .init
+    .globl __init
+    .ent __init
+    .section .init
 __init:
-	la	r1, r0, _stack
-	brlid	r15,main
-	.end __init
+    la       r1, r0, _stack
+    brlid    r15,main
+    .end __init
 

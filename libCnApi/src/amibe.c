@@ -131,7 +131,7 @@ void AmiSetDwordToLe (void * pAddr_p, DWORD dwDwordVal_p)
 {
 #if defined (__MICROBLAZE__)
 BYTE *dst=(BYTE*)pAddr_p, *src=(BYTE*)&dwDwordVal_p;
-	
+    
    *(dst+0) = *(src+3);
    *(dst+1) = *(src+2);
    *(dst+2) = *(src+1);
@@ -159,7 +159,7 @@ void AmiSetWordToBe (void * pAddr_p, WORD wWordVal_p)
 {
 #if defined (__MICROBLAZE__)
 BYTE *pDst = (BYTE *) pAddr_p, *pSrc = (BYTE *)&wWordVal_p;
-	
+    
    *pDst = *pSrc;
    *(pDst+1) = *(pSrc+1);
 #else
@@ -179,7 +179,7 @@ void AmiSetDwordToBe (void * pAddr_p, DWORD dwDwordVal_p)
 {
 #if defined (__MICROBLAZE__)
 BYTE *dst=(BYTE*)pAddr_p, *src=(BYTE*)&dwDwordVal_p;
-	
+    
    *(dst+0) = *(src+0);
    *(dst+1) = *(src+1);
    *(dst+2) = *(src+2);
@@ -200,9 +200,9 @@ WORD AmiGetWordFromLe (void * pAddr_p)
 #if defined (__MICROBLAZE__)
 BYTE *pSrc = pAddr_p;
 WORD wDst;
-	
+    
    wDst = (*(pSrc+1) << 8) | (*(pSrc+0));
-	
+    
    return wDst;
 #else
 twStruct *  pwStruct;
@@ -226,7 +226,7 @@ DWORD  AmiGetDwordFromLe (void * pAddr_p)
 {
 #if defined (__MICROBLAZE__)
 BYTE *pbSrc = pAddr_p;
-	
+    
    return (((DWORD)pbSrc[0]) <<  0) | 
            (((DWORD)pbSrc[1]) <<  8) |
            (((DWORD)pbSrc[2]) << 16) |
@@ -253,7 +253,7 @@ WORD AmiGetWordFromBe (void * pAddr_p)
 {
 #if defined (__MICROBLAZE__)
 BYTE *pbSrc = pAddr_p;
-	
+    
    return ((DWORD)(pbSrc[0]) << 8) | 
           ((DWORD)(pbSrc[1]) << 0);
 #else
@@ -274,7 +274,7 @@ DWORD AmiGetDwordFromBe (void * pAddr_p)
 {
 #if defined (__MICROBLAZE__)
 BYTE *pbSrc = pAddr_p;
-	
+    
    return (((DWORD)pbSrc[0]) << 24) | 
            (((DWORD)pbSrc[1]) << 16) |
            (((DWORD)pbSrc[2]) <<  8) |
@@ -441,7 +441,7 @@ void AmiSetQword64ToBe (void * pAddr_p, QWORD qwQwordVal_p)
 {
 #if defined (__MICROBLAZE__)
 BYTE *dst=(BYTE*)pAddr_p, *src=(BYTE*)&qwQwordVal_p;
-	
+    
     *(dst+0) = *(src+0);
     *(dst+1) = *(src+1);
     *(dst+2) = *(src+2);

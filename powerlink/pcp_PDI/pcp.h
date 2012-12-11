@@ -1,12 +1,12 @@
 /**
 ********************************************************************************
-\file		pcp.h
+\file        pcp.h
 
-\brief		header file of Powerlink Communication Processor application
+\brief       header file of Powerlink Communication Processor application
 
-\author		baumgartnerj
+\author      baumgartnerj
 
-\date		20.04.2010
+\date        20.04.2010
 
 DETAILED_DESCRIPTION_OF_FILE
 *******************************************************************************/

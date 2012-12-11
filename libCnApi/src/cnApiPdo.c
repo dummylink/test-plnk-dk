@@ -34,7 +34,7 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* defines */
 /* equals number of mapped objects, if memory-chaining is not applied */
-#define	PDO_COPY_TBL_ELEMENTS	MAX_MAPPABLE_OBJECTS  ///< max copy table elements per PDO
+#define    PDO_COPY_TBL_ELEMENTS    MAX_MAPPABLE_OBJECTS  ///< max copy table elements per PDO
 
 /******************************************************************************/
 /* typedefs */
@@ -107,15 +107,15 @@ static tCnApiStatus CnApi_readPdoDesc(tPdoDescHeader * pPdoDescHeader_p);
 
 /**
 ********************************************************************************
-\brief	CopyVarConvertEndian
+\brief    CopyVarConvertEndian
 
 Copies a data from the source to the destination field and converts the endianess
 regarding the format of the input data
 
 \param  pDest_p          Destination field for the converted data
 \param  pSrc_p           Source field of the input data
-\param	wSize_p          Size of the field
-\param	fDoRcv_p         This flag signals if data is received or transmitted from the PDI
+\param    wSize_p          Size of the field
+\param    fDoRcv_p         This flag signals if data is received or transmitted from the PDI
 *******************************************************************************/
 
 static inline void CopyVarConvertEndian(BYTE* pDest_p,
@@ -228,8 +228,8 @@ Not stated objects in local table will be ignored.
 \param  bDescrEntries_p     Number of entries of the PDO descriptor
                               0: deactivate
                              >0: activate
-\param	bDirection_p		Copy direction (read/write) of this copy table
-\param	bPdoBufNum_p	    PDO buffer number of one direction
+\param    bDirection_p        Copy direction (read/write) of this copy table
+\param    bPdoBufNum_p        PDO buffer number of one direction
 \param  bMapVers_p          mapping version of PDO channel (MappingVersion_U8)
 \return FALSE if error occurred, else TRUE
 *******************************************************************************/
@@ -240,16 +240,16 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
                                   BYTE                    bMapVers_p)
 {
     int iCnt = 0;
-	WORD   wTblNum = 0;
-	tPdoDescEntry	*pDescEntry;
-	tPdoCopyTbl   *pCopyTbl;
-	BYTE    *pbCpyTblEntries;
-	tPdoDir PdoDir;
-	WORD	wObjSize;
-	BYTE	*pObjAdrs;
-	BOOL fRet = TRUE;
+    WORD   wTblNum = 0;
+    tPdoDescEntry    *pDescEntry;
+    tPdoCopyTbl   *pCopyTbl;
+    BYTE    *pbCpyTblEntries;
+    tPdoDir PdoDir;
+    WORD    wObjSize;
+    BYTE    *pObjAdrs;
+    BOOL fRet = TRUE;
 
-	PdoDir = (tPdoDir) bDirection_p;
+    PdoDir = (tPdoDir) bDirection_p;
 
     if(bDescrEntries_p > PDO_COPY_TBL_ELEMENTS)
     {
@@ -262,25 +262,25 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
     }
 
 
-	/* select copy table */
-	if (PdoDir == TPdo)
-	{
-		pCopyTbl = &aTxPdoCopyTbl_l[bPdoBufNum_p];
-		pbCpyTblEntries = &aTxPdoCopyTbl_l[bPdoBufNum_p].bNumOfEntries_m;
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "Setup copy table for TPDO %d :\n", bPdoBufNum_p);
-	}
-	else if(PdoDir == RPdo)
-	{
-		pCopyTbl = &aRxPdoCopyTbl_l[bPdoBufNum_p];
-		pbCpyTblEntries = &aRxPdoCopyTbl_l[bPdoBufNum_p].bNumOfEntries_m;
-		DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "Setup copy table for RPDO %d :\n", bPdoBufNum_p);
-	}
-	else
-	{
-	    DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "\nError in %s:"
+    /* select copy table */
+    if (PdoDir == TPdo)
+    {
+        pCopyTbl = &aTxPdoCopyTbl_l[bPdoBufNum_p];
+        pbCpyTblEntries = &aTxPdoCopyTbl_l[bPdoBufNum_p].bNumOfEntries_m;
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "Setup copy table for TPDO %d :\n", bPdoBufNum_p);
+    }
+    else if(PdoDir == RPdo)
+    {
+        pCopyTbl = &aRxPdoCopyTbl_l[bPdoBufNum_p];
+        pbCpyTblEntries = &aRxPdoCopyTbl_l[bPdoBufNum_p].bNumOfEntries_m;
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_PDO_INFO, "Setup copy table for RPDO %d :\n", bPdoBufNum_p);
+    }
+    else
+    {
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "\nError in %s:"
                      "\nDescriptor has no valid direction! Skipping copy table for this PDO.\n", __func__);
         fRet = FALSE;
-	    goto exit;
+        goto exit;
     }
 
     if (0 == bDescrEntries_p)
@@ -294,44 +294,44 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
     *pbCpyTblEntries = 0;
     pDescEntry = (tPdoDescEntry*) ((BYTE*) pPdoDesc_p + sizeof(tPdoDescHeader)); // first element
 
-	/* check if indices exist locally and setup copy table */
-	while(iCnt < bDescrEntries_p)
-	{
+    /* check if indices exist locally and setup copy table */
+    while(iCnt < bDescrEntries_p)
+    {
 #ifdef AP_IS_BIG_ENDIAN
       pDescEntry->m_wPdoIndex = AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wPdoIndex));
       pDescEntry->m_wOffset = AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wOffset));
       pDescEntry->m_wSize = AmiGetWordFromLe((BYTE*)&(pDescEntry->m_wSize));
 #endif
 
-		/* if object line up matches then acquire data pointer and size information from the linking table */
-	    fRet = CnApi_getObjectParam(pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, &wObjSize, &pObjAdrs);
-		if (fRet == FALSE                ||
-		    wObjSize != pDescEntry->m_wSize)
-		{
-		    /* skip this copy table element */
-		    DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR,"Couldn't find descriptor object 0x%04x/0x%02x"
-		            " in local object table!\n", pDescEntry->m_wPdoIndex,
+        /* if object line up matches then acquire data pointer and size information from the linking table */
+        fRet = CnApi_getObjectParam(pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, &wObjSize, &pObjAdrs);
+        if (fRet == FALSE                ||
+            wObjSize != pDescEntry->m_wSize)
+        {
+            /* skip this copy table element */
+            DEBUG_TRACE2(DEBUG_LVL_CNAPI_ERR,"Couldn't find descriptor object 0x%04x/0x%02x"
+                    " in local object table!\n", pDescEntry->m_wPdoIndex,
                                                  pDescEntry->m_bPdoSubIndex);
-			pCopyTbl->aEntry_m[wTblNum].pAdrs_m = 0;
-			pCopyTbl->aEntry_m[wTblNum].size_m = 0;
-			wCntMappedNotLinkedObj_l++;
-		}
-		else
-		{   /* assign copy table element values */
-		    pCopyTbl->aEntry_m[wTblNum].pAdrs_m = (BYTE*)pObjAdrs;
-		    pCopyTbl->aEntry_m[wTblNum].size_m = pDescEntry->m_wSize;
-		    pCopyTbl->aEntry_m[wTblNum].wPdoOfst = pDescEntry->m_wOffset;
-		    wTblNum++;
-		    (*pbCpyTblEntries)++;
+            pCopyTbl->aEntry_m[wTblNum].pAdrs_m = 0;
+            pCopyTbl->aEntry_m[wTblNum].size_m = 0;
+            wCntMappedNotLinkedObj_l++;
+        }
+        else
+        {   /* assign copy table element values */
+            pCopyTbl->aEntry_m[wTblNum].pAdrs_m = (BYTE*)pObjAdrs;
+            pCopyTbl->aEntry_m[wTblNum].size_m = pDescEntry->m_wSize;
+            pCopyTbl->aEntry_m[wTblNum].wPdoOfst = pDescEntry->m_wOffset;
+            wTblNum++;
+            (*pbCpyTblEntries)++;
 
-	        DEBUG_TRACE3(DEBUG_LVL_CNAPI_PDO_INFO,"0x%04x/0x%02x"
-	                    " size %d \n", pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, wObjSize);
-		}
+            DEBUG_TRACE3(DEBUG_LVL_CNAPI_PDO_INFO,"0x%04x/0x%02x"
+                        " size %d \n", pDescEntry->m_wPdoIndex, pDescEntry->m_bPdoSubIndex, wObjSize);
+        }
 
-		/* prepare next loop */
-		pDescEntry++;
-	    iCnt++;
-	}
+        /* prepare next loop */
+        pDescEntry++;
+        iCnt++;
+    }
 
     //activate PDO channel
     pCopyTbl->fActivated_m = TRUE;
@@ -343,7 +343,7 @@ static BOOL CnApi_configurePdoChannel(tPdoDescHeader        *pPdoDesc_p,
 
     fRet = TRUE;
 exit:
-	return fRet;
+    return fRet;
 }
 
 /******************************************************************************/
@@ -351,7 +351,7 @@ exit:
 
 /**
 ********************************************************************************
-\brief	initialize pdo module
+\brief    initialize pdo module
 
 \param    pCtrlReg_p         pointer to the control register
 \param    pfnAppCbSync_p     function pointer to AppCbSync callback function
@@ -804,7 +804,7 @@ static void CnApi_getCurTime(tCnApiTimeStamp *pTimeStamp_p)
 
 /**
 ********************************************************************************
-\brief	receive PDO data
+\brief    receive PDO data
 
 CnApi_receivePdo() receives PDO data from the PCP.
 *******************************************************************************/
@@ -857,7 +857,7 @@ static void CnApi_receivePdo(void)
 
 /**
 ********************************************************************************
-\brief	transmit PDO data
+\brief    transmit PDO data
 
 CnApi_transmitPdo() transmits PDO data to the PCP.
 *******************************************************************************/

@@ -128,7 +128,7 @@ will be enabled.
 
 \param  callbackFunc             The callback of the sync interrupt
 
-\return	int
+\return    int
 \retval OK                       on success
 \retval ERROR                    if interrupt couldn't be connected
 *******************************************************************************/
@@ -298,7 +298,7 @@ This function reads a value from the input port of the AP
 *******************************************************************************/
 DWORD SysComp_readInputPort(void)
 {
-	DWORD dwValue = 0;
+    DWORD dwValue = 0;
 
     #ifdef INPORT_AP_BASE_ADDRESS
         dwValue = XGpio_ReadReg(INPORT_AP_BASE_ADDRESS, XGPIO_DATA_OFFSET);

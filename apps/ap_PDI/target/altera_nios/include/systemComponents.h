@@ -49,8 +49,8 @@ subject to the License Agreement located at the end of this file below.
     #define SYNC_IRQ_NUM SYNC_IRQ_FROM_PCP_IRQ
     #define SYNC_IRQ_BASE SYNC_IRQ_FROM_PCP_BASE
 #elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
-    #define SYNC_IRQ_NUM	0x00
-    #define SYNC_IRQ_BASE	0x00
+    #define SYNC_IRQ_NUM    0x00
+    #define SYNC_IRQ_BASE    0x00
     #warning "INK board parallel PDI example does not connect any synchronization pins, \
 therefore USE_POLLING_MODE_SYNC and USE_POLLING_MODE_ASYNC is activated!"
     #ifndef USE_POLLING_MODE_SYNC
@@ -67,8 +67,8 @@ therefore USE_POLLING_MODE_SYNC and USE_POLLING_MODE_ASYNC is activated!"
 #define ASYNC_IRQ_NUM ASYNC_IRQ_FROM_PCP_IRQ
 #define ASYNC_IRQ_BASE ASYNC_IRQ_FROM_PCP_BASE
 #elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
-#define ASYNC_IRQ_NUM	0x00   /* TODO: no pins available on the INK */
-#define ASYNC_IRQ_BASE	0x00
+#define ASYNC_IRQ_NUM    0x00   /* TODO: no pins available on the INK */
+#define ASYNC_IRQ_BASE    0x00
 #else
 #define ASYNC_IRQ_NUM POWERLINK_0_IRQ
 #endif

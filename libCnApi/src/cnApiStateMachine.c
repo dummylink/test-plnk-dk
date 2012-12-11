@@ -36,16 +36,16 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* global variables */
-static tStateMachine		apStateMachine;
-static tState				apStates[kNumApState];
-static tTransition 			apTransitions[MAX_TRANSITIONS_PER_STATE * kNumApState];
+static tStateMachine        apStateMachine;
+static tState               apStates[kNumApState];
+static tTransition          apTransitions[MAX_TRANSITIONS_PER_STATE * kNumApState];
 
-static BOOL					fErrorEvent = FALSE;
+static BOOL                 fErrorEvent = FALSE;
 static BOOL                 fEnterReadyToOperate = FALSE;
 static BOOL                 fBlockTransition_l = FALSE;
 
 
-char	*strCnApiStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INIT", "PREOP",
+char    *strCnApiStateNames_l[] = { "INITIAL", "FINAL", "BOOTED", "WAIT_INIT", "INIT", "PREOP",
                                     "READY_TO_OPERATE", "OPERATIONAL", "ERROR"};
 
 /******************************************************************************/
@@ -60,12 +60,12 @@ static void CnApi_initApStateMachine(void);
 /*============================================================================*/
 FUNC_EVT(kApStateBooted,kApStateReadyToInit, 1)
 {
-	/* check for PCP state: PCP_BOOTED */
-	if ((CnApi_getPcpState() == kPcpStateBooted) &&
-		(CnApi_getPcpMagic() == PCP_MAGIC))
-		return TRUE;
-	else
-		return FALSE;
+    /* check for PCP state: PCP_BOOTED */
+    if ((CnApi_getPcpState() == kPcpStateBooted) &&
+        (CnApi_getPcpMagic() == PCP_MAGIC))
+        return TRUE;
+    else
+        return FALSE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateBooted)
@@ -78,23 +78,23 @@ FUNC_ENTRYACT(kApStateBooted)
 /*============================================================================*/
 FUNC_EVT(kApStateReadyToInit, kApStateInit, 1)
 {
-	/* check for PCP state: PCP_INIT */
-	if (CnApi_getPcpState() == kPcpStateInit)
-		return TRUE;
-	else
-		return FALSE;
+    /* check for PCP state: PCP_INIT */
+    if (CnApi_getPcpState() == kPcpStateInit)
+        return TRUE;
+    else
+        return FALSE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kApStateReadyToInit, kApStateError, 1)
 {
-	/* check for error */
-	return fErrorEvent;
+    /* check for error */
+    return fErrorEvent;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateReadyToInit)
 {
-	tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
-	DEBUG_FUNC;
+    tPdiAsyncStatus AsyncRet = kPdiAsyncStatusSuccessful;
+    DEBUG_FUNC;
 
     AsyncRet = CnApiAsync_postMsg(kPdiAsyncMsgIntInitPcpReq,
                                   NULL,
@@ -150,16 +150,16 @@ FUNC_DOACT(kApStateInit)
 /*============================================================================*/
 FUNC_EVT(kApStatePreOp, kApStateReadyToOperate, 1)
 {
-	/* check for event which triggers state change */
-	if (fEnterReadyToOperate != FALSE)
-	{
-	    fEnterReadyToOperate = FALSE;
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+    /* check for event which triggers state change */
+    if (fEnterReadyToOperate != FALSE)
+    {
+        fEnterReadyToOperate = FALSE;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -178,25 +178,25 @@ FUNC_DOACT(kApStatePreOp)
 /*============================================================================*/
 FUNC_EVT(kApStateReadyToOperate, kApStateOperational, 1)
 {
-	/* check for PCP state: PCP_OPERATIONAL */
-	if (CnApi_getPcpState() == kPcpStateOperational)
-		return TRUE;
-	else
-		return FALSE;
+    /* check for PCP state: PCP_OPERATIONAL */
+    if (CnApi_getPcpState() == kPcpStateOperational)
+        return TRUE;
+    else
+        return FALSE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kApStateReadyToOperate, kApStatePreOp, 1)
 {
-	/* check for PCP state: PCP_PREOP */
-	if ((CnApi_getPcpState() == kPcpStatePreOp) &&
-	    (fBlockTransition_l == FALSE)             )
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+    /* check for PCP state: PCP_PREOP */
+    if ((CnApi_getPcpState() == kPcpStatePreOp) &&
+        (fBlockTransition_l == FALSE)             )
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 
 }
 /*----------------------------------------------------------------------------*/
@@ -224,16 +224,16 @@ FUNC_DOACT(kApStateReadyToOperate)
 /*============================================================================*/
 FUNC_EVT(kApStateOperational, kApStateInit, 1)
 {
-	return FALSE;
+    return FALSE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_EVT(kApStateOperational, kApStatePreOp, 1)
 {
-	/* check for PCP state: PCP_PREOP */
-	if (CnApi_getPcpState() != kPcpStateOperational)
-		return TRUE;
-	else
-		return FALSE;
+    /* check for PCP state: PCP_PREOP */
+    if (CnApi_getPcpState() != kPcpStateOperational)
+        return TRUE;
+    else
+        return FALSE;
 }
 /*----------------------------------------------------------------------------*/
 FUNC_ENTRYACT(kApStateOperational)
@@ -256,24 +256,24 @@ FUNC_ENTRYACT(kApStateError)
 
 /**
 ********************************************************************************
-\brief	state change hookup
+\brief    state change hookup
 *******************************************************************************/
 static void stateChange(BYTE current, BYTE target)
 {
     tCnApiStatus Ret = kCnApiStatusOk;
-	BYTE	currentIdx, targetIdx;
+    BYTE    currentIdx, targetIdx;
     tCnApiEventArg CnApiEventArg;
 
-	currentIdx = current + 2;
-	targetIdx = target + 2;
+    currentIdx = current + 2;
+    targetIdx = target + 2;
 
-	DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO,"CNAPI STATE: %s->%s\n", strCnApiStateNames_l[currentIdx],
-	        strCnApiStateNames_l[targetIdx]);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO,"CNAPI STATE: %s->%s\n", strCnApiStateNames_l[currentIdx],
+            strCnApiStateNames_l[targetIdx]);
 
-	/* inform application */
-	CnApiEventArg.m_NewApState = (tApStates) target;
+    /* inform application */
+    CnApiEventArg.m_NewApState = (tApStates) target;
 
-	Ret = CnApi_callEventCallback(kCnApiEventApStateChange, &CnApiEventArg, NULL);
+    Ret = CnApi_callEventCallback(kCnApiEventApStateChange, &CnApiEventArg, NULL);
     if(Ret != kCnApiStatusOk)
     {
         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "%s: Error while posting a state change!\n", __func__);
@@ -286,52 +286,52 @@ static void stateChange(BYTE current, BYTE target)
 
 /**
 ********************************************************************************
-\brief	initialize AP state machine
+\brief    initialize AP state machine
 *******************************************************************************/
 void CnApi_initApStateMachine(void)
 {
-	/* initialize state machine */
-	sm_init(&apStateMachine, apStates, kNumApState, apTransitions,
-			0, kApStateBooted, stateChange);
+    /* initialize state machine */
+    sm_init(&apStateMachine, apStates, kNumApState, apTransitions,
+            0, kApStateBooted, stateChange);
 
-	/* build up states */
+    /* build up states */
 
-	/* State: BOOTED */
-	SM_ADD_TRANSITION(&apStateMachine, kApStateBooted, kApStateReadyToInit, 1);
-	SM_ADD_ACTION_100(&apStateMachine, kApStateBooted);
+    /* State: BOOTED */
+    SM_ADD_TRANSITION(&apStateMachine, kApStateBooted, kApStateReadyToInit, 1);
+    SM_ADD_ACTION_100(&apStateMachine, kApStateBooted);
 
-	/* State: READY_TO_INIT */
-	SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToInit, kApStateInit, 1);
-	SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToInit, kApStateError, 1);
-	SM_ADD_ACTION_110(&apStateMachine, kApStateReadyToInit);
+    /* State: READY_TO_INIT */
+    SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToInit, kApStateInit, 1);
+    SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToInit, kApStateError, 1);
+    SM_ADD_ACTION_110(&apStateMachine, kApStateReadyToInit);
 
-	/* State: INIT */
-	SM_ADD_TRANSITION(&apStateMachine, kApStateInit, kApStatePreOp, 1);
-	SM_ADD_ACTION_110(&apStateMachine, kApStateInit);
+    /* State: INIT */
+    SM_ADD_TRANSITION(&apStateMachine, kApStateInit, kApStatePreOp, 1);
+    SM_ADD_ACTION_110(&apStateMachine, kApStateInit);
 
-	/* State: PRE-OPERATIONAL */
-	SM_ADD_TRANSITION(&apStateMachine, kApStatePreOp, kApStateReadyToOperate, 1);
-	SM_ADD_ACTION_110(&apStateMachine, kApStatePreOp);
+    /* State: PRE-OPERATIONAL */
+    SM_ADD_TRANSITION(&apStateMachine, kApStatePreOp, kApStateReadyToOperate, 1);
+    SM_ADD_ACTION_110(&apStateMachine, kApStatePreOp);
 
-	/* State: READY_TO_OPERATE */
-	SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToOperate, kApStateOperational, 1);
-	SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToOperate, kApStatePreOp, 1);
-	SM_ADD_ACTION_110(&apStateMachine, kApStateReadyToOperate);
+    /* State: READY_TO_OPERATE */
+    SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToOperate, kApStateOperational, 1);
+    SM_ADD_TRANSITION(&apStateMachine, kApStateReadyToOperate, kApStatePreOp, 1);
+    SM_ADD_ACTION_110(&apStateMachine, kApStateReadyToOperate);
 
-	/* State: OPERATIONAL */
-	SM_ADD_TRANSITION(&apStateMachine, kApStateOperational, kApStateInit, 1);
-	SM_ADD_TRANSITION(&apStateMachine, kApStateOperational, kApStatePreOp, 1);
-	SM_ADD_ACTION_110(&apStateMachine, kApStateOperational);
+    /* State: OPERATIONAL */
+    SM_ADD_TRANSITION(&apStateMachine, kApStateOperational, kApStateInit, 1);
+    SM_ADD_TRANSITION(&apStateMachine, kApStateOperational, kApStatePreOp, 1);
+    SM_ADD_ACTION_110(&apStateMachine, kApStateOperational);
 
-	/* State: ERROR */
-	SM_ADD_ACTION_100(&apStateMachine, kApStateError);
+    /* State: ERROR */
+    SM_ADD_ACTION_100(&apStateMachine, kApStateError);
 
 
 }
 
 /**
 ********************************************************************************
-\brief	start CN state machine
+\brief    start CN state machine
 *******************************************************************************/
 void CnApi_activateApStateMachine(void)
 {
@@ -356,15 +356,15 @@ void CnApi_resetApStateMachine(void)
 
 /**
 ********************************************************************************
-\brief	CN API process state machine
+\brief    CN API process state machine
 
 CnApi_process() updates the state machine. It has be called periodically.
 
-\return	returns TRUE if state machine is active and FALS if is inactive or ended
+\return    returns TRUE if state machine is active and FALS if is inactive or ended
 *******************************************************************************/
 BOOL CnApi_processApStateMachine(void)
 {
-	return sm_update(&apStateMachine);
+    return sm_update(&apStateMachine);
 }
 
 /**

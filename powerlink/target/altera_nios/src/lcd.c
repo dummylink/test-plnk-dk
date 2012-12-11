@@ -1,5 +1,3 @@
-
-
 #include <unistd.h> // for usleep()
 #include <string.h>
 #include <io.h>

@@ -198,7 +198,7 @@ void Gi_enableSyncInt(void)
 
 #ifdef TIMESYNC_HW
     // enable IRQ and set mode to "IR generation by HW"
-	AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, ((1 << SYNC_IRQ_ENABLE) | (1 << SYNC_IRQ_MODE)));
+    AmiSetWordToLe((BYTE*)&pCtrlReg_g->m_wSyncIrqControl, ((1 << SYNC_IRQ_ENABLE) | (1 << SYNC_IRQ_MODE)));
     /* in addition also enable the hw interrupt in the EPL time sync module*/
     EplTimerSynckCompareTogPdiIntEnable(wSyncIntCycle_l);
 #else

@@ -40,12 +40,12 @@ typedef void (* tOperationalPowerlink) ( void );
 typedef void (* tPreOpPowerlink) ( void );
 
 typedef enum ePowerlinkEvent {
-	kPowerlinkEventNone,
-	kPowerlinkEventEnterPreOp,
-	kPowerlinkEventkEnterReadyToOperate,
-	kPowerlinkEventReset,
-	kPowerlinkEventEnterOperational,
-	kPowerlinkEventShutdown
+    kPowerlinkEventNone,
+    kPowerlinkEventEnterPreOp,
+    kPowerlinkEventkEnterReadyToOperate,
+    kPowerlinkEventReset,
+    kPowerlinkEventEnterOperational,
+    kPowerlinkEventShutdown
 } tPowerlinkEvent;
 
 /**

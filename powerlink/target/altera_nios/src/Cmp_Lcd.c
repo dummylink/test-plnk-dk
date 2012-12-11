@@ -94,19 +94,19 @@ void SysComp_LcdSetText(char* Text)
 *******************************************************************************/
 tEplKernel SysComp_LcdSetLine(int LineNum_p)
 {
-	tEplKernel retval = kEplSuccessful;
+    tEplKernel retval = kEplSuccessful;
 
     switch(LineNum_p)
-	{
-		case 1:
-			LCD_Line1();
-		break;
-		case 2:
-			LCD_Line2();
-		break;
-		default:
-			retval = kEplInvalidParam;
-	}
+    {
+        case 1:
+            LCD_Line1();
+        break;
+        case 2:
+            LCD_Line2();
+        break;
+        default:
+            retval = kEplInvalidParam;
+    }
 
     return retval;
 }

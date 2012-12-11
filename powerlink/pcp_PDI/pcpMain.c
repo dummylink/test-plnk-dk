@@ -349,7 +349,7 @@ static int startPowerlink(void)
 *******************************************************************************/
 static void processPowerlink(void)
 {
-	SysComp_enableInterrupts();
+    SysComp_enableInterrupts();
 
     while (Gi_stateMachineIsRunning())
     {
