@@ -76,5 +76,13 @@ DBG_MODE=_DEBUG
 DEF_DEBUG_LVL=0xEC000600L
 
 ##################################
-#Compile options
+#Optimization level
+# Note: Set this to -O3 to get the best speed
 OPT_LEVEL=-O3
+
+##################################
+#Debug flag
+# Note: Set this to -g3 when you are debugging. (Increases code size)
+#       Set this to -g0 to disable debugging.
+DEBUG_FLAG=-g3
+

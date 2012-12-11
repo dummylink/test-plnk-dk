@@ -38,7 +38,7 @@ EXECUTABLE=directIO
 
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE).ld
 MACROS=-DMAKE_BUILD_PCP -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES)  ${MACROS}
+CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 $(PROC_FEATURES)  ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 
@@ -95,6 +95,7 @@ ${POWERLINK_DIR}/EplStack/EplSdoAsndu.c \
 ${POWERLINK_DIR}/EplStack/EplTimeruGeneric.c \
 ${POWERLINK_DIR}/EplStack/EplErrorHandlerk.c \
 ${POWERLINK_DIR}/EplStack/EplApiGeneric.c \
+${POWERLINK_DIR}/EplStack/VirtualEthernetNoOs.c \
 ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/ShbTarget_Microblaze.c \
 ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_irq.c \
 ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c \
