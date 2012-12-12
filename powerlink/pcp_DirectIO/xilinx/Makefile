@@ -258,7 +258,7 @@ ${EXECUTABLE}.srec: ${EXECUTABLE}.elf
 
 ${EXECUTABLE}.mem: ${EXECUTABLE}.elf
 	@echo Invoking: Data2MEM
-	Data2MEM -bd ${EXECUTABLE}.elf -d -o m ${EXECUTABLE}.mem
+	data2mem -bd ${EXECUTABLE}.elf -d -o m ${EXECUTABLE}.mem
 	@echo Finished building: $@
 	@echo ' '
 
