@@ -613,14 +613,16 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
             pCurLclMsgFrgmt = pMsgDescr->MsgHdl_m.pLclBuf_m +
                               (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
-            /* write asynchronous message payload to PDI buffer */
-            MEMCPY((BYTE *)&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
+
 
 #ifdef CN_API_USING_SPI
             /* write asynchronous message payload to PDI buffer */
             CnApi_Spi_write(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
                            wCopyLength,
-                           (BYTE*) &pUtilTxPdiBuf->m_chan);
+                           (BYTE*) pCurLclMsgFrgmt);
+#else
+            /* write asynchronous message payload to PDI buffer */
+            MEMCPY((BYTE *)&pUtilTxPdiBuf->m_chan, pCurLclMsgFrgmt, wCopyLength);
 #endif /* CN_API_USING_SPI */
 
             /* write fragment length to PDI buffer header */
@@ -1055,7 +1057,7 @@ FUNC_ENTRYACT(kPdiAsyncRxStateBusy)
                                   (pMsgDescr->dwMsgSize_m - pMsgDescr->dwPendTranfSize_m);
 
 #ifdef CN_API_USING_SPI
-                /* write asynchronous message payload to PDI buffer */
+                /* read asynchronous message payload from PDI buffer */
                 CnApi_Spi_read(pMsgDescr->pPdiBuffer_m->wPdiOffset_m + PCP_PDI_SERIAL_ASYNCMSGPAYLOAD_OFFSET,
                                wCopyLength,
                                (BYTE*) pCurLclMsgFrgmt);
