@@ -20,8 +20,9 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) remote_
 # altpll_0
 set_global_assignment -name TCL_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_altpll/altera_avalon_altpll_hw.tcl]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) altpll_0.vhd]
+# async_irq_from_pcp
+# clock_crossing_0
 # null
 set_global_assignment -name SDC_FILE [file join $::quartus(ip_rootpath) altera/sopc_builder_ip/altera_avalon_clock_adapter/altera_avalon_clock_adapter.sdc]
-# async_irq_from_pcp
-set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 002314DCCB6C000001377F4EB01D 
+set_global_assignment -name SOPC_BUILDER_SIGNATURE_ID 002314DCCB6C0000013B89368E1C 
  
