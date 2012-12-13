@@ -342,7 +342,7 @@ prog_flash : gen_flash
 clean:
 	-@touch $(FLASH_IMAGE_NAME)
 	-@touch $(EXECUTABLE)
-	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${CN_API_DIR}/include/cnApiCfg.h ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
+	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${CN_API_DIR}/inc/cnApiCfg.h ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
 	-$(MAKE) -C $(BOOTLOADER_PATH) clean
 	-@echo ' '
 
