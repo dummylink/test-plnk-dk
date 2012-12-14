@@ -130,11 +130,12 @@ static void CnApi_resetLinkCounter(void)
 ********************************************************************************
 \brief    add object
 
-CnApi_linkObject() indirectly connects local variables to object numbers by writing
-the linking information into a table. The table is subsequently read by the PCP
-which links its PDOs to DPRAM by using a pointer.
-The data type of linked local variable must match with data type of POWERLINK object !!!
-Number of linked objects must match NUM_OBJECTS !!!
+CnApi_linkObject() indirectly connects local variables to object numbers by
+writing the linking information into a table. When the PDO mapping information
+is received, a copy table will be set up which defines the connection from a
+PDO buffer to the local user variable.
+The data type of linked local variable must match with data type of POWERLINK
+object ! Number of linked objects must match NUM_OBJECTS !
 Application Example:   CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);
 
 \param      wIndex_p            index of object in the object dictionary
