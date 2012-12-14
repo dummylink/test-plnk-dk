@@ -572,6 +572,7 @@ static tEplKernel AppCbSync(void)
         case kEplInvalidParam:
             PRINTF1("%s(Err/Warn): Virtual Ethernet maximum MTU size exceeded! Frame discarded!\n",
                     __func__);
+            EplRet = kEplSuccessful;
             break;
         case kEplDllAsyncTxBufferFull:
             // discard frame (set stats)
