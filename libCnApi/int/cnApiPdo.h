@@ -26,8 +26,8 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* defines */
-
-#define MAX_MAPPABLE_OBJECTS               250       ///< object restrictions
+// this restriction is related to the count of sub-indices of a mapping object
+#define MAX_MAPPABLE_OBJECTS_PER_PDO_CHANNEL     254    ///< object restrictions
 
 /******************************************************************************/
 /* typedefs */

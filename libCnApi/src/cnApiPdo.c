@@ -33,8 +33,8 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* defines */
-/* equals number of mapped objects, if memory-chaining is not applied */
-#define    PDO_COPY_TBL_ELEMENTS    MAX_MAPPABLE_OBJECTS  ///< max copy table elements per PDO
+// max copy table elements per PDO
+#define PDO_COPY_TBL_ELEMENTS   MAX_MAPPABLE_OBJECTS_PER_PDO_CHANNEL
 
 /******************************************************************************/
 /* typedefs */
