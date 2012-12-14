@@ -6,7 +6,7 @@
    {
       datum baseAddress
       {
-         value = "17825792";
+         value = "17833984";
          type = "long";
       }
    }
@@ -30,7 +30,7 @@
    {
       datum baseAddress
       {
-         value = "17838088";
+         value = "17846280";
          type = "long";
       }
    }
@@ -205,7 +205,7 @@
       }
       datum baseAddress
       {
-         value = "17836032";
+         value = "17844224";
          type = "long";
       }
    }
@@ -303,27 +303,6 @@
          type = "long";
       }
    }
-   element clock_crossing_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
-   element node_switch_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2400";
-         type = "long";
-      }
-   }
    element benchmark_pio.s1
    {
       datum baseAddress
@@ -340,16 +319,29 @@
          type = "long";
       }
    }
-   element system_timer.s1
+   element clock_crossing_0.s1
    {
       datum _lockedAddress
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "2304";
+         value = "0";
+         type = "long";
+      }
+   }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "2048";
          type = "long";
       }
    }
@@ -366,16 +358,24 @@
          type = "long";
       }
    }
-   element remote_update_cycloneiii_0.s1
+   element node_switch_pio.s1
+   {
+      datum baseAddress
+      {
+         value = "2400";
+         type = "long";
+      }
+   }
+   element system_timer.s1
    {
       datum _lockedAddress
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
       datum baseAddress
       {
-         value = "2048";
+         value = "2304";
          type = "long";
       }
    }
@@ -497,8 +497,8 @@
  <parameter name="maxAdditionalLatency" value="0" />
  <parameter name="projectName" value="nios_openMAC.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
- <parameter name="systemHash" value="6773559895" />
- <parameter name="timeStamp" value="1353571640460" />
+ <parameter name="systemHash" value="4551207990" />
+ <parameter name="timeStamp" value="1355497379294" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -574,7 +574,7 @@
   <parameter name="mmu_TLBMissExcOffset" value="0" />
   <parameter name="manuallyAssignCpuID" value="false" />
   <parameter name="internalIrqMaskSystemInfo" value="107" />
-  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='system_timer.s1' start='0x900' end='0x920' /><slave name='status_led_pio.s1' start='0x920' end='0x940' /><slave name='benchmark_pio.s1' start='0x940' end='0x960' /><slave name='node_switch_pio.s1' start='0x960' end='0x970' /><slave name='powerlink_0.MAC_CMP' start='0x970' end='0x980' /><slave name='altpll_0.pll_slave' start='0x980' end='0x990' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x990' end='0x998' /><slave name='sysid.control_slave' start='0x998' end='0x9A0' /><slave name='powerlink_0.MAC_REG' start='0x2000' end='0x4000' /><slave name='sram_0.s0' start='0x1080000' end='0x1100000' /><slave name='pcp_cpu.jtag_debug_module' start='0x1102800' end='0x1103000' /></address-map>]]></parameter>
+  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='system_timer.s1' start='0x900' end='0x920' /><slave name='status_led_pio.s1' start='0x920' end='0x940' /><slave name='benchmark_pio.s1' start='0x940' end='0x960' /><slave name='node_switch_pio.s1' start='0x960' end='0x970' /><slave name='powerlink_0.MAC_CMP' start='0x970' end='0x980' /><slave name='altpll_0.pll_slave' start='0x980' end='0x990' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x990' end='0x998' /><slave name='sysid.control_slave' start='0x998' end='0x9A0' /><slave name='powerlink_0.MAC_REG' start='0x2000' end='0x4000' /><slave name='sram_0.s0' start='0x1080000' end='0x1100000' /><slave name='pcp_cpu.jtag_debug_module' start='0x1104800' end='0x1105000' /></address-map>]]></parameter>
   <parameter name="instAddrWidth" value="25" />
   <parameter name="impl" value="Small" />
   <parameter name="icache_size" value="_2048" />
@@ -598,7 +598,7 @@
   <parameter name="dcache_numTCDM" value="_0" />
   <parameter name="dcache_lineSize" value="_32" />
   <parameter name="dcache_bursts" value="false" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='system_timer.s1' start='0x900' end='0x920' /><slave name='status_led_pio.s1' start='0x920' end='0x940' /><slave name='benchmark_pio.s1' start='0x940' end='0x960' /><slave name='node_switch_pio.s1' start='0x960' end='0x970' /><slave name='powerlink_0.MAC_CMP' start='0x970' end='0x980' /><slave name='altpll_0.pll_slave' start='0x980' end='0x990' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x990' end='0x998' /><slave name='sysid.control_slave' start='0x998' end='0x9A0' /><slave name='powerlink_0.MAC_REG' start='0x2000' end='0x4000' /><slave name='sram_0.s0' start='0x1080000' end='0x1100000' /><slave name='powerlink_0.MAC_BUF' start='0x1100000' end='0x1102000' /><slave name='pcp_cpu.jtag_debug_module' start='0x1102800' end='0x1103000' /><slave name='powerlink_0.SMP' start='0x1103008' end='0x1103010' /><slave name='powerlink_0.SMP' start='0x1103008' end='0x1103010' /><slave name='tc_i_mem_pcp.s2' start='0x2000000' end='0x2001000' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='epcs_flash_controller_0.epcs_control_port' start='0x0' end='0x800' /><slave name='remote_update_cycloneiii_0.s1' start='0x800' end='0x900' /><slave name='system_timer.s1' start='0x900' end='0x920' /><slave name='status_led_pio.s1' start='0x920' end='0x940' /><slave name='benchmark_pio.s1' start='0x940' end='0x960' /><slave name='node_switch_pio.s1' start='0x960' end='0x970' /><slave name='powerlink_0.MAC_CMP' start='0x970' end='0x980' /><slave name='altpll_0.pll_slave' start='0x980' end='0x990' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x990' end='0x998' /><slave name='sysid.control_slave' start='0x998' end='0x9A0' /><slave name='powerlink_0.MAC_REG' start='0x2000' end='0x4000' /><slave name='sram_0.s0' start='0x1080000' end='0x1100000' /><slave name='powerlink_0.MAC_BUF' start='0x1102000' end='0x1104000' /><slave name='powerlink_0.MAC_BUF' start='0x1102000' end='0x1104000' /><slave name='pcp_cpu.jtag_debug_module' start='0x1104800' end='0x1105000' /><slave name='powerlink_0.SMP' start='0x1105008' end='0x1105010' /><slave name='powerlink_0.SMP' start='0x1105008' end='0x1105010' /><slave name='tc_i_mem_pcp.s2' start='0x2000000' end='0x2001000' /></address-map>]]></parameter>
   <parameter name="dataAddrWidth" value="26" />
   <parameter name="customInstSlavesSystemInfo" value="&lt;info/&gt;" />
   <parameter name="cpuReset" value="false" />
@@ -761,7 +761,7 @@
   <parameter name="asyncBuf1Size" value="1514" />
   <parameter name="asyncBuf2Size" value="1514" />
   <parameter name="phyIF" value="RMII" />
-  <parameter name="packetLoc">TX into DPRAM and RX over Avalon Master</parameter>
+  <parameter name="packetLoc">TX into embedded memory (M9K) and RX over Avalon Master</parameter>
   <parameter name="validSet" value="10" />
   <parameter name="macTxBuf" value="1514" />
   <parameter name="macRxBuf" value="16" />
@@ -975,7 +975,7 @@
    start="pcp_cpu.instruction_master"
    end="pcp_cpu.jtag_debug_module">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x01102800" />
+  <parameter name="baseAddress" value="0x01104800" />
  </connection>
  <connection
    kind="avalon"
@@ -983,7 +983,7 @@
    start="pcp_cpu.data_master"
    end="pcp_cpu.jtag_debug_module">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x01102800" />
+  <parameter name="baseAddress" value="0x01104800" />
  </connection>
  <connection
    kind="interrupt"
@@ -1082,7 +1082,7 @@
    start="pcp_cpu.data_master"
    end="powerlink_0.MAC_BUF">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x01100000" />
+  <parameter name="baseAddress" value="0x01102000" />
  </connection>
  <connection
    kind="avalon"
@@ -1090,7 +1090,7 @@
    start="pcp_cpu.data_master"
    end="powerlink_0.SMP">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x01103008" />
+  <parameter name="baseAddress" value="0x01105008" />
  </connection>
  <connection
    kind="avalon"
@@ -1108,11 +1108,6 @@
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x2000" />
  </connection>
- <connection
-   kind="clock"
-   version="10.1"
-   start="clk_0.clk"
-   end="altpll_0.inclk_interface" />
  <connection kind="clock" version="10.1" start="altpll_0.c0" end="jtag_uart_0.clk" />
  <connection
    kind="clock"
@@ -1151,15 +1146,7 @@
    start="pcp_cpu.data_master"
    end="powerlink_0.SMP">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x01103008" />
- </connection>
- <connection
-   kind="avalon"
-   version="10.1"
-   start="clock_crossing_0.m1"
-   end="altpll_0.pll_slave">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0980" />
+  <parameter name="baseAddress" value="0x01105008" />
  </connection>
  <connection
    kind="clock"
@@ -1208,16 +1195,6 @@
    version="10.1"
    start="altpll_0.c1"
    end="tri_state_bridge_0.clk" />
- <connection
-   kind="clock"
-   version="10.1"
-   start="altpll_0.c1"
-   end="powerlink_0.pcp_clk" />
- <connection
-   kind="clock"
-   version="10.1"
-   start="altpll_0.c0"
-   end="powerlink_0.clk50meg" />
  <connection kind="clock" version="10.1" start="altpll_0.c0" end="sysid.clk" />
  <connection
    kind="avalon"
@@ -1251,11 +1228,6 @@
  <connection
    kind="clock"
    version="10.1"
-   start="altpll_0.c1"
-   end="powerlink_0.clkPkt" />
- <connection
-   kind="clock"
-   version="10.1"
    start="altpll_0.c3"
    end="remote_update_cycloneiii_0.global_signals_clock" />
  <connection
@@ -1276,13 +1248,49 @@
   <parameter name="baseAddress" value="0x0000" />
  </connection>
  <connection
+   kind="avalon"
+   version="10.1"
+   start="pcp_cpu.data_master"
+   end="powerlink_0.MAC_BUF">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x01102000" />
+ </connection>
+ <connection
    kind="clock"
    version="10.1"
    start="altpll_0.c1"
-   end="powerlink_0.clkMaster" />
+   end="powerlink_0.pcp_clk" />
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c0"
+   end="powerlink_0.clk50meg" />
+ <connection
+   kind="clock"
+   version="10.1"
+   start="clk_0.clk"
+   end="altpll_0.inclk_interface" />
+ <connection
+   kind="avalon"
+   version="10.1"
+   start="clock_crossing_0.m1"
+   end="altpll_0.pll_slave">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0980" />
+ </connection>
  <connection
    kind="clock"
    version="10.1"
    start="altpll_0.c2"
    end="powerlink_0.clkEth" />
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c1"
+   end="powerlink_0.clkPkt" />
+ <connection
+   kind="clock"
+   version="10.1"
+   start="altpll_0.c1"
+   end="powerlink_0.clkMaster" />
 </system>
