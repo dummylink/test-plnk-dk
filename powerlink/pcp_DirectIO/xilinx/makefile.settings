@@ -39,6 +39,11 @@ BUS_INTERFACE=axi
 PROCESSOR_NAME=pcp
 
 ##################################
+# Enable VirtualEthernet Interface: [yes, no]
+# Note: Disables Veth object file creation (reduces code size)
+VIRT_ETH=no
+
+##################################
 # Processor features: (more information in the "Embedded Systems Tools Reference Manual")
 # Processor endian: [ -mlittle-endian (axi bus), -mbig-endian (plb bus)]
 # Hardware multiplier: [ -mno-xl-soft-mul = available, -mxl-soft-mul = not available ]

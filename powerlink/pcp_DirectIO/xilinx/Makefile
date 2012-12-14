@@ -95,7 +95,6 @@ ${POWERLINK_DIR}/EplStack/EplSdoAsndu.c \
 ${POWERLINK_DIR}/EplStack/EplTimeruGeneric.c \
 ${POWERLINK_DIR}/EplStack/EplErrorHandlerk.c \
 ${POWERLINK_DIR}/EplStack/EplApiGeneric.c \
-${POWERLINK_DIR}/EplStack/VirtualEthernetNoOs.c \
 ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/ShbTarget_Microblaze.c \
 ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_irq.c \
 ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c \
