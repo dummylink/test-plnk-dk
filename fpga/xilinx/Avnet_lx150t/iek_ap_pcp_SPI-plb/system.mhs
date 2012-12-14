@@ -569,6 +569,8 @@ BEGIN plb_powerlink
  PORT spi_miso = spi_master_MISO_I
  PORT spi_clk = spi_master_SCK_O
  PORT spi_sel_n = spi_master_SS_O
+ PORT phyMii0_TxEr = net_gnd
+ PORT phyMii1_TxEr = net_gnd
 END
 
 BEGIN fit_timer

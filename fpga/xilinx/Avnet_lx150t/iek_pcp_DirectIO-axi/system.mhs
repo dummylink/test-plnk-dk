@@ -306,6 +306,8 @@ BEGIN axi_powerlink
 # portio direction configuration: (high=input, low=output)
  PORT pio_pconfig = 0b0100
  PORT S_AXI_SMP_PCP_ACLK = clk_100_0000MHzPLL1
+ PORT phyMii0_TxEr = net_gnd
+ PORT phyMii1_TxEr = net_gnd
 END
 
 BEGIN axi_hwicap

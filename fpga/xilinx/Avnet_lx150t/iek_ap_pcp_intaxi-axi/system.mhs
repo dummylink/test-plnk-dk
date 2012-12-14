@@ -563,6 +563,8 @@ BEGIN axi_powerlink
  PORT phy1_SMIClk = axi_powerlink_0_phy1_SMIClk
  PORT phy1_Rst_n = axi_powerlink_0_phy1_Rst_n
  PORT M_AXI_MAC_DMA_aclk = clk_100_0000MHzPLL1
+ PORT phyMii1_TxEr = net_gnd
+ PORT phyMii0_TxEr = net_gnd
 END
 
 BEGIN axi_hwicap

@@ -322,15 +322,15 @@ NET "clk_100_0000MHzPLL1" TNM = "FAST_CLK_GRP";
 NET "clk_50_0000MHzPLL1" TNM = "SLOW_CLK_GRP";
 
 ### PHY0 clock
-#NET "axi_powerlink_0_phyMii0_RxClk_pin" TNM_NET = "PHY0_RXCLK_GRP";
+NET "axi_powerlink_0_phyMii0_RxClk_pin" TNM_NET = "PHY0_RXCLK_GRP";
 TIMESPEC "TS_RXCLK0" = PERIOD "PHY0_RXCLK_GRP" 40 ns HIGH 20 ns;
-#NET "axi_powerlink_0_phyMii0_TxClk_pin" TNM_NET = "PHY0_TXCLK_GRP";
+NET "axi_powerlink_0_phyMii0_TxClk_pin" TNM_NET = "PHY0_TXCLK_GRP";
 TIMESPEC "TS_TXCLK0" = PERIOD "PHY0_TXCLK_GRP" 40 ns HIGH 20 ns;
 
 ### PHY1 clock
-#NET "axi_powerlink_0_phyMii1_RxClk_pin" TNM_NET = "PHY1_RXCLK_GRP";
+NET "axi_powerlink_0_phyMii1_RxClk_pin" TNM_NET = "PHY1_RXCLK_GRP";
 TIMESPEC "TS_RXCLK1" = PERIOD "PHY1_RXCLK_GRP" 40 ns HIGH 20 ns;
-#NET "axi_powerlink_0_phyMii1_TxClk_pin" TNM_NET = "PHY1_TXCLK_GRP";
+NET "axi_powerlink_0_phyMii1_TxClk_pin" TNM_NET = "PHY1_TXCLK_GRP";
 TIMESPEC "TS_TXCLK1" = PERIOD "PHY1_TXCLK_GRP" 40 ns HIGH 20 ns;
 
 #### ICAP clock

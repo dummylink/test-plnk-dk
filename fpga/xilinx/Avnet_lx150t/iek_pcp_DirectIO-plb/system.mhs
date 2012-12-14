@@ -148,6 +148,8 @@ BEGIN plb_powerlink
  PORT pio_portinlatch = 0b1111
 # portio direction configuration: (high=input, low=output)
  PORT pio_pconfig = 0b0100
+ PORT phyMii1_TxEr = net_gnd
+ PORT phyMii0_TxEr = net_gnd
 END
 
 BEGIN microblaze

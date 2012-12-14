@@ -578,6 +578,8 @@ BEGIN plb_powerlink
  PORT led_error = plb_powerlink_0_led_error
  PORT led_status = plb_powerlink_0_led_status
  PORT clk50 = clk_50_0000MHzPLL1
+ PORT phyMii0_TxEr = net_gnd
+ PORT phyMii1_TxEr = net_gnd
 END
 
 BEGIN fit_timer
