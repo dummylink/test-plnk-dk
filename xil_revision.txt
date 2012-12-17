@@ -28,7 +28,7 @@ Revision History (Xilinx)
                     [TASK] generic callback function for PDO copy pre- and postprocessing
                     [FIX] CNDK examples pass openConformace Test V0.4.0 Alpha
                     [FIX] Add RelativeTime reset on preop1
-                    [TASK] Adapt openPOWERLINK V1.8.1                        
+                    [TASK] Adapt openPOWERLINK V1.8.1
 
 06.06.2012 V0.5.1   [FIX] Incorrect initialization values transmitted to PCP
                     [FIX] CnApi_postMsg parameter assignment
@@ -38,10 +38,29 @@ Revision History (Xilinx)
                     [FIX] DirectIO: correct boot time in XDD
                     [FIX] Rework debug messages
                     [FIX] Benchmark IO pins are set wrong at EdrvOpenMac IrqHandler
-                    [FEATURE] Move functions of interrupt context to internal memory  
+                    [FEATURE] Move functions of interrupt context to internal memory
                     [FIX] Bug when placing packets in external RAM when using AXI IP-Core
                     [FEATURE] X: s6plkeb directIO axi example
                     [FEATURE] X: s6plkeb intaxi example
-                    [FEATURE] X: Add lx150t directIO axi design                    
-                    [FEATURE] X: Add s6plkeb pap designs
-                    [FEATURE] X: Add mem_bootloader and build system for burning to flash
+                    [FEATURE] X: Add lx150t directIO axi design
+
+17.07.2012 V1.0.0   [FEATURE] add virtual Ethernet module to libCnApi software
+                    [FEATURE] place functions in internal memory depending on its size
+                    [FIX] Rework doxygen manpages
+                    [FIX] default OBD access: expedited SDO transfer can use maximum data size
+                    [FIX] external asynchronous PDI Tx deadlock
+                    [FIX] PDI memory > 2kByte not accessable
+                    [FIX] Memory leak in omethlib
+                    [FIX] memory leak in asynchronous state machine
+                    [FIX] Object write was forwarded wrong on big endian machines
+                    [FIX] PDI timing changed to meet most CPUs requirements
+                    [TASK] change status-/control register layout
+                    [TASK] increment PDI revision number
+                    [TASK] update POWERLINK ipcore to version 0.2.8
+                    [TASK] cleanup libCnApi
+                    [TASK] reduce MAX_ASYNC_STREAM_LENGTH to 1600
+                    [TASK] increment PDI revision number
+                    [TASK] changed directory structure
+                    [FEATURE] X: Add Xilinx multi bootloader
+                    [FEATURE] X: Add 16bitprll pcp/ap axi design for s6plkeb
+                    [TASK] X: Add eclipse project files for easier project import
