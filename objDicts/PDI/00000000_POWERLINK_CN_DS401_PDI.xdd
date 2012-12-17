@@ -74,11 +74,11 @@
     </ProfileHeader>
     <ProfileBody
       xsi:type="ProfileBody_Device_Powerlink"
-      fileName="00000000_POWERLINK_CN_DS401.xdd"
+      fileName="00000000_POWERLINK_CN_DS401_PDI.xdd"
       fileCreator="Bernecker+Rainer Industrie-Elektronik Ges.m.b.H."
       fileCreationDate="2011-04-01"
       fileCreationTime="10:00:00+02:00"
-      fileModificationDate="2011-04-01"
+      fileModificationDate="2012-12-17"
       fileModificationTime="10:00:00+02:00"
       fileModifiedBy="Bernecker+Rainer Industrie-Elektronik Ges.m.b.H."
       fileVersion="01.00"
@@ -122,11 +122,11 @@
     </ProfileHeader>
     <ProfileBody
       xsi:type="ProfileBody_CommunicationNetwork_Powerlink"
-      fileName="00000000_POWERLINK_CN_DS401.xdd"
+      fileName="00000000_POWERLINK_CN_DS401_PDI.xdd"
       fileCreator="Bernecker+Rainer Industrie-Elektronik Ges.m.b.H."
       fileCreationDate="2011-04-01"
       fileCreationTime="10:00:00+02:00"
-      fileModificationDate="2011-04-01"
+      fileModificationDate="2012-12-17"
       fileModificationTime="10:00:00+02:00"
       fileModifiedBy="Bernecker+Rainer Industrie-Elektronik Ges.m.b.H."
       fileVersion="01.00"
