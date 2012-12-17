@@ -49,5 +49,5 @@ Otherwise you can use the supplied SOF file and go directly to step 7.
 7. Use the design with the supplied software demo project in the CNDK
    subdirectory "apps/ap_PDI"
 
-   Please refer to the readme.txt in the sofware subdirectory of the software demo project for
+   Please refer to the readme.txt in the subdirectory of the software demo project for
    further information.

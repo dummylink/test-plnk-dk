@@ -37,24 +37,16 @@ Otherwise you can use the supplied SOF file and go directly to step 8.
 
 2. Open the SOPC Builder via menu "Tools -> SOPC Builder".
 
-3. If you haven't specified the POWERLINK IP-core path yet, you need to specify
-   a global search path in SOPC-Builder.
-   
-   Go to "Tools -> Options -> IP Search Path -> Add" 
-   and browse to the POWERLINK IP-core folder e.g. in the CNDK reference design folder
-   
-   <your path>/fpga/altera/ipcore/powerlink
+3. Press the button "Generate" in the SOPC Builder to regenerate the Nios II system.
 
-4. Press the button "Generate" in the SOPC Builder to regenerate the Nios II system.
+4. Close the SOPC Builder when the generation has finished (shown as information output).
 
-5. Close the SOPC Builder when the generation has finished (shown as information output).
+5. A message window will pop up. Choose "Update: All symbols or blocks in this file".
 
-6. A message window will pop up. Choose "Update: All symbols or blocks in this file".
-
-7. Start the compilation in the Quartus II window via menu "Processing" -> "Start Compilation".
+6. Start the compilation in the Quartus II window via menu "Processing" -> "Start Compilation".
    Choose "Yes" for saving all changed files.
 
-8. Use the design with the supplied software demo project in the CNDK
+7. Use the design with the supplied software demo project in the CNDK
    subdirectory "powerlink/pcp_PDI"
 
    Please refer to the readme.txt in the subdirectory of the software demo project for
