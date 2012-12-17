@@ -13,11 +13,13 @@ Introduction
 This demo implements the software for a POWERLINK Communication Processor (PCP).
 The PCP is designed to be connected to devices through Digital I/Os.
 
+
 Contents
 ---------
 - POWERLINK SW for PCP (Powerlink Communication Processor)
 
-Configuration Details
+
+Properties
 -------------------
 - Minimum cycle length: 400µs (depends on configuration e.g. optimization level)
 - PReq-PRes Latency: 960ns
@@ -48,7 +50,6 @@ Requirements
 
 - Experience with this development environment is required
 
-
 Configuration
 ----------------
 Miscellaneous parameters of the openPOWERLINK stack and the PCP application
@@ -56,7 +57,6 @@ can be configured through defines in EplCfg.h.
 
 The network can be configured by using the corresponding XDD and objdict.h for this node
 which can be found in the subdirectory objDicts\Direct_IO.
-
 
 How to run the demo
 ----------------------

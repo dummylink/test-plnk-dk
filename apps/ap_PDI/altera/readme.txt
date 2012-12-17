@@ -11,7 +11,7 @@ with SPI/Parallel or Internal FPGA Interface
 Introduction
 ---------------
 This demo implements the software for a Application Processor (AP) which
-accesses a POWERLINK Communictaion Processor (PCP) via a ceratin hardware
+accesses a POWERLINK Communictaion Processor (PCP) via a certain hardware
 interface connected to the PCP DPRAM.
 It utilizes a driver library (cnApiLib) to access and communicate with the
 PCP. The PCP can be implemented on a second NIOS2 processor in the same FPGA
@@ -62,7 +62,9 @@ Requirements
 How to run the demo
 --------------------
 
-For Windows:
+A detailed description is available in the "MAN_OAT113110_10_Vxxx - Getting Started.pdf" document.
+
+Build flow for Windows:
 
 1. You may take some previous action e.g. rebuild the Quartus project.
    Therefore go to your desired Quartus reference design in

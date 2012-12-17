@@ -16,15 +16,13 @@ the user application. The AP can be implemented on a second Microblaze
 processor in the same FPGA as the PCP or on an external microprocessor connected to 
 the PCP through a SPI or parallel interface.
 
-
 Contents
 ---------
 - POWERLINK SW for PCP (Powerlink Communication Processor) including PDI modules
 
-
-Configuration Details
--------------------
-- Minimum cycle length: 400µs 
+Properties
+---------------
+- Minimum cycle length: 400µs
   (depends on configuration e.g. mapped bytes or optimization level)
 - PReq-PRes Latency: 960ns
 - Process data: 4 bytes input and 4 bytes output

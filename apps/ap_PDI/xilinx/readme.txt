@@ -8,12 +8,24 @@ Software Demo for AP (Application Processor)
 with SPI/Parallel or Internal FPGA Interface
 ==============================================================================
 
+Introduction
+---------------
+This demo implements the software for a Application Processor (AP) which
+accesses a POWERLINK Communictaion Processor (PCP) via a certain hardware
+interface connected to the PCP DPRAM.
+It utilizes a driver library (cnApiLib) to access and communicate with the
+PCP. The PCP can be implemented on a second Microblaze processor in the same FPGA
+as the PCP or on in an external FPGA device connected to the AP through an
+SPI or parallel interface.
+
+
 Contents
 ---------
 
 - POWERLINK SW for AP (Application Processor).
 
-Performance
+
+Properties 
 -----------------
 
 - The following 8 objects - each has the size 1 Byte - can be mapped:
@@ -49,9 +61,9 @@ Requirements
 How to run the demo
 --------------------
 
-A detailed description is available in the "User_Guide_Xilinx.pdf" document.
+A detailed description is available in the "MAN_OAT113110_11_Vxxx - Getting Started.pdf" document.
 
-For Windows:
+Build flow for Windows:
 
 1. Open the Xilinx Software Development Kit (SDK) with workspace on the CNDK root directory.
    (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\) Do all steps explained in the
