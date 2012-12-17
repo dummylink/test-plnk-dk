@@ -8,7 +8,7 @@ Update Guide
 ==============================================================================
 
 How to generally update to any version (applies always)
--------------------------------------------------------    
+-------------------------------------------------------
 
     - POWERLINK IP-core / Quartus Project
       Update the POWERLINK IP-core folder containments used for your Quartus project
@@ -17,17 +17,17 @@ How to generally update to any version (applies always)
       Before the rebuild, you need to delete all temporary  Quartus project files !
 
     - CnApi SW Library:
-      Generate cnApiCfg.h by building the PCP design of the desired CNDK version 
+      Generate cnApiCfg.h by building the PCP design of the desired CNDK version
       and update your Application Processor (AP) sources with the whole CnApi library source code
       which comes with the CNDK.
 
-How to update from V0.2.0 or V0.2.1 to V0.4.6 
+How to update from V0.2.0 or V0.2.1 to V0.4.6
 ----------------------------------------------
 
 I.   POWERLINK IP-core / Quartus Project
-      
+
         1. In SOPC-Builder you need to specify a global search path for the POWERLINK IP-core once.
-            Go to     
+            Go to
             "Tools -> Options -> IP Search Path -> Add"
 
             and browse to the POWERLINK IP-core folder e.g. in the CNDK
@@ -45,29 +45,29 @@ I.   POWERLINK IP-core / Quartus Project
         8. Compile the SOPC project.
 
 II.  HW Interface (PCP PDI)
-   
+
         - Adapt the timing according to the HW_Design_Guidelines delivered with this package.
-          if you access the PCP over external FPGA interface (serial or parallel).      
+          if you access the PCP over external FPGA interface (serial or parallel).
 
 III. CnApi SW Library
-     
+
         - If you use the CnApi library in an AP
           to access and control the PCP (Powerlink Communication Processor)
           then you need to delete the calls to the functions
-       
+
           * CnApi_activateApStateMachine()
           * CnApi_activateAsyncStateMachine()
-        
+
           because those functions where shifted to the CnApi_init() function
           and are called now in the background.
           Any additional call to those functions will damage the AP to PCP communication!
-      
+
         - It is mandatory to handle calls to CnApi_CbDefaultObdAccess() and optional to answer
           delayed to the object dictionary access with CnApi_DefObdAccFinished().
           See the documentation "API_Reference_Manual"  for details.
-    
+
         - Events forwarded to the user in CnApi_AppCbEvent() can be handled optionally.
-    
+
 
 How to update from V0.4.6 to 0.5.1
 ----------------------------------------------
@@ -83,4 +83,48 @@ I.   CnApi SW Library
           You can replace the whole "kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq" case with the new one, if you didn't modify
           it in the old version. Otherwise do a comparision, use the new struct members of "LinkPdosResp_g" and assign
           appropriate values like shown in the example code "apps/ap_PDI/main.c".
-  
+
+How to update from V0.5.1 to 1.0.0
+----------------------------------------------
+
+I.   POWERLINK IP-core / Quartus Project
+
+        - If a search path to the POWERLINK IP-core is set in SOPC builder, then DELETE it
+          in order to use the new Quartus project examples!
+          Therefore go to "Tools -> Options -> IP Search Path"
+
+          Do so before opening one of the new example projects, because the new IP-core will be recognized
+          automatically by utilizing *.ipx files. Due to this feature it is no longer necessary to set the path
+          manually and in addition it might result in a version conflict.
+
+          If you intend to use the new IP-core for your own Quartus project then adapt the
+          (already existing) IP-core search path.
+
+II.  HW Interface (PCP PDI)
+
+        - PDI Timing changed -> refer to "MAN_OAT113110_10_V100 - Part I - Hardware Design and IP-Core Settings"
+        - PDI layout changed -> refer to "MAN_OAT113110_xx_V100 - Part II - DPRAM-based Host Interface Description"
+
+III. CnApi SW Library
+
+        - NIOS II EDS software import changed -> refer to "MAN_OAT113110_10_V100 - Getting Started"
+        - setPowerlinkInitValues() is deleted. Its functionality is taken over by additional parameters of CnApi_init().
+        - CnApi_DefObdAccFinished() is renamed to CnApi_processObjectAccess() and its return-type as well as the parameter
+          type is renamed ("tEplKernel" -> "tCnApiObdStatus", "tEplObdParam" -> "tCnApiObdParam").
+        - CnApi_processObjectAccess() is added to the background task ("while-loop").
+        - CnApi_cleanupObjects() is hidden from the user (moved to CnApi_exit()) thus the call can be deleted.
+        - CnApi_transferPdo() is replaced by CnApi_processPdo() and CnApi_AppCbSync() is implemented as call-back
+          function. CnApi_AppCbSync() was previously called after the RPDO and TPDO data was copied from and to the PDI.
+          Now it is called after the local RPDO-mapped objects are updated and before the TPDO data in the PDI will be
+          updated with local TPDO-mapped objects.
+        - CnApi_pollAsyncEvent() is renamed to CnApi_processAsyncEvent()
+        - Manual mapping / data copy control can be done by utilizing the call-back function CnApi_CbPdoDescListings()
+          instead of using the event "kCnApiEventTypeAsyncCommIntMsgRxLinkPdosReq".
+        - other minor changes (e.g. renamings) can be figured out by comparing the "main.c" of V1.0.0 and your version.
+        - a detail description of the libCnApi interface can be found in
+          "MAN_OAT113110_xx_V100 - Part III - POWERLINK Application Programming".
+
+IV. PCP SW
+
+        - The firmware update settings are shifted from "EplCfg.h" to "powerlink/target/altera_nios/include/fwSettings.h".
+        - NIOS II EDS software import changed -> refer to "MAN_OAT113110_10_V100 - Getting Started"
