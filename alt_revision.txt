@@ -44,14 +44,14 @@ Revision History
                     [FIX] PDI PDO buffer is only acknowledged with corresponding PDO tranfer
                     [FIX] Delete obsolete arguments for AP sync IR period calculation
                     [FIX] AP state machine synchronization with PCP states
-                           
+
 02.03.2012 V0.4.6   [FEATURE] One single Altera IP-Core folder for all example designs
                     [FIX] Generate padding between objects with different sizes mapped to PDI
                     [FIX] Async MTU should set to default value (300)
                     [FIX] PRes multiplexed flag
-                    [FIX] Dual nios design can use either PDI synchronization IR or asynchronous event IR                    
+                    [FIX] Dual nios design can use either PDI synchronization IR or asynchronous event IR
                     [TASK] Deleted no longer supported Quartus example designs
-                    
+
 26.04.2012 V0.5.0   [TASK] OBD complies to CiA DS_401
                     [TASK] IP-core dependant PDO payload limits
                     [TASK] generic callback function for PDO copy pre- and postprocessing
@@ -59,7 +59,7 @@ Revision History
                     [FIX] Add RelativeTime reset on preop1
                     [TASK] Adapt openPOWERLINK V1.8.1
                     [FIX] A: ink_ap_pcp_intavalon does support either asynchronous event or synchronous cylic IR signal
-                    
+
 26.06.2012 V0.5.1   [FIX] Incorrect initialization values transmitted to PCP
                     [FIX] CnApi_postMsg parameter assignment
                     [FIX] Remapping in OPERATIONAL for PDI
@@ -70,11 +70,38 @@ Revision History
                     [FIX] Benchmark IO pins are set wrong at EdrvOpenMac IrqHandler
                     [FEATURE] Move functions of interrupt context to internal memory
                     [FEATURE] BeMicro RTE DirectIO example design
-                    [TASK] A: Update IP-Core to version 0.2.3                    
+                    [TASK] A: Update IP-Core to version 0.2.3
                     [FIX] A: FW-tools: firmware.h not found
                     [FIX] CNDK examples pass openConformace Test V0.6.0 Beta
                     [FIX] start value of phy address strapping
                     [FIX] PRes reception error (EPL_DLL_ERR_INVALID_FORMAT)
                     [TASK] A: set Macros for filling the TC-I-MEM for performance optimization
 
-                    
+17.07.2012 V1.0.0   [FEATURE] add virtual Ethernet module to libCnApi software
+                    [FEATURE] place functions in internal memory depending on its size
+                    [FIX] rework doxygen manpages
+                    [FIX] default OBD access: expedited SDO transfer can use maximum data size
+                    [FIX] external asynchronous PDI Tx deadlock
+                    [FIX] PDI memory > 2kByte not accessable
+                    [FIX] Memory leak in omethlib
+                    [FIX] memory leak in asynchronous state machine
+                    [FIX] Object write was forwarded wrong on big endian machines
+                    [FIX] PDI timing changed to meet most CPUs requirements
+                    [TASK] change status-/control register layout
+                    [TASK] increment PDI revision number
+                    [TASK] update POWERLINK ipcore to version 0.2.8
+                    [TASK] cleanup libCnApi
+                    [TASK] reduce MAX_ASYNC_STREAM_LENGTH to 1600
+                    [TASK] increment PDI revision number
+                    [TASK] changed directory structure
+                    [FEATURE] A: Add support for the 16bit parallel interface designs on INK
+                    [FEATURE] A: store rebuild warnings + errors in "stderr.txt"
+                    [FEATURE] A: get size of TC_I_memory automatically from system.h
+                    [FIX] Altera FW-Update: copy modified Altera driver files manually in script
+                    [FIX] A: replaced linked files in Eclipse projects
+                    [FIX] A: optimization level "-O0" causes compile error
+                    [TASK] A: IPX files replace IP-core search path
+                    [TASK] A: change AP NIOS II type 'e' to 's'
+                    [TASK] A: expected POWERLINK IP-core revision is checked
+                    [TASK] Altera FW-Update: settings shifted to fwSettings.h
+                    [TASK] A: software import to NIOS II EDS changed
