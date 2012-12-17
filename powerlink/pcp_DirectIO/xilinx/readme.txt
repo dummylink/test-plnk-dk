@@ -8,21 +8,19 @@ Software Demo for PCP (Powerlink Communication Processor)
 with Direct IO Interface
 ==============================================================================
 
-1. Introduction
+Introduction
 ---------------
-This demo implements the software for a Powerlink Communication Processor (PCP).
-The PCP contains all Powerlink functionality of a POWERLINK CN node. It is
-designed to be connected to devices through digital I/Os.
+This demo implements the software for a POWERLINK Communication Processor (PCP).
+The PCP is designed to be connected to devices through Digital I/Os.
 
-2. Contents
+Contents
 ---------
+- POWERLINK SW for PCP (Powerlink Communication Processor)
 
-- POWERLINK SW for DirectIO
-
-3. Performance
+Configuration Details
 -------------------
-- Minimum cycle length: optimization dependent
-- PReq-PRes Latency: 1 µs
+- Minimum cycle length: 400µs (depends on configuration e.g. optimization level)
+- PReq-PRes Latency: 960ns
 - Process data: 4 bytes input and 4 bytes output
 - There are 3 RPDOs and 1 TPDO available.
 - The following 8 objects - each has the size 1 Byte - can be mapped:
@@ -38,7 +36,7 @@ designed to be connected to devices through digital I/Os.
   6200/04: not in use
 
 
-4. Requirements
+Requirements
 ---------------
 - Development Boards
 
@@ -48,27 +46,25 @@ designed to be connected to devices through digital I/Os.
 
 - Xilinx ISE Design Suite 13.2
 
-- Experiences with this development environment are required
-
-- POWERLINK network with Configuration Manager.
-  The corresponding XDD for this node can be found in the subdirectory
-  ObjDicts\Direct_IO.
+- Experience with this development environment is required
 
 
-5.Configuration
+Configuration
 ----------------
 Miscellaneous parameters of the openPOWERLINK stack and the PCP application
 can be configured through defines in EplCfg.h.
 
+The network can be configured by using the corresponding XDD and objdict.h for this node
+which can be found in the subdirectory objDicts\Direct_IO.
 
-6. How to run the demo
+
+How to run the demo
 ----------------------
+A detailed description is available in the "MAN_OAT113110_11_Vxxx - Getting Started.pdf" document.
 
-A detailed description is available in the "User_Guide_Xilinx.pdf" document.
+Build flow for Windows:
 
-For Windows:
-
-1. Open Xilinx Platform Studio (XPS) set the path to the POWERLINK IP-Core.
+1. Open Xilinx Platform Studio (XPS) set the path to the POWERLINK IP-core.
     Edit -> Preferences -> Application -> Global Peripheral Repository Search Path
     (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\fpga\xilinx\ipcore)
 

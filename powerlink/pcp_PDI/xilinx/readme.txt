@@ -5,28 +5,33 @@ POWERLINK CN Development Kit (CNDK)
 ------------------------------------------------------------------------------
 
 Software Demo for PCP (Powerlink Communication Processor)
-with SPI/Parallel or internal FPGA Interface
+with SPI/parallel or internal bus (axi/plb) interface
 ==============================================================================
 
-1. Introduction
+Introduction
 ---------------
 This demo implements the software for a Powerlink Communication Processor (PCP).
-The PCP contains all Powerlink functionality of a POWERLINK CN node. It is
-designed to be connected to an Application Processor (AP) which contains the
-application code. The AP can be implemented on a second Microblaze processor in the
-same FPGA as the PCP or on an external microprocessor connected to the PCP
-through a SPI or parallel interface.
+The PCP is designed to be connected to an Application Processor (AP) which processes
+the user application. The AP can be implemented on a second Microblaze
+processor in the same FPGA as the PCP or on an external microprocessor connected to 
+the PCP through a SPI or parallel interface.
 
 
-2. Performance
+Contents
+---------
+- POWERLINK SW for PCP (Powerlink Communication Processor) including PDI modules
+
+
+Configuration Details
 -------------------
-- Minimum cycle length: optimization dependent
-- PReq-PRes Latency: 1 µs
+- Minimum cycle length: 400µs 
+  (depends on configuration e.g. mapped bytes or optimization level)
+- PReq-PRes Latency: 960ns
 - Process data: 4 bytes input and 4 bytes output
 - There are 3 RPDOs and 1 TPDO available.
 
 
-3. Requirements
+Requirements
 ---------------
 - Development Boards
 
@@ -36,27 +41,26 @@ through a SPI or parallel interface.
 
 - Xilinx ISE Design Suite 13.2
 
-- Experiences with this development environment are required
-
-- POWERLINK network with Configuration Manager.
-  The corresponding XDD for this node can be found in the subdirectory
-  ObjDicts\PDI.
+- Experience with this development environment is required
 
 
-4.Configuration
+Configuration
 ----------------
 Miscellaneous parameters of the openPOWERLINK stack and the PCP application
 can be configured through defines in EplCfg.h.
 
-5. How to run the demo
+The network can be configured by using the corresponding XDD and objdict.h for this node
+which can be found in the subdirectory objDicts\PDI.
+
+
+How to run the demo
 ----------------------
+A detailed description is available in the "MAN_OAT113110_11_Vxxx - Getting Started.pdf" document.
 
-A detailed description is available in the "User_Guide_Xilinx.pdf" document.
-
-For Windows:
+Build flow for Windows:
 
 1. Open Xilinx Platform Studio (XPS) without opening a project and set the path 
-   to the POWERLINK IP-Core with:
+   to the POWERLINK IP-core with:
    Edit -> Preferences -> Application -> Global Peripheral Repository Search Path
    (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\fpga\xilinx\ipcore)
 
@@ -92,8 +96,8 @@ For Windows:
 12. Compile ap_PDI program by using the readme.txt files in the corresponding diretories.
     Download the ap_PDI program to the AP processor. (Run As -> Run on Hardware)
 
-13. The printed output of the processor can be viewed by using a terminal program (tera term)
-    or by using the built in SDK program.
+13. The printed output of the processor can be viewed by using a terminal program (teraterm)
+    or by using the built in SDK tools.
 
 14. Enjoy the terminal outputs and the running POWERLINK network.
 

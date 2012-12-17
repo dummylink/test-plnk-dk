@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
-POWERLINK CN Development Kit (CNDK) - Xilinx
+POWERLINK CN Development Kit (CNDK)
 ------------------------------------------------------------------------------
 (C) Bernecker + Rainer, B & R Strasse 1, 5142 Eggelsberg, Austria
 ------------------------------------------------------------------------------
@@ -12,12 +12,12 @@ Directory Structure
 apps                Example user applications (AP)
 common              Consists of source code used by both processors (PCP and AP)
 fpga                FPGA projects
-fpga/xilinx/ipcore  POWERLINK IP-Cores for PLB and AXI bus
-libCnApi            openPOWERLINK CN API SW library (= "PCP driver") provided for the AP
-objDicts            Example object dictionary files for openPOWERLINK (PCP) and
+fpga/xilinx/ipcore  POWERLINK IP-cores
+libCnApi            POWERLINK CN API SW library (= "PCP driver") provided for the AP
+objDicts            Example object dictionary files for POWERLINK (PCP) and
                     corresponding XDD file for Automation Studio import
-powerlink           Example openPOWERLINK applications (PCP)
-                    also contains the openPOWERLINK stack
+powerlink           Example POWERLINK applications (PCP)
+                    also contains the POWERLINK stack
 tools               additional tools e.g. for firmware upgrade
 
 Reference Boards
@@ -34,8 +34,8 @@ Reference Boards
           * AP software:    apps/ap_PDI
           * PCP software:   powerlink/pcp_PDI
 
-          The design includes two micrblaze processors, one for processing openPOWERLINK and the other for
-          processing the application. A dual ported RAM called Process Data Interface (PDI) serves as
+          The design includes two microblaze processors, one for processing POWERLINK (PCP) and the other for
+          processing the application (AP). A dual ported RAM called Process Data Interface (PDI) serves as
           communication interface between them. One part of this DPRAM is used for channeling PDOs.
           One TPDO, and 3 RPDOs are supported.
 
@@ -71,7 +71,7 @@ Reference Boards
           * AP software:    apps/ap_PDI
           * PCP software:   powerlink/pcp_PDI
 
-          The design includes two micrblaze processors, one for processing openPOWERLINK and the other for
+          The design includes two microblaze processors, one for processing POWERLINK and the other for
           processing the application. A dual ported RAM called Process Data Interface (PDI) serves as
           communication interface between them. One part of this DPRAM is used for channeling PDOs.
           One TPDO, and 3 RPDOs are supported.
@@ -82,7 +82,7 @@ Reference Boards
           * PCP software:   powerlink/pcp_PDI
 
           Same design as obove, but uses an external SPI interface for DPRAM access. The AP has an SPI master,
-          the PCP is a SPI slave. Due to a lack of PINs both processors are connected inside the FPGA.
+          the PCP is a SPI slave. Due to a lack of GPIO pins both processors are connected inside the FPGA.
 
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          Single Processor - PCP standalone
