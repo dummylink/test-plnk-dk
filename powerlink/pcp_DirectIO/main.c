@@ -88,7 +88,11 @@ static tEplKernel AppCbEvent(tEplApiEventType EventType_p,
 static int EplAppHandleUserEvent(tEplApiEventArg* pEventArg_p);
 static tEplKernel AppCbSync(void) INT_RAM_MAIN_01_APP_CB_SYNC;
 static void InitPortConfiguration (BYTE *p_portIsOutput);
-void rebootCN(void);
+static void rebootCN(void);
+
+#if defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
+static tEplKernel VethExampleTransferProcess(void);
+#endif
 
 /******************************************************************************/
 /* private functions */
@@ -153,11 +157,6 @@ static int openPowerlink(BYTE bNodeId_p)
     tEplKernel                  EplRet;
     unsigned int                uiVarEntries;
     tfwBootInfo fwBootIibInfo = {0};
-
-#ifdef VETH_DRV_EN
-    BYTE *                      pbRxBuffer = NULL;
-    WORD                        bRxBufferSize = 0;
-#endif
 
     fShutdown_l = FALSE;
 
@@ -270,20 +269,15 @@ static int openPowerlink(BYTE bNodeId_p)
     {
         EplApiProcess();
         updateFirmwarePeriodic();               // periodically call firmware update state machine
-#ifdef VETH_DRV_EN
-        EplRet = VEthApiCheckAndForwardRxFrame(&pbRxBuffer, &bRxBufferSize);
-        if(EplRet == kEplSuccessful)
+
+#if defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
+        EplRet = VethExampleTransferProcess();
+        if (EplRet != kEplSuccessful)
         {
-            EplRet = VEthApiReleaseRxFrame();
-            if(EplRet != kEplSuccessful)
-            {
-                PRINTF("Error while freeing the Veth Rx buffer\n");
-                goto ExitShutdown;
-            }
-        } else {
-            // no frame available (kEplReject)
+            break;
         }
 #endif
+
         if (fShutdown_l == TRUE)
             break;
     }
@@ -565,28 +559,6 @@ static tEplKernel AppCbSync(void)
         }
     }
 
-#if defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
-    EplRet = VEthApiSendTest();    ///< send test ARP frame to the network
-    switch(EplRet)
-    {
-        case kEplInvalidParam:
-            PRINTF1("%s(Err/Warn): Virtual Ethernet maximum MTU size exceeded! Frame discarded!\n",
-                    __func__);
-            EplRet = kEplSuccessful;
-            break;
-        case kEplDllAsyncTxBufferFull:
-            // discard frame (set stats)
-            EplRet = kEplSuccessful;
-            break;
-        case kEplSuccessful:
-            // send successful (set stats)
-            break;
-        default:
-            PRINTF1("%s(Err/Warn): Virtual Ethernet unknown error/warning!\n",
-                                __func__);
-    }
-#endif
-
     /* write digital output ports */
     AmiSetDwordToLe((BYTE*)ulDigOutputs, ports);
 
@@ -640,7 +612,7 @@ firmware and the user image is different. If it is the same version it only
 performs a PCP software reset. If it is differnt it triggers a complete
 FPGA reconfiguration.
 *******************************************************************************/
-void rebootCN(void)
+static void rebootCN(void)
 {
     BOOL fIsUserImage = TRUE;
     tfwBootInfo fwBootIibInfo = {0};
@@ -672,6 +644,73 @@ void rebootCN(void)
     }
 
 }
+
+#if defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
+/**
+********************************************************************************
+\brief    Do an example virtual ethernet transfer
+
+This function calls the VEthApiSendTest function which sends a ARP request
+to the master. The master replys with an ARP response which is received by the
+VEthApiCheckAndForwardRxFrame function.
+
+\return tEplKernel
+\retval kEplSuccessful     on success
+\retval other              send or receive error
+*******************************************************************************/
+static tEplKernel VethExampleTransferProcess(void)
+{
+    tEplKernel EplRet = kEplSuccessful;
+    BYTE *          pbRxBuffer = NULL;
+    WORD            bRxBufferSize = 0;
+
+    /* send test ARP frame to the network */
+    EplRet = VEthApiSendTest();
+    switch(EplRet)
+    {
+       case kEplInvalidParam:
+           PRINTF1("%s(Err/Warn): Virtual Ethernet maximum MTU size exceeded! "
+                   "Frame discarded!\n", __func__);
+           EplRet = kEplSuccessful;
+           break;
+       case kEplDllAsyncTxBufferFull:
+           // discard frame (set stats?)
+           EplRet = kEplSuccessful;
+           break;
+       case kEplInvalidOperation:
+           // try to send in invalid state! (frame discarded!)
+           EplRet = kEplSuccessful;
+           break;
+       case kEplSuccessful:
+           // send successful (set stats?)
+           break;
+       default:
+           PRINTF1("%s(Err/Warn): Virtual Ethernet unknown error/warning!\n",
+                   __func__);
+           goto Exit;
+    }
+
+    /* call Veth receive frame function */
+    EplRet = VEthApiCheckAndForwardRxFrame(&pbRxBuffer, &bRxBufferSize);
+    if(EplRet == kEplSuccessful)
+    {
+        EplRet = VEthApiReleaseRxFrame();
+        if(EplRet != kEplSuccessful)
+        {
+            PRINTF1("%s(Err/Warn): Error while freeing the Veth Rx buffer\n",
+                    __func__);
+            goto Exit;
+        }
+    } else {
+        // no frame available (kEplReject)
+        EplRet = kEplSuccessful;
+    }
+
+Exit:
+    return EplRet;
+}
+#endif //defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
+
 
 /******************************************************************************/
 /* functions */

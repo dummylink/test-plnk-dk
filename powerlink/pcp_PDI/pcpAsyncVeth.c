@@ -57,7 +57,6 @@ typedef struct sVethDataTransfer {
 /* global variables */
 static tVethDataTransfer PdiVethTransfer_l;
 static tVethTransmitState VethTransmitState_l = kVethCheckForFrame;
-static BYTE fVethEnabled_l = FALSE;
 
 /******************************************************************************/
 /* function declarations */
@@ -107,30 +106,6 @@ tCnApiStatus Gi_initVethMessages(void)
 
 Exit:
     return iRet;
-}
-
-/**
-********************************************************************************
-\brief  Enable Veth frame transmission
-
-Enable the Virtual Ethernet frame forwarding to the openPOWERLINK stack
-
-*******************************************************************************/
-void Gi_enableVeth(void)
-{
-    fVethEnabled_l = TRUE;
-}
-
-/**
-********************************************************************************
-\brief  Disable Veth frame transmission
-
-Disable the Virtual Ethernet frame forwarding to the openPOWERLINK stack
-
-*******************************************************************************/
-void Gi_disableVeth(void)
-{
-    fVethEnabled_l = FALSE;
 }
 
 /**
@@ -287,37 +262,39 @@ static tPdiAsyncStatus CnApiAsyncVeth_handleDataTransfer(tPdiAsyncMsgDescr * pMs
         goto Exit;
     }
 
-    // only forward frames when stack state is > NMT_CS_NOT_ACTIVE
-    if(fVethEnabled_l != FALSE)
+
+    /* transmit this newly arrived message and pass to stack */
+    Ret = VEthApiXmit(pMsgBuffer_p, pMsgDescr_p->dwMsgSize_m);
+    switch(Ret)
     {
-        /* transmit this newly arrived message and pass to stack */
-        Ret = VEthApiXmit(pMsgBuffer_p, pMsgDescr_p->dwMsgSize_m);
-        switch(Ret)
+        case kEplSuccessful:
         {
-            case kEplSuccessful:
-            {
-                DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Frame received from PDI "
-                        "and transmitted to stack!\n", __func__);
-                cnApiRet = kPdiAsyncStatusSuccessful;
-                goto Exit;
-            }
-            case kEplInvalidParam:
-            {   /* max MTU exceeded (report to AP) */
-                cnApiRet = kPdiAsyncStatusMtuExceeded;
-                goto Exit;
-            }
-            case kEplDllAsyncTxBufferFull:
-            {
-                /* stack buffer is full try to post the message later */
-                cnApiRet = kPdiAsyncStatusRetry;
-                goto Exit;
-            }
-            default:
-            {
-                DEBUG_TRACE1(DEBUG_LVL_ERROR, "Error: EplDllkCalAsyncSend returned 0x%02X\n", Ret);
-                cnApiRet = kPdiAsyncStatusSendError;
-                goto Exit;
-            }
+            DEBUG_LVL_CNAPI_VETH_INFO_TRACE1("VETHINFO: (%s) Frame received from PDI "
+                    "and transmitted to stack!\n", __func__);
+            cnApiRet = kPdiAsyncStatusSuccessful;
+            goto Exit;
+        }
+        case kEplInvalidParam:
+        {   /* max MTU exceeded (report to AP) */
+            cnApiRet = kPdiAsyncStatusMtuExceeded;
+            goto Exit;
+        }
+        case kEplInvalidOperation:
+        {   /* invalid POWERLINK state (retry later!)*/
+            cnApiRet = kPdiAsyncStatusRetry;
+            goto Exit;
+        }
+        case kEplDllAsyncTxBufferFull:
+        {
+            /* stack buffer is full try to post the message later */
+            cnApiRet = kPdiAsyncStatusRetry;
+            goto Exit;
+        }
+        default:
+        {
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "Error: EplDllkCalAsyncSend returned 0x%02X\n", Ret);
+            cnApiRet = kPdiAsyncStatusSendError;
+            goto Exit;
         }
     }
 

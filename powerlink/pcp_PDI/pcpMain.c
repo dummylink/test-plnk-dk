@@ -494,15 +494,6 @@ tEplKernel PUBLIC AppCbEvent(tEplApiEventType EventType_p,
                 Gi_disableSyncInt();
             }
 
-#ifdef VETH_DRV_EN
-            if(pEventArg_p->m_NmtStateChange.m_NewNmtState > kEplNmtCsNotActive)
-            {
-                Gi_enableVeth();
-            } else {
-                Gi_disableVeth();
-            }
-#endif //VETH_DRV_EN
-
             switch (pEventArg_p->m_NmtStateChange.m_NewNmtState)
             {
                 case kEplNmtGsOff:

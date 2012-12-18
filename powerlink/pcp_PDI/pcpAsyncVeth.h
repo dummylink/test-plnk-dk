@@ -42,8 +42,6 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* functions */
 tCnApiStatus Gi_initVethMessages(void);
-void Gi_enableVeth(void);
-void Gi_disableVeth(void);
 void Gi_resetVeth(void);
 void Gi_updateDefaultGateway(void);
 
