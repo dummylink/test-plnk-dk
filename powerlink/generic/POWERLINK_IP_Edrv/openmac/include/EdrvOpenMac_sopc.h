@@ -101,6 +101,12 @@
     #define EDRV_PKT_SPAN                   0 //not used
 #endif
 
+#if POWERLINK_0_MAC_REG_VETHENABLE == 1
+#define EDRV_VETH_OPENMAC TRUE
+#else
+#define EDRV_VETH_OPENMAC FALSE
+#endif
+
 // DEFINES FOR TIMERSYNC
 #define EPL_TIMER_SYNC_BASE         POWERLINK_0_MAC_CMP_BASE //from system.h
 #define EPL_TIMER_SYNC_IRQ          POWERLINK_0_MAC_CMP_IRQ

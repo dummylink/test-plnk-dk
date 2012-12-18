@@ -101,6 +101,12 @@
     #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
 #endif
 
+#if XPAR_AXI_POWERLINK_0_VETH_ENABLE == 1
+#define EDRV_VETH_OPENMAC TRUE
+#else
+#define EDRV_VETH_OPENMAC FALSE
+#endif
+
 // DEFINES FOR Interrupt Controller
 #define EPL_TIMER_INTC_BASE        XPAR_PCP_INTC_BASEADDR
 

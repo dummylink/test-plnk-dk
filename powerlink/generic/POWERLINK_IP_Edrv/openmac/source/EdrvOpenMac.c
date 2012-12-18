@@ -166,10 +166,6 @@
 #define EDRV_TIME_TRIG_TX FALSE
 #endif
 
-#ifndef EDRV_VETH_OPENMAC
-#define EDRV_VETH_OPENMAC FALSE
-#endif //EDRV_VETH_OPENMAC
-
 #if (EDRV_AUTO_RESPONSE == FALSE && EDRV_TIME_TRIG_TX == FALSE)
     #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for CN!"
 #endif

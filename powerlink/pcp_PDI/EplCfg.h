@@ -189,13 +189,6 @@
 // openMAC supports auto-response delay
 #define EDRV_AUTO_RESPONSE_DELAY        TRUE
 
-// enable virtual ethernet driver with openmac
-#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
-  #define EDRV_VETH_OPENMAC             TRUE
-#else
-  #define EDRV_VETH_OPENMAC             FALSE
-#endif
-
 // =========================================================================
 // Data Link Layer (DLL) specific defines
 // =========================================================================
