@@ -138,7 +138,7 @@ int SysComp_initSyncInterrupt(void (*callbackFunc)(void*))
 #endif
 
     /* enable interrupt from PCP to AP */
-#ifdef CN_API_USING_SPI
+#if defined(CN_API_USING_SPI) || defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
     alt_ic_irq_enable(0, SYNC_IRQ_NUM);      // enable specific IRQ Number
     IOWR_ALTERA_AVALON_PIO_IRQ_MASK(SYNC_IRQ_BASE, 0x01);
 #endif /* CN_API_USING_SPI */
@@ -204,7 +204,7 @@ int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
 #endif
 
     /* enable interrupt from PCP to AP */
-#ifdef CN_API_USING_SPI
+#if defined(CN_API_USING_SPI) || defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
     alt_ic_irq_enable(0, ASYNC_IRQ_NUM);      // enable specific IRQ Number
     IOWR_ALTERA_AVALON_PIO_IRQ_MASK(ASYNC_IRQ_BASE, 0x01);
 #endif /* CN_API_USING_SPI */

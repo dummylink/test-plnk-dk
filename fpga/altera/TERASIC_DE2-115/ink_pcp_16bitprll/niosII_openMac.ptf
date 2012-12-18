@@ -187,7 +187,7 @@ SYSTEM niosII_openMac
          {
             Entry pcp_cpu/jtag_debug_module
             {
-               address = "0x0140a800";
+               address = "0x0140c800";
                span = "0x00000800";
                is_bridge = "0";
             }
@@ -403,14 +403,14 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/instruction_master
             {
                priority = "1";
-               Offset_Address = "0x0140a800";
+               Offset_Address = "0x0140c800";
             }
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x0140a800";
+               Offset_Address = "0x0140c800";
             }
-            Base_Address = "0x0140a800";
+            Base_Address = "0x0140c800";
             Is_Readable = "1";
             Is_Writeable = "1";
             Uses_Tri_State_Data_Bus = "0";
@@ -611,7 +611,7 @@ SYSTEM niosII_openMac
          {
             Entry pcp_cpu/jtag_debug_module
             {
-               address = "0x0140a800";
+               address = "0x0140c800";
                span = "0x00000800";
                is_bridge = "0";
             }
@@ -689,7 +689,7 @@ SYSTEM niosII_openMac
             }
             Entry powerlink_0/MAC_BUF
             {
-               address = "0x01408000";
+               address = "0x0140a000";
                span = "0x00002000";
                is_bridge = "0";
             }
@@ -2736,7 +2736,7 @@ SYSTEM niosII_openMac
          Has_Clock = "1";
          View 
          {
-            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>50BCDBF7</b> (timestamp: Mon Dec 3, 2012 @6:05 PM)";
+            Settings_Summary = "System ID (at last Generate):<br> <b>00000000</b>    (unique ID tag) <br> <b>50D022A7</b> (timestamp: Tue Dec 18, 2012 @9:00 AM)";
             MESSAGES 
             {
             }
@@ -2745,7 +2745,7 @@ SYSTEM niosII_openMac
       WIZARD_SCRIPT_ARGUMENTS 
       {
          id = "0u";
-         timestamp = "1354554359u";
+         timestamp = "1355817639u";
          regenerate_values = "0";
          MAKE 
          {
@@ -2754,7 +2754,7 @@ SYSTEM niosII_openMac
                verifysysid 
                {
                   All_Depends_On = "0";
-                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=0 --timestamp=1354554359";
+                  Command = "nios2-download $(JTAG_CABLE)                                --sidp=0x00000978 --id=0 --timestamp=1355817639";
                   Is_Phony = "1";
                   Target_File = "dummy_verifysysid_file";
                }
@@ -3818,11 +3818,11 @@ SYSTEM niosII_openMac
             MASTERED_BY pcp_cpu/data_master
             {
                priority = "1";
-               Offset_Address = "0x01408000";
+               Offset_Address = "0x0140a000";
             }
             Clock_Source = "clkpcp";
             Has_Clock = "1";
-            Base_Address = "0x01408000";
+            Base_Address = "0x0140a000";
             Address_Group = "2";
             IRQ_MASTER pcp_cpu/data_master
             {
@@ -4265,7 +4265,7 @@ SYSTEM niosII_openMac
          PCPSYSID = "1";
          PDIASYNCBUFSIZE1 = "50";
          PDIASYNCBUFSIZE2 = "50";
-         PDIREV = "3";
+         PDIREV = "4";
          PDIRPDOBUFSIZE0 = "80";
          PDIRPDOBUFSIZE1 = "0";
          PDIRPDOBUFSIZE2 = "0";
@@ -4856,7 +4856,7 @@ SYSTEM niosII_openMac
                }
             }
          }
-         contents_info = "";
+         contents_info = "QUARTUS_PROJECT_DIR/tc_i_mem_pcp.hex 1355817737 ";
       }
       SIMULATION 
       {

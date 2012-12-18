@@ -300,40 +300,11 @@
          type = "boolean";
       }
    }
-   element system_timer_ap.s1
+   element benchmark_ap_pio.s1
    {
       datum baseAddress
       {
-         value = "2304";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "134217728";
-         type = "long";
-      }
-   }
-   element outport_ap.s1
-   {
-      datum baseAddress
-      {
-         value = "2368";
-         type = "long";
-      }
-   }
-   element onchip_memory2_0.s1
-   {
-      datum baseAddress
-      {
-         value = "8192";
+         value = "2336";
          type = "long";
       }
    }
@@ -350,6 +321,35 @@
          type = "long";
       }
    }
+   element sdram_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "134217728";
+         type = "long";
+      }
+   }
+   element onchip_memory2_0.s1
+   {
+      datum baseAddress
+      {
+         value = "8192";
+         type = "long";
+      }
+   }
+   element async_irq_from_pcp.s1
+   {
+      datum baseAddress
+      {
+         value = "2448";
+         type = "long";
+      }
+   }
    element sync_irq_from_pcp.s1
    {
       datum _tags
@@ -363,11 +363,19 @@
          type = "long";
       }
    }
-   element async_irq_from_pcp.s1
+   element outport_ap.s1
    {
       datum baseAddress
       {
-         value = "2448";
+         value = "2368";
+         type = "long";
+      }
+   }
+   element system_timer_ap.s1
+   {
+      datum baseAddress
+      {
+         value = "2304";
          type = "long";
       }
    }
@@ -376,14 +384,6 @@
       datum baseAddress
       {
          value = "2384";
-         type = "long";
-      }
-   }
-   element benchmark_ap_pio.s1
-   {
-      datum baseAddress
-      {
-         value = "2336";
          type = "long";
       }
    }
@@ -490,7 +490,7 @@
  <parameter name="projectName" value="nios_openMac.qpf" />
  <parameter name="sopcBorderPoints" value="true" />
  <parameter name="systemHash" value="14209901932" />
- <parameter name="timeStamp" value="1354554538171" />
+ <parameter name="timeStamp" value="1355843894115" />
  <module kind="clock_source" version="10.1" enabled="1" name="clk_0">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />

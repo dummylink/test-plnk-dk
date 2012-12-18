@@ -232,46 +232,45 @@ set_location_assignment PIN_N21 -to KEY[2]
 
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_ADDR
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_BE_n
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_WR_n
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_RD_n
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_CS_n
-set_location_assignment PIN_AE20 -to PDI_ADDR[15]
-set_location_assignment PIN_AH22 -to PDI_ADDR[14]
-set_location_assignment PIN_AG22 -to PDI_ADDR[13]
-set_location_assignment PIN_AH25 -to PDI_ADDR[12]
-set_location_assignment PIN_AG25 -to PDI_ADDR[11]
-set_location_assignment PIN_AF22 -to PDI_ADDR[10]
-set_location_assignment PIN_AE22 -to PDI_ADDR[9]
-set_location_assignment PIN_AF25 -to PDI_ADDR[8]
-set_location_assignment PIN_AF24 -to PDI_ADDR[7]
-set_location_assignment PIN_AD19 -to PDI_ADDR[6]
+set_location_assignment PIN_AH22 -to PDI_ADDR[15]
+set_location_assignment PIN_AG22 -to PDI_ADDR[14]
+set_location_assignment PIN_AH25 -to PDI_ADDR[13]
+set_location_assignment PIN_AG25 -to PDI_ADDR[12]
+set_location_assignment PIN_AF22 -to PDI_ADDR[11]
+set_location_assignment PIN_AE22 -to PDI_ADDR[10]
+set_location_assignment PIN_AF25 -to PDI_ADDR[9]
+set_location_assignment PIN_AF24 -to PDI_ADDR[8]
+set_location_assignment PIN_AD19 -to PDI_ADDR[7]
+set_location_assignment PIN_AC19 -to PDI_ADDR[6]
 set_location_assignment PIN_AD15 -to PDI_ADDR[5]
 set_location_assignment PIN_AD21 -to PDI_ADDR[4]
 set_location_assignment PIN_AC21 -to PDI_ADDR[3]
 set_location_assignment PIN_AB21 -to PDI_ADDR[2]
 set_location_assignment PIN_AB22 -to PDI_ADDR[1]
-set_location_assignment PIN_AF20 -to PDI_DATA[15]
-set_location_assignment PIN_AH23 -to PDI_DATA[14]
-set_location_assignment PIN_AG26 -to PDI_DATA[13]
-set_location_assignment PIN_AH26 -to PDI_DATA[12]
-set_location_assignment PIN_AG23 -to PDI_DATA[11]
-set_location_assignment PIN_AF26 -to PDI_DATA[10]
-set_location_assignment PIN_AD25 -to PDI_DATA[9]
-set_location_assignment PIN_AD22 -to PDI_DATA[8]
-set_location_assignment PIN_AF21 -to PDI_DATA[7]
-set_location_assignment PIN_AC22 -to PDI_DATA[6]
-set_location_assignment PIN_AE21 -to PDI_DATA[5]
-set_location_assignment PIN_AF15 -to PDI_DATA[4]
+set_location_assignment PIN_AG23 -to PDI_DATA[15]
+set_location_assignment PIN_AF26 -to PDI_DATA[14]
+set_location_assignment PIN_AE24 -to PDI_DATA[13]
+set_location_assignment PIN_AE25 -to PDI_DATA[12]
+set_location_assignment PIN_AD25 -to PDI_DATA[11]
+set_location_assignment PIN_AD22 -to PDI_DATA[10]
+set_location_assignment PIN_AF21 -to PDI_DATA[9]
+set_location_assignment PIN_AC22 -to PDI_DATA[8]
+set_location_assignment PIN_AE21 -to PDI_DATA[7]
+set_location_assignment PIN_AF15 -to PDI_DATA[6]
+set_location_assignment PIN_AF16 -to PDI_DATA[5]
+set_location_assignment PIN_AE15 -to PDI_DATA[4]
 set_location_assignment PIN_AE16 -to PDI_DATA[3]
 set_location_assignment PIN_Y16 -to PDI_DATA[2]
 set_location_assignment PIN_Y17 -to PDI_DATA[1]
 set_location_assignment PIN_AC15 -to PDI_DATA[0]
-set_location_assignment PIN_AE24 -to PDI_BE_n[1]
-set_location_assignment PIN_AF16 -to PDI_BE_n[0]
-set_location_assignment PIN_AC19 -to PDI_CS_n
-set_location_assignment PIN_AE25 -to PDI_RD_n
-set_location_assignment PIN_AE15 -to PDI_WR_n
+set_location_assignment PIN_AF20 -to PDI_BE_n[1]
+set_location_assignment PIN_AE20 -to PDI_BE_n[0]
+set_location_assignment PIN_AH23 -to PDI_CS_n
+set_location_assignment PIN_AG26 -to PDI_RD_n
+set_location_assignment PIN_AH26 -to PDI_WR_n
 
 #others
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
@@ -308,4 +307,26 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to aaa
+set_global_assignment -name MISC_FILE "c:/Work/RepositoryWORK/openPOWERLINK_CNDK/fpga/altera/TERASIC_DE2-115/ink_pcp_16bitprll/nios_openMac.dpf"
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PDI_DATA[0]
+set_location_assignment PIN_J14 -to ASYNC_IRQ_OUT
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ASYNC_IRQ_OUT
+set_location_assignment PIN_J10 -to SYNC_IRQ_OUT
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SYNC_IRQ_OUT
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

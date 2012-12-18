@@ -45,31 +45,19 @@ subject to the License Agreement located at the end of this file below.
 #define INPORT_AP_BASE_ADDRESS INPORT_AP_BASE
 #endif
 
-#ifdef CN_API_USING_SPI
-    #define SYNC_IRQ_NUM SYNC_IRQ_FROM_PCP_IRQ
-    #define SYNC_IRQ_BASE SYNC_IRQ_FROM_PCP_BASE
-#elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
-    #define SYNC_IRQ_NUM    0x00
-    #define SYNC_IRQ_BASE    0x00
-    #warning "INK board parallel PDI example does not connect any synchronization pins, \
-therefore USE_POLLING_MODE_SYNC and USE_POLLING_MODE_ASYNC is activated!"
-    #ifndef USE_POLLING_MODE_SYNC
-    #define USE_POLLING_MODE_SYNC
-    #endif
-    #ifndef USE_POLLING_MODE_ASYNC
-    #define USE_POLLING_MODE_ASYNC
-    #endif
-#else
-    #define SYNC_IRQ_NUM POWERLINK_0_IRQ
+// SYNC IRQ dependencies
+#if defined(CN_API_USING_SPI) || defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
+#define SYNC_IRQ_NUM SYNC_IRQ_FROM_PCP_IRQ
+#define SYNC_IRQ_BASE SYNC_IRQ_FROM_PCP_BASE
+#else // internal avalon interface
+#define SYNC_IRQ_NUM POWERLINK_0_IRQ
 #endif
 
-#ifdef CN_API_USING_SPI
+// ASYNC (event-) IRQ dependencies
+#if defined(CN_API_USING_SPI) || defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
 #define ASYNC_IRQ_NUM ASYNC_IRQ_FROM_PCP_IRQ
 #define ASYNC_IRQ_BASE ASYNC_IRQ_FROM_PCP_BASE
-#elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
-#define ASYNC_IRQ_NUM    0x00   /* TODO: no pins available on the INK */
-#define ASYNC_IRQ_BASE    0x00
-#else
+#else // internal avalon interface
 #define ASYNC_IRQ_NUM POWERLINK_0_IRQ
 #endif
 
