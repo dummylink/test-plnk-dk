@@ -27,6 +27,10 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* defines */
 //#define CNAPI_VETH_SEND_TEST      ///< enable virtual ethernet test environment
+                                  /* Adjust the last byte of the sender IP address
+                                     (=node id) in abNonEplData to send a POWERLINK
+                                     compliant frame.
+                                   */
 //#define CNAPI_VETH_ENABLE_STATS   ///< enable virtual ethernet statistics
 
 
