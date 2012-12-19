@@ -35,7 +35,7 @@ subject to the License Agreement located at the end of this file below.
 #elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
     #define PDI_DPRAM_BASE_AP    PAR_PDI_MASTER_0_BASE      ///< base of pap master
 #elif defined(CN_API_INT_AVALON)
-    #define PDI_DPRAM_BASE_AP    POWERLINK_0_PDI_AP_BASE
+    #define PDI_DPRAM_BASE_AP    POWERLINK_0_BASE
 #else
     #error "No valid PDI interface specified in cnApiCfg.h!"
 #endif /* CN_API_USING_SPI */
@@ -53,7 +53,7 @@ subject to the License Agreement located at the end of this file below.
     #define SYNC_IRQ_NUM SYNC_IRQ_FROM_PCP_IRQ
     #define SYNC_IRQ_BASE SYNC_IRQ_FROM_PCP_BASE
 #elif defined(CN_API_INT_AVALON)
-    #define SYNC_IRQ_NUM    POWERLINK_0_PDI_AP_IRQ
+    #define SYNC_IRQ_NUM    POWERLINK_0_IRQ
 #else
     #error "No valid PDI interface specified in cnApiCfg.h!"
 #endif
@@ -63,7 +63,7 @@ subject to the License Agreement located at the end of this file below.
     #define ASYNC_IRQ_NUM ASYNC_IRQ_FROM_PCP_IRQ
     #define ASYNC_IRQ_BASE ASYNC_IRQ_FROM_PCP_BASE
 #elif defined(CN_API_INT_AVALON)
-    #define ASYNC_IRQ_NUM    POWERLINK_0_PDI_AP_IRQ
+    #define ASYNC_IRQ_NUM    POWERLINK_0_IRQ
 #else
     #error "No valid PDI interface specified in cnApiCfg.h!"
 #endif
