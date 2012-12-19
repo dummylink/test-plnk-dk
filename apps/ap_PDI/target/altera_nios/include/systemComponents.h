@@ -29,36 +29,43 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* defines */
 
+// PDI DPRAM offset
 #ifdef CN_API_USING_SPI
     #define PDI_DPRAM_BASE_AP    0x00                       ///< no base address necessary
 #elif defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
     #define PDI_DPRAM_BASE_AP    PAR_PDI_MASTER_0_BASE      ///< base of pap master
+#elif defined(CN_API_INT_AVALON)
+    #define PDI_DPRAM_BASE_AP    POWERLINK_0_PDI_AP_BASE
 #else
-    #define PDI_DPRAM_BASE_AP    POWERLINK_0_BASE
+    #error "No valid PDI interface specified in cnApiCfg.h!"
 #endif /* CN_API_USING_SPI */
 
 #ifdef OUTPORT_AP_BASE
-#define OUTPORT_AP_BASE_ADDRESS OUTPORT_AP_BASE
+    #define OUTPORT_AP_BASE_ADDRESS OUTPORT_AP_BASE
 #endif
 
 #ifdef INPORT_AP_BASE
-#define INPORT_AP_BASE_ADDRESS INPORT_AP_BASE
+    #define INPORT_AP_BASE_ADDRESS INPORT_AP_BASE
 #endif
 
 // SYNC IRQ dependencies
 #if defined(CN_API_USING_SPI) || defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
-#define SYNC_IRQ_NUM SYNC_IRQ_FROM_PCP_IRQ
-#define SYNC_IRQ_BASE SYNC_IRQ_FROM_PCP_BASE
-#else // internal avalon interface
-#define SYNC_IRQ_NUM POWERLINK_0_IRQ
+    #define SYNC_IRQ_NUM SYNC_IRQ_FROM_PCP_IRQ
+    #define SYNC_IRQ_BASE SYNC_IRQ_FROM_PCP_BASE
+#elif defined(CN_API_INT_AVALON)
+    #define SYNC_IRQ_NUM    POWERLINK_0_PDI_AP_IRQ
+#else
+    #error "No valid PDI interface specified in cnApiCfg.h!"
 #endif
 
 // ASYNC (event-) IRQ dependencies
 #if defined(CN_API_USING_SPI) || defined(CN_API_USING_16BIT) || defined(CN_API_USING_8BIT)
-#define ASYNC_IRQ_NUM ASYNC_IRQ_FROM_PCP_IRQ
-#define ASYNC_IRQ_BASE ASYNC_IRQ_FROM_PCP_BASE
-#else // internal avalon interface
-#define ASYNC_IRQ_NUM POWERLINK_0_IRQ
+    #define ASYNC_IRQ_NUM ASYNC_IRQ_FROM_PCP_IRQ
+    #define ASYNC_IRQ_BASE ASYNC_IRQ_FROM_PCP_BASE
+#elif defined(CN_API_INT_AVALON)
+    #define ASYNC_IRQ_NUM    POWERLINK_0_PDI_AP_IRQ
+#else
+    #error "No valid PDI interface specified in cnApiCfg.h!"
 #endif
 
 
