@@ -123,6 +123,11 @@ void FpgaCfg_resetProcessor(void)
 {
     NIOS2_WRITE_STATUS(0);
     NIOS2_WRITE_IENABLE(0);
+
+    // jump to reset address
+    // Note: Bootloader will be executed if reset address
+    // is set to EPCS flash memory. This will reload the software
+    // from flash additionally.
     ((void (*) (void)) NIOS2_RESET_ADDR) ();
 }
 

@@ -61,6 +61,7 @@
 //---------------------------------------------------------------------------
 static tPcpInitParam    InitParam_l = {{0}};       ///< POWERLINK initialization parameter
 static BOOL             fIsUserImage_g;            ///< if set user image is booted
+static UINT32           uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 static BOOL             fOperational = FALSE;      ///< POWERLINK is operational
 static BOOL             fShutdown_l = FALSE;       ///< POWERLINK shutdown flag
 
@@ -182,14 +183,36 @@ FPGA reconfiguration.
 *******************************************************************************/
 void rebootCN(void)
 {
+    BOOL fIsUserImage = TRUE;
+    BOOL fIibReadable = FALSE;
+    tfwBootInfo fwBootIibInfo = {0};
+
+    /* read FPGA configuration version of user image */
+    fIibReadable = fwBoot_tryGetIibInfo(fIsUserImage, &fwBootIibInfo);
+
     // inform AP about reset event - at this special event, do blocking wait
     // until AP has confirmed the reception.
     Gi_pcpEventPost(kPcpPdiEventGeneric, kPcpGenEventResetNodeRequest);
 
-    // trigger FPGA reconfiguration
-    // remark: if we are in user image, this command will trigger a
-    //         reconfiguration of the factory image regardless of its argument!
-    FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS); // restart factory image
+    /* if the FPGA configuration version changed since boot-up, we have to do
+     * a complete FPGA reconfiguration. */
+    if ((fwBootIibInfo.uiFpgaConfigVersion != uiFpgaConfigVersion_g)
+         && fIibReadable                                            )
+    {
+        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
+        //USLEEP(4000000);
+
+        // trigger FPGA reconfiguration
+        // remark: if we are in user image, this command will trigger a
+        //         reconfiguration of the factory image regardless of its argument!
+        FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS); // restart factory image
+    }
+    else
+    {   // only reload the PCP software
+        // NOTE: SW has to match FPGA configuration, thus a software only
+        // update is not useful and does not need to be handled at the moment.
+        //USLEEP(4000000);
+    }
 }
 
 /**
@@ -228,7 +251,10 @@ static tEplKernel initPowerlink(void)
     }
 #endif /* SET_NODE_ID_BY_HW */
 
-    fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo);
+    if(fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo))
+    {
+        uiFpgaConfigVersion_g = fwBootIibInfo.uiFpgaConfigVersion;
+    }
 
     /* setup the POWERLINK stack */
     /* calc the IP address with the nodeid */

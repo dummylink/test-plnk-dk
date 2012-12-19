@@ -69,7 +69,7 @@ BYTE        digitalOut[4];
 
 static BOOL     fShutdown_l = FALSE;
 BOOL            fIsUserImage_g;            ///< if set user image is booted
-UINT32          uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
+static UINT32   uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA configuration
 
 /******************************************************************************/
 /* functions declarations */
@@ -615,14 +615,16 @@ FPGA reconfiguration.
 static void rebootCN(void)
 {
     BOOL fIsUserImage = TRUE;
+    BOOL fIibReadable = FALSE;
     tfwBootInfo fwBootIibInfo = {0};
 
     /* read FPGA configuration version of user image */
-    fwBoot_tryGetIibInfo(fIsUserImage, &fwBootIibInfo);
+    fIibReadable = fwBoot_tryGetIibInfo(fIsUserImage, &fwBootIibInfo);
 
     /* if the FPGA configuration version changed since boot-up, we have to do
      * a complete FPGA reconfiguration. */
-    if (fwBootIibInfo.uiFpgaConfigVersion != uiFpgaConfigVersion_g)
+    if ((fwBootIibInfo.uiFpgaConfigVersion != uiFpgaConfigVersion_g)
+         && fIibReadable                                            )
     {
         DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "FPGA Configuration of CN ...\n");
         //USLEEP(4000000);
@@ -633,16 +635,11 @@ static void rebootCN(void)
         FpgaCfg_reloadFromFlash(CONFIG_FACTORY_IMAGE_FLASH_ADRS); // restart factory image
     }
     else
-    {   // only reset the PCP software
-
-        // TODO: verify user image if only PCP SW was updated (at bootup or now?)!
-
-        DEBUG_TRACE0(DEBUG_LVL_ALWAYS, "PCP Software Reset of CN ...\n");
+    {   // only reload the PCP software
+        // NOTE: SW has to match FPGA configuration, thus a software only
+        // update is not useful and does not need to be handled at the moment.
         //USLEEP(4000000);
-
-        FpgaCfg_resetProcessor();
     }
-
 }
 
 #if defined(VETH_DRV_EN) && defined(EPL_VETH_SEND_TEST)
