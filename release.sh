@@ -67,6 +67,7 @@ change_platform_files()
         cp -rf $1/apps/ap_PDI/xilinx/* $1/apps/ap_PDI/
         cp -rf $1/apps/ap_PDI/xilinx/.??* $1/apps/ap_PDI/
         rm -rf $1/apps/ap_PDI/xilinx/ $1/apps/ap_PDI/altera/
+        rm -rf $1/apps/ap_PDI/target/altera_nios/
 
         # cleanup pcp_PDI program
         echo "Cleanup $1/powerlink/pcp_PDI/ program..."
@@ -80,9 +81,15 @@ change_platform_files()
         cp -rf $1/powerlink/pcp_DirectIO/xilinx/.??* $1/powerlink/pcp_DirectIO/
         rm -rf $1/powerlink/pcp_DirectIO/xilinx/ $1/powerlink/pcp_DirectIO/altera/
 
+        # cleanup powerlink folder
+        echo "Cleanup $1/powerlink/ folder..."
+        rm -rf $1/powerlink/target/altera_nios/
+        
+        # cleanup library folder
         echo "Cleanup $1/libCnApi/ program..."
         cp -rf $1/libCnApi/target/microblaze_newlib/.??* $1/libCnApi/
         rm -rf $1/libCnApi/target/nios2_newlib
+        
 
     else
         #cleanup for altera
@@ -98,6 +105,7 @@ change_platform_files()
         cp -rf $1/apps/ap_PDI/altera/* $1/apps/ap_PDI/
         cp -rf $1/apps/ap_PDI/altera/.??* $1/apps/ap_PDI/
         rm -rf $1/apps/ap_PDI/altera/ $1/apps/ap_PDI/xilinx/
+        rm -rf $1/apps/ap_PDI/target/xilinx_microblaze/
 
         # cleanup pcp_PDI program
         echo "Cleanup $1/powerlink/pcp_PDI/ program..."
@@ -110,9 +118,13 @@ change_platform_files()
         cp -rf $1/powerlink/pcp_DirectIO/altera/* $1/powerlink/pcp_DirectIO/
         cp -rf $1/powerlink/pcp_DirectIO/altera/.??* $1/powerlink/pcp_DirectIO/
         rm -rf $1/powerlink/pcp_DirectIO/altera/ $1/powerlink/pcp_DirectIO/xilinx/
+        
+        # cleanup powerlink folder
+        echo "Cleanup $1/powerlink/ folder..."
+        rm -rf $1/powerlink/target/xilinx_microblaze/
 
+        # cleanup library folder
         echo "Cleanup $1/libCnApi/ program..."
-        cp -rf $1/libCnApi/target/nios2_newlib/.??* $1/libCnApi/
         rm -rf $1/libCnApi/target/microblaze_newlib
     fi
 
