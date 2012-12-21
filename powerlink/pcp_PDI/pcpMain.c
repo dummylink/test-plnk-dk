@@ -832,7 +832,10 @@ inputs and runs the control loop.
 
             #else
                 /* Sync interrupt is generated in SW */
-                Gi_generateSyncInt();
+                if (fOperational != FALSE)
+                {
+                    Gi_generateSyncInt();
+                }
             #endif  //TIMESYNC_HW
 #else
             #ifdef TIMESYNC_HW
@@ -844,7 +847,10 @@ inputs and runs the control loop.
                 }
             #else
                 /* Sync interrupt is generated in SW */
-                Gi_generateSyncInt();
+                if (fOperational != FALSE)
+                {
+                    Gi_generateSyncInt();
+                }
             #endif  //TIMESYNC_HW
 #endif  //EPL_DLL_SOCTIME_FORWARD
     }
