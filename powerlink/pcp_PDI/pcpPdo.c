@@ -20,6 +20,7 @@
 #include "pcpPdo.h"
 #include "pcpAsyncSm.h"
 #include "pcpObjects.h"
+#include "pcpEvent.h"
 
 #ifdef __NIOS2__
 #include <string.h>
@@ -347,6 +348,7 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
         if ( wLinkPdoMsgPaylForecast >= wMaxStoreSpace )
         {
             // not enough space left for this descriptor (-header)
+            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncChanSizeExceeded);
             DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %ld)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
             fRet = FALSE;
             goto exit;
@@ -466,6 +468,7 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                             ((wPdiMapSizeSumTmp + aTPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
                              > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            )  )
                         {
+                            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrTotalMapDataSizeExceeded);
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
                             fRet = FALSE;
                             goto exit;
@@ -499,6 +502,7 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                             ((wPdiMapSizeSumTmp + aRPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
                              > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            )  )
                         {
+                            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrTotalMapDataSizeExceeded);
                             DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
                             fRet = FALSE;
                             goto exit;
@@ -530,6 +534,7 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                     wLinkPdoMsgPaylForecast = *pCurrentDescrOffset_p + sizeof(tPdoDescHeader) + (bAddedDecrEntries + 1) * sizeof(tPdoDescEntry);
                     if ( wLinkPdoMsgPaylForecast > wMaxStoreSpace )
                     {
+                        Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrAsyncChanSizeExceeded);
                         // not enough space left for this descriptor entry
                         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR, "ERROR: async message buffer exceeded (with %ld)!\n", wLinkPdoMsgPaylForecast + sizeof(tLinkPdosReq));
                         fRet = FALSE;

@@ -53,9 +53,11 @@ typedef enum ePcpPdiEventGenericError {
     kPcpGenErrAsyncComMtuExceeded   = 0x03,    ///< asynchronous MTU exceeded
     kPcpGenErrAsyncComRxFailed      = 0x04,    ///< asynchronous RX at PCP failed
     kPcpGenErrAsyncIntChanComError  = 0x05,    ///< asynchronous communication failed
-    kPcpGenErrPhy0LinkLoss          = 0x06,    ///< PHY 0 lost its link
-    kPcpGenErrPhy1LinkLoss          = 0x07,    ///< PHY 1 lost its link
-    kPcpGenErrEventBuffOverflow     = 0x08,    ///< PCP event buffer overflow -> AP handles events to slow!
+    kPcpGenErrAsyncChanSizeExceeded = 0x06,    ///< asynchronous buffer size to small for the message
+    kPcpGenErrPhy0LinkLoss          = 0x07,    ///< PHY 0 lost its link
+    kPcpGenErrPhy1LinkLoss          = 0x08,    ///< PHY 1 lost its link
+    kPcpGenErrEventBuffOverflow     = 0x09,    ///< PCP event buffer overflow -> AP handles events to slow!
+    kPcpGenErrTotalMapDataSizeExceeded = 0x0A, ///< to much data mapped (system restriction)
 } tPcpPdiEventGenericError;
 
 /**
