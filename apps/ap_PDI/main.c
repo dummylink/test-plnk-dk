@@ -438,6 +438,7 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                     case kPcpGenEventResetNodeRequest:
                     {
                         // do reconfiguration of this node here
+                        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"INFO: event from PCP ResetNodeRequest\n");
                         break;
                     }
 
@@ -532,12 +533,16 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                                     {
                                         // PCP tried to send a too large message which does
                                         // not fit into the message buffer.
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) PCP did"
+                                                "not send message (msg to large)!\n",__func__);
                                         break;
                                     }
 
                                     case kPcpGenErrTotalMapDataSizeExceeded:
                                     {
-                                        // PCP has too many objects mapped 
+                                        // PCP has too many objects mapped
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) PCP total"
+                                                "mapping size exceeded!\n",__func__);
                                         break;
                                     }
                                     
