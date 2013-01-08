@@ -114,7 +114,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /******************************************************************************/
 /* function declarations */
 void SysComp_initPeripheral(void);
-void SysComp_freeProcessorCache(void);
+void SysComp_flushProcessorCache(void);
 void SysComp_enableInterrupts(void);
 
 BYTE SysComp_getNodeId(void);

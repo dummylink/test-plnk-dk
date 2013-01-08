@@ -64,11 +64,11 @@ void SysComp_initPeripheral(void)
 
 /**
 ********************************************************************************
-\brief  This function frees the processor peripheral
+\brief  This function flushes the processor cache
 
 It flushes the cache and sets the powerlink status leds to zero
 *******************************************************************************/
-void SysComp_freeProcessorCache(void)
+void SysComp_flushProcessorCache(void)
 {
     alt_icache_flush_all();
     alt_dcache_flush_all();

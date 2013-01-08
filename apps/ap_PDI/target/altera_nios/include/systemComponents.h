@@ -83,7 +83,6 @@ subject to the License Agreement located at the end of this file below.
 void SysComp_initPeripheral(void);
 inline void SysComp_enableInterrupts(void);
 inline void SysComp_disableInterrupts(void);
-void SysComp_freeProcessorCache(void);
 
 #ifndef ALT_ENHANCED_INTERRUPT_API_PRESENT
 int SysComp_initSyncInterrupt(void (*callbackFunc)(void*, void*));

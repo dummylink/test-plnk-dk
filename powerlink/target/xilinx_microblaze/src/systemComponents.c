@@ -92,11 +92,11 @@ void SysComp_enableInterrupts(void)
 
 /**
 ********************************************************************************
-\brief  This function frees the processor peripheral
+\brief  This function flushes the processor cache
 
 It flushes the cache and sets the powerlink status leds to zero
 *******************************************************************************/
-void SysComp_freeProcessorCache(void)
+void SysComp_flushProcessorCache(void)
 {
     #if XPAR_MICROBLAZE_USE_DCACHE
         microblaze_invalidate_dcache();

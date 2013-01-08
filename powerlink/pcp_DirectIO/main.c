@@ -138,7 +138,7 @@ int main (void)
 
     PRINTF1("shut down processor...\n%c", 4);
 
-    SysComp_freeProcessorCache();
+    SysComp_flushProcessorCache();
 
     return 0;
 }
