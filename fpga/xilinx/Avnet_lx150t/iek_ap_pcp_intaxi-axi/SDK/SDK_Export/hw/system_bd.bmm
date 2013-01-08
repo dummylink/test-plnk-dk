@@ -1,7 +1,7 @@
 // BMM LOC annotation file.
 //
 // Release 13.2 - Data2MEM O.61xd, build 2.2 May 20, 2011
-// Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
+// Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,10 @@ ADDRESS_MAP ap MICROBLAZE-LE 100
 
     ADDRESS_SPACE ap_bram_block_combined RAMB16 [0x00000000:0x00001FFF]
         BUS_BLOCK
-            ap_bram_block/ap_bram_block/ramb16bwer_0 [31:24] INPUT = ap_bram_block_combined_0.mem PLACED = X1Y84;
-            ap_bram_block/ap_bram_block/ramb16bwer_1 [23:16] INPUT = ap_bram_block_combined_1.mem PLACED = X4Y84;
-            ap_bram_block/ap_bram_block/ramb16bwer_2 [15:8] INPUT = ap_bram_block_combined_2.mem PLACED = X1Y82;
-            ap_bram_block/ap_bram_block/ramb16bwer_3 [7:0] INPUT = ap_bram_block_combined_3.mem PLACED = X4Y82;
+            ap_bram_block/ap_bram_block/ramb16bwer_0 [31:24] INPUT = ap_bram_block_combined_0.mem PLACED = X1Y80;
+            ap_bram_block/ap_bram_block/ramb16bwer_1 [23:16] INPUT = ap_bram_block_combined_1.mem PLACED = X4Y80;
+            ap_bram_block/ap_bram_block/ramb16bwer_2 [15:8] INPUT = ap_bram_block_combined_2.mem PLACED = X4Y78;
+            ap_bram_block/ap_bram_block/ramb16bwer_3 [7:0] INPUT = ap_bram_block_combined_3.mem PLACED = X3Y78;
         END_BUS_BLOCK;
     END_ADDRESS_SPACE;
 
@@ -48,8 +48,8 @@ ADDRESS_MAP pcp MICROBLAZE-LE 101
 
     ADDRESS_SPACE boot_bram_block_combined RAMB16 [0x00000000:0x00000FFF]
         BUS_BLOCK
-            boot_bram_block/boot_bram_block/ramb16bwer_0 [31:16] INPUT = boot_bram_block_combined_0.mem PLACED = X3Y56;
-            boot_bram_block/boot_bram_block/ramb16bwer_1 [15:0] INPUT = boot_bram_block_combined_1.mem PLACED = X3Y62;
+            boot_bram_block/boot_bram_block/ramb16bwer_0 [31:16] INPUT = boot_bram_block_combined_0.mem PLACED = X3Y48;
+            boot_bram_block/boot_bram_block/ramb16bwer_1 [15:0] INPUT = boot_bram_block_combined_1.mem PLACED = X3Y46;
         END_BUS_BLOCK;
     END_ADDRESS_SPACE;
 
@@ -62,10 +62,10 @@ ADDRESS_MAP pcp MICROBLAZE-LE 101
 
     ADDRESS_SPACE pcp_bram_block_combined RAMB16 [0x00002000:0x00003FFF]
         BUS_BLOCK
-            pcp_bram_block/pcp_bram_block/ramb16bwer_0 [31:24] INPUT = pcp_bram_block_combined_0.mem PLACED = X3Y66;
-            pcp_bram_block/pcp_bram_block/ramb16bwer_1 [23:16] INPUT = pcp_bram_block_combined_1.mem PLACED = X3Y54;
-            pcp_bram_block/pcp_bram_block/ramb16bwer_2 [15:8] INPUT = pcp_bram_block_combined_2.mem PLACED = X4Y62;
-            pcp_bram_block/pcp_bram_block/ramb16bwer_3 [7:0] INPUT = pcp_bram_block_combined_3.mem PLACED = X3Y64;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_0 [31:24] INPUT = pcp_bram_block_combined_0.mem PLACED = X2Y52;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_1 [23:16] INPUT = pcp_bram_block_combined_1.mem PLACED = X2Y48;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_2 [15:8] INPUT = pcp_bram_block_combined_2.mem PLACED = X3Y50;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_3 [7:0] INPUT = pcp_bram_block_combined_3.mem PLACED = X2Y46;
         END_BUS_BLOCK;
     END_ADDRESS_SPACE;
 
