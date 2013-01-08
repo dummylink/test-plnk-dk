@@ -227,7 +227,7 @@ PCP_SYSTEM_H=`dirname $PCPSW_ELF`/bsp/system.h
 # verify input files
 if [ ! -f "$PCP_SYSTEM_H" ]
 then   # Exit if no such file.
-  echo -e "$IN_FILE_SYSTEM_H not found.\n"
+  echo -e "$PCP_SYSTEM_H not found.\n"
   exit $E_NOSUCHFILE
 fi
 

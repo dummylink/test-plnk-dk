@@ -21,7 +21,7 @@ CNDK_DIR=/cygdrive/<your_path_to BR_POWERLINK-SLAVE_ALTERA_VX.X.X/02_Reference_S
 CNDK_DIR_DOS="<your_path_to BR_POWERLINK-SLAVE_ALTERA_VX.X.X\02_Reference_Sources>" 
                                                                 
 FPGACFG_SOF=${CNDK_DIR}/fpga/altera/TERASIC_DE2-115/ink_pcp_DirectIO/nios_openMac.sof
-FPGACFG_VERS=1
+FPGACFG_VERS=1      # PCP will only trigger a reconfiguration if this differs from the current loaded version !
 PCPSW_ELF=${CNDK_DIR}/powerlink/pcp_DirectIO/epl.elf
 PCPSW_VERS=1
 APSW_ELF= #e.g. AP SW *.bin file
