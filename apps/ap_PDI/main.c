@@ -528,6 +528,19 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                                         break;
                                     }
 
+                                    case kPcpGenErrAsyncChanSizeExceeded:
+                                    {
+                                        // PCP tried to send a too large message which does
+                                        // not fit into the message buffer.
+                                        break;
+                                    }
+
+                                    case kPcpGenErrTotalMapDataSizeExceeded:
+                                    {
+                                        // PCP has too many objects mapped 
+                                        break;
+                                    }
+                                    
                                     default:
                                     break;
                                 }
