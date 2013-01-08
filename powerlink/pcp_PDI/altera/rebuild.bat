@@ -84,6 +84,7 @@ goto start
 
 :DEFAULT
 echo Invalid input!
+pause
 goto user_entry
 
 :start
