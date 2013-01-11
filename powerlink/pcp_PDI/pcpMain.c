@@ -251,7 +251,7 @@ static tEplKernel initPowerlink(void)
     }
 #endif /* SET_NODE_ID_BY_HW */
 
-    if(fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo))
+    if(fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo) != FALSE)
     {
         uiFpgaConfigVersion_g = fwBootIibInfo.uiFpgaConfigVersion;
     }
@@ -870,12 +870,7 @@ int Gi_init(tInitStateMachine * pStateMachineInit_p, tPcpInitParam * pInitParam_
     int         iRet= OK;
     tfwBootInfo fwBootIibInfo = {0};
 
-#ifdef CONFIG_IIB_IS_PRESENT
-    if (fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo))
-    {
-        DEBUG_TRACE0(DEBUG_LVL_ERROR, "ERROR: IIB read failed!");
-    }
-#endif // CONFIG_IIB_IS_PRESENT
+    fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo);
 
     /* Setup PCP Control Register in DPRAM */
     pCtrlReg_g = (tPcpCtrlReg *)PDI_DPRAM_BASE_PCP;     // set address of control register - equals DPRAM base address

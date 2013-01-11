@@ -163,7 +163,7 @@ static int openPowerlink(BYTE bNodeId_p)
     /* initialize port configuration */
     InitPortConfiguration(portIsOutput);
 
-    if(fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo))
+    if(fwBoot_tryGetIibInfo(fIsUserImage_g, &fwBootIibInfo) != FALSE)
     {
         uiFpgaConfigVersion_g = fwBootIibInfo.uiFpgaConfigVersion;
     }
