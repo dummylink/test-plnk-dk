@@ -39,6 +39,9 @@ Properties
   6200/02: digital output (LEDs) -> meant for RPDO
   6200/03: not in use
   6200/04: digital output (Hex Digits) -> meant for RPDO
+  
+- Software footprint is apprx.: Code+Data=120 KByte, Heap=5 KByte, Stack=50 KByte
+                                => 175 KByte (rough estimation)
 
 
 Requirements

@@ -27,7 +27,8 @@ Properties
 - PReq-PRes Latency: 960ns
 - Process data: 4 bytes input and 4 bytes output
 - There are 3 RPDOs and 1 TPDO available.
-
+- Software footprint is apprx.: Code+Data=310 KByte, Heap=124 KByte, Stack=50 KByte
+                                => 484 KByte (rough estimation)
 
 SW Build Proporties
 -------------------

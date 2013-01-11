@@ -37,6 +37,8 @@ Properties
   6200/03: not in use
   6200/04: digital output (Hex Digits) -> meant for RPDO
 
+- Software footprint is apprx.: Code+Data=273 KByte, Heap=113 KByte, Stack=50 KByte
+                                => 336 KByte (rough estimation)
 
 SW Build Proporties
 -------------------
