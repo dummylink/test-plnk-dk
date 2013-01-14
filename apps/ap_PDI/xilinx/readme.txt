@@ -40,6 +40,10 @@ Properties
   6200/03: not in use
   6200/04: not in use
 
+- Software footprint is apprx.: Code+Data=133 KByte, Heap=10 KByte, Stack=50 KByte
+                                => 193 KByte (rough estimation)
+  (Measured with -O3)
+
 Requirements
 -------------
 
