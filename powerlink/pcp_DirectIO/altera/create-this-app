@@ -351,8 +351,6 @@ erase-epcs:
 download-bits:
 	nios2-configure-sof $(DOWNLOAD_CABLE_FLAG) -C $(QUARTUS_PROJECT_DIR)' >> makefile
 
-Heredoc
-
 if [ -z "$SKIP_MAKE" ]; then
 	cmd="make"
 
