@@ -79,7 +79,6 @@ static UINT32   uiFpgaConfigVersion_g = 0; ///< version of currently used FPGA c
 // this function prototype here. If you want to use more than one Epl
 // instances then the function name of each object dictionary has to differ.
 tEplKernel PUBLIC  EplObdInitRam (tEplObdInitParam MEM* pInitParam_p);
-//TODO: test what happens if this declaration is deleted
 
 static int openPowerlink(BYTE bNodeId_p);
 static tEplKernel AppCbEvent(tEplApiEventType EventType_p,
@@ -114,7 +113,7 @@ int main (void)
 #endif
 
     PRINTF0("\n\nDigital I/O interface is running...\n");
-    PRINTF0("starting openPowerlink...\n\n");
+    PRINTF0("starting openPOWERLINK...\n\n");
 
     if((bNodeId = SysComp_getNodeId()) == 0)
     {
@@ -127,16 +126,16 @@ int main (void)
 
     while (1) {
         if (openPowerlink(bNodeId) != 0) {
-            PRINTF0("openPowerlink was shut down because of an error\n");
+            PRINTF0("openPOWERLINK was shut down because of an error\n");
             break;
         } else {
-            PRINTF0("openPowerlink was shut down, restart...\n\n");
+            PRINTF0("openPOWERLINK was shut down, restart...\n\n");
         }
         /* wait some time until we restart the stack */
         USLEEP(1000000);
     }
 
-    PRINTF1("shut down processor...\n%c", 4);
+    PRINTF1("Shutdown processor...\n%c", 4);
 
     SysComp_flushProcessorCache();
 
@@ -257,7 +256,7 @@ static int openPowerlink(BYTE bNodeId_p)
     /*Start POWERLINK Stack*/
     PRINTF0("start POWERLINK Stack... ok\n\n");
 
-    PRINTF0("Digital I/O interface with openPowerlink is ready!\n\n");
+    PRINTF0("Digital I/O interface with openPOWERLINK is ready!\n\n");
 
 #ifdef STATUS_LEDS_BASE
     SysComp_setPowerlinkStatus(0xff);
