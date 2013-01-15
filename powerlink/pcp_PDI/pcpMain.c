@@ -232,7 +232,9 @@ static tEplKernel initPowerlink(void)
     tfwBootInfo fwBootIibInfo = {0};
 
 #ifdef CONFIG_USE_SDC_OBJECTS
-    WORD wSyncIntCycle;
+    WORD                        wSyncIntCycle;
+    unsigned int                uiVarEntries;
+    tEplObdSize                 ObdSize;
 #endif  //CONFIG_USE_SDC_OBJECTS
 
     /* check if NodeID has been set to 0x00 by AP -> use node switches */
