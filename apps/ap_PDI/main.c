@@ -91,6 +91,7 @@ static tCnApiObdParam   ObdParam_l = {0};               ///< OBD access handle
 
 /******************************************************************************/
 /* private functions */
+static tCnApiStatus CnApi_LinkLocalObjects(void);
 static void workInputOutput(void);
 static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p,
         tCnApiEventArg * pEventArg_p, void * pUserArg_p);
@@ -143,7 +144,7 @@ APs state machine will be updated and input/output ports will be processed.
 *******************************************************************************/
 int main (void)
 {
-    tCnApiStatus        status;
+    tCnApiStatus        Ret;
 
     tCnApiInitParam      InitCnApiParam = {0};
     tPcpInitParam        InitPcpParam = {{0}};
@@ -193,10 +194,10 @@ int main (void)
     InitCnApiParam.m_pfnVethTxFinished = CnApi_AppCbVethTxFinished;
 #endif
 
-    status = CnApi_init(&InitCnApiParam, &InitPcpParam);   // initialize and start the CN API
-    if (status > 0)
+    Ret = CnApi_init(&InitCnApiParam, &InitPcpParam);   // initialize and start the CN API
+    if (Ret > 0)
     {
-        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"\nERROR: CN API library could not be initialized (%d)\n", status);
+        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"\nERROR: CN API library could not be initialized (%d)\n", Ret);
         return ERROR;
     }
     else
@@ -204,22 +205,12 @@ int main (void)
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"\nInitialize CN API functions...successful!\n");
     }
 
-    /* link objects to local object dictionary */
-
-    /* connect local variables to object IDs
-     * - Linked Objects have do be indicated in the XDD file !
-     * - datatype of variables must match with datatype of POWERLINK object dictionary !
-     * - Number of linked objects must match NUM_OBJECTS !
-     */
-    /* CnApi_linkObject(Index, SubIndex, size in bytes, ptr) */
-    CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);  // TPDO 0
-    CnApi_linkObject(0x6000, 2, 1, &digitalIn[1]);
-    CnApi_linkObject(0x6000, 3, 1, &digitalIn[2]);
-    CnApi_linkObject(0x6000, 4, 1, &digitalIn[3]);
-    CnApi_linkObject(0x6200, 1, 1, &digitalOut[0]); // RPDO 0
-    CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
-    CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
-    CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
+    // Link all local objects in this function
+    Ret = CnApi_LinkLocalObjects();
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
 
     // prepare SDO domain object read test
     abTestDomain_l[0] = 0xaa;                        // tag start of domain test object
@@ -296,12 +287,93 @@ int main (void)
 #endif
     }
 
+Exit:
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO,"shut down application...\n");
     CnApi_disableSyncInt();
     CnApi_disableAsyncEventIRQ();
     CnApi_exit();
 
     return 0;
+}
+
+/**
+********************************************************************************
+\brief    link variables to the local objects dictionary
+
+\return tCnApiStatus
+\retval kCnApiStatusOk                    on success
+\retval kCnApiStatusObjectLinkFailed      When NUM_OBJECTS is incorrect
+
+This function calls CnApi_linkObject for each PDO which should be accessed by
+the application. After this the user is able to access exchanged data by reading
+the linked variable after the synchronous interrupt is called. See workInputOutput
+for how this can be done.
+*******************************************************************************/
+static tCnApiStatus CnApi_LinkLocalObjects(void)
+{
+    tCnApiStatus Ret;
+
+    /* link objects to local object dictionary */
+
+    /* connect local variables to object IDs
+     * - Linked Objects have do be indicated in the XDD file !
+     * - datatype of variables must match with datatype of POWERLINK object dictionary !
+     * - Number of linked objects must match NUM_OBJECTS !
+     */
+    /* CnApi_linkObject(Index, SubIndex, size in bytes, ptr) */
+    Ret = CnApi_linkObject(0x6000, 1, 1, &digitalIn[0]);  // TPDO 0
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    Ret = CnApi_linkObject(0x6000, 2, 1, &digitalIn[1]);
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    Ret = CnApi_linkObject(0x6000, 3, 1, &digitalIn[2]);
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    Ret = CnApi_linkObject(0x6000, 4, 1, &digitalIn[3]);
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    Ret = CnApi_linkObject(0x6200, 1, 1, &digitalOut[0]); // RPDO 0
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    Ret = CnApi_linkObject(0x6200, 2, 1, &digitalOut[1]);
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    Ret = CnApi_linkObject(0x6200, 3, 1, &digitalOut[2]);
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    Ret = CnApi_linkObject(0x6200, 4, 1, &digitalOut[3]);
+    if(Ret != kCnApiStatusOk)
+    {
+        goto Exit;
+    }
+
+    // Add your self defined object here! Don't forget to adjust NUM_OBJECTS!
+
+
+Exit:
+    return Ret;
 }
 
 /**
