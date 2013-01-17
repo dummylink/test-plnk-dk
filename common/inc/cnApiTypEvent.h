@@ -57,7 +57,8 @@ typedef enum ePcpPdiEventGenericError {
     kPcpGenErrPhy0LinkLoss          = 0x07,    ///< PHY 0 lost its link
     kPcpGenErrPhy1LinkLoss          = 0x08,    ///< PHY 1 lost its link
     kPcpGenErrEventBuffOverflow     = 0x09,    ///< PCP event buffer overflow -> AP handles events to slow!
-    kPcpGenErrTotalMapDataSizeExceeded = 0x0A, ///< to much data mapped (system restriction)
+    kPcpGenErrTotalMapDataSizeExceeded = 0x0A, ///< to much data mapped in total (system restriction)
+    kPcpGenErrPdoChanSizeExceeded   = 0x0B,    ///< to much data mapped to channel (IP-core setting)
 } tPcpPdiEventGenericError;
 
 /**

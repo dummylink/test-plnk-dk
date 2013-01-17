@@ -464,12 +464,17 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                         SizeAlignPdiOffset(&pData, iSize, &uiOffsetCnt);
 
                         /* verify if this PDO fits into the buffer and max mappable bytes are not exceeded */
-                        if (((uiOffsetCnt + uiMapSize) > aTPdosPdi_l[bPdiPdoBufNr].wSize_m)             ||
-                            ((wPdiMapSizeSumTmp + aTPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
-                             > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            )  )
+                        if ((uiOffsetCnt + uiMapSize) > aTPdosPdi_l[bPdiPdoBufNr].wSize_m)
+                        {
+                            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrPdoChanSizeExceeded);
+                            fRet = FALSE;
+                            goto exit;
+                        }
+
+                        if (((wPdiMapSizeSumTmp + aTPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
+                             > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            ))
                         {
                             Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrTotalMapDataSizeExceeded);
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
                             fRet = FALSE;
                             goto exit;
                         }
@@ -498,12 +503,17 @@ BOOL Gi_setupPdoDesc(tLinkPdosReqComCon * pLinkPdosReqComCon_p,
                         SizeAlignPdiOffset(&pData, iSize, &uiOffsetCnt);
 
                         /* verify if this PDO fits into the buffer and max mappable bytes are not exceeded */
-                        if (((uiOffsetCnt + uiMapSize) > aRPdosPdi_l[bPdiPdoBufNr].wSize_m)             ||
-                            ((wPdiMapSizeSumTmp + aRPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
-                             > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            )  )
+                        if ((uiOffsetCnt + uiMapSize) > aRPdosPdi_l[bPdiPdoBufNr].wSize_m)
+                        {
+                            Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrPdoChanSizeExceeded);
+                            fRet = FALSE;
+                            goto exit;
+                        }
+
+                        if (((wPdiMapSizeSumTmp + aRPdosPdi_l[bPdiPdoBufNr].wMappedBytes_m + uiMapSize)
+                             > PCP_PDO_MAPPING_SIZE_SUM_MAX                                            ))
                         {
                             Gi_pcpEventPost(kPcpPdiEventGenericError, kPcpGenErrTotalMapDataSizeExceeded);
-                            DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "Max mappable data exceeded!\n");
                             fRet = FALSE;
                             goto exit;
                         }

@@ -606,7 +606,7 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                                         // PCP tried to send a too large message which does
                                         // not fit into the message buffer.
                                         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) PCP did"
-                                                "not send message (msg to large)!\n",__func__);
+                                                " not send message (msg to large)!\n",__func__);
                                         break;
                                     }
 
@@ -614,10 +614,18 @@ static tCnApiStatus CnApi_AppCbEvent(tCnApiEventType EventType_p, tCnApiEventArg
                                     {
                                         // PCP has too many objects mapped
                                         DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) PCP total"
-                                                "mapping size exceeded!\n",__func__);
+                                                " mapping size exceeded!\n",__func__);
                                         break;
                                     }
                                     
+                                    case kPcpGenErrPdoChanSizeExceeded:
+                                    {
+                                        // PCP has too many objects mapped
+                                        DEBUG_TRACE1(DEBUG_LVL_CNAPI_ERR,"ERROR: (%s) PCP PDO"
+                                                " channel size exceeded!\n",__func__);
+                                        break;
+                                    }
+
                                     default:
                                     break;
                                 }
