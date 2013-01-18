@@ -1,5 +1,5 @@
 
-<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Thu Jan 17 18:05:17 2013">
+<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Wed Jan 23 13:58:24 2013">
 
   <SYSTEMINFO ARCH="spartan6" DEVICE="xc6slx9" PACKAGE="csg324" PART="xc6slx9csg324-2" SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/Avnet_lx9/micro_pcp_DirectIO-axi/system.xmp" SPEEDGRADE="-2"/>
 
@@ -40,8 +40,7 @@
     <PORT DIR="I" MHS_INDEX="33" NAME="axi_powerlink_0_phyMii0_TxClk_pin" SIGNAME="axi_powerlink_0_phyMii0_TxClk"/>
     <PORT DIR="O" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="34" MSB="3" NAME="axi_powerlink_0_phyMii0_TxDat_pin" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii0_TxDat"/>
     <PORT DIR="O" MHS_INDEX="35" NAME="axi_powerlink_0_phyMii0_TxEn_pin" SIGNAME="axi_powerlink_0_phyMii0_TxEn"/>
-    <PORT DIR="O" MHS_INDEX="36" NAME="axi_powerlink_0_phyMii0_TxEr_pin" SIGNAME="axi_powerlink_0_phyMii0_TxEr"/>
-    <PORT DIR="IO" ENDIAN="LITTLE" LEFT="31" LSB="0" MHS_INDEX="37" MSB="31" NAME="axi_powerlink_0_pio_portio_pin" RIGHT="0" SIGNAME="axi_powerlink_0_pio_portio"/>
+    <PORT DIR="IO" ENDIAN="LITTLE" LEFT="31" LSB="0" MHS_INDEX="36" MSB="31" NAME="axi_powerlink_0_pio_portio_pin" RIGHT="0" SIGNAME="axi_powerlink_0_pio_portio"/>
   </EXTERNALPORTS>
 
   <MODULES>
@@ -6751,7 +6750,7 @@
         <PORT DIR="I" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="9" MPD_INDEX="13" NAME="phyMii0_TxClk" SIGNAME="axi_powerlink_0_phyMii0_TxClk"/>
         <PORT DIR="O" ENDIAN="LITTLE" IOS="PHY0" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="10" MPD_INDEX="14" MSB="3" NAME="phyMii0_TxDat" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii0_TxDat" VECFORMULA="[3:0]"/>
         <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="11" MPD_INDEX="15" NAME="phyMii0_TxEn" SIGNAME="axi_powerlink_0_phyMii0_TxEn"/>
-        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="12" MPD_INDEX="16" NAME="phyMii0_TxEr" SIGNAME="axi_powerlink_0_phyMii0_TxEr"/>
+        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="12" MPD_INDEX="16" NAME="phyMii0_TxEr" SIGNAME="net_gnd"/>
         <PORT DIR="O" IS_INSTANTIATED="TRUE" MHS_INDEX="13" MPD_INDEX="41" NAME="mac_irq" SENSITIVITY="LEVEL_HIGH" SIGIS="INTERRUPT" SIGNAME="axi_powerlink_0_mac_irq"/>
         <PORT DIR="O" IS_INSTANTIATED="TRUE" MHS_INDEX="14" MPD_INDEX="42" NAME="tcp_irq" SENSITIVITY="LEVEL_HIGH" SIGIS="INTERRUPT" SIGNAME="axi_powerlink_0_tcp_irq"/>
         <PORT DIR="I" ENDIAN="LITTLE" IOS="PORTIO" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="15" MPD_INDEX="47" MSB="3" NAME="pio_pconfig" RIGHT="0" SIGNAME="0b0100" VECFORMULA="[3:0]"/>

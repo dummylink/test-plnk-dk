@@ -1,5 +1,5 @@
 
-<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Thu Jan 17 19:26:44 2013">
+<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Wed Jan 23 12:41:48 2013">
 
   <SYSTEMINFO ARCH="spartan6" DEVICE="xc6slx150t" PACKAGE="fgg676" PART="xc6slx150tfgg676-3" SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/Avnet_lx150t/iek_ap_pcp_SPI-plb/system.xmp" SPEEDGRADE="-3"/>
 
