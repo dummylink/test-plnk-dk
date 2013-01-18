@@ -244,7 +244,7 @@ static tEplKernel initPowerlink(void)
         InitParam_l.m_bNodeId = SysComp_getNodeId();
     }
 #else
-    if(pInitParm_p->m_bNodeId == 0x00)
+    if(InitParam_l.m_bNodeId == 0x00)
     {
         /* There is no node switch pio and AP wants hardware support so gen error */
         EplRet = kEplNoResource;
