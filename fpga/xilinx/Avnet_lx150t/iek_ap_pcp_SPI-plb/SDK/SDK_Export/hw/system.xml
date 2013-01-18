@@ -1,5 +1,5 @@
 
-<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Mon Nov 26 19:10:16 2012">
+<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Thu Jan 17 19:26:44 2013">
 
   <SYSTEMINFO ARCH="spartan6" DEVICE="xc6slx150t" PACKAGE="fgg676" PART="xc6slx150tfgg676-3" SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/Avnet_lx150t/iek_ap_pcp_SPI-plb/system.xmp" SPEEDGRADE="-3"/>
 
@@ -57,21 +57,19 @@
     <PORT DIR="I" MHS_INDEX="50" NAME="plb_powerlink_0_phyMii0_TxClk_pin" SIGNAME="plb_powerlink_0_phyMii0_TxClk"/>
     <PORT DIR="O" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="51" MSB="3" NAME="plb_powerlink_0_phyMii0_TxDat_pin" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii0_TxDat"/>
     <PORT DIR="O" MHS_INDEX="52" NAME="plb_powerlink_0_phyMii0_TxEn_pin" SIGNAME="plb_powerlink_0_phyMii0_TxEn"/>
-    <PORT DIR="O" MHS_INDEX="53" NAME="plb_powerlink_0_phyMii0_TxEr_pin" SIGNAME="plb_powerlink_0_phyMii0_TxEr"/>
-    <PORT DIR="IO" MHS_INDEX="54" NAME="plb_powerlink_0_phy1_SMIDat_pin" SIGNAME="plb_powerlink_0_phy1_SMIDat"/>
-    <PORT DIR="O" MHS_INDEX="55" NAME="plb_powerlink_0_phy1_SMIClk_pin" SIGNAME="plb_powerlink_0_phy1_SMIClk"/>
-    <PORT DIR="O" MHS_INDEX="56" NAME="plb_powerlink_0_phy1_Rst_n_pin" SIGNAME="plb_powerlink_0_phy1_Rst_n"/>
-    <PORT DIR="I" MHS_INDEX="57" NAME="plb_powerlink_0_phy1_link_pin" SIGNAME="plb_powerlink_0_phy1_link"/>
-    <PORT DIR="I" MHS_INDEX="58" NAME="plb_powerlink_0_phyMii1_RxClk_pin" SIGNAME="plb_powerlink_0_phyMii1_RxClk"/>
-    <PORT DIR="I" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="59" MSB="3" NAME="plb_powerlink_0_phyMii1_RxDat_pin" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_RxDat"/>
-    <PORT DIR="I" MHS_INDEX="60" NAME="plb_powerlink_0_phyMii1_RxDv_pin" SIGNAME="plb_powerlink_0_phyMii1_RxDv"/>
-    <PORT DIR="I" MHS_INDEX="61" NAME="plb_powerlink_0_phyMii1_RxEr_pin" SIGNAME="plb_powerlink_0_phyMii1_RxEr"/>
-    <PORT DIR="I" MHS_INDEX="62" NAME="plb_powerlink_0_phyMii1_TxClk_pin" SIGNAME="plb_powerlink_0_phyMii1_TxClk"/>
-    <PORT DIR="O" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="63" MSB="3" NAME="plb_powerlink_0_phyMii1_TxDat_pin" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_TxDat"/>
-    <PORT DIR="O" MHS_INDEX="64" NAME="plb_powerlink_0_phyMii1_TxEn_pin" SIGNAME="plb_powerlink_0_phyMii1_TxEn"/>
-    <PORT DIR="O" MHS_INDEX="65" NAME="plb_powerlink_0_phyMii1_TxEr_pin" SIGNAME="plb_powerlink_0_phyMii1_TxEr"/>
-    <PORT DIR="O" MHS_INDEX="66" NAME="plb_powerlink_0_led_error_pin" SIGNAME="plb_powerlink_0_led_error"/>
-    <PORT DIR="O" MHS_INDEX="67" NAME="plb_powerlink_0_led_status_pin" SIGNAME="plb_powerlink_0_led_status"/>
+    <PORT DIR="IO" MHS_INDEX="53" NAME="plb_powerlink_0_phy1_SMIDat_pin" SIGNAME="plb_powerlink_0_phy1_SMIDat"/>
+    <PORT DIR="O" MHS_INDEX="54" NAME="plb_powerlink_0_phy1_SMIClk_pin" SIGNAME="plb_powerlink_0_phy1_SMIClk"/>
+    <PORT DIR="O" MHS_INDEX="55" NAME="plb_powerlink_0_phy1_Rst_n_pin" SIGNAME="plb_powerlink_0_phy1_Rst_n"/>
+    <PORT DIR="I" MHS_INDEX="56" NAME="plb_powerlink_0_phy1_link_pin" SIGNAME="plb_powerlink_0_phy1_link"/>
+    <PORT DIR="I" MHS_INDEX="57" NAME="plb_powerlink_0_phyMii1_RxClk_pin" SIGNAME="plb_powerlink_0_phyMii1_RxClk"/>
+    <PORT DIR="I" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="58" MSB="3" NAME="plb_powerlink_0_phyMii1_RxDat_pin" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_RxDat"/>
+    <PORT DIR="I" MHS_INDEX="59" NAME="plb_powerlink_0_phyMii1_RxDv_pin" SIGNAME="plb_powerlink_0_phyMii1_RxDv"/>
+    <PORT DIR="I" MHS_INDEX="60" NAME="plb_powerlink_0_phyMii1_RxEr_pin" SIGNAME="plb_powerlink_0_phyMii1_RxEr"/>
+    <PORT DIR="I" MHS_INDEX="61" NAME="plb_powerlink_0_phyMii1_TxClk_pin" SIGNAME="plb_powerlink_0_phyMii1_TxClk"/>
+    <PORT DIR="O" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="62" MSB="3" NAME="plb_powerlink_0_phyMii1_TxDat_pin" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_TxDat"/>
+    <PORT DIR="O" MHS_INDEX="63" NAME="plb_powerlink_0_phyMii1_TxEn_pin" SIGNAME="plb_powerlink_0_phyMii1_TxEn"/>
+    <PORT DIR="O" MHS_INDEX="64" NAME="plb_powerlink_0_led_error_pin" SIGNAME="plb_powerlink_0_led_error"/>
+    <PORT DIR="O" MHS_INDEX="65" NAME="plb_powerlink_0_led_status_pin" SIGNAME="plb_powerlink_0_led_status"/>
   </EXTERNALPORTS>
 
   <MODULES>
@@ -15657,7 +15655,7 @@
       <DESCRIPTION TYPE="SHORT">PLB_POWERLINK</DESCRIPTION>
       <DESCRIPTION TYPE="LONG">Powerlink IP-Core with PLB bus interface</DESCRIPTION>
       <DOCUMENTATION>
-        <DOCUMENT SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/ipcore/powerlink/pcores/plb_powerlink_v0_28_a/doc/OpenMAC.pdf" TYPE="IP"/>
+        <DOCUMENT SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/ipcore/powerlink/pcores/plb_powerlink_v0_28_a/doc/01_POWERLINK-IP-Core_Xilinx.pdf" TYPE="IP"/>
       </DOCUMENTATION>
       <LICENSEINFO ICON_NAME="ps_core_development"/>
       <PARAMETERS>
@@ -15670,7 +15668,7 @@
         <PARAMETER MPD_INDEX="4" NAME="C_GEN_PLB_BUS_IF" TYPE="BOOLEAN" VALUE="FALSE"/>
         <PARAMETER MPD_INDEX="5" NAME="C_GEN_SIMPLE_IO" TYPE="BOOLEAN" VALUE="FALSE"/>
         <PARAMETER IS_INSTANTIATED="TRUE" MHS_INDEX="2" MPD_INDEX="6" NAME="C_PACKET_LOCATION" TYPE="INTEGER" VALUE="0">
-          <DESCRIPTION>Packet buffer location</DESCRIPTION>
+          <DESCRIPTION>Packet Buffer Location</DESCRIPTION>
         </PARAMETER>
         <PARAMETER CHANGEDBY="SYSTEM" MPD_INDEX="7" NAME="C_MAC_RX_BUFFERS" TYPE="INTEGER" VALUE="6"/>
         <PARAMETER CHANGEDBY="SYSTEM" MPD_INDEX="8" NAME="C_TX_INT_PKT" TYPE="BOOLEAN" VALUE="true"/>
@@ -15855,28 +15853,28 @@
         <PORT DIR="I" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="10" MPD_INDEX="14" NAME="phyMii0_TxClk" SIGNAME="plb_powerlink_0_phyMii0_TxClk"/>
         <PORT DIR="O" ENDIAN="LITTLE" IOS="PHY0" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="11" MPD_INDEX="15" MSB="3" NAME="phyMii0_TxDat" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii0_TxDat" VECFORMULA="[3:0]"/>
         <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="12" MPD_INDEX="16" NAME="phyMii0_TxEn" SIGNAME="plb_powerlink_0_phyMii0_TxEn"/>
-        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="13" MPD_INDEX="17" NAME="phyMii0_TxEr" SIGNAME="plb_powerlink_0_phyMii0_TxEr"/>
-        <PORT DIR="IO" IOS="PHY1" IS_INSTANTIATED="TRUE" IS_THREE_STATE="TRUE" MHS_INDEX="14" MPD_INDEX="24" NAME="phy1_SMIDat" SIGNAME="plb_powerlink_0_phy1_SMIDat"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="15" MPD_INDEX="25" NAME="phy1_SMIClk" SIGNAME="plb_powerlink_0_phy1_SMIClk"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="16" MPD_INDEX="26" NAME="phy1_Rst_n" SIGNAME="plb_powerlink_0_phy1_Rst_n"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="17" MPD_INDEX="27" NAME="phy1_link" SIGNAME="plb_powerlink_0_phy1_link"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="18" MPD_INDEX="28" NAME="phyMii1_RxClk" SIGNAME="plb_powerlink_0_phyMii1_RxClk"/>
-        <PORT DIR="I" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="19" MPD_INDEX="29" MSB="3" NAME="phyMii1_RxDat" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_RxDat" VECFORMULA="[3:0]"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="20" MPD_INDEX="30" NAME="phyMii1_RxDv" SIGNAME="plb_powerlink_0_phyMii1_RxDv"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="21" MPD_INDEX="31" NAME="phyMii1_RxEr" SIGNAME="plb_powerlink_0_phyMii1_RxEr"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="22" MPD_INDEX="32" NAME="phyMii1_TxClk" SIGNAME="plb_powerlink_0_phyMii1_TxClk"/>
-        <PORT DIR="O" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="23" MPD_INDEX="33" MSB="3" NAME="phyMii1_TxDat" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_TxDat" VECFORMULA="[3:0]"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="24" MPD_INDEX="34" NAME="phyMii1_TxEn" SIGNAME="plb_powerlink_0_phyMii1_TxEn"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="25" MPD_INDEX="35" NAME="phyMii1_TxEr" SIGNAME="plb_powerlink_0_phyMii1_TxEr"/>
-        <PORT DIR="O" IS_INSTANTIATED="TRUE" MHS_INDEX="26" MPD_INDEX="46" NAME="ap_asyncIrq" SENSITIVITY="LEVEL_HIGH" SIGIS="INTERRUPT" SIGNAME="plb_powerlink_0_ap_asyncIrq"/>
-        <PORT DIR="O" IS_INSTANTIATED="TRUE" MHS_INDEX="27" MPD_INDEX="44" NAME="ap_syncIrq" SENSITIVITY="LEVEL_HIGH" SIGIS="INTERRUPT" SIGNAME="plb_powerlink_0_ap_syncIrq"/>
-        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="28" MPD_INDEX="70" NAME="led_error" SIGNAME="plb_powerlink_0_led_error"/>
-        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="29" MPD_INDEX="71" NAME="led_status" SIGNAME="plb_powerlink_0_led_status"/>
-        <PORT CLKFREQUENCY="50000000" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="30" MPD_INDEX="1" NAME="clk50" SIGIS="CLK" SIGNAME="clk_50_0000MHzPLL1"/>
-        <PORT DIR="I" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="31" MPD_INDEX="54" NAME="spi_mosi" SIGNAME="spi_master_MOSI_O"/>
-        <PORT DIR="O" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="32" MPD_INDEX="55" NAME="spi_miso" SIGNAME="spi_master_MISO_I"/>
-        <PORT DIR="I" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="33" MPD_INDEX="53" NAME="spi_clk" SIGNAME="spi_master_SCK_O"/>
-        <PORT DIR="I" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="34" MPD_INDEX="56" NAME="spi_sel_n" SIGNAME="spi_master_SS_O"/>
+        <PORT DIR="IO" IOS="PHY1" IS_INSTANTIATED="TRUE" IS_THREE_STATE="TRUE" MHS_INDEX="13" MPD_INDEX="24" NAME="phy1_SMIDat" SIGNAME="plb_powerlink_0_phy1_SMIDat"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="14" MPD_INDEX="25" NAME="phy1_SMIClk" SIGNAME="plb_powerlink_0_phy1_SMIClk"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="15" MPD_INDEX="26" NAME="phy1_Rst_n" SIGNAME="plb_powerlink_0_phy1_Rst_n"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="16" MPD_INDEX="27" NAME="phy1_link" SIGNAME="plb_powerlink_0_phy1_link"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="17" MPD_INDEX="28" NAME="phyMii1_RxClk" SIGNAME="plb_powerlink_0_phyMii1_RxClk"/>
+        <PORT DIR="I" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="18" MPD_INDEX="29" MSB="3" NAME="phyMii1_RxDat" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_RxDat" VECFORMULA="[3:0]"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="19" MPD_INDEX="30" NAME="phyMii1_RxDv" SIGNAME="plb_powerlink_0_phyMii1_RxDv"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="20" MPD_INDEX="31" NAME="phyMii1_RxEr" SIGNAME="plb_powerlink_0_phyMii1_RxEr"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="21" MPD_INDEX="32" NAME="phyMii1_TxClk" SIGNAME="plb_powerlink_0_phyMii1_TxClk"/>
+        <PORT DIR="O" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="22" MPD_INDEX="33" MSB="3" NAME="phyMii1_TxDat" RIGHT="0" SIGNAME="plb_powerlink_0_phyMii1_TxDat" VECFORMULA="[3:0]"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="23" MPD_INDEX="34" NAME="phyMii1_TxEn" SIGNAME="plb_powerlink_0_phyMii1_TxEn"/>
+        <PORT DIR="O" IS_INSTANTIATED="TRUE" MHS_INDEX="24" MPD_INDEX="46" NAME="ap_asyncIrq" SENSITIVITY="LEVEL_HIGH" SIGIS="INTERRUPT" SIGNAME="plb_powerlink_0_ap_asyncIrq"/>
+        <PORT DIR="O" IS_INSTANTIATED="TRUE" MHS_INDEX="25" MPD_INDEX="44" NAME="ap_syncIrq" SENSITIVITY="LEVEL_HIGH" SIGIS="INTERRUPT" SIGNAME="plb_powerlink_0_ap_syncIrq"/>
+        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="26" MPD_INDEX="70" NAME="led_error" SIGNAME="plb_powerlink_0_led_error"/>
+        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="27" MPD_INDEX="71" NAME="led_status" SIGNAME="plb_powerlink_0_led_status"/>
+        <PORT CLKFREQUENCY="50000000" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="28" MPD_INDEX="1" NAME="clk50" SIGIS="CLK" SIGNAME="clk_50_0000MHzPLL1"/>
+        <PORT DIR="I" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="29" MPD_INDEX="54" NAME="spi_mosi" SIGNAME="spi_master_MOSI_O"/>
+        <PORT DIR="O" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="30" MPD_INDEX="55" NAME="spi_miso" SIGNAME="spi_master_MISO_I"/>
+        <PORT DIR="I" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="31" MPD_INDEX="53" NAME="spi_clk" SIGNAME="spi_master_SCK_O"/>
+        <PORT DIR="I" IOS="SPI" IS_INSTANTIATED="TRUE" MHS_INDEX="32" MPD_INDEX="56" NAME="spi_sel_n" SIGNAME="spi_master_SS_O"/>
+        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="33" MPD_INDEX="17" NAME="phyMii0_TxEr" SIGNAME="net_gnd"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="34" MPD_INDEX="35" NAME="phyMii1_TxEr" SIGNAME="net_gnd"/>
         <PORT DIR="O" ENDIAN="LITTLE" LEFT="255" LSB="0" MPD_INDEX="0" MSB="255" NAME="test_port" RIGHT="0" SIGNAME="__NOC__" VECFORMULA="[255:0]"/>
         <PORT DIR="I" IS_VALID="FALSE" MPD_INDEX="2" NAME="clk100" SIGIS="CLK" SIGNAME="__NOC__"/>
         <PORT DIR="IO" IOS="PHY" IS_THREE_STATE="TRUE" IS_VALID="FALSE" MPD_INDEX="3" NAME="phy_SMIDat" SIGNAME="__NOC__"/>

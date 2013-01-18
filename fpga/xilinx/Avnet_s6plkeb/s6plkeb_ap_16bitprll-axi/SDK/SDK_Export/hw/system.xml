@@ -1,5 +1,5 @@
 
-<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Mon Nov 26 20:29:28 2012">
+<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Thu Jan 17 20:17:36 2013">
 
   <SYSTEMINFO ARCH="spartan6" DEVICE="xc6slx16" PACKAGE="csg324" PART="xc6slx16csg324-2" SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/Avnet_s6plkeb/s6plkeb_ap_16bitprll-axi/system.xmp" SPEEDGRADE="-2"/>
 

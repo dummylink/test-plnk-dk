@@ -1,5 +1,5 @@
 
-<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Mon Nov 26 17:59:28 2012">
+<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Thu Jan 17 18:41:43 2013">
 
   <SYSTEMINFO ARCH="spartan6" DEVICE="xc6slx150t" PACKAGE="fgg676" PART="xc6slx150tfgg676-3" SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/Avnet_lx150t/iek_ap_pcp_intaxi-axi/system.xmp" SPEEDGRADE="-3"/>
 
@@ -46,25 +46,23 @@
     <PORT DIR="I" MHS_INDEX="39" NAME="axi_powerlink_0_phyMii0_TxClk_pin" SIGNAME="axi_powerlink_0_phyMii0_TxClk"/>
     <PORT DIR="O" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="40" MSB="3" NAME="axi_powerlink_0_phyMii0_TxDat_pin" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii0_TxDat"/>
     <PORT DIR="O" MHS_INDEX="41" NAME="axi_powerlink_0_phyMii0_TxEn_pin" SIGNAME="axi_powerlink_0_phyMii0_TxEn"/>
-    <PORT DIR="O" MHS_INDEX="42" NAME="axi_powerlink_0_phyMii0_TxEr_pin" SIGNAME="axi_powerlink_0_phyMii0_TxEr"/>
-    <PORT DIR="I" MHS_INDEX="43" NAME="axi_powerlink_0_phy1_link_pin" SIGNAME="axi_powerlink_0_phy1_link"/>
-    <PORT DIR="I" MHS_INDEX="44" NAME="axi_powerlink_0_phyMii1_RxClk_pin" SIGNAME="axi_powerlink_0_phyMii1_RxClk"/>
-    <PORT DIR="I" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="45" MSB="3" NAME="axi_powerlink_0_phyMii1_RxDat_pin" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_RxDat"/>
-    <PORT DIR="I" MHS_INDEX="46" NAME="axi_powerlink_0_phyMii1_RxDv_pin" SIGNAME="axi_powerlink_0_phyMii1_RxDv"/>
-    <PORT DIR="I" MHS_INDEX="47" NAME="axi_powerlink_0_phyMii1_RxEr_pin" SIGNAME="axi_powerlink_0_phyMii1_RxEr"/>
-    <PORT DIR="I" MHS_INDEX="48" NAME="axi_powerlink_0_phyMii1_TxClk_pin" SIGNAME="axi_powerlink_0_phyMii1_TxClk"/>
-    <PORT DIR="O" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="49" MSB="3" NAME="axi_powerlink_0_phyMii1_TxDat_pin" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_TxDat"/>
-    <PORT DIR="O" MHS_INDEX="50" NAME="axi_powerlink_0_phyMii1_TxEn_pin" SIGNAME="axi_powerlink_0_phyMii1_TxEn"/>
-    <PORT DIR="O" MHS_INDEX="51" NAME="axi_powerlink_0_phyMii1_TxEr_pin" SIGNAME="axi_powerlink_0_phyMii1_TxEr"/>
-    <PORT DIR="O" MHS_INDEX="52" NAME="axi_powerlink_0_led_error_pin" SIGNAME="axi_powerlink_0_led_error"/>
-    <PORT DIR="O" MHS_INDEX="53" NAME="axi_powerlink_0_led_status_pin" SIGNAME="axi_powerlink_0_led_status"/>
-    <PORT DIR="IO" MHS_INDEX="54" NAME="axi_powerlink_0_phy0_SMIDat" SIGNAME="axi_powerlink_0_phy0_SMIDat"/>
-    <PORT DIR="O" MHS_INDEX="55" NAME="axi_powerlink_0_phy0_SMIClk_pin" SIGNAME="axi_powerlink_0_phy0_SMIClk"/>
-    <PORT DIR="O" MHS_INDEX="56" NAME="axi_powerlink_0_phy0_Rst_n_pin" SIGNAME="axi_powerlink_0_phy0_Rst_n"/>
-    <PORT DIR="IO" MHS_INDEX="57" NAME="axi_powerlink_0_phy1_SMIDat" SIGNAME="axi_powerlink_0_phy1_SMIDat"/>
-    <PORT DIR="O" MHS_INDEX="58" NAME="axi_powerlink_0_phy1_SMIClk_pin" SIGNAME="axi_powerlink_0_phy1_SMIClk"/>
-    <PORT DIR="O" MHS_INDEX="59" NAME="axi_powerlink_0_phy1_Rst_n_pin" SIGNAME="axi_powerlink_0_phy1_Rst_n"/>
-    <PORT DIR="O" ENDIAN="LITTLE" LEFT="15" LSB="0" MHS_INDEX="60" MSB="15" NAME="BENCHMARK_PIO_GPIO_IO_O_pin" RIGHT="0" SIGNAME="BENCHMARK_PIO_GPIO_IO_O"/>
+    <PORT DIR="I" MHS_INDEX="42" NAME="axi_powerlink_0_phy1_link_pin" SIGNAME="axi_powerlink_0_phy1_link"/>
+    <PORT DIR="I" MHS_INDEX="43" NAME="axi_powerlink_0_phyMii1_RxClk_pin" SIGNAME="axi_powerlink_0_phyMii1_RxClk"/>
+    <PORT DIR="I" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="44" MSB="3" NAME="axi_powerlink_0_phyMii1_RxDat_pin" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_RxDat"/>
+    <PORT DIR="I" MHS_INDEX="45" NAME="axi_powerlink_0_phyMii1_RxDv_pin" SIGNAME="axi_powerlink_0_phyMii1_RxDv"/>
+    <PORT DIR="I" MHS_INDEX="46" NAME="axi_powerlink_0_phyMii1_RxEr_pin" SIGNAME="axi_powerlink_0_phyMii1_RxEr"/>
+    <PORT DIR="I" MHS_INDEX="47" NAME="axi_powerlink_0_phyMii1_TxClk_pin" SIGNAME="axi_powerlink_0_phyMii1_TxClk"/>
+    <PORT DIR="O" ENDIAN="LITTLE" LEFT="3" LSB="0" MHS_INDEX="48" MSB="3" NAME="axi_powerlink_0_phyMii1_TxDat_pin" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_TxDat"/>
+    <PORT DIR="O" MHS_INDEX="49" NAME="axi_powerlink_0_phyMii1_TxEn_pin" SIGNAME="axi_powerlink_0_phyMii1_TxEn"/>
+    <PORT DIR="O" MHS_INDEX="50" NAME="axi_powerlink_0_led_error_pin" SIGNAME="axi_powerlink_0_led_error"/>
+    <PORT DIR="O" MHS_INDEX="51" NAME="axi_powerlink_0_led_status_pin" SIGNAME="axi_powerlink_0_led_status"/>
+    <PORT DIR="IO" MHS_INDEX="52" NAME="axi_powerlink_0_phy0_SMIDat" SIGNAME="axi_powerlink_0_phy0_SMIDat"/>
+    <PORT DIR="O" MHS_INDEX="53" NAME="axi_powerlink_0_phy0_SMIClk_pin" SIGNAME="axi_powerlink_0_phy0_SMIClk"/>
+    <PORT DIR="O" MHS_INDEX="54" NAME="axi_powerlink_0_phy0_Rst_n_pin" SIGNAME="axi_powerlink_0_phy0_Rst_n"/>
+    <PORT DIR="IO" MHS_INDEX="55" NAME="axi_powerlink_0_phy1_SMIDat" SIGNAME="axi_powerlink_0_phy1_SMIDat"/>
+    <PORT DIR="O" MHS_INDEX="56" NAME="axi_powerlink_0_phy1_SMIClk_pin" SIGNAME="axi_powerlink_0_phy1_SMIClk"/>
+    <PORT DIR="O" MHS_INDEX="57" NAME="axi_powerlink_0_phy1_Rst_n_pin" SIGNAME="axi_powerlink_0_phy1_Rst_n"/>
+    <PORT DIR="O" ENDIAN="LITTLE" LEFT="15" LSB="0" MHS_INDEX="58" MSB="15" NAME="BENCHMARK_PIO_GPIO_IO_O_pin" RIGHT="0" SIGNAME="BENCHMARK_PIO_GPIO_IO_O"/>
   </EXTERNALPORTS>
 
   <MODULES>
@@ -11178,7 +11176,7 @@
       <DESCRIPTION TYPE="SHORT">AXI_POWERLINK</DESCRIPTION>
       <DESCRIPTION TYPE="LONG">Powerlink IP-Core with AXI bus interface</DESCRIPTION>
       <DOCUMENTATION>
-        <DOCUMENT SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/ipcore/powerlink/pcores/axi_powerlink_v0_28_a/doc/OpenMAC.pdf" TYPE="IP"/>
+        <DOCUMENT SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/ipcore/powerlink/pcores/axi_powerlink_v0_28_a/doc/01_POWERLINK-IP-Core_Xilinx.pdf" TYPE="IP"/>
       </DOCUMENTATION>
       <LICENSEINFO ICON_NAME="ps_core_development"/>
       <PARAMETERS>
@@ -11191,7 +11189,7 @@
         <PARAMETER CHANGEDBY="USER" IS_INSTANTIATED="TRUE" MHS_INDEX="5" MPD_INDEX="4" NAME="C_GEN_AXI_BUS_IF" TYPE="BOOLEAN" VALUE="true"/>
         <PARAMETER MPD_INDEX="5" NAME="C_GEN_SIMPLE_IO" TYPE="BOOLEAN" VALUE="FALSE"/>
         <PARAMETER IS_INSTANTIATED="TRUE" MHS_INDEX="11" MPD_INDEX="6" NAME="C_PACKET_LOCATION" TYPE="INTEGER" VALUE="0">
-          <DESCRIPTION>Packet buffer location</DESCRIPTION>
+          <DESCRIPTION>Packet Buffer Location</DESCRIPTION>
         </PARAMETER>
         <PARAMETER CHANGEDBY="SYSTEM" MPD_INDEX="7" NAME="C_MAC_RX_BUFFERS" TYPE="INTEGER" VALUE="6"/>
         <PARAMETER CHANGEDBY="USER" IS_INSTANTIATED="TRUE" MHS_INDEX="6" MPD_INDEX="8" NAME="C_TX_INT_PKT" TYPE="BOOLEAN" VALUE="TRUE"/>
@@ -11368,29 +11366,29 @@
         <PORT DIR="I" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="9" MPD_INDEX="13" NAME="phyMii0_TxClk" SIGNAME="axi_powerlink_0_phyMii0_TxClk"/>
         <PORT DIR="O" ENDIAN="LITTLE" IOS="PHY0" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="10" MPD_INDEX="14" MSB="3" NAME="phyMii0_TxDat" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii0_TxDat" VECFORMULA="[3:0]"/>
         <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="11" MPD_INDEX="15" NAME="phyMii0_TxEn" SIGNAME="axi_powerlink_0_phyMii0_TxEn"/>
-        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="12" MPD_INDEX="16" NAME="phyMii0_TxEr" SIGNAME="axi_powerlink_0_phyMii0_TxEr"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="13" MPD_INDEX="26" NAME="phy1_link" SIGNAME="axi_powerlink_0_phy1_link"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="14" MPD_INDEX="27" NAME="phyMii1_RxClk" SIGNAME="axi_powerlink_0_phyMii1_RxClk"/>
-        <PORT DIR="I" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="15" MPD_INDEX="28" MSB="3" NAME="phyMii1_RxDat" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_RxDat" VECFORMULA="[3:0]"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="16" MPD_INDEX="29" NAME="phyMii1_RxDv" SIGNAME="axi_powerlink_0_phyMii1_RxDv"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="17" MPD_INDEX="30" NAME="phyMii1_RxEr" SIGNAME="axi_powerlink_0_phyMii1_RxEr"/>
-        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="18" MPD_INDEX="31" NAME="phyMii1_TxClk" SIGNAME="axi_powerlink_0_phyMii1_TxClk"/>
-        <PORT DIR="O" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="19" MPD_INDEX="32" MSB="3" NAME="phyMii1_TxDat" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_TxDat" VECFORMULA="[3:0]"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="20" MPD_INDEX="33" NAME="phyMii1_TxEn" SIGNAME="axi_powerlink_0_phyMii1_TxEn"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="21" MPD_INDEX="34" NAME="phyMii1_TxEr" SIGNAME="axi_powerlink_0_phyMii1_TxEr"/>
-        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="22" MPD_INDEX="69" NAME="led_error" SIGNAME="axi_powerlink_0_led_error"/>
-        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="23" MPD_INDEX="70" NAME="led_status" SIGNAME="axi_powerlink_0_led_status"/>
-        <PORT BUS="S_AXI_MAC_REG" CLKFREQUENCY="50000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="24" MPD_INDEX="107" NAME="S_AXI_MAC_REG_ACLK" SIGIS="CLK" SIGNAME="clk_50_0000MHzPLL1"/>
-        <PORT BUS="S_AXI_MAC_PKT" CLKFREQUENCY="100000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="25" MPD_INDEX="126" NAME="S_AXI_MAC_PKT_ACLK" SIGIS="CLK" SIGNAME="clk_100_0000MHzPLL1"/>
-        <PORT BUS="S_AXI_PDI_PCP" CLKFREQUENCY="100000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="26" MPD_INDEX="145" NAME="S_AXI_PDI_PCP_ACLK" SIGIS="CLK" SIGNAME="clk_100_0000MHzPLL1"/>
-        <PORT BUS="S_AXI_PDI_AP" CLKFREQUENCY="50000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="27" MPD_INDEX="164" NAME="S_AXI_PDI_AP_ACLK" SIGIS="CLK" SIGNAME="clk_50_0000MHzPLL1"/>
-        <PORT DIR="IO" IOS="PHY0" IS_INSTANTIATED="TRUE" IS_THREE_STATE="TRUE" MHS_INDEX="28" MPD_INDEX="5" NAME="phy0_SMIDat" SIGNAME="axi_powerlink_0_phy0_SMIDat"/>
-        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="29" MPD_INDEX="6" NAME="phy0_SMIClk" SIGNAME="axi_powerlink_0_phy0_SMIClk"/>
-        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="30" MPD_INDEX="7" NAME="phy0_Rst_n" SIGNAME="axi_powerlink_0_phy0_Rst_n"/>
-        <PORT DIR="IO" IOS="PHY1" IS_INSTANTIATED="TRUE" IS_THREE_STATE="TRUE" MHS_INDEX="31" MPD_INDEX="23" NAME="phy1_SMIDat" SIGNAME="axi_powerlink_0_phy1_SMIDat"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="32" MPD_INDEX="24" NAME="phy1_SMIClk" SIGNAME="axi_powerlink_0_phy1_SMIClk"/>
-        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="33" MPD_INDEX="25" NAME="phy1_Rst_n" SIGNAME="axi_powerlink_0_phy1_Rst_n"/>
-        <PORT BUS="M_AXI_MAC_DMA" CLKFREQUENCY="100000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="34" MPD_INDEX="75" NAME="M_AXI_MAC_DMA_aclk" SIGIS="CLK" SIGNAME="clk_100_0000MHzPLL1"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="12" MPD_INDEX="26" NAME="phy1_link" SIGNAME="axi_powerlink_0_phy1_link"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="13" MPD_INDEX="27" NAME="phyMii1_RxClk" SIGNAME="axi_powerlink_0_phyMii1_RxClk"/>
+        <PORT DIR="I" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="14" MPD_INDEX="28" MSB="3" NAME="phyMii1_RxDat" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_RxDat" VECFORMULA="[3:0]"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="15" MPD_INDEX="29" NAME="phyMii1_RxDv" SIGNAME="axi_powerlink_0_phyMii1_RxDv"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="16" MPD_INDEX="30" NAME="phyMii1_RxEr" SIGNAME="axi_powerlink_0_phyMii1_RxEr"/>
+        <PORT DIR="I" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="17" MPD_INDEX="31" NAME="phyMii1_TxClk" SIGNAME="axi_powerlink_0_phyMii1_TxClk"/>
+        <PORT DIR="O" ENDIAN="LITTLE" IOS="PHY1" IS_INSTANTIATED="TRUE" LEFT="3" LSB="0" MHS_INDEX="18" MPD_INDEX="32" MSB="3" NAME="phyMii1_TxDat" RIGHT="0" SIGNAME="axi_powerlink_0_phyMii1_TxDat" VECFORMULA="[3:0]"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="19" MPD_INDEX="33" NAME="phyMii1_TxEn" SIGNAME="axi_powerlink_0_phyMii1_TxEn"/>
+        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="20" MPD_INDEX="69" NAME="led_error" SIGNAME="axi_powerlink_0_led_error"/>
+        <PORT DIR="O" IOS="LED" IS_INSTANTIATED="TRUE" MHS_INDEX="21" MPD_INDEX="70" NAME="led_status" SIGNAME="axi_powerlink_0_led_status"/>
+        <PORT BUS="S_AXI_MAC_REG" CLKFREQUENCY="50000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="22" MPD_INDEX="107" NAME="S_AXI_MAC_REG_ACLK" SIGIS="CLK" SIGNAME="clk_50_0000MHzPLL1"/>
+        <PORT BUS="S_AXI_MAC_PKT" CLKFREQUENCY="100000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="23" MPD_INDEX="126" NAME="S_AXI_MAC_PKT_ACLK" SIGIS="CLK" SIGNAME="clk_100_0000MHzPLL1"/>
+        <PORT BUS="S_AXI_PDI_PCP" CLKFREQUENCY="100000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="24" MPD_INDEX="145" NAME="S_AXI_PDI_PCP_ACLK" SIGIS="CLK" SIGNAME="clk_100_0000MHzPLL1"/>
+        <PORT BUS="S_AXI_PDI_AP" CLKFREQUENCY="50000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="25" MPD_INDEX="164" NAME="S_AXI_PDI_AP_ACLK" SIGIS="CLK" SIGNAME="clk_50_0000MHzPLL1"/>
+        <PORT DIR="IO" IOS="PHY0" IS_INSTANTIATED="TRUE" IS_THREE_STATE="TRUE" MHS_INDEX="26" MPD_INDEX="5" NAME="phy0_SMIDat" SIGNAME="axi_powerlink_0_phy0_SMIDat"/>
+        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="27" MPD_INDEX="6" NAME="phy0_SMIClk" SIGNAME="axi_powerlink_0_phy0_SMIClk"/>
+        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="28" MPD_INDEX="7" NAME="phy0_Rst_n" SIGNAME="axi_powerlink_0_phy0_Rst_n"/>
+        <PORT DIR="IO" IOS="PHY1" IS_INSTANTIATED="TRUE" IS_THREE_STATE="TRUE" MHS_INDEX="29" MPD_INDEX="23" NAME="phy1_SMIDat" SIGNAME="axi_powerlink_0_phy1_SMIDat"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="30" MPD_INDEX="24" NAME="phy1_SMIClk" SIGNAME="axi_powerlink_0_phy1_SMIClk"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="31" MPD_INDEX="25" NAME="phy1_Rst_n" SIGNAME="axi_powerlink_0_phy1_Rst_n"/>
+        <PORT BUS="M_AXI_MAC_DMA" CLKFREQUENCY="100000000" DEF_SIGNAME="__BUS__" DIR="I" IS_INSTANTIATED="TRUE" MHS_INDEX="32" MPD_INDEX="75" NAME="M_AXI_MAC_DMA_aclk" SIGIS="CLK" SIGNAME="clk_100_0000MHzPLL1"/>
+        <PORT DIR="O" IOS="PHY1" IS_INSTANTIATED="TRUE" MHS_INDEX="33" MPD_INDEX="34" NAME="phyMii1_TxEr" SIGNAME="net_gnd"/>
+        <PORT DIR="O" IOS="PHY0" IS_INSTANTIATED="TRUE" MHS_INDEX="34" MPD_INDEX="16" NAME="phyMii0_TxEr" SIGNAME="net_gnd"/>
         <PORT DIR="O" ENDIAN="LITTLE" LEFT="255" LSB="0" MPD_INDEX="0" MSB="255" NAME="test_port" RIGHT="0" SIGNAME="__NOC__" VECFORMULA="[255:0]"/>
         <PORT DIR="I" IS_VALID="FALSE" MPD_INDEX="1" NAME="clk100" SIGIS="CLK" SIGNAME="__NOC__"/>
         <PORT DIR="IO" IOS="PHY" IS_THREE_STATE="TRUE" IS_VALID="FALSE" MPD_INDEX="2" NAME="phy_SMIDat" SIGNAME="__NOC__"/>
@@ -11722,10 +11720,10 @@
             <PORTMAP DIR="I" PHYSICAL="phyMii0_TxClk"/>
             <PORTMAP DIR="O" PHYSICAL="phyMii0_TxDat"/>
             <PORTMAP DIR="O" PHYSICAL="phyMii0_TxEn"/>
-            <PORTMAP DIR="O" PHYSICAL="phyMii0_TxEr"/>
             <PORTMAP DIR="IO" PHYSICAL="phy0_SMIDat"/>
             <PORTMAP DIR="O" PHYSICAL="phy0_SMIClk"/>
             <PORTMAP DIR="O" PHYSICAL="phy0_Rst_n"/>
+            <PORTMAP DIR="O" PHYSICAL="phyMii0_TxEr"/>
             <PORTMAP DIR="O" PHYSICAL="phy0_clk"/>
             <PORTMAP DIR="I" PHYSICAL="phy0_RxDat"/>
             <PORTMAP DIR="I" PHYSICAL="phy0_RxDv"/>
@@ -11744,10 +11742,10 @@
             <PORTMAP DIR="I" PHYSICAL="phyMii1_TxClk"/>
             <PORTMAP DIR="O" PHYSICAL="phyMii1_TxDat"/>
             <PORTMAP DIR="O" PHYSICAL="phyMii1_TxEn"/>
-            <PORTMAP DIR="O" PHYSICAL="phyMii1_TxEr"/>
             <PORTMAP DIR="IO" PHYSICAL="phy1_SMIDat"/>
             <PORTMAP DIR="O" PHYSICAL="phy1_SMIClk"/>
             <PORTMAP DIR="O" PHYSICAL="phy1_Rst_n"/>
+            <PORTMAP DIR="O" PHYSICAL="phyMii1_TxEr"/>
             <PORTMAP DIR="O" PHYSICAL="phy1_clk"/>
             <PORTMAP DIR="I" PHYSICAL="phy1_RxDat"/>
             <PORTMAP DIR="I" PHYSICAL="phy1_RxDv"/>

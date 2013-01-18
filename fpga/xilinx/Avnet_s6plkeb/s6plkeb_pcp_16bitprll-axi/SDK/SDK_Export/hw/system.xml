@@ -1,5 +1,5 @@
 
-<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Mon Nov 26 21:43:05 2012">
+<EDKSYSTEM EDKVERSION="13.2" EDWVERSION="1.2" TIMESTAMP="Thu Jan 17 21:02:53 2013">
 
   <SYSTEMINFO ARCH="spartan6" DEVICE="xc6slx16" PACKAGE="csg324" PART="xc6slx16csg324-2" SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/Avnet_s6plkeb/s6plkeb_pcp_16bitprll-axi/system.xmp" SPEEDGRADE="-2"/>
 
@@ -4721,7 +4721,7 @@
       <DESCRIPTION TYPE="SHORT">AXI_POWERLINK</DESCRIPTION>
       <DESCRIPTION TYPE="LONG">Powerlink IP-Core with AXI bus interface</DESCRIPTION>
       <DOCUMENTATION>
-        <DOCUMENT SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/ipcore/powerlink/pcores/axi_powerlink_v0_28_a/doc/OpenMAC.pdf" TYPE="IP"/>
+        <DOCUMENT SOURCE="C:/mairt/workspace/openPOWERLINK_CNDK_mairt_xilinx/fpga/xilinx/ipcore/powerlink/pcores/axi_powerlink_v0_28_a/doc/01_POWERLINK-IP-Core_Xilinx.pdf" TYPE="IP"/>
       </DOCUMENTATION>
       <LICENSEINFO ICON_NAME="ps_core_development"/>
       <PARAMETERS>
@@ -4734,7 +4734,7 @@
         <PARAMETER MPD_INDEX="4" NAME="C_GEN_AXI_BUS_IF" TYPE="BOOLEAN" VALUE="FALSE"/>
         <PARAMETER MPD_INDEX="5" NAME="C_GEN_SIMPLE_IO" TYPE="BOOLEAN" VALUE="FALSE"/>
         <PARAMETER IS_INSTANTIATED="TRUE" MHS_INDEX="7" MPD_INDEX="6" NAME="C_PACKET_LOCATION" TYPE="INTEGER" VALUE="0">
-          <DESCRIPTION>Packet buffer location</DESCRIPTION>
+          <DESCRIPTION>Packet Buffer Location</DESCRIPTION>
         </PARAMETER>
         <PARAMETER CHANGEDBY="SYSTEM" MPD_INDEX="7" NAME="C_MAC_RX_BUFFERS" TYPE="INTEGER" VALUE="6"/>
         <PARAMETER CHANGEDBY="SYSTEM" MPD_INDEX="8" NAME="C_TX_INT_PKT" TYPE="BOOLEAN" VALUE="true"/>
