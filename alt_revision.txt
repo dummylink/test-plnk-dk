@@ -77,7 +77,7 @@ Revision History
                     [FIX] PRes reception error (EPL_DLL_ERR_INVALID_FORMAT)
                     [TASK] A: set Macros for filling the TC-I-MEM for performance optimization
 
-17.07.2012 V1.0.0   [FEATURE] add virtual Ethernet module to libCnApi software
+18.01.2013 V1.0.0   [FEATURE] add virtual Ethernet module to libCnApi software
                     [FEATURE] place functions in internal memory depending on its size
                     [FIX] rework doxygen manpages
                     [FIX] default OBD access: expedited SDO transfer can use maximum data size
