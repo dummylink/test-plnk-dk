@@ -39,8 +39,7 @@
 
 /******************************************************************************/
 /* defines */
-//TODO: this is a restriction to be indicated in xdd! (max nr. of mappable objects)
-#define PCP_PDO_MAPPING_SIZE_SUM_MAX    100     ///< max sum of mappable bytes (for 400µs cycle time)
+#define PCP_PDO_MAPPING_SIZE_SUM_MAX    100     ///< max sum of mappable bytes (for 400µs cycle time, 1 RPDO, 1TPDO)
 
 #define BYTE_SIZE_SHIFT 3 ///< used for bit shift operation to convert bit value to byte value
 /******************************************************************************/
