@@ -13,7 +13,7 @@ Introduction
 This demo implements the software for a Powerlink Communication Processor (PCP).
 The PCP is designed to be connected to an Application Processor (AP) which processes
 the user application. The AP can be implemented on a second Microblaze
-processor in the same FPGA as the PCP or on an external microprocessor connected to 
+processor in the same FPGA as the PCP or on an external microprocessor connected to
 the PCP through a SPI or parallel interface.
 
 Contents
@@ -27,10 +27,16 @@ Properties
 - PReq-PRes Latency: 960ns
 - Process data: 4 bytes input and 4 bytes output
 - There are 3 RPDOs and 1 TPDO available.
-- Software footprint is apprx.: Code+Data=310 KByte, Heap=100 KByte, Stack=50 KByte
-                                => 460 KByte (rough estimation)
-  (Measured with -O3)
 
+- Software footprint for release is apprx.:
+             Code+Data=240 KByte, Heap=110 KByte, Stack=50 KByte
+             => 400 KByte (rough estimation)
+  (Measured with -O3, DBG_MODE=NDEBUG, RX/TX packets in BRAM)
+
+- Software footprint for debug is apprx.:
+             Code+Data=398 KByte, Heap=110 KByte, Stack=50 KByte
+             => 558 KByte (rough estimation)
+  (Measured with -O0, DBG_MODE=_DEBUG, RX/TX packets in BRAM)
 
 Requirements
 ---------------
@@ -60,7 +66,7 @@ A detailed description is available in the "MAN_OAT113110_11_Vxxx - Getting Star
 
 Build flow for Windows:
 
-1. Open Xilinx Platform Studio (XPS) without opening a project and set the path 
+1. Open Xilinx Platform Studio (XPS) without opening a project and set the path
    to the POWERLINK IP-core with:
    Edit -> Preferences -> Application -> Global Peripheral Repository Search Path
    (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\fpga\xilinx\ipcore)
@@ -68,7 +74,7 @@ Build flow for Windows:
 2. If you don't want to build the FPGA configuration you can use the precompiled bitstream
    in this package and continue with step 5.
 
-3. To build the FPGA configuration, open a design from the FPGA directory 
+3. To build the FPGA configuration, open a design from the FPGA directory
   (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\fpga\xilinx\) and build it. (Generate Bitstream)
 
 4. Export the design to the SDK_Export directory (Export Hardware Design to SDK) without launching SDK.

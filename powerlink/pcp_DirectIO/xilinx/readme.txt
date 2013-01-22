@@ -37,10 +37,15 @@ Properties
   6200/03: not in use
   6200/04: not in use
 
-- Software footprint is apprx.: Code+Data=266 KByte, Heap=100 KByte, Stack=50 KByte
-                                => 416 KByte (rough estimation)
-  (Measured with -O3)
+- Software footprint for release is apprx.:
+               Code+Data=206 KByte, Heap=110 KByte, Stack=50 KByte
+               => 366 KByte (rough estimation)
+  (Measured with -O3, DBG_MODE=NDEBUG, RX/TX packets in BRAM)
 
+- Software footprint for debug is apprx.:
+               Code+Data=306 KByte, Heap=110 KByte, Stack=50 KByte
+               => 466 KByte (rough estimation)
+  (Measured with -O0, DBG_MODE=_DEBUG, RX/TX packets in BRAM)
 
 Requirements
 ---------------
@@ -75,7 +80,7 @@ Build flow for Windows:
 2. If you don't want to build the FPGA configuration you can use the precompiled bitstream
    in this package and continue with step 5.
 
-3. To build the FPGA configuration, open a design from the FPGA directory 
+3. To build the FPGA configuration, open a design from the FPGA directory
   (e.g: C:\BR_POWERLINK-SLAVE_XILINX_VX.X.X\02_Reference_Sources\fpga\xilinx\) and build it. (Generate Bitstream)
 
 4. Export the design to the SDK_Export directory (Export Hardware Design to SDK) without launching SDK.
