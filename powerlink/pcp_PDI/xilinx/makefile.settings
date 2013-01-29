@@ -12,30 +12,30 @@
 CNDK_DIR=../..
 
 #Path to the directory of the board support package and the hw platform
-BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-pcp-plb
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-pcp-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intaxi-pcp-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_spi-pcp-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-pcp-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intplb-pcp-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intaxi-pcp-axi
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-pcp-axi
+BSP_PATH=${CNDK_DIR}/fpga/xilinx/Xilinx_Z702/Zynq_ap_pcp_intaxi-axi/SDK/Workspace/standalone_bsp_pcp
 
-HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intplb-plb
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intplb-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intaxi-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_spi-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-pcp-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intplb-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intaxi-axi
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-pcp-axi
+HW_PLATFORM_PATH=${CNDK_DIR}/fpga/xilinx/Xilinx_Z702/Zynq_ap_pcp_intaxi-axi/SDK/Workspace/Zynq_ap_pcp_intaxi-axi_hw_platform
 
 ##################################
-# Board name: [lx150t, lx9, s6plkeb]
-BOARD_NAME=lx150t
+# Board name: [lx150t, lx9, s6plkeb, zynq]
+BOARD_NAME=zynq
 
 ##################################
 # Bus interface: [plb, axi]
 # Note: This sets correct endian and linker script
-BUS_INTERFACE=plb
+BUS_INTERFACE=axi
 
 ##################################
 # Two processors in bitstream: [yes, no]
@@ -57,8 +57,8 @@ VIRT_ETH=yes
 # Hardware divider: [ -mno-xl-soft-div = available, -mxl-soft-div = not available ]
 # Barel shifter: [ -mno-xl-barrel-shift = available, -mxl-barrel-shift = not available ]
 # Use pattern compare instructions: [ -mno-xl-pattern-compare = don't use them, -mxl-pattern-compare = use them ]
-PROC_FEATURES=-mcpu=v8.20.a -mno-xl-pattern-compare -mno-xl-barrel-shift -mxl-soft-mul -mxl-soft-div
-
+#PROC_FEATURES=-mcpu=v8.20.a -mno-xl-pattern-compare -mno-xl-barrel-shift -mxl-soft-mul -mxl-soft-div
+PROC_FEATURES=-mcpu=v8.20.a -mno-xl-pattern-compare -mxl-soft-mul -mxl-soft-div
 
 ##################################
 #Debug Level

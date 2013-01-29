@@ -35,15 +35,15 @@ endif
 
 ##################################
 #general compile defines
-CC=mb-gcc
-AR=mb-ar
+CC=arm-xilinx-eabi-gcc
+AR=arm-xilinx-eabi-ar
 CP=cp
 RM=rm
-PERL=xilperl
+#PERL=xilperl
 EXECUTABLE=ap_pdi
 LIBCNAPI_NAME=CnApi
 
-LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
+LSSCRIPT=lscript_zynq_axi_dual.ld
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
@@ -63,14 +63,15 @@ INCLUDES=-I${APP_DIR}\
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${LIBCNAPI_DIR}/inc \
 -I${CNDK_DIR}/common/inc \
--I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
--I${APP_DIR}/target/xilinx_microblaze/include 
+-I${APP_DIR}/target/Zynq_ARM_CortexA9/include
+#-I${BSP_PATH}/${PROCESSOR_NAME}/include \
+#-I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
 
 ##################################
 # Source files
 SRCFILES=${APP_DIR}/main.c \
-${APP_DIR}/target/xilinx_microblaze/src/systemComponents.c \
-${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c
+${APP_DIR}/target/Zynq_ARM_CortexA9/src/systemComponents.c 
+#${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c
 
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
 
@@ -97,6 +98,7 @@ endif
 ###################################
 # libraries
 LIBSPATH=-L${BSP_PATH}/${PROCESSOR_NAME}/lib -L${LIBCNAPI_BUILD_DIR}
+LIBS=-Wl,--start-group,-lxil,-lc,-l$(LIBCNAPI_NAME),--end-group
 
 ###################################
 # objects
@@ -160,13 +162,13 @@ $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 ${EXECUTABLE}.elf: ${OBJ} ${LSSCRIPT} $(LIBCNAPI_BUILD_DIR)/lib$(LIBCNAPI_NAME).a
 	@echo Building target: $@
 	@echo Invoking: MicroBlaze gcc linker
-	$(CC) $(LDFLAGS) ${LIBSPATH} ${OBJ} -l$(LIBCNAPI_NAME) -o ${EXECUTABLE}.elf
+	$(CC) $(LDFLAGS) ${OBJ} $(LIBSPATH) ${LIBS} -o ${EXECUTABLE}.elf  
 	@echo Finished building target: $@
 	@echo ' '
 	
 ${EXECUTABLE}.size: ${EXECUTABLE}.elf
 	@echo Invoking: MicroBlaze Print Size
-	mb-size ${EXECUTABLE}.elf  |tee "${EXECUTABLE}.size"
+	arm-xilinx-eabi-size ${EXECUTABLE}.elf  |tee "${EXECUTABLE}.size"
 	@echo Finished building: $@
 	@echo ' '
 

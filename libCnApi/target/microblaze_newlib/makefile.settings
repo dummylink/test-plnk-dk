@@ -12,7 +12,7 @@
 CNDK_DIR=../../..
 
 #Path to the directory of the board support package and the hw platform
-BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-ap-plb
+#BSP_PATH=${CNDK_DIR}/Workspace/standalone_bsp_zynq_ap
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intaxi-ap-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_spi-ap-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intplb-ap-plb
@@ -28,7 +28,7 @@ BUS_INTERFACE=axi
 ##################################
 # Include SPI driver: [yes, no]
 # Note: Disables SPI driver object file creation (reduces code size)
-INCLUDE_SPI_DRV=yes
+INCLUDE_SPI_DRV=no
 
 ##################################
 # Processor name: [pcp, ap]
@@ -45,7 +45,8 @@ VIRT_ETH=yes
 # Hardware divider: [ -mno-xl-soft-div = available, -mxl-soft-div = not available ]
 # Barel shifter: [ -mno-xl-barrel-shift = available, -mxl-barrel-shift = not available ]
 # Use pattern compare instructions: [-mno-xl-pattern-compare = don't use them, -mxl-pattern-compare = use them ]
-PROC_FEATURES=-mcpu=v8.20.a -mno-xl-pattern-compare -mxl-soft-mul -mxl-soft-div
+#PROC_FEATURES=-mcpu=v8.20.a -mno-xl-pattern-compare -mxl-soft-mul -mxl-soft-div
+PROC_FEATURES=-mcpu=cortex-a9
 
 ##################################
 #Debug Level

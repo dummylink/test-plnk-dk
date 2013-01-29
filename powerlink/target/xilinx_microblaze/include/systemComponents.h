@@ -91,6 +91,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #elif defined(POWERLINK_USES_AXI_BUS)
 
+	//Added extra condtion for Zynq architecture to enable prints
+	#ifdef XPAR_REMAP_0_BASEADDR
+	#pragma message "This define enables prints from PCP to console, valid for Zynq architecture"
+	#define ZYNQ_PCP_ENABLE_UART
+	#endif //XPAR_REMAP_0_BASEADDR
+
     #ifdef XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR
     #define LATCHED_IOPORT_BASE   (void*) XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR
     #define LATCHED_IOPORT_CFG    (void*) (LATCHED_IOPORT_BASE + 4)

@@ -21,22 +21,22 @@ OBJDIR=obj
 
 ##################################
 #general compile defines
-CC=mb-gcc
-AR=mb-ar
+CC=arm-xilinx-eabi-gcc
+AR=arm-xilinx-eabi-ar
 CP=cp
 RM=rm
 PERL=xilperl
 LIBRARY=libCnApi.a
 
 ARFLAGS=-src
-MACROS=-D__MICROBLAZE__ -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
+MACROS=-D__arm__ -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
 CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 
 ##################################
 # Include directory
-INCLUDES=-I${BSP_PATH}/${PROCESSOR_NAME}/include \
+INCLUDES=-I${BSP_PATH}/ps7_cortexa9_0/include \
 -I${OBJDICT_DIR} \
 -I${CN_API_DIR}/inc \
 -I${CN_API_DIR}/int \
@@ -44,7 +44,7 @@ INCLUDES=-I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${CN_API_DIR}/int/openPOWERLINK/kernel \
 -I${CN_API_DIR}/int/openPOWERLINK/user \
 -I${CNDK_DIR}/common/inc \
--I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic
+#-I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic
 
 ##################################
 # Source files
@@ -126,12 +126,12 @@ builddir:
 	$(shell mkdir $(OBJDIR))
 
 # extra rule for usleep to set opt level to zero
-$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
-	@echo Building file: $<
-	@echo Invoking: MicroBlaze gcc compiler
-	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
-	@echo Finished building: $<
-	@echo ' '
+#$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
+#	@echo Building file: $<
+#	@echo Invoking: MicroBlaze gcc compiler
+#	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
+#	@echo Finished building: $<
+#	@echo ' '
 
 ${LIBRARY}: ${OBJ}
 	@echo Building library: $@

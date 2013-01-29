@@ -22,7 +22,7 @@ FPGA_DIR=$(CNDK_DIR)/fpga/xilinx
 LX9_DIR=$(FPGA_DIR)/Avnet_lx9
 LX150t_DIR=$(FPGA_DIR)/Avnet_lx150t
 S6PLKEB_DIR=$(FPGA_DIR)/Avnet_s6plkeb
-
+ZYNQ702_DIR=$(FPGA_DIR)/Xilinx_Z702
 # lx9 designs
 LX9_DIRECTIO_AXI=$(LX9_DIR)/micro_pcp_DirectIO-axi
 LX9_DIRECTIO_PLB=$(LX9_DIR)/micro_pcp_DirectIO-plb
@@ -42,6 +42,9 @@ S6PLKEB_16BITPRLL_PCP_AXI=$(S6PLKEB_DIR)/s6plkeb_pcp_16bitprll-axi
 S6PLKEB_DIRECTIO_AXI=$(S6PLKEB_DIR)/s6plkeb_pcp_DirectIO-axi
 S6PLKEB_DIRECTIO_PLB=$(S6PLKEB_DIR)/s6plkeb_pcp_DirectIO-plb
 
+#zynq702 Designs
+ZYNQ702_INTAXI_AXI=$(ZYNQ702_DIR)/Zynq_ap_pcp_intaxi-axi
+ZYNQ702_DIRECTIO_AXI=$(ZYNQ702_DIR)/Zynq_pcp_DirectIO
 ##################################
 # Variables
 MAKE=make
@@ -65,11 +68,13 @@ header:
 	@echo "Write 'make lx9' to build all lx9 examples"
 	@echo "Write 'make lx150t' to build all lx150t examples"
 	@echo "Write 'make s6plkeb' to build all s6plkeb examples"
+	@echo "Write 'make zynq702' to build all zynq702 examples"
 	@echo ""
 	@echo "Write 'make clean' to remove all generated files"
 	@echo "Write 'make clean_lx9' to remove all generated files from lx9 examples"
 	@echo "Write 'make clean_lx150t' to remove all generated files from lx150t examples"
 	@echo "Write 'make clean_s6plkeb' to remove all generated files from s6plkeb examples"
+	@echo "Write 'make clean_zynq702' to remove all generated files from zynq702 examples"
 
 ###################################
 # BUILD RULES
@@ -143,11 +148,19 @@ s6plkeb_directIO-plb:
 	$(MAKE) -C $(S6PLKEB_DIRECTIO_PLB) all
 	$(MAKE) -C $(S6PLKEB_DIRECTIO_PLB) -f system.make bits
 	$(MAKE) -C $(S6PLKEB_DIRECTIO_PLB) -f system.make exporttosdk
-
+# zynq702 rules
+zynq702_intaxi-axi:
+	$(MAKE) -C $(ZYNQ702_INTAXI_AXI) all
+	$(MAKE) -C $(ZYNQ702_INTAXI_AXI) -f system.make bits
+	$(MAKE) -C $(ZYNQ702_INTAXI_AXI) -f system.make exporttosdk
+zynq702_directIO:
+	$(MAKE) -C $(ZYNQ702_DIRECTIO_AXI) all
+	$(MAKE) -C $(ZYNQ702_DIRECTIO_AXI) -f system.make bits
+	$(MAKE) -C $(ZYNQ702_DIRECTIO_AXI) -f system.make exporttosdk	
 ####################################
 # General rules
 .PHONY: all
-all: lx9 lx150t s6plkeb
+all: lx9 lx150t s6plkeb zynq702
 
 .PHONY: lx9
 lx9: lx9_directIO-axi lx9_directIO-plb
@@ -158,11 +171,14 @@ lx150t: lx150t_intaxi-axi lx150t_intplb-plb lx150t_intspi-plb lx150t_directIO-ax
 .PHONY: s6plkeb
 s6plkeb: s6plkeb_16bitprll_ap_axi s6plkeb_intaxi-axi s6plkeb_intplb-plb s6plkeb_16bitprll_pcp_axi s6plkeb_directIO-axi s6plkeb_directIO-plb
 
+.PHONY: zynq702
+zynq702: zynq702_intaxi-axi zynq702_directIO 
+
 ###################################
 # CLEAN RULES
 ###################################
 .PHONY: clean
-clean: clean_lx9 clean_lx150t clean_s6plkeb
+clean: clean_lx9 clean_lx150t clean_s6plkeb zynq702
 
 .PHONY: clean_lx9
 clean_lx9:
@@ -211,3 +227,14 @@ clean_s6plkeb:
 	$(MAKE) -C $(S6PLKEB_DIRECTIO_PLB) all
 	$(MAKE) -C $(S6PLKEB_DIRECTIO_PLB) -f system.make clean
 	-$(RM) $(S6PLKEB_DIRECTIO_PLB)/system.make $(S6PLKEB_DIRECTIO_PLB)/SDK
+	
+.PHONY: clean_zynq702
+clean_zynq702:
+	$(MAKE) -C $(ZYNQ702_INTAXI_AXI) all
+	$(MAKE) -C $(ZYNQ702_INTAXI_AXI) -f system.make clean
+	-$(RM) $(ZYNQ702_INTAXI_AXI)/system.make $(ZYNQ702_INTAXI_AXI)/SDK
+	
+	$(MAKE) -C $(ZYNQ702_DIRECTIO_AXI) all
+	$(MAKE) -C $(ZYNQ702_DIRECTIO_AXI) -f system.make clean
+	-$(RM) $(ZYNQ702_DIRECTIO_AXI)/system.make $(ZYNQ702_DIRECTIO_AXI)/SDK
+	

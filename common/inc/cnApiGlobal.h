@@ -23,6 +23,8 @@ subject to the License Agreement located at the end of this file below.
 /* includes */
 #ifdef __NIOS2__
 #include <unistd.h>    //for usleep()
+#elif defined (__arm__)
+#include <sleep.h>
 #elif defined(__MICROBLAZE__)
 #include "xilinx_usleep.h"
 #endif
@@ -31,7 +33,7 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* data types */
 
-#if defined(__NIOS2__) || defined(__MICROBLAZE__)
+#if defined(__NIOS2__) || defined(__MICROBLAZE__) || defined(__arm__)
 
 #ifndef CHAR
     #define CHAR char
