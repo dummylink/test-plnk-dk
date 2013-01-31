@@ -275,14 +275,14 @@ int main (void)
 #endif /* USE_POLLING_MODE_ASYNC */
 
 #ifdef CNAPI_VETH_SEND_TEST
-        status = CnApi_SendTestVEth();
-        if(status == kCnApiStatusMsgBufFull)
+        Ret = CnApi_SendTestVEth();
+        if(Ret == kCnApiStatusMsgBufFull)
         {
             // message buffer full (do nothing!)
         }
-        else if (status != kCnApiStatusOk)
+        else if (Ret != kCnApiStatusOk)
         {
-            DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: CnApi_sendVeth failed with 0x%02X\n", status);
+            DEBUG_TRACE1(DEBUG_LVL_ERROR, "ERROR: CnApi_sendVeth failed with 0x%02X\n", Ret);
         }
 #endif
     }
