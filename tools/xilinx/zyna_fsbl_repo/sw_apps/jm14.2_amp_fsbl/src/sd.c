@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -48,9 +48,9 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a jz  04/28/11 Initial release
+* 1.00a jz	04/28/11 Initial release
 *
 * </pre>
 *
@@ -80,7 +80,7 @@
 extern u32 FlashReadBaseAddress;
 
 
-static FIL fil;                                /* File object */
+static FIL fil;		/* File object */
 static FATFS fatfs;
 static char buffer[32];
 static char *boot_file = buffer;
@@ -91,37 +91,39 @@ static char *boot_file = buffer;
 *
 * This function initializes the controller for the SD FLASH interface.
 *
-* @param    filename of the file that is to be used
+* @param	filename of the file that is to be used
 *
-* @return   XST_SUCCESS if the controller initializes correctly
-*           XST_FAILURE if the controller fails to initializes correctly
+* @return
+*		- XST_SUCCESS if the controller initializes correctly
+*		- XST_FAILURE if the controller fails to initializes correctly
 *
-* @note    none.
+* @note		None.
 *
 ****************************************************************************/
-u32 InitSD(char *filename)
+u32 InitSD(const char *filename)
 {
 
 	FRESULT rc;
 
-    /* Register volume work area, initialize device */
-    rc = f_mount(0, &fatfs);
-    debug_xil_printf("SD: rc= %.8x\n\r", rc);
-    if (rc != FR_OK) {
-        return XST_FAILURE;
-    }
+	/* Register volume work area, initialize device */
+	rc = f_mount(0, &fatfs);
+	fsbl_printf(DEBUG_INFO,"SD: rc= %.8x\n\r", rc);
 
-    strcpy_rom(buffer, filename);
-    boot_file = filename;
-    FlashReadBaseAddress = XPS_SD_BASEADDR;
+	if (rc != FR_OK) {
+		return XST_FAILURE;
+	}
 
-    rc = f_open(&fil, boot_file, FA_READ);
-    if (rc) {
-        debug_xil_printf("SD: Unable to open file %s: %d\n", boot_file, rc);
-        return XST_FAILURE;
-    }
+	strcpy_rom(buffer, filename);
+	boot_file = (char *)filename;
+	FlashReadBaseAddress = XPAR_PS7_SD_0_S_AXI_BASEADDR;
 
-    return XST_SUCCESS;
+	rc = f_open(&fil, boot_file, FA_READ);
+	if (rc) {
+		fsbl_printf(DEBUG_GENERAL,"SD: Unable to open file %s: %d\n", boot_file, rc);
+		return XST_FAILURE;
+	}
+
+	return XST_SUCCESS;
 
 }
 
@@ -131,51 +133,56 @@ u32 InitSD(char *filename)
 * This function provides the SD FLASH interface for the Simplified header
 * functionality.
 *
-* @param    SourceAddress is address in FLASH data space
-*           DestinationAddress is address in OCM data space
-*           LengthBytes is the number of bytes to move
+* @param	SourceAddress is address in FLASH data space
+* @param	DestinationAddress is address in OCM data space
+* @param	LengthBytes is the number of bytes to move
 *
-* @return   XST_SUCCESS if the write completes correctly
-*           XST_FAILURE if the write fails to completes correctly
+* @return
+*		- XST_SUCCESS if the write completes correctly
+*		- XST_FAILURE if the write fails to completes correctly
 *
-* @note    none.
+* @note		None.
 *
 ****************************************************************************/
 u32 SDAccess( u32 SourceAddress, u32 DestinationAddress, u32 LengthBytes)
 {
 
-    FRESULT rc;                             /* Result code */
-    UINT br;
-    int  len;
+	FRESULT rc;	 /* Result code */
+	UINT br;
 
-    rc = f_lseek(&fil, SourceAddress);
-    if (rc) {
-        debug_xil_printf("SD: Unable to seek to %x\n", SourceAddress);
-        return XST_FAILURE;
-    }
+	rc = f_lseek(&fil, SourceAddress);
+	if (rc) {
+		fsbl_printf(DEBUG_INFO,"SD: Unable to seek to %x\n", SourceAddress);
+		return XST_FAILURE;
+	}
 
-    len = 0;
+	rc = f_read(&fil, (void*)DestinationAddress, LengthBytes, &br);
 
-    rc = f_read(&fil, (void*)DestinationAddress, LengthBytes, &br);
+	if (rc) {
+		fsbl_printf(DEBUG_GENERAL,"*** ERROR: f_read returned %d\r\n", rc);
+	}
 
-    if (rc) {
-        debug_xil_printf("*** ERROR: f_read returned %d\r\n", rc);
-    }
-
-    return XST_SUCCESS;
+	return XST_SUCCESS;
 
 } /* End of SDAccess */
+
 
 /******************************************************************************/
 /**
 *
 * This function closes the file object
 *
+* @param	None
+*
+* @return	None.
+*
+* @note		None.
+*
 ****************************************************************************/
 void ReleaseSD(void) {
 
-    f_close(&fil);
-    return;
+	f_close(&fil);
+	return;
 
 
 }

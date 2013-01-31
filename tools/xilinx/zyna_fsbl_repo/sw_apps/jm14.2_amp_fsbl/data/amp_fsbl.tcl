@@ -1,5 +1,5 @@
 proc swapp_get_name {} {
-    return "Zynq FSBL";
+    return "Zynq FSBL for AMP";
 }
 
 proc swapp_get_description {} {

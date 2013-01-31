@@ -62,17 +62,6 @@
 
 #include "fsbl.h"
 #include "xstatus.h"
-#include "xil_io.h"
-
-/*
- * SLCR registers
- */
-#define SLCR_LOCK	0xF8000004 /**< SLCR Write Protection Lock */
-#define SLCR_UNLOCK	0xF8000008 /**< SLCR Write Protection Unlock */
-#define FPGA_RST_CTRL	0xF8000240 /**< FPGA software reset control */
-
-#define SLCR_LOCK_VAL	0x767B
-#define SLCR_UNLOCK_VAL	0xDF0D
 
 /************************** Function Prototypes ******************************/
 
@@ -94,18 +83,11 @@ u32 FsblHookBeforeBitstreamDload(void)
 {
 	u32 Status;
 
-
 	Status = XST_SUCCESS;
 
-//	xil_printf("\n\r******** FsblHookBeforeBitstreamDload setting GP and PL resets: %08x\n\r", FsblIn32(0xf8000240));
-	Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
-//	FsblOut32(0xf8000240,0x00030001);
-	Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
-//	xil_printf("\n\r******** FsblHookBeforeBitstreamDload setting GP and PL resets: %08x\n\r", FsblIn32(0xf8000240));
-
-/* User logic to be added here. Errors to be stored in the status variable
+	/* User logic to be added here. Errors to be stored in the status variable
 	 * and returned */
-	debug_xil_printf("In FsblHookBeforeBitstreamDload function \r\n");
+	fsbl_printf(DEBUG_INFO,"In FsblHookBeforeBitstreamDload function \r\n");
 	return (Status);
 } /* End of FsblHookBeforeBitstreamDload */
 
@@ -129,11 +111,7 @@ u32 FsblHookAfterBitstreamDload(void)
 
 	/* User logic to be added here. Errors to be stored in the status variable
 	 * and returned */
-	debug_xil_printf("******** FsblHookAfterBitstreamDload function: %08x\r\n", FsblIn32(0xf8000240));
-	Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
-//	FsblOut32(0xf8000240,0x00030001);
-	Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
-	debug_xil_printf("******** FsblHookAfterBitstreamDload function: %08x\r\n", FsblIn32(0xf8000240));
+	fsbl_printf(DEBUG_INFO, "In FsblHookAfterBitstreamDload function \r\n");
 	return (Status);
 } /* End of FsblHookAfterBitstreamDload */
 
@@ -155,16 +133,14 @@ u32 FsblHookBeforeHandoff(void)
 
 	Status = XST_SUCCESS;
 
-//	xil_printf("\n\r******** FsblHookBeforeHandoff clearing GP and setting PL resets: %08x\r\n", FsblIn32(0xf8000240));
-//	Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
-//	FsblOut32(0xf8000240,0x00000001);
-//	Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
-//	xil_printf("\n\r******** FsblHookBeforeHandoff clearing GP and setting PL resets: %08x\r\n", FsblIn32(0xf8000240));
-
-
 	/* User logic to be added here. Errors to be stored in the status variable
 	 * and returned */
-	debug_xil_printf("In FsblHookBeforeHandoff function \r\n");
+	fsbl_printf(DEBUG_INFO,"In FsblHookBeforeHandoff function \r\n");
+
+	fsbl_printf(DEBUG_INFO,"####Reset Reg   :0xf8000240: %08x\r\n", FsblIn32(0xf8000240));
+	fsbl_printf(DEBUG_INFO,"####HP0 Cntr Reg:0xf8008014: %08x\r\n", FsblIn32(0xf8008014));
+	fsbl_printf(DEBUG_INFO,"####HP1 Cntr Reg:0xf8009014: %08x\r\n", FsblIn32(0xf8009014));
+
 	return (Status);
 } /* End of FsblHookBeforeHandoff */
 

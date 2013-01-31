@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -43,20 +43,38 @@
 *
 * @file main.c
 *
-* Reference implementation for for the First Stage Boot Loader (FSBL).
-*
-* For complete description of FSBL, please refer to FSBL PDD document.
+* The main file for the First Stage Boot Loader (FSBL).
 *
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a jz  06/04/11   Initial release
-* 2.00a mb  25/05/12   standalone based FSBL
+* 1.00a jz	06/04/11	Initial release
+* 2.00a mb	25/05/12	standalone based FSBL
+* 3.00a np/mb	08/03/12	Added call to FSBL user hook - before handoff.
+*				DDR ECC initialization added
+* 				fsbl print with verbose added
+* 				Performance measurement added
+* 				Flushed the UART Tx buffer
+* 				Added the performance time for ECC DDR init
+* 				Added clearing of ECC Error Code
+* 				Added the watchdog timer value
+*
+*
 * </pre>
 *
 * @note
+* FSBL runs from OCM, Based on the bootmode selected, FSBL will copy
+* the partitions from the flashdevice. If the partition is bitstream then
+* the bitstream is programmed in the Fabric and for an partition that is
+* an application , FSBL will copy the application into DDR and does a
+* handoff.The application should not be starting at the OCM address,
+* FSBL does not remap the OCM. Application should use DDR starting from 1MB
+*
+* FSBL can be stitched along with bitstream and application using bootgen
+*
+* Refer to fsbl.h file for details on the compilation flags supported in FSBL
 *
 ******************************************************************************/
 
@@ -68,37 +86,20 @@
 #include "nor.h"
 #include "sd.h"
 #include "pcap.h"
-
-#include "xstatus.h"
 #include "image_mover.h"
-
-#include "xil_printf.h"
 #include "xparameters.h"
-
-#ifndef PEEP_CODE
-#include "ps7_init.h"
-#endif
 #include "xil_cache.h"
 #include "xil_exception.h"
+#include "xstatus.h"
 
+#ifdef XPAR_XWDTPS_0_BASEADDR
+#include "xwdtps.h"
+#endif
+#ifdef STDOUT_BASEADDRESS
+#include "xuartps_hw.h"
+#endif
 /************************** Constant Definitions *****************************/
 
-/* Watchdog Timer defines */
-#define WDT_ZERO_MODE_OFFSET       0x0
-#define WDT_CTR_CNTRL_OFFSET       0x4
-#define WDT_RESTART_OFFSET         0x8
-#define WDT_STS_OFFSET             0xC
-
-#define WDT_ENABLE                 0x1
-#define WDT_RST_ENABLE             0x2
-#define WDT_IRQ_ENABLE             0x4
-#define WDT_ZERO_KEY               0x00ABC000
-#define WDT_ZERO_ENABLE_VAL   (WDT_ENABLE | WDT_RST_ENABLE)
-#define WDT_USER_SETTING_MASK      0xF
-
-#define WDT_CTR_CNTRL_VAL          ((0x248 << 6) | 0xFFFF)
-#define WDT_RESTART_VAL            0x00001999
-#define WDT_RESET_VAL              0x1
 
 /* Reboot status register defines:
  * 0xF0000000 for FSBL fallback mask to notify Boot Rom
@@ -106,385 +107,409 @@
  * 0x0F000000 for FSBL to record partition number to work on
  * 0x00FFFFFF for user application to use across soft reset
  */
-#define FSBL_FAIL_MASK          0xF0000000
-#define FSBL_IN_MASK            0x60000000
-#define PARTITION_NUMBER_MASK   0x0F000000
+#define FSBL_FAIL_MASK		0xF0000000
+#define FSBL_IN_MASK		0x60000000
+#define PARTITION_NUMBER_MASK	0x0F000000
 
-#define PARTITION_NUMBER_SHIFT          24
-#define MAX_PARTITION_NUMBER            0xE
+#define PARTITION_NUMBER_SHIFT	24
+#define MAX_PARTITION_NUMBER	0xE
 
 /* The address that holds the base address for the image Boot ROM found */
-#define BASEADDR_HOLDER              0xFFFFFFF8
+#define BASEADDR_HOLDER		0xFFFFFFF8
 
-/* DDR Operating mode register */
-#define DDR_MODE_STS_REG (XPS_DDR_CTRL_BASEADDR + 0x54)
-#define OPERATING_MODE_MASK 0x7
-#define NORMAL_MODE 0x1
-#define DDR_MEMORY_1 0x01000000
-#define DDR_MEMORY_2 0x02000000
-#define PATTERN 0xAA55AA55
+#ifdef XPAR_XWDTPS_0_BASEADDR
+#define WDT_DEVICE_ID		XPAR_XWDTPS_0_DEVICE_ID
+#define WDT_EXPIRE_TIME		10
+#define WDT_CRV_SHIFT		12
+#endif
 
 /**************************** Type Definitions *******************************/
+
 /***************** Macros (Inline Functions) Definitions *********************/
 
+#ifdef XPAR_XWDTPS_0_BASEADDR
+XWdtPs Watchdog;		/* Instance of WatchDog Timer	*/
+#endif
 /************************** Function Prototypes ******************************/
 extern void FsblHandoffExit(u32 FsblStartAddr);
 extern void FsblHandoffJtagExit(void);
+extern void init_ddr(void);
+extern int ps7_init();
 
 u32 FsblHookBeforeHandoff(void);
+void MarkFSBLIn(void);
+void FsblHandoff(u32 FsblStartAddr);
+u32 GetResetReason(void);
 
-static void FsblHandoff(u32 FsblStartAddr);
+static void Update_MultiBootRegister(void);
+/* Exception handlers */
+static void RegisterHandlers(void);
+static void Undef_Handler (void);
+static void SVC_Handler (void);
+static void PreFetch_Abort_Handler (void);
+static void Data_Abort_Handler (void);
+static void IRQ_Handler (void);
+static void FIQ_Handler (void);
 
-static void RestartWDT(void);
-static void EnableWDT(void);
-static void DisableWDT(void);
-static int IsWDTReset(void);
+void CheckSRST(void);
 
-static void MarkFSBLIn(void);
-static void ClearFSBLIn(void);
-static int Check_ddr_init(void);
-extern void init_ddr(void);
-static u32 Get_SiliconVersion(void);
+#ifdef ECC_ENABLE
+int DDREcc_Init(void);
+void DDRClearEccError(void);
+#endif
+
+#ifdef XPAR_XWDTPS_0_BASEADDR
+int InitWatchDog(void);
+u32 ConvertTime_WdtCounter(u32 seconds);
+void  CheckWDTReset(void);
+#endif
+
 /************************** Variable Definitions *****************************/
 int SkipPartition;
-
 /* Base Address for the Read Functionality for Image Processing */
 u32 FlashReadBaseAddress = 0;
 /* Silicon Version */
 u32 Silicon_Version;
+
 extern ImageMoverType MoveImage;
 extern XDcfg *DcfgInstPtr;
+
 /*****************************************************************************/
 /**
 *
 * This is the main function for the FSBL ROM code.
 *
-* The functionality progresses as follows:
 *
-* @param    None.
+* @param	None.
 *
-* @return   XST_SUCCESS to indicate success, otherwise XST_FAILURE.
+* @return
+*		- XST_SUCCESS to indicate success
+*		- XST_FAILURE.to indicate failure
 *
-* @note     None.
+* @note
 *
 ****************************************************************************/
-
 int main(void)
 {
-    u32 BootModeRegister = 0;
-    u32 HandoffAddress;
-    volatile u32 RebootStatusRegister = 0;
-    u32 ImageStartAddress = 0;
-    u32 MediaAddr;
-    int PartitionNumber = 0;
-    int Status = 0;
+#ifdef XPAR_PS7_DDR_0_S_AXI_BASEADDR
+	u32 BootModeRegister = 0;
+	u32 HandoffAddress;
+	volatile u32 RebootStatusRegister = 0;
 	volatile u32 MultiBootReg = 0;
-
-
-    /* Read bootmode register */
-    BootModeRegister = FsblIn32(BOOT_MODE_REG);
+	u32 ImageStartAddress = 0;
+	u32 PartitionNumber = 0;
+	u32 Status = XST_SUCCESS;
+#endif
 
 #ifdef PEEP_CODE
-    /* initialize the DDR for application code */
-    init_ddr();
+	/* initialize the DDR for application code */
+	init_ddr();
 #else
-    /* PCW initialization for MIO,PLL,CLK and DDR */
-    ps7_init();
+	/* PCW initialization for MIO,PLL,CLK and DDR */
+	ps7_init();
 #endif
-    /* Flush the Caches */
-    Xil_DCacheFlush();
+	/* Unlock the SLCR */
+	SlcrUnlock();
 
-    /* Disable Data Cache */
-    Xil_DCacheDisable();
+	/* If Performance measurement is required 
+	 * then read the Global Timer value , Please note that the
+	 * time taken for mio, clock and ddr initialisation
+	 * done in the ps7_init function is not accounted in the FSBL
+	 *
+	 */
+#ifdef FSBL_PERF
+	XTime tCur = 0;
+	FsblGetGlobalTime(tCur);
+#endif
 
-    /* Check the operating mode of the DDR controller */
-    Status = Check_ddr_init();
-    if (Status == XST_FAILURE) {
-    	 debug_xil_printf("DDR initialisation failed \n");
-    	 OutputStatus(DDR_INIT_FAIL);
-    	 FsblFallback();
-    }
+	/* Flush the Caches */
+	Xil_DCacheFlush();
 
-    /* Unlock MIO for register access inside FSBL */
-    SlcrUnlock();
+	/* Disable Data Cache */
+	Xil_DCacheDisable();
 
-    /* Register the Exception handlers */
-    RegisterHandlers();
+	/* Register the Exception handlers */
+	RegisterHandlers();
+	
+	/* Print the FSBL Banner */
+	fsbl_printf(DEBUG_GENERAL,"\n\rXilinx First Stage Boot Loader \n\r");
+	fsbl_printf(DEBUG_GENERAL,"Release 14.3 %s-%s\r\n",__DATE__,__TIME__);
 
-    /* Check WDT reset, if so, fallback */
-    if (IsWDTReset()) {
-        xil_printf("WDT reset happened, falling back...\n\r");
-        OutputStatus(FSBL_HANGS);
-        FsblFallback();
-    } else {
-        MarkFSBLIn();
-    }
+#ifdef XPAR_PS7_DDR_0_S_AXI_BASEADDR
+	/* check if soft reset occured */
+	CheckSRST();
+	/* Pcap initialization here */
+	Status = InitPcap();
+	if (Status == XST_FAILURE) {
+		fsbl_printf(DEBUG_GENERAL,"PCAP_INIT_FAIL \n\r");
+		/* Error Handling here */
+		OutputStatus(PCAP_INIT_FAIL);
+		FsblFallback();
+	}
+	fsbl_printf(DEBUG_INFO,"Devcfg driver initialized \r\n");
+	/* Get the Silicon Version */
+	GetSiliconVersion();
 
-    RestartWDT();
-    EnableWDT();
-    PatWDT();
+#ifdef XPAR_XWDTPS_0_BASEADDR
+	/* Check if WDT Reset has occured or not */
+	CheckWDTReset();
 
-    /* This code need to be removed after proper time out value */
-    DisableWDT();
-    debug_xil_printf("WDT disabled \r\n");
+	 /* Initialize the Watchdog Timer so that it is ready to use */
+	Status = InitWatchDog();
+	if (Status == XST_FAILURE) {
+		fsbl_printf(DEBUG_GENERAL,"WATCHDOG_INIT_FAIL \n\r");
+		/* Error Handling here */
+		OutputStatus(WDT_INIT_FAIL);
+		FsblFallback();
+	}
+	fsbl_printf(DEBUG_INFO,"Watchdog driver initialized \r\n");
+#endif
+	MarkFSBLIn();
 
-    BootModeRegister &= BOOT_MODES_MASK;
+#ifdef ECC_ENABLE
+	Status = DDREcc_Init();
+	if (Status == XST_FAILURE) {
+		fsbl_printf(DEBUG_GENERAL,"DDR_ECC_INIT_FAIL \r\n");
+		/* Error Handling here */
+		OutputStatus(DDR_ECC_INIT_FAIL);
+		FsblFallback();
+	}
+	fsbl_printf(DEBUG_GENERAL,"DDR Init done for ECC\r\n");
+#endif
 
-    if (BootModeRegister == QSPI_MODE) {
-    	debug_xil_printf("Boot mode is QSPI\n");
-    	InitQspi();
-        /* QSPI has been initializes stopd by Boot ROM at the highest speed
-		 * We do not to do anything about it */
-        MoveImage = QspiAccess;
-        FlashReadBaseAddress = XPS_QSPI_LINEAR_BASEADDR;
-        debug_xil_printf("FSBL QSPI %x\r\n", FlashReadBaseAddress);
+#ifndef FSBL_PERF
+	Status = Check_ddr_init();
+	if (Status == XST_FAILURE) {
+		fsbl_printf(DEBUG_GENERAL,"DDR_INIT_FAIL \r\n");
+		/* Error Handling here */
+		OutputStatus(DDR_INIT_FAIL);
+		FsblFallback();
+	}
+#endif
+	/* Read bootmode register */
+	BootModeRegister = FsblIn32(BOOT_MODE_REG);
+	BootModeRegister &= BOOT_MODES_MASK;
 
-    } else
+	/* QSPI BOOT MODE */
+#ifdef XPAR_PS7_QSPI_LINEAR_0_S_AXI_BASEADDR
+	if (BootModeRegister == QSPI_MODE) {
+		fsbl_printf(DEBUG_GENERAL,"Boot mode is QSPI\n\r");
+
+		InitQspi();
+
+		MoveImage = QspiAccess;
+		FlashReadBaseAddress = XPS_QSPI_LINEAR_BASEADDR;
+		fsbl_printf(DEBUG_INFO,"QSPI Init Done %x\r\n", FlashReadBaseAddress);
+	} else
+#endif
+	/* NAND BOOT MODE */
 #ifdef XPAR_PS7_NAND_0_BASEADDR
-    if (BootModeRegister == NAND_FLASH_MODE) {
-        /* Boot ROM always initialize the nand at lower speed
-		 * This is the chance to put it to an optimum speed for your nand
-		 * device
-		 */
-    	debug_xil_printf("Boot mode is NAND\n");
-        Status = InitNand();
-        if (Status == XST_FAILURE) {
-        /* Error Handling here */
-            debug_xil_printf("NAND initialization error\r\n");
-            OutputStatus(PERIPHERAL_INIT_FAIL);
-            FsblFallback();
-        }
-        MoveImage = NandAccess;
-        debug_xil_printf("FSBL NAND\r\n");
+	if (BootModeRegister == NAND_FLASH_MODE) {
+		/*
+	 	* Boot ROM always initialize the nand at lower speed
+	 	* This is the chance to put it to an optimum speed for your nand
+	 	* device
+	 	*/
+		fsbl_printf(DEBUG_GENERAL,"Boot mode is NAND\n");
 
-    } else
+		Status = InitNand();
+		if (Status != XST_SUCCESS) {
+			fsbl_printf(DEBUG_GENERAL,"NAND_INIT_FAIL \r\n");
+			/* Error Handling here */
+			OutputStatus(NAND_INIT_FAIL);
+			FsblFallback();
+		}
+		MoveImage = NandAccess;
+		fsbl_printf(DEBUG_INFO,"NAND Init Done \r\n");
+	} else
 #endif
-    if (BootModeRegister == NOR_FLASH_MODE) {
-    	debug_xil_printf("Boot mode is NOR\n");
-        /* Boot ROM always initialize the nor at lower speed
+	/* NOR BOOT MODE */
+	if (BootModeRegister == NOR_FLASH_MODE) {
+		fsbl_printf(DEBUG_GENERAL,"Boot mode is NOR\n\r");
+		/*
+		 * Boot ROM always initialize the nor at lower speed
 		 * This is the chance to put it to an optimum speed for your nor
 		 * device
 		 */
-        InitNor();
-        debug_xil_printf("Finished init NOR %d\r\n", Status);
-        MoveImage = NorAccess;
+		InitNor();
+		fsbl_printf(DEBUG_INFO,"NOR Init Done \r\n");
+		MoveImage = NorAccess;
 
-    } else
+	} else
+	/* SD BOOT MODE */
 #ifdef XPAR_PS7_SD_0_S_AXI_BASEADDR
-    if (BootModeRegister == SD_MODE) {
-    	debug_xil_printf("Boot mode is SD\n");
-        Status = InitSD("BOOT.BIN");
-        /* returns file open error or success */
-        if (Status != XST_SUCCESS){
-            debug_xil_printf("InitSD failed\r\n");
-            OutputStatus(PERIPHERAL_INIT_FAIL);
-            FsblFallback();
-        }
-        MoveImage = SDAccess;
-
-    } else
-#endif
-    if (BootModeRegister == JTAG_MODE) {
-    	debug_xil_printf("Boot mode is JTAG\n");
-        DisableWDT();
-        /* Clear our mark in reboot status register */
-        ClearFSBLIn();
-        FsblHandoffJtagExit();
-    } else {
-        debug_xil_printf("Unknown Mode %d\r\n", BootModeRegister);
-        OutputStatus(ILLEGAL_BOOT_MODE);
-        /* fallback fsbl starts, no return */
-        FsblFallback();
-    }
-    debug_xil_printf("read base %x\r\n", FlashReadBaseAddress);
-
-    MediaAddr = FlashReadBaseAddress &  MEDIA_ADDRESS_MASK;
-    /* Review : Check if all these are correct */
-    if ((MediaAddr != XPS_QSPI_LINEAR_BASEADDR) &&
-            (MediaAddr != XPS_NAND_BASEADDR) &&
-            (MediaAddr != XPS_NOR_BASEADDR) &&
-            (FlashReadBaseAddress != XPS_SDIO0_BASEADDR) &&
-            (FlashReadBaseAddress != XPS_SDIO1_BASEADDR)) {
-
-        debug_xil_printf("Invalid flash address %x\r\n", FlashReadBaseAddress);
-        OutputStatus(INVALID_FLASH_ADDRESS);
-        FsblFallback();
-    }
-    /* Pcap initialization here */
-    Status = InitPcap();
-    if (Status == XST_FAILURE) {
-    /* Error Handling here */
-        debug_xil_printf("PCAP initialization error\r\n");
-        OutputStatus(PERIPHERAL_INIT_FAIL);
-        /* Review : should be do a FsblFallback here if this happens*/
-        FsblFallback();
-    }
-	
-	/* Get the silicon version */	
-    Silicon_Version = Get_SiliconVersion();
-        /* Partition walk */
-        /* If partition is bitstream, then no reset is necessary.
-         * SkipPartition is to the next partition without soft reset
-         */
-    SkipPartition = 1;
-
-    while (SkipPartition) {
-        RebootStatusRegister = FsblIn32(REBOOT_STATUS_REG);
-        /* Prevent WDT reset */
-        PatWDT();
-        /* Clear out fallback mask from previous run
-                * We start from the first partition again */
-        if ((RebootStatusRegister & FSBL_FAIL_MASK) ==
-                FSBL_FAIL_MASK) {
-            debug_xil_printf("Reboot status shows previous run falls back\r\n");
-            RebootStatusRegister &= ~(FSBL_FAIL_MASK | PARTITION_NUMBER_MASK);
-            FsblOut32(REBOOT_STATUS_REG,
-                    RebootStatusRegister &
-                   ~(FSBL_FAIL_MASK | PARTITION_NUMBER_MASK));
-        }
-
-        if (Silicon_Version == SILICON_VERSION_0) {
-        	/* Read the image start address */
-            ImageStartAddress = *(u32 *)BASEADDR_HOLDER;
-        } else {
-        	/* read the mulitboot register */
-     		MultiBootReg =  XDcfg_ReadReg(DcfgInstPtr->Config.BaseAddr,
-     				    XDCFG_MULTIBOOT_ADDR_OFFSET);
-    		debug_xil_printf("Multiboot Register = %08x\r\n",MultiBootReg);
-     		/* Compute the image start address */
-     		ImageStartAddress = (MultiBootReg & PCAP_MBOOT_REG_REBOOT_OFFSET_MASK)
-     							* GOLDEN_IMAGE_OFFSET;
-        }
-
-		PartitionNumber = (RebootStatusRegister & PARTITION_NUMBER_MASK)
-		                    >> PARTITION_NUMBER_SHIFT;
-
-		debug_xil_printf("ImageStartAddress = %08x\r\n",ImageStartAddress);
-		debug_xil_printf("PartitionNumber = %08x\r\n",PartitionNumber);
-
-		debug_xil_printf("flash read base addr %x, image base %x\r\n",
-		    FlashReadBaseAddress, ImageStartAddress);
-
-        SkipPartition = 0;
-        HandoffAddress = PartitionMove(ImageStartAddress, PartitionNumber);
-        debug_xil_printf("Hand off address %x\r\n", HandoffAddress);
-
-        if (SkipPartition) {
-            debug_xil_printf("FSBL main: Skip partition\r\n");
-            continue;
-        }
-        /* Image move encounters errors, fallback
-         * Error code has been printed in image mover */
-        if (HandoffAddress == MOVE_IMAGE_FAIL) {
-            debug_xil_printf("FSBL fall back\r\n");
-            if (Silicon_Version != SILICON_VERSION_0) {
-        	    /* Increment the offset address looking for the ID */
-        	    ImageStartAddress += GOLDEN_IMAGE_OFFSET;
-        	    MultiBootReg &= ~PCAP_MBOOT_REG_REBOOT_OFFSET_MASK;
-        	    MultiBootReg |=  (ImageStartAddress/GOLDEN_IMAGE_OFFSET) & PCAP_MBOOT_REG_REBOOT_OFFSET_MASK;
-
-        	    XDcfg_WriteReg(DcfgInstPtr->Config.BaseAddr, XDCFG_MULTIBOOT_ADDR_OFFSET,
-        		    		MultiBootReg);
-        	    debug_xil_printf("Fallback: MultiBootReg = 0x%08x\r\n",MultiBootReg);
-            } /* end of Silicon_Version */
-
-			/* fallback starts, no return */
-			FsblFallback();	
+	if (BootModeRegister == SD_MODE) {
+		fsbl_printf(DEBUG_GENERAL,"Boot mode is SD\r\n");
+		Status = InitSD("BOOT.BIN");
+		/* returns file open error or success */
+		if (Status != XST_SUCCESS){
+			fsbl_printf(DEBUG_GENERAL,"SD_INIT_FAIL\r\n");
+			OutputStatus(SD_INIT_FAIL);
+			FsblFallback();
 		}
+		MoveImage = SDAccess;
+		fsbl_printf(DEBUG_INFO,"SD Init Done \r\n");
+	} else
+#endif
+	/* JTAG  BOOT MODE */
+	if (BootModeRegister == JTAG_MODE) {
+		fsbl_printf(DEBUG_GENERAL,"Boot mode is JTAG\r\n");
+		/* Stop the Watchdog before JTAG handoff */
+#ifdef	XPAR_XWDTPS_0_BASEADDR
+		XWdtPs_Stop(&Watchdog);
+#endif
+		/* Clear our mark in reboot status register */
+		ClearFSBLIn();
+		FsblHandoffJtagExit();
+	} else {
+		fsbl_printf(DEBUG_GENERAL,"ILLEGAL_BOOT_MODE \r\n");
+		OutputStatus(ILLEGAL_BOOT_MODE);
+		/* fallback fsbl starts, no return */
+		FsblFallback();
 	}
+	fsbl_printf(DEBUG_INFO,"Flash BaseAddress %x\r\n", FlashReadBaseAddress);
+
+	if ((FlashReadBaseAddress != XPS_QSPI_LINEAR_BASEADDR) &&
+			(FlashReadBaseAddress != XPS_NAND_BASEADDR) &&
+			(FlashReadBaseAddress != XPS_NOR_BASEADDR) &&
+			(FlashReadBaseAddress != XPS_SDIO0_BASEADDR)) {
+		fsbl_printf(DEBUG_GENERAL,"INVALID_FLASH_ADDRESS \r\n");
+		OutputStatus(INVALID_FLASH_ADDRESS);
+		FsblFallback();
+	}
+
+	/* Partition walk
+	 * If partition is bitstream, then no reset is necessary.
+	 * SkipPartition is to the next partition without soft reset
+	 */
+
+	SkipPartition = 1;
+
+	while (SkipPartition) {
+		RebootStatusRegister = FsblIn32(REBOOT_STATUS_REG);
+		fsbl_printf(DEBUG_INFO,
+				"Reboot status register 0x%x \r\n",RebootStatusRegister);
+#ifdef	XPAR_XWDTPS_0_BASEADDR
+		/* Prevent WDT reset */
+		XWdtPs_RestartWdt(&Watchdog);
+#endif
+		/* Clear out fallback mask from previous run
+		 * We start from the first partition again
+		 */
+
+		if ((RebootStatusRegister & FSBL_FAIL_MASK) ==
+ 				FSBL_FAIL_MASK) {
+			fsbl_printf(DEBUG_INFO,
+					"Reboot status shows previous run falls back\r\n");
+			RebootStatusRegister &= ~(FSBL_FAIL_MASK | PARTITION_NUMBER_MASK);
+			FsblOut32(REBOOT_STATUS_REG,
+					RebootStatusRegister &
+					~(FSBL_FAIL_MASK | PARTITION_NUMBER_MASK));
+		}
+		if (Silicon_Version == SILICON_VERSION_0) {
+			/* Read the image start address */
+			ImageStartAddress = *(u32 *)BASEADDR_HOLDER;
+		} else {
+			/* read the mulitboot register */
+			MultiBootReg =  XDcfg_ReadReg(DcfgInstPtr->Config.BaseAddr,
+					XDCFG_MULTIBOOT_ADDR_OFFSET);
+			fsbl_printf(DEBUG_INFO,"Multiboot Register = %08x\r\n",MultiBootReg);
+			/* Compute the image start address */
+			ImageStartAddress = (MultiBootReg & PCAP_MBOOT_REG_REBOOT_OFFSET_MASK)
+									* GOLDEN_IMAGE_OFFSET;
+		}
+		/* Read Partition number */
+		PartitionNumber = (RebootStatusRegister & PARTITION_NUMBER_MASK)
+						>> PARTITION_NUMBER_SHIFT;
+
+		fsbl_printf(DEBUG_INFO,"ImageStartAddress = %08x\r\n",ImageStartAddress);
+		fsbl_printf(DEBUG_INFO,"PartitionNumber = %08x\r\n",PartitionNumber);
+		fsbl_printf(DEBUG_INFO,"flash read base addr %x, image base %x\r\n",
+				FlashReadBaseAddress, ImageStartAddress);
+
+		SkipPartition = 0;
+		HandoffAddress = PartitionMove(ImageStartAddress, PartitionNumber);
+
+		if (SkipPartition) {
+			fsbl_printf(DEBUG_INFO,"FSBL main: Skip partition\r\n");
+			continue;
+		}
+		/* Image move encounters errors, fallback
+		 * Error code has been printed in image mover */
+		if (HandoffAddress == MOVE_IMAGE_FAIL) {
+			fsbl_printf(DEBUG_GENERAL,"FSBL FALLBACK\r\n");
+		/* fallback starts, no return */
+			FsblFallback();
+		}
+	} /* end of while SkipPartition */
 
 	/* FSBL user hook call before handoff to the application */
 	Status = FsblHookBeforeHandoff();
 
 	if (Status != XST_SUCCESS) {
-		debug_xil_printf("FSBL_HANDOFF_HOOK_FAIL\r\n");
+		fsbl_printf(DEBUG_GENERAL,"FSBL_HANDOFF_HOOK_FAIL\r\n");
  		/* Error Handling here */
 		OutputStatus(FSBL_HANDOFF_HOOK_FAIL);
 		FsblFallback();
 	}
 
-	debug_xil_printf("To handoff, End of fsbl\r\n");
-
-    /* Disable WDT to prevent WDT reset in application.
-     * User can remove this disable and use PatWDT() to keep WDT
-     * active, so that application hanging can be detected */
-    DisableWDT();
 #ifdef XPAR_PS7_SD_0_S_AXI_BASEADDR
-    /* If using SD, close the file */
-    if (BootModeRegister == SD_MODE) {
-        ReleaseSD();
-    }
+	/* If using SD, close the file */
+	if (BootModeRegister == SD_MODE) {
+		ReleaseSD();
+	}
 #endif
-    /* Clear our mark in reboot status register */
-    ClearFSBLIn();
-    debug_xil_printf("Before handoff reboot status register %x\r\n",
-            FsblIn32(REBOOT_STATUS_REG));
+#ifdef XPAR_XWDTPS_0_BASEADDR
+	XWdtPs_Stop(&Watchdog);
+#endif
 
-    ps7_config(ps7_peripherals_init_data);
+	/* For Performance measurement */
+#ifdef FSBL_PERF
+	XTime tEnd = 0;
+	fsbl_printf(DEBUG_GENERAL,"Total Execution time is ");
+	FsblMeasurePerfTime(tCur,tEnd);
+#endif
 
-    debug_xil_printf("####0xf8009014 %x\r\n", FsblIn32(0xf8009014));
-    debug_xil_printf("####Set FCLK0_RST\r\n");
-    FsblOut32(0xf8000240,1);
-
-        /* Lock MIO so application cannot mess with control registers */
-    SlcrLock();
-    FsblHandoff(HandoffAddress);
-
-    /* Should not return here, if it ever does, it is an error */
-    if (Silicon_Version != SILICON_VERSION_0) {
-	    /* Increment the offset address looking for the ID */
-	    ImageStartAddress += GOLDEN_IMAGE_OFFSET;
-	    MultiBootReg &= ~PCAP_MBOOT_REG_REBOOT_OFFSET_MASK;
-	    MultiBootReg |=  (ImageStartAddress/GOLDEN_IMAGE_OFFSET) & PCAP_MBOOT_REG_REBOOT_OFFSET_MASK;
-
-	    XDcfg_WriteReg(DcfgInstPtr->Config.BaseAddr, XDCFG_MULTIBOOT_ADDR_OFFSET,
-		    		MultiBootReg);
-	    debug_xil_printf("Fallback: MultiBootReg = 0x%08x\r\n",MultiBootReg);
-    } /* End of Silicon_Version */
-
+	FsblHandoff(HandoffAddress);
+	/* Should not come over here */
 	OutputStatus(ILLEGAL_RETURN);
 	FsblFallback();
-	
-	return 0;
-}
-
+#else
+	OutputStatus(NO_DDR);
+	FsblFallback();
+#endif
+	return Status;
+} /* end of main */
 
 /******************************************************************************/
 /**
 *
 * This function reset the CPU and goes for Boot ROM fallback handling
 *
-* @param None
+* @param	None
 *
-* @return
-*   None
+* @return	None
+*
+* @note		None
 *
 ****************************************************************************/
 void FsblFallback(void)
 {
-	u32 RebootStatusReg = FsblIn32(REBOOT_STATUS_REG);
+	volatile u32 RebootStatusReg = FsblIn32(REBOOT_STATUS_REG);
 
-	SlcrUnlock();
-
+	/* update the Multiboot Register for Golden search hunt */
+	Update_MultiBootRegister();
 	/* Notify Boot ROM something is wrong */
+	RebootStatusReg =  FsblIn32(REBOOT_STATUS_REG);
+	/* Set the FSBL Fail mask */
 	FsblOut32(REBOOT_STATUS_REG, RebootStatusReg | FSBL_FAIL_MASK);
-
-	xil_printf("FSBL fallback %x\r\n", FsblIn32(REBOOT_STATUS_REG));
-	xil_printf("FSBL fallback %x\r\n", FsblIn32(REBOOT_STATUS_REG));
-
 	/* Barrier */
-	asm(
-		"dsb\n\t"
-		"isb"
-	);
-
-	/* Hand off to Boot ROM */
-	SlcrUnlock();
-
-	/* Reset PSS, so Boot ROM will restart */
-	FsblOut32(PSS_RST_CTRL_REG, PSS_RST_MASK);
-
-	SlcrLock();
+		asm(
+			"dsb\n\t"
+			"isb"
+		);
+	/* Reset PS, so Boot ROM will restart */
+	FsblOut32(PS_RST_CTRL_REG, PS_RST_MASK);
 }
 
 
@@ -492,61 +517,64 @@ void FsblFallback(void)
 /**
 * This function set the address for the next partition
 *
-* @param Num is the partition number for the next partition, it should be less
-*        than 15
+* @param 	Num is the partition number for the next partition,
+		it should be less than 15
 *
 * @return
-*   . XST_SUCCESS if everything works
-*   . XST_INVALID_PARAM if partition number is more than 15
+*	. 	- XST_SUCCESS if everything works
+*	. 	- XST_INVALID_PARAM if partition number is more than 15
 *
 ****************************************************************************/
-int FsblSetNextPartition(int Num)
+int FsblSetNextPartition(int Num) 
 {
-    u32 RebootStatusReg;
-    u32 ResetReg;
+	u32 RebootStatusReg;
+	u32 ResetReg;
 
-    /* Address must be word-aligned */
-    if (Num > MAX_PARTITION_NUMBER) {
-        debug_xil_printf("Partition number %d too large, limit %d \n",
-            Num, MAX_PARTITION_NUMBER);
+	/* Address must be word-aligned */
+	if (Num > MAX_PARTITION_NUMBER) {
+		fsbl_printf(DEBUG_GENERAL,"TOO MANY PARTITIONS %d \n",
+			MAX_PARTITION_NUMBER);
+	/*
+	 * Let the caller decide what to do next
+	 * If they continue with its partition walk, the last partition
+	 * will be repeated
+	 */
+		return XST_INVALID_PARAM;
+	}
 
-        /* Let the caller decide what to do next
-                * If they continue with its partition walk, the last partition
-                * will be repeated */
-        return XST_INVALID_PARAM;
-    }
+	RebootStatusReg = FsblIn32(REBOOT_STATUS_REG);
+	ResetReg = RebootStatusReg & ~PARTITION_NUMBER_MASK;
 
-    RebootStatusReg = FsblIn32(REBOOT_STATUS_REG);
-    ResetReg = RebootStatusReg & ~PARTITION_NUMBER_MASK;
+	FsblOut32(REBOOT_STATUS_REG, ResetReg |
+		 (Num << PARTITION_NUMBER_SHIFT));
 
-    FsblOut32(REBOOT_STATUS_REG, ResetReg |
-         (Num << PARTITION_NUMBER_SHIFT));
-
-    return XST_SUCCESS;
+	return XST_SUCCESS;
 } /* End of FsblSetNextPartition */
 
 /******************************************************************************/
 /**
 *
-* This function hands the A9/PSS off to the loaded user code.
+* This function hands the A9/PS to the loaded user code.
 *
-* @param    none
+* @param	none
 *
-* @return   none
+* @return	none
 *
-* @note
-*   This function does not return.
+* @note		This function does not return.
 *
 ****************************************************************************/
-static void FsblHandoff(u32 FsblStartAddr){
 
-    OutputStatus(SUCCESSFUL_HANDOFF);
+void FsblHandoff(u32 FsblStartAddr) {
+	fsbl_printf(DEBUG_GENERAL,"SUCCESSFUL_HANDOFF\r\n");
+	OutputStatus(SUCCESSFUL_HANDOFF);
+	/* Clear our mark in reboot status register */
+	ClearFSBLIn();
 
-    FsblHandoffExit(FsblStartAddr);
+	SlcrLock();
+	FsblHandoffExit(FsblStartAddr);
 
-    OutputStatus(ILLEGAL_RETURN);
-
-    FsblFallback();
+	OutputStatus(ILLEGAL_RETURN);
+	FsblFallback();
 } /* End of FsblHandoff */
 
 /******************************************************************************/
@@ -554,28 +582,27 @@ static void FsblHandoff(u32 FsblStartAddr){
 *
 * This function outputs the status for the provided State in the boot process.
 *
-* @param    State - where in the boot process the output is desired.
+* @param	State is where in the boot process the output is desired.
 *
-* @return   None.
+* @return	None.
 *
-* @note     None.
+* @note		None.
 *
 ****************************************************************************/
-void OutputStatus(u32 State){
-
-    volatile u32 Status;
-
-    debug_xil_printf("FSBLStatus = 0x%.4x\r\n", State);
-
-#ifdef FSBL_DEBUG
-
+void OutputStatus(u32 State)
+{
 #ifdef STDOUT_BASEADDRESS
-    Status = FsblIn32(STDOUT_BASEADDRESS + XUARTPS_SR_OFFSET);
+	u32 UartReg = 0;
 
-    while ((Status & XUARTPS_SR_TXEMPTY) != XUARTPS_SR_TXEMPTY){
-        Status = FsblIn32(STDOUT_BASEADDRESS + XUARTPS_SR_OFFSET);
-    }
-#endif
+	fsbl_printf(DEBUG_GENERAL,"  FSBLStatus = 0x%.4x\r\n", State);
+	/* The TX buffer needs to be flushed out
+	 * If this is not done some of the prints will not appear on the
+	 * serial output
+	 * */
+	UartReg = FsblIn32(XPS_UART1_BASEADDR + XUARTPS_SR_OFFSET);
+	while ((UartReg & XUARTPS_SR_TXEMPTY) != XUARTPS_SR_TXEMPTY) {
+		UartReg = FsblIn32(XPS_UART1_BASEADDR + XUARTPS_SR_OFFSET);
+	}
 #endif
 } /* end of OutputStatus */
 
@@ -587,60 +614,39 @@ void OutputStatus(u32 State){
 *
 * This function is called upon exceptions.
 *
-* @param    State - where in the boot process the error occured.
+* @param	State - where in the boot process the error occured.
 *
-* @return   None.
+* @return	None.
 *
-* @note    This function does not return, the PSS block is reset
+* @note		This function does not return, the PS block is reset
 *
 ****************************************************************************/
-void ErrorLockdown(u32 State){
+void ErrorLockdown(u32 State) 
+{
+	OutputStatus(State);
 
-    OutputStatus(State);
-
-    FsblFallback();
+	FsblFallback();
 
 } /* End of ErrorLockdown */
-/******************************************************************************/
-/**
-*
-* This function sets a memory region with a set value
-*
-* @param s is the starting address
-* @param c is the value to set to
-* @param n is the number of bytes to set the value
-*
-* @return
-*   Starting address of memory region
-*
-****************************************************************************/
-void *(memset_rom)(void *s, int c, u32 n)
-{
-	unsigned char *us = s;
-	unsigned char uc = c;
-	while (n-- != 0)
-		*us++ = uc;
-	return s;
-}
+
 /******************************************************************************/
 /**
 *
 * This function copies a memory region to another memory region
 *
-* @param s1 is starting address for destination
-* @param s2 is starting address for the source
-* @param n is the number of bytes to copy
+* @param 	s1 is starting address for destination
+* @param 	s2 is starting address for the source
+* @param 	n is the number of bytes to copy
 *
-* @return
-*   Starting address for destination
+* @return	Starting address for destination
 *
 ****************************************************************************/
 void *(memcpy_rom)(void * s1, const void * s2, u32 n)
 {
-	char *dst = s1;
-	const char *src = s2;
+	char *dst = (char *)s1;
+	const char *src = (char *)s2;
 
-	/* Loop and copy.  */
+	/* Loop and copy.	*/
 	while (n-- != 0)
 		*dst++ = *src++;
 	return s1;
@@ -651,255 +657,166 @@ void *(memcpy_rom)(void * s1, const void * s2, u32 n)
 * This function copies a string to another, the source string must be null-
 * terminated.
 *
-* @param dest is starting address for the destination string
-* @param src is starting address for the source string
+* @param 	Dest is starting address for the destination string
+* @param 	Src is starting address for the source string
 *
-* @return
-*   Starting address for the destination string
+* @return	Starting address for the destination string
 *
 ****************************************************************************/
-char *strcpy_rom(char *dest, const char *src)
+char *strcpy_rom(char *Dest, const char *Src)
 {
 	unsigned i;
-	for (i=0; src[i] != '\0'; ++i)
-		dest[i] = src[i];
-	dest[i] = '\0';
-	return dest;
+	for (i=0; Src[i] != '\0'; ++i)
+		Dest[i] = Src[i];
+	Dest[i] = '\0';
+	return Dest;
 }
 
-/******************************************************************************/
-/**
-*
-* This function reset the WDT's reset interval to avoid immediate reset
-*
-* @param    None.
-*
-* @return   None.
-*
-* @note     None.
-*
-****************************************************************************/
-static void RestartWDT(void) {
-	FsblOut32(XPS_WDT_BASEADDR + WDT_RESTART_OFFSET, WDT_RESTART_VAL);
-}
 
-/******************************************************************************/
-/**
-*
-* This function enables the WDT to catch misbehaving FSBL
-*
-* @param    None.
-*
-* @return   None.
-*
-* @note     None.
-*
-****************************************************************************/
-void EnableWDT(void){
-	u32 WdtReg = FsblIn32(XPS_WDT_BASEADDR + WDT_ZERO_MODE_OFFSET);
-
-	FsblOut32(XPS_WDT_BASEADDR + WDT_CTR_CNTRL_OFFSET,
-	    WDT_CTR_CNTRL_VAL);
-
-	WdtReg &= ~WDT_USER_SETTING_MASK;
-	FsblOut32(XPS_WDT_BASEADDR + WDT_ZERO_MODE_OFFSET,
-	    WdtReg | WDT_ZERO_ENABLE_VAL | WDT_ZERO_KEY);
-}
-
-/******************************************************************************/
-/**
-*
-* This function disables the WDT to avoid WDT reset in application code
-*
-* @param    None.
-*
-* @return   None.
-*
-* @note     None.
-*
-****************************************************************************/
-
-void DisableWDT(void){
-	u32 WdtReg = FsblIn32(XPS_WDT_BASEADDR + WDT_ZERO_MODE_OFFSET);
-
-	FsblOut32(XPS_WDT_BASEADDR + WDT_ZERO_MODE_OFFSET,
-	    (WdtReg | WDT_ZERO_KEY) & ~WDT_ENABLE);
-
-}
-
-/******************************************************************************/
-/**
-*
-* This function restarts the WDT to avoid WDT reset
-*
-* @param    None.
-*
-* @return   None.
-*
-* @note     None.
-*
-****************************************************************************/
-
-void PatWDT(void){
-
-	FsblOut32(XPS_WDT_BASEADDR + WDT_RESTART_OFFSET, WDT_RESTART_VAL);
-}
-
-/******************************************************************************/
-/**
-*
-* This function checks whether WDT reset has happened during FSBL run
-*
-* If WDT reset happened during FSBL run, then need to fallback
-*
-* @param    None.
-*
-* @return
-*    1 -- if WDT reset happens while FSBL is running
-*    0 -- otherwise
-*
-* @note     None.
-*
-****************************************************************************/
-int IsWDTReset(void){
-    u32 RegValue;
-
-    RegValue = FsblIn32(REBOOT_STATUS_REG);
-
-    debug_xil_printf("Reboot status %x\n\r", RegValue);
-    debug_xil_printf("WDT STS %x\n\r",
-        FsblIn32(XPS_WDT_BASEADDR + WDT_STS_OFFSET));
-
-    /* If the FSBL_IN_MASK Has not been cleared, WDT happened
-	 * before FSBL exits */
-    if ((RegValue & FSBL_FAIL_MASK) == FSBL_IN_MASK) {
-        return XST_FAILURE;
-    } else {
-        return XST_SUCCESS;
-    }
-}
 
 /******************************************************************************/
 /**
 *
 * This function sets FSBL is running mask in reboot status register
 *
-* @param    None.
+* @param	None.
 *
-* @return   None.
+* @return	None.
 *
-* @note     None.
+* @note		None.
 *
 ****************************************************************************/
 void MarkFSBLIn(void) {
 
-    FsblOut32(REBOOT_STATUS_REG,
-        FsblIn32(REBOOT_STATUS_REG) | FSBL_IN_MASK);
-}
+	FsblOut32(REBOOT_STATUS_REG,
+		FsblIn32(REBOOT_STATUS_REG) | FSBL_IN_MASK);
+} /* End of MarkFSBLIn */
 
 /******************************************************************************/
 /**
 *
 * This function clears FSBL is running mask in reboot status register
 *
-* @param    None.
+* @param	None.
 *
-* @return   None.
+* @return	None.
 *
-* @note     None.
+* @note		None.
 *
 ****************************************************************************/
-void ClearFSBLIn(void) {
-
-    FsblOut32(REBOOT_STATUS_REG,
-        FsblIn32(REBOOT_STATUS_REG) & ~FSBL_IN_MASK);
-}
+void ClearFSBLIn(void) 
+{
+	FsblOut32(REBOOT_STATUS_REG,
+		(FsblIn32(REBOOT_STATUS_REG)) &
+		~(FSBL_FAIL_MASK | PARTITION_NUMBER_MASK));
+} /* End of ClearFSBLIn */
 
 /******************************************************************************/
 /**
 *
 * This function Registers the Exception Handlers
 *
-* @param    None.
+* @param	None.
 *
-* @return   None.
+* @return	None.
 *
-* @note     None.
+* @note		None.
 *
 ****************************************************************************/
-void RegisterHandlers(void) {
+static void RegisterHandlers(void) 
+{
 
-    Xil_ExceptionInit();
+	Xil_ExceptionInit();
 
-     /*
-     * Initialize the vector table. Register the stub Handler for each
-     * exception.
-     */
+	 /*
+	 * Initialize the vector table. Register the stub Handler for each
+	 * exception.
+	 */
 
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_UNDEFINED_INT,(Xil_ExceptionHandler)Undef_Handler,(void *) 0);
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_SWI_INT,(Xil_ExceptionHandler)SVC_Handler,(void *) 0);
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_PREFETCH_ABORT_INT,(Xil_ExceptionHandler)PreFetch_Abort_Handler,(void *) 0);
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT,(Xil_ExceptionHandler)Data_Abort_Handler,(void *) 0);
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,(Xil_ExceptionHandler)IRQ_Handler,(void *) 0);
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_FIQ_INT,(Xil_ExceptionHandler)FIQ_Handler,(void *) 0);
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_UNDEFINED_INT,
+					(Xil_ExceptionHandler)Undef_Handler,
+					(void *) 0);
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_SWI_INT,
+					(Xil_ExceptionHandler)SVC_Handler,
+					(void *) 0);
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_PREFETCH_ABORT_INT,
+				(Xil_ExceptionHandler)PreFetch_Abort_Handler,
+				(void *) 0);
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT,
+				(Xil_ExceptionHandler)Data_Abort_Handler,
+				(void *) 0);
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
+				(Xil_ExceptionHandler)IRQ_Handler,(void *) 0);
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_FIQ_INT,
+			(Xil_ExceptionHandler)FIQ_Handler,(void *) 0);
 
-    Xil_ExceptionEnable();
+	Xil_ExceptionEnable();
 
 }/* end of Register Handlers*/
 
-void Undef_Handler (void) {
-    ErrorLockdown (EXCEPTION_ID_UNDEFINED_INT);
+static void Undef_Handler (void)
+{
+	fsbl_printf(DEBUG_GENERAL,"UNDEFINED_HANDLER\r\n");
+	ErrorLockdown (EXCEPTION_ID_UNDEFINED_INT);
 }
 
-void SVC_Handler (void) {
-    ErrorLockdown (EXCEPTION_ID_SWI_INT);
+static void SVC_Handler (void)
+{
+	fsbl_printf(DEBUG_GENERAL,"SVC_HANDLER \r\n");
+	ErrorLockdown (EXCEPTION_ID_SWI_INT);
 }
 
-void PreFetch_Abort_Handler (void) {
-    ErrorLockdown (EXCEPTION_ID_PREFETCH_ABORT_INT);
+static void PreFetch_Abort_Handler (void)
+{
+	fsbl_printf(DEBUG_GENERAL,"PREFETCH_ABORT_HANDLER \r\n");
+	ErrorLockdown (EXCEPTION_ID_PREFETCH_ABORT_INT);
 }
 
-void Data_Abort_Handler (void) {
-    ErrorLockdown (EXCEPTION_ID_DATA_ABORT_INT);
+static void Data_Abort_Handler (void)
+{
+	fsbl_printf(DEBUG_GENERAL,"DATA_ABORT_HANDLER \r\n");
+	ErrorLockdown (EXCEPTION_ID_DATA_ABORT_INT);
 }
 
-void IRQ_Handler (void) {
-    ErrorLockdown (EXCEPTION_ID_IRQ_INT);
+static void IRQ_Handler (void)
+{
+	fsbl_printf(DEBUG_GENERAL,"IRQ_HANDLER \r\n");
+	ErrorLockdown (EXCEPTION_ID_IRQ_INT);
 }
 
-void FIQ_Handler (void) {
-    ErrorLockdown (EXCEPTION_ID_FIQ_INT);
+static void FIQ_Handler (void)
+{
+	fsbl_printf(DEBUG_GENERAL,"FIQ_HANDLER \r\n");
+	ErrorLockdown (EXCEPTION_ID_FIQ_INT);
 }
 /******************************************************************************/
 /**
 *
-* This function Checks for the ddr initialisation completion
+* This function Checks for the ddr initialization completion
 *
-* @param    None.
+* @param	None.
 *
-* @return   Status.
+* @return
+*		- XST_SUCCESS if the initialization is successful
+*		- XST_FAILURE if the  initialization is NOT successful
 *
-* @note     None.
+* @note		None.
 *
 ****************************************************************************/
-static int Check_ddr_init(void) {
+int Check_ddr_init(void)
+{
 
 	unsigned int reg;
 
-	/* Read the operating mode of the DDR controller to verify if
-	 * DDR is in normal mode of operation */
-
-	while((Xil_In32(DDR_MODE_STS_REG) & OPERATING_MODE_MASK)!=NORMAL_MODE);
-
 	/* Write and Read from the DDR location for sanity checks */
 	Xil_Out32(DDR_MEMORY_1, PATTERN);
-	reg = Xil_In32(DDR_MEMORY_1);
+	reg = FsblIn32(DDR_MEMORY_1);
 	if (reg != PATTERN)
 		return XST_FAILURE;
 
 	/* Write and Read from the DDR location for sanity checks */
 	Xil_Out32(DDR_MEMORY_2, PATTERN);
-	reg = Xil_In32(DDR_MEMORY_2);
+	reg = FsblIn32(DDR_MEMORY_2);
 	if (reg != PATTERN)
 		return XST_FAILURE;
 
@@ -909,33 +826,416 @@ static int Check_ddr_init(void) {
 /******************************************************************************/
 /**
 *
-* This function Reads the Silicon Version
+* This function Updates the Multi boot Register to enable golden image
+* search for boot rom
 *
 * @param None
 *
 * @return
-* return  Silicon version number
+* return  none
 *
 ****************************************************************************/
-static u32 Get_SiliconVersion(void)
+
+static void Update_MultiBootRegister(void)
 {
-	u32 Regval;
-	/* Read the Silicon Version */
-	Regval =  XDcfg_ReadReg(DcfgInstPtr->Config.BaseAddr,
-			XDCFG_MCTRL_OFFSET);
-	/* PS Version number */
-	Regval &= XDCFG_MCTRL_PCAP_PS_VER_MASK;
+	u32 ImageStartAddress = 0;
+	volatile u32 MultiBootReg = 0;
 
-	Regval >>= XDCFG_MCTRL_PCAP_PS_VER_SHIFT;
-
-	/* Gets the silicon version number */
-	if (Regval == SILICON_VERSION_0) {
-		debug_xil_printf("1.0 Silicon \n");
-	} else if(Regval == SILICON_VERSION_1) {
-		debug_xil_printf("2.0 Silicon \n");
+	/* Get the Image base Address */
+	if (Silicon_Version == SILICON_VERSION_0) {
+		/* Read the image start address */
+		ImageStartAddress = *(u32 *)BASEADDR_HOLDER;
 	} else {
-		debug_xil_printf("Silicon Version > 2.0 \n");
+		/* read the mulitboot register */
+		MultiBootReg =	XDcfg_ReadReg(DcfgInstPtr->Config.BaseAddr,
+					XDCFG_MULTIBOOT_ADDR_OFFSET);
+		fsbl_printf(DEBUG_INFO,"Multiboot Register = %08x\r\n",
+				MultiBootReg);
+		/* Compute the image start address */
+		ImageStartAddress = (MultiBootReg &
+				PCAP_MBOOT_REG_REBOOT_OFFSET_MASK) * GOLDEN_IMAGE_OFFSET;
 	}
-	/* Return Silicon Version number */
+
+
+	/* Should not return here, if it ever does, it is an error */
+	if (Silicon_Version != SILICON_VERSION_0) {
+		/* Increment the offset address looking for the ID */
+		ImageStartAddress += GOLDEN_IMAGE_OFFSET;
+		MultiBootReg &= ~PCAP_MBOOT_REG_REBOOT_OFFSET_MASK;
+		MultiBootReg |=  (ImageStartAddress/GOLDEN_IMAGE_OFFSET)
+			& PCAP_MBOOT_REG_REBOOT_OFFSET_MASK;
+
+		XDcfg_WriteReg(DcfgInstPtr->Config.BaseAddr,
+				XDCFG_MULTIBOOT_ADDR_OFFSET,
+				MultiBootReg);
+		fsbl_printf(DEBUG_INFO,"Updated MultiBootReg = 0x%08x\r\n",
+				MultiBootReg);
+	} /* End of Silicon_Version */
+
+} /* End of Update_MultiBootRegister */
+
+/******************************************************************************
+*
+* This function reset the CPU and goes for Boot ROM fallback handling
+*
+* @param	None
+*
+* @return	None
+*
+* @note		None
+*
+*******************************************************************************/
+
+u32 GetResetReason(void)
+{
+	volatile u32 Regval;
+
+	/* We are using REBOOT_STATUS_REG, we have to use bits 23:16 */
+	/* for storing the RESET_REASON register value*/
+	Regval = ((FsblIn32(REBOOT_STATUS_REG) >> 16) & 0xFF);
+
 	return Regval;
+
 }
+/******************************************************************************
+*
+* This function initializes the entire DDR for ECC
+*
+* @param	None
+*
+* @return
+*		- XST_SUCCESS if the DDR is initialized for ECC
+*		- XST_FAILURE if DDR initialization fails
+*
+* @note		None
+*
+*******************************************************************************/
+#ifdef ECC_ENABLE
+int DDREcc_Init(void)
+{
+
+	int Status = XST_SUCCESS;
+	u32 PcapReg;
+
+#ifdef FSBL_PERF
+	XTime tEccCurrent = 0;
+	FsblGetGlobalTime(tEccCurrent);
+#endif
+
+#ifdef	XPAR_XWDTPS_0_BASEADDR
+	/* Prevent WDT reset */
+	XWdtPs_RestartWdt(&Watchdog);
+#endif
+	/* Set the loopback bit in the devcfg */
+	fsbl_printf(DEBUG_INFO,"Set the loopback bit \r \n");
+	XDcfg_SetMiscControlRegister(DcfgInstPtr,
+			XDCFG_MCTRL_PCAP_LPBK_MASK);
+
+	fsbl_printf(DEBUG_INFO,"PCAP MCTRL %x: %08x\r\n",
+					XPS_DEV_CFG_APB_BASEADDR + XDCFG_MCTRL_OFFSET,
+					FsblIn32(XPS_DEV_CFG_APB_BASEADDR + XDCFG_MCTRL_OFFSET));
+
+	/* Start the Transfer */
+	Status = XDcfg_Transfer(DcfgInstPtr,
+						(u8 *)(SRCADDR_OCM | PCAP_LAST_TRANSFER),
+						DDR_LENGTH/4,
+						(u8 *)(XPAR_PS7_DDR_0_S_AXI_BASEADDR),
+						DDR_LENGTH/4, XDCFG_NON_SECURE_PCAP_WRITE);
+	/* Check the status of the transfer */
+	if (Status != XST_SUCCESS) {
+		fsbl_printf(DEBUG_GENERAL,"PCAP_DMA_TRANSFER_FAIL \r\n");
+		return XST_FAILURE;
+	}
+
+	/* poll for the DMA done */
+	XDcfg_PollDone(XDCFG_IXR_DMA_DONE_MASK, MAX_COUNT);
+	ClearPcap_Status();
+	
+	/* Restore the loopback bit in the devcfg */
+	PcapReg = FsblIn32(XPS_DEV_CFG_APB_BASEADDR + XDCFG_MCTRL_OFFSET);
+	PcapReg &= ~XDCFG_MCTRL_PCAP_LPBK_MASK;
+	FsblOut32(XPS_DEV_CFG_APB_BASEADDR + XDCFG_MCTRL_OFFSET,PcapReg);
+
+	fsbl_printf(DEBUG_INFO,"PCAP MCTRL %x: %08x\r\n",
+					XPS_DEV_CFG_APB_BASEADDR + XDCFG_MCTRL_OFFSET,
+	FsblIn32(XPS_DEV_CFG_APB_BASEADDR + XDCFG_MCTRL_OFFSET));
+
+	/* Fix for CR 656095 */
+	DDRClearEccError();
+#ifdef FSBL_PERF
+	XTime tEccEnd = 0;
+	fsbl_printf(DEBUG_GENERAL,"Time taken to initialize DDR for ECC is ");
+	FsblMeasurePerfTime(tEccCurrent,tEccEnd);
+#endif
+
+	return XST_SUCCESS;
+} /* End of DDR initialization for ECC */
+
+/******************************************************************************
+*
+* This function Clears the ECC Error Codes in DDR
+*
+* @param	None
+*
+* @return
+*			None
+*
+* @note		None
+*
+*******************************************************************************/
+void DDRClearEccError(void)
+{
+	/* Fix for CR 656905
+	 * This is to Clear the ECC Error Code in DDR
+	 */
+	FsblOut32(DDR_CHE_ECC_CONTROL_REG_OFFSET, CLEAR_ERROR_ECC);
+}
+#endif
+
+/******************************************************************************
+*
+* This function Gets the ticks from the Global Timer
+*
+* @param	Current time
+*
+* @return
+*			None
+*
+* @note		None
+*
+*******************************************************************************/
+#ifdef FSBL_PERF
+void FsblGetGlobalTime (XTime tCur)
+{
+	XTime_GetTime(&tCur);
+}
+
+/******************************************************************************
+*
+* This function Measures the execution time
+*
+* @param	Current time , End time
+*
+* @return
+*			None
+*
+* @note		None
+*
+*******************************************************************************/
+void FsblMeasurePerfTime (XTime tCur, XTime tEnd)
+{
+	double tDiff = 0.0;
+	double tPerfSeconds;
+	XTime_GetTime(&tEnd);
+	tDiff  = (double)tEnd - (double)tCur;
+	/* Convert tPerf into Seconds */
+	tPerfSeconds = tDiff/COUNTS_PER_SECOND;
+
+	/* Convert tPerf into Seconds */
+	tPerfSeconds = tDiff/COUNTS_PER_SECOND;
+
+#if defined(FSBL_DEBUG) || defined(FSBL_DEBUG_INFO)
+	printf("%f seconds \r\n",tPerfSeconds);
+#endif
+
+
+	/* Time can als be printed in terms of millisecond or nano seconds */
+}
+#endif
+
+/******************************************************************************
+*
+* This function initializes the Watchdog driver and starts the timer
+*
+* @param	None
+*
+* @return
+*		- XST_SUCCESS if the Watchdog driver is initialized
+*		- XST_FAILURE if Watchdog driver initialization fails
+*
+* @note		None
+*
+*******************************************************************************/
+#ifdef XPAR_XWDTPS_0_BASEADDR
+int InitWatchDog(void)
+{
+	u32 Status = XST_SUCCESS;
+	XWdtPs_Config *ConfigPtr; 	/* Config structure of the WatchDog Timer */
+	u32 CounterValue = 1;
+
+	ConfigPtr = XWdtPs_LookupConfig(WDT_DEVICE_ID);
+	Status = XWdtPs_CfgInitialize(&Watchdog,
+				ConfigPtr,
+				ConfigPtr->BaseAddress);
+	if (Status != XST_SUCCESS) {
+		fsbl_printf(DEBUG_INFO,"Watchdog Driver init Failed \n\r");
+		return XST_FAILURE;
+	}
+	/* Setting the divider value */
+	XWdtPs_SetControlValue(&Watchdog,
+			XWDTPS_CLK_PRESCALE,
+			XWDTPS_CCR_PSCALE_4096);
+	/* Convert time to  Watchdog counter reset value */
+	CounterValue = ConvertTime_WdtCounter(WDT_EXPIRE_TIME);
+	/* Set the Watchdog counter reset value */
+	XWdtPs_SetControlValue(&Watchdog,
+			XWDTPS_COUNTER_RESET,
+			CounterValue);
+	/* enable reset output, as we are only using this as a basic counter */
+	XWdtPs_EnableOutput(&Watchdog, XWDTPS_RESET_SIGNAL);
+	/* Start the Watchdog timer */
+	XWdtPs_Start(&Watchdog);
+	XWdtPs_RestartWdt(&Watchdog);
+
+	return XST_SUCCESS;
+
+} /* End of InitWatchDog */
+
+/******************************************************************************/
+/**
+*
+* This function checks whether WDT reset has happened during FSBL run
+*
+* If WDT reset happened during FSBL run, then need to fallback
+*
+* @param	None.
+*
+* @return
+*		None
+*
+* @note		None
+*
+****************************************************************************/
+void CheckWDTReset(void)
+{
+	volatile u32 ResetReason;
+	volatile u32 RebootStatusRegister;
+
+	RebootStatusRegister = FsblIn32(REBOOT_STATUS_REG);
+
+	/* For 1.0 Silicon the reason for Reset is in the ResetReason Register
+	 * Hence this register can be read to know the cause for previous reset
+	 * that happened.
+	 * Check if that reset is a Software WatchDog reset that happened
+	 */
+	if (Silicon_Version == SILICON_VERSION_0) {
+		ResetReason = FsblIn32(RESET_REASON_REG);
+	} else {
+		ResetReason = GetResetReason();
+	}
+	/* If the FSBL_IN_MASK Has not been cleared, WDT happened
+	 * before FSBL exits
+	 *
+	 */
+	if ((ResetReason & RESET_REASON_SWDT) == RESET_REASON_SWDT ) {
+		if ((RebootStatusRegister & FSBL_FAIL_MASK) == FSBL_IN_MASK) {
+			/* Clear the SWDT Reset bit */
+			ResetReason &= ~RESET_REASON_SWDT;
+			if (Silicon_Version == SILICON_VERSION_0) {
+				/* for 1.0 Silicon we need to write
+				 * 1 to the RESET REASON Clear register 
+				 *
+				 */
+				FsblOut32(RESET_REASON_CLR, 1);
+			} else {
+				FsblOut32(REBOOT_STATUS_REG, ResetReason);
+			}
+
+			fsbl_printf(DEBUG_GENERAL,"WDT_RESET_OCCURED \n\r");
+		}
+	}
+} /* End of CheckWDTReset */
+/******************************************************************************
+*
+* This function converts time into Watchdog counter value
+*
+* @param	watchdog expire time in seconds
+*
+* @return
+*			Counter value for Watchdog
+*
+* @note		None
+*
+*******************************************************************************/
+
+u32 ConvertTime_WdtCounter(u32 seconds)
+{
+	double time = 0.0;
+	double CounterValue;
+	u32 Crv = 0;
+	u32 Prescaler,PrescalerValue;
+
+	Prescaler = XWdtPs_GetControlValue(&Watchdog, XWDTPS_CLK_PRESCALE);
+
+	if (Prescaler == XWDTPS_CCR_PSCALE_0008)
+		PrescalerValue = 8;
+	if (Prescaler == XWDTPS_CCR_PSCALE_0064)
+		PrescalerValue = 64;
+	if (Prescaler == XWDTPS_CCR_PSCALE_4096)
+		PrescalerValue = 4096;
+
+	time = (double)(PrescalerValue) / (double)XPAR_PS7_WDT_0_WDT_CLK_FREQ_HZ;
+
+	CounterValue = seconds / time;
+
+	Crv = (u32)CounterValue;
+	Crv >>= WDT_CRV_SHIFT;
+	return Crv;
+
+} /* End of ConvertTime_WdtCounter */
+
+#endif
+
+/******************************************************************************
+*
+* This function checks for the soft reset
+*
+* @param	None
+*
+* @return
+*		None
+*
+* @note		None
+*
+*******************************************************************************/
+void CheckSRST(void)
+{
+	volatile u32 ResetReason;
+	/* Check if SRST occured, if so clear the Partition number */
+	ResetReason = GetResetReason();
+	if (ResetReason == RESET_REASON_SRST ) {
+		FsblOut32(REBOOT_STATUS_REG,
+				(FsblIn32(REBOOT_STATUS_REG)) &
+				~(FSBL_FAIL_MASK | PARTITION_NUMBER_MASK));
+	}
+} /* End of CheckSRT */
+
+
+/******************************************************************************
+*
+* This function Gets the Silicon Version
+*
+* @param	None
+*
+* @return
+*		Updates the Silicon_Version
+*
+* @note		None
+*
+*******************************************************************************/
+void GetSiliconVersion(void)
+{
+	/* Get the silicon version */
+	Silicon_Version = XDcfg_GetPsVersion(DcfgInstPtr);
+
+	if (Silicon_Version == SILICON_VERSION_0) {
+		fsbl_printf( DEBUG_GENERAL,"Silicon Version 1.0\r\n");
+	} else if(Silicon_Version == SILICON_VERSION_1) {
+		fsbl_printf(DEBUG_GENERAL,"Silicon Version 2.0\r\n");
+	} else {
+		fsbl_printf(DEBUG_GENERAL,"Unsupported Silicon Version %d  \r\n",
+				Silicon_Version);
+	}
+} /* End of GetSiliconVersion */
+
+

@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2010-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -48,9 +48,9 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  01/10/10 Initial release
+* 1.00a ecm	01/10/10 Initial release
 *
 * </pre>
 *
@@ -72,29 +72,21 @@ extern "C" {
 
 /************************** Constant Definitions *****************************/
 
-#define XPS_NOR_BASEADDR XPS_PARPORT0_BASEADDR
+#define XPS_NOR_BASEADDR 	XPS_PARPORT0_BASEADDR
 
 /**************************** Type Definitions *******************************/
 
 
 /***************** Macros (Inline Functions) Definitions *********************/
-#define NorIn8          Xil_In8
-#define NorOut8         Xil_Out8
-
-#define NorOut16        Xil_Out16
-
-#define NorIn32         Xil_In32
-#define NorOut32        Xil_Out32
 
 /************************** Function Prototypes ******************************/
 
 
 void InitNor(void);
-u32 ReadNor(u32 Address);
 
 u32 NorAccess( u32 SourceAddress,
-               u32 DestinationAddress,
-               u32 LengthBytes);
+	       u32 DestinationAddress,
+	       u32 LengthBytes);
 
 /************************** Variable Definitions *****************************/
 #ifdef __cplusplus

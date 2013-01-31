@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-12 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -41,7 +41,7 @@
 /*****************************************************************************/
 /**
 *
-* @file partition_image_mover.h
+* @file image_mover.h
 *
 * This file contains the interface for moving the image from FLASH to OCM
 
@@ -49,18 +49,18 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a jz   03/04/11  Initial release
-* 2.00a jz   06/04/11  partition header expands to 12 words 
+* 1.00a jz	03/04/11	Initial release
+* 2.00a jz	06/04/11	partition header expands to 12 words
 *
 * </pre>
 *
 * @note
 *
 ******************************************************************************/
-#ifndef ___PARTITION_MOVER_H___
-#define ___PARTITION_MOVER_H___
+#ifndef ___IMAGE_MOVER_H___
+#define ___IMAGE_MOVER_H___
 
 
 #ifdef __cplusplus
@@ -73,57 +73,33 @@ extern "C" {
 
 /************************** Constant Definitions *****************************/
 /* Boot Image Header defines */
-#define IMAGE_WIDTH_CHECK_OFFSET  0x020  /**< 0xaa995566 Width Detection word */
-                                         /**< AKA FLASH_WIDTH_DETERMIN_WORD */
-#define IMAGE_IDENT_OFFSET        0x024  /**< 0x584C4E58 "XLNX" */
-#define IMAGE_ENC_FLAG_OFFSET     0x028  /**< 0xA5C3C5A3 */
-#define IMAGE_USR_DEF_OFFSET      0x02C  /**< undefined */
-#define IMAGE_SOURCE_ADDR_OFFSET  0x030  /**< start address of image  */
-                                         /**< 0xFFFFFFFF for invalid image */
-#define IMAGE_BYTE_LEN_OFFSET     0x034  /**< length of image> in bytes  */
-#define IMAGE_DEST_ADDR_OFFSET    0x038  /**< destination address in OCM */
-#define IMAGE_EXECUTE_ADDR_OFFSET 0x03c  /**< address to start executing at */
-
-#define IMAGE_TOT_BYTE_LEN_OFFSET 0x040  /**< total length of image in bytes */
-
-#define IMAGE_CHECKSUM_OFFSET     0x048  /**< Header Checksum offset */
-#define IMAGE_PHDR_OFFSET         0x09C  /**< Start of partition headers */
-
-/* Key location for encrypted images */
-#define IMAGE_ENCRYPTED_EFUSE           0xA5C3C5A3
-#define IMAGE_ENCRYPTED_BBRAM           0x3A5C3C5A
+#define IMAGE_PHDR_OFFSET			0x09C	/**< Start of partition headers */
 
 /* Partition Header defines */
-#define PARTITION_IMAGE_WORD_LEN_OFFSET   0x00  /**< word length of image */
-
-#define PARTITION_DATA_WORD_LEN_OFFSET    0x04  /**< Word length of data */
-
-#define PARTITION_WORD_LEN_OFFSET         0x08  /**< Word length of partition */
-
-#define PARTITION_LOAD_ADDRESS_OFFSET     0x0C  /**< Load addr in DDR  */
-
-#define PARTITION_EXEC_ADDRESS_OFFSET     0x10  /**< Addr to start executing */
-#define PARTITION_ADDR_OFFSET             0x14  /**< Partition word offset */
-
-#define PARTITION_ATTRIBUTE_OFFSET        0x18  /**< Partition type */
-#define PARTITION_HDR_CHECKSUM_OFFSET     0x3C  /**< Header Checksum offset */
-#define PARTITION_HDR_CHECKSUM_WORD_COUNT 0xF   /**< Checksum word count */
-
-#define PARTITION_HDR_WORD_COUNT          0x10  /**< Header word len */
-#define PARTITION_HDR_TOTAL_LEN           0x40  /**< One partition hdr length*/
+#define PARTITION_IMAGE_WORD_LEN_OFFSET	0x00	/**< Word length of image */
+#define PARTITION_DATA_WORD_LEN_OFFSET	0x04	/**< Word length of data */
+#define PARTITION_WORD_LEN_OFFSET	0x08	/**< Word length of partition */
+#define PARTITION_LOAD_ADDRESS_OFFSET	0x0C	/**< Load addr in DDR	*/
+#define PARTITION_EXEC_ADDRESS_OFFSET	0x10	/**< Addr to start executing */
+#define PARTITION_ADDR_OFFSET		0x14	/**< Partition word offset */
+#define PARTITION_ATTRIBUTE_OFFSET	0x18	/**< Partition type */
+#define PARTITION_HDR_CHECKSUM_OFFSET	0x3C	/**< Header Checksum offset */
+#define PARTITION_HDR_CHECKSUM_WORD_COUNT 0xF	/**< Checksum word count */
+#define PARTITION_HDR_WORD_COUNT	0x10	/**< Header word len */
+#define PARTITION_HDR_TOTAL_LEN		0x40	/**< One partition hdr length*/
 
 /* Attribute word defines */
-#define ATTRIBUTE_PS_IMAGE_MASK           0x10  /**< Code partition */ 
-#define ATTRIBUTE_PL_IMAGE_MASK           0x20  /**< Bit stream partition */ 
+#define ATTRIBUTE_PS_IMAGE_MASK		0x10	/**< Code partition */
+#define ATTRIBUTE_PL_IMAGE_MASK		0x20	/**< Bit stream partition */
 
 /**************************** Type Definitions *******************************/
 typedef u32 (*ImageMoverType)( u32 SourceAddress,
-                               u32 DestinationAddress,
-                               u32 LengthBytes);
+				u32 DestinationAddress,
+				u32 LengthBytes);
 
 /***************** Macros (Inline Functions) Definitions *********************/
-#define MoverIn32       Xil_In32
-#define MoverOut32      Xil_Out32
+#define MoverIn32		Xil_In32
+#define MoverOut32		Xil_Out32
 
 /************************** Function Prototypes ******************************/
 
@@ -135,5 +111,5 @@ u32 PartitionMove(u32 ImageAddr, int PartitionNumber);
 #endif
 
 
-#endif /* ___PARTITION_MOVER_H___ */
+#endif /* ___IMAGE_MOVER_H___ */
 

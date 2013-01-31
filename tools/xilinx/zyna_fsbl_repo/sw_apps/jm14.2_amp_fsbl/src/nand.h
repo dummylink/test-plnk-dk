@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -48,10 +48,10 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  01/10/10 Initial release
-* 2.00a mb   30/05/12 added the flag XPAR_PS7_NAND_0_BASEADDR
+* 1.00a ecm	01/10/10 Initial release
+* 2.00a mb	30/05/12 added the flag XPAR_PS7_NAND_0_BASEADDR
 * </pre>
 *
 * @note
@@ -77,25 +77,21 @@ extern "C" {
 /**************************** Type Definitions *******************************/
 
 /************************** Constant Definitions *****************************/
-#define NAND_CONTROLLER_BASE_ADDRESS    XPS_PARPORT_CRTL_BASEADDR
 
 /**************************** Type Definitions *******************************/
 
 /***************** Macros (Inline Functions) Definitions *********************/
-#define NandIn8         Xil_In8
-#define NandOut8        Xil_Out8
 
-#define NandIn32        Xil_In32
-#define NandOut32       Xil_Out32
-#endif
 /************************** Function Prototypes ******************************/
 u32 InitNand(void);
 
 u32 NandAccess( u32 SourceAddress,
                 u32 DestinationAddress,
                 u32 LengthWords);
-
+#endif
 /************************** Variable Definitions *****************************/
+
+
 #ifdef __cplusplus
 }
 #endif

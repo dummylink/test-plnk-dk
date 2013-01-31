@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -43,14 +43,14 @@
 *
 * @file sd.h
 *
-* This file contains the interface for the Secure Digital (SD) card 
+* This file contains the interface for the Secure Digital (SD) card
 *
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a bh  03/10/11 Initial release
+* 1.00a bh	03/10/11 Initial release
 *
 * </pre>
 *
@@ -69,11 +69,11 @@ extern "C" {
 /************************** Function Prototypes ******************************/
 
 #ifdef XPAR_PS7_SD_0_S_AXI_BASEADDR
-u32 InitSD(char *);
+u32 InitSD(const char *);
 
 u32 SDAccess( u32 SourceAddress,
-              u32 DestinationAddress,
-              u32 LengthWords);
+		u32 DestinationAddress,
+		u32 LengthWords);
 
 void ReleaseSD(void);
 #endif

@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-12 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -46,16 +46,12 @@
 * Contains the code that does the handoff to the loaded application. This
 * code lives high in the ROM. 
 *
-* Toggles the Boot ROM to RAM driven by the bit pattern in SHADOW_RAM_MASK
-*
-* BOOT_SHADOW_RAM_MASK  0x7FFFFFFF is the maximum possible.
-*
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date.word   Changes
+* Ver	Who	Date.word	Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  03/01/10 Initial release
+* 1.00a ecm	03/01/10 Initial release
 *
 * </pre>
 *
@@ -84,51 +80,36 @@
 /************************** Variable Definitions *****************************/
 
 FsblHandoffJtagExit:
-        mcr     15,0,r0,cr7,cr5,0       /* Invalidate Instruction cache */
-        mcr     15,0,r0,cr7,cr5,6       /* Invalidate branch predictor array */
+		mcr	 15,0,r0,cr7,cr5,0		/* Invalidate Instruction cache */
+		mcr	 15,0,r0,cr7,cr5,6		/* Invalidate branch predictor array */
 
-        dsb
-        isb                             /* make sure it completes */
+		dsb
+		isb					/* make sure it completes */
 
 	ldr	r4, =0
-        mcr     15,0,r4,cr1,cr0,0       /* disable the ICache and MMU */
+		mcr	 15,0,r4,cr1,cr0,0		/* disable the ICache and MMU */
 
-        isb                             /* make sure it completes */
+		isb					/* make sure it completes */
 Loop:
 	wfe
 	b Loop
 
 FsblHandoffExit:
-        mov     lr, r0    /* move the destination address into link register */
+		mov	 lr, r0	/* move the destination address into link register */
 
-        mcr     15,0,r0,cr7,cr5,0       /* Invalidate Instruction cache */
-        mcr     15,0,r0,cr7,cr5,6       /* Invalidate branch predictor array */
+		mcr	 15,0,r0,cr7,cr5,0		/* Invalidate Instruction cache */
+		mcr	 15,0,r0,cr7,cr5,6		/* Invalidate branch predictor array */
 
-        dsb
-        isb                             /* make sure it completes */
+		dsb
+		isb					/* make sure it completes */
 
 	ldr	r4, =0
-        mcr     15,0,r4,cr1,cr0,0       /* disable the ICache and MMU */
+		mcr	 15,0,r4,cr1,cr0,0		/* disable the ICache and MMU */
 
-        isb                             /* make sure it completes */
+		isb					/* make sure it completes */
 
-#ifdef PEEP_CODE
-        /* PEEP9 DDR HACK - remove for production */
-        ldr     r0, =0xF8000008 
-        ldr     r1, =0x0000DF0D
-        str     r1,[r0]
-        
-        ldr     r0, =0xF8000430 
-        ldr     r1, =0xffffffff
-        str     r1,[r0]
-        
-        
-        ldr     r0, =0xF8000004 
-        ldr     r1, =0x0000767B
-        str     r1,[r0]
-#endif
 
-        bx      lr  /* force the switch, destination should have been in r0 */
+		bx		lr	/* force the switch, destination should have been in r0 */
 
-.Ldone: b       .Ldone                  /* Paranoia: we should never get here */
+.Ldone: b		.Ldone					/* Paranoia: we should never get here */
 .end

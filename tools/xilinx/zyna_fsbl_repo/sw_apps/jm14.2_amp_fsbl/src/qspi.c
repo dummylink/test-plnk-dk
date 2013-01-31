@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -48,10 +48,11 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  01/10/10 Initial release
-*
+* 1.00a ecm	01/10/10 Initial release
+* 3.00a mb  25/06/12 InitQspi, data is read first and required config bits
+                     are set
 * </pre>
 *
 * @note
@@ -61,8 +62,12 @@
 /***************************** Include Files *********************************/
 
 #include "qspi.h"
-
 #include "image_mover.h"
+
+#ifdef XPAR_PS7_QSPI_LINEAR_0_S_AXI_BASEADDR
+#include "xqspips_hw.h"
+#include "xqspips.h"
+#endif
 
 /************************** Constant Definitions *****************************/
 
@@ -70,10 +75,8 @@
 
 
 /***************** Macros (Inline Functions) Definitions *********************/
-#define QspiRegIn32             Xil_In32
-#define QspiRegOut32            Xil_Out32
+
 /************************** Function Prototypes ******************************/
-static u32 ReadQspi(u32 Address);
 
 /************************** Variable Definitions *****************************/
 
@@ -85,39 +88,54 @@ extern u32 FlashReadBaseAddress;
 *
 * This function initializes the controller for the QSPI interface.
 *
-* @param    none
+* @param	None
 *
-* @return   XST_SUCCESS if the controller initializes correctly
-*           XST_FAILURE if the controller fails to initializes correctly
+* @return	None
 *
-* @note    none.
-*
-****************************************************************************/
-void InitQspi(void){
-
-    /* Change the divisor setting */
-    QspiOut32((XPS_QSPI_BASEADDR + QSPI_CONFIG_OFFSET),
-                 QSPI_CONFIG_RESET_AUTO);
-
-}
-
-/******************************************************************************/
-/**
-*
-* This function reads the requested data from QSPI FLASH interface.
-*
-* @param    Offset into the FLASH data space
-*
-* @return   Data at the provided offset in the FLASH
-*
-* @note    none.
+* @note		None  
 *
 ****************************************************************************/
-static u32 ReadQspi(u32 Address){
+void InitQspi(void)
+{
+#ifdef XPAR_PS7_QSPI_LINEAR_0_S_AXI_BASEADDR
+	u32 QspiControlReg = 0;
+	u32 QspiDelayReg = 0;
+	u32 Prescaler = XQSPIPS_CLK_PRESCALE_8;
 
-    return QspiRegIn32(Address);
+	/* Fix for  CR #664560 */
+	QspiControlReg = Xil_In32((XPS_QSPI_BASEADDR + XQSPIPS_CR_OFFSET));
 
+	/* Change the baud rate to DIV/8 prescaler value */
+	QspiControlReg &= ~XQSPIPS_CR_PRESC_MASK;
+	QspiControlReg |= (u32) (Prescaler & XQSPIPS_CR_PRESC_MAXIMUM) <<
+				XQSPIPS_CR_PRESC_SHIFT;
+
+	Xil_Out32((XPS_QSPI_BASEADDR + XQSPIPS_CR_OFFSET), QspiControlReg);
+	/* 
+	 * Set the USE loopback bit
+	 * Fix for the CR #664560
+	 * Delay DLY1 = 0
+	 * Delay DLY0 = 0
+	 */
+
+	QspiDelayReg = Xil_In32((XPS_QSPI_BASEADDR +
+					XQSPIPS_LPBK_DLY_ADJ_OFFSET));
+
+	QspiDelayReg &= FSBL_XQSPIPS_LPBK_DLY_ADJ_DLY_VALUE;
+
+	Xil_Out32((XPS_QSPI_BASEADDR + XQSPIPS_LPBK_DLY_ADJ_OFFSET),
+					QspiDelayReg);
+
+	fsbl_printf(DEBUG_INFO, "QSPI initialized with Control value = 0x%x \n \r",
+				Xil_In32(XPS_QSPI_BASEADDR + 
+				XQSPIPS_CR_OFFSET));
+	fsbl_printf(DEBUG_INFO, "QSPI loopback register value = 0x%x \n \r",
+				Xil_In32(XPS_QSPI_BASEADDR + 
+				XQSPIPS_LPBK_DLY_ADJ_OFFSET));
+
+#endif
 }
+
 
 /******************************************************************************/
 /**
@@ -125,44 +143,46 @@ static u32 ReadQspi(u32 Address){
 * This function provides the QSPI FLASH interface for the Simplified header
 * functionality.
 *
-* @param    SourceAddress is address in FLASH data space
-*           DestinationAddress is address in OCM data space
+* @param	SourceAddress is address in FLASH data space
+* @param	DestinationAddress is address in DDR data space
+* @param	LengthBytes is the length of the data in Bytes
 *
-* @return   XST_SUCCESS if the write completes correctly
-*           XST_FAILURE if the write fails to completes correctly
+* @return
+*		- XST_SUCCESS if the write completes correctly
+*		- XST_FAILURE if the write fails to completes correctly
 *
-* @note    none.
+* @note	none.
 *
 ****************************************************************************/
-
 u32 QspiAccess( u32 SourceAddress, u32 DestinationAddress, u32 LengthBytes)
 {
+#ifdef XPAR_PS7_QSPI_LINEAR_0_S_AXI_BASEADDR
+	u32 Data;
+	u32 Count;
+	u32 *SourceAddr;
+	u32 *DestAddr;
+	
 
-    u32 Data;
-    u32 Count;
-    u32 *SourceAddr;
-    u32 *DestAddr;
-
-    /* check for non-word tail, add bytes to cover the end */
-    if ((LengthBytes%4) != 0){
-        LengthBytes += (4 - (LengthBytes & 0x00000003));
-    }
+	/* Check for non-word tail, add bytes to cover the end */
+	if ((LengthBytes%4) != 0){
+		LengthBytes += (4 - (LengthBytes & 0x00000003));
+	}
 
 
-    SourceAddr = (u32 *)(SourceAddress + FlashReadBaseAddress);
+	SourceAddr = (u32 *)(SourceAddress + FlashReadBaseAddress);
 
-    DestAddr = (u32 *)(DestinationAddress);
+	DestAddr = (u32 *)(DestinationAddress);
 
-    /* Word transfers, endianism isn't an  issue */
-    for (Count=0; Count < (LengthBytes / 4); Count++){
+	/* Word transfers, endianism isn't an	issue */
+	for (Count=0; Count < (LengthBytes / 4); Count++){
 
-        Data = ReadQspi((u32)(SourceAddr));
-        SourceAddr++;
-        Xil_Out32((u32)(DestAddr), Data);
-        DestAddr++;
-    }
-
-    return XST_SUCCESS;
+		Data = Xil_In32((u32)(SourceAddr));
+		SourceAddr++;
+		Xil_Out32((u32)(DestAddr), Data);
+		DestAddr++;
+	}
+#endif
+	return XST_SUCCESS;
 
 
 } /* End of QspiAccess */

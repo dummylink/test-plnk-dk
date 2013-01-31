@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -48,10 +48,10 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  01/10/10 Initial release
-* 2.00a mb   25/05/12
+* 1.00a ecm	01/10/10 Initial release
+* 2.00a mb	25/05/12 mio init removed
 *
 * </pre>
 *
@@ -73,10 +73,6 @@
 
 /************************** Function Prototypes ******************************/
 
-u8 ReadNor8(u32 Address);
-void ResetNorFlash(void);
-u32 PollDataStatusNorFlash(u32 Address, u8 Data);
-
 /************************** Variable Definitions *****************************/
 
 extern u32 FlashReadBaseAddress;
@@ -87,112 +83,21 @@ extern u32 FlashReadBaseAddress;
 *
 * This function initializes the controller for the NOR FLASH interface.
 *
-* @param    none
+* @param	None
 *
-* @return   XST_SUCCESS if the controller initializes correctly
-*           XST_FAILURE if the controller fails to initializes correctly
+* @return	None
 *
-* @note    none.
-*
-****************************************************************************/
-void InitNor(void) {
-
-    /* set up base address for access */
-    FlashReadBaseAddress = XPS_NOR_BASEADDR;
-}
-
-/******************************************************************************/
-/**
-*
-* This function reads the requested data from NOR FLASH interface.
-*
-* @param    Address into the FLASH data space
-*
-* @return   Data at the provided offset in the FLASH
-*
-* @note    none.
+* @note		None.
 *
 ****************************************************************************/
-u32 ReadNor(u32 Address){
-
-    return NorIn32(Address);
-
-}
-
-/******************************************************************************/
-/**
-*
-* This function reads the requested byte from NOR FLASH interface.
-*
-* @param    Address into the FLASH data space
-*
-* @return   Data at the provided offset in the FLASH
-*
-* @note    none.
-*
-****************************************************************************/
-u8 ReadNor8(u32 Address){
-
-    return NorIn8(Address);
-
-}
-
-/******************************************************************************/
-/**
-*
-* This function provides the reset of the NOR FLASH
-*
-* @param    None
-*
-* @return   None
-*
-* @note    none.
-*
-****************************************************************************/
-void ResetNorFlash(void)
-{
-    NorOut8(FlashReadBaseAddress,         0xF0);
-}
-
-
-/******************************************************************************/
-/**
-*
-* This function polls the status of the last command to the NOR FLASH
-*
-* @param    None
-*
-* @return   XST_SUCCESS if the command completes correctly
-*           XST_FAILURE if the command fails to completes correctly
-*
-* @note    none.
-*
-****************************************************************************/
-u32 PollDataStatusNorFlash(u32 Address, u8 Data)
+void InitNor(void)
 {
 
-    u8 Status;
-
-    while (1) {
-        Status = NorIn8(FlashReadBaseAddress + Address);
-        if ((Status >> 7) == (Data >> 7)) {
-            ResetNorFlash();
-            return XST_SUCCESS;
-
-        } else if ((Status >> 5) == 1) {
-
-            Status = NorIn8(FlashReadBaseAddress + Address);
-
-            if ((Status >> 7) == (Data >> 7)) {
-                ResetNorFlash();
-                return XST_SUCCESS;
-            } else {
-                ResetNorFlash();
-                return XST_FAILURE; /* fail */
-            }
-        }
-    }
-} /* End of PollDataStatusNorFlash */
+	/*
+	 * Set up the base address for access
+	 */
+	FlashReadBaseAddress = XPS_NOR_BASEADDR;
+}
 
 /******************************************************************************/
 /**
@@ -200,43 +105,46 @@ u32 PollDataStatusNorFlash(u32 Address, u8 Data)
 * This function provides the NOR FLASH interface for the Simplified header
 * functionality.
 *
-* @param    SourceAddress is address in FLASH data space
-*           DestinationAddress is address in OCM data space
+* @param	SourceAddress is address in FLASH data space
+* @param	DestinationAddress is address in OCM data space
+* @param	LengthBytes is the data length to transfer in bytes
 *
-* @return   XST_SUCCESS if the write completes correctly
-*           XST_FAILURE if the write fails to completes correctly
+* @return
+*		- XST_SUCCESS if the write completes correctly
+*		- XST_FAILURE if the write fails to completes correctly
 *
-* @note    none.
+* @note		None.
 *
 ****************************************************************************/
-
-u32 NorAccess( u32 SourceAddress, u32 DestinationAddress, u32 LengthBytes)
+u32 NorAccess(u32 SourceAddress, u32 DestinationAddress, u32 LengthBytes)
 {
-    u32 Data;
-    u32 Count;
-    u32 *SourceAddr;
-    u32 *DestAddr;
-    int LengthWords;
+	u32 Data;
+	u32 Count;
+	u32 *SourceAddr;
+	u32 *DestAddr;
+	u32 LengthWords;
 
-    /* check for non-word tail
-         * add bytes to cover the end */
-    if ((LengthBytes%4) != 0){
+	/*
+	 * check for non-word tail
+	 * add bytes to cover the end
+	 */
+	if ((LengthBytes%4) != 0){
 
-        LengthBytes += (4 - (LengthBytes & 0x00000003));
-    }
+		LengthBytes += (4 - (LengthBytes & 0x00000003));
+	}
 
-    LengthWords = LengthBytes >> WORD_LENGTH_SHIFT;
+	LengthWords = LengthBytes >> WORD_LENGTH_SHIFT;
 
-    SourceAddr = (u32 *)(SourceAddress + FlashReadBaseAddress);
-    DestAddr = (u32 *)(DestinationAddress);
+	SourceAddr = (u32 *)(SourceAddress + FlashReadBaseAddress);
+	DestAddr = (u32 *)(DestinationAddress);
 
-    /* Word transfers, endianism isn't an issue */
-    for (Count=0; Count < LengthWords; Count++){
+	/* Word transfers, endianism isn't an issue */
+	for (Count=0; Count < LengthWords; Count++){
 
-        Data = NorIn32((u32)(SourceAddr++));
-        Xil_Out32((u32)(DestAddr++), Data);
-    }
+		Data = Xil_In32((u32)(SourceAddr++));
+		Xil_Out32((u32)(DestAddr++), Data);
+	}
 
-    return XST_SUCCESS;
+	return XST_SUCCESS;
 }
 

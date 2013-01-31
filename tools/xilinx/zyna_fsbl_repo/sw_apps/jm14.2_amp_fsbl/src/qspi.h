@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2010-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -48,10 +48,10 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  01/10/10 Initial release
-*
+* 1.00a ecm	01/10/10 Initial release
+* 3.00a mb  01/09/12 Added the Delay Values defines for qspi
 * </pre>
 *
 * @note
@@ -66,24 +66,18 @@ extern "C" {
 #endif
 
 /***************************** Include Files *********************************/
-#define QSPI_CONFIG_OFFSET       (0x00) /**< Configuration */
-#define QSPI_CONFIG_RESET_AUTO    (0x800238C1) /* Auto mode   */
-
-/**************************** Type Definitions *******************************/
-
-
-/***************** Macros (Inline Functions) Definitions *********************/
-#define QspiIn32        Xil_In32
-#define QspiOut32       Xil_Out32
+#include "fsbl.h"
 
 /************************** Function Prototypes ******************************/
-
-
+#define FSBL_XQSPIPS_LPBK_DLY_ADJ_DLY1 0
+#define FSBL_XQSPIPS_LPBK_DLY_ADJ_DLY2 0
+#define FSBL_XQSPIPS_LPBK_DLY_ADJ_DLY_VALUE (FSBL_XQSPIPS_LPBK_DLY_ADJ_DLY1 | \
+											FSBL_XQSPIPS_LPBK_DLY_ADJ_DLY2)
 void InitQspi(void);
 
 u32 QspiAccess( u32 SourceAddress,
-                u32 DestinationAddress,
-                u32 LengthBytes);
+		u32 DestinationAddress,
+		u32 LengthBytes);
 
 /************************** Variable Definitions *****************************/
 

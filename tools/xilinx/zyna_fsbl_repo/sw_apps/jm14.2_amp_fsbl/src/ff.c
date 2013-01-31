@@ -84,7 +84,8 @@
 /                   Fixed a wrong directory entry is created on non-LFN cfg when the given name contains ';'.
 /                   Fixed f_mkfs() creates wrong FAT32 volume.
 /---------------------------------------------------------------------------*/
-
+#include "xparameters.h"
+#ifdef XPAR_PS7_SD_0_S_AXI_BASEADDR
 #include "ff.h"			/* FatFs configurations and declarations */
 #include "diskio.h"		/* Declarations of low level disk I/O functions */
 
@@ -2160,7 +2161,7 @@ FRESULT f_read (
 	FRESULT res;
 	DWORD clst, sect, remain;
 	UINT rcnt, cc;
-	BYTE csect, *rbuff = buff;
+	BYTE csect, *rbuff = (BYTE *)buff;
 
 	*br = 0;	/* Initialize byte counter */
 
@@ -3751,3 +3752,5 @@ int f_printf (
 
 #endif /* !_FS_READONLY */
 #endif /* _USE_STRFUNC */
+
+#endif /* XPAR_PS7_SD_0_S_AXI_BASEADDR */

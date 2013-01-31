@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2011-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -49,10 +49,10 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  01/10/10 Initial release
-* 2.00 mb     25/05/12 fsbl changes for standalone bsp based
+* 1.00a ecm	01/10/10 Initial release
+* 2.00a  mb	25/05/12 fsbl changes for standalone bsp based
 *
 * </pre>
 *
@@ -68,12 +68,9 @@
 #include "xnandps_bbm.h"
 
 
-XNandPs *NandInstPtr;
-XNandPs NandInstance; /* XNand Instance. */
-static XNandPs_Config Config;
-
-
 /************************** Constant Definitions *****************************/
+
+#define NAND_DEVICE_ID		XPAR_XNANDPS_0_DEVICE_ID
 
 /**************************** Type Definitions *******************************/
 
@@ -88,60 +85,65 @@ u32 ReadNand(u32 Address,u32 *Data);
 extern u32 FlashReadBaseAddress;
 extern u32 FlashOffsetAddress;
 
-/* these values are set by the initialization routine, device dependent */
-
-
+XNandPs *NandInstPtr;
+XNandPs NandInstance; /* XNand Instance. */
 
 /******************************************************************************/
 /**
 *
 * This function initializes the controller for the NAND FLASH interface.
 *
-* @param    none
+* @param	none
 *
-* @return   XST_SUCCESS if the controller initializes correctly
-*           XST_FAILURE if the controller fails to initializes correctly
+* @return
+*		- XST_SUCCESS if the controller initializes correctly
+*		- XST_FAILURE if the controller fails to initializes correctly
 *
-* @note    none.
+* @note		none.
 *
 ****************************************************************************/
 u32 InitNand(void)
 {
 
-    u32 Status;
-    XNandPs_Config *ConfigPtr;
+	u32 Status;
+	XNandPs_Config *ConfigPtr;
 
-    /* set up base address for access */
-    FlashReadBaseAddress = XPS_NAND_BASEADDR;
+	/* Set up pointers to instance and the config structure */
+	NandInstPtr = &NandInstance;
 
-    /* set up pointers to instance and the config structure */
-    NandInstPtr = &NandInstance;
-    ConfigPtr = &Config;
+	/*
+	 * Initialize the flash driver.
+	 */
+	ConfigPtr = XNandPs_LookupConfig(NAND_DEVICE_ID);
 
-    /* memset to zero */
-    memset_rom(&NandInstance, 0, sizeof(NandInstance));
-    memset_rom(&Config, 0, sizeof(Config));
+	if (ConfigPtr == NULL) {
+		fsbl_printf(DEBUG_GENERAL,"Nand Driver failed \n \r");
+		return XST_FAILURE;
+	}
 
-    ConfigPtr->DeviceId = 0;
-    ConfigPtr->SmcBase = NAND_CONTROLLER_BASE_ADDRESS;
-    ConfigPtr->FlashBase = FlashReadBaseAddress;
-    ConfigPtr->FlashWidth = XNANDPS_FLASH_WIDTH_8;
+	Status = XNandPs_CfgInitialize(NandInstPtr, ConfigPtr,
+			ConfigPtr->SmcBase,ConfigPtr->FlashBase);
+	if (Status != XST_SUCCESS) {
+		fsbl_printf(DEBUG_GENERAL,"NAND intialization failed \n \r");
+		return XST_FAILURE;
+	}
 
-        /* Initialize the driver */
-    Status = XNandPs_CfgInitialize(NandInstPtr, ConfigPtr,
-                     ConfigPtr->SmcBase,
-                     ConfigPtr->FlashBase);
+	/* Set up base address for access */
+	FlashReadBaseAddress = XPS_NAND_BASEADDR;
 
-    debug_xil_printf("InitNand: Geometry = 0x%x\r\n",NandInstPtr->Geometry.FlashWidth);
+	fsbl_printf(DEBUG_INFO,"InitNand: Geometry = 0x%x\r\n",
+		NandInstPtr->Geometry.FlashWidth);
 
-    if (Status != XST_SUCCESS) {
-        debug_xil_printf("InitNand: Status = 0x%.8x\r\n", Status);
-        return XST_FAILURE;
-   }
+	if (Status != XST_SUCCESS) {
+		fsbl_printf(DEBUG_GENERAL,"InitNand: Status = 0x%.8x\r\n", 
+				Status);
+		return XST_FAILURE;
+	}
 
-    /* set up the FLASH access pointers */
+	/* set up the FLASH access pointers */
+	fsbl_printf(DEBUG_INFO,"Nand driver initialized \n\r");
 
-     return XST_SUCCESS;
+	return XST_SUCCESS;
 } /* End of NAND initialisation function */
 
 /******************************************************************************/
@@ -150,39 +152,38 @@ u32 InitNand(void)
 * This function reads the requested data from NAND FLASH interface.
 * This function does not handle bad blocks. Return what it is.
 *
-* @param    Address into the FLASH data space
+* @param	Address into the FLASH data space
 *
-* @return   Data at the provided offset in the FLASH
+* @return	Data at the provided offset in the FLASH
 *
-* @note    none.
+* @note		None.
 *
 ****************************************************************************/
 u32 ReadNand(u32 Address, u32 *Data)
 {
 
-    u32 Status;
-    u32 Page;
-    u32 *WordPtr;
+	u32 Status;
+	u32 Page;
+	u32 *WordPtr;
 
-    debug_xil_printf("ReadNand: Address = 0x%.8x\r\n", Address);
+	fsbl_printf(DEBUG_INFO,"ReadNand: Address = 0x%.8x\r\n", Address);
 
-    WordPtr = (u32 *)NandInstance.DataBuf;
+	WordPtr = (u32 *)NandInstance.DataBuf;
 
-    Page = (Address)/(NandInstance.Geometry.BytesPerPage);
+	Page = (Address)/(NandInstance.Geometry.BytesPerPage);
 
-    Status = XNandPs_Read(NandInstPtr,
-               (u64)(Page * (NandInstance.Geometry.BytesPerPage)),
-               NandInstance.Geometry.BytesPerPage,
-               NandInstance.DataBuf,NULL);
-    xil_printf("Status = 0x%x \n",Status);
-    if (Status != XST_SUCCESS)     {
-        debug_xil_printf("ReadNand Failed: Status = 0x%.8x\r\n",
-                 Status);
-    return XST_FAILURE;
-    }
-    *Data = WordPtr[((Address) & (NandInstance.Geometry.BytesPerPage - 1))/4];
+	Status = XNandPs_Read(NandInstPtr,
+				(u64)(Page * (NandInstance.Geometry.BytesPerPage)),
+				NandInstance.Geometry.BytesPerPage,
+				NandInstance.DataBuf,NULL);
+	if (Status != XST_SUCCESS) {
+		fsbl_printf(DEBUG_GENERAL,"ReadNand Failed: Status = 0x%.8x\r\n",
+				 Status);
+	return XST_FAILURE;
+	}
+	*Data = WordPtr[((Address) & (NandInstance.Geometry.BytesPerPage - 1))/4];
 
-    return Status;
+	return Status;
 
 } /* End of ReadNand function */
 
@@ -195,110 +196,110 @@ u32 ReadNand(u32 Address, u32 *Data)
 * The source address is the absolute good address, bad blocks are skipped
 * without incrementing the source address.
 *
-* @param    SourceAddress is address in FLASH data space, absolute good address
-*           DestinationAddress is address in OCM data space
+* @param	SourceAddress is address in FLASH data space, absolute good address
+* @param	DestinationAddress is address in OCM data space
 *
-* @return   XST_SUCCESS if the transfer completes correctly
-*           XST_FAILURE if the transfer fails to completes correctly
+* @return	XST_SUCCESS if the transfer completes correctly
+*		XST_FAILURE if the transfer fails to completes correctly
 *
-* @note    none.
+* @note	none.
 *
 ****************************************************************************/
-u32 NandAccess( u32 SourceAddress, u32 DestinationAddress, u32 LengthBytes)
+u32 NandAccess(u32 SourceAddress, u32 DestinationAddress, u32 LengthBytes)
 {
-    u32 Status;
-    u32 PageSizeMask;
-    u32 PageSize;
-    u32 BytesPerBlock;
-    u32 TempSourceAddress;
-    u32 ByteCount = 0;
-    u32 TmpAddress = 0;
-    int BlockCount = 0;
-    int BadBlocks = 0;
-    u32 LastBlockCount = 0;
-    u32 Data;
+	u32 Status = XST_SUCCESS;
+	u32 PageSizeMask;
+	u32 PageSize;
+	u32 BytesPerBlock;
+	u32 TempSourceAddress;
+	u32 ByteCount = 0;
+	u32 TmpAddress = 0;
+	int BlockCount = 0;
+	int BadBlocks = 0;
+	u32 LastBlockCount = 0;
+	u32 Data;
 
-    PageSize = NandInstance.Geometry.BytesPerPage;
-    PageSizeMask = PageSize - 1;
-    TempSourceAddress = SourceAddress;
-    BytesPerBlock = (NandInstance.Geometry.PagesPerBlock * PageSize);
-    Data = 0xFFFFFFFF;
+	PageSize = NandInstance.Geometry.BytesPerPage;
+	PageSizeMask = PageSize - 1;
+	TempSourceAddress = SourceAddress;
+	BytesPerBlock = (NandInstance.Geometry.PagesPerBlock * PageSize);
+	Data = 0xFFFFFFFF;
 
-    /* First get bad blocks before the source address */
-    while (TmpAddress < SourceAddress) {
-        while (XNandPs_IsBlockBad(NandInstPtr, BlockCount) == 
-                            XST_SUCCESS) {
-            BlockCount ++;
-            BadBlocks ++;
-        }
+	/* First get bad blocks before the source address */
+	while (TmpAddress < SourceAddress) {
+		while (XNandPs_IsBlockBad(NandInstPtr, BlockCount) ==
+							XST_SUCCESS) {
+			BlockCount ++;
+			BadBlocks ++;
+		}
 
-        TmpAddress += BytesPerBlock;
-        BlockCount ++;
-    }
+		TmpAddress += BytesPerBlock;
+		BlockCount ++;
+	}
 
-    /* Previous loop advanced BlockCount one more too much */
-    LastBlockCount = BlockCount - 1;
+	/* Previous loop advanced BlockCount one more too much */
+	LastBlockCount = BlockCount - 1;
 
-    /* Now transfer with bad block skipping */
-    while (ByteCount < LengthBytes) {
-        int TmpBadBlocks = 0;
-        int Length;
+	/* Now transfer with bad block skipping */
+	while (ByteCount < LengthBytes) {
+		int TmpBadBlocks = 0;
+		int Length;
 
-        TempSourceAddress = SourceAddress + ByteCount +
-                                BadBlocks * BytesPerBlock;
-        BlockCount = TempSourceAddress / BytesPerBlock;
+		TempSourceAddress = SourceAddress + ByteCount +
+								BadBlocks * BytesPerBlock;
+		BlockCount = TempSourceAddress / BytesPerBlock;
 
-        /* If advance to the next block, needs to check bad block */
-        if (BlockCount > LastBlockCount) {
-            LastBlockCount = BlockCount;
+		/* If advance to the next block, needs to check bad block */
+		if (BlockCount > LastBlockCount) {
+			LastBlockCount = BlockCount;
 
-        while (XNandPs_IsBlockBad(NandInstPtr, BlockCount) == 
-                        XST_SUCCESS) {
+		while (XNandPs_IsBlockBad(NandInstPtr, BlockCount) ==
+						XST_SUCCESS) {
 
-            BlockCount ++;
-            TmpBadBlocks ++;
-            debug_xil_printf("Found bad block %d: %d\r\n",
-                        BlockCount, TmpBadBlocks);
-        }
+			BlockCount ++;
+			TmpBadBlocks ++;
+			fsbl_printf(DEBUG_INFO,"Found bad block %d: %d\r\n",
+						BlockCount, TmpBadBlocks);
+		}
 
-        if (TmpBadBlocks) {
-            BadBlocks += TmpBadBlocks;
-            TempSourceAddress += TmpBadBlocks * BytesPerBlock;
-            LastBlockCount += TmpBadBlocks;
-            }
-        }
+		if (TmpBadBlocks) {
+			BadBlocks += TmpBadBlocks;
+			TempSourceAddress += TmpBadBlocks * BytesPerBlock;
+			LastBlockCount += TmpBadBlocks;
+			}
+		}
 
-        if (LengthBytes == 4) {
-            Status = ReadNand(TempSourceAddress,&Data);
-            *((u32 *)DestinationAddress) = Data;
+		if (LengthBytes == 4) {
+			Status = ReadNand(TempSourceAddress,&Data);
+			*((u32 *)DestinationAddress) = Data;
 
-            return Status;
-        }
+			return Status;
+		}
 
-        /* NAND transfer is page-wise */
-        Length = PageSize - (TempSourceAddress & PageSizeMask);
+		/* NAND transfer is page-wise */
+		Length = PageSize - (TempSourceAddress & PageSizeMask);
 
-        if ((Length + ByteCount) > LengthBytes) {
-            Length = LengthBytes - ByteCount;
-        }
+		if ((Length + ByteCount) > LengthBytes) {
+			Length = LengthBytes - ByteCount;
+		}
 
-        Status = XNandPs_Read(NandInstPtr,
-                               (u64)TempSourceAddress,
-                               Length,
-                               (u32 *)(DestinationAddress + ByteCount),
-                               NULL);
+		Status = XNandPs_Read(NandInstPtr,
+					(u64)TempSourceAddress,
+					Length,
+					(u32 *)(DestinationAddress + ByteCount),
+					NULL);
 
-        if (Status != XST_SUCCESS) {
-            debug_xil_printf("NandAccess Failed: source %x, "
-                             "count %d, destinationaddr %x, "
-                             "Status = 0x%.8x\r\n",
-                             (u64)TempSourceAddress, Length,
-                         DestinationAddress + ByteCount, Status);
-            return Status;
-        }
-        ByteCount += Length;
-    } /* End of while ByteCount < LengthBytes */
-
+		if (Status != XST_SUCCESS) {
+			fsbl_printf(DEBUG_GENERAL,"NandAccess Failed: source %x, "
+					 "count %d, destinationaddr %x, "
+					 "Status = 0x%.8x\r\n",
+					 (u64)TempSourceAddress, Length,
+					 DestinationAddress + ByteCount, Status);
+			return Status;
+		}
+		ByteCount += Length;
+	} /* End of while ByteCount < LengthBytes */
+	return Status;
 } /* End of NandAccess */
 
 #endif

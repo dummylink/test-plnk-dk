@@ -1,6 +1,6 @@
 /******************************************************************************
 *
-* (c) Copyright 2011 Xilinx, Inc. All rights reserved.
+* (c) Copyright 2010-2012 Xilinx, Inc. All rights reserved.
 *
 * This file contains confidential and proprietary information of Xilinx, Inc.
 * and is protected under U.S. and international copyright and other
@@ -49,10 +49,10 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who  Date        Changes
+* Ver	Who	Date		Changes
 * ----- ---- -------- -------------------------------------------------------
-* 1.00a ecm  02/10/10 Initial release
-*
+* 1.00a ecm	02/10/10 Initial release
+* 2.00a mb  16/08/12 Added the macros and function prototypes
 * </pre>
 *
 * @note
@@ -71,20 +71,32 @@ extern "C" {
 
 /************************** Function Prototypes ******************************/
 
-
-#define XDCFG_MCTRL_PCAP_PS_VER_MASK 0xF0000000 /* PS_VERSION */
 /* Multiboot register offset mask */
 #define PCAP_MBOOT_REG_REBOOT_OFFSET_MASK	0x1FFF
-/* Multiboot silicon version number */
-#define XDCFG_MCTRL_PCAP_PS_VER_SHIFT       28
+
+#define PCAP_LAST_TRANSFER 1
+#define MAX_COUNT 1000000000
+#define LVL_PL_PS 0x0000000F
+#define LVL_PS_PL 0x0000000A
+
+/* Fix for #672779 */
+#define FSBL_XDCFG_IXR_ERROR_FLAGS_MASK		(XDCFG_IXR_AXI_WERR_MASK | \
+						XDCFG_IXR_AXI_RTO_MASK |  \
+						XDCFG_IXR_AXI_RERR_MASK | \
+						XDCFG_IXR_RX_FIFO_OV_MASK | \
+						XDCFG_IXR_DMA_CMD_ERR_MASK |\
+						XDCFG_IXR_DMA_Q_OV_MASK |   \
+						XDCFG_IXR_P2D_LEN_ERR_MASK |\
+						XDCFG_IXR_PCFG_HMAC_ERR_MASK)
 
 int InitPcap(void);
-
+void PcapDumpRegisters(void);
+u32 ClearPcap_Status(void);
+void FabricInit(void);
 u32 WritePcapXferData(u32 *SourceData, u32 *DestinationData,
-            u32 SourceLength,u32 DestinationLength, u32 Flags);
+			u32 SourceLength,u32 DestinationLength, u32 Flags);
+int XDcfg_PollDone(u32 MaskValue, u32 MaxCount);
 
-void PcapProg_BitSequence(void);
-void SetLevel_Shifter(void);
 /************************** Variable Definitions *****************************/
 #ifdef __cplusplus
 }
