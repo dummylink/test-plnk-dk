@@ -1,8 +1,9 @@
 #Please do not modify this file by hand
-XmpVersion: 14.2
-VerMgmt: 14.2
+XmpVersion: 14.4
+VerMgmt: 14.4
 IntStyle: default
 Flow: ise
+ModuleSearchPath: E:/Zynq14.4/02_Reference_Sources/fpga/xilinx/ipcore/ZynqCustom/pcores/remap_v1_00_a/../../../
 MHS File: system.mhs
 Architecture: zynq
 Device: xc7z020
@@ -23,9 +24,7 @@ ExternalMemSim: 0
 UcfFile: data/system.ucf
 EnableParTimingError: 1
 ShowLicenseDialog: 1
-LockAddr: remap_1,C_S_AXI_BRIDGE_BASEADDR
-LockAddr: remap_0,C_S_AXI_BRIDGE_BASEADDR
-LockAddr: remap_dma,C_S_AXI_BRIDGE_BASEADDR
+BInfo: 
 Processor: processing_system7_0
 ElfImp: 
 ElfSim: 
