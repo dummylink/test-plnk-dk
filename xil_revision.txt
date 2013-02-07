@@ -64,3 +64,5 @@ Revision History (Xilinx)
                     [FEATURE] X: Add Xilinx multi bootloader
                     [FEATURE] X: Add 16bitprll pcp/ap axi design for s6plkeb
                     [TASK] X: Add eclipse project files for easier project import
+
+07.02.2013 V1.0.1   [FIX] add 7 additional RX buffers in case of multiple Asnd are sent in one cycle

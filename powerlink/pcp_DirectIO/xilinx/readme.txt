@@ -38,14 +38,14 @@ Properties
   6200/04: not in use
 
 - Software footprint for release is apprx.:
-               Code+Data=206 KByte, Heap=110 KByte, Stack=50 KByte
-               => 366 KByte (rough estimation)
-  (Measured with -O3, DBG_MODE=NDEBUG, RX/TX packets in BRAM)
+               Code+Data=206 KByte, Heap=140 KByte, Stack=50 KByte
+               => 396 KByte (rough estimation)
+  (Measured with -O3, DBG_MODE=NDEBUG, RX packets external, TX in BRAM)
 
 - Software footprint for debug is apprx.:
-               Code+Data=306 KByte, Heap=110 KByte, Stack=50 KByte
-               => 466 KByte (rough estimation)
-  (Measured with -O0, DBG_MODE=_DEBUG, RX/TX packets in BRAM)
+               Code+Data=306 KByte, Heap=140 KByte, Stack=50 KByte
+               => 496 KByte (rough estimation)
+  (Measured with -O0, DBG_MODE=_DEBUG, RX packets external, TX in BRAM)
 
 Requirements
 ---------------
