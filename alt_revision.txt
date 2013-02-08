@@ -105,3 +105,5 @@ Revision History
                     [TASK] A: expected POWERLINK IP-core revision is checked
                     [TASK] Altera FW-Update: settings shifted to fwSettings.h
                     [TASK] A: software import to NIOS II EDS changed
+
+07.02.2013 V1.0.1   [FIX] add 7 additional RX buffers for MAsnd support
