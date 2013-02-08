@@ -72,4 +72,7 @@ Revision History
                         [FIX] timesync hang when using windows MN
                         [TASK] enhanced DMA master path to 32 bit address width
 
-14.01.2012  V0.2.8      [FIX] master handler of openMAC DMA cuts RX transfers
+08.02.2012  V0.2.8      [FIX] master handler of openMAC DMA cuts RX transfers
+                        [FEATURE] Add Virtual Ethernet support
+                        [FIX] timing issue with MII phy interface
+                        [FIX] Change number of Rx buffers for MAsnd, Change description
