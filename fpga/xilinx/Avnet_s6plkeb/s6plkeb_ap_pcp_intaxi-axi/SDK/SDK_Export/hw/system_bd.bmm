@@ -21,8 +21,8 @@ ADDRESS_MAP pcp MICROBLAZE-LE 100
 
     ADDRESS_SPACE boot_bram_block_combined RAMB16 [0x00000000:0x00000FFF]
         BUS_BLOCK
-            boot_bram_block/boot_bram_block/ramb16bwer_0 [31:16] INPUT = boot_bram_block_combined_0.mem PLACED = X0Y16;
-            boot_bram_block/boot_bram_block/ramb16bwer_1 [15:0] INPUT = boot_bram_block_combined_1.mem PLACED = X0Y28;
+            boot_bram_block/boot_bram_block/ramb16bwer_0 [31:16] INPUT = boot_bram_block_combined_0.mem PLACED = X1Y10;
+            boot_bram_block/boot_bram_block/ramb16bwer_1 [15:0] INPUT = boot_bram_block_combined_1.mem PLACED = X1Y0;
         END_BUS_BLOCK;
     END_ADDRESS_SPACE;
 
@@ -35,10 +35,10 @@ ADDRESS_MAP pcp MICROBLAZE-LE 100
 
     ADDRESS_SPACE pcp_bram_block_combined RAMB16 [0x00002000:0x00003FFF]
         BUS_BLOCK
-            pcp_bram_block/pcp_bram_block/ramb16bwer_0 [31:24] INPUT = pcp_bram_block_combined_0.mem PLACED = X0Y18;
-            pcp_bram_block/pcp_bram_block/ramb16bwer_1 [23:16] INPUT = pcp_bram_block_combined_1.mem PLACED = X0Y12;
-            pcp_bram_block/pcp_bram_block/ramb16bwer_2 [15:8] INPUT = pcp_bram_block_combined_2.mem PLACED = X0Y30;
-            pcp_bram_block/pcp_bram_block/ramb16bwer_3 [7:0] INPUT = pcp_bram_block_combined_3.mem PLACED = X0Y26;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_0 [31:24] INPUT = pcp_bram_block_combined_0.mem PLACED = X1Y8;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_1 [23:16] INPUT = pcp_bram_block_combined_1.mem PLACED = X1Y12;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_2 [15:8] INPUT = pcp_bram_block_combined_2.mem PLACED = X1Y2;
+            pcp_bram_block/pcp_bram_block/ramb16bwer_3 [7:0] INPUT = pcp_bram_block_combined_3.mem PLACED = X1Y4;
         END_BUS_BLOCK;
     END_ADDRESS_SPACE;
 
@@ -62,10 +62,10 @@ ADDRESS_MAP ap MICROBLAZE-LE 101
 
     ADDRESS_SPACE ap_bram_block_combined RAMB16 [0x00000000:0x00001FFF]
         BUS_BLOCK
-            ap_bram_block/ap_bram_block/ramb16bwer_0 [31:24] INPUT = ap_bram_block_combined_0.mem PLACED = X1Y8;
-            ap_bram_block/ap_bram_block/ramb16bwer_1 [23:16] INPUT = ap_bram_block_combined_1.mem PLACED = X1Y10;
-            ap_bram_block/ap_bram_block/ramb16bwer_2 [15:8] INPUT = ap_bram_block_combined_2.mem PLACED = X1Y2;
-            ap_bram_block/ap_bram_block/ramb16bwer_3 [7:0] INPUT = ap_bram_block_combined_3.mem PLACED = X1Y12;
+            ap_bram_block/ap_bram_block/ramb16bwer_0 [31:24] INPUT = ap_bram_block_combined_0.mem PLACED = X0Y24;
+            ap_bram_block/ap_bram_block/ramb16bwer_1 [23:16] INPUT = ap_bram_block_combined_1.mem PLACED = X0Y16;
+            ap_bram_block/ap_bram_block/ramb16bwer_2 [15:8] INPUT = ap_bram_block_combined_2.mem PLACED = X0Y26;
+            ap_bram_block/ap_bram_block/ramb16bwer_3 [7:0] INPUT = ap_bram_block_combined_3.mem PLACED = X0Y12;
         END_BUS_BLOCK;
     END_ADDRESS_SPACE;
 
