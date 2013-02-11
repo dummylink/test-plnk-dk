@@ -185,7 +185,7 @@ td { min-width : 80px ; }
 <tr> <td><a name="ECC">ECC</a></td><td>Disabled</td></tr>
 <tr> <td><a name="BURST Length (lppdr only)">BURST Length (lppdr only)</a></td><td>8</td></tr>
 <tr> <td><a name="Internal Vref">Internal Vref</a></td><td>1</td></tr>
-<tr> <td><a name="Operating Frequency (MHz)">Operating Frequency (MHz)</a></td><td>533.333333</td></tr>
+<tr> <td><a name="Operating Frequency (MHz)">Operating Frequency (MHz)</a></td><td>533.333313</td></tr>
 <tr> <td><a name="HIGH temperature">HIGH temperature</a></td><td>Normal (0-85)</td></tr>
 </table></ul>
 <h3><a name="DDRInfoTab">Memory Part Configuration</a></h3>
@@ -505,10 +505,10 @@ td { min-width : 80px ; }
 <li><p>Register : DCI_CLK_CTRL @ 0XF8000128</p>
 <table border="1"> 
 <tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
-<tr><td >CLKACT</td><td class="hex">0:0</td><td class="hex">1</td><td class="hex">0</td><td class="hex">0</td></tr>
+<tr><td >CLKACT</td><td class="hex">0:0</td><td class="hex">1</td><td class="hex">1</td><td class="hex">1</td></tr>
 <tr><td >DIVISOR0</td><td class="hex">13:8</td><td class="hex">3f00</td><td class="hex">23</td><td class="hex">2300</td></tr>
 <tr><td >DIVISOR1</td><td class="hex">25:20</td><td class="hex">3f00000</td><td class="hex">3</td><td class="hex">300000</td></tr>
-<tr><td><b>DCI_CLK_CTRL @ 0XF8000128</td><td></td><td class="hex"><b>3f03f01</b></td><td></td><td class="hex"><b>302300</b></td></tr></table>
+<tr><td><b>DCI_CLK_CTRL @ 0XF8000128</td><td></td><td class="hex"><b>3f03f01</b></td><td></td><td class="hex"><b>302301</b></td></tr></table>
 </li>
 <li><p>Register : GEM0_RCLK_CTRL @ 0XF8000138</p>
 <table border="1"> 
@@ -810,10 +810,10 @@ td { min-width : 80px ; }
 <table border="1"> 
 <tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
 <tr><td >reg_ddrc_burst_rdwr</td><td class="hex">3:0</td><td class="hex">f</td><td class="hex">4</td><td class="hex">4</td></tr>
-<tr><td >reg_ddrc_pre_cke_x1024</td><td class="hex">13:4</td><td class="hex">3ff0</td><td class="hex">1</td><td class="hex">10</td></tr>
+<tr><td >reg_ddrc_pre_cke_x1024</td><td class="hex">13:4</td><td class="hex">3ff0</td><td class="hex">69</td><td class="hex">690</td></tr>
 <tr><td >reg_ddrc_post_cke_x1024</td><td class="hex">25:16</td><td class="hex">3ff0000</td><td class="hex">1</td><td class="hex">10000</td></tr>
 <tr><td >reg_ddrc_burstchop</td><td class="hex">28:28</td><td class="hex">10000000</td><td class="hex">0</td><td class="hex">0</td></tr>
-<tr><td><b>DRAM_burst8_rdwr @ 0XF8006034</td><td></td><td class="hex"><b>13ff3fff</b></td><td></td><td class="hex"><b>10014</b></td></tr></table>
+<tr><td><b>DRAM_burst8_rdwr @ 0XF8006034</td><td></td><td class="hex"><b>13ff3fff</b></td><td></td><td class="hex"><b>10694</b></td></tr></table>
 </li>
 <li><p>Register : DRAM_disable_DQ @ 0XF8006038</p>
 <table border="1"> 
@@ -964,8 +964,8 @@ td { min-width : 80px ; }
 <table border="1"> 
 <tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
 <tr><td >t_zq_short_interval_x1024</td><td class="hex">19:0</td><td class="hex">fffff</td><td class="hex">cb73</td><td class="hex">cb73</td></tr>
-<tr><td >dram_rstn_x1024</td><td class="hex">27:20</td><td class="hex">ff00000</td><td class="hex">2</td><td class="hex">200000</td></tr>
-<tr><td><b>CHE_T_ZQ_Short_Interval_Reg @ 0XF80060A8</td><td></td><td class="hex"><b>fffffff</b></td><td></td><td class="hex"><b>20cb73</b></td></tr></table>
+<tr><td >dram_rstn_x1024</td><td class="hex">27:20</td><td class="hex">ff00000</td><td class="hex">69</td><td class="hex">6900000</td></tr>
+<tr><td><b>CHE_T_ZQ_Short_Interval_Reg @ 0XF80060A8</td><td></td><td class="hex"><b>fffffff</b></td><td></td><td class="hex"><b>690cb73</b></td></tr></table>
 </li>
 <li><p>Register : deep_pwrdwn_reg @ 0XF80060AC</p>
 <table border="1"> 
@@ -1421,6 +1421,16 @@ td { min-width : 80px ; }
 <tr><td >reg_ddrc_dev_zqinit_x32</td><td class="hex">17:8</td><td class="hex">3ff00</td><td class="hex">12</td><td class="hex">1200</td></tr>
 <tr><td><b>lpddr_ctrl3 @ 0XF80062B4</td><td></td><td class="hex"><b>3ffff</b></td><td></td><td class="hex"><b>12a8</b></td></tr></table>
 </li>
+<h2>POLL ON DCI STATUS</h2>
+<ul>
+<p>POLL ON DCI STATUS</p>
+<li><p>Register : DDRIOB_DCI_STATUS @ 0XF8000B74</p>
+<table border="1"> 
+<tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
+<tr><td >DONE</td><td class="hex">13:13</td><td class="hex">2000</td><td class="hex">1</td><td class="hex">2000</td></tr>
+<tr><td><b>DDRIOB_DCI_STATUS @ 0XF8000B74</td><td></td><td class="hex"><b>2000</b></td><td></td><td class="hex"><b>2000</b></td></tr></table>
+</li>
+</ul>
 <h2>UNLOCK DDR</h2>
 <ul>
 <p>UNLOCK DDR</p>
@@ -1436,6 +1446,16 @@ td { min-width : 80px ; }
 <tr><td >reg_ddrc_dis_act_bypass</td><td class="hex">15:15</td><td class="hex">8000</td><td class="hex">0</td><td class="hex">0</td></tr>
 <tr><td >reg_ddrc_dis_auto_refresh</td><td class="hex">16:16</td><td class="hex">10000</td><td class="hex">0</td><td class="hex">0</td></tr>
 <tr><td><b>ddrc_ctrl @ 0XF8006000</td><td></td><td class="hex"><b>1ffff</b></td><td></td><td class="hex"><b>81</b></td></tr></table>
+</li>
+</ul>
+<h2>CHECK DDR STATUS</h2>
+<ul>
+<p>CHECK DDR STATUS</p>
+<li><p>Register : mode_sts_reg @ 0XF8006054</p>
+<table border="1"> 
+<tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
+<tr><td >ddrc_reg_operating_mode</td><td class="hex">2:0</td><td class="hex">7</td><td class="hex">1</td><td class="hex">1</td></tr>
+<tr><td><b>mode_sts_reg @ 0XF8006054</td><td></td><td class="hex"><b>7</b></td><td></td><td class="hex"><b>1</b></td></tr></table>
 </li>
 </ul>
 </ul>
@@ -2430,13 +2450,6 @@ td { min-width : 80px ; }
 <tr><td >DisableRcvr</td><td class="hex">13:13</td><td class="hex">2000</td><td class="hex">0</td><td class="hex">0</td></tr>
 <tr><td><b>MIO_PIN_53 @ 0XF80007D4</td><td></td><td class="hex"><b>3fff</b></td><td></td><td class="hex"><b>1280</b></td></tr></table>
 </li>
-<li><p>Register : LVL_SHFTR_EN @ 0XF8000900</p>
-<table border="1"> 
-<tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
-<tr><td >USER_INP_ICT_EN_0</td><td class="hex">1:0</td><td class="hex">3</td><td class="hex">3</td><td class="hex">3</td></tr>
-<tr><td >USER_INP_ICT_EN_1</td><td class="hex">3:2</td><td class="hex">c</td><td class="hex">3</td><td class="hex">c</td></tr>
-<tr><td><b>LVL_SHFTR_EN @ 0XF8000900</td><td></td><td class="hex"><b>f</b></td><td></td><td class="hex"><b>f</b></td></tr></table>
-</li>
 </ul>
 <h2>LOCK IT BACK</h2>
 <ul>
@@ -2548,6 +2561,270 @@ td { min-width : 80px ; }
 <h2>AFI3 REGISTERS</h2>
 <ul>
 <p>AFI3 REGISTERS</p>
+</ul>
+</ul>
+<h2>QSPI REGISTERS</h2>
+<ul>
+<p>QSPI REGISTERS</p>
+<li><p>Register : Config_reg @ 0XE000D000</p>
+<table border="1"> 
+<tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
+<tr><td >Holdb_dr</td><td class="hex">19:19</td><td class="hex">80000</td><td class="hex">1</td><td class="hex">80000</td></tr>
+<tr><td><b>Config_reg @ 0XE000D000</td><td></td><td class="hex"><b>80000</b></td><td></td><td class="hex"><b>80000</b></td></tr></table>
+</li>
+</ul>
+<h2>PL POWER ON RESET REGISTERS</h2>
+<ul>
+<p>PL POWER ON RESET REGISTERS</p>
+<li><p>Register : CTRL @ 0XF8007000</p>
+<table border="1"> 
+<tr><thead><th>Bitfield</th><th>Bits</th><th>Mask</th><th>Value</th><th>Shifted Value</th></thead></tr><tbody>
+<tr><td >PCFG_POR_CNT_4K</td><td class="hex">29:29</td><td class="hex">20000000</td><td class="hex">0</td><td class="hex">0</td></tr>
+<tr><td><b>CTRL @ 0XF8007000</td><td></td><td class="hex"><b>20000000</b></td><td></td><td class="hex"><b>0</b></td></tr></table>
+</li>
+</ul>
+<h2>SMC TIMING CALCULATION REGISTER UPDATE</h2>
+<ul>
+<p>SMC TIMING CALCULATION REGISTER UPDATE</p>
+<h2>NAND SET CYCLE</h2>
+<ul>
+<p>NAND SET CYCLE</p>
+</ul>
+<h2>OPMODE</h2>
+<ul>
+<p>OPMODE</p>
+</ul>
+<h2>DIRECT COMMAND</h2>
+<ul>
+<p>DIRECT COMMAND</p>
+</ul>
+<h2>SRAM/NOR CS0 SET CYCLE</h2>
+<ul>
+<p>SRAM/NOR CS0 SET CYCLE</p>
+</ul>
+<h2>DIRECT COMMAND</h2>
+<ul>
+<p>DIRECT COMMAND</p>
+</ul>
+<h2>NOR CS0 BASE ADDRESS</h2>
+<ul>
+<p>NOR CS0 BASE ADDRESS</p>
+</ul>
+<h2>SRAM/NOR CS1 SET CYCLE</h2>
+<ul>
+<p>SRAM/NOR CS1 SET CYCLE</p>
+</ul>
+<h2>DIRECT COMMAND</h2>
+<ul>
+<p>DIRECT COMMAND</p>
+</ul>
+<h2>NOR CS1 BASE ADDRESS</h2>
+<ul>
+<p>NOR CS1 BASE ADDRESS</p>
+</ul>
+<h2>USB RESET</h2>
+<ul>
+<p>USB RESET</p>
+<h2>DIR MODE BANK 0</h2>
+<ul>
+<p>DIR MODE BANK 0</p>
+</ul>
+<h2>DIR MODE BANK 1</h2>
+<ul>
+<p>DIR MODE BANK 1</p>
+</ul>
+<h2>MASK_DATA_0_LSW HIGH BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW HIGH BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW HIGH BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW HIGH BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW HIGH BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW HIGH BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW HIGH BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW HIGH BANK [53:48]</p>
+</ul>
+<h2>OUTPUT ENABLE BANK 0</h2>
+<ul>
+<p>OUTPUT ENABLE BANK 0</p>
+</ul>
+<h2>OUTPUT ENABLE BANK 1</h2>
+<ul>
+<p>OUTPUT ENABLE BANK 1</p>
+</ul>
+<h2>MASK_DATA_0_LSW LOW BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW LOW BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW LOW BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW LOW BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW LOW BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW LOW BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW LOW BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW LOW BANK [53:48]</p>
+</ul>
+<h2>MASK_DATA_0_LSW HIGH BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW HIGH BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW HIGH BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW HIGH BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW HIGH BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW HIGH BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW HIGH BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW HIGH BANK [53:48]</p>
+</ul>
+</ul>
+<h2>ENET RESET</h2>
+<ul>
+<p>ENET RESET</p>
+<h2>DIR MODE BANK 0</h2>
+<ul>
+<p>DIR MODE BANK 0</p>
+</ul>
+<h2>DIR MODE BANK 1</h2>
+<ul>
+<p>DIR MODE BANK 1</p>
+</ul>
+<h2>MASK_DATA_0_LSW HIGH BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW HIGH BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW HIGH BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW HIGH BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW HIGH BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW HIGH BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW HIGH BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW HIGH BANK [53:48]</p>
+</ul>
+<h2>OUTPUT ENABLE BANK 0</h2>
+<ul>
+<p>OUTPUT ENABLE BANK 0</p>
+</ul>
+<h2>OUTPUT ENABLE BANK 1</h2>
+<ul>
+<p>OUTPUT ENABLE BANK 1</p>
+</ul>
+<h2>MASK_DATA_0_LSW LOW BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW LOW BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW LOW BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW LOW BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW LOW BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW LOW BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW LOW BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW LOW BANK [53:48]</p>
+</ul>
+<h2>MASK_DATA_0_LSW HIGH BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW HIGH BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW HIGH BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW HIGH BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW HIGH BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW HIGH BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW HIGH BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW HIGH BANK [53:48]</p>
+</ul>
+</ul>
+<h2>I2C RESET</h2>
+<ul>
+<p>I2C RESET</p>
+<h2>DIR MODE GPIO BANK0</h2>
+<ul>
+<p>DIR MODE GPIO BANK0</p>
+</ul>
+<h2>DIR MODE GPIO BANK1</h2>
+<ul>
+<p>DIR MODE GPIO BANK1</p>
+</ul>
+<h2>MASK_DATA_0_LSW HIGH BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW HIGH BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW HIGH BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW HIGH BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW HIGH BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW HIGH BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW HIGH BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW HIGH BANK [53:48]</p>
+</ul>
+<h2>OUTPUT ENABLE</h2>
+<ul>
+<p>OUTPUT ENABLE</p>
+</ul>
+<h2>OUTPUT ENABLE</h2>
+<ul>
+<p>OUTPUT ENABLE</p>
+</ul>
+<h2>MASK_DATA_0_LSW LOW BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW LOW BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW LOW BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW LOW BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW LOW BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW LOW BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW LOW BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW LOW BANK [53:48]</p>
+</ul>
+<h2>MASK_DATA_0_LSW HIGH BANK [15:0]</h2>
+<ul>
+<p>MASK_DATA_0_LSW HIGH BANK [15:0]</p>
+</ul>
+<h2>MASK_DATA_0_MSW HIGH BANK [31:16]</h2>
+<ul>
+<p>MASK_DATA_0_MSW HIGH BANK [31:16]</p>
+</ul>
+<h2>MASK_DATA_1_LSW HIGH BANK [47:32]</h2>
+<ul>
+<p>MASK_DATA_1_LSW HIGH BANK [47:32]</p>
+</ul>
+<h2>MASK_DATA_1_MSW HIGH BANK [53:48]</h2>
+<ul>
+<p>MASK_DATA_1_MSW HIGH BANK [53:48]</p>
+</ul>
 </ul>
 </ul>
 </ul>

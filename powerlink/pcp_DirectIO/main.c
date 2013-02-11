@@ -48,7 +48,8 @@
 #define ZYNQ
 #ifdef ZYNQ
 #include "xil_io.h"
-
+// base address of PS Uart1
+#define UART_BASE 0xE0001000
 /* Write to memory location or register */
 #define X_mWriteReg(BASE_ADDRESS, RegOffset, data) \
            *(unsigned int *)(BASE_ADDRESS + RegOffset) = ((unsigned int) data);
@@ -76,7 +77,7 @@ void XUartChanged_SendByte(u32 BaseAddress, u8 Data)
 }
 
 void outbyte(char c) {
-	 XUartChanged_SendByte(0xE0001000, c);
+	 XUartChanged_SendByte(UART_BASE, c);
 }
 
 

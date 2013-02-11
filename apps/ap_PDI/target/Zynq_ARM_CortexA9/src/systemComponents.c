@@ -113,8 +113,8 @@ void SysComp_initPeripheral(void)
 	Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
     Xil_Out32(FPGA_RST_CNTRL,0);
     /*Setup channel widths for AXI FIFO*/
-    Xil_Out32(AFI_WRCHAN_CTRL2, AFI_WRCHAN_CONFIG);
-    Xil_Out32(AFI_RDCHAN_CTRL2, AFI_RDCHAN_CONFIG);
+    //Xil_Out32(AFI_WRCHAN_CTRL2, AFI_WRCHAN_CONFIG);
+    //Xil_Out32(AFI_RDCHAN_CTRL2, AFI_RDCHAN_CONFIG);
     Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
     Xil_ICacheEnable();

@@ -27,7 +27,7 @@ proc ps7_pll_init_data {} {
 }
 proc ps7_clock_init_data {} {
     mask_write 0XF8000008 0x0000FFFF 0x0000DF0D
-    mask_write 0XF8000128 0x03F03F01 0x00302300
+    mask_write 0XF8000128 0x03F03F01 0x00302301
     mask_write 0XF8000138 0x00000011 0x00000001
     mask_write 0XF8000140 0x03F03F71 0x00500801
     mask_write 0XF800014C 0x00003F31 0x00000721
@@ -59,7 +59,7 @@ proc ps7_ddr_init_data {} {
     mask_write 0XF8006028 0x00003FFF 0x00002007
     mask_write 0XF800602C 0xFFFFFFFF 0x00000008
     mask_write 0XF8006030 0xFFFFFFFF 0x00040930
-    mask_write 0XF8006034 0x13FF3FFF 0x00010014
+    mask_write 0XF8006034 0x13FF3FFF 0x00010694
     mask_write 0XF8006038 0x00001FC3 0x00000000
     mask_write 0XF800603C 0x000FFFFF 0x00000777
     mask_write 0XF8006040 0xFFFFFFFF 0xFFF00000
@@ -74,7 +74,7 @@ proc ps7_ddr_init_data {} {
     mask_write 0XF800606C 0x0000FFFF 0x00001610
     mask_write 0XF80060A0 0x00FFFFFF 0x00008000
     mask_write 0XF80060A4 0xFFFFFFFF 0x10200802
-    mask_write 0XF80060A8 0x0FFFFFFF 0x0020CB73
+    mask_write 0XF80060A8 0x0FFFFFFF 0x0690CB73
     mask_write 0XF80060AC 0x000001FF 0x000001FE
     mask_write 0XF80060B0 0x1FFFFFFF 0x1CFFFFFF
     mask_write 0XF80060B4 0x000007FF 0x00000200
@@ -125,7 +125,9 @@ proc ps7_ddr_init_data {} {
     mask_write 0XF80062AC 0x00000000 0x00000000
     mask_write 0XF80062B0 0x003FFFFF 0x00005125
     mask_write 0XF80062B4 0x0003FFFF 0x000012A8
+    mask_poll 0XF8000B74 0x00002000
     mask_write 0XF8006000 0x0001FFFF 0x00000081
+    mask_poll 0XF8006054 0x00000007
 }
 proc ps7_mio_init_data {} {
     mask_write 0XF8000008 0x0000FFFF 0x0000DF0D
@@ -199,7 +201,6 @@ proc ps7_mio_init_data {} {
     mask_write 0XF80007CC 0x00003FFF 0x00001240
     mask_write 0XF80007D0 0x00003FFF 0x00001280
     mask_write 0XF80007D4 0x00003FFF 0x00001280
-    mask_write 0XF8000900 0x0000000F 0x0000000F
     mask_write 0XF8000004 0x0000FFFF 0x0000767B
 }
 proc ps7_peripherals_init_data {} {
@@ -213,7 +214,10 @@ proc ps7_peripherals_init_data {} {
     mask_write 0XF8009014 0x00000001 0x00000001
     mask_write 0XF800A000 0x00000001 0x00000001
     mask_write 0XF800A014 0x00000001 0x00000001
+    mask_write 0XE000D000 0x00080000 0x00080000
+    mask_write 0XF8007000 0x20000000 0x00000000
 }
+
 proc mask_poll { addr mask } {
     set curval "0x[string range [mrd $addr] end-8 end]"
     set maskedval [expr {$curval & $mask}]
