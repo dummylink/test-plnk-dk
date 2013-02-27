@@ -48,11 +48,6 @@ subject to the License Agreement located at the end of this file below.
 
 #define CONV_STATE(state)       (state > kPcpStateOperational) ? PCP_CONV_INVALID : state
 
-#ifdef __arm__ //Added for Zynq as tool doens't update these defines!
-//TODO: AB: These defines to come from cnapicfg.h!!
-#define PCP_PDI_REVISION_TEMP 		4//PCP_PDI_REVISION
-#define PCP_SYSTEM_ID				1//
-#endif
 /******************************************************************************/
 /* typedefs */
 
@@ -637,12 +632,7 @@ BOOL CnApi_verifyPcpPdiRevision(void)
     /* verify if this compilation of CnApi library matches
      * the current PCP PDI revision
      */
-  	
-    #ifdef __arm__ //For Zynq
-	if (PCP_PDI_REVISION_TEMP != AmiGetWordFromLe((BYTE*) &(pCtrlReg_l->m_wPcpPdiRev)))
-	#else
-	if (PCP_PDI_REVISION != AmiGetWordFromLe((BYTE*) &(pCtrlReg_l->m_wPcpPdiRev)))
-	#endif
+    if (PCP_PDI_REVISION != AmiGetWordFromLe((BYTE*) &(pCtrlReg_l->m_wPcpPdiRev)))
     {
         return FALSE;
     }
