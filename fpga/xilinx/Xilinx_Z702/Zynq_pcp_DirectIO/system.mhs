@@ -134,6 +134,7 @@ BEGIN processing_system7
  PARAMETER C_INTERCONNECT_S_AXI_HP1_MASTERS = pcp.M_AXI_DC
  PARAMETER C_S_AXI_HP2_DATA_WIDTH = 32
  PARAMETER C_INTERCONNECT_S_AXI_HP2_MASTERS = axi_powerlink_0.M_AXI_MAC_DMA
+ PARAMETER C_EMIO_GPIO_WIDTH = 64
  BUS_INTERFACE S_AXI_GP0 = axi4lite_mb_0
  BUS_INTERFACE S_AXI_HP0 = axi4_0
  BUS_INTERFACE S_AXI_HP1 = axi4_0
@@ -266,6 +267,7 @@ BEGIN axi_intc
  PARAMETER HW_VER = 1.03.a
  PARAMETER C_BASEADDR = 0x41800000
  PARAMETER C_HIGHADDR = 0x4180ffff
+ PARAMETER C_KIND_OF_INTR = 0xFFFFFFFC
  BUS_INTERFACE S_AXI = axi4lite_mb_0
  PORT S_AXI_ACLK = clk_100_0000MHz
  PORT Irq = pcp_INTERRUPT
@@ -371,11 +373,11 @@ BEGIN chipscope_ila
  PARAMETER INSTANCE = chipscope_ila_0
  PARAMETER HW_VER = 1.05.a
  PARAMETER C_TRIG0_UNITS = 1
- PARAMETER C_TRIG0_TRIGGER_IN_WIDTH = 23
+ PARAMETER C_TRIG0_TRIGGER_IN_WIDTH = 24
  PARAMETER C_NUM_DATA_SAMPLES = 32768
  PARAMETER C_TRIG0_UNIT_MATCH_TYPE = basic with edges
  PORT chipscope_ila_control = chipscope_ila_0_icon_control
- PORT TRIG0 = axi_powerlink_0_phyMii0_TxEn & axi_powerlink_0_phyMii1_TxEn & axi_powerlink_0_tcp_irq & axi_powerlink_0_mac_irq & axi_powerlink_0_phyMii0_RxDv & axi_powerlink_0_phyMii1_RxDv & fit_timer_0_Interrupt & BENCHMARK_PIO_GPIO_IO
+ PORT TRIG0 = axi_powerlink_0_phyMii0_TxEn & axi_powerlink_0_phyMii1_TxEn & axi_powerlink_0_tcp_irq & axi_powerlink_0_mac_irq & axi_powerlink_0_phyMii0_RxDv & axi_powerlink_0_phyMii1_RxDv & fit_timer_0_Interrupt & pcp_INTERRUPT & BENCHMARK_PIO_GPIO_IO
  PORT CLK = clk_50_0000MHz
 END
 

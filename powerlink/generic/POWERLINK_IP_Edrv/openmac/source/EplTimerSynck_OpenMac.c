@@ -1153,7 +1153,8 @@ unsigned int                uiTimerHdl;
 tEplTimerSynckTimerInfo*    pTimerInfo;
 unsigned int                uiNextTimerHdl;
 
-    BENCHMARK_MOD_24_SET(4);
+
+	BENCHMARK_MOD_24_SET(4);
 
     uiTimerHdl = EplTimerSynckInstance_l.m_uiActiveTimerHdl;
     if (uiTimerHdl < TIMER_COUNT)
@@ -1227,14 +1228,8 @@ unsigned int                uiNextTimerHdl;
             }
         }
     }
-
     EplTimerSynckDrvConfigureShortestTimer();
-
     BENCHMARK_MOD_24_RESET(4);
-
-    //TODO: Interrupt Appreaerd as Pending at the end of operation. Why ?
-    // Pending interrupt cleared by ack the register
-    XIntc_AckIntr(XPAR_PCP_INTC_BASEADDR,XPAR_AXI_POWERLINK_0_TCP_IRQ_MASK);
 
     return;
 
