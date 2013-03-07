@@ -299,7 +299,9 @@ This function writes a value to the output port of the AP
 *******************************************************************************/
 void SysComp_writeOutputPort(DWORD dwValue_p)
 {
-   //TODO: to be integrated later
+    #ifdef OUTPORT_AP_BASE_ADDRESS
+        XGpio_WriteReg(OUTPORT_AP_BASE_ADDRESS, XGPIO_DATA_OFFSET, dwValue_p);
+    #endif
 }
 
 /**
@@ -313,8 +315,13 @@ This function reads a value from the input port of the AP
 *******************************************************************************/
 DWORD SysComp_readInputPort(void)
 {
-	//TODO: to be integrated later
-	return 0;
+    DWORD dwValue = 0;
+
+    #ifdef INPORT_AP_BASE_ADDRESS
+        dwValue = XGpio_ReadReg(INPORT_AP_BASE_ADDRESS, XGPIO_DATA_OFFSET);
+    #endif
+
+    return dwValue;
 }
 
 /*****************************************************************************/

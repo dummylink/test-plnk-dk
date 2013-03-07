@@ -6,8 +6,13 @@
 # File			: Makefile
 # contents		: Controls the build of the CNDK software (libCnApi part)
 ################################################################################
-
-VERSION = 0.2
+################################################################################
+# Version		Autor		Date			Feature
+# V0.1			mairt	
+# V0.2			mairt		13.02.2012		Make file for microblaze based sytems
+# V0.3			abhiramb	11.03.2013		ARM processor integrated for Zynq Projects
+##################################
+VERSION = 0.3
 
 include makefile.settings
 
@@ -21,22 +26,40 @@ OBJDIR=obj
 
 ##################################
 #general compile defines
-CC=arm-xilinx-eabi-gcc
-AR=arm-xilinx-eabi-ar
+ifeq ($(BOARD_NAME),zynq)
+	CC=arm-xilinx-eabi-gcc
+	AR=arm-xilinx-eabi-ar
+	SIZE=arm-xilinx-eabi-size
+	PROC=ARM_xilinx
+else
+	CC=mb-gcc
+	AR=mb-ar
+	SIZE=mb-size
+	PROC=MicroBlaze
+endif
 CP=cp
 RM=rm
 PERL=xilperl
 LIBRARY=libCnApi.a
 
 ARFLAGS=-src
-MACROS=-D__arm__ -D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
+MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
+CFLAGS=-g3 -Wall -fmessage-length=0 ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
-LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
+LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} -Wl,-Map,${EXECUTABLE}.map
+ifeq ($(BOARD_NAME),zynq)
+	MACROS+= -D__arm__ 
+	CFLAGS+= $(PROC_FEATURES_ARM)
+	LDFLAGS+= $(PROC_FEATURES_ARM) 
+else
+	MACROS+= -D__MICROBLAZE__  
+	CFLAGS+= $(PROC_FEATURES_MB)
+	LDFLAGS+= $(PROC_FEATURES_MB)
+endif
 
 ##################################
 # Include directory
-INCLUDES=-I${BSP_PATH}/ps7_cortexa9_0/include \
+INCLUDES=-I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${OBJDICT_DIR} \
 -I${CN_API_DIR}/inc \
 -I${CN_API_DIR}/int \
@@ -44,7 +67,7 @@ INCLUDES=-I${BSP_PATH}/ps7_cortexa9_0/include \
 -I${CN_API_DIR}/int/openPOWERLINK/kernel \
 -I${CN_API_DIR}/int/openPOWERLINK/user \
 -I${CNDK_DIR}/common/inc \
-#-I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic
+-I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic
 
 ##################################
 # Source files
@@ -67,10 +90,10 @@ VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
 ###################################
 # set endian according to bus interface
 ifeq ($(BUS_INTERFACE),axi)
-	PROC_FEATURES+= -mlittle-endian
+	PROC_FEATURES_MB+= -mlittle-endian
 	SRCFILES+= ${POWERLINK_DIR}/EplStack/amiarm.c
 else
-	PROC_FEATURES+= -mbig-endian
+	PROC_FEATURES_MB+= -mbig-endian
 	SRCFILES+= ${POWERLINK_DIR}/EplStack/amibe.c
 endif
 
@@ -116,7 +139,7 @@ all: builddir ${LIBRARY}
 
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<
-	@echo Invoking: MicroBlaze gcc compiler
+	@echo Invoking: $(PROC)gcc compiler
 	$(CC) -c ${OPT_LEVEL} $(CFLAGS) $(CPPFLAGS) $< $(OUTPUT_OPTION)
 	@echo Finished building: $<
 	@echo ' '
@@ -126,16 +149,16 @@ builddir:
 	$(shell mkdir $(OBJDIR))
 
 # extra rule for usleep to set opt level to zero
-#$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
-#	@echo Building file: $<
-#	@echo Invoking: MicroBlaze gcc compiler
-#	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
-#	@echo Finished building: $<
-#	@echo ' '
+$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
+	@echo Building file: $<
+	@echo Invoking: $(PROC) gcc compiler
+	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
+	@echo Finished building: $<
+	@echo ' '
 
 ${LIBRARY}: ${OBJ}
 	@echo Building library: $@
-	@echo Invoking: MicroBlaze ar archiver
+	@echo Invoking: $(PROC) ar archiver
 	-@$(RM) -rf $@
 	$(AR) $(ARFLAGS) $@ $^
 	@echo Finished building library: $@

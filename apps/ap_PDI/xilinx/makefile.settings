@@ -1,13 +1,13 @@
 ################################################################################
 # Project       : CNDK PDI AP (Xilinx)
 # Module        : build system settings file
-# Autor         : mairt
-# Date          : 13.02.2012
 # File          : Makefile
 # contents      : Settings file for the build system (AP)
 ################################################################################
-
-##################################
+# Version		Autor		Date			Feature
+# V1.0			mairt		13.02.2012		Make file for microblaze based sytems
+# V1.1			abhiramb	11.03.2013		ARM processor integrated for Zynq Projects
+################################################################################
 #Path to the CNDK root directory
 CNDK_DIR=../..
 
@@ -30,7 +30,7 @@ HW_PLATFORM_PATH=${CNDK_DIR}/fpga/xilinx/Xilinx_Z702/Zynq_ap_pcp_intaxi-axi/SDK/
 
 ##################################
 # Board name: [lx150t, lx9, s6plkeb, zynq]
-# ZED and ZC702 are available evaluation platform for Zynq
+# Note: ZED and ZC702 are available evaluation platform for Zynq
 BOARD_NAME=zynq
 
 ##################################
@@ -39,7 +39,9 @@ BOARD_NAME=zynq
 BUS_INTERFACE=axi
 
 ##################################
-# Processor name: [pcp, ap,ps7_cortexa9_0,ps7_cortexa9_1]
+# Processor name: [pcp, ap, ps7_cortexa9_0, ps7_cortexa9_1]
+# Note: Choice between ps7_cortexa9_0 and ps7_cortexa9_1 depends 
+# on the target CPU number (CPU 0 or CPU 1)
 PROCESSOR_NAME=ps7_cortexa9_0
 
 ##################################
@@ -48,14 +50,26 @@ PROCESSOR_NAME=ps7_cortexa9_0
 DUAL_PROCESSOR=yes
 
 ##################################
-# Processor features: (more information in the "Embedded Systems Tools Reference Manual")
+# Target Processor for build [xilinx_microblaze, Zynq_ARM_CortexA9]
+# Note: Change to Zynq_ARM_CortexA9 if Zynq is the target platform
+TARGET_BUILD=Zynq_ARM_CortexA9
+
+##################################
+# Processor features for MicroBlaze: (more information in the "Embedded Systems Tools Reference Manual")
 # Hardware multiplier: [ -mno-xl-soft-mul = available, -mxl-soft-mul = not available ]
 # Hardware divider: [ -mno-xl-soft-div = available, -mxl-soft-div = not available ]
 # Barel shifter: [ -mno-xl-barrel-shift = available, -mxl-barrel-shift = not available ]
 # Use pattern compare instructions: [-mno-xl-pattern-compare = don't use them, -mxl-pattern-compare = use them ]
-#PROC_FEATURES=-mcpu=v8.20.a -mno-xl-pattern-compare -mxl-soft-mul -mxl-soft-div
-#PROC_FEATURES_ZYNQ=-mcpu=cortex-a9
-PROC_FEATURES=-mcpu=cortex-a9
+PROC_FEATURES_MB=-mcpu=v8.20.a -mno-xl-pattern-compare -mxl-soft-mul -mxl-soft-div
+
+##################################
+# Processor features for Zynq: (For more information refer, gcc options for ARM processor)
+# CPU: [-mcpu = cortex-a9 (name of the target ARM processor)]
+# ARCH: [-march = armv7-a (name of the target ARM architecture)]
+# ABI (Application Binary Interface) : Procedure call standard for ARM architecture 
+# ABI: [aapcs = EABI (embedded ABI), apcs-gnu = OABI (old ABI, for armv4 cores), atpcs = Thumb ABI (16 bit)]
+# Stack Frame : [-mapcs-frame = Stack frame compliant with AAPCS, -mno-apcs-frame = default 
+PROC_FEATURES_ARM=-mcpu=cortex-a9 -mabi=aapcs -mapcs-frame -march=armv7-a -mlittle-endian
 
 ##################################
 #Debug Level
@@ -76,7 +90,7 @@ DBG_MODE=_DEBUG
 # 0x20000000L DEBUG_LVL_ASSERT
 # 0x40000000L DEBUG_LVL_ERROR
 # 0x80000000L DEBUG_LVL_ALWAYS ]
-DEF_DEBUG_LVL=0xEC000200L
+DEF_DEBUG_LVL=0xEC000600L
 
 ##################################
 #Optimization level

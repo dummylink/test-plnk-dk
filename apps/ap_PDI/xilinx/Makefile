@@ -1,13 +1,14 @@
 ################################################################################
 # Project		: CNDK Ap PDI (Xilinx)
 # Module		: build system
-# Autor			: mairt
-# Date			: 13.02.2012
 # File			: Makefile
 # contents		: Controls the build of the CNDK software (AP Processor)
 ################################################################################
-
-VERSION = 0.2
+#Version			Autor		Date			Feature
+#V0.2			mairt		13.02.2012		Make file for microblaze based sytems
+#V0.3			abhiramb	11.03.2013		ARM processor integrated for Zynq Projects
+################################################################################
+VERSION = 0.3
 
 include makefile.settings
 
@@ -35,19 +36,35 @@ endif
 
 ##################################
 #general compile defines
+ifeq ($(BOARD_NAME),zynq)
 CC=arm-xilinx-eabi-gcc
 AR=arm-xilinx-eabi-ar
+SIZE=arm-xilinx-eabi-size
+PROC=ARM_xilinx
+else
+CC=mb-gcc
+AR=mb-ar
+SIZE=mb-size
+PROC=MicroBlaze
+endif
 CP=cp
 RM=rm
-#PERL=xilperl
+PERL=xilperl
 EXECUTABLE=ap_pdi
 LIBCNAPI_NAME=CnApi
-
-LSSCRIPT=lscript_zynq_axi_dual.ld
+LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
+CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
-LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
+LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} -Wl,-Map,${EXECUTABLE}.map
+
+ifeq ($(BOARD_NAME),zynq)
+	CFLAGS+= $(PROC_FEATURES_ARM)
+	LDFLAGS+= $(PROC_FEATURES_ARM)
+else
+	CFLAGS+= $(PROC_FEATURES_MB)
+	LDFLAGS+= $(PROC_FEATURES_MB)
+endif
 
 # Flash defines
 FLASH_IMAGE_NAME= flash_image
@@ -63,24 +80,24 @@ INCLUDES=-I${APP_DIR}\
 -I${BSP_PATH}/${PROCESSOR_NAME}/include \
 -I${LIBCNAPI_DIR}/inc \
 -I${CNDK_DIR}/common/inc \
--I${APP_DIR}/target/Zynq_ARM_CortexA9/include
-#-I${BSP_PATH}/${PROCESSOR_NAME}/include \
-#-I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
+-I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
+-I${APP_DIR}/target/$(TARGET_BUILD)/include
 
 ##################################
 # Source files
 SRCFILES=${APP_DIR}/main.c \
-${APP_DIR}/target/Zynq_ARM_CortexA9/src/systemComponents.c 
-#${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c
-
+${APP_DIR}/target/$(TARGET_BUILD)/src/systemComponents.c
+ifeq ($(TARGET_BUILD),xilinx_microblaze) 
+	SRCFILES+= ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c
+endif
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
 
 ###################################
 # set endian according to bus interface
 ifeq ($(BUS_INTERFACE),axi)
-	PROC_FEATURES+= -mlittle-endian
+	PROC_FEATURES_MB+= -mlittle-endian
 else
-	PROC_FEATURES+= -mbig-endian
+	PROC_FEATURES_MB+= -mbig-endian
 endif
 
 ###################################
@@ -98,7 +115,12 @@ endif
 ###################################
 # libraries
 LIBSPATH=-L${BSP_PATH}/${PROCESSOR_NAME}/lib -L${LIBCNAPI_BUILD_DIR}
-LIBS=-Wl,--start-group,-lxil,-lc,-l$(LIBCNAPI_NAME),--end-group
+ifeq ($(BOARD_NAME),zynq)
+# Note: ARM gcc reports undefined reference unless nested
+	LIBS=-Wl,--start-group,-lxil,-lc,-l$(LIBCNAPI_NAME) -W1,--end-group
+else
+	LIBS=-l$(LIBCNAPI_NAME)
+endif
 
 ###################################
 # objects
@@ -146,7 +168,7 @@ libcnapi :
 
 $(OBJDIR)/%.o: %.c
 	@echo Building file: $<
-	@echo Invoking: MicroBlaze gcc compiler
+	@echo Invoking: $(PROC) gcc compiler
 	$(CC) -c ${OPT_LEVEL} $(CFLAGS) $(CPPFLAGS) $< $(OUTPUT_OPTION)
 	@echo Finished building: $<
 	@echo ' '
@@ -154,21 +176,21 @@ $(OBJDIR)/%.o: %.c
 # extra rule for usleep to set opt level to zero
 $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
 	@echo Building file: $<
-	@echo Invoking: MicroBlaze gcc compiler
+	@echo Invoking: $(PROC) gcc compiler
 	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
 	@echo Finished building: $<
 	@echo ' '
 
 ${EXECUTABLE}.elf: ${OBJ} ${LSSCRIPT} $(LIBCNAPI_BUILD_DIR)/lib$(LIBCNAPI_NAME).a
 	@echo Building target: $@
-	@echo Invoking: MicroBlaze gcc linker
-	$(CC) $(LDFLAGS) ${OBJ} $(LIBSPATH) ${LIBS} -o ${EXECUTABLE}.elf  
+	@echo Invoking: $(PROC) gcc linker
+	$(CC) $(LDFLAGS) $(LIBSPATH) ${OBJ} ${LIBS} -o ${EXECUTABLE}.elf
 	@echo Finished building target: $@
 	@echo ' '
 	
 ${EXECUTABLE}.size: ${EXECUTABLE}.elf
-	@echo Invoking: MicroBlaze Print Size
-	arm-xilinx-eabi-size ${EXECUTABLE}.elf  |tee "${EXECUTABLE}.size"
+	@echo Invoking: $(PROC) Print Size
+	$(SIZE) ${EXECUTABLE}.elf  |tee "${EXECUTABLE}.size"
 	@echo Finished building: $@
 	@echo ' '
 
