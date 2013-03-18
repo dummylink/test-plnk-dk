@@ -1,7 +1,0 @@
-
-lib proc_common_v3_00_a  all 
-lib axi_lite_ipif_v1_01_a  all 
-lib remap_v1_00_a bridge vhdl
-lib remap_v1_00_a register_file vhdl
-lib remap_v1_00_a remap vhdl
-
