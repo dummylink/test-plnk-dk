@@ -644,7 +644,7 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
                 // Also, call-back function has to write the written message size 'dwMsgSize_m' to the Tx descriptor.
                 ErrorHistory_l = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr,
                                                                    (BYTE *) &pUtilTxPdiBuf->m_chan,
-                                                                   (BYTE *) &pMsgDescr->pRespMsgDescr_m->pPdiBuffer_m->pAdr_m->m_chan,
+                                                                   NULL,
                                                                    dwMaxBufPayload);
                 if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
                 {
