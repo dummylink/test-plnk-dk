@@ -398,6 +398,7 @@ BEGIN axi_gpio
  BUS_INTERFACE S_AXI = axi4lite_mb_0
  PORT S_AXI_ACLK = clk_100_0000MHz
  PORT GPIO_IO_O = BENCHMARK_PIO_IO
+ PORT GPIO_IO_I = BENCHMARK_PIO_IO
 END
 
 BEGIN chipscope_ila
@@ -409,7 +410,7 @@ BEGIN chipscope_ila
  PARAMETER C_TRIG0_UNIT_MATCH_TYPE = basic with edges
  PORT chipscope_ila_control = chipscope_ila_0_icon_control
  PORT TRIG0 = BENCHMARK_PIO_IO
- PORT CLK = processing_system7_0_FCLK_CLK0
+ PORT CLK = clk_50_0000MHz
 END
 
 BEGIN chipscope_icon
