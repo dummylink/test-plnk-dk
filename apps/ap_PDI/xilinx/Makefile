@@ -29,23 +29,24 @@ OBJDIR=obj
 ##################################
 #translate dual_processor variable
 ifeq ($(DUAL_PROCESSOR),yes)
-DESIGN=dual
+	DESIGN=dual
 else
-DESIGN=single
+	DESIGN=single
 endif
 
 ##################################
 #general compile defines
+
 ifeq ($(BOARD_NAME),zynq)
-CC=arm-xilinx-eabi-gcc
-AR=arm-xilinx-eabi-ar
-SIZE=arm-xilinx-eabi-size
-PROC=ARM_xilinx
+	CC=arm-xilinx-eabi-gcc
+	AR=arm-xilinx-eabi-ar
+	SIZE=arm-xilinx-eabi-size
+	PROC=ARM_xilinx
 else
-CC=mb-gcc
-AR=mb-ar
-SIZE=mb-size
-PROC=MicroBlaze
+	CC=mb-gcc
+	AR=mb-ar
+	SIZE=mb-size
+	PROC=MicroBlaze
 endif
 CP=cp
 RM=rm

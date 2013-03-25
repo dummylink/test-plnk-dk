@@ -12,16 +12,18 @@
 CNDK_DIR=../..
 
 #Path to the directory of the board support package and the hw platform
-BSP_PATH=${CNDK_DIR}/fpga/xilinx/Xilinx_Z702/Zynq_ap_pcp_intaxi-axi/SDK/Workspace/standalone_bsp_ap
+BSP_PATH=${CNDK_DIR}/standalone_bsp_zynq702_intaxi-ap-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intaxi-ap-axi
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-ap-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_spi-ap-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intplb-ap-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intaxi-ap-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-ap-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-ap-axi
 
-HW_PLATFORM_PATH=${CNDK_DIR}/fpga/xilinx/Xilinx_Z702/Zynq_ap_pcp_intaxi-axi/SDK/Workspace/Zynq_ap_pcp_intaxi-axi_hw_platform
+HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_zynq702_intaxi-ap-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intaxi-axi
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intplb-ap-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_spi-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intplb-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intaxi-axi
