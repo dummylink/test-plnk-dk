@@ -166,7 +166,7 @@ will be enabled.
 
 \param  callbackFunc             The callback of the sync interrupt
 
-\return    int
+\return int
 \retval OK                      on success
 \retval ERROR                   if interrupt couldn't be connected
 *******************************************************************************/
@@ -324,18 +324,15 @@ DWORD SysComp_readInputPort(void)
     return dwValue;
 }
 
-/*****************************************************************************/
 /**
-*
-* SysComp_InitInterrupts
-*
-* @param	void
-*
-* @return	None.
-*
-* @note		None.
-*
-******************************************************************************/
+/********************************************************************************************
+  \brief	Initializes interrupt controller and sets up the interrupt and exception handling
+  
+  This function sets up the interrupt and exception handling for interrupt controller
+    
+  \param	void
+
+**********************************************************************************************/
 void SysComp_InitInterrupts(void)
 {
 	int iStatus;
@@ -367,18 +364,16 @@ void SysComp_InitInterrupts(void)
  	needs to be modified every time to change the target CPU value to enable the
 	distributor
 */
-/*****************************************************************************/
 /**
-*
-* A stub for the asynchronous callback. The stub is here in case the upper
-* layers forget to set the handler.
-*
-* @param	CallBackRef is a pointer to the upper layer callback reference
-*
-* @return	None.
-*
-* @note		None.
-*
+/*****************************************************************************
+
+\brief	callback stub											
+
+A stub for the asynchronous callback. The stub is here in case the upper
+layers forget to set the handler.
+
+\param	CallBackRef 		is a pointer to the upper layer callback reference
+
 ******************************************************************************/
 static void StubHandler(void *CallBackRef)
 {
@@ -392,18 +387,18 @@ static void StubHandler(void *CallBackRef)
 	 */
 	((XScuGic *)CallBackRef)->UnhandledInterrupts++;
 }
-/*****************************************************************************/
 /**
-*
-* Gic_CfgInitialize
-*
-* @param	pInstancePtr_p : Instance of GIC
-* 			uiDeviceID     : Device ID of GIC
-*
-* @return	None.
-*
-* @note		None.
-*
+/*****************************************************************************
+\brief	This function initializes a specific interrupt controller instance
+
+			- initialize fields of the XScuGic structure
+			- initial vector table with stub function calls
+			- init Distributor and CPU interface 
+
+\param	pInstancePtr_p		Instance of GIC
+\param	uiDeviceID			Device ID of GIC
+\return	
+
 ******************************************************************************/
 static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
 {
@@ -420,7 +415,6 @@ static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
 	pInstancePtr_p->IsReady = 0;
 	pInstancePtr_p->Config = pConfig;
 	
-	//TODO: Check if it can be removed!
 	for (iIntId = 0; iIntId < XSCUGIC_MAX_NUM_INTR_INPUTS; iIntId ++)
 	{
 		/*
@@ -449,17 +443,21 @@ static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
 	pInstancePtr_p->IsReady = XIL_COMPONENT_IS_READY;
 	return iStatus;
 }
-/*****************************************************************************/
 /**
-*
-*Gic_InitDistributor
-*
-* @param	CallBackRef is a pointer to the upper layer callback reference
-*
-* @return	None.
-*
-* @note		None.
-*
+/*****************************************************************************
+
+\brief		This function initializes the distributor of the GIC
+
+				- Write the trigger mode, priority and target CPU
+				- All interrupt sources are disabled
+				- Enable the distributor
+
+
+\param	pConfig_p		
+\param	iCpuID_p		
+
+\return	
+
 ******************************************************************************/
 static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
 {
@@ -536,17 +534,18 @@ static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
 	XScuGic_WriteReg(pConfig_p->DistBaseAddress, XSCUGIC_DIST_EN_OFFSET,
 						XSCUGIC_EN_INT_MASK);
 }
-/*****************************************************************************/
+
 /**
-*
-* Gic_InitCpuInterface
-*
-* @param	Config: Pointer to config structure
-*
-* @return	None.
-*
-* @note		None.
-*
+/*****************************************************************************
+
+\brief		This function initializes the CPU Interface of the GIC
+
+					-Set the priority of the CPU
+					-Enable the CPU interface
+
+\param		Config	 Pointer to config structure
+\return		
+
 ******************************************************************************/
 static void Gic_InitCpuInterface (XScuGic_Config *Config)
 {
@@ -578,31 +577,31 @@ static void Gic_InitCpuInterface (XScuGic_Config *Config)
 	XScuGic_WriteReg(Config->CpuBaseAddress, XSCUGIC_CONTROL_OFFSET, 0x07);
 }
 
-/*****************************************************************************/
 /**
-* This function is the primary interrupt handler for the driver.  It must be
-* connected to the interrupt source such that it is called when an interrupt of
-* the interrupt controller is active. It will resolve which interrupts are
-* active and enabled and call the appropriate interrupt handler. It uses
-* the Interrupt Type information to determine when to acknowledge the interrupt.
-* Highest priority interrupts are serviced first.
-*
-* This function assumes that an interrupt vector table has been previously
-* initialized.  It does not verify that entries in the table are valid before
-* calling an interrupt handler.
-*
-* This handler also defaults to having nested interrupts disabled. The define
-* is XSCUGIC_NESTED_INTERRUPTS and if it is not defined, the option to service
-* all of the interrupts is honored. If nested interrupts are enabled, the
-* standard interrupt processing will always only service one interrupt and then
-* return.
-*
-* @param	InstancePtr is a pointer to the XScuGic instance.
-*
-* @return	None.
-*
-* @note		None.
-*
+/*****************************************************************************
+\brief
+
+This function is the primary interrupt handler for the driver.  It must be
+connected to the interrupt source such that it is called when an interrupt of
+the interrupt controller is active. It will resolve which interrupts are
+active and enabled and call the appropriate interrupt handler. It uses
+the Interrupt Type information to determine when to acknowledge the interrupt.
+Highest priority interrupts are serviced first.
+
+This function assumes that an interrupt vector table has been previously
+initialized.  It does not verify that entries in the table are valid before
+calling an interrupt handler.
+
+This handler also defaults to having nested interrupts disabled. The define
+is XSCUGIC_NESTED_INTERRUPTS and if it is not defined, the option to service
+all of the interrupts is honored. If nested interrupts are enabled, the
+standard interrupt processing will always only service one interrupt and then
+return.
+
+ \param		InstancePtr 		Is a pointer to the XScuGic instance.
+
+ \return	
+ 
 ******************************************************************************/
 static void Gic_InterruptHandler(XScuGic *InstancePtr)
 {
