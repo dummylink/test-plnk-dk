@@ -642,10 +642,23 @@ FUNC_ENTRYACT(kPdiAsyncTxStateBusy)
 
                 // Check within call-back function if expected message size exceeds the PDI buffer!
                 // Also, call-back function has to write the written message size 'dwMsgSize_m' to the Tx descriptor.
-                ErrorHistory_l = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr,
-                                                                   (BYTE *) &pUtilTxPdiBuf->m_chan,
-                                                                   NULL,
-                                                                   dwMaxBufPayload);
+                //TODO: Temporary fix for Zynq-ARM
+                if (pMsgDescr->pRespMsgDescr_m == NULL)
+                {
+                    // no response message for this message type
+                    ErrorHistory_l = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr,
+                                                                       (BYTE *) &pUtilTxPdiBuf->m_chan,
+                                                                       NULL,
+                                                                       dwMaxBufPayload);
+                }
+                else
+                {
+                    ErrorHistory_l = pMsgDescr->MsgHdl_m.pfnCbMsgHdl_m(pMsgDescr,
+                                                                       (BYTE *) &pUtilTxPdiBuf->m_chan,
+                                                                       (BYTE *) &pMsgDescr->pRespMsgDescr_m->pPdiBuffer_m->pAdr_m->m_chan,
+                                                                       dwMaxBufPayload);
+                }
+
                 if (ErrorHistory_l != kPdiAsyncStatusSuccessful)
                 {
                     fError = TRUE; // triggers transition
