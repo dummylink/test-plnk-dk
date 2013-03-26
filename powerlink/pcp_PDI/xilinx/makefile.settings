@@ -18,7 +18,7 @@ CNDK_DIR=../..
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-pcp-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intplb-pcp-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intaxi-pcp-axi
-BSP_PATH=${CNDK_DIR}/standalone_bsp_zynq_directIO-axi
+BSP_PATH=${CNDK_DIR}/standalone_bsp_zynq_intaxi-pcp-axi
 
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intplb-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intaxi-axi
@@ -26,7 +26,7 @@ BSP_PATH=${CNDK_DIR}/standalone_bsp_zynq_directIO-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-pcp-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intplb-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intaxi-axi
-HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_zynq_directIO-axi
+HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_zynq_intaxi-axi
 
 ##################################
 # Board name: [lx150t, lx9, s6plkeb, zynq]
