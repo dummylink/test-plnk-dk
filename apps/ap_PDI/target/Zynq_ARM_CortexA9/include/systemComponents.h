@@ -1,6 +1,6 @@
 /**
 ********************************************************************************
-\file       zynq_ARM_CortexA9/include/systemComponents.h
+\file       Zynq_ARM_CortexA9/include/systemComponents.h
 
 \brief      Header file which contains processor specific definitions
             (Zynq ARM Cortex A9 Specific)
@@ -29,6 +29,41 @@ subject to the License Agreement located at the end of this file below.
 
 /******************************************************************************/
 /* defines */
+#define SLCR_LOCK			0xF8000004 /**< SLCR Write Protection Lock */
+#define SLCR_UNLOCK			0xF8000008 /**< SLCR Write Protection Unlock */
+#define AFI_WRCHAN_CTRL2 	0xF800A014
+#define AFI_RDCHAN_CTRL2 	0xF800A000
+#define FPGA_RST_CNTRL   	0xF8000240
+
+#define SLCR_LOCK_VAL		0x767B
+#define SLCR_UNLOCK_VAL		0xDF0D
+#define AFI_WRCHAN_CONFIG	0x00000F01 //32 bit enable, 16 beats
+#define AFI_RDCHAN_CONFIG	0x00000001 //32 bit enable
+#define DEFAULT_PRIORITY	0xa0a0a0a0UL
+
+#define SYNC_INTR_PRIORITY		0x00		//lower the value, higher the priority
+#define ASYNC_INTR_PRIORITY		0x01		//lower the value, higher the priority
+#define TRIGGER_VALUE			0x0			//For SPI, 0X --> High-level senstive
+											//1X --> rising edge (bit 2 is readonly)
+#if (XPAR_CPU_ID == 0)
+#define TARGET_CPU_VALUE 0x01
+#else
+#define TARGET_CPU_VALUE 0x02
+#endif
+
+#define XSCUGIC_INT_CFG_OFFSET_CALC(InterruptID) \
+    (XSCUGIC_INT_CFG_OFFSET + ((InterruptID/16) * 4))
+
+#define XSCUGIC_PRIORITY_OFFSET_CALC(InterruptID) \
+    (XSCUGIC_PRIORITY_OFFSET + ((InterruptID/4) * 4))
+
+#define XSCUGIC_SPI_TARGET_OFFSET_CALC(InterruptID) \
+    (XSCUGIC_SPI_TARGET_OFFSET + ((InterruptID/4) * 4))
+
+#define XSCUGIC_ENABLE_DISABLE_OFFSET_CALC(Register, InterruptID) \
+    (Register + ((InterruptID/32) * 4))
+
+/******************************************************************************/
 
 // PDI DPRAM offset
 #ifdef CN_API_USING_SPI
@@ -82,6 +117,8 @@ subject to the License Agreement located at the end of this file below.
 /******************************************************************************/
 /* function declarations */
 void SysComp_initPeripheral(void);
+void SysComp_InitInterrupts(void);
+
 inline void SysComp_enableInterrupts(void);
 inline void SysComp_disableInterrupts(void);
 void SysComp_freeProcessorCache(void);

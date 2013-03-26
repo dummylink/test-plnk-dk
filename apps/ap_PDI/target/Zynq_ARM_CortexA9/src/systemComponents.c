@@ -1,9 +1,9 @@
 /**
 ********************************************************************************
-\file       xilinx_microblaze/src/systemComponents.c
+\file       Zynq_ARM_CortexA9/src/systemComponents.c
 
-\brief      Header file which contains processor specific definitions
-            (Microblaze version)
+\brief      Module which contains processor specific definitions
+            (Zynq-ARM version)
 
 This module contains of platform specific definitions.
 
@@ -22,49 +22,10 @@ subject to the License Agreement located at the end of this file below.
 #include "xscugic.h"
 #include "xil_io.h"
 #include "xil_exception.h"
-//#include "xintc_l.h"
 
 #ifdef CN_API_USING_SPI
 #include "xspi.h"
 #endif // CN_API_USING_SPI
-
-
-/* ZYNQ Special defines */
-#define SLCR_LOCK			0xF8000004 /**< SLCR Write Protection Lock */
-#define SLCR_UNLOCK			0xF8000008 /**< SLCR Write Protection Unlock */
-#define AFI_WRCHAN_CTRL2 	0xF800A014
-#define AFI_RDCHAN_CTRL2 	0xF800A000
-#define FPGA_RST_CNTRL   	0xF8000240
-
-#define SLCR_LOCK_VAL		0x767B
-#define SLCR_UNLOCK_VAL		0xDF0D
-#define AFI_WRCHAN_CONFIG	0x00000F01 //32 bit enable, 16 beats
-#define AFI_RDCHAN_CONFIG	0x00000001 //32 bit enable
-
-
-#define SYNC_INTR_PRIORITY		0x00		//lower the value, higher the priority
-#define ASYNC_INTR_PRIORITY		0x01		//lower the value, higher the priority
-#define TRIGGER_VALUE		0x0			//For SPI, 0X --> High-level senstive
-											//1X --> rising edge (bit 2 is readonly)
-#if (XPAR_CPU_ID == 0)
-#define TARGET_CPU_VALUE 0x01
-#else
-#define TARGET_CPU_VALUE 0x02
-#endif
-
-#define XSCUGIC_INT_CFG_OFFSET_CALC(InterruptID) \
-    (XSCUGIC_INT_CFG_OFFSET + ((InterruptID/16) * 4))
-
-#define XSCUGIC_PRIORITY_OFFSET_CALC(InterruptID) \
-    (XSCUGIC_PRIORITY_OFFSET + ((InterruptID/4) * 4))
-
-#define XSCUGIC_SPI_TARGET_OFFSET_CALC(InterruptID) \
-    (XSCUGIC_SPI_TARGET_OFFSET + ((InterruptID/4) * 4))
-
-#define XSCUGIC_ENABLE_DISABLE_OFFSET_CALC(Register, InterruptID) \
-    (Register + ((InterruptID/32) * 4))
-
-// user defined priority level
 
 /******************************************************************************/
 /* defines */
@@ -81,20 +42,17 @@ extern XScuGic_Config XScuGic_ConfigTable[];
 /* global variables */
 
 XScuGic sGicInstance_l;
+
 /******************************************************************************/
 /* function declarations */
-
-void SysComp_InitInterrupts(void);
-/*Functions are re-used from Xilinx library as current BSP doesn't provide support for interrupt
- * handling on CPU 2*/
 static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID);
-static void StubHandler(void *CallBackRef);
 static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p);
 static void Gic_InitCpuInterface (XScuGic_Config *Config);
+static void Gic_StubHandler(void *CallBackRef);
 static void Gic_InterruptHandler(XScuGic *InstancePtr);
+
 /******************************************************************************/
 /* private functions */
-
 
 /******************************************************************************/
 /* functions */
@@ -112,9 +70,6 @@ void SysComp_initPeripheral(void)
 
 	Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
     Xil_Out32(FPGA_RST_CNTRL,0);
-    /*Setup channel widths for AXI FIFO*/
-    //Xil_Out32(AFI_WRCHAN_CTRL2, AFI_WRCHAN_CONFIG);
-    //Xil_Out32(AFI_RDCHAN_CTRL2, AFI_RDCHAN_CONFIG);
     Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
     Xil_ICacheEnable();
@@ -325,127 +280,7 @@ DWORD SysComp_readInputPort(void)
 }
 
 /**
-/********************************************************************************************
-  \brief	Initializes interrupt controller and sets up the interrupt and exception handling
-  
-  This function sets up the interrupt and exception handling for interrupt controller
-    
-  \param	void
-
-**********************************************************************************************/
-void SysComp_InitInterrupts(void)
-{
-	int iStatus;
-
-	iStatus = Gic_CfgInitialize(&sGicInstance_l,XPAR_PS7_SCUGIC_0_DEVICE_ID);
-	if (iStatus != XST_SUCCESS)
-	{
-		return;
-	}
-
-    // CPU interrupt interface & distributor has been enabled before this point
-	Xil_ExceptionInit();
-
-	/*
-	 * Connect the interrupt controller interrupt handler to the hardware
-	 * interrupt handling logic in the processor.
-	 */
-	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT,
-				(Xil_ExceptionHandler)Gic_InterruptHandler,
-				&sGicInstance_l);
-	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
-				(Xil_ExceptionHandler)Gic_InterruptHandler,
-				&sGicInstance_l);
-
-	Xil_ExceptionEnable();
-}
-
-/* 	The below functions are tweaked for use from Xilinx library as current library
- 	needs to be modified every time to change the target CPU value to enable the
-	distributor
-*/
-/**
-/*****************************************************************************
-
-\brief	callback stub											
-
-A stub for the asynchronous callback. The stub is here in case the upper
-layers forget to set the handler.
-
-\param	CallBackRef 		is a pointer to the upper layer callback reference
-
-******************************************************************************/
-static void StubHandler(void *CallBackRef)
-{
-	/*
-	 * verify that the inputs are valid
-	 */
-	Xil_AssertVoid(CallBackRef != NULL);
-
-	/*
-	 * Indicate another unhandled interrupt for stats
-	 */
-	((XScuGic *)CallBackRef)->UnhandledInterrupts++;
-}
-/**
-/*****************************************************************************
-\brief	This function initializes a specific interrupt controller instance
-
-			- initialize fields of the XScuGic structure
-			- initial vector table with stub function calls
-			- init Distributor and CPU interface 
-
-\param	pInstancePtr_p		Instance of GIC
-\param	uiDeviceID			Device ID of GIC
-\return	
-
-******************************************************************************/
-static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
-{
-	static XScuGic_Config *pConfig;
-	int iIntId;
-	int iStatus = 0;
-
-	if (NULL == pInstancePtr_p)
-	{
-		iStatus = XST_FAILURE;
-	}
-	
-	pConfig = &XScuGic_ConfigTable[uiDeviceID];
-	pInstancePtr_p->IsReady = 0;
-	pInstancePtr_p->Config = pConfig;
-	
-	for (iIntId = 0; iIntId < XSCUGIC_MAX_NUM_INTR_INPUTS; iIntId ++)
-	{
-		/*
-		 * Initalize the handler to point to a stub to handle an
-		 * interrupt which has not been connected to a handler. Only
-		 * initialize it if the handler is 0 which means it was not
-		 * initialized statically by the tools/user. Set the callback
-		 * reference to this instance so that unhandled interrupts
-		 * can be tracked.
-		 */
-		if ((pInstancePtr_p->Config->HandlerTable[iIntId].Handler == 0))
-		{
-			pInstancePtr_p->Config->HandlerTable[iIntId].Handler =
-								StubHandler;
-		}
-		pInstancePtr_p->Config->HandlerTable[iIntId].CallBackRef =
-								pInstancePtr_p;
-	}
-
-
-
-	Gic_InitDistributor(pConfig, TARGET_CPU_VALUE);
-
-	Gic_InitCpuInterface(pConfig);
-
-	pInstancePtr_p->IsReady = XIL_COMPONENT_IS_READY;
-	return iStatus;
-}
-/**
-/*****************************************************************************
-
+*****************************************************************************
 \brief		This function initializes the distributor of the GIC
 
 				- Write the trigger mode, priority and target CPU
@@ -455,9 +290,6 @@ static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
 
 \param	pConfig_p		
 \param	iCpuID_p		
-
-\return	
-
 ******************************************************************************/
 static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
 {
@@ -490,8 +322,6 @@ static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
 			XSCUGIC_INT_CFG_OFFSET_CALC(iIntId), 0UL);
 	}
 
-
-#define DEFAULT_PRIORITY	0xa0a0a0a0UL
 	for (iIntId = 0; iIntId < XSCUGIC_MAX_NUM_INTR_INPUTS; iIntId+=4)
 	{
 		/*
@@ -536,16 +366,13 @@ static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
 }
 
 /**
-/*****************************************************************************
-
+*****************************************************************************
 \brief		This function initializes the CPU Interface of the GIC
 
 					-Set the priority of the CPU
 					-Enable the CPU interface
 
 \param		Config	 Pointer to config structure
-\return		
-
 ******************************************************************************/
 static void Gic_InitCpuInterface (XScuGic_Config *Config)
 {
@@ -578,8 +405,31 @@ static void Gic_InitCpuInterface (XScuGic_Config *Config)
 }
 
 /**
-/*****************************************************************************
-\brief
+*****************************************************************************
+\brief	callback stub
+
+A stub for the asynchronous callback. The stub is here in case the upper
+layers forget to set the handler.
+
+\param	CallBackRef 		is a pointer to the upper layer callback reference
+******************************************************************************/
+static void Gic_StubHandler(void *CallBackRef)
+{
+	/*
+	 * verify that the inputs are valid
+	 */
+	Xil_AssertVoid(CallBackRef != NULL);
+
+	/*
+	 * Indicate another unhandled interrupt for stats
+	 */
+	((XScuGic *)CallBackRef)->UnhandledInterrupts++;
+}
+
+
+/**
+*****************************************************************************
+\brief Interrupt Handler
 
 This function is the primary interrupt handler for the driver.  It must be
 connected to the interrupt source such that it is called when an interrupt of
@@ -599,9 +449,6 @@ standard interrupt processing will always only service one interrupt and then
 return.
 
  \param		InstancePtr 		Is a pointer to the XScuGic instance.
-
- \return	
- 
 ******************************************************************************/
 static void Gic_InterruptHandler(XScuGic *InstancePtr)
 {
@@ -657,6 +504,98 @@ IntrExit:
     /*
      * Return from the interrupt. Change security domains could happen here.
      */
+}
+
+/**
+*****************************************************************************
+\brief	This function initializes a specific interrupt controller instance
+
+			- initialize fields of the XScuGic structure
+			- initial vector table with stub function calls
+			- init Distributor and CPU interface
+
+\param	pInstancePtr_p		Instance of GIC
+\param	uiDeviceID			Device ID of GIC
+\return	int
+\retval XST_SUCCESS			On success
+\retval XST_FAILURE			On error
+******************************************************************************/
+static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
+{
+	static XScuGic_Config *pConfig;
+	int iIntId;
+	int iStatus = XST_SUCCESS;
+
+	if (NULL == pInstancePtr_p)
+	{
+		iStatus = XST_FAILURE;
+	}
+
+	pConfig = &XScuGic_ConfigTable[uiDeviceID];
+	pInstancePtr_p->IsReady = 0;
+	pInstancePtr_p->Config = pConfig;
+
+	for (iIntId = 0; iIntId < XSCUGIC_MAX_NUM_INTR_INPUTS; iIntId ++)
+	{
+		/*
+		 * Initalize the handler to point to a stub to handle an
+		 * interrupt which has not been connected to a handler. Only
+		 * initialize it if the handler is 0 which means it was not
+		 * initialized statically by the tools/user. Set the callback
+		 * reference to this instance so that unhandled interrupts
+		 * can be tracked.
+		 */
+		if ((pInstancePtr_p->Config->HandlerTable[iIntId].Handler == 0))
+		{
+			pInstancePtr_p->Config->HandlerTable[iIntId].Handler =
+							Gic_StubHandler;
+		}
+		pInstancePtr_p->Config->HandlerTable[iIntId].CallBackRef =
+								pInstancePtr_p;
+	}
+
+
+
+	Gic_InitDistributor(pConfig, TARGET_CPU_VALUE);
+
+	Gic_InitCpuInterface(pConfig);
+
+	pInstancePtr_p->IsReady = XIL_COMPONENT_IS_READY;
+
+	return iStatus;
+}
+
+/**
+********************************************************************************************
+\brief	Setup interrupt controller
+
+This function sets up the interrupt and exception handling for interrupt controller
+********************************************************************************************/
+void SysComp_InitInterrupts(void)
+{
+	int iStatus;
+
+	iStatus = Gic_CfgInitialize(&sGicInstance_l,XPAR_PS7_SCUGIC_0_DEVICE_ID);
+	if (iStatus != XST_SUCCESS)
+	{
+		return;
+	}
+
+    // CPU interrupt interface & distributor has been enabled before this point
+	Xil_ExceptionInit();
+
+	/*
+	 * Connect the interrupt controller interrupt handler to the hardware
+	 * interrupt handling logic in the processor.
+	 */
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT,
+				(Xil_ExceptionHandler)Gic_InterruptHandler,
+				&sGicInstance_l);
+	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
+				(Xil_ExceptionHandler)Gic_InterruptHandler,
+				&sGicInstance_l);
+
+	Xil_ExceptionEnable();
 }
 
 /*******************************************************************************
