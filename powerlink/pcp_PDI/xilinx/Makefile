@@ -43,6 +43,12 @@ CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 
+##################################
+# Specific for Zynq to enable prints
+ifeq ($(BOARD_NAME),zynq)
+	MACROS+= -D__ZYNQ__
+endif
+
 # Flash defines
 FLASH_IMAGE_NAME= flash_image
 BOOTLOADER_NAME= mem_bootloader

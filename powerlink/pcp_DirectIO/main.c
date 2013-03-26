@@ -45,7 +45,7 @@
 #include "VirtualEthernetApi.h"
 #endif
 /*****************ZYNQ Defines for Enabling Debug Prints on PS UART*****************/
-#define ZYNQ
+//#define ZYNQ
 #ifdef ZYNQ
 #include "xil_io.h"
 // base address of PS Uart1

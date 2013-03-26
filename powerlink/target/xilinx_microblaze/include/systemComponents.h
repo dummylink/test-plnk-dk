@@ -91,13 +91,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #elif defined(POWERLINK_USES_AXI_BUS)
 
-	//Added extra condtion for Zynq architecture to enable prints
-	#ifdef XPAR_REMAP_0_BASEADDR
-	#pragma message "This define enables prints from PCP to console, valid for Zynq architecture"
-	#define ZYNQ_PCP_ENABLE_UART
-	#endif //XPAR_REMAP_0_BASEADDR
+	#ifdef __ZYNQ__
+		#include "xil_io.h"
+		// base address of PS Uart1
+		#define UART_BASE 0xE0001000
+		/* Write to memory location or register */
+		#define X_mWriteReg(BASE_ADDRESS, RegOffset, data) \
+				   *(unsigned int *)(BASE_ADDRESS + RegOffset) = ((unsigned int) data);
+		/* Read from memory location or register */
+		#define X_mReadReg(BASE_ADDRESS, RegOffset) \
+				   *(unsigned int *)(BASE_ADDRESS + RegOffset);
 
-    #ifdef XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR
+		#define XUartChanged_IsTransmitFull(BaseAddress)			 \
+			((Xil_In32((BaseAddress) + 0x2C) & 	\
+			 0x10) == 0x10)
+
+		#define XUartChanged_SendByte(BAddr,Data) \
+			u32 u32BaseAddress = BAddr; \
+			u8 u8Data = Data; \
+			while (XUartChanged_IsTransmitFull(u32BaseAddress));\
+			X_mWriteReg(u32BaseAddress, 0x30, u8Data);
+	#endif
+
+#ifdef XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR
     #define LATCHED_IOPORT_BASE   (void*) XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR
     #define LATCHED_IOPORT_CFG    (void*) (LATCHED_IOPORT_BASE + 4)
     #endif //XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR
