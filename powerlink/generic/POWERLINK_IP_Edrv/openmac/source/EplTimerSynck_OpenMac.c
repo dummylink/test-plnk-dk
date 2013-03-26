@@ -1153,8 +1153,7 @@ unsigned int                uiTimerHdl;
 tEplTimerSynckTimerInfo*    pTimerInfo;
 unsigned int                uiNextTimerHdl;
 
-
-	BENCHMARK_MOD_24_SET(4);
+    BENCHMARK_MOD_24_SET(4);
 
     uiTimerHdl = EplTimerSynckInstance_l.m_uiActiveTimerHdl;
     if (uiTimerHdl < TIMER_COUNT)
@@ -1228,9 +1227,10 @@ unsigned int                uiNextTimerHdl;
             }
         }
     }
-    EplTimerSynckDrvConfigureShortestTimer();
-    BENCHMARK_MOD_24_RESET(4);
 
+    EplTimerSynckDrvConfigureShortestTimer();
+
+    BENCHMARK_MOD_24_RESET(4);
     return;
 
 }
