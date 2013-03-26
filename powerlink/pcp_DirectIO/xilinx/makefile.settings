@@ -14,17 +14,18 @@ CNDK_DIR=../..
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx9_directIO-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx9_directIO-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-plb
-BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-axi
+#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_directIO-axi
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_directIO-plb
 #BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_directIO-axi
-BSP_PATH=${CNDK_DIR}/fpga/xilinx/Xilinx_Z702/Zynq_pcp_DirectIO/SDK/Workspace/standalone_bsp_pcp
+BSP_PATH=${CNDK_DIR}/standalone_bsp_zynq_directIO-axi
+
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx9_directIO-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx9_directIO-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-plb
-HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-axi
+#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_directIO-axi
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_directIO-plb
 #HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_directIO-axi
-HW_PLATFORM_PATH=${CNDK_DIR}/fpga/xilinx/Xilinx_Z702/Zynq_pcp_DirectIO/SDK/Workspace/Zynq_pcp_DirectIO_hw_platform
+HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_zynq_directIO-axi
 
 ##################################
 # Board name: [lx150t, lx9, s6plkeb, zynq]
