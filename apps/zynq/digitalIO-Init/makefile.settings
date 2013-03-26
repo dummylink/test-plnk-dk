@@ -1,0 +1,36 @@
+################################################################################
+# Project       : digitalIO_init (Zynq)
+# Module        : build system settings file
+# File          : Makefile
+# contents      : Settings file for the build system (AP)
+################################################################################
+# Version		Autor		Date			Feature
+# V1.1			abhiramb	26.03.2013		ARM processor integrated for Zynq Projects
+################################################################################
+
+#Path to the CNDK root directory
+CNDK_DIR=../../..
+
+#Path to the directory of the board support package and the hw platform
+BSP_PATH=${CNDK_DIR}/standalone_bsp_zynq-ap
+
+##################################
+# Processor name: [pcp, ap, ps7_cortexa9_0, ps7_cortexa9_1]
+# Note: Choice between ps7_cortexa9_0 and ps7_cortexa9_1 depends 
+# on the target CPU number (CPU 0 or CPU 1)
+PROCESSOR_NAME=ps7_cortexa9_0
+
+##################################
+# Processor features for Zynq: (For more information refer, gcc options for ARM processor)
+# CPU: [-mcpu = cortex-a9 (name of the target ARM processor)]
+# ARCH: [-march = armv7-a (name of the target ARM architecture)]
+# ABI (Application Binary Interface) : Procedure call standard for ARM architecture 
+# ABI: [aapcs = EABI (embedded ABI), apcs-gnu = OABI (old ABI, for armv4 cores), atpcs = Thumb ABI (16 bit)]
+# Stack Frame : [-mapcs-frame = Stack frame compliant with AAPCS, -mno-apcs-frame = default 
+PROC_FEATURES_ARM=-mcpu=cortex-a9 -mabi=aapcs -mapcs-frame -march=armv7-a -mlittle-endian
+
+##################################
+#Debug flag
+# Note: Set this to -g3 when you are debugging. (Increases code size)
+#       Set this to -g0 to disable debugging.
+DEBUG_FLAG=-g3

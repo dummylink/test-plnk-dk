@@ -19,40 +19,27 @@
 /*
  * helloworld.c: simple test application
  */
-
+#include <stdio.h>
+#include "xil_cache.h"
 #include "xil_io.h"
 
-#define SLCR_LOCK	0xF8000004 /**< SLCR Write Protection Lock */
-#define SLCR_UNLOCK	0xF8000008 /**< SLCR Write Protection Unlock */
+#define SLCR_LOCK		0xF8000004 /**< SLCR Write Protection Lock */
+#define SLCR_UNLOCK		0xF8000008 /**< SLCR Write Protection Unlock */
 #define SLCR_LOCK_VAL	0x767B
 #define SLCR_UNLOCK_VAL	0xDF0D
-
-#define AFI_WRCHAN_CTRL0 0xF8008014
-#define AFI_RDCHAN_CTRL0 0xF8008000
-#define AFI_WRCHAN_CTRL1 0xF8009014
-#define AFI_RDCHAN_CTRL1 0xF8009000
-#define AFI_WRCHAN_CTRL2 0xF800A014
-#define AFI_RDCHAN_CTRL2 0xF800A000
-#define AFI_WRCHAN_CTRL3 0xF800B014
-#define AFI_RDCHAN_CTRL3 0xF800B000
+#define FPGA_RST_CTRL	0xf8000240
 
 int main()
 {
+	printf(" This application takes MicroBlaze out of Reset \n");
+
 	Xil_DCacheDisable();
 
-	//take mb out of reset
 	Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
-    Xil_Out32(0xf8000240,0);
+    Xil_Out32(FPGA_RST_CTRL,0);
     Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
-	xil_printf( "AFI_WRCHAN_CTRL0 0x%x \n\r",Xil_In32(AFI_WRCHAN_CTRL0) );
-	xil_printf( "AFI_RDCHAN_CTRL0 0x%x \n\r",Xil_In32(AFI_RDCHAN_CTRL0) );
-	xil_printf( "AFI_WRCHAN_CTRL1 0x%x \n\r",Xil_In32(AFI_WRCHAN_CTRL1) );
-	xil_printf( "AFI_RDCHAN_CTRL1 0x%x \n\r",Xil_In32(AFI_RDCHAN_CTRL1) );
-	xil_printf( "AFI_WRCHAN_CTRL2 0x%x \n\r",Xil_In32(AFI_WRCHAN_CTRL2) );
-	xil_printf( "AFI_RDCHAN_CTRL2 0x%x \n\r",Xil_In32(AFI_RDCHAN_CTRL2) );
-	xil_printf( "AFI_WRCHAN_CTRL3 0x%x \n\r",Xil_In32(AFI_WRCHAN_CTRL3) );
-	xil_printf( "AFI_RDCHAN_CTRL3 0x%x \n\r",Xil_In32(AFI_RDCHAN_CTRL3) );
+    printf(" Success: MicroBlaze is out of reset \n");
 
     while(1);
     
