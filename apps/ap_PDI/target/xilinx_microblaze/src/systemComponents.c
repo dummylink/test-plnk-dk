@@ -2,7 +2,7 @@
 ********************************************************************************
 \file       xilinx_microblaze/src/systemComponents.c
 
-\brief      Header file which contains processor specific definitions
+\brief      Module which contains processor specific definitions
             (Microblaze version)
 
 This module contains of platform specific definitions.
