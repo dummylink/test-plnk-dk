@@ -9,7 +9,7 @@ Avnet FMC Ethernet Connector [Connect this to FMC 1 of Board]
 
 Xilinx ISE/EDK Embeded Edition 14.4 or higher
 **************************************************************************************
-Hot to Do
+How to Do
 **************************************************************************************
 - Implement the hardware design
   - open suitable design from 'fpga/xilinx/Xilinx_Z702' in xps
@@ -17,46 +17,47 @@ Hot to Do
     - hardware->generateBitstream
     - project->exportHardwareDesignToSDK
       - don't check 'include bitstream and BMM file'
-      - select 'Export & Launch SDK'
+      - select 'Export Only'
+      - system.xml file will be copied to "SDK/SDKExport" folder
 - SDK: 
-  - enter workspace location <rootDir>/fpga/xilinx/Xilinx_Z702/*/SDK/Workspace
-  - set repositoary for powerlink IP
+  - enter workspace location <rootDir>/
+  - set repositories
+      - select xilinx tools->repositories
+      - select New for Local repositories
+      - browse to and select <rootDir>/tools/xilinx/zyna_fsbl_repo
+      - browse to and select <rootDir>/fpga/xilinx/ipcore
+      - Click Ok
+
+- Creating Hardware Platform & BSP for the design
+  - Open Workspace
+  - Select file->new-> Board support package
+  - Its will have for hardware platform file (Please make sure that there wont be any hardware platform open on the worksapce)
+  - Please select system.xml file from SDK/SDKExport
+  - Please modify the hardware platform name as "hw_platform_zynq_directIO-axi" for Digital IO design
+     or
+  - Please modify the hardware platform name as "hw_platform_zynq_intaxi-axi" for dual processor design
+  - It will ask for creating board support package
+  - For digitalIO design create "standalone_bsp_zynq_directIO-axi" for "PCP" processor and "standalone_bsp_zynq-ap" for ps7_cortexa9_0 processor
+
+  - For dual Processor design create "standalone_bsp_zynq_intaxi-pcp-axi" for "PCP" processor and "standalone_bsp_zynq_intaxi-ap-axi" for ps7_cortexa9_0 processor
+
 
 - Creating First stage Boot loader
-  - Create the custom FSBL that supports multiple elf files
-    - select xilinx tools->repositories
-      - select New for Local repositories
-        - browse to and select <rootDir>/tools/xilinx/zyna_fsbl_repo
-      - OK
-    - select file->new->xilinx C project    
+    - select file->new->xilinx C project
+      - Give the name as 'zynq_fsbl_digitalIO' for DigitalIO design or 'zynq_fsbl_dualProcessor' for Dual processor design  
       - change processor to 'ps7_cortexa9_0'
-      - select 'Zynq FSBL'. Verify the description starts with 'AMP Modified'
+      - select 'Zynq FSBL for AMP'. Verify the description starts with 'AMP Modified'
       - Next
       - Finish
 
 -- Import Powerlink Applications
-  - create bsp for ARM (standalone_bsp_ap) and Microblaze (standalone_bsp_pcp) 
-  - import powerlink Application PCP_DigitalIO (or pcp_PDI and ap_PDI) as make file project
-  - while importing ap_PDI please select xilinx ARM GNU tool chain as tool chain
-  - Incase of Digital Io & pcp_PDI select xilinx Microblaze GNU as tool chain
-
--- For Digital IO Design
-  - Create bootloop application for A9 cpu0
-    - select file->new->xilinx C project
-      - change processor to 'ps7_cortexa9_0'
-      - select 'Empty Application'
-      - change project name to 'app_cpu0'
-      - select 'next'
-      - change project name to 'bsp_cpu0'
-      - select 'finish'
-    - In the project explorer window, right click on app_cpu0 src folder
-      - select import
-      - select general->fileSystem, next
-      - browse to <rootDir>/apps/app_cpu0, OK
-      - select all files in the right window. Do not select the folder in the left window
-      - click 'Finish'
-      - select 'Yes' to overwrite lscript.ld
-
+  -  Click On File->Import
+  -  Browse to CNDK root directory, this will list down all the projects in CNDK directory
+  -  Choose 'pcp_DirectIO' and 'DigitalIO-Init' projects for Digital IO project
+     or
+  -  Choose 'pcp_PDI' and 'ap_PDI' projects for Dual processor (AP-PCP) project
+  -  Click Ok
+  -  Build projects
 
 - Create the BOOT.BIN file that contains the bit file, FSBL, cpu0 bootloop elf, and microblaze elf
   - open an ISE Design Suite Command prompt
@@ -67,4 +68,9 @@ Hot to Do
   - plug the SD card into the zc702 then power up the board.
   - Powerlink will start executes :-) 
  **************************************************************************************          
+
+
+Aditional Notes:
+ For Dual processor design Node Switches are not present FPGA design due to board limitation, Application engineer has to Set the NodeID in Application processor
+
         
