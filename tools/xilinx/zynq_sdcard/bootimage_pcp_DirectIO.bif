@@ -8,9 +8,9 @@
 the_ROM_image:
 {
 
-	[bootloader]        zynq_fsbl_0.elf
-                           system.bit
-	                    ap_cpu.elf
+	[bootloader]        zynq_fsbl_digitalIO.elf
+                        system.bit
+	                    digitalIO-Init.elf
 	[load = 0x30000000] directIO.bin
 
   //write start vector address 0xFFFFFFF0 to 0xFFFFFF00

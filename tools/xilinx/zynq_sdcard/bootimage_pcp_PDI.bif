@@ -8,7 +8,7 @@
 the_ROM_image:
 {
 
-	[bootloader]        zynq_fsbl_0.elf
+	[bootloader]        zynq_fsbl_dualProcessor.elf
                         system.bit
 	                    ap_pdi.elf
 	[load = 0x30000000] pcp_PDI.bin
