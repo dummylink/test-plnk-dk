@@ -96,6 +96,7 @@ change_platform_files()
         echo "Cleanup '.' directory..."
         rm -rf $1/tools/xilinx $1/release.sh
         rm -rf $1/xil_*.txt
+		rm -rf $1/readme_zynq.txt
         mv $1/alt_readme.txt $1/readme.txt
         mv $1/alt_revision.txt $1/revision.txt
         mv $1/alt_update.txt $1/update.txt
@@ -106,6 +107,8 @@ change_platform_files()
         cp -rf $1/apps/ap_PDI/altera/.??* $1/apps/ap_PDI/
         rm -rf $1/apps/ap_PDI/altera/ $1/apps/ap_PDI/xilinx/
         rm -rf $1/apps/ap_PDI/target/xilinx_microblaze/
+		rm -rf $1/apps/ap_PDI/target/Zynq_ARM_CortexA9/
+		rm -rf $1/apps/zynq
 
         # cleanup pcp_PDI program
         echo "Cleanup $1/powerlink/pcp_PDI/ program..."
